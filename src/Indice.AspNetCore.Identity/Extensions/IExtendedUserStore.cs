@@ -6,9 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity
 {
-    /// <summary>
-    /// Custom <see cref="IUserStore{T}"/> that provides password history features.
-    /// </summary>
+    /// <summary>Custom <see cref="IUserStore{T}"/> that provides password history features.</summary>
     /// <typeparam name="TUser">The user type.</typeparam>
     public interface IExtendedUserStore<TUser> where TUser : User
     {
@@ -27,23 +25,17 @@ namespace Indice.AspNetCore.Identity
         /// every operation that is applied to the email is also applied in the username. For example changing the email will also change the username.
         /// </summary>
         bool? EmailAsUserName { get; }
-        /// <summary>
-        /// Sets the password expiration policy for the specified user.
-        /// </summary>
+        /// <summary>Sets the password expiration policy for the specified user.</summary>
         /// <param name="user">The user whose password expiration policy to set.</param>
         /// <param name="policy">The password expiration policy to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken);
-        /// <summary>
-        /// Sets the <see cref="User.PasswordExpired"/> property of the user.
-        /// </summary>
+        /// <summary>Sets the <see cref="User.PasswordExpired"/> property of the user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="changePassword">The value to use.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken);
-        /// <summary>
-        /// Sets the <see cref="User.LastSignInDate"/> property of the user.
-        /// </summary>
+        /// <summary>Sets the <see cref="User.LastSignInDate"/> property of the user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>

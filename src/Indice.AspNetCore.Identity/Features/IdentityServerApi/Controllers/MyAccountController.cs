@@ -340,7 +340,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>Update the password expiration policy.</summary>
+        /// <summary>Updates the password expiration policy.</summary>
         /// <param name="request">Contains info about the chosen expiration policy.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
@@ -354,6 +354,27 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             await _userManager.SetPasswordExpirationPolicyAsync(user, request.Policy);
             return NoContent();
+        }
+
+        /// <summary>Updates the max devices count.</summary>
+        /// <param name="request">Models the request to update the max devices number for the user.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("my/account/max-devices-count")]
+        [ProducesResponseType(statusCode: StatusCodes.Status202Accepted, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> UpdateMaxDevicesCount([FromBody] UpdateMaxDevicesCountRequest request) {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) {
+                return NotFound();
+            }
+            var result = await _userManager.SetMaxDevicesCountAsync(user, request.Count);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            return Accepted();
         }
 
         /// <summary>Gets the claims of the user.</summary>

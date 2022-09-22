@@ -15,9 +15,7 @@ namespace Indice.AspNetCore.Identity.Data
     /// <inheritdoc/>
     public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, User, Role>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="ExtendedUserStore"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ExtendedUserStore"/>.</summary>
         /// <param name="context">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="describer">Service to enable localization for application facing identity errors.</param>
@@ -27,9 +25,7 @@ namespace Indice.AspNetCore.Identity.Data
     /// <inheritdoc/>
     public class ExtendedUserStore<TContext> : ExtendedUserStore<TContext, User, IdentityRole> where TContext : IdentityDbContext<User, IdentityRole>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="ExtendedUserStore"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ExtendedUserStore"/>.</summary>
         /// <param name="context">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="describer">Service to enable localization for application facing identity errors.</param>
@@ -42,9 +38,7 @@ namespace Indice.AspNetCore.Identity.Data
         where TUser : User
         where TRole : IdentityRole
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="ExtendedUserStore{TContext, TUser, TRole}"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ExtendedUserStore{TContext, TUser, TRole}"/>.</summary>
         /// <param name="context">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="describer">Service to enable localization for application facing identity errors.</param>
@@ -55,15 +49,21 @@ namespace Indice.AspNetCore.Identity.Data
                                        configuration.GetSection(nameof(PasswordOptions)).GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy));
             EmailAsUserName = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}").GetValue<bool?>(nameof(EmailAsUserName)) ??
                               configuration.GetSection(nameof(UserOptions)).GetValue<bool?>(nameof(EmailAsUserName));
+            MaxDevicesCount = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}").GetValue<int?>(nameof(MaxDevicesCount)) ??
+                              configuration.GetSection(nameof(UserOptions)).GetValue<int?>(nameof(MaxDevicesCount));
         }
 
-        private DbSet<UserDevice> UserDevices => Context.Set<UserDevice>();
+        private DbSet<UserDevice> Devices => Context.Set<UserDevice>();
+        /// <inheritdoc/>
+        public IQueryable<UserDevice> UserDevices => Devices.AsQueryable();
         /// <inheritdoc/>
         public int? PasswordHistoryLimit { get; protected set; }
         /// <inheritdoc/>
         public PasswordExpirationPolicy? PasswordExpirationPolicy { get; protected set; }
         /// <inheritdoc/>
         public bool? EmailAsUserName { get; protected set; }
+        /// <inheritdoc/>
+        public int? MaxDevicesCount { get; protected set; }
 
         /// <inheritdoc/>
         public override async Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default) {
@@ -181,7 +181,15 @@ namespace Indice.AspNetCore.Identity.Data
             if (device is null) {
                 throw new ArgumentNullException(nameof(device));
             }
-            UserDevices.Add(new UserDevice {
+            var numberOfUserDevices = await Devices.CountAsync(x => x.UserId == user.Id);
+            var maxDevicesCount = user.MaxDevicesCount ?? MaxDevicesCount ?? int.MaxValue;
+            if (numberOfUserDevices == maxDevicesCount) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "MaxNumberOfDevices",
+                    Description = "You have reached the maximum number of registered devices."
+                });
+            }
+            Devices.Add(new UserDevice {
                 Data = device.Data,
                 DateCreated = device.DateCreated ?? DateTimeOffset.UtcNow,
                 DeviceId = device.DeviceId,
@@ -202,7 +210,7 @@ namespace Indice.AspNetCore.Identity.Data
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            return await UserDevices.Where(device => device.UserId == user.Id).Select(device => new Device {
+            return await Devices.Where(device => device.UserId == user.Id).Select(device => new Device {
                 Data = device.Data,
                 DateCreated = device.DateCreated,
                 DeviceId = device.DeviceId,
@@ -226,7 +234,7 @@ namespace Indice.AspNetCore.Identity.Data
             if (string.IsNullOrWhiteSpace(deviceId)) {
                 throw new ArgumentNullException(nameof(deviceId));
             }
-            var device = await UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
+            var device = await Devices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
             if (device is not null) {
                 return new Device {
                     Data = device.Data,
@@ -257,7 +265,7 @@ namespace Indice.AspNetCore.Identity.Data
                     Description = "Device id is missing."
                 });
             }
-            var foundDevice = await UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
+            var foundDevice = await Devices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
             if (foundDevice is not null) {
                 foundDevice.Data = device.Data;
                 foundDevice.IsPushNotificationsEnabled = foundDevice.IsPushNotificationsEnabled;
@@ -269,6 +277,50 @@ namespace Indice.AspNetCore.Identity.Data
                 return IdentityResult.Success;
             }
             return await AddDeviceAsync(user, device, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IdentityResult> SetMaxDevicesCountAsync(TUser user, int maxDevicesCount, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (maxDevicesCount < 1) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "InsufficientNumberOfDevices",
+                    Description = "User must have at least 1 device."
+                });
+            }
+            if (MaxDevicesCount.HasValue && maxDevicesCount > MaxDevicesCount.Value) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "LargeNumberOfDevices",
+                    Description = $"Cannot set max number to {maxDevicesCount}."
+                });
+            }
+            var numberOfUserDevices = await Devices.CountAsync(x => x.UserId == user.Id);
+            if (numberOfUserDevices > maxDevicesCount) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "LargeNumberOfDevices",
+                    Description = $"User already has {numberOfUserDevices} devices. Cannot set max number to {maxDevicesCount}."
+                });
+            }
+            user.MaxDevicesCount = maxDevicesCount;
+            return IdentityResult.Success;
+        }
+
+        /// <inheritdoc/>
+        public async Task RemoveDeviceAsync(TUser user, string deviceId, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var device = await Devices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
+            if (device is not null) {
+                Devices.Remove(device);
+                await SaveChanges(cancellationToken);
+            }
         }
     }
 }

@@ -16,17 +16,13 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity
 {
-    /// <summary>
-    /// Provides the APIs for managing user in a persistence store.
-    /// </summary>
+    /// <summary>Provides the APIs for managing user in a persistence store.</summary>
     /// <typeparam name="TUser">The type encapsulating a user.</typeparam>
     public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     {
         private readonly IPlatformEventService _eventService;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
         /// <param name="userStore">The persistence store the manager will operate over.</param>
         /// <param name="identityMessageDescriber">Provides an extensibility point for localizing messages used inside the package.</param>
         /// <param name="optionsAccessor">The accessor used to access the <see cref="IdentityOptions"/>.</param>
@@ -55,19 +51,15 @@ namespace Indice.AspNetCore.Identity
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         }
 
-        /// <summary>
-        /// Gets a flag indicating whether the backing user store supports user name that are the same as emails
-        /// </summary>
+        /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
         public bool SupportsEmailAsUserName => GetUserStore()?.EmailAsUserName == true;
+        /// <summary>Provides an extensibility point for localizing messages used inside the package.</summary>
+        public IdentityMessageDescriber MessageDescriber { get; }
+        /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
+        public IQueryable<UserDevice> UserDevices => GetDeviceStore()?.UserDevices;
 
-        /// <summary>
-        /// Provides an extensibility point for localizing messages used inside the package.
-        /// </summary>
-        public IdentityMessageDescriber MessageDescriber { get; set; }
 
-        /// <summary>
-        /// Sets the password expiration policy for the specified user.
-        /// </summary>
+        /// <summary>Sets the password expiration policy for the specified user.</summary>
         /// <param name="user">The user whose password expiration policy to set.</param>
         /// <param name="policy">The password expiration policy to set.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -83,9 +75,7 @@ namespace Indice.AspNetCore.Identity
             await UpdateAsync(user);
         }
 
-        /// <summary>
-        /// Sets the <see cref="User.PasswordExpired"/> property of the user.
-        /// </summary>
+        /// <summary>Sets the <see cref="User.PasswordExpired"/> property of the user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="changePassword">The value to use.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -100,9 +90,7 @@ namespace Indice.AspNetCore.Identity
             await UpdateAsync(user);
         }
 
-        /// <summary>
-        /// Sets the <see cref="User.LastSignInDate"/> property of the user.
-        /// </summary>
+        /// <summary>Sets the <see cref="User.LastSignInDate"/> property of the user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -119,16 +107,11 @@ namespace Indice.AspNetCore.Identity
             await UpdateAsync(user);
         }
 
-        /// <summary>
-        /// Creates the specified <paramref name="user"/> in the backing store with given password, as an asynchronous operation.
-        /// </summary>
+        /// <summary>Creates the specified <paramref name="user"/> in the backing store with given password, as an asynchronous operation.</summary>
         /// <param name="user">The user to create.</param>
         /// <param name="password">The password for the user to hash and store.</param>
         /// <param name="validatePassword">Whether to validate the password.</param>
-        /// <returns>
-        /// The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/>
-        /// of the operation.
-        /// </returns>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
         /// <remarks>This overload is used for admin reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
         public async Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword) {
             ThrowIfDisposed();
@@ -145,9 +128,7 @@ namespace Indice.AspNetCore.Identity
             return await CreateAsync(user);
         }
 
-        /// <summary>
-        /// Reset's a user's password.
-        /// </summary>
+        /// <summary>Reset's a user's password.</summary>
         /// <param name="user">The user.</param>
         /// <param name="newPassword">The new password.</param>
         /// <param name="validatePassword">Whether to validate the password.</param>
@@ -162,8 +143,7 @@ namespace Indice.AspNetCore.Identity
             if (!result.Succeeded) {
                 return result;
             }
-            await SetLockoutEndDateAsync(user, null);
-            return await UpdateUserAsync(user);
+            return await SetLockoutEndDateAsync(user, null);
         }
 
         /// <inheritdoc />
@@ -173,16 +153,12 @@ namespace Indice.AspNetCore.Identity
                 return result;
             }
             if (await IsLockedOutAsync(user)) {
-                await SetLockoutEndDateAsync(user, null);
-                return await UpdateUserAsync(user);
+                return await SetLockoutEndDateAsync(user, null);
             }
             return result;
         }
 
-        /// <summary>
-        /// Adds the developer-totp claim to the provided user and provides a random 6-digit code.
-        /// If the user is not a member of the 'Developer' role, it is also added automatically.
-        /// </summary>
+        /// <summary>Adds the developer-totp claim to the provided user and provides a random 6-digit code. If the user is not a member of the 'Developer' role, it is also added automatically.</summary>
         /// <param name="user">The user.</param>
         public async Task<IdentityResult> AddDeveloperTotpAsync(TUser user) {
             var isDeveloper = await IsInRoleAsync(user, BasicRoleNames.Developer);
@@ -203,9 +179,7 @@ namespace Indice.AspNetCore.Identity
             return result;
         }
 
-        /// <summary>
-        /// Replaces any claims with the same claim type on the specified user with the newClaim. 
-        /// </summary>
+        /// <summary>Replaces any claims with the same claim type on the specified user with the newClaim.</summary>
         /// <param name="user">The user to replace the claim on.</param>
         /// <param name="claimType">The claim type to replace.</param>
         /// <param name="claimValue"></param>
@@ -235,9 +209,7 @@ namespace Indice.AspNetCore.Identity
             return result;
         }
 
-        /// <summary>
-        /// Adds a new device to the specified user.
-        /// </summary>
+        /// <summary>Adds a new device to the specified user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="device">The device to create.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -246,18 +218,10 @@ namespace Indice.AspNetCore.Identity
         public Task<IdentityResult> AddDeviceAsync(TUser user, Device device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             var deviceStore = GetDeviceStore();
-            if (device is null) {
-                throw new ArgumentNullException(nameof(device));
-            }
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
             return deviceStore.AddDeviceAsync(user, device, cancellationToken);
         }
 
-        /// <summary>
-        /// Updates the given device. If the device does not exists, it is automatically created.
-        /// </summary>
+        /// <summary>Updates the given device. If the device does not exists, it is automatically created.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="device">The device to update (or create).</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -266,18 +230,10 @@ namespace Indice.AspNetCore.Identity
         public Task<IdentityResult> UpdateDeviceAsync(TUser user, Device device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             var deviceStore = GetDeviceStore();
-            if (device is null) {
-                throw new ArgumentNullException(nameof(device));
-            }
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
             return deviceStore.UpdateDeviceAsync(user, device, cancellationToken);
         }
 
-        /// <summary>
-        /// Get the devices registed by the specified user.
-        /// </summary>
+        /// <summary>Get the devices registed by the specified user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
@@ -285,15 +241,26 @@ namespace Indice.AspNetCore.Identity
         public Task<IList<Device>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             var deviceStore = GetDeviceStore();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
             return deviceStore.GetDevicesAsync(user, cancellationToken);
         }
 
-        /// <summary>
-        /// Get the devices registered by the specified user.
-        /// </summary>
+        /// <summary>Sets the maximum number of devices a user can register.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="maxDevicesCount">The number of devices.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
+        public async Task<IdentityResult> SetMaxDevicesCountAsync(TUser user, int maxDevicesCount, CancellationToken cancellationToken = default) {
+            ThrowIfDisposed();
+            var deviceStore = GetDeviceStore();
+            var result = await deviceStore.SetMaxDevicesCountAsync(user, maxDevicesCount, cancellationToken);
+            if (!result.Succeeded) {
+                return result;
+            }
+            return await UpdateAsync(user);
+        }
+
+        /// <summary>Get the devices registered by the specified user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="deviceId">The id of the device to look for.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -308,16 +275,29 @@ namespace Indice.AspNetCore.Identity
             return deviceStore.GetDeviceByIdAsync(user, deviceId, cancellationToken);
         }
 
+        /// <summary>Permanently deletes the specified device from the user.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="deviceId">The id of the device to look for.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user device, if any.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="deviceId"/> parameters are null.</exception>
+        public Task RemoveDeviceAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
+            ThrowIfDisposed();
+            var deviceStore = GetDeviceStore();
+            return deviceStore.RemoveDeviceAsync(user, deviceId, cancellationToken);
+        }
+
         private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {
             var cast = Store as IExtendedUserStore<TUser>;
-            if (throwOnFail && cast == null) {
+            if (throwOnFail && cast is null) {
                 throw new NotSupportedException($"Store does not implement {nameof(IExtendedUserStore<TUser>)}.");
             }
             return cast;
         }
 
-        private IUserDeviceStore<TUser> GetDeviceStore() {
-            if (Store is not IUserDeviceStore<TUser> cast) {
+        private IUserDeviceStore<TUser> GetDeviceStore(bool throwOnFail = true) {
+            var cast = Store as IUserDeviceStore<TUser>;
+            if (throwOnFail && cast is null) {
                 throw new NotSupportedException($"Store does not implement {nameof(IUserDeviceStore<TUser>)}.");
             }
             return cast;
