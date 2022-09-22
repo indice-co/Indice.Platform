@@ -16,7 +16,7 @@ namespace Indice.Features.Cases.Workflows.Activities
     [Activity(
         Category = "Cases",
         DisplayName = "Send Message",
-        Description = "Send a checkpoint change and/or a comment and/or an attachment to a case. The current context user will be used.",
+        Description = "Send a checkpoint change and/or a comment and/or an attachment and/or data update to a case. The current context user will be used.",
         Outcomes = new[] { OutcomeNames.Done, "Failed" }
     )]
     internal class SendMessageActivity : BaseCaseActivity
