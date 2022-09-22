@@ -165,6 +165,7 @@ namespace Indice.Features.Cases.Services
                 .Include(c => c.CaseType)
                 .Include(c => c.PublicCheckpoint)
                 .Include(c => c.Attachments)
+                .Include(c => c.Approvals)
                 .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId);
 
             if (@case is null) {
