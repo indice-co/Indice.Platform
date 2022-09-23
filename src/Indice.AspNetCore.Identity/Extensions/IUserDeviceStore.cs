@@ -15,19 +15,21 @@ namespace Indice.AspNetCore.Identity
         /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
         public IQueryable<UserDevice> UserDevices { get; }
         /// <summary>The maximum number of devices a user can register.</summary>
-        public int? MaxDevicesCount { get; }
+        public int? MaxAllowedRegisteredDevices { get; }
+        /// <summary>The default number of devices a user can register.</summary>
+        public int? DefaultAllowedRegisteredDevices { get; }
         /// <summary>Adds a new device to the specified user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="device">The device to create.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
         Task<IdentityResult> AddDeviceAsync(TUser user, Device device, CancellationToken cancellationToken);
-        /// <summary>Get the devices registed by the specified user.</summary>
+        /// <summary>Get the devices registered by the specified user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
         Task<IList<Device>> GetDevicesAsync(TUser user, CancellationToken cancellationToken);
-        /// <summary>Get the device registed by the specified user, using it's unique id.</summary>
+        /// <summary>Get the device registered by the specified user, using it's unique id.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="deviceId">The id of the device to look for.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>

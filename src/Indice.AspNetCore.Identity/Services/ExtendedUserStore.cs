@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
+using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -49,8 +51,13 @@ namespace Indice.AspNetCore.Identity.Data
                                        configuration.GetSection(nameof(PasswordOptions)).GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy));
             EmailAsUserName = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}").GetValue<bool?>(nameof(EmailAsUserName)) ??
                               configuration.GetSection(nameof(UserOptions)).GetValue<bool?>(nameof(EmailAsUserName));
-            MaxDevicesCount = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}").GetValue<int?>(nameof(MaxDevicesCount)) ??
-                              configuration.GetSection(nameof(UserOptions)).GetValue<int?>(nameof(MaxDevicesCount));
+            MaxAllowedRegisteredDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(MaxAllowedRegisteredDevices)) ??
+                                          configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxAllowedRegisteredDevices));
+            DefaultAllowedRegisteredDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(DefaultAllowedRegisteredDevices)) ??
+                                              configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(DefaultAllowedRegisteredDevices));
+            if (DefaultAllowedRegisteredDevices.HasValue && MaxAllowedRegisteredDevices.HasValue && DefaultAllowedRegisteredDevices.Value > MaxAllowedRegisteredDevices.Value) {
+                throw new ApplicationException("Value of setting DefaultAllowedRegisteredDevices cannot exceed the value of MaxAllowedRegisteredDevices.");
+            }
         }
 
         private DbSet<UserDevice> Devices => Context.Set<UserDevice>();
@@ -63,7 +70,9 @@ namespace Indice.AspNetCore.Identity.Data
         /// <inheritdoc/>
         public bool? EmailAsUserName { get; protected set; }
         /// <inheritdoc/>
-        public int? MaxDevicesCount { get; protected set; }
+        public int? MaxAllowedRegisteredDevices { get; protected set; }
+        /// <inheritdoc/>
+        public int? DefaultAllowedRegisteredDevices { get; protected set; }
 
         /// <inheritdoc/>
         public override async Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default) {
@@ -181,9 +190,15 @@ namespace Indice.AspNetCore.Identity.Data
             if (device is null) {
                 throw new ArgumentNullException(nameof(device));
             }
+            var userClaims = await GetClaimsAsync(user, cancellationToken);
+            var maxDevicesCountClaim = userClaims.FirstOrDefault(x => x.Type == BasicClaimTypes.MaxDevicesCount)?.Value;
+            int? userMaxDevicesCount = null;
+            if (maxDevicesCountClaim is not null && int.TryParse(maxDevicesCountClaim, out var parsedUserMaxDevicesClaim)) {
+                userMaxDevicesCount = parsedUserMaxDevicesClaim;
+            }
+            var maxDevicesCount = userMaxDevicesCount ?? DefaultAllowedRegisteredDevices ?? int.MaxValue;
             var numberOfUserDevices = await Devices.CountAsync(x => x.UserId == user.Id);
-            var maxDevicesCount = user.MaxDevicesCount ?? MaxDevicesCount ?? int.MaxValue;
-            if (numberOfUserDevices == maxDevicesCount) {
+            if (maxDevicesCount == numberOfUserDevices) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = "MaxNumberOfDevices",
                     Description = "You have reached the maximum number of registered devices."
@@ -292,10 +307,10 @@ namespace Indice.AspNetCore.Identity.Data
                     Description = "User must have at least 1 device."
                 });
             }
-            if (MaxDevicesCount.HasValue && maxDevicesCount > MaxDevicesCount.Value) {
+            if (MaxAllowedRegisteredDevices.HasValue && maxDevicesCount > MaxAllowedRegisteredDevices.Value) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = "LargeNumberOfDevices",
-                    Description = $"Cannot set max number to {maxDevicesCount}."
+                    Description = $"Cannot set max number to {maxDevicesCount}. Maximum value can be {MaxAllowedRegisteredDevices}."
                 });
             }
             var numberOfUserDevices = await Devices.CountAsync(x => x.UserId == user.Id);
@@ -305,7 +320,9 @@ namespace Indice.AspNetCore.Identity.Data
                     Description = $"User already has {numberOfUserDevices} devices. Cannot set max number to {maxDevicesCount}."
                 });
             }
-            user.MaxDevicesCount = maxDevicesCount;
+            await AddClaimsAsync(user, new List<Claim> {
+                new Claim(BasicClaimTypes.MaxDevicesCount, maxDevicesCount.ToString())
+            }, cancellationToken); ;
             return IdentityResult.Success;
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
@@ -15,10 +16,15 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints.Result
 
         public CompleteRegistrationResponse Response { get; }
 
-        public Task ExecuteAsync(HttpContext context) {
-            context.Response.StatusCode = StatusCodes.Status201Created;
+        public async Task ExecuteAsync(HttpContext context) {
             context.Response.SetNoCache();
-            return Task.CompletedTask;
+            if (Response.Errors.Any()) {
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                var response = Response.Errors.ToValidationProblemDetails();
+                await context.Response.WriteJsonAsync(response);
+                return;
+            }
+            context.Response.StatusCode = StatusCodes.Status201Created;
         }
     }
 }

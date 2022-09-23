@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
 {
@@ -26,7 +27,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         }
 
         /// <inheritdoc />
-        public Task CreateDevice(UserDevice device) {
+        public Task<IdentityResult> CreateDevice(UserDevice device) {
             if (device == null) {
                 throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
             }
@@ -35,7 +36,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
                 throw new ArgumentException("Device already exists.");
             }
             _userDevices.Add(device);
-            return Task.CompletedTask;
+            return Task.FromResult(IdentityResult.Success);
         }
 
         /// <inheritdoc />

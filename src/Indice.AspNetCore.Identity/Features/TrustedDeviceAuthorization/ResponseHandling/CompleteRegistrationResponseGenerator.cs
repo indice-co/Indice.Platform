@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Services;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
 {
@@ -34,11 +37,13 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
                 PublicKey = validationResult.PublicKey,
                 UserId = validationResult.UserId
             };
+            var errors = Enumerable.Empty<IdentityError>();
             switch (validationResult.InteractionMode) {
                 case InteractionMode.Pin when validationResult.Device == null:
                     var password = DevicePasswordHasher.HashPassword(device, validationResult.Pin);
                     device.Password = password;
-                    await UserDeviceStore.CreateDevice(device);
+                    var result = await UserDeviceStore.CreateDevice(device);
+                    errors = result.Errors;
                     break;
                 case InteractionMode.Pin when validationResult.Device != null:
                     password = DevicePasswordHasher.HashPassword(device, validationResult.Pin);
@@ -52,7 +57,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
                     await UserDeviceStore.UpdateDevicePublicKey(device, validationResult.PublicKey);
                     break;
             }
-            return new CompleteRegistrationResponse();
+            return new CompleteRegistrationResponse(errors);
         }
     }
 }

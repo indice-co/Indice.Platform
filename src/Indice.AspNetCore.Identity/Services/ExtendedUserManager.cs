@@ -233,7 +233,7 @@ namespace Indice.AspNetCore.Identity
             return deviceStore.UpdateDeviceAsync(user, device, cancellationToken);
         }
 
-        /// <summary>Get the devices registed by the specified user.</summary>
+        /// <summary>Get the devices registered by the specified user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>

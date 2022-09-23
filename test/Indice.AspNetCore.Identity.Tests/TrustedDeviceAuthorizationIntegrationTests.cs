@@ -19,7 +19,9 @@ using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
@@ -153,6 +155,11 @@ namespace Indice.AspNetCore.Identity.Tests
         public TrustedDeviceAuthorizationIntegrationTests(ITestOutputHelper output) {
             _output = output;
             var builder = new WebHostBuilder();
+            builder.ConfigureAppConfiguration(builder => {
+                builder.AddInMemoryCollection(new List<KeyValuePair<string, string>> { 
+                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:MaxAllowedRegisteredDevices", "0")
+                });
+            });
             builder.ConfigureServices(services => {
                 services.AddSingleton<ITotpService, MockTotpService>();
                 services.AddIdentityServer(options => {

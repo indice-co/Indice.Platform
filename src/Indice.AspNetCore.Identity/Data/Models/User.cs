@@ -45,8 +45,6 @@ namespace Indice.AspNetCore.Identity.Data.Models
         public bool Blocked { get; set; }
         /// <summary>Indicates whether the user must provide a new password upon next login.</summary>
         public bool PasswordExpired { get; set; }
-        /// <summary>The maximum number of devices a user can register.</summary>
-        public int? MaxDevicesCount { get; set; }
         /// <summary>Navigation property for the roles this user belongs to. This setting takes precedence over <see cref="PasswordExpirationPolicy"/>.</summary>
         public virtual ICollection<IdentityUserRole<string>> Roles { get; } = new List<IdentityUserRole<string>>();
         /// <summary>Navigation property for the claims this user possesses.</summary>
