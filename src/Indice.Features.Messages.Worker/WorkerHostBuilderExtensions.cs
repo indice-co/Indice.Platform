@@ -25,14 +25,14 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure"></param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilder AddMessageJobs(this WorkerHostBuilder workerHostBuilder, Action<MessageJobsOptions> configure = null) {
-            var options = new MessageJobsOptions {
-                Services = workerHostBuilder.Services
-            };
-            configure?.Invoke(options);
-            options.Services = null;
-            workerHostBuilder.AddJobHandlers();
             var serviceProvider = workerHostBuilder.Services.BuildServiceProvider();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            var options = new MessageJobsOptions {
+                Services = workerHostBuilder.Services,
+                Configuration = configuration
+            };
+            configure?.Invoke(options);
+            workerHostBuilder.AddJobHandlers();
             workerHostBuilder.Services.AddCoreServices(options, configuration);
             workerHostBuilder.Services.AddJobHandlerServices();
             return workerHostBuilder;
@@ -82,8 +82,10 @@ namespace Microsoft.Extensions.DependencyInjection
                 serviceLifetime: ServiceLifetime.Transient
             );
             services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
-            services.TryAddTransient<IEmailService, EmailServiceNoop>();
-            services.TryAddTransient<IContactResolver, ContactResolverNoop>();
+            services.AddEmailServiceNoop();
+            services.AddPushNotificationServiceNoop();
+            services.AddSmsServiceNoop();
+            services.TryAddSingleton<IContactResolver, ContactResolverNoop>();
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
             services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
             services.TryAddTransient<IDistributionListService, DistributionListService>();
