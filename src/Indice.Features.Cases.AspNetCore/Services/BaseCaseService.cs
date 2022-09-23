@@ -94,7 +94,11 @@ namespace Indice.Features.Cases.Services
                 Data = caseData?.Data,
                 AssignedToName = @case.AssignedTo?.Name,
                 Channel = @case.Channel,
-                Draft = @case.Draft
+                Draft = @case.Draft,
+                Approvers = @case.Approvals
+                    .Where(p => p.Committed && p.Action == Approval.Approve)
+                    .Select(p => p.CreatedBy)
+                    .OrderBy(p => p.When)
             };
 
             return caseDetails;
