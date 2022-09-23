@@ -43,7 +43,7 @@ namespace Indice.Api
                     .AddDbContext<ApiDbContext>(builder => {
                         builder.UseSqlServer(Configuration.GetConnectionString("SettingsDb"));
                     });
-            services.AddWorkPublisherConfig(Configuration);
+            services.AddWorkerHostConfig(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
