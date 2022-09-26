@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Indice GovGr KYC Integration</Description>
+    <Copyright>Copyright (c) 2022 Indice</Copyright>
+    <TargetFrameworks>netcoreapp3.1;net6.0</TargetFrameworks>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <RootNamespace>Indice.Integration.EGov.Kyc</RootNamespace>
+    <LangVersion>Latest</LangVersion>
+    <AssemblyName>Indice.Integration.EGov.Kyc</AssemblyName>
+    <AssemblyTitle>Indice.Integration.EGov.Kyc</AssemblyTitle>
+    <Authors>Christos Asvestopoulos</Authors>
+    <VersionPrefix>6.1.0</VersionPrefix>
+    <!--<VersionSuffix>beta-12</VersionSuffix>-->
+  </PropertyGroup>
+
+  <PropertyGroup Label="Package">
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <Company>Indice</Company>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageIcon>icon-310.png</PackageIcon>
+    <PackageId>Indice.Integration.EGov.Kyc</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+    <PackageReleaseNotes>Initial release for GovGr Kyc Integration.</PackageReleaseNotes>
+    <PackageTags>AspNetCore;GovGr;KYC</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="IdentityModel" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.29" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="3.1.29" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Services\KycScopeService.en.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>KycScopeService.en.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\Services\KycScopeService.el.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>KycScopeService.el.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
