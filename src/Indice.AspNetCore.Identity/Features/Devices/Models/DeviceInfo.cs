@@ -1,6 +1,5 @@
 ﻿using System;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Types;
 
 namespace Indice.AspNetCore.Identity.Api.Models
@@ -26,20 +25,6 @@ namespace Indice.AspNetCore.Identity.Api.Models
         public DateTimeOffset? LastSignInDate { get; set; }
         /// <summary>Extra metadata for the device.</summary>
         public dynamic Data { get; set; }
-
-        /// <summary>Creates a new instance of <see cref="DeviceInfo"/> from a <see cref="Device"/> object.</summary>
-        /// <param name="device">The device instance.</param>
-        public static DeviceInfo FromDevice(Device device) => new() {
-            Data = device.Data,
-            DateCreated = device.DateCreated.Value,
-            DeviceId = device.DeviceId,
-            IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
-            LastSignInDate = device.LastSignInDate,
-            Model = device.Model,
-            Name = device.Name,
-            OsVersion = device.OsVersion,
-            Platform = device.Platform
-        };
 
         /// <summary>Creates a new instance of <see cref="DeviceInfo"/> from a <see cref="UserDevice"/> object.</summary>
         /// <param name="device">The device instance.</param>

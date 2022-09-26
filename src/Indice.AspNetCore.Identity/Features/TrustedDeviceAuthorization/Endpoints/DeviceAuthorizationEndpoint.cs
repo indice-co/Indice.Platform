@@ -6,6 +6,7 @@ using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using IdentityServer4.ResponseHandling;
 using Indice.AspNetCore.Extensions;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints.Results;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
 using Microsoft.AspNetCore.Http;
@@ -19,9 +20,11 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
         public DeviceAuthorizationEndpoint(
             DeviceAuthorizationRequestValidator requestValidator,
             DeviceAuthorizationResponseGenerator responseGenerator,
-            ILogger<DeviceAuthorizationEndpoint> logger
+            ILogger<DeviceAuthorizationEndpoint> logger,
+            ExtendedUserManager<User> userManager
         ) {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             Request = requestValidator ?? throw new ArgumentNullException(nameof(requestValidator));
             Response = responseGenerator ?? throw new ArgumentNullException(nameof(responseGenerator));
         }
@@ -29,6 +32,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
         public DeviceAuthorizationRequestValidator Request { get; }
         public DeviceAuthorizationResponseGenerator Response { get; }
         public ILogger<DeviceAuthorizationEndpoint> Logger { get; }
+        public ExtendedUserManager<User> UserManager { get; }
 
         public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
             Logger.LogInformation($"[{nameof(DeviceAuthorizationEndpoint)}] Started processing trusted device authorization endpoint.");

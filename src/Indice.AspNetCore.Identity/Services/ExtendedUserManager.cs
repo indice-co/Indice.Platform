@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
@@ -35,16 +34,16 @@ namespace Indice.AspNetCore.Identity
         /// <param name="logger">The logger used to log messages, warnings and errors.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         public ExtendedUserManager(
-            IdentityErrorDescriber errors,
-            IdentityMessageDescriber identityMessageDescriber,
-            IEnumerable<IPasswordValidator<TUser>> passwordValidators,
-            IEnumerable<IUserValidator<TUser>> userValidators,
-            ILogger<ExtendedUserManager<TUser>> logger,
-            ILookupNormalizer keyNormalizer,
+            IUserStore<TUser> userStore,
             IOptionsSnapshot<IdentityOptions> optionsAccessor,
             IPasswordHasher<TUser> passwordHasher,
+            IEnumerable<IUserValidator<TUser>> userValidators,
+            IEnumerable<IPasswordValidator<TUser>> passwordValidators,
+            ILookupNormalizer keyNormalizer,
+            IdentityErrorDescriber errors,
             IServiceProvider services,
-            IUserStore<TUser> userStore,
+            ILogger<ExtendedUserManager<TUser>> logger,
+            IdentityMessageDescriber identityMessageDescriber,
             IPlatformEventService eventService
         ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
             MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
@@ -215,7 +214,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
-        public Task<IdentityResult> AddDeviceAsync(TUser user, Device device, CancellationToken cancellationToken = default) {
+        public Task<IdentityResult> AddDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             var deviceStore = GetDeviceStore();
             return deviceStore.AddDeviceAsync(user, device, cancellationToken);
@@ -227,7 +226,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
-        public Task<IdentityResult> UpdateDeviceAsync(TUser user, Device device, CancellationToken cancellationToken = default) {
+        public Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             var deviceStore = GetDeviceStore();
             return deviceStore.UpdateDeviceAsync(user, device, cancellationToken);
@@ -238,7 +237,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
-        public Task<IList<Device>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
+        public Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             var deviceStore = GetDeviceStore();
             return deviceStore.GetDevicesAsync(user, cancellationToken);
@@ -266,7 +265,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user device, if any.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="deviceId"/> parameters are null.</exception>
-        public Task<Device> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
+        public Task<UserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             var deviceStore = GetDeviceStore();
             if (user is null) {

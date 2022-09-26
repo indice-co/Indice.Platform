@@ -58,11 +58,11 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
             }
             // Get device that is operating, if any.
             var existingDevice = await UserDeviceStore.GetByDeviceId(requestValidationResult.DeviceId);
-            var isNewDeviceOrOwnedByUser = existingDevice == null || existingDevice.UserId.Equals(requestValidationResult.UserId, StringComparison.OrdinalIgnoreCase);
+            var isNewDeviceOrOwnedByUser = existingDevice == null || existingDevice.UserId.Equals(requestValidationResult.User.Id, StringComparison.OrdinalIgnoreCase);
             if (!isNewDeviceOrOwnedByUser) {
                 return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "Device does not belong to the this user.");
             }
-            requestValidationResult.SetDevice(existingDevice);
+            requestValidationResult.Device = existingDevice;
             // Create endpoint response.
             var response = await Response.Generate(requestValidationResult);
             Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Trusted device authorization endpoint success.");

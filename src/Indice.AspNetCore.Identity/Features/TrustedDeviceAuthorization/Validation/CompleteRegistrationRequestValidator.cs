@@ -30,22 +30,25 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             ILogger<CompleteRegistrationRequestValidator> logger,
             ISystemClock systemClock,
             ITokenValidator tokenValidator,
-            ITotpService totpService
+            ITotpService totpService,
+            ExtendedUserManager<User> userManager
         ) : base(clientStore, tokenValidator) {
             CodeChallengeStore = codeChallengeStore;
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             SystemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
             TotpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
+            UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         public IAuthorizationCodeChallengeStore CodeChallengeStore { get; }
         public ILogger<CompleteRegistrationRequestValidator> Logger { get; }
         public ISystemClock SystemClock { get; }
         public ITotpService TotpService { get; }
+        public ExtendedUserManager<User> UserManager { get; }
 
         public override async Task<CompleteRegistrationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
             Logger.LogDebug($"[{nameof(CompleteRegistrationRequestValidator)}] Started trusted device registration request validation.");
-            // The access token needs to be valid and have at least the openid scope.
+            // The access token needs to be valid and have at least the OpenID scope.
             var tokenValidationResult = await TokenValidator.ValidateAccessTokenAsync(accessToken, IdentityServerConstants.StandardScopes.OpenId);
             if (tokenValidationResult.IsError) {
                 return Error(tokenValidationResult.Error, "Provided access token is not valid.");
@@ -128,6 +131,10 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             var claims = tokenValidationResult.Claims.Where(x => !Constants.ProtocolClaimsFilter.Contains(x.Type));
             var principal = Principal.Create("TrustedDevice", claims.ToArray());
             var userId = tokenValidationResult.Claims.Single(x => x.Type == JwtClaimTypes.Subject).Value;
+            var user = await UserManager.FindByIdAsync(userId);
+            if (user is null) {
+                return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "User does not exists.");
+            }
             // Validate OTP code, if needed.
             if (!otpAuthenticated) {
                 var totpResult = await TotpService.Verify(
@@ -151,7 +158,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 Principal = principal,
                 PublicKey = publicKey,
                 RequestedScopes = requestedScopes,
-                UserId = userId
+                User = user
             };
         }
 

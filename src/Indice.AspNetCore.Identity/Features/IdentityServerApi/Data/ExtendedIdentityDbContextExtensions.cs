@@ -23,6 +23,10 @@ namespace Indice.AspNetCore.Identity.Data
             where TUser : User, new()
             where TRole : Role, new() {
             const string adminEmail = "company@indice.gr";
+            var hasAdminAccount = dbContext.Users.Any(x => x.Email == adminEmail);
+            if (hasAdminAccount) {
+                return;
+            }
             var admin = new TUser {
                 Id = "ab9769f1-d532-4b7d-9922-3da003157ebd",
                 Admin = true,

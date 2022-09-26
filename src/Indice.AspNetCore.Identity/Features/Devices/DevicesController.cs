@@ -90,7 +90,7 @@ namespace Indice.AspNetCore.Identity.Api
             if (device == null) {
                 return NotFound();
             }
-            return Ok(DeviceInfo.FromDevice(device));
+            return Ok(DeviceInfo.FromUserDevice(device));
         }
 
         /// <summary>Creates a new device and optionally registers for push notifications.</summary>
@@ -121,7 +121,7 @@ namespace Indice.AspNetCore.Identity.Api
                     throw;
                 }
             }
-            device = new Device {
+            device = new UserDevice {
                 Data = request.Data,
                 DateCreated = DateTimeOffset.UtcNow,
                 DeviceId = request.DeviceId,
@@ -135,7 +135,7 @@ namespace Indice.AspNetCore.Identity.Api
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            var response = DeviceInfo.FromDevice(device);
+            var response = DeviceInfo.FromUserDevice(device);
             var @event = new DeviceCreatedEvent(response, SingleUserInfo.FromUser(user));
             await EventService.Publish(@event);
             return CreatedAtAction(nameof(GetDeviceById), new { deviceId = device.DeviceId }, response);
@@ -180,7 +180,7 @@ namespace Indice.AspNetCore.Identity.Api
             device.OsVersion = request.OsVersion;
             device.Data = request.Data;
             await UserManager.UpdateDeviceAsync(user, device);
-            var @event = new DeviceUpdatedEvent(DeviceInfo.FromDevice(device), SingleUserInfo.FromUser(user));
+            var @event = new DeviceUpdatedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
             await EventService.Publish(@event);
             return NoContent();
         }
@@ -207,7 +207,7 @@ namespace Indice.AspNetCore.Identity.Api
                 Logger.LogError("An exception occurred when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
             }
             await UserManager.RemoveDeviceAsync(user, deviceId);
-            var @event = new DeviceDeletedEvent(DeviceInfo.FromDevice(device), SingleUserInfo.FromUser(user));
+            var @event = new DeviceDeletedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
             await EventService.Publish(@event);
             return NoContent();
         }

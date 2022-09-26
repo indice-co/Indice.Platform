@@ -28,7 +28,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
 
         public override async Task<InitRegistrationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
             Logger.LogDebug($"{nameof(InitRegistrationRequestValidator)}: Started trusted device registration request validation.");
-            // The access token needs to be valid and have at least the openid scope.
+            // The access token needs to be valid and have at least the OpenID scope.
             var tokenValidationResult = await TokenValidator.ValidateAccessTokenAsync(accessToken, IdentityServerConstants.StandardScopes.OpenId);
             if (tokenValidationResult.IsError) {
                 return Error(tokenValidationResult.Error, "Provided access token is not valid.");

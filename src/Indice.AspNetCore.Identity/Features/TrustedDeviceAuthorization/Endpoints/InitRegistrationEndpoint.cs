@@ -26,8 +26,15 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints
 {
     internal class InitRegistrationEndpoint : IEndpointHandler
     {
-        public InitRegistrationEndpoint(BearerTokenUsageValidator tokenUsageValidator, ILogger<InitRegistrationEndpoint> logger, InitRegistrationRequestValidator requestValidator,
-            InitRegistrationResponseGenerator responseGenerator, IProfileService profileService, IResourceStore resourceStore, ITotpService totpService, IUserDeviceStore userDeviceStore,
+        public InitRegistrationEndpoint(
+            BearerTokenUsageValidator tokenUsageValidator,
+            ILogger<InitRegistrationEndpoint> logger,
+            InitRegistrationRequestValidator requestValidator,
+            InitRegistrationResponseGenerator responseGenerator,
+            IProfileService profileService,
+            IResourceStore resourceStore,
+            ITotpService totpService,
+            IUserDeviceStore userDeviceStore,
             IdentityMessageDescriber identityMessageDescriber
         ) {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));

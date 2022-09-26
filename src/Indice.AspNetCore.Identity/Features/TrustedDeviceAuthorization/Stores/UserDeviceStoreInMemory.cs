@@ -40,7 +40,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         }
 
         /// <inheritdoc />
-        public Task UpdateDevicePassword(UserDevice device, string passwordHash) {
+        public Task UpdatePassword(UserDevice device, string passwordHash) {
             if (device == null) {
                 throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
             }
@@ -50,7 +50,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         }
 
         /// <inheritdoc />
-        public Task UpdateDevicePublicKey(UserDevice device, string publicKey) {
+        public Task UpdatePublicKey(UserDevice device, string publicKey) {
             if (device == null) {
                 throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
             }

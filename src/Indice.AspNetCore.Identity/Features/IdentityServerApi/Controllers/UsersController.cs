@@ -599,7 +599,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             var devices = await _userManager.GetDevicesAsync(user);
             var response = devices.Select(device => new DeviceInfo {
                 Data = device.Data,
-                DateCreated = device.DateCreated.Value,
+                DateCreated = device.DateCreated,
                 DeviceId = device.DeviceId,
                 IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
                 LastSignInDate = device.LastSignInDate,

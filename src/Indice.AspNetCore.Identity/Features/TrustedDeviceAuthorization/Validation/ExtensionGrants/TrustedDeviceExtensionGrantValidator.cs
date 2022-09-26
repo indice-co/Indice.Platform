@@ -85,7 +85,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                     context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, publicKeyValidationResult.ErrorDescription);
                     return;
                 }
-                await UserDeviceStore.UpdateDevicePublicKey(device, publicKey);
+                await UserDeviceStore.UpdatePublicKey(device, publicKey);
                 // Grant access token.
                 context.Result = new GrantValidationResult(authorizationCode.Subject.GetSubjectId(), GrantType);
                 await UserDeviceStore.UpdateLastSignInDate(device);

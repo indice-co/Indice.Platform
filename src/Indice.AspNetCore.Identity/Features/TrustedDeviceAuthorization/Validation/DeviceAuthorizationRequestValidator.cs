@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4;
@@ -21,16 +20,19 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             ILogger<DeviceAuthorizationRequestValidator> logger,
             IResourceValidator resourceValidator,
             ITokenValidator tokenValidator,
-            IUserDeviceStore userDeviceStore
+            IUserDeviceStore userDeviceStore,
+            ExtendedUserManager<User> userManager
         ) : base(clientStore, tokenValidator) {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
-            ResourceValidator = resourceValidator;
+            UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            ResourceValidator = resourceValidator ?? throw new ArgumentNullException(nameof(resourceValidator));
         }
 
         public ILogger<DeviceAuthorizationRequestValidator> Logger { get; }
         public IResourceValidator ResourceValidator { get; }
         public IUserDeviceStore UserDeviceStore { get; }
+        public ExtendedUserManager<User> UserManager { get; }
 
         public async override Task<DeviceAuthorizationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
             Logger.LogDebug($"{nameof(DeviceAuthorizationRequestValidator)}: Started trusted device authorization request validation.");

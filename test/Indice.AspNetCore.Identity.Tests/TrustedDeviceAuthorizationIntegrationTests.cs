@@ -12,6 +12,9 @@ using IdentityModel.Client;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
+using Indice.AspNetCore.Identity.Api.Configuration;
+using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Tests.Models;
 using Indice.Configuration;
 using Indice.Security;
@@ -21,9 +24,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -149,6 +156,7 @@ namespace Indice.AspNetCore.Identity.Tests
         private readonly string _deviceRegistrationInitiationUrl = $"{BaseUrl}/my/devices/register/init";
         private readonly string _deviceRegistrationCompletionUrl = $"{BaseUrl}/my/devices/register/complete";
         private readonly string _deviceAuthorizationUrl = $"{BaseUrl}/my/devices/connect/authorize";
+        private readonly string _databaseName = "IdentityDb";
         private readonly HttpClient _httpClient;
         private readonly ITestOutputHelper _output;
 
@@ -156,23 +164,26 @@ namespace Indice.AspNetCore.Identity.Tests
             _output = output;
             var builder = new WebHostBuilder();
             builder.ConfigureAppConfiguration(builder => {
-                builder.AddInMemoryCollection(new List<KeyValuePair<string, string>> { 
-                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:MaxAllowedRegisteredDevices", "0")
+                builder.AddInMemoryCollection(new List<KeyValuePair<string, string>> {
+                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:MaxAllowedRegisteredDevices", "1")
                 });
             });
             builder.ConfigureServices(services => {
                 services.AddSingleton<ITotpService, MockTotpService>();
-                services.AddIdentityServer(options => {
-                    options.EmitStaticAudienceClaim = true;
-                })
-                .AddInMemoryIdentityResources(GetIdentityResources())
-                .AddInMemoryApiScopes(GetApiScopes())
-                .AddInMemoryApiResources(GetApiResources())
-                .AddInMemoryClients(GetClients())
-                .AddTestUsers(GetTestUsers())
-                .AddInMemoryPersistedGrants()
-                .AddTrustedDeviceAuthorization()
-                .AddDeveloperSigningCredential(persistKey: false);
+                services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(_databaseName));
+                services.AddIdentity<User, Role>()
+                        .AddUserManager<ExtendedUserManager<User>>()
+                        .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                        .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>();
+                services.AddIdentityServer(options => options.EmitStaticAudienceClaim = true)
+                        .AddInMemoryIdentityResources(GetIdentityResources())
+                        .AddInMemoryApiScopes(GetApiScopes())
+                        .AddInMemoryApiResources(GetApiResources())
+                        .AddInMemoryClients(GetClients())
+                        .AddAspNetIdentity<User>()
+                        .AddInMemoryPersistedGrants()
+                        .AddTrustedDeviceAuthorization(options => options.AddUserDeviceStoreEntityFrameworkCore())
+                        .AddDeveloperSigningCredential(persistKey: false);
             });
             builder.Configure(app => {
                 app.UseIdentityServer();
@@ -184,9 +195,56 @@ namespace Indice.AspNetCore.Identity.Tests
             };
         }
 
+        private static ExtendedUserManager<TUser> TestUserManager<TUser>(IUserStore<TUser> store = null) where TUser : User {
+            store ??= new Mock<IUserStore<TUser>>().Object;
+            var options = new Mock<IOptionsSnapshot<IdentityOptions>>();
+            var idOptions = new IdentityOptions();
+            idOptions.Lockout.AllowedForNewUsers = false;
+            options.Setup(options => options.Value).Returns(idOptions);
+            var userValidators = new List<IUserValidator<TUser>>();
+            var validator = new Mock<IUserValidator<TUser>>();
+            userValidators.Add(validator.Object);
+            var passwordValidators = new List<PasswordValidator<TUser>> {
+                new PasswordValidator<TUser>()
+            };
+            var eventService = new Mock<IPlatformEventService>();
+            var userManager = new ExtendedUserManager<TUser>(
+                userStore: store,
+                optionsAccessor: options.Object,
+                passwordHasher: new PasswordHasher<TUser>(),
+                userValidators: userValidators,
+                passwordValidators: passwordValidators,
+                keyNormalizer: MockLookupNormalizer(),
+                errors: new IdentityErrorDescriber(),
+                services: null,
+                logger: new Mock<ILogger<ExtendedUserManager<TUser>>>().Object,
+                identityMessageDescriber: new IdentityMessageDescriber(),
+                eventService: eventService.Object
+            );
+            validator.Setup(x => x.ValidateAsync(userManager, It.IsAny<TUser>()))
+                     .Returns(Task.FromResult(IdentityResult.Success))
+                     .Verifiable();
+            return userManager;
+        }
+
+        private static ILookupNormalizer MockLookupNormalizer() {
+            var normalizerFunc = new Func<string, string>(i => {
+                if (i is null) {
+                    return null;
+                } else {
+                    return Convert.ToBase64String(Encoding.UTF8.GetBytes(i)).ToUpperInvariant();
+                }
+            });
+            var lookupNormalizer = new Mock<ILookupNormalizer>();
+            lookupNormalizer.Setup(i => i.NormalizeName(It.IsAny<string>())).Returns(normalizerFunc);
+            lookupNormalizer.Setup(i => i.NormalizeEmail(It.IsAny<string>())).Returns(normalizerFunc);
+            return lookupNormalizer.Object;
+        }
+
+        #region Facts
         [Fact]
         public async Task<string> Can_Register_New_Device_Using_Biometric() {
-            var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
+            var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
             var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
@@ -201,7 +259,7 @@ namespace Indice.AspNetCore.Identity.Tests
 
         [Fact]
         public async Task<string> Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint() {
-            var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
+            var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
             var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
@@ -224,7 +282,7 @@ namespace Indice.AspNetCore.Identity.Tests
 
         [Fact]
         public async Task<string> Can_Register_New_Device_Using_Pin() {
-            var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
+            var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
             var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
@@ -239,7 +297,7 @@ namespace Indice.AspNetCore.Identity.Tests
 
         [Fact]
         public async Task<string> Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin() {
-            var accessToken = await LoginWithPasswordGrant(userName: "alice", password: "alice");
+            var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
             var codeVerifier = GenerateCodeVerifier();
             var deviceId = Guid.NewGuid().ToString();
             var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
@@ -302,6 +360,7 @@ namespace Indice.AspNetCore.Identity.Tests
             });
             Assert.False(tokenResponse.IsError);
         }
+        #endregion
 
         #region Helper Methods
         private async Task<string> InitiateDeviceAuthorizationUsingFingerprint(string codeVerifier, string deviceId) {
@@ -524,35 +583,35 @@ namespace Indice.AspNetCore.Identity.Tests
             }
         };
 
-        private static List<TestUser> GetTestUsers() => new() {
-            new TestUser {
-                SubjectId = "123456",
-                Username = "alice",
-                Password = "alice",
+        private static List<User> GetTestUsers() => new() {
+            new User {
+                Id = "123456",
+                UserName = "alice",
+                PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
                 Claims = {
-                    new Claim(JwtClaimTypes.Name, "Alice Smith"),
-                    new Claim(JwtClaimTypes.GivenName, "Alice"),
-                    new Claim(JwtClaimTypes.FamilyName, "Smith"),
-                    new Claim(JwtClaimTypes.Email, "alice_smith@example.com"),
-                    new Claim(JwtClaimTypes.EmailVerified, "true", ClaimValueTypes.Boolean),
-                    new Claim(JwtClaimTypes.WebSite, "http://alice.com"),
-                    new Claim(JwtClaimTypes.PhoneNumber, "69XXXXXXXX"),
-                    new Claim(JwtClaimTypes.PhoneNumberVerified, "true", ClaimValueTypes.Boolean)
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.Name, ClaimValue = "Alice Smith" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.GivenName, ClaimValue = "Alice" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.FamilyName, ClaimValue = "Smith" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.Email, ClaimValue = "alice_smith@example.com" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.EmailVerified, ClaimValue = "true" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.WebSite, ClaimValue = "http://alice.com" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.PhoneNumber, ClaimValue = "69XXXXXXXX" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.PhoneNumberVerified, ClaimValue = "true" }
                 }
             },
-            new TestUser {
-                SubjectId = "654321",
-                Username = "bob",
-                Password = "bob",
+            new User {
+                Id = "654321",
+                UserName = "bob",
+                PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
                 Claims = {
-                    new Claim(JwtClaimTypes.Name, "Bob Smith"),
-                    new Claim(JwtClaimTypes.GivenName, "Bob"),
-                    new Claim(JwtClaimTypes.FamilyName, "Smith"),
-                    new Claim(JwtClaimTypes.Email, "bob_smith@email.com"),
-                    new Claim(JwtClaimTypes.EmailVerified, "true", ClaimValueTypes.Boolean),
-                    new Claim(JwtClaimTypes.WebSite, "http://bob.com"),
-                    new Claim(JwtClaimTypes.PhoneNumber, "69XXXXXXXX"),
-                    new Claim(JwtClaimTypes.PhoneNumberVerified, "false", ClaimValueTypes.Boolean)
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.Name, ClaimValue = "Bob Smith" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.GivenName, ClaimValue = "Bob" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.FamilyName, ClaimValue = "Smith" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.Email, ClaimValue = "bob_smith@email.com" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.EmailVerified, ClaimValue = "true" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.WebSite, ClaimValue = "http://bob.com" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.PhoneNumber, ClaimValue = "69XXXXXXXX" },
+                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.PhoneNumberVerified, ClaimValue = "false" }
                 }
             }
         };

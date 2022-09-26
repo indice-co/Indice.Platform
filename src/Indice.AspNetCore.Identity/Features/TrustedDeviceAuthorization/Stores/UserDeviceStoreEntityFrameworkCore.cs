@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Api.Events;
-using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.Security;
 using Indice.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using SixLabors.ImageSharp;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
 {
@@ -37,56 +30,20 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         }
 
         /// <inheritdoc />
-        public Task<List<UserDevice>> GetUserDevices(string userId) {
-            if (string.IsNullOrWhiteSpace(userId)) {
-                return default;
-            }
-            return _dbContext.UserDevices.Where(x => x.UserId == userId).ToListAsync();
+        public async Task<UserDevice> GetByDeviceId(string deviceId) {
+            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.DeviceId == deviceId);
+            return device;
         }
 
         /// <inheritdoc />
-        public Task<UserDevice> GetByDeviceId(string deviceId) {
-            if (string.IsNullOrWhiteSpace(deviceId)) {
-                return default;
-            }
-            return _dbContext.UserDevices.SingleOrDefaultAsync(x => x.DeviceId == deviceId);
-        }
-
-        /// <inheritdoc />
-        public async Task<IdentityResult> CreateDevice(UserDevice device) {
-            GuardDevice(device);
-            var maxDevicesCountClaim = await _dbContext.UserClaims.FirstOrDefaultAsync(x => x.ClaimType == BasicClaimTypes.MaxDevicesCount);
-            int? userMaxDevicesCount = null;
-            if (maxDevicesCountClaim is not null && int.TryParse(maxDevicesCountClaim.ClaimValue, out var parsedUserMaxDevicesClaim)) {
-                userMaxDevicesCount = parsedUserMaxDevicesClaim;
-            }
-            var defaultAllowedRegisteredDevices = _configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(ExtendedUserStore.DefaultAllowedRegisteredDevices)) ??
-                                                  _configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(ExtendedUserStore.DefaultAllowedRegisteredDevices));
-            var maxDevicesCount = userMaxDevicesCount ?? defaultAllowedRegisteredDevices ?? int.MaxValue;
-            var user = device.User ??= await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == device.UserId);
-            var numberOfUserDevices = await _dbContext.UserDevices.CountAsync(x => x.UserId == user.Id);
-            if (maxDevicesCount == numberOfUserDevices) {
-                return IdentityResult.Failed(new IdentityError {
-                    Code = "MaxNumberOfDevices",
-                    Description = "You have reached the maximum number of registered devices."
-                });
-            }
-            _dbContext.UserDevices.Add(device);
-            await _dbContext.SaveChangesAsync();
-            var @event = new DeviceCreatedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
-            await _eventService.Publish(@event);
-            return IdentityResult.Success;
-        }
-
-        /// <inheritdoc />
-        public async Task UpdateDevicePassword(UserDevice device, string passwordHash) {
+        public async Task UpdatePassword(UserDevice device, string passwordHash) {
             GuardDevice(device);
             device.Password = passwordHash;
             await _dbContext.SaveChangesAsync();
         }
 
         /// <inheritdoc />
-        public async Task UpdateDevicePublicKey(UserDevice device, string publicKey) {
+        public async Task UpdatePublicKey(UserDevice device, string publicKey) {
             GuardDevice(device);
             device.PublicKey = publicKey;
             await _dbContext.SaveChangesAsync();
