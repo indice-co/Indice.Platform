@@ -3,7 +3,7 @@ import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { ToasterService, ToastType } from "@indice/ng-components";
 import { CasesApiService, CaseTypeRequest, CheckpointTypeDetails } from "src/app/core/services/cases-api.service";
-import { TailwindSubmitWidgetComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component";
+import { SubmitWidgetComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component";
 import { TailwindFrameworkComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component";
 import { EMPTY } from 'rxjs';
 import { InputWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
@@ -20,7 +20,7 @@ export class CaseTypesService {
         private router: Router) { }
 
     public widgets = {
-        "submit": TailwindSubmitWidgetComponent,
+        "submit": SubmitWidgetComponent,
         "text": InputWidgetComponent,
         "number": InputWidgetComponent,
         "textarea": TextAreaWidgetComponent

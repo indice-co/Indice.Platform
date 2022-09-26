@@ -2,7 +2,7 @@ import { JsonSchemaFormService } from '@ajsf-extended/core';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-input-widget',
+  selector: 'app-text-area-widget',
   templateUrl: './text-area-widget.component.html',
   styleUrls: ['./text-area-widget.component.scss']
 })

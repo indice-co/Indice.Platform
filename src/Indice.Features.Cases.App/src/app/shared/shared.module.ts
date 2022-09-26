@@ -7,10 +7,9 @@ import { PageIllustrationComponent } from './components/page-illustration/page-i
 import { RadioButtonsListComponent } from './components/radio-buttons-list/radio-buttons-list.component';
 import { ToggleButtonComponent } from './components/toggle-button/toggle-button.component';
 import { BeautifyBooleanPipe, RemovePrefixPipe } from './pipes.services';
-import { JSFFileWidgetComponent } from './ajsf/jsf-file-widget.component';
 import { TailwindFrameworkComponent } from './ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component';
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
-import { TailwindSubmitWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
+import { SubmitWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
 import { SelectCaseTypeComponent } from './components/select-case-type/select-case-type.component';
 import { SearchCustomerComponent } from './components/search-customer/search-customer.component';
 import { IndiceComponentsModule } from '@indice/ng-components';
@@ -21,6 +20,7 @@ import { DateWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-fram
 import { LookupWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/lookup-widget/lookup-widget.component';
 import { InputWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
 import { TextAreaWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
+import { FileWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
 
 
 
@@ -34,10 +34,10 @@ import { TextAreaWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-
     SelectCaseTypeComponent,
     SearchCustomerComponent,
     // ajsf
-    JSFFileWidgetComponent,
+    FileWidgetComponent,
     TailwindFrameworkComponent,
     SelectWidgetComponent,
-    TailwindSubmitWidgetComponent,
+    SubmitWidgetComponent,
     CurrencyWidgetComponent,
     DateWidgetComponent,
     LookupWidgetComponent,
@@ -65,8 +65,6 @@ import { TextAreaWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-
     SelectCaseTypeComponent,
     SearchCustomerComponent,
     // ajsf
-    JSFFileWidgetComponent,
-    TailwindSubmitWidgetComponent,
     TailwindFrameworkComponent,
     // pipes
     BeautifyBooleanPipe,

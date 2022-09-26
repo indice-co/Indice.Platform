@@ -3,13 +3,13 @@ import { Component, Input, OnInit } from "@angular/core";
 import { AbstractControl } from "@angular/forms";
 import { ToasterService, ToastType } from "@indice/ng-components";
 import { tap } from "rxjs/operators";
-import { UploadFileWidgetService } from "src/app/core/services/file-upload.service";
-import { CasesApiService } from "../../core/services/cases-api.service";
+import { CasesApiService } from "src/app/core/services/cases-api.service";
+import { FileUploadService } from "src/app/core/services/file-upload.service";
 
 @Component({
-    templateUrl: './jsf-file-widget.component.html'
+    templateUrl: './file-widget.component.html'
 })
-export class JSFFileWidgetComponent implements OnInit {
+export class FileWidgetComponent implements OnInit {
     formControl: AbstractControl | undefined;
     controlName: string | undefined;
     controlValue: string | undefined;
@@ -29,8 +29,8 @@ export class JSFFileWidgetComponent implements OnInit {
     constructor(
         private _toaster: ToasterService,
         private _api: CasesApiService,
-        private jsf: JsonSchemaFormService,
-        private uploadFileWidgetService: UploadFileWidgetService
+        private _jsf: JsonSchemaFormService,
+        private _fileUploadService: FileUploadService
     ) { }
 
     public ngOnInit() {
@@ -38,8 +38,8 @@ export class JSFFileWidgetComponent implements OnInit {
         if (this.options.accept !== undefined) {
             this.accept = this.options.accept.join(', ');
         }
-        this.jsf.initializeControl(this);
-        this.draft = this.jsf.formOptions.draft;
+        this._jsf.initializeControl(this);
+        this.draft = this._jsf.formOptions.draft;
     }
 
     public onFileSelect(event: any) {
@@ -50,19 +50,19 @@ export class JSFFileWidgetComponent implements OnInit {
             && !this.options.accept.some((fileExtension: string) => event.target.files[0].name.endsWith(fileExtension))
         ) {
             event.target.value = '';
-            this.jsf.updateValue(this, undefined);
+            this._jsf.updateValue(this, undefined);
             // TODO: make this a validation error
             this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Μη αποδεκτός τύπος αρχείου.`, 5000);
             return;
         }
         const value = event.target.files.length > 0 ? this.layoutNode.dataPointer : undefined;
-        this.jsf.updateValue(this, value);
-        if (!this.uploadFileWidgetService.files) {
-            this.uploadFileWidgetService.files = {};
+        this._jsf.updateValue(this, value);
+        if (!this._fileUploadService.files) {
+            this._fileUploadService.files = {};
         }
         if (event.target.files.length > 0) {
             const file: File = event.target.files[0];
-            this.uploadFileWidgetService.files[this.layoutNode.dataPointer] = file;
+            this._fileUploadService.files[this.layoutNode.dataPointer] = file;
         }
     }
 

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class UploadFileWidgetService {
+export class FileUploadService {
   // a dictionary (key -> ajsf's data pointer, value -> the actual file) that holds the files to be uploaded to server
   public files: any;
 

@@ -3,9 +3,8 @@ import { ToasterService, ToastType } from '@indice/ng-components';
 import { EMPTY, forkJoin, Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { CaseDetails, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
-import { UploadFileWidgetService } from 'src/app/core/services/file-upload.service';
-import { JSFFileWidgetComponent } from 'src/app/shared/ajsf/jsf-file-widget.component';
-import { TailwindSubmitWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
+import { FileUploadService } from 'src/app/core/services/file-upload.service';
+import { SubmitWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
 import { TailwindFrameworkComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component';
 import { SelectWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/select-widget/select-widget.component';
 import { get, isEqual } from 'lodash';
@@ -15,6 +14,7 @@ import { LookupWidgetComponent } from 'src/app/shared/ajsf/json-schema-framework
 import { InputWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
 import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
 import { Router } from '@angular/router';
+import { FileWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
 
 @Component({
   selector: 'app-case-form',
@@ -33,8 +33,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
   @Output() unSavedChanges = new EventEmitter<boolean>();
   // Add custom widget
   public widgets = {
-    "file": JSFFileWidgetComponent,
-    "submit": TailwindSubmitWidgetComponent,
+    "file": FileWidgetComponent,
+    "submit": SubmitWidgetComponent,
     "select": SelectWidgetComponent,
     "lookup": LookupWidgetComponent,
     "date": DateWidgetComponent,
@@ -69,13 +69,13 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     private router: Router,
     private _toaster: ToasterService,
     private _api: CasesApiService,
-    private uploadFileWidgetService: UploadFileWidgetService,
+    private _fileUploadService: FileUploadService,
     private changeDetector: ChangeDetectorRef
   ) { }
 
   ngOnDestroy(): void {
     // we should DEFINITELY remove the uploaded/saved for upload files
-    this.uploadFileWidgetService.reset();
+    this._fileUploadService.reset();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -128,14 +128,14 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
       // we have to send user's document(s) to the server
       const callsDict: { [key: string]: Observable<CasesAttachmentLink> } = {};
       // what is the key of the dictionary here? the dataPointer (e.g. "/homeAddress/attachmentId") that was added in the file-upload widget
-      for (const key in this.uploadFileWidgetService.files) {
-        if (this.uploadFileWidgetService.files.hasOwnProperty(key)) {
+      for (const key in this._fileUploadService.files) {
+        if (this._fileUploadService.files.hasOwnProperty(key)) {
           // we may have 'garbage' attachments that we should not send to server!!!
           let path = key;
           path = path.replace(/\//g, '.'); // https://stackoverflow.com/a/63616567/19162333
           path = path.substring(1);
           if (get(event, path)) { // https://lodash.com/docs/4.17.15#get
-            const fileParam = { data: this.uploadFileWidgetService.files[key], fileName: this.uploadFileWidgetService.files[key].name };
+            const fileParam = { data: this._fileUploadService.files[key], fileName: this._fileUploadService.files[key].name };
             callsDict[key] = this._api.uploadAdminCaseAttachment(this.case.id!, undefined, fileParam);
           }
         }
@@ -156,7 +156,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
               this._api.submitAdminCase(this.case?.id!, stringifiedData)
                 .pipe(
                   tap(() => {
-                    this.uploadFileWidgetService.reset();
+                    this._fileUploadService.reset();
                     this._toaster.show(ToastType.Success, 'Επιτυχής Επεξεργασία', `Η επεξεργασία της αίτησης ολοκληρώθηκε.`, 5000);
                     this.updateDataEvent.emit({ draft: true });
                   }),
@@ -183,7 +183,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
             this.unSavedChanges.emit(this.formIsDirty);
             this.updateDataEvent.emit({ draft: false });
             this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Οι αλλαγές σας αποθηκεύτηκαν με επιτυχία.`, 5000);
-            this.uploadFileWidgetService.reset();
+            this._fileUploadService.reset();
           }),
           catchError(() => {
             this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Δεν κατέστη εφικτό να αποθηκευτούν οι αλλαγές σας.`, 5000);
