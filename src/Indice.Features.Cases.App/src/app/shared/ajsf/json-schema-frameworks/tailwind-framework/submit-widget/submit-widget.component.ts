@@ -4,7 +4,7 @@ import { hasOwn, JsonSchemaFormService } from '@ajsf-extended/core';
 
 @Component({
   // tslint:disable-next-line:component-selector
-  selector: 'submit-widget',
+  selector: 'app-submit-widget',
   template: `
     <div
       [class]="options?.htmlClass || ''">
@@ -26,7 +26,7 @@ import { hasOwn, JsonSchemaFormService } from '@ajsf-extended/core';
       </button>
     </div>`
 })
-export class TailwindSubmitWidgetComponent implements OnInit {
+export class SubmitWidgetComponent implements OnInit {
   formControl: AbstractControl | undefined;
   controlName: string | undefined;
   controlValue: any;
