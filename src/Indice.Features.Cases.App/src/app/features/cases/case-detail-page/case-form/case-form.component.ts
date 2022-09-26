@@ -40,6 +40,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     "date": DateWidgetComponent,
     "currency": CurrencyWidgetComponent,
     "text": InputWidgetComponent,
+    "number": InputWidgetComponent,
     "textarea": TextAreaWidgetComponent
   };
   // Add custom framework

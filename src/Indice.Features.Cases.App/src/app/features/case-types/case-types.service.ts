@@ -22,6 +22,7 @@ export class CaseTypesService {
     public widgets = {
         "submit": TailwindSubmitWidgetComponent,
         "text": InputWidgetComponent,
+        "number": InputWidgetComponent,
         "textarea": TextAreaWidgetComponent
     };
 
