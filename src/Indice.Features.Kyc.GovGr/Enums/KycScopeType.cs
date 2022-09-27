@@ -1,4 +1,4 @@
-﻿namespace Indice.Integration.EGov.Kyc.Enums
+﻿namespace Indice.Features.Kyc.GovGr.Enums
 {
     public enum KycScopeType
     {

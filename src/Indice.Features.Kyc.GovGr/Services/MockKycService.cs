@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Threading.Tasks;
-using Indice.Integration.EGov.Kyc.Interfaces;
-using Indice.Integration.EGov.Kyc.Models;
+using Indice.Features.Kyc.GovGr.Interfaces;
+using Indice.Features.Kyc.GovGr.Models;
 
-namespace Indice.Integration.EGov.Kyc.Services
+namespace Indice.Features.Kyc.GovGr.Services
 {
     /// <inheritdoc />
     public class MockKycService : IKycService

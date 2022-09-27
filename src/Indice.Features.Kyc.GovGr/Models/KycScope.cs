@@ -1,4 +1,4 @@
-﻿namespace Indice.Integration.EGov.Kyc.Models
+﻿namespace Indice.Features.Kyc.GovGr.Models
 {
     /// <summary>
     /// The KycScope details model.

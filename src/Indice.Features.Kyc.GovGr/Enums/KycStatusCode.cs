@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
-using Indice.Integration.EGov.Kyc.Extensions;
+using Indice.Features.Kyc.GovGr.Extensions;
 
-namespace Indice.Integration.EGov.Kyc.Enums
+namespace Indice.Features.Kyc.GovGr.Enums
 {
     [JsonConverter(typeof(StringKycStatusCodeConverter))]
     public enum KycStatusCode

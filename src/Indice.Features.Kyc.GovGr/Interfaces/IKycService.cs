@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
-using Indice.Integration.EGov.Kyc.Models;
+using Indice.Features.Kyc.GovGr.Models;
 
-namespace Indice.Integration.EGov.Kyc.Interfaces
+namespace Indice.Features.Kyc.GovGr.Interfaces
 {
     /// <summary>The kyc integration service.</summary>
     public interface IKycService

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Indice.Integration.EGov.Kyc.Enums;
-using Indice.Integration.EGov.Kyc.Interfaces;
-using Indice.Integration.EGov.Kyc.Models;
+using Indice.Features.Kyc.GovGr.Enums;
+using Indice.Features.Kyc.GovGr.Interfaces;
+using Indice.Features.Kyc.GovGr.Models;
 using Microsoft.Extensions.Localization;
 
-namespace Indice.Integration.EGov.Kyc.Services
+namespace Indice.Features.Kyc.GovGr.Services
 {
     /// <inheritdoc />
     public class KycScopeService : IKycScopeService

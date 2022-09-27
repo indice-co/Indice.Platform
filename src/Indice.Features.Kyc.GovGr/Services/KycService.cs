@@ -5,12 +5,12 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using IdentityModel.Client;
-using Indice.Integration.EGov.Kyc.Configuration;
-using Indice.Integration.EGov.Kyc.Interfaces;
-using Indice.Integration.EGov.Kyc.Models;
+using Indice.Features.Kyc.GovGr.Configuration;
+using Indice.Features.Kyc.GovGr.Interfaces;
+using Indice.Features.Kyc.GovGr.Models;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Integration.EGov.Kyc.Services
+namespace Indice.Features.Kyc.GovGr.Services
 {
     /// <inheritdoc />
     public class KycService : IKycService

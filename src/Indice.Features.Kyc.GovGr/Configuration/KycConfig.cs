@@ -1,7 +1,7 @@
 ﻿using System;
-using Indice.Integration.EGov.Kyc.Configuration;
-using Indice.Integration.EGov.Kyc.Interfaces;
-using Indice.Integration.EGov.Kyc.Services;
+using Indice.Features.Kyc.GovGr.Configuration;
+using Indice.Features.Kyc.GovGr.Interfaces;
+using Indice.Features.Kyc.GovGr.Services;
 using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection

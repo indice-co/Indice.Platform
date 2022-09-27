@@ -4,9 +4,9 @@
 //----------------------
 
 using System.Collections.Generic;
-using Indice.Integration.EGov.Kyc.Enums;
+using Indice.Features.Kyc.GovGr.Enums;
 
-namespace Indice.Integration.EGov.Kyc.Models
+namespace Indice.Features.Kyc.GovGr.Models
 {
     /// <summary>
     /// The encoded response from the EGovKyc resource server

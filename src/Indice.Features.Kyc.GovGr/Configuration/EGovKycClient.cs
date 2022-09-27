@@ -1,4 +1,4 @@
-﻿namespace Indice.Integration.EGov.Kyc.Configuration
+﻿namespace Indice.Features.Kyc.GovGr.Configuration
 {
     /// <summary>
     /// The GovGr Kyc Client details.

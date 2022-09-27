@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Indice.Integration.EGov.Kyc.Enums;
+using Indice.Features.Kyc.GovGr.Enums;
 
-namespace Indice.Integration.EGov.Kyc.Extensions
+namespace Indice.Features.Kyc.GovGr.Extensions
 {
     /// <summary>
     /// JsonConverter for handling <see cref="KycStatusCode"/> enums.

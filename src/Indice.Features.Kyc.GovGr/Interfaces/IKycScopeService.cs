@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using Indice.Integration.EGov.Kyc.Models;
+using Indice.Features.Kyc.GovGr.Models;
 using Microsoft.Extensions.Localization;
 
-namespace Indice.Integration.EGov.Kyc.Interfaces
+namespace Indice.Features.Kyc.GovGr.Interfaces
 {
     /// <summary>
     /// The Kyc Scopes Service.
