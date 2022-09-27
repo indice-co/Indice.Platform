@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Services;
@@ -22,12 +23,14 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             IAuthorizationCodeChallengeStore codeChallengeStore,
             IDevicePasswordHasher devicePasswordHasher,
             ISystemClock systemClock,
-            IUserDeviceStore userDeviceStore
+            IUserDeviceStore userDeviceStore,
+            ExtendedUserManager<User> userManager
         ) {
             CodeChallengeStore = codeChallengeStore ?? throw new ArgumentNullException(nameof(codeChallengeStore));
             DevicePasswordHasher = devicePasswordHasher ?? throw new ArgumentNullException(nameof(devicePasswordHasher));
             SystemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
             UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
+            UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         public string GrantType => CustomGrantTypes.TrustedDevice;
@@ -35,6 +38,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
         public IDevicePasswordHasher DevicePasswordHasher { get; }
         public ISystemClock SystemClock { get; }
         public IUserDeviceStore UserDeviceStore { get; }
+        public ExtendedUserManager<User> UserManager { get; }
 
         public async Task ValidateAsync(ExtensionGrantValidationContext context) {
             var parameters = context.Request.Raw;
@@ -49,9 +53,22 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Device is unknown.");
                 return;
             }
+            var user = await UserManager.FindByIdAsync(device.UserId);
+            if (user is null) {
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "User does not exists.");
+                return;
+            }
             // If a code is present we are heading towards fingerprint login.
             var code = parameters.Get(RegistrationRequestParameters.Code);
-            if (!string.IsNullOrWhiteSpace(code)) {
+            var pin = parameters.Get(RegistrationRequestParameters.Pin);
+            var hasCode = !string.IsNullOrWhiteSpace(code);
+            var hasPin = !string.IsNullOrWhiteSpace(pin);
+            var loginStrategyValues = new bool[] { hasCode, hasPin };
+            if (loginStrategyValues.All(x => x == true) || loginStrategyValues.All(x => x == false)) {
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Please provider either authorization code of pin.");
+                return;
+            }
+            if (hasCode) {
                 // Retrieve authorization code from the store.
                 var authorizationCode = await CodeChallengeStore.GetAuthorizationCode(code);
                 if (authorizationCode == null) {
@@ -88,18 +105,17 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 await UserDeviceStore.UpdatePublicKey(device, publicKey);
                 // Grant access token.
                 context.Result = new GrantValidationResult(authorizationCode.Subject.GetSubjectId(), GrantType);
-                await UserDeviceStore.UpdateLastSignInDate(device);
             }
-            var pin = parameters.Get(RegistrationRequestParameters.Pin);
-            if (!string.IsNullOrWhiteSpace(pin)) {
+            if (hasPin) {
                 var result = DevicePasswordHasher.VerifyHashedPassword(device, device.Password, pin);
                 if (result == PasswordVerificationResult.Failed) {
                     context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Wrong pin.");
                     return;
                 }
                 context.Result = new GrantValidationResult(device.UserId, GrantType);
-                await UserDeviceStore.UpdateLastSignInDate(device);
             }
+            await UserDeviceStore.UpdateLastSignInDate(device);
+            await UserManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
         }
 
         private async Task<ValidationResult> ValidateAuthorizationCode(string code, TrustedDeviceAuthorizationCode authorizationCode, string codeVerifier, string deviceId, Client client) {

@@ -195,52 +195,6 @@ namespace Indice.AspNetCore.Identity.Tests
             };
         }
 
-        private static ExtendedUserManager<TUser> TestUserManager<TUser>(IUserStore<TUser> store = null) where TUser : User {
-            store ??= new Mock<IUserStore<TUser>>().Object;
-            var options = new Mock<IOptionsSnapshot<IdentityOptions>>();
-            var idOptions = new IdentityOptions();
-            idOptions.Lockout.AllowedForNewUsers = false;
-            options.Setup(options => options.Value).Returns(idOptions);
-            var userValidators = new List<IUserValidator<TUser>>();
-            var validator = new Mock<IUserValidator<TUser>>();
-            userValidators.Add(validator.Object);
-            var passwordValidators = new List<PasswordValidator<TUser>> {
-                new PasswordValidator<TUser>()
-            };
-            var eventService = new Mock<IPlatformEventService>();
-            var userManager = new ExtendedUserManager<TUser>(
-                userStore: store,
-                optionsAccessor: options.Object,
-                passwordHasher: new PasswordHasher<TUser>(),
-                userValidators: userValidators,
-                passwordValidators: passwordValidators,
-                keyNormalizer: MockLookupNormalizer(),
-                errors: new IdentityErrorDescriber(),
-                services: null,
-                logger: new Mock<ILogger<ExtendedUserManager<TUser>>>().Object,
-                identityMessageDescriber: new IdentityMessageDescriber(),
-                eventService: eventService.Object
-            );
-            validator.Setup(x => x.ValidateAsync(userManager, It.IsAny<TUser>()))
-                     .Returns(Task.FromResult(IdentityResult.Success))
-                     .Verifiable();
-            return userManager;
-        }
-
-        private static ILookupNormalizer MockLookupNormalizer() {
-            var normalizerFunc = new Func<string, string>(i => {
-                if (i is null) {
-                    return null;
-                } else {
-                    return Convert.ToBase64String(Encoding.UTF8.GetBytes(i)).ToUpperInvariant();
-                }
-            });
-            var lookupNormalizer = new Mock<ILookupNormalizer>();
-            lookupNormalizer.Setup(i => i.NormalizeName(It.IsAny<string>())).Returns(normalizerFunc);
-            lookupNormalizer.Setup(i => i.NormalizeEmail(It.IsAny<string>())).Returns(normalizerFunc);
-            return lookupNormalizer.Object;
-        }
-
         #region Facts
         [Fact]
         public async Task<string> Can_Register_New_Device_Using_Biometric() {
@@ -580,39 +534,6 @@ namespace Indice.AspNetCore.Identity.Tests
         private static IEnumerable<ApiResource> GetApiResources() => new List<ApiResource> {
             new ApiResource(name: "api1", displayName: "API No. 1") {
                 Scopes = { "scope1", "scope2" }
-            }
-        };
-
-        private static List<User> GetTestUsers() => new() {
-            new User {
-                Id = "123456",
-                UserName = "alice",
-                PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
-                Claims = {
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.Name, ClaimValue = "Alice Smith" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.GivenName, ClaimValue = "Alice" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.FamilyName, ClaimValue = "Smith" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.Email, ClaimValue = "alice_smith@example.com" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.EmailVerified, ClaimValue = "true" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.WebSite, ClaimValue = "http://alice.com" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.PhoneNumber, ClaimValue = "69XXXXXXXX" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.PhoneNumberVerified, ClaimValue = "true" }
-                }
-            },
-            new User {
-                Id = "654321",
-                UserName = "bob",
-                PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
-                Claims = {
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.Name, ClaimValue = "Bob Smith" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.GivenName, ClaimValue = "Bob" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.FamilyName, ClaimValue = "Smith" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.Email, ClaimValue = "bob_smith@email.com" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.EmailVerified, ClaimValue = "true" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.WebSite, ClaimValue = "http://bob.com" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.PhoneNumber, ClaimValue = "69XXXXXXXX" },
-                    new IdentityUserClaim<string> { ClaimType = JwtClaimTypes.PhoneNumberVerified, ClaimValue = "false" }
-                }
             }
         };
         #endregion
