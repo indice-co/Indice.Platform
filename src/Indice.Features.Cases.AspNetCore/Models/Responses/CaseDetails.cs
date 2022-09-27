@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Indice.Features.Cases.Data.Models;
 
 namespace Indice.Features.Cases.Models.Responses
 {
@@ -10,6 +11,11 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The attachments of the case.
         /// </summary>
-        public List<CaseAttachment> Attachments { get; set; } = new List<CaseAttachment>();
+        public List<CaseAttachment> Attachments { get; set; } = new();
+
+        /// <summary>
+        /// The back-office users that approved the case.
+        /// </summary>
+        public IEnumerable<AuditMeta>? Approvers { get; set; }
     }
 }
