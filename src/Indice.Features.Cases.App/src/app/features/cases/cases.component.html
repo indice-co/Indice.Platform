@@ -28,6 +28,9 @@
         <lib-list-column title="Α.Φ.Μ. ΠΕΛΑΤΗ">
             <ng-template let-item>{{ item.metadata?.TaxId }}</ng-template>
         </lib-list-column>
+        <lib-list-column title="ΑΡΙΘΜΟΣ ΚΑΤΑΣΤΗΜΑΤΟΣ">
+            <ng-template let-item>{{ item.groupId }}</ng-template>
+        </lib-list-column>
         <lib-list-column title="ΤΥΠΟΣ ΑΙΤΗΣΗΣ">
             <ng-template let-item>{{ item.caseType.title }}</ng-template>
         </lib-list-column>
