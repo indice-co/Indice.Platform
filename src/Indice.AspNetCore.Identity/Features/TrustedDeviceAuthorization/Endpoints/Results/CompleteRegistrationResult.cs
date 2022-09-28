@@ -25,6 +25,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints.Result
                 return;
             }
             context.Response.StatusCode = StatusCodes.Status201Created;
+            await context.Response.WriteJsonAsync(new TrustedDeviceCompleteRegistrationResultDto(Response.RegistrationId));
         }
     }
 }

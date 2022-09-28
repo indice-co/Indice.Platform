@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Services;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores;
 using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation;
@@ -62,7 +61,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
                     await UserDeviceStore.UpdatePublicKey(device, validationResult.PublicKey);
                     break;
             }
-            return new CompleteRegistrationResponse(errors);
+            return new CompleteRegistrationResponse(device.Id, errors);
         }
     }
 }

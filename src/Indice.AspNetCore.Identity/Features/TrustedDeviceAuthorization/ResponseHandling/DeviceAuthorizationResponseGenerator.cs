@@ -28,7 +28,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
                 ClientId = validationResult.Client.ClientId,
                 CodeChallenge = validationResult.CodeChallenge.Sha256(),
                 CreationTime = SystemClock.UtcNow.UtcDateTime,
-                DeviceId = validationResult.Device.DeviceId,
+                DeviceId = validationResult.Device.Id.ToString(),
                 InteractionMode = validationResult.InteractionMode,
                 Lifetime = validationResult.Client.AuthorizationCodeLifetime,
                 RequestedScopes = validationResult.RequestedScopes,

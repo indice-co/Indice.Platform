@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
@@ -6,6 +7,9 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
     /// <summary>A store that manages the user registered devices.</summary>
     public interface IUserDeviceStore
     {
+        /// <summary>Gets a device given the unique id.</summary>
+        /// <param name="id">The id.</param>
+        Task<UserDevice> GetById(Guid id);
         /// <summary>Gets a device given the device id.</summary>
         /// <param name="deviceId">The device id.</param>
         Task<UserDevice> GetByDeviceId(string deviceId);

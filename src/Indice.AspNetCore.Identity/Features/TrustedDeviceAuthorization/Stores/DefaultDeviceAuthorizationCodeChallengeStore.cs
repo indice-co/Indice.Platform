@@ -8,14 +8,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
 {
-    /// <summary>
-    /// The default implementation of the <see cref="IAuthorizationCodeChallengeStore"/>, taking advantage of the underlying <see cref="IPersistedGrantStore"/> store.
-    /// </summary>
+    /// <summary>The default implementation of the <see cref="IAuthorizationCodeChallengeStore"/>, taking advantage of the underlying <see cref="IPersistedGrantStore"/> store.</summary>
     internal class DefaultAuthorizationCodeChallengeStore : DefaultGrantStore<TrustedDeviceAuthorizationCode>, IAuthorizationCodeChallengeStore
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="DefaultAuthorizationCodeChallengeStore"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="DefaultAuthorizationCodeChallengeStore"/>.</summary>
         /// <param name="store">Interface for persisting any type of grant.</param>
         /// <param name="serializer">Interface for persisted grant serialization.</param>
         /// <param name="handleGenerationService">Interface for the handle generation service.</param>

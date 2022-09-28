@@ -30,6 +30,12 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         }
 
         /// <inheritdoc />
+        public async Task<UserDevice> GetById(Guid id) {
+            var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.Id == id);
+            return device;
+        }
+
+        /// <inheritdoc />
         public async Task<UserDevice> GetByDeviceId(string deviceId) {
             var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.DeviceId == deviceId);
             return device;

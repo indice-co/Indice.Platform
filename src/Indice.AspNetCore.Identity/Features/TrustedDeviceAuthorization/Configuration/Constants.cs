@@ -40,5 +40,6 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
         public const string PublicKey = "public_key";
         public const string Scope = "scope";
         public const string DeliveryChannel = "channel";
+        public const string RegistrationId = "reg_id";
     }
 }

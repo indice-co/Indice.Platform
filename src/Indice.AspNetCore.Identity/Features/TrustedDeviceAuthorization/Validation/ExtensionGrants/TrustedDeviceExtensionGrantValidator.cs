@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
@@ -42,23 +43,23 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
 
         public async Task ValidateAsync(ExtensionGrantValidationContext context) {
             var parameters = context.Request.Raw;
-            var deviceId = parameters.Get(RegistrationRequestParameters.DeviceId);
-            if (string.IsNullOrWhiteSpace(deviceId)) {
-                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, $"Parameter '{RegistrationRequestParameters.DeviceId}' is not specified.");
+            // Load device.
+            var isValidRegistrationId = Guid.TryParse(parameters.Get(RegistrationRequestParameters.RegistrationId), out var registrationId);
+            if (!isValidRegistrationId) {
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Device registration id is not valid.");
                 return;
             }
-            // Load device.
-            var device = await UserDeviceStore.GetByDeviceId(deviceId);
-            if (device == null) {
+            var device = await UserDeviceStore.GetById(registrationId);
+            if (device is null) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Device is unknown.");
                 return;
             }
+            // Load user.
             var user = await UserManager.FindByIdAsync(device.UserId);
             if (user is null) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "User does not exists.");
                 return;
             }
-            // If a code is present we are heading towards fingerprint login.
             var code = parameters.Get(RegistrationRequestParameters.Code);
             var pin = parameters.Get(RegistrationRequestParameters.Pin);
             var hasCode = !string.IsNullOrWhiteSpace(code);
@@ -68,6 +69,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Please provider either authorization code of pin.");
                 return;
             }
+            // If code is present we are heading towards fingerprint login.
             if (hasCode) {
                 // Retrieve authorization code from the store.
                 var authorizationCode = await CodeChallengeStore.GetAuthorizationCode(code);
@@ -89,7 +91,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 }
                 // Validate authorization code against code verifier given by the client.
                 var codeVerifier = parameters.Get(RegistrationRequestParameters.CodeVerifier);
-                var authorizationCodeValidationResult = await ValidateAuthorizationCode(code, authorizationCode, codeVerifier, deviceId, context.Request.Client);
+                var authorizationCodeValidationResult = await ValidateAuthorizationCode(code, authorizationCode, codeVerifier, registrationId, context.Request.Client);
                 if (authorizationCodeValidationResult.IsError) {
                     context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, authorizationCodeValidationResult.ErrorDescription);
                     return;
@@ -106,6 +108,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 // Grant access token.
                 context.Result = new GrantValidationResult(authorizationCode.Subject.GetSubjectId(), GrantType);
             }
+            // If pin is present we are heading towards a 4-Pin login.
             if (hasPin) {
                 var result = DevicePasswordHasher.VerifyHashedPassword(device, device.Password, pin);
                 if (result == PasswordVerificationResult.Failed) {
@@ -118,13 +121,13 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             await UserManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
         }
 
-        private async Task<ValidationResult> ValidateAuthorizationCode(string code, TrustedDeviceAuthorizationCode authorizationCode, string codeVerifier, string deviceId, Client client) {
+        private async Task<ValidationResult> ValidateAuthorizationCode(string code, TrustedDeviceAuthorizationCode authorizationCode, string codeVerifier, Guid registrationId, Client client) {
             // Validate that the current client is not trying to use an authorization code of a different client.
             if (authorizationCode.ClientId != client.ClientId) {
                 return Invalid("Authorization code is invalid.");
             }
             // Validate that the current device is not trying to use an authorization code of a different device.
-            if (authorizationCode.DeviceId != deviceId) {
+            if (Guid.Parse(authorizationCode.DeviceId) != registrationId) {
                 return Invalid("Authorization code is invalid.");
             }
             // Remove authorization code.

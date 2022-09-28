@@ -18,6 +18,12 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Stores
         public Task<List<UserDevice>> GetUserDevices(string userId) => Task.FromResult(_userDevices.Where(x => x.UserId == userId).ToList());
 
         /// <inheritdoc />
+        public Task<UserDevice> GetById(Guid id) {
+            var userDevice = _userDevices.SingleOrDefault(x => x.Id == id);
+            return Task.FromResult(userDevice);
+        }
+
+        /// <inheritdoc />
         public Task<UserDevice> GetByDeviceId(string deviceId) {
             if (string.IsNullOrWhiteSpace(deviceId)) {
                 throw new ArgumentNullException(nameof(deviceId), $"Parameter {nameof(deviceId)} cannot be null or empty.");

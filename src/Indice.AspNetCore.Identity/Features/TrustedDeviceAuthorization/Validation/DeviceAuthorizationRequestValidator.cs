@@ -40,7 +40,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             var parametersToValidate = new[] {
                 RegistrationRequestParameters.ClientId,
                 RegistrationRequestParameters.CodeChallenge,
-                RegistrationRequestParameters.DeviceId,
+                RegistrationRequestParameters.RegistrationId,
                 RegistrationRequestParameters.Scope
             };
             foreach (var parameter in parametersToValidate) {
@@ -50,13 +50,17 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
                 }
             }
             // Load device.
-            var device = await UserDeviceStore.GetByDeviceId(parameters.Get(RegistrationRequestParameters.DeviceId));
-            if (device == null || !device.SupportsFingerprintLogin) {
+            var isValidRegistrationId = Guid.TryParse(parameters.Get(RegistrationRequestParameters.RegistrationId), out var registrationId);
+            if (!isValidRegistrationId) {
+                return Error(OidcConstants.TokenErrors.InvalidRequest, "Device registration id is not valid.");
+            }
+            var device = await UserDeviceStore.GetById(registrationId);
+            if (device is null || !device.SupportsFingerprintLogin) {
                 return Error(OidcConstants.TokenErrors.InvalidRequest, "Device cannot initiate fingerprint login.");
             }
             // Load and validate client.
             var client = await LoadClient(parameters.Get(RegistrationRequestParameters.ClientId));
-            if (client == null) {
+            if (client is null) {
                 return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, "Client is unknown or not enabled.");
             }
             if (client.ProtocolType != IdentityServerConstants.ProtocolTypes.OpenIdConnect) {
