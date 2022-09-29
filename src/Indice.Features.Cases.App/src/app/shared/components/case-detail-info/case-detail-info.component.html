@@ -1,0 +1,12 @@
+<div class="flex flex-col justify-stretch bg-gray-50 border-b">
+    <!-- model goes here-->
+    <div class="flex items-center p-5">
+        <div class="whitespace-normal break-word">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
+                {{title}}
+            </h3>
+            <p class="text-s leading-none text-grey-dark mb-2"
+               *ngFor="let model of keyValuePairs | keyvalue">{{model.key}} {{ model.value }}</p>
+        </div>
+    </div>
+</div>
