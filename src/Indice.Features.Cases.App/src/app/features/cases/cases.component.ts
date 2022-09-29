@@ -12,9 +12,7 @@ import { CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core
 })
 export class CasesComponent extends BaseListComponent<CasePartial> implements OnInit {
     public newItemLink = 'new-case';
-    public formActions: ViewAction[] = [
-        new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
-    ];
+    public formActions: ViewAction[] = [];
 
     constructor(
         private _route: ActivatedRoute,
@@ -34,8 +32,15 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
     public ngOnInit(): void {
         forkJoin({
             caseTypes: this._api.getCaseTypes(),
+            creationCaseTypes: this._api.getCaseTypes(true),
             checkpointTypes: this._api.getDistinctCheckpointNames()
-        }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
+        }).pipe(take(1)).subscribe(({ caseTypes, creationCaseTypes, checkpointTypes }) => {
+            if (creationCaseTypes.count !== 0) {
+                this.formActions = [
+                    new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
+                ];
+            }
+
             const caseTypeSearchOption: SearchOption = {
                 field: 'caseTypeCodes',
                 name: 'ΤΥΠΟΣ ΑΙΤΗΣΗΣ',

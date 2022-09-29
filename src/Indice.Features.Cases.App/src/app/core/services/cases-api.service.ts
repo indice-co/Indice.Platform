@@ -149,10 +149,11 @@ export interface ICasesApiService {
     getCaseTimeline(caseId: string, api_version?: string | undefined): Observable<TimelineEntry[]>;
     /**
      * Get case types.
+     * @param forCreation (optional) 
      * @param api_version (optional) 
      * @return Success
      */
-    getCaseTypes(api_version?: string | undefined): Observable<CaseTypePartialResultSet>;
+    getCaseTypes(forCreation?: boolean | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet>;
     /**
      * Create new case type.
      * @param api_version (optional) 
@@ -1983,11 +1984,16 @@ export class CasesApiService implements ICasesApiService {
 
     /**
      * Get case types.
+     * @param forCreation (optional) 
      * @param api_version (optional) 
      * @return Success
      */
-    getCaseTypes(api_version?: string | undefined): Observable<CaseTypePartialResultSet> {
+    getCaseTypes(forCreation?: boolean | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet> {
         let url_ = this.baseUrl + "/api/manage/case-types?";
+        if (forCreation === null)
+            throw new Error("The parameter 'forCreation' cannot be null.");
+        else if (forCreation !== undefined)
+            url_ += "forCreation=" + encodeURIComponent("" + forCreation) + "&";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
         else if (api_version !== undefined)
@@ -4365,6 +4371,8 @@ export class CaseDetails implements ICaseDetails {
     draft?: boolean;
     /** The attachments of the case. */
     attachments?: CaseAttachment[] | undefined;
+    /** The back-office users that approved the case. */
+    approvers?: AuditMeta[] | undefined;
 
     constructor(data?: ICaseDetails) {
         if (data) {
@@ -4403,6 +4411,11 @@ export class CaseDetails implements ICaseDetails {
                 this.attachments = [] as any;
                 for (let item of _data["attachments"])
                     this.attachments!.push(CaseAttachment.fromJS(item));
+            }
+            if (Array.isArray(_data["approvers"])) {
+                this.approvers = [] as any;
+                for (let item of _data["approvers"])
+                    this.approvers!.push(AuditMeta.fromJS(item));
             }
         }
     }
@@ -4443,6 +4456,11 @@ export class CaseDetails implements ICaseDetails {
             for (let item of this.attachments)
                 data["attachments"].push(item.toJSON());
         }
+        if (Array.isArray(this.approvers)) {
+            data["approvers"] = [];
+            for (let item of this.approvers)
+                data["approvers"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -4481,6 +4499,8 @@ export interface ICaseDetails {
     draft?: boolean;
     /** The attachments of the case. */
     attachments?: CaseAttachment[] | undefined;
+    /** The back-office users that approved the case. */
+    approvers?: AuditMeta[] | undefined;
 }
 
 export class CaseImage implements ICaseImage {
@@ -4827,6 +4847,8 @@ export class CaseTypePartial implements ICaseTypePartial {
     layout?: string | undefined;
     /** The case type tags. */
     tags?: string | undefined;
+    /** The allowed Roles For case Creation. */
+    allowedRolesForCreation?: string[] | undefined;
     /** The translations for the case type metadata (eg title). */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
 
@@ -4847,6 +4869,11 @@ export class CaseTypePartial implements ICaseTypePartial {
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
             this.tags = _data["tags"];
+            if (Array.isArray(_data["allowedRolesForCreation"])) {
+                this.allowedRolesForCreation = [] as any;
+                for (let item of _data["allowedRolesForCreation"])
+                    this.allowedRolesForCreation!.push(item);
+            }
             if (_data["translations"]) {
                 this.translations = {} as any;
                 for (let key in _data["translations"]) {
@@ -4872,6 +4899,11 @@ export class CaseTypePartial implements ICaseTypePartial {
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
         data["tags"] = this.tags;
+        if (Array.isArray(this.allowedRolesForCreation)) {
+            data["allowedRolesForCreation"] = [];
+            for (let item of this.allowedRolesForCreation)
+                data["allowedRolesForCreation"].push(item);
+        }
         if (this.translations) {
             data["translations"] = {};
             for (let key in this.translations) {
@@ -4897,6 +4929,8 @@ export interface ICaseTypePartial {
     layout?: string | undefined;
     /** The case type tags. */
     tags?: string | undefined;
+    /** The allowed Roles For case Creation. */
+    allowedRolesForCreation?: string[] | undefined;
     /** The translations for the case type metadata (eg title). */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
 }

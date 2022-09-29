@@ -24,12 +24,14 @@ namespace Indice.Features.Cases.Interfaces
         /// </summary>
         /// <param name="id">The Id of the case type.</param>
         Task<DbCaseType> Get(Guid id);
-        
+
         /// <summary>
         /// Get the case type a user is authorized for.
         /// </summary>
-        Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user);
-        
+        /// <param name="user"></param>
+        /// <param name="forCreation"></param>
+        Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool forCreation);
+
         /// <summary>
         /// Get the case type details by its Id.
         /// </summary>

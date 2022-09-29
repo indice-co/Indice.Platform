@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
@@ -42,14 +43,37 @@ namespace Indice.Features.Cases.Services
             return caseType ?? throw new Exception("CaseType is invalid."); // todo proper exception;
         }
 
-        public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user) {
+        public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool forCreation) {
             if (user.IsAdmin()) {
                 return await GetAdminCases();
             }
+
             var roleClaims = user.Claims
                 .Where(c => c.Type == JwtClaimTypes.Role)
                 .Select(c => c.Value)
                 .ToList();
+
+            if (forCreation) {
+                var creationCaseTypes = await _dbContext.CaseTypes
+                                    .AsQueryable()
+                .Select(c => new CaseTypePartial {
+                    Id = c.Id,
+                    Title = c.Title,
+                    DataSchema = c.DataSchema,
+                    Layout = c.Layout,
+                    Code = c.Code,
+                    Tags = c.Tags,
+                    AllowedRolesForCreation = string.IsNullOrWhiteSpace(c.AllowedRolesForCreation) ?
+                                                new List<string>() :
+                                                c.AllowedRolesForCreation!.Split(',', StringSplitOptions.None).ToList(),
+                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
+                })
+                .ToListAsync();
+
+                return creationCaseTypes
+                    .Where(c => c.AllowedRolesForCreation.Intersect(roleClaims).Any())
+                    .ToResultSet();
+            }
 
             var caseTypeIds = await _dbContext.RoleCaseTypes
                 .AsQueryable()
