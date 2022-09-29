@@ -7,60 +7,32 @@
                     <section aria-labelledby="menu"
                              class="min-w-full">
                         <div class="bg-white shadow rounded-sm">
-                            <div class="flex flex-col justify-stretch bg-gray-50 border-b">
-                                <!-- model goes here-->
-                                <div class="flex items-center p-5">
-                                    <div class="whitespace-normal break-word">
-                                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
-                                            Βασικά στοιχεία αίτησης
-                                        </h3>
-                                        <p class="text-s leading-none mb-2">Κωδικός Αίτησης: {{ model?.id }}</p>
-                                        <p class="text-s text-grey-dark mb-2">Ημ. Υποβολής: {{ model?.createdByWhen |
-                                            date:'dd/MM/YYYY' }}</p>
-                                        <p class="text-s text-grey-dark mb-2">Τύπος Αίτησης: {{ model?.caseType?.title}}
-                                        </p>
-                                        <p class="text-s text-grey-dark mb-2">Κανάλι: {{model?.channel}}</p>
-                                        <p class="text-s text-grey-dark mb-2">Τρέχον Σημείο Ελέγχου:
-                                            {{model?.checkpointTypeCode | removePrefix }}</p>
-                                        <p class="text-s text-grey-dark mb-2">Ανάθεση σε: {{ model?.assignedToName || '
-                                            - ' }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex flex-col justify-stretch bg-gray-50 border-b">
-                                <!-- model goes here-->
-                                <div class="flex items-center p-5">
-                                    <div class="whitespace-normal break-word">
-                                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
-                                            Στοιχεία πελάτη
-                                        </h3>
-                                        <p class="text-s text-grey-dark mb-2">Κωδικός Πελάτη: {{model?.customerId}}</p>
-                                        <p class="text-s text-grey-dark mb-2">Όνομα Πελάτη: {{model?.customerName}}</p>
-                                        <p class="text-s text-grey-dark mb-2">Α.Φ.Μ. Πελάτη: {{model?.metadata?.TaxId}}
-                                        </p>
-                                        <p class="text-s text-grey-dark mb-2">Κατάστημα Πελάτη: {{model?.groupId}}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex flex-col justify-stretch bg-gray-50 border-b"
-                                 *ngIf="model?.metadata?.UserRole !== 'ΠΡΟΣΩΠΙΚΟΣ ΛΟΓΑΡΙΑΣΜΟΣ'">
-                                <!-- model goes here-->
-                                <div class="flex items-center p-5">
-                                    <div class="whitespace-normal break-word">
-                                        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
-                                            Στοιχεία Χρήστη
-                                        </h3>
-                                        <p class="text-s text-grey-dark mb-2">Όνομα Χρήστη:
-                                            {{model?.metadata?.UserFirstName}}</p>
-                                        <p class="text-s text-grey-dark mb-2">Επώνυμο Χρήστη:
-                                            {{model?.metadata?.UserSurname}}</p>
-                                        <p class="text-s text-grey-dark mb-2">ΑΠ Χρήστη:
-                                            {{model?.metadata?.UserCustomerId}}</p>
-                                        <p class="text-s text-grey-dark mb-2">Ρόλος Χρήστη:
-                                            {{model?.metadata?.UserRole}}</p>
-                                    </div>
-                                </div>
-                            </div>
+                            <app-case-detail-info [title]="'Βασικά στοιχεία αίτησης'"
+                                                  [keyValuePairs]="{
+                                                    'Κωδικός Αίτησης:': model?.id,
+                                                    'Ημ. Υποβολής:': model?.createdByWhen | date:'dd/MM/YYYY',
+                                                    'Τύπος Αίτησης:':model?.caseType?.title,
+                                                    'Κανάλι:':model?.channel,
+                                                    'Τρέχον Σημείο Ελέγχου:':model?.checkpointTypeCode | removePrefix,
+                                                    'Ανάθεση σε:':model?.assignedToName || ' - '}">
+                            </app-case-detail-info>
+
+                            <app-case-detail-info [title]="'Στοιχεία Πελάτη'"
+                                                  [keyValuePairs]="{
+                                                    'Κωδικός Πελάτη:': model?.customerId,
+                                                    'Όνομα Πελάτη:': model?.customerName,
+                                                    'Α.Φ.Μ. Πελάτη:':model?.metadata?.TaxId,
+                                                    'Κατάστημα Πελάτη:':model?.groupId}">
+                            </app-case-detail-info>
+
+                            <app-case-detail-info *ngIf="model?.metadata?.UserRole"
+                                                  [title]="'Στοιχεία Χρήστη'"
+                                                  [keyValuePairs]="{
+                                                    'Επώνυμο Χρήστη:': model?.metadata?.UserSurname,
+                                                    'Όνομα Χρήστη:': model?.metadata?.UserFirstName,
+                                                    'Ρόλος Χρήστη:':model?.metadata?.UserRole,
+                                                    'ΑΠ Χρήστη:':model?.metadata?.UserCustomerId}">
+                            </app-case-detail-info>
                         </div>
                         <div class="bg-white shadow rounded-sm"
                              *ngIf="caseActions.hasAssignment || model.draft">
