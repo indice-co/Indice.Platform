@@ -49,14 +49,13 @@ namespace Indice.AspNetCore.Identity.Features
             var result = default(TotpResult);
             switch (request.Channel) {
                 case TotpDeliveryChannel.Sms:
-                    result = await TotpService.Send(options => options.UsePrincipal(User).WithMessage(request.Message).UsingSms().WithPurpose(request.Purpose));
-                    if (!result.Success) {
-                        ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occurred.");
-                        return BadRequest(new ValidationProblemDetails(ModelState));
-                    }
-                    break;
                 case TotpDeliveryChannel.Viber:
-                    result = await TotpService.Send(options => options.UsePrincipal(User).WithMessage(request.Message).UsingViber().WithPurpose(request.Purpose));
+                    result = await TotpService.Send(options => 
+                        options.UsePrincipal(User)
+                               .WithMessage(request.Message)
+                               .UsingDeliveryChannel(request.Channel)
+                               .WithPurpose(request.Purpose)
+                    );
                     if (!result.Success) {
                         ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occurred.");
                         return BadRequest(new ValidationProblemDetails(ModelState));

@@ -109,15 +109,12 @@ namespace Indice.AspNetCore.Identity
                     if (_pushNotificationService == null) {
                         throw new ArgumentNullException(nameof(_pushNotificationService), $"Cannot send push notification since there is no implementation of {nameof(IPushNotificationService)}.");
                     }
-                    var pushNotificationMessageBuilder = new PushNotificationMessageBuilder();
-                    if (string.IsNullOrWhiteSpace(user?.Id)) {
-                        pushNotificationMessageBuilder.To(user?.Id);
-                    }
-                    pushNotificationMessageBuilder
+                    await _pushNotificationService.SendAsync(builder => builder
+                        .ToUser(user?.Id)
                         .WithTitle(string.Format(message, token))
                         .WithData(data)
-                        .WithClassification(classification);
-                    await _pushNotificationService.SendAsync(builder => pushNotificationMessageBuilder);
+                        .WithClassification(classification)
+                    );
                     break;
                 default:
                     break;

@@ -87,12 +87,13 @@ namespace Indice.Services
         /// <summary>Send notification to devices registered to userId with optional data as payload.</summary>
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
         /// <param name="configurePushNotificationMessage">The delegate that will be used to build the <see cref="PushNotificationMessage"/>.</param>
-        public static async Task SendAsync(this IPushNotificationService service, Func<PushNotificationMessageBuilder, PushNotificationMessageBuilder> configurePushNotificationMessage) {
+        public static async Task SendAsync(this IPushNotificationService service, Action<PushNotificationMessageBuilder> configurePushNotificationMessage) {
             if (configurePushNotificationMessage == null) {
                 throw new ArgumentNullException(nameof(configurePushNotificationMessage));
             }
-            var pushNotificationMessageBuilder = configurePushNotificationMessage(new PushNotificationMessageBuilder());
-            var pushNotificationMessage = pushNotificationMessageBuilder.Build();
+            var builder = new PushNotificationMessageBuilder();
+            configurePushNotificationMessage.Invoke(builder);
+            var pushNotificationMessage = builder.Build();
             await service.SendAsync(pushNotificationMessage.Title, pushNotificationMessage.Body, pushNotificationMessage.Data, pushNotificationMessage.UserTag, pushNotificationMessage.Classification, pushNotificationMessage.Tags.ToArray());
         }
     }

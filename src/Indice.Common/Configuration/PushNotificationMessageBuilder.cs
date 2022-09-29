@@ -58,7 +58,7 @@ namespace Indice.Services
         /// <summary>Defines the user that will receive the push notification.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="userTag">The Id of the user.</param>
-        public static PushNotificationMessageBuilder To(this PushNotificationMessageBuilder builder, string userTag) {
+        public static PushNotificationMessageBuilder ToUser(this PushNotificationMessageBuilder builder, string userTag) {
             if (string.IsNullOrEmpty(userTag)) {
                 throw new ArgumentException("You must define the userId of the push notification.", nameof(userTag));
             }
