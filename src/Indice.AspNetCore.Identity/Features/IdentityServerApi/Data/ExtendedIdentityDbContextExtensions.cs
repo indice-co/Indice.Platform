@@ -22,6 +22,9 @@ namespace Indice.AspNetCore.Identity.Data
         public static void SeedAdminUser<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
             where TUser : User, new()
             where TRole : Role, new() {
+            if (!dbContext.Database.CanConnect()) {
+                return;
+            }
             const string adminEmail = "company@indice.gr";
             var hasAdminAccount = dbContext.Users.Any(x => x.Email == adminEmail);
             if (hasAdminAccount) {

@@ -9,7 +9,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Endpoints.Result
             RegistrationId = registrationId;
         }
 
-        [JsonPropertyName("regId")]
+        [JsonPropertyName("registrationId")]
         public Guid RegistrationId { get; }
     }
 }

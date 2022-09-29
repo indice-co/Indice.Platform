@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Security;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Distributed;
@@ -112,20 +109,11 @@ namespace Indice.AspNetCore.Identity
                     if (_pushNotificationService == null) {
                         throw new ArgumentNullException(nameof(_pushNotificationService), $"Cannot send push notification since there is no implementation of {nameof(IPushNotificationService)}.");
                     }
-                    var jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
-                    if (!string.IsNullOrWhiteSpace(data)) {
-                        var dataObject = JsonSerializer.Deserialize<ExpandoObject>(data, jsonSerializerOptions);
-                        dataObject.TryAdd("otp", token);
-                        data = JsonSerializer.Serialize(dataObject, jsonSerializerOptions);
-                    } else {
-                        data = JsonSerializer.Serialize(new { otp = token }, jsonSerializerOptions);
-                    }
                     var pushNotificationMessageBuilder = new PushNotificationMessageBuilder();
                     if (string.IsNullOrWhiteSpace(user?.Id)) {
                         pushNotificationMessageBuilder.To(user?.Id);
                     }
                     pushNotificationMessageBuilder
-                        .WithToken(token)
                         .WithTitle(string.Format(message, token))
                         .WithData(data)
                         .WithClassification(classification);

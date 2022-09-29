@@ -84,16 +84,6 @@ namespace Indice.Services
         public static Task BroadcastAsync<TData>(this IPushNotificationService service, string title, string body, TData data, string classification = null) where TData : class =>
             service.BroadcastAsync(title, body, data != null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null, classification);
 
-        /// <summary>Send notifications to specified tags.</summary>
-        /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
-        /// <param name="title">Message of notification.</param>
-        /// <param name="body">Body of notification.</param>
-        /// <param name="tags">Tags are used to route notifications to the correct set of device handles.</param>
-        /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
-        /// <param name="classification">The notification's type.</param>
-        public static Task SendAsync(this IPushNotificationService service, string title, string body, IList<string> tags, string data = null, string classification = null) =>
-            service.SendAsync(title, body, tags, data, classification);
-
         /// <summary>Send notification to devices registered to userId with optional data as payload.</summary>
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
         /// <param name="configurePushNotificationMessage">The delegate that will be used to build the <see cref="PushNotificationMessage"/>.</param>

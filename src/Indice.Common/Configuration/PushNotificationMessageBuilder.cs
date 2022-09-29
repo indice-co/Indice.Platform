@@ -20,8 +20,6 @@ namespace Indice.Services
         public string[] Tags { get; set; } = Array.Empty<string>();
         /// <summary>The type of the push notification.</summary>
         public string Classification { get; set; }
-        /// <summary>The OTP token that must be passed to the client.</summary>
-        public string Token { get; set; }
     }
 
     /// <summary><see cref="PushNotificationMessageBuilder"/> extensions.</summary>
@@ -46,17 +44,6 @@ namespace Indice.Services
                 throw new ArgumentException("You must define a body for the push notification.", nameof(body));
             }
             builder.Body = body;
-            return builder;
-        }
-
-        /// <summary>Defines the OTP token that must be passed to the client.</summary>
-        /// <param name="builder">The builder.</param>
-        /// <param name="token">The token.</param>
-        public static PushNotificationMessageBuilder WithToken(this PushNotificationMessageBuilder builder, string token) {
-            if (string.IsNullOrEmpty(token)) {
-                throw new ArgumentException("You must define the otp token of the Push Notification.", nameof(token));
-            }
-            builder.Token = token;
             return builder;
         }
 
@@ -101,6 +88,6 @@ namespace Indice.Services
         /// <summary>Returns the <see cref="PushNotificationMessage"/> instance made by the builder.</summary>
         /// <param name="builder">The builder.</param>
         public static PushNotificationMessage Build(this PushNotificationMessageBuilder builder) =>
-            new(builder.Title, builder.Body, builder.Token, builder.Data, builder.UserTag, builder.Tags, builder.Classification);
+            new(builder.Title, builder.Body, builder.Data, builder.UserTag, builder.Tags, builder.Classification);
     }
 }

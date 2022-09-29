@@ -300,7 +300,7 @@ namespace Indice.AspNetCore.Identity.Tests
                     { "code", challenge },
                     { "code_signature", signature },
                     { "code_verifier", codeVerifier },
-                    { "reg_id", registrationResult.RegistrationId.ToString() },
+                    { "registration_id", registrationResult.RegistrationId.ToString() },
                     { "public_key", CERTIFICATE_PUBLIC_KEY },
                     { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
                 }
@@ -318,7 +318,7 @@ namespace Indice.AspNetCore.Identity.Tests
                 ClientSecret = CLIENT_SECRET,
                 GrantType = CustomGrantTypes.TrustedDevice,
                 Parameters = {
-                    { "reg_id", registrationResult.RegistrationId.ToString() },
+                    { "registration_id", registrationResult.RegistrationId.ToString() },
                     { "pin", DEVICE_PIN },
                     { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
                 }
@@ -361,7 +361,7 @@ namespace Indice.AspNetCore.Identity.Tests
             var data = new Dictionary<string, string> {
                 { "client_id", CLIENT_ID },
                 { "code_challenge", codeChallenge },
-                { "reg_id", registrationId.ToString() },
+                { "registration_id", registrationId.ToString() },
                 { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
             };
             var form = new FormUrlEncodedContent(data);
@@ -581,7 +581,7 @@ namespace Indice.AspNetCore.Identity.Tests
         public class TrustedDeviceCompleteRegistrationResultDto
         {
             public string DeviceId { get; set; }
-            [JsonPropertyName("regId")]
+            [JsonPropertyName("registrationId")]
             public Guid RegistrationId { get; set; }
         }
         #endregion
