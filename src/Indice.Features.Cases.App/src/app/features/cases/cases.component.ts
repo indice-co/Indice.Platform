@@ -4,7 +4,7 @@ import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterV
 import { SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core/services/cases-api.service';
+import { Action, CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core/services/cases-api.service';
 
 @Component({
     selector: 'app-cases',
@@ -31,8 +31,8 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
 
     public ngOnInit(): void {
         forkJoin({
-            caseTypes: this._api.getCaseTypes(),
-            creationCaseTypes: this._api.getCaseTypes(true),
+            caseTypes: this._api.getCaseTypes(Action.Read),
+            creationCaseTypes: this._api.getCaseTypes(Action.Create),
             checkpointTypes: this._api.getDistinctCheckpointNames()
         }).pipe(take(1)).subscribe(({ caseTypes, creationCaseTypes, checkpointTypes }) => {
             if (creationCaseTypes.count !== 0) {

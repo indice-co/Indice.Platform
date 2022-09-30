@@ -1,4 +1,4 @@
-import { CaseTypePartialResultSet } from './../../../core/services/cases-api.service';
+import { Action, CaseTypePartialResultSet } from './../../../core/services/cases-api.service';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CasesApiService, CaseTypePartial } from 'src/app/core/services/cases-api.service';
@@ -15,7 +15,7 @@ export class SelectCaseTypeComponent implements OnInit {
   @Output() selectedCaseTypeEvent = new EventEmitter<string>();
 
   constructor(private api: CasesApiService) {
-    this.caseTypes$ = this.api.getCaseTypes(true).pipe(
+    this.caseTypes$ = this.api.getCaseTypes(Action.Create).pipe(
       map((result: CaseTypePartialResultSet) => result.items as CaseTypePartial[])
     )
   }

@@ -25,6 +25,10 @@ namespace Indice.Features.Cases.Data.Config
                 .WithMany()
                 .HasForeignKey(p => p.CheckpointTypeId)
                 .OnDelete(DeleteBehavior.NoAction);  // todo check if this leaves garbage behind!!!
+            builder
+                .Property(p => p.Action)
+                .HasMaxLength(TextSizePresets.M256)
+                .IsRequired(false);
         }
     }
 }

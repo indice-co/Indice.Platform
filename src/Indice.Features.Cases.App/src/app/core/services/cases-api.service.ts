@@ -149,11 +149,11 @@ export interface ICasesApiService {
     getCaseTimeline(caseId: string, api_version?: string | undefined): Observable<TimelineEntry[]>;
     /**
      * Get case types.
-     * @param forCreation (optional) 
+     * @param action (optional) 
      * @param api_version (optional) 
      * @return Success
      */
-    getCaseTypes(forCreation?: boolean | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet>;
+    getCaseTypes(action?: Action | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet>;
     /**
      * Create new case type.
      * @param api_version (optional) 
@@ -1984,16 +1984,16 @@ export class CasesApiService implements ICasesApiService {
 
     /**
      * Get case types.
-     * @param forCreation (optional) 
+     * @param action (optional) 
      * @param api_version (optional) 
      * @return Success
      */
-    getCaseTypes(forCreation?: boolean | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet> {
+    getCaseTypes(action?: Action | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet> {
         let url_ = this.baseUrl + "/api/manage/case-types?";
-        if (forCreation === null)
-            throw new Error("The parameter 'forCreation' cannot be null.");
-        else if (forCreation !== undefined)
-            url_ += "forCreation=" + encodeURIComponent("" + forCreation) + "&";
+        if (action === null)
+            throw new Error("The parameter 'action' cannot be null.");
+        else if (action !== undefined)
+            url_ += "action=" + encodeURIComponent("" + action) + "&";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
         else if (api_version !== undefined)
@@ -4065,6 +4065,11 @@ export class CasesApiService implements ICasesApiService {
         }
         return _observableOf<CaseImage>(null as any);
     }
+}
+
+export enum Action {
+    Read = "read",
+    Create = "create",
 }
 
 /** The Approval action for a Case. */

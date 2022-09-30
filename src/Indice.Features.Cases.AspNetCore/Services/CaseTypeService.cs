@@ -43,7 +43,7 @@ namespace Indice.Features.Cases.Services
             return caseType ?? throw new Exception("CaseType is invalid."); // todo proper exception;
         }
 
-        public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool forCreation) {
+        public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, Data.Models.Action action) {
             if (user.IsAdmin()) {
                 return await GetAdminCases();
             }
@@ -53,31 +53,31 @@ namespace Indice.Features.Cases.Services
                 .Select(c => c.Value)
                 .ToList();
 
-            if (forCreation) {
-                var creationCaseTypes = await _dbContext.CaseTypes
-                                    .AsQueryable()
-                .Select(c => new CaseTypePartial {
-                    Id = c.Id,
-                    Title = c.Title,
-                    DataSchema = c.DataSchema,
-                    Layout = c.Layout,
-                    Code = c.Code,
-                    Tags = c.Tags,
-                    AllowedRolesForCreation = string.IsNullOrWhiteSpace(c.AllowedRolesForCreation) ?
-                                                new List<string>() :
-                                                c.AllowedRolesForCreation!.Split(',', StringSplitOptions.None).ToList(),
-                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
-                })
-                .ToListAsync();
+            //if (forCreation) {
+            //    var creationCaseTypes = await _dbContext.CaseTypes
+            //                        .AsQueryable()
+            //    .Select(c => new CaseTypePartial {
+            //        Id = c.Id,
+            //        Title = c.Title,
+            //        DataSchema = c.DataSchema,
+            //        Layout = c.Layout,
+            //        Code = c.Code,
+            //        Tags = c.Tags,
+            //        AllowedRolesForCreation = string.IsNullOrWhiteSpace(c.AllowedRolesForCreation) ?
+            //                                    new List<string>() :
+            //                                    c.AllowedRolesForCreation!.Split(',', StringSplitOptions.None).ToList(),
+            //        Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
+            //    })
+            //    .ToListAsync();
 
-                return creationCaseTypes
-                    .Where(c => c.AllowedRolesForCreation.Intersect(roleClaims).Any())
-                    .ToResultSet();
-            }
+            //    return creationCaseTypes
+            //        .Where(c => c.AllowedRolesForCreation.Intersect(roleClaims).Any())
+            //        .ToResultSet();
+            //}
 
             var caseTypeIds = await _dbContext.RoleCaseTypes
                 .AsQueryable()
-                .Where(r => roleClaims.Contains(r.RoleName))
+                .Where(r => roleClaims.Contains(r.RoleName) && r.Action.Contains(action.ToString()))
                 .Select(c => c.CaseTypeId)
                 .ToListAsync();
 

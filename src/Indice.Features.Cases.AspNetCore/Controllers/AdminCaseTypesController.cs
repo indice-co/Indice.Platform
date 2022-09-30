@@ -33,13 +33,13 @@ namespace Indice.Features.Cases.Controllers
         /// <summary>
         /// Get case types.
         /// </summary>
-        /// <param name="forCreation"></param>
+        /// <param name="action"></param>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<CaseTypePartial>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetCaseTypes(bool forCreation) {
-            var caseTypes = await _caseTypeService.Get(User, forCreation);
+        public async Task<IActionResult> GetCaseTypes(Data.Models.Action action) {
+            var caseTypes = await _caseTypeService.Get(User, action);
             return Ok(caseTypes);
         }
 

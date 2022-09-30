@@ -29,8 +29,8 @@ namespace Indice.Features.Cases.Interfaces
         /// Get the case type a user is authorized for.
         /// </summary>
         /// <param name="user"></param>
-        /// <param name="forCreation"></param>
-        Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool forCreation);
+        /// <param name="action"></param>
+        Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, Data.Models.Action action);
 
         /// <summary>
         /// Get the case type details by its Id.
