@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json;
+using Indice.Serialization;
 
 namespace Indice.Services
 {
@@ -55,6 +57,15 @@ namespace Indice.Services
             return builder;
         }
 
+        /// <summary>Defines the data of the push notification. Data is optional.</summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="data">The data that will be sent to the push notification.</param>
+        public static PushNotificationMessageBuilder WithData<TData>(this PushNotificationMessageBuilder builder, TData data) where TData : class {
+            var dataJson = JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings());
+            builder.Data = dataJson;
+            return builder;
+        }
+
         /// <summary>Defines the user that will receive the push notification.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="userTag">The Id of the user.</param>
@@ -63,6 +74,17 @@ namespace Indice.Services
                 throw new ArgumentException("You must define the userId of the push notification.", nameof(userTag));
             }
             builder.UserTag = userTag;
+            return builder;
+        }
+
+        /// <summary>Defines the user that will receive the push notification.</summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="deviceId">The Id of the device.</param>
+        public static PushNotificationMessageBuilder ToDevice(this PushNotificationMessageBuilder builder, string deviceId) {
+            if (string.IsNullOrEmpty(deviceId)) {
+                throw new ArgumentException("You must define the userId of the push notification.", nameof(deviceId));
+            }
+            builder.UserTag = deviceId;
             return builder;
         }
 

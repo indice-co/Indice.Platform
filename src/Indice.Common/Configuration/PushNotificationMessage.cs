@@ -32,6 +32,8 @@ namespace Indice.Services
         public string Body { get; set; }
         /// <summary>The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc.</summary>
         public string UserTag { get; }
+        /// <summary></summary>
+        public string DeviceTag { get; set; }
         /// <summary>The tags of the push notification.</summary>
         public string[] Tags { get; }
         /// <summary>The type of the push notification.</summary>

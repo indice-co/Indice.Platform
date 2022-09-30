@@ -50,34 +50,30 @@ namespace Indice.AspNetCore.Identity.Features
             switch (request.Channel) {
                 case TotpDeliveryChannel.Sms:
                 case TotpDeliveryChannel.Viber:
-                    result = await TotpService.Send(options => 
-                        options.UsePrincipal(User)
+                    result = await TotpService.Send(builder =>
+                        builder.UsePrincipal(User)
                                .WithMessage(request.Message)
                                .UsingDeliveryChannel(request.Channel)
                                .WithPurpose(request.Purpose)
                     );
-                    if (!result.Success) {
-                        ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occurred.");
-                        return BadRequest(new ValidationProblemDetails(ModelState));
-                    }
                     break;
                 case TotpDeliveryChannel.PushNotification:
-                    result = await TotpService.Send(options => options
+                    result = await TotpService.Send(builder => builder
                         .UsePrincipal(User)
                         .WithMessage(request.Message)
                         .UsingPushNotification()
                         .WithPurpose(request.Purpose)
                         .WithData(request.Data)
                         .WithClassification(request.Classification));
-                    if (!result.Success) {
-                        ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occurred.");
-                        return BadRequest(new ValidationProblemDetails(ModelState));
-                    }
                     break;
                 case TotpDeliveryChannel.Email:
                 case TotpDeliveryChannel.Telephone:
                 default:
                     return StatusCode(405);
+            }
+            if (!result.Success) {
+                ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occurred.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
             }
             return NoContent();
         }

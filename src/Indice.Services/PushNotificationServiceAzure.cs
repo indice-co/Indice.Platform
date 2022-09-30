@@ -27,7 +27,11 @@ namespace Indice.Services
             NotificationHub = new NotificationHubClient(
                 PushNotificationAzureOptions.ConnectionString,
                 PushNotificationAzureOptions.NotificationHubPath,
-                PushNotificationAzureOptions.MessageHandler != null ? new NotificationHubSettings { MessageHandler = PushNotificationAzureOptions.MessageHandler } : null
+                PushNotificationAzureOptions.MessageHandler is not null
+                    ? new NotificationHubSettings {
+                        MessageHandler = PushNotificationAzureOptions.MessageHandler
+                    }
+                    : null
             );
         }
 
@@ -76,26 +80,33 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string title, string body, IList<string> tags, string data = null, string classification = null) {
+        public async Task SendAsync(string title, string body, IList<PushNotificationTag> tags, string data = null, string classification = null) {
             if (string.IsNullOrEmpty(title)) {
                 throw new ArgumentNullException(nameof(title));
             }
-            var notification = new Dictionary<string, string> {
+            var properties = new Dictionary<string, string> {
                 { "message", title }
             };
             if (!string.IsNullOrWhiteSpace(body)) {
-                notification.Add("body", body);
+                properties.Add("body", body);
             }
             if (!string.IsNullOrEmpty(data)) {
-                notification.Add("data", data);
+                properties.Add("data", data);
             }
             if (!string.IsNullOrEmpty(classification)) {
-                notification.Add("classification", classification);
+                properties.Add("classification", classification);
             }
             if (tags?.Any() == true) {
-                await NotificationHub.SendTemplateNotificationAsync(notification, tags);
+                await NotificationHub.SendTemplateNotificationAsync(
+                    properties,
+                    tags.Select(
+                        tag => tag.Target == PushNotificationTagTarget.User
+                            ? tag.Value
+                            : "$InstallationId:{" + tag.Value + "}" // https://learn.microsoft.com/en-us/azure/notification-hubs/notification-hubs-push-notification-registration-management#installations
+                    )
+            );
             } else {
-                await NotificationHub.SendTemplateNotificationAsync(notification);
+                await NotificationHub.SendTemplateNotificationAsync(properties);
             }
         }
     }

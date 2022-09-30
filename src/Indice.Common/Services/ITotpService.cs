@@ -41,9 +41,7 @@ namespace Indice.Services
         Task<Dictionary<string, TotpProviderMetadata>> GetProviders(ClaimsPrincipal principal);
     }
 
-    /// <summary>
-    /// Extensions on <see cref="ITotpService"/>.
-    /// </summary>
+    /// <summary>Extensions on <see cref="ITotpService"/>.</summary>
     public static class ITotpServiceExtensions
     {
         /// <summary>Sends a new code via the selected channel for the given user id.</summary>
@@ -93,15 +91,11 @@ namespace Indice.Services
     {
         /// <summary>The claims principal.</summary>
         public ClaimsPrincipal ClaimsPrincipal { get; internal set; }
-        /// <summary>
-        /// The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.
-        /// If the <see cref="DeliveryChannel"/> is PushNotification, the {0} placeholder can be ignored and use a human friendly message.
-        /// </summary>
+        /// <summary>The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</summary>
+        /// <remarks>If the <see cref="DeliveryChannel"/> is <see cref="TotpDeliveryChannel.PushNotification"/>, the {0} placeholder can be ignored and use a human friendly message.</remarks>
         public string Message { get; internal set; }
-        /// <summary>
-        /// The payload data as json string to be sent in PushNotification.
+        /// <summary>The payload data as json string to be sent in PushNotification.</summary>
         /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
-        /// </summary>
         public ExpandoObject Data { get; internal set; }
         /// <summary>Security token.</summary>
         public string SecurityToken { get; internal set; }

@@ -17,7 +17,11 @@ namespace Indice.Services.Tests
                 .ToUser("5372ef3e-9bf8-464d-8fc9-3234a2b979f6")
                 .WithTitle("This is the title!")
                 .WithBody("This is the body!")
-                .WithData("{\"connectionId\":\"1234-ab-cd\", \"otp\":123456}")
+                //.WithData("{\"connectionId\":\"1234-ab-cd\",\"otp\":123456}")
+                .WithData(new {
+                    ConnectionId = "1234-ab-cd",
+                    Otp = 123456
+                })
                 .WithClassification("Approvals")
                 .WithTags("tag-1", "tag-2")
             );
@@ -26,7 +30,7 @@ namespace Indice.Services.Tests
                 It.Is<string>(title => title == "This is the title!"),
                 It.Is<string>(body => body == "This is the body!"),
                 It.Is<IList<string>>(tags => tags.ElementAt(0) == "5372ef3e-9bf8-464d-8fc9-3234a2b979f6" && tags.ElementAt(1) == "tag-1" && tags.ElementAt(2) == "tag-2"),
-                It.Is<string>(dataJson => dataJson == "{\"connectionId\":\"1234-ab-cd\", \"otp\":123456}"),
+                It.Is<string>(dataJson => dataJson == "{\"connectionId\":\"1234-ab-cd\",\"otp\":123456}"),
                 It.Is<string>(classification => classification == "Approvals")
             ), Times.Once);
         }
