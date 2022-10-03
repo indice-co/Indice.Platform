@@ -48,6 +48,7 @@ namespace Microsoft.Extensions.Hosting
             services.TryAddTransient<IMessageService, MessageService>();
             services.TryAddTransient<IContactService, ContactService>();
             services.TryAddTransient<ICampaignService, CampaignService>();
+            services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<ITemplateService, TemplateService>();
             services.TryAddTransient<CreateCampaignRequestValidator>();

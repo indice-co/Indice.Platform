@@ -63,22 +63,26 @@ namespace Indice.Features.Messages.Core.Services
 
         /// <inheritdoc />
         public async Task<FileAttachment> GetFile(Guid campaignId, Guid attachmentId) {
-            var dbAttachment = await DbContext.Campaigns.Where(x => x.Id == campaignId).Select(x => x.Attachment).SingleOrDefaultAsync();
+            var dbAttachment = await DbContext
+                .Campaigns
+                .Where(x => x.Id == campaignId)
+                .Select(x => x.Attachment)
+                .SingleOrDefaultAsync();
             if (dbAttachment is null) {
                 return null;
             }
-            var path = $"campaigns/{dbAttachment.Uri}";
+            var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension.TrimStart('.')}";
             var data = await FileService.GetAsync(path);
             if (data is null) {
                 return null;
             }
-            return new FileAttachment { 
+            return new FileAttachment {
+                ContentLength = dbAttachment.ContentLength,
                 ContentType = dbAttachment.ContentType,
                 Data = data,
-                ContentLength = dbAttachment.ContentLength,
-                Id = dbAttachment.Id,
                 FileExtension = dbAttachment.FileExtension,
                 Guid = dbAttachment.Guid,
+                Id = dbAttachment.Id,
                 Name = dbAttachment.Name
             };
         }

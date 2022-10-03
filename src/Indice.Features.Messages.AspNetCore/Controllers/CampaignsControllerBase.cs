@@ -21,7 +21,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             if (format.StartsWith('.')) {
                 format = format.TrimStart('.');
             }
-            var path = $"{rootFolder}/{fileGuid.ToString("N").Substring(0, 2)}/{fileGuid:N}.{format}";
+            var path = $"{rootFolder}/{fileGuid.ToString("N")[..2]}/{fileGuid:N}.{format}";
             var properties = await FileService.GetPropertiesAsync(path);
             if (properties is null) {
                 return NotFound();
