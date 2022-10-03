@@ -4,9 +4,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Api.Events;
-using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Events;
 using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
@@ -66,7 +65,7 @@ namespace Indice.AspNetCore.Identity
         public async Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null) {
+            if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
             var userStore = GetUserStore();
@@ -81,7 +80,7 @@ namespace Indice.AspNetCore.Identity
         public async Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null) {
+            if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
             var userStore = GetUserStore();
@@ -98,7 +97,7 @@ namespace Indice.AspNetCore.Identity
         public async Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp = null, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null) {
+            if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
             var userStore = GetUserStore();
@@ -114,10 +113,10 @@ namespace Indice.AspNetCore.Identity
         /// <remarks>This overload is used for admin reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
         public async Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword) {
             ThrowIfDisposed();
-            if (user == null) {
+            if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (password == null) {
+            if (password is null) {
                 throw new ArgumentNullException(nameof(password));
             }
             var result = await UpdatePasswordHash(user, password, validatePassword);
@@ -125,6 +124,24 @@ namespace Indice.AspNetCore.Identity
                 return result;
             }
             return await CreateAsync(user);
+        }
+
+        /// <inheritdoc />
+        public async override Task<IdentityResult> CreateAsync(TUser user) {
+            var result = await base.CreateAsync(user);
+            if (result.Succeeded) {
+                await _eventService.Publish(new UserCreatedEvent(user));
+            }
+            return result;
+        }
+
+        /// <inheritdoc />
+        public async override Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword) {
+            var result = await base.ChangePasswordAsync(user, currentPassword, newPassword);
+            if (result.Succeeded) {
+                await _eventService.Publish(new PasswordChangedEvent(user));
+            }
+            return result;
         }
 
         /// <summary>Reset's a user's password.</summary>
@@ -135,14 +152,16 @@ namespace Indice.AspNetCore.Identity
         /// <remarks>This overload is used for admin reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
         public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true) {
             ThrowIfDisposed();
-            if (user == null) {
+            if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
             var result = await base.UpdatePasswordHash(user, newPassword, validatePassword);
             if (!result.Succeeded) {
                 return result;
             }
-            return await SetLockoutEndDateAsync(user, null);
+            await _eventService.Publish(new PasswordChangedEvent(user));
+            result = await SetLockoutEndDateAsync(user, null);
+            return result;
         }
 
         /// <inheritdoc />
@@ -151,6 +170,7 @@ namespace Indice.AspNetCore.Identity
             if (!result.Succeeded) {
                 return result;
             }
+            await _eventService.Publish(new PasswordChangedEvent(user));
             if (await IsLockedOutAsync(user)) {
                 return await SetLockoutEndDateAsync(user, null);
             }
@@ -172,8 +192,7 @@ namespace Indice.AspNetCore.Identity
         public override async Task<IdentityResult> AccessFailedAsync(TUser user) {
             var result = await base.AccessFailedAsync(user);
             if (await IsLockedOutAsync(user)) {
-                var @event = new AccountLockedEvent(SingleUserInfo.FromUser(user));
-                await _eventService.Publish(@event);
+                await _eventService.Publish(new AccountLockedEvent(user));
             }
             return result;
         }
@@ -204,6 +223,33 @@ namespace Indice.AspNetCore.Identity
                 }
             } else {
                 result = await base.AddClaimAsync(user, newClaim);
+            }
+            return result;
+        }
+
+        /// <inheritdoc />
+        public async override Task<IdentityResult> SetUserNameAsync(TUser user, string userName) {
+            var result = await base.SetUserNameAsync(user, userName);
+            if (result.Succeeded) {
+                await _eventService.Publish(new UserNameChangedEvent(user));
+            }
+            return result;
+        }
+
+        /// <inheritdoc />
+        public override async Task<IdentityResult> ChangePhoneNumberAsync(TUser user, string phoneNumber, string token) {
+            var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
+            if (result.Succeeded) {
+                await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
+            }
+            return result;
+        }
+
+        /// <inheritdoc />
+        public async override Task<IdentityResult> ConfirmEmailAsync(TUser user, string token) {
+            var result = await base.ConfirmEmailAsync(user, token);
+            if (result.Succeeded) {
+                await _eventService.Publish(new EmailConfirmedEvent(user));
             }
             return result;
         }

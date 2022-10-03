@@ -65,7 +65,9 @@ namespace Indice.Services
             var messageBuilder = new TotpMessageBuilder();
             configureMessage(messageBuilder);
             var totpMessage = messageBuilder.Build();
-            var customData = totpMessage.Data is not null ? JsonSerializer.Serialize(totpMessage.Data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null;
+            var customData = totpMessage.Data is not null 
+                ? JsonSerializer.Serialize(totpMessage.Data, JsonSerializerOptionDefaults.GetDefaultSettings()) 
+                : null;
             return service.Send(totpMessage.ClaimsPrincipal, totpMessage.Message, totpMessage.DeliveryChannel, totpMessage.Purpose, totpMessage.SecurityToken, totpMessage.PhoneNumberOrEmail, customData, totpMessage.Classification);
         }
 

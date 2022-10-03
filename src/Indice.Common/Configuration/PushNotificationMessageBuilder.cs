@@ -82,7 +82,7 @@ namespace Indice.Services
         /// <param name="deviceId">The Id of the device.</param>
         public static PushNotificationMessageBuilder ToDevice(this PushNotificationMessageBuilder builder, string deviceId) {
             if (string.IsNullOrEmpty(deviceId)) {
-                throw new ArgumentException("You must define the userId of the push notification.", nameof(deviceId));
+                throw new ArgumentException("You must define the device id of the push notification.", nameof(deviceId));
             }
             builder.UserTag = deviceId;
             return builder;

@@ -73,7 +73,7 @@ namespace Indice.Services
         /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
         /// <param name="classification">The type of the Push Notification.</param>
         public static Task SendToDeviceAsync(this IPushNotificationService service, string deviceId, string title, string body, string data = null, string classification = null) => 
-            service.SendAsync(title, body, new List<PushNotificationTag> { new PushNotificationTag(deviceId, PushNotificationTagTarget.Device) }, data, classification);
+            service.SendAsync(title, body, new List<PushNotificationTag> { new PushNotificationTag(deviceId, PushNotificationTagReferral.Device) }, data, classification);
 
         /// <summary>Send notification to devices registered to userId with optional data as payload.</summary>
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>

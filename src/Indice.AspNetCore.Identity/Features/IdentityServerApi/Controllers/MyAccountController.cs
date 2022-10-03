@@ -9,7 +9,6 @@ using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
 using Indice.AspNetCore.Identity.Api.Configuration;
-using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
@@ -54,7 +53,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly IdentityOptions _identityOptions;
         private readonly IdentityServerApiEndpointsOptions _identityServerApiEndpointsOptions;
         private readonly IEmailService _emailService;
-        private readonly IPlatformEventService _eventService;
         private readonly ISmsServiceFactory _smsServiceFactory;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
         private readonly IPersistedGrantStore _persistedGrantStore;
@@ -69,7 +67,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             IConfiguration configuration,
             IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions,
             IEmailService emailService,
-            IPlatformEventService eventService,
             IOptions<GeneralSettings> generalSettings,
             IOptionsSnapshot<IdentityOptions> identityOptions,
             ISmsServiceFactory smsServiceFactory,
@@ -80,7 +77,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             _emailService = emailService;
-            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _identityOptions = identityOptions?.Value ?? throw new ArgumentNullException(nameof(identityOptions));
             _identityServerApiEndpointsOptions = identityServerApiEndpointsOptions ?? throw new ArgumentNullException(nameof(identityServerApiEndpointsOptions));
@@ -162,8 +158,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            var eventInfo = user.ToBasicUserInfo();
-            await _eventService.Publish(new UserEmailConfirmedEvent(eventInfo));
             return NoContent();
         }
 
@@ -194,7 +188,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return NoContent();
             }
             var smsService = _smsServiceFactory.Create(request.DeliveryChannel);
-            if (smsService == null) {
+            if (smsService is null) {
                 throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
             }
             var token = await _userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber);
@@ -213,7 +207,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ConfirmPhoneNumber([FromBody] ConfirmPhoneNumberRequest request) {
             var userId = User.FindFirstValue(JwtClaimTypes.Subject);
-            var user = await _userManager.Users.Include(x => x.Claims).Where(x => x.Id == userId).SingleOrDefaultAsync();
+            var user = await _userManager
+                .Users
+                .Include(x => x.Claims)
+                .SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
             }
@@ -225,8 +222,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            var eventInfo = user.ToBasicUserInfo();
-            await _eventService.Publish(new UserPhoneNumberConfirmedEvent(eventInfo));
             return NoContent();
         }
 
@@ -248,8 +243,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            var @event = new UserNameChangedEvent(SingleUserInfo.FromUser(user));
-            await _eventService.Publish(@event);
             return Ok();
         }
 
@@ -271,8 +264,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
-            await _eventService.Publish(@event);
             return NoContent();
         }
 
@@ -335,8 +326,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
-            await _eventService.Publish(@event);
             return NoContent();
         }
 
@@ -655,9 +644,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 }
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
-            var createdUser = SingleUserInfo.FromUser(user);
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            await _eventService.Publish(new UserRegisteredEvent(createdUser, token));
             return NoContent();
         }
 
