@@ -48,6 +48,6 @@ namespace Indice.AspNetCore.EmbeddedUI
         internal bool Multitenancy => TenantIdAccessor is not null;
         internal string TenantId { get; set; }
         internal string Path { get; set; }
-        internal RoutePattern PathPrefixPattern { get; set; }
+        internal RoutePattern PathPrefixPattern { get; set; } = RoutePatternFactory.Parse("/");
     }
 }
