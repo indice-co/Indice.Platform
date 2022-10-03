@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net.Mime;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Cases.Interfaces;
@@ -148,8 +150,19 @@ namespace Indice.Features.Cases.Controllers
         }
 
         private async Task<byte[]> CreatePdf(CaseDetails @case) {
+            var IsPortrait = false;
+            var DigitallySigned = false;
+            if (@case.CaseType.CaseTypeConfig is not null) {
+                var caseTypeConfig = JsonSerializer.Deserialize<JsonDocument>(@case.CaseType.CaseTypeConfig);
+                if (caseTypeConfig.RootElement.TryGetProperty("IsPortrait", out var isPortrait)) {
+                    IsPortrait = isPortrait.GetBoolean();
+                }
+                if (caseTypeConfig.RootElement.TryGetProperty("DigitallySigned", out var digitallySigned)) {
+                    DigitallySigned = digitallySigned.GetBoolean();
+                }
+            }
             var template = await _caseTemplateService.RenderTemplateAsync(@case);
-            return await _casePdfService.HtmlToPdfAsync(template);
+            return await _casePdfService.HtmlToPdfAsync(template, IsPortrait, DigitallySigned);
         }
     }
 }
