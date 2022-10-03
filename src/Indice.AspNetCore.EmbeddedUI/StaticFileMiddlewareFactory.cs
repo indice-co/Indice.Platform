@@ -36,7 +36,7 @@ namespace Indice.AspNetCore.EmbeddedUI
             }
             var baseNamespace = $"{assembly.GetName().Name}.{embeddedUIRoot.Replace("-", "_")}";
             var staticFileOptions = new StaticFileOptions {
-                RequestPath = $"/{requestPath}",
+                RequestPath = requestPath == "/" ? null : requestPath,
                 FileProvider = new SpaFileProvider(new EmbeddedFileProvider(assembly, baseNamespace), options),
                 ContentTypeProvider = contentTypeProvider ?? new FileExtensionContentTypeProvider()
             };

@@ -36,12 +36,16 @@ function createAppSettings(): IAppSettings {
             filterProtocolClaims: environment.auth_settings.filterProtocolClaims,
             loadUserInfo: environment.auth_settings.loadUserInfo,
             monitorSession: environment.auth_settings.monitorSession,
-            post_logout_redirect_uri: !isTemplate ? environment.auth_settings.post_logout_redirect_uri : `${host}/${path}/${environment.auth_settings.post_logout_redirect_uri}`,
-            redirect_uri: !isTemplate ? environment.auth_settings.redirect_uri : `${host}/${path}/${environment.auth_settings.redirect_uri}`,
+            post_logout_redirect_uri: !isTemplate ? environment.auth_settings.post_logout_redirect_uri : [host.replace(/\/$/su, ""), path.replace(/(^\/)|(\/$)/sug, ""), environment.auth_settings.post_logout_redirect_uri].filter(x => x?.length > 0).join('/'),
+            redirect_uri: !isTemplate ? environment.auth_settings.redirect_uri : [host.replace(/\/$/su, ""), path.replace(/(^\/)|(\/$)/sug, ""), environment.auth_settings.redirect_uri].filter(x => x?.length > 0).join('/'),
             response_type: environment.auth_settings.response_type,
             revokeAccessTokenOnSignout: environment.auth_settings.revokeAccessTokenOnSignout,
             scope: `${environment.auth_settings.scope} ${scopes}`,
-            silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : `${host}/${path}/${environment.auth_settings.silent_redirect_uri}`
+            silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : [ host.replace(/\/$/su, ""), 
+                                                                                                 path.replace(/(^\/)|(\/$)/sug, ""), 
+                                                                                                 environment.auth_settings.silent_redirect_uri ]
+                                                                                                 .filter(x => x?.length > 0)
+                                                                                                 .join('/')
         } as IAuthSettings,
         culture: !isTemplate ? environment.culture : culture,
         isTemplate: environment.isTemplate,
