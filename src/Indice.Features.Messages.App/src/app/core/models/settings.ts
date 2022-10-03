@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority: string = '', clientId: string = '', host: string = '', culture: string = '', version: string = '', scopes = '', tenantId = '', path = '';
+    let authority = '', clientId = '', host = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '';
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -13,7 +13,7 @@ function createAppSettings(): IAppSettings {
         culture = appRoot.getAttribute('culture') || '';
         version = appRoot.getAttribute('version') || '';
         scopes = appRoot.getAttribute('scopes') || '';
-        tenantId = appRoot.getAttribute('tenantId') || '';
+        tenantId = appRoot.getAttribute('tenantId') || undefined;
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
