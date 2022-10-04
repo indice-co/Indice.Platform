@@ -105,16 +105,21 @@ namespace Indice.Features.Cases.Services
                 .Where(dbCaseData => dbCaseData.CaseId == caseId)
                 .AsQueryable();
 
-            // If the case has been created from the Customer itself, return his own data (most recent)
-            if (@case.Channel == CasesApiConstants.Channels.Customer) {
-                caseDataQueryable = caseDataQueryable
-                    .Where(dbCaseData => dbCaseData.CreatedBy.Id == userId)
-                    .OrderByDescending(c => c.CreatedBy.When);
-            }
+            // If the case is Completed, return latest data
+            if (@case.CompletedBy?.When != null) {
+                caseDataQueryable = caseDataQueryable.OrderByDescending(c => c.CreatedBy.When);
+            } else { // case is not Completed
+                // If the case has been created from the Customer itself, return his own data (most recent)
+                if (@case.Channel == CasesApiConstants.Channels.Customer) {
+                    caseDataQueryable = caseDataQueryable
+                        .Where(dbCaseData => dbCaseData.CreatedBy.Id == userId)
+                        .OrderByDescending(c => c.CreatedBy.When);
+                }
 
-            // If the case has been created from an Agent, return the first record of Agent's data
-            if (@case.Channel == CasesApiConstants.Channels.Agent) {
-                caseDataQueryable = caseDataQueryable.OrderBy(c => c.CreatedBy.When);
+                // If the case has been created from an Agent, return the first record of Agent's data
+                if (@case.Channel == CasesApiConstants.Channels.Agent) {
+                    caseDataQueryable = caseDataQueryable.OrderBy(c => c.CreatedBy.When);
+                }
             }
 
             var caseData = await caseDataQueryable.FirstOrDefaultAsync();
