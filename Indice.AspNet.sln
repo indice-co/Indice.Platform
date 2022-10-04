@@ -93,6 +93,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Multitenanc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Sample.Common", "samples\Indice.Sample.Common\Indice.Sample.Common.csproj", "{C36E547A-83BE-4320-8E3C-6734C31DB4FD}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Cases", "samples\Indice.Cases\Indice.Cases.csproj", "{49189ADD-68D3-4FC3-BF91-55B3BE8FD08E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -251,6 +253,10 @@ Global
 		{C36E547A-83BE-4320-8E3C-6734C31DB4FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C36E547A-83BE-4320-8E3C-6734C31DB4FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C36E547A-83BE-4320-8E3C-6734C31DB4FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49189ADD-68D3-4FC3-BF91-55B3BE8FD08E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49189ADD-68D3-4FC3-BF91-55B3BE8FD08E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49189ADD-68D3-4FC3-BF91-55B3BE8FD08E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49189ADD-68D3-4FC3-BF91-55B3BE8FD08E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -294,6 +300,7 @@ Global
 		{3F69A2FA-0DC2-45B7-AA46-6A99CE9CBD53} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{F29C9080-A97C-42C7-AB2B-F0D1EA431EC5} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{C36E547A-83BE-4320-8E3C-6734C31DB4FD} = {09C5F009-8096-498D-A578-511456E53E65}
+		{49189ADD-68D3-4FC3-BF91-55B3BE8FD08E} = {09C5F009-8096-498D-A578-511456E53E65}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}
