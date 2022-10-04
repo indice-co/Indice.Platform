@@ -219,6 +219,7 @@ namespace Indice.AspNetCore.Identity.Data
                 .Include(x => x.User)
                 .Where(x => x.UserId == user.Id)
                 .Select(x => new UserDevice(x.Id) {
+                    RequiresPassword = x.RequiresPassword,
                     Data = x.Data,
                     DateCreated = x.DateCreated,
                     DeviceId = x.DeviceId,
@@ -251,6 +252,7 @@ namespace Indice.AspNetCore.Identity.Data
                 .Include(x => x.User)
                 .SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
             return device is not null ? new UserDevice(device.Id) {
+                RequiresPassword = device.RequiresPassword,
                 Data = device.Data,
                 DateCreated = device.DateCreated,
                 DeviceId = device.DeviceId,
@@ -328,17 +330,31 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task RemoveDeviceAsync(TUser user, string deviceId, CancellationToken cancellationToken) {
+        public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            var device = await Devices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
-            if (device is not null) {
-                Devices.Remove(device);
-                await SaveChanges(cancellationToken);
+            if (device is null) {
+                throw new ArgumentNullException(nameof(user));
             }
+            Devices.Remove(device);
+            await SaveChanges(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task SetDevicesRequirePasswordAsync(TUser user, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var devices = await Devices.Where(x => x.UserId == user.Id).ToListAsync();
+            foreach (var device in devices) {
+                device.RequiresPassword = true;
+            }
+            await SaveChanges(cancellationToken);
         }
     }
 }

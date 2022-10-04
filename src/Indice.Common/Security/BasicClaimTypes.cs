@@ -76,6 +76,8 @@ namespace Indice.Security
         public const string MsGraphToken = "ms_graph_access_token";
         /// <summary>The maximum number of devices a user can register.</summary>
         public const string MaxDevicesCount = "max_devices_count";
+        /// <summary>Marks a client as a mobile client.</summary>
+        public const string MobileClient = "mobile_client";
         /// <summary>All possible user related claims.</summary>
         public static readonly string[] UserClaims = {
             "sub",

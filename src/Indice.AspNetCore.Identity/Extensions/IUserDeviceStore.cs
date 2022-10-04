@@ -48,9 +48,14 @@ namespace Indice.AspNetCore.Identity
         Task<IdentityResult> SetMaxDevicesCountAsync(TUser user, int maxDevicesCount, CancellationToken cancellationToken);
         /// <summary>Permanently deletes the specified device from the user.</summary>
         /// <param name="user">The user instance.</param>
-        /// <param name="deviceId">The id of the device to delete.</param>
+        /// <param name="device">The device to delete.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        Task RemoveDeviceAsync(TUser user, string deviceId, CancellationToken cancellationToken);
+        Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken);
+        /// <summary>Blocks devices for fingerprint or 4-pin login and requires credentials.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        Task SetDevicesRequirePasswordAsync(TUser user, CancellationToken cancellationToken);
     }
 }

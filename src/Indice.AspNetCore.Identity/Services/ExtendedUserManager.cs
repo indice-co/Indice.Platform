@@ -260,10 +260,14 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
-        public Task<IdentityResult> AddDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
+        public async Task<IdentityResult> AddDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             var deviceStore = GetDeviceStore();
-            return deviceStore.AddDeviceAsync(user, device, cancellationToken);
+            var result = await deviceStore.AddDeviceAsync(user, device, cancellationToken);
+            if (result.Succeeded) {
+                await _eventService.Publish(new DeviceCreatedEvent(device, user));
+            }
+            return result;
         }
 
         /// <summary>Updates the given device. If the device does not exists, it is automatically created.</summary>
@@ -272,10 +276,14 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
-        public Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
+        public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             var deviceStore = GetDeviceStore();
-            return deviceStore.UpdateDeviceAsync(user, device, cancellationToken);
+            var result = await deviceStore.UpdateDeviceAsync(user, device, cancellationToken);
+            if (result.Succeeded) {
+                await _eventService.Publish(new DeviceUpdatedEvent(device, user));
+            }
+            return result;
         }
 
         /// <summary>Get the devices registered by the specified user.</summary>
@@ -322,14 +330,21 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary>Permanently deletes the specified device from the user.</summary>
         /// <param name="user">The user instance.</param>
-        /// <param name="deviceId">The id of the device to look for.</param>
+        /// <param name="device">The device to delete.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user device, if any.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="deviceId"/> parameters are null.</exception>
-        public Task RemoveDeviceAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
+        public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             var deviceStore = GetDeviceStore();
-            return deviceStore.RemoveDeviceAsync(user, deviceId, cancellationToken);
+            await deviceStore.RemoveDeviceAsync(user, device, cancellationToken);
+            await _eventService.Publish(new DeviceDeletedEvent(device, user));
+        }
+
+        internal Task SetDevicesRequirePasswordAsync(TUser user, CancellationToken cancellationToken = default) {
+            ThrowIfDisposed();
+            var deviceStore = GetDeviceStore();
+            return deviceStore.SetDevicesRequirePasswordAsync(user, cancellationToken);
         }
 
         private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {

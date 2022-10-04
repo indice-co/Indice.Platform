@@ -3,18 +3,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.Api
@@ -41,18 +38,15 @@ namespace Indice.AspNetCore.Identity.Api
         public DevicesController(
             ExtendedUserManager<User> userManager,
             IPushNotificationService pushNotificationService,
-            IPlatformEventService eventService,
             ILogger<DevicesController> logger
         ) {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             PushNotificationService = pushNotificationService ?? throw new ArgumentNullException(nameof(pushNotificationService));
-            EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public ExtendedUserManager<User> UserManager { get; }
         public IPushNotificationService PushNotificationService { get; }
-        public IPlatformEventService EventService { get; }
         public ILogger<DevicesController> Logger { get; }
 
         /// <summary>Returns a list of registered user devices.</summary>
@@ -136,8 +130,6 @@ namespace Indice.AspNetCore.Identity.Api
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
             var response = DeviceInfo.FromUserDevice(device);
-            var @event = new DeviceCreatedEvent(response, SingleUserInfo.FromUser(user));
-            await EventService.Publish(@event);
             return CreatedAtAction(nameof(GetDeviceById), new { deviceId = device.DeviceId }, response);
         }
 
@@ -180,8 +172,6 @@ namespace Indice.AspNetCore.Identity.Api
             device.OsVersion = request.OsVersion;
             device.Data = request.Data;
             await UserManager.UpdateDeviceAsync(user, device);
-            var @event = new DeviceUpdatedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
-            await EventService.Publish(@event);
             return NoContent();
         }
 
@@ -206,9 +196,7 @@ namespace Indice.AspNetCore.Identity.Api
             } catch (Exception exception) {
                 Logger.LogError("An exception occurred when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
             }
-            await UserManager.RemoveDeviceAsync(user, deviceId);
-            var @event = new DeviceDeletedEvent(DeviceInfo.FromUserDevice(device), SingleUserInfo.FromUser(user));
-            await EventService.Publish(@event);
+            await UserManager.RemoveDeviceAsync(user, device);
             return NoContent();
         }
 

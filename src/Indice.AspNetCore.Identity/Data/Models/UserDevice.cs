@@ -43,6 +43,8 @@ namespace Indice.AspNetCore.Identity.Data.Models
         public bool SupportsFingerprintLogin => !string.IsNullOrWhiteSpace(PublicKey);
         /// <summary>Extra metadata for the device.</summary>
         public dynamic Data { get; set; }
+        /// <summary>Indicates whether the device is blocked.</summary>
+        public bool RequiresPassword { get; set; }
         /// <summary>The user associated with this device.</summary>
         public virtual User User { get; set; }
     }

@@ -42,4 +42,9 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration
         public const string DeliveryChannel = "channel";
         public const string RegistrationId = "registration_id";
     }
+
+    internal static class ExtraTokenRequestErrors 
+    {
+        public const string RequiresPassword = "requires_password";
+    }
 }

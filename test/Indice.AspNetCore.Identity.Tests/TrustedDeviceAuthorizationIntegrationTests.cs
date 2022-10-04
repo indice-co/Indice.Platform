@@ -158,6 +158,7 @@ namespace Indice.AspNetCore.Identity.Tests
         // Private fields
         private readonly HttpClient _httpClient;
         private readonly ITestOutputHelper _output;
+        private IServiceProvider _serviceProvider;
 
         public TrustedDeviceAuthorizationIntegrationTests(ITestOutputHelper output) {
             _output = output;
@@ -165,7 +166,8 @@ namespace Indice.AspNetCore.Identity.Tests
             builder.ConfigureAppConfiguration(builder => {
                 builder.AddInMemoryCollection(new List<KeyValuePair<string, string>> {
                     new KeyValuePair<string, string>("IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices", "20"),
-                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:MaxAllowedRegisteredDevices", "40")
+                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:MaxAllowedRegisteredDevices", "40"),
+                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:RequireCredentialsOnAccountChange", "true")
                 });
             });
             builder.ConfigureServices(services => {
@@ -184,6 +186,7 @@ namespace Indice.AspNetCore.Identity.Tests
                         .AddInMemoryPersistedGrants()
                         .AddTrustedDeviceAuthorization(options => options.AddUserDeviceStoreEntityFrameworkCore())
                         .AddDeveloperSigningCredential(persistKey: false);
+                _serviceProvider = services.BuildServiceProvider();
             });
             builder.Configure(app => {
                 app.UseIdentityServer();
@@ -345,11 +348,67 @@ namespace Indice.AspNetCore.Identity.Tests
                 Assert.Fail("We should have a validation error by the end of the loop.");
             }
         }
+
+        [Fact]
+        public async Task Changing_Password_Blocks_Device() {
+            var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+            var user = new User {
+                CreateDate = DateTimeOffset.UtcNow,
+                Email = "g.manoltzas@indice.gr",
+                EmailConfirmed = true,
+                Id = Guid.NewGuid().ToString(),
+                PhoneNumber = "69XXXXXXXX",
+                PhoneNumberConfirmed = true,
+                UserName = "g.manoltzas@indice.gr"
+            };
+            var result = await userManager.CreateAsync(user, password: "123abc!", validatePassword: false);
+            if (!result.Succeeded) {
+                Assert.Fail("User could not be created.");
+            }
+            var deviceId = Guid.NewGuid().ToString();
+            var response = await Register_Device_Using_Biometric(deviceId, "g.manoltzas@indice.gr");
+            if (!response.IsSuccessStatusCode) {
+                Assert.Fail("Device could not be created.");
+            }
+            result = await userManager.SetUserNameAsync(user, "g.manoltzas_new@indice.gr");
+            if (!result.Succeeded) {
+                Assert.Fail("Failed to set new username.");
+            }
+            var device = await userManager.GetDeviceByIdAsync(user, deviceId);
+            if (device is null) {
+                Assert.Fail("User device could not be found.");
+            }
+            Assert.True(device.RequiresPassword);
+            var responseJson = await response.Content.ReadAsStringAsync();
+            var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+            Assert.IsType<Guid>(responseDto.RegistrationId);
+            var codeVerifier = GenerateCodeVerifier();
+            var challenge = await InitiateDeviceAuthorizationUsingFingerprint(codeVerifier, responseDto.RegistrationId);
+            var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+            var x509SigningCredentials = GetX509SigningCredentials();
+            var signature = SignMessage(challenge, x509SigningCredentials);
+            var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+                Address = discoveryDocument.TokenEndpoint,
+                ClientId = CLIENT_ID,
+                ClientSecret = CLIENT_SECRET,
+                GrantType = CustomGrantTypes.TrustedDevice,
+                Parameters = {
+                    { "code", challenge },
+                    { "code_signature", signature },
+                    { "code_verifier", codeVerifier },
+                    { "registration_id", responseDto.RegistrationId.ToString() },
+                    { "public_key", CERTIFICATE_PUBLIC_KEY },
+                    { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+                }
+            });
+            Assert.True(tokenResponse.IsError);
+            Assert.True(tokenResponse.ErrorDescription == "requires_password");
+        }
         #endregion
 
         #region Helper Methods
-        private async Task<HttpResponseMessage> Register_Device_Using_Biometric(string deviceId) {
-            var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        private async Task<HttpResponseMessage> Register_Device_Using_Biometric(string deviceId, string userName = "company@indice.gr") {
+            var accessToken = await LoginWithPasswordGrant(userName, password: "123abc!");
             var codeVerifier = GenerateCodeVerifier();
             var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
             var response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
@@ -540,7 +599,8 @@ namespace Indice.AspNetCore.Identity.Tests
                 AllowOfflineAccess = true,
                 AlwaysSendClientClaims = true,
                 Claims = {
-                    new ClientClaim(BasicClaimTypes.TrustedDevice, "true", ClaimValueTypes.Boolean)
+                    new ClientClaim(BasicClaimTypes.TrustedDevice, "true", ClaimValueTypes.Boolean),
+                    new ClientClaim(BasicClaimTypes.MobileClient, "true", ClaimValueTypes.Boolean)
                 }
             }
         };

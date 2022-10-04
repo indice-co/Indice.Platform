@@ -46,18 +46,22 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Validation
             // Load device.
             var isValidRegistrationId = Guid.TryParse(parameters.Get(RegistrationRequestParameters.RegistrationId), out var registrationId);
             if (!isValidRegistrationId) {
-                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Device registration id is not valid.");
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidTarget, "Device registration id is not valid.");
                 return;
             }
             var device = await UserDeviceStore.GetById(registrationId);
             if (device is null) {
-                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Device is unknown.");
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidTarget, "Device is unknown.");
+                return;
+            }
+            if (device.RequiresPassword) {
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidTarget, ExtraTokenRequestErrors.RequiresPassword);
                 return;
             }
             // Load user.
             var user = await UserManager.FindByIdAsync(device.UserId);
             if (user is null) {
-                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "User does not exists.");
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidTarget, "User does not exists.");
                 return;
             }
             var code = parameters.Get(RegistrationRequestParameters.Code);
