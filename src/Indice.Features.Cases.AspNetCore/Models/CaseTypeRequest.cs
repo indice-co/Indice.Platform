@@ -52,5 +52,10 @@ namespace Indice.Features.Cases.Models
         /// The case type tags.
         /// </summary>
         public string? Tags { get; set; }
+
+        /// <summary>
+        /// The case type configuration.
+        /// </summary>
+        public string? Config { get; set; }
     }
 }

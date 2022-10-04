@@ -67,6 +67,7 @@ namespace Indice.Features.Cases.Services
                     Layout = c.Layout,
                     Code = c.Code,
                     Tags = c.Tags,
+                    Config = c.Config,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
                 })
                 .ToListAsync();
@@ -93,7 +94,8 @@ namespace Indice.Features.Cases.Services
                 Layout = caseType.Layout,
                 Translations = caseType.Translations,
                 LayoutTranslations = caseType.LayoutTranslations,
-                Tags = caseType.Tags
+                Tags = caseType.Tags,
+                Config = caseType.Config
             };
 
             if (caseType.CheckpointTypes is null) {
@@ -176,6 +178,7 @@ namespace Indice.Features.Cases.Services
                 Translations = dbCaseType.Translations,
                 LayoutTranslations = dbCaseType.LayoutTranslations,
                 Tags = dbCaseType.Tags,
+                Config = dbCaseType.Config,
                 CheckpointTypes = dbCaseType.CheckpointTypes.Select(checkpointType => new CheckpointTypeDetails {
                     Id = checkpointType.Id,
                     Name = checkpointType.Name,
@@ -207,6 +210,7 @@ namespace Indice.Features.Cases.Services
             dbCaseType.Translations = caseType.Translations;
             dbCaseType.LayoutTranslations = caseType.LayoutTranslations;
             dbCaseType.Tags = caseType.Tags;
+            dbCaseType.Config = caseType.Config;
 
             _dbContext.CaseTypes.Update(dbCaseType);
 

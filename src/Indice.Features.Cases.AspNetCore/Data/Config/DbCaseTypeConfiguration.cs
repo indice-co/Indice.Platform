@@ -32,6 +32,10 @@ namespace Indice.Features.Cases.Data.Config
                 .Property(p => p.Tags)
                 .HasMaxLength(TextSizePresets.M256)
                 .IsRequired(false);
+            builder
+                .Property(p => p.Config)
+                .HasMaxLength(TextSizePresets.M256)
+                .IsRequired(false);
         }
     }
 }
