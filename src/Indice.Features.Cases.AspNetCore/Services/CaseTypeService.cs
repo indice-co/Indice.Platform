@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
@@ -53,33 +54,7 @@ namespace Indice.Features.Cases.Services
                 .Select(c => c.Value)
                 .ToList();
 
-            if (isForCaseCreation) {
-                var creationCaseTypes = await _dbContext.CaseTypes
-                                    .AsQueryable()
-                .Select(c => new CaseTypePartial {
-                    Id = c.Id,
-                    Title = c.Title,
-                    DataSchema = c.DataSchema,
-                    Layout = c.Layout,
-                    Code = c.Code,
-                    Tags = c.Tags,
-                    AllowedRolesForCreation = string.IsNullOrWhiteSpace(c.AllowedRolesForCaseCreation) ?
-                                                new List<string>() :
-                                                c.AllowedRolesForCaseCreation!.Split(',', StringSplitOptions.None).ToList(),
-                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
-                })
-                .ToListAsync();
-
-                return creationCaseTypes
-                    .Where(c => c.AllowedRolesForCreation.Intersect(roleClaims).Any())
-                    .ToResultSet();
-            }
-
-            var caseTypeIds = await _dbContext.RoleCaseTypes
-            .AsQueryable()
-                .Where(r => roleClaims.Contains(r.RoleName))
-                .Select(c => c.CaseTypeId)
-                .ToListAsync();
+            var caseTypeIds = isForCaseCreation ? await GetCaseTypeIdsForCaseCreation(roleClaims) : await GetCaseTypeIds(roleClaims);
 
             var caseTypes = await _dbContext.CaseTypes
                 .AsQueryable()
@@ -277,5 +252,28 @@ namespace Indice.Features.Cases.Services
                     .ToListAsync();
             return caseTypes.ToResultSet();
         }
+        private async Task<List<Guid>> GetCaseTypeIdsForCaseCreation(List<string> roleClaims) {
+            var caseTypeExpressions = roleClaims.Select(roleClaim => (Expression<Func<DbCaseType, bool>>)(dbCaseType => EF.Functions.Like(dbCaseType.AllowedRolesForCaseCreation, $"%{roleClaim}%")));
+            // Aggregate the expressions with OR that resolves to SQL: AllowedRolesForCaseCreation LIKE %roleClaim1% OR tag LIKE %roleClaim2% etc
+            var aggregatedExpression = caseTypeExpressions.Aggregate((expression, next) => {
+                var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                return Expression.Lambda<Func<DbCaseType, bool>>(orExp, expression.Parameters);
+            });
+
+            return await _dbContext.CaseTypes
+                .AsQueryable()
+                .Where(aggregatedExpression)
+                .Select(c => c.Id)
+                .ToListAsync();
+        }
+
+        private async Task<List<Guid>> GetCaseTypeIds(List<string> roleClaims) {
+            return await _dbContext.RoleCaseTypes
+                    .AsQueryable()
+                    .Where(r => roleClaims.Contains(r.RoleName))
+                    .Select(c => c.CaseTypeId)
+                    .ToListAsync();
+        }
+
     }
 }
