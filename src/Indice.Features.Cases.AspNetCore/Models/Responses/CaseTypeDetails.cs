@@ -49,6 +49,11 @@ namespace Indice.Features.Cases.Models.Responses
         public string? Tags { get; set; }
 
         /// <summary>
+        /// The case type configuration.
+        /// </summary>
+        public string? Config { get; set; }
+
+        /// <summary>
         /// The checkpoints for this case type.
         /// </summary>
         public IEnumerable<CheckpointTypeDetails> CheckpointTypes { get; set; }

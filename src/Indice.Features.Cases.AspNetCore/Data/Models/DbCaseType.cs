@@ -13,6 +13,7 @@ namespace Indice.Features.Cases.Data.Models
         public string? Translations { get; set; }
         public string? LayoutTranslations { get; set; }
         public string? Tags { get; set; }
+        public string? Config { get; set; }
 
         /// <summary>
         /// Available checkpoints for this case type
