@@ -150,19 +150,19 @@ namespace Indice.Features.Cases.Controllers
         }
 
         private async Task<byte[]> CreatePdf(CaseDetails @case) {
-            var IsPortrait = false;
-            var DigitallySigned = false;
-            if (@case.CaseType.CaseTypeConfig is not null) {
-                var caseTypeConfig = JsonSerializer.Deserialize<JsonDocument>(@case.CaseType.CaseTypeConfig);
-                if (caseTypeConfig.RootElement.TryGetProperty("IsPortrait", out var isPortrait)) {
-                    IsPortrait = isPortrait.GetBoolean();
+            var isPortrait = false;
+            var digitallySigned = false;
+            if (@case.CaseType.Config is not null) {
+                var caseTypeConfig = JsonSerializer.Deserialize<JsonDocument>(@case.CaseType.Config);
+                if (caseTypeConfig.RootElement.TryGetProperty("IsPortrait", out var isPortraitConfig)) {
+                    isPortrait = isPortraitConfig.GetBoolean();
                 }
-                if (caseTypeConfig.RootElement.TryGetProperty("DigitallySigned", out var digitallySigned)) {
-                    DigitallySigned = digitallySigned.GetBoolean();
+                if (caseTypeConfig.RootElement.TryGetProperty("DigitallySigned", out var digitallySignedConfig)) {
+                    digitallySigned = digitallySignedConfig.GetBoolean();
                 }
             }
             var template = await _caseTemplateService.RenderTemplateAsync(@case);
-            return await _casePdfService.HtmlToPdfAsync(template, IsPortrait, DigitallySigned);
+            return await _casePdfService.HtmlToPdfAsync(template, isPortrait, digitallySigned);
         }
     }
 }

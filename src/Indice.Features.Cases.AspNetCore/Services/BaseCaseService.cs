@@ -76,7 +76,7 @@ namespace Indice.Features.Cases.Services
                     DataSchema = GetSingleOrMultiple(schemaKey, @case.CaseType.DataSchema),
                     Layout = GetSingleOrMultiple(schemaKey, @case.CaseType.Layout),
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(@case.CaseType.Translations),
-                    CaseTypeConfig = @case.CaseType.CaseTypeConfig
+                    Config = @case.CaseType.Config
                 },
                 CustomerId = @case.Customer.CustomerId,
                 CustomerName = @case.Customer.FullName,

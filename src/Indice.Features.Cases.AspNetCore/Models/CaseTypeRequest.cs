@@ -56,6 +56,6 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The case type configuration.
         /// </summary>
-        public string? CaseTypeConfig { get; set; }
+        public string? Config { get; set; }
     }
 }

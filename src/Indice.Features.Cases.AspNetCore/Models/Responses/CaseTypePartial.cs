@@ -41,7 +41,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The case type configuration.
         /// </summary>
-        public string? CaseTypeConfig { get; set; }
+        public string? Config { get; set; }
         
         /// <summary>
         /// The translations for the case type metadata (eg title).

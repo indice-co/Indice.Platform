@@ -4748,7 +4748,7 @@ export class CaseTypeDetails implements ICaseTypeDetails {
     /** The case type tags. */
     tags?: string | undefined;
     /** The case type configuration. */
-    caseTypeConfig?: string | undefined;
+    config?: string | undefined;
     /** The checkpoints for this case type. */
     checkpointTypes?: CheckpointTypeDetails[] | undefined;
 
@@ -4771,7 +4771,7 @@ export class CaseTypeDetails implements ICaseTypeDetails {
             this.translations = _data["translations"];
             this.layoutTranslations = _data["layoutTranslations"];
             this.tags = _data["tags"];
-            this.caseTypeConfig = _data["caseTypeConfig"];
+            this.config = _data["config"];
             if (Array.isArray(_data["checkpointTypes"])) {
                 this.checkpointTypes = [] as any;
                 for (let item of _data["checkpointTypes"])
@@ -4797,7 +4797,7 @@ export class CaseTypeDetails implements ICaseTypeDetails {
         data["translations"] = this.translations;
         data["layoutTranslations"] = this.layoutTranslations;
         data["tags"] = this.tags;
-        data["caseTypeConfig"] = this.caseTypeConfig;
+        data["config"] = this.config;
         if (Array.isArray(this.checkpointTypes)) {
             data["checkpointTypes"] = [];
             for (let item of this.checkpointTypes)
@@ -4826,7 +4826,7 @@ export interface ICaseTypeDetails {
     /** The case type tags. */
     tags?: string | undefined;
     /** The case type configuration. */
-    caseTypeConfig?: string | undefined;
+    config?: string | undefined;
     /** The checkpoints for this case type. */
     checkpointTypes?: CheckpointTypeDetails[] | undefined;
 }
@@ -4846,7 +4846,7 @@ export class CaseTypePartial implements ICaseTypePartial {
     /** The case type tags. */
     tags?: string | undefined;
     /** The case type configuration. */
-    caseTypeConfig?: string | undefined;
+    config?: string | undefined;
     /** The translations for the case type metadata (eg title). */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
 
@@ -4867,7 +4867,7 @@ export class CaseTypePartial implements ICaseTypePartial {
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
             this.tags = _data["tags"];
-            this.caseTypeConfig = _data["caseTypeConfig"];
+            this.config = _data["config"];
             if (_data["translations"]) {
                 this.translations = {} as any;
                 for (let key in _data["translations"]) {
@@ -4893,7 +4893,7 @@ export class CaseTypePartial implements ICaseTypePartial {
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
         data["tags"] = this.tags;
-        data["caseTypeConfig"] = this.caseTypeConfig;
+        data["config"] = this.config;
         if (this.translations) {
             data["translations"] = {};
             for (let key in this.translations) {
@@ -4920,7 +4920,7 @@ export interface ICaseTypePartial {
     /** The case type tags. */
     tags?: string | undefined;
     /** The case type configuration. */
-    caseTypeConfig?: string | undefined;
+    config?: string | undefined;
     /** The translations for the case type metadata (eg title). */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
 }
@@ -4994,7 +4994,7 @@ export class CaseTypeRequest implements ICaseTypeRequest {
     /** The case type tags. */
     tags?: string | undefined;
     /** The case type configuration. */
-    caseTypeConfig?: string | undefined;
+    config?: string | undefined;
 
     constructor(data?: ICaseTypeRequest) {
         if (data) {
@@ -5020,7 +5020,7 @@ export class CaseTypeRequest implements ICaseTypeRequest {
                     this.checkpointTypes!.push(CheckpointTypeDetails.fromJS(item));
             }
             this.tags = _data["tags"];
-            this.caseTypeConfig = _data["caseTypeConfig"];
+            this.config = _data["config"];
         }
     }
 
@@ -5046,7 +5046,7 @@ export class CaseTypeRequest implements ICaseTypeRequest {
                 data["checkpointTypes"].push(item.toJSON());
         }
         data["tags"] = this.tags;
-        data["caseTypeConfig"] = this.caseTypeConfig;
+        data["config"] = this.config;
         return data; 
     }
 }
@@ -5072,7 +5072,7 @@ export interface ICaseTypeRequest {
     /** The case type tags. */
     tags?: string | undefined;
     /** The case type configuration. */
-    caseTypeConfig?: string | undefined;
+    config?: string | undefined;
 }
 
 /** The DTO for the CaseTypeSubscriptions for a user. */

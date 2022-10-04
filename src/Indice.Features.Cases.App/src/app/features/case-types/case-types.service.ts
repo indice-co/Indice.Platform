@@ -54,7 +54,7 @@ export class CaseTypesService {
             "tags": {
                 "type": "string"
             },
-            "caseTypeConfig": {
+            "config": {
                 "type": "string"
             },
             "checkpointTypes": {
@@ -178,8 +178,8 @@ export class CaseTypesService {
                     "flex-flow": "row wrap",
                     "items": [
                         {
-                            "key": "caseTypeConfig",
-                            "title": "Διαμόρφωση Τύπου Αίτησης",
+                            "key": "config",
+                            "title": "Case Type Configuration",
                             "type": "textarea",
                             "htmlClass": "px-2 my-2"
                         }
@@ -305,7 +305,7 @@ export class CaseTypesService {
             translations: event?.translations,
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags,
-            caseTypeConfig: event?.caseTypeConfig,
+            config: event?.config,
             checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeDetails(item)),
         });
         this._api.createCaseType(undefined, request).pipe(
@@ -330,7 +330,7 @@ export class CaseTypesService {
             translations: event?.translations,
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags,
-            caseTypeConfig: event?.caseTypeConfig,
+            config: event?.config,
             checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeDetails(item)),
         })
         this._api.updateCaseType(caseTypeId, undefined, request).pipe(
