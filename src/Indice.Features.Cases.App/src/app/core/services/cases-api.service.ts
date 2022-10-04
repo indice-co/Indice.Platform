@@ -149,11 +149,11 @@ export interface ICasesApiService {
     getCaseTimeline(caseId: string, api_version?: string | undefined): Observable<TimelineEntry[]>;
     /**
      * Get case types.
-     * @param action (optional) 
+     * @param isForCaseCreation (optional) Differentiates between the case types that an admin user can 1) view and 2) select for a case creation
      * @param api_version (optional) 
      * @return Success
      */
-    getCaseTypes(action?: Action | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet>;
+    getCaseTypes(isForCaseCreation?: boolean | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet>;
     /**
      * Create new case type.
      * @param api_version (optional) 
@@ -1984,16 +1984,16 @@ export class CasesApiService implements ICasesApiService {
 
     /**
      * Get case types.
-     * @param action (optional) 
+     * @param isForCaseCreation (optional) Differentiates between the case types that an admin user can 1) view and 2) select for a case creation
      * @param api_version (optional) 
      * @return Success
      */
-    getCaseTypes(action?: Action | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet> {
+    getCaseTypes(isForCaseCreation?: boolean | undefined, api_version?: string | undefined): Observable<CaseTypePartialResultSet> {
         let url_ = this.baseUrl + "/api/manage/case-types?";
-        if (action === null)
-            throw new Error("The parameter 'action' cannot be null.");
-        else if (action !== undefined)
-            url_ += "action=" + encodeURIComponent("" + action) + "&";
+        if (isForCaseCreation === null)
+            throw new Error("The parameter 'isForCaseCreation' cannot be null.");
+        else if (isForCaseCreation !== undefined)
+            url_ += "isForCaseCreation=" + encodeURIComponent("" + isForCaseCreation) + "&";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
         else if (api_version !== undefined)
@@ -4067,11 +4067,6 @@ export class CasesApiService implements ICasesApiService {
     }
 }
 
-export enum Action {
-    Read = "read",
-    Create = "create",
-}
-
 /** The Approval action for a Case. */
 export enum Approval {
     Approve = "Approve",
@@ -4760,6 +4755,8 @@ export class CaseTypeDetails implements ICaseTypeDetails {
     layoutTranslations?: string | undefined;
     /** The case type tags. */
     tags?: string | undefined;
+    /** The allowed Roles that can create a new Case */
+    allowedRolesForCaseCreation?: string | undefined;
     /** The checkpoints for this case type. */
     checkpointTypes?: CheckpointTypeDetails[] | undefined;
 
@@ -4782,6 +4779,7 @@ export class CaseTypeDetails implements ICaseTypeDetails {
             this.translations = _data["translations"];
             this.layoutTranslations = _data["layoutTranslations"];
             this.tags = _data["tags"];
+            this.allowedRolesForCaseCreation = _data["allowedRolesForCaseCreation"];
             if (Array.isArray(_data["checkpointTypes"])) {
                 this.checkpointTypes = [] as any;
                 for (let item of _data["checkpointTypes"])
@@ -4807,6 +4805,7 @@ export class CaseTypeDetails implements ICaseTypeDetails {
         data["translations"] = this.translations;
         data["layoutTranslations"] = this.layoutTranslations;
         data["tags"] = this.tags;
+        data["allowedRolesForCaseCreation"] = this.allowedRolesForCaseCreation;
         if (Array.isArray(this.checkpointTypes)) {
             data["checkpointTypes"] = [];
             for (let item of this.checkpointTypes)
@@ -4834,6 +4833,8 @@ export interface ICaseTypeDetails {
     layoutTranslations?: string | undefined;
     /** The case type tags. */
     tags?: string | undefined;
+    /** The allowed Roles that can create a new Case */
+    allowedRolesForCaseCreation?: string | undefined;
     /** The checkpoints for this case type. */
     checkpointTypes?: CheckpointTypeDetails[] | undefined;
 }
@@ -5008,6 +5009,8 @@ export class CaseTypeRequest implements ICaseTypeRequest {
     checkpointTypes?: CheckpointTypeDetails[] | undefined;
     /** The case type tags. */
     tags?: string | undefined;
+    /** The allowed Roles that can create a new Case */
+    allowedRolesForCaseCreation?: string | undefined;
 
     constructor(data?: ICaseTypeRequest) {
         if (data) {
@@ -5033,6 +5036,7 @@ export class CaseTypeRequest implements ICaseTypeRequest {
                     this.checkpointTypes!.push(CheckpointTypeDetails.fromJS(item));
             }
             this.tags = _data["tags"];
+            this.allowedRolesForCaseCreation = _data["allowedRolesForCaseCreation"];
         }
     }
 
@@ -5058,6 +5062,7 @@ export class CaseTypeRequest implements ICaseTypeRequest {
                 data["checkpointTypes"].push(item.toJSON());
         }
         data["tags"] = this.tags;
+        data["allowedRolesForCaseCreation"] = this.allowedRolesForCaseCreation;
         return data;
     }
 }
@@ -5082,6 +5087,8 @@ export interface ICaseTypeRequest {
     checkpointTypes?: CheckpointTypeDetails[] | undefined;
     /** The case type tags. */
     tags?: string | undefined;
+    /** The allowed Roles that can create a new Case */
+    allowedRolesForCaseCreation?: string | undefined;
 }
 
 /** The DTO for the CaseTypeSubscriptions for a user. */

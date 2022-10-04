@@ -4,7 +4,7 @@ import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterV
 import { SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { Action, CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core/services/cases-api.service';
+import { CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core/services/cases-api.service';
 
 @Component({
     selector: 'app-cases',
@@ -31,23 +31,15 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
 
     public ngOnInit(): void {
         forkJoin({
-            caseTypes: this._api.getCaseTypes(Action.Read),
-            creationCaseTypes: this._api.getCaseTypes(Action.Create),
+            caseTypes: this._api.getCaseTypes(),
             checkpointTypes: this._api.getDistinctCheckpointNames()
-        }).pipe(take(1)).subscribe(({ caseTypes, creationCaseTypes, checkpointTypes }) => {
-            if (creationCaseTypes.count !== 0) {
-                this.formActions = [
-                    new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
-                ];
-            }
-
+        }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
             const caseTypeSearchOption: SearchOption = {
                 field: 'caseTypeCodes',
                 name: 'ΤΥΠΟΣ ΑΙΤΗΣΗΣ',
                 dataType: 'array',
                 options: [],
                 multiTerm: true
-
             }
             for (let caseType of caseTypes.items!) { // fill caseTypeSearchOption's SelectInputOptions
                 caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
@@ -94,8 +86,20 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             ];
             // now that we have the searchOptions, call parent's ngOnInit!
             super.ngOnInit();
-        }
-        );
+        });
+
+        // independent call to fetch the case Types that the user can select for Case Creation
+        this._api.getCaseTypes(true)
+            .pipe(take(1))
+            .subscribe(
+                (caseTypesForCaseCreation: CasePartialResultSet) => {
+                    if (caseTypesForCaseCreation.count !== 0) {
+                        this.formActions = [
+                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
+                        ];
+                    }
+                }
+            );
     }
 
     loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {

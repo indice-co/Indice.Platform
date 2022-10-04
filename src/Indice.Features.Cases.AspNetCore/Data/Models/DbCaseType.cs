@@ -13,8 +13,10 @@ namespace Indice.Features.Cases.Data.Models
         public string? Translations { get; set; }
         public string? LayoutTranslations { get; set; }
         public string? Tags { get; set; }
-        public string? AllowedRolesForCreation { get; set; }
-
+        /// <summary>
+        /// The allowed Roles that can create a new Case
+        /// </summary>
+        public string? AllowedRolesForCaseCreation { get; set; }
         /// <summary>
         /// Available checkpoints for this case type
         /// </summary>

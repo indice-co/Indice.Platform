@@ -43,7 +43,7 @@ namespace Indice.Features.Cases.Services
             return caseType ?? throw new Exception("CaseType is invalid."); // todo proper exception;
         }
 
-        public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, Data.Models.Action action) {
+        public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool isForCaseCreation) {
             if (user.IsAdmin()) {
                 return await GetAdminCases();
             }
@@ -53,31 +53,31 @@ namespace Indice.Features.Cases.Services
                 .Select(c => c.Value)
                 .ToList();
 
-            //if (forCreation) {
-            //    var creationCaseTypes = await _dbContext.CaseTypes
-            //                        .AsQueryable()
-            //    .Select(c => new CaseTypePartial {
-            //        Id = c.Id,
-            //        Title = c.Title,
-            //        DataSchema = c.DataSchema,
-            //        Layout = c.Layout,
-            //        Code = c.Code,
-            //        Tags = c.Tags,
-            //        AllowedRolesForCreation = string.IsNullOrWhiteSpace(c.AllowedRolesForCreation) ?
-            //                                    new List<string>() :
-            //                                    c.AllowedRolesForCreation!.Split(',', StringSplitOptions.None).ToList(),
-            //        Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
-            //    })
-            //    .ToListAsync();
+            if (isForCaseCreation) {
+                var creationCaseTypes = await _dbContext.CaseTypes
+                                    .AsQueryable()
+                .Select(c => new CaseTypePartial {
+                    Id = c.Id,
+                    Title = c.Title,
+                    DataSchema = c.DataSchema,
+                    Layout = c.Layout,
+                    Code = c.Code,
+                    Tags = c.Tags,
+                    AllowedRolesForCreation = string.IsNullOrWhiteSpace(c.AllowedRolesForCaseCreation) ?
+                                                new List<string>() :
+                                                c.AllowedRolesForCaseCreation!.Split(',', StringSplitOptions.None).ToList(),
+                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
+                })
+                .ToListAsync();
 
-            //    return creationCaseTypes
-            //        .Where(c => c.AllowedRolesForCreation.Intersect(roleClaims).Any())
-            //        .ToResultSet();
-            //}
+                return creationCaseTypes
+                    .Where(c => c.AllowedRolesForCreation.Intersect(roleClaims).Any())
+                    .ToResultSet();
+            }
 
             var caseTypeIds = await _dbContext.RoleCaseTypes
-                .AsQueryable()
-                .Where(r => roleClaims.Contains(r.RoleName) && r.Action.Contains(action.ToString()))
+            .AsQueryable()
+                .Where(r => roleClaims.Contains(r.RoleName))
                 .Select(c => c.CaseTypeId)
                 .ToListAsync();
 
@@ -117,7 +117,8 @@ namespace Indice.Features.Cases.Services
                 Layout = caseType.Layout,
                 Translations = caseType.Translations,
                 LayoutTranslations = caseType.LayoutTranslations,
-                Tags = caseType.Tags
+                Tags = caseType.Tags,
+                AllowedRolesForCaseCreation = caseType.AllowedRolesForCaseCreation
             };
 
             if (caseType.CheckpointTypes is null) {
@@ -200,6 +201,7 @@ namespace Indice.Features.Cases.Services
                 Translations = dbCaseType.Translations,
                 LayoutTranslations = dbCaseType.LayoutTranslations,
                 Tags = dbCaseType.Tags,
+                AllowedRolesForCaseCreation = dbCaseType.AllowedRolesForCaseCreation,
                 CheckpointTypes = dbCaseType.CheckpointTypes.Select(checkpointType => new CheckpointTypeDetails {
                     Id = checkpointType.Id,
                     Name = checkpointType.Name,
@@ -231,6 +233,7 @@ namespace Indice.Features.Cases.Services
             dbCaseType.Translations = caseType.Translations;
             dbCaseType.LayoutTranslations = caseType.LayoutTranslations;
             dbCaseType.Tags = caseType.Tags;
+            dbCaseType.AllowedRolesForCaseCreation = caseType.AllowedRolesForCaseCreation;
 
             _dbContext.CaseTypes.Update(dbCaseType);
 

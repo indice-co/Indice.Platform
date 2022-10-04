@@ -52,5 +52,10 @@ namespace Indice.Features.Cases.Models
         /// The case type tags.
         /// </summary>
         public string? Tags { get; set; }
+
+        /// <summary>
+        /// The allowed Roles that can create a new Case
+        /// </summary>
+        public string? AllowedRolesForCaseCreation { get; set; }
     }
 }

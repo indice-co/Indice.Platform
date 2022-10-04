@@ -10,6 +10,5 @@ namespace Indice.Features.Cases.Data.Models
         public Guid CheckpointTypeId { get; set; }
         public virtual DbCaseType CaseType { get; set; }
         public virtual DbCheckpointType? CheckpointType { get; set; }
-        public string? Action { get; set; }
     }
 }
