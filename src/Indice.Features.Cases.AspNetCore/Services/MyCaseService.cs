@@ -100,22 +100,22 @@ namespace Indice.Features.Cases.Services
                 return null!;
             }
 
+            // the customer should be able to see only cases that have been created from him/herself!
+            if (@case.Channel == CasesApiConstants.Channels.Agent) {
+                throw new Exception("Case not found.");
+            }
+
             var caseDataQueryable = _dbContext.CaseData
                 .AsNoTracking()
                 .Where(dbCaseData => dbCaseData.CaseId == caseId)
                 .AsQueryable();
 
-            // If the case has been created from the Customer itself, return his own data (most recent)
-            if (@case.Channel == CasesApiConstants.Channels.Customer) {
-                caseDataQueryable = caseDataQueryable
-                    .Where(dbCaseData => dbCaseData.CreatedBy.Id == userId)
-                    .OrderByDescending(c => c.CreatedBy.When);
+            // If the case is not Completed, return customer's own data (most recent)
+            if (@case.CompletedBy?.When == null) {
+                caseDataQueryable = caseDataQueryable.Where(dbCaseData => dbCaseData.CreatedBy.Id == userId);
             }
 
-            // If the case has been created from an Agent, return the first record of Agent's data
-            if (@case.Channel == CasesApiConstants.Channels.Agent) {
-                caseDataQueryable = caseDataQueryable.OrderBy(c => c.CreatedBy.When);
-            }
+            caseDataQueryable = caseDataQueryable.OrderByDescending(c => c.CreatedBy.When);
 
             var caseData = await caseDataQueryable.FirstOrDefaultAsync();
             var caseDetails = await GetCaseByIdInternal(@case, caseData, true, schemaKey: SchemaSelector);
