@@ -150,7 +150,7 @@ namespace Indice.Features.Cases.Controllers
         }
 
         private async Task<byte[]> CreatePdf(CaseDetails @case) {
-            var isPortrait = false;
+            var isPortrait = true;
             var digitallySigned = false;
             if (@case.CaseType.Config is not null) {
                 var caseTypeConfig = JsonSerializer.Deserialize<JsonDocument>(@case.CaseType.Config);
