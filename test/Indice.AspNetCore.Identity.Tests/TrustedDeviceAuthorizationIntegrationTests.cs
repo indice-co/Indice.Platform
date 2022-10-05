@@ -176,6 +176,7 @@ namespace Indice.AspNetCore.Identity.Tests
                 services.AddIdentity<User, Role>()
                         .AddUserManager<ExtendedUserManager<User>>()
                         .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                        .AddExtendedSignInManager()
                         .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>();
                 services.AddIdentityServer(options => options.EmitStaticAudienceClaim = true)
                         .AddInMemoryIdentityResources(GetIdentityResources())
@@ -184,6 +185,7 @@ namespace Indice.AspNetCore.Identity.Tests
                         .AddInMemoryClients(GetClients())
                         .AddAspNetIdentity<User>()
                         .AddInMemoryPersistedGrants()
+                        .AddExtendedResourceOwnerPasswordValidator()
                         .AddTrustedDeviceAuthorization(options => options.AddUserDeviceStoreEntityFrameworkCore())
                         .AddDeveloperSigningCredential(persistKey: false);
                 _serviceProvider = services.BuildServiceProvider();
@@ -361,15 +363,18 @@ namespace Indice.AspNetCore.Identity.Tests
                 PhoneNumberConfirmed = true,
                 UserName = "g.manoltzas@indice.gr"
             };
+            // 1. Create a new user.
             var result = await userManager.CreateAsync(user, password: "123abc!", validatePassword: false);
             if (!result.Succeeded) {
                 Assert.Fail("User could not be created.");
             }
+            // 2. Register a new device using biometric login.
             var deviceId = Guid.NewGuid().ToString();
-            var response = await Register_Device_Using_Biometric(deviceId, "g.manoltzas@indice.gr");
+            var response = await Register_Device_Using_Biometric(deviceId, userName: "g.manoltzas@indice.gr");
             if (!response.IsSuccessStatusCode) {
                 Assert.Fail("Device could not be created.");
             }
+            // 3. Change username. 
             result = await userManager.SetUserNameAsync(user, "g.manoltzas_new@indice.gr");
             if (!result.Succeeded) {
                 Assert.Fail("Failed to set new username.");
@@ -378,31 +383,43 @@ namespace Indice.AspNetCore.Identity.Tests
             if (device is null) {
                 Assert.Fail("User device could not be found.");
             }
+            // 4. At that point all devices should require username and password in the next login.
             Assert.True(device.RequiresPassword);
             var responseJson = await response.Content.ReadAsStringAsync();
             var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
             Assert.IsType<Guid>(responseDto.RegistrationId);
-            var codeVerifier = GenerateCodeVerifier();
-            var challenge = await InitiateDeviceAuthorizationUsingFingerprint(codeVerifier, responseDto.RegistrationId);
-            var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-            var x509SigningCredentials = GetX509SigningCredentials();
-            var signature = SignMessage(challenge, x509SigningCredentials);
-            var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
-                Address = discoveryDocument.TokenEndpoint,
-                ClientId = CLIENT_ID,
-                ClientSecret = CLIENT_SECRET,
-                GrantType = CustomGrantTypes.TrustedDevice,
-                Parameters = {
-                    { "code", challenge },
-                    { "code_signature", signature },
-                    { "code_verifier", codeVerifier },
-                    { "registration_id", responseDto.RegistrationId.ToString() },
-                    { "public_key", CERTIFICATE_PUBLIC_KEY },
-                    { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
-                }
-            });
+
+            async Task<TokenResponse> LoginWithFingerprint(Guid registrationId) {
+                var codeVerifier = GenerateCodeVerifier();
+                var challenge = await InitiateDeviceAuthorizationUsingFingerprint(codeVerifier, registrationId);
+                var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+                var x509SigningCredentials = GetX509SigningCredentials();
+                var signature = SignMessage(challenge, x509SigningCredentials);
+                return await _httpClient.RequestTokenAsync(new TokenRequest {
+                    Address = discoveryDocument.TokenEndpoint,
+                    ClientId = CLIENT_ID,
+                    ClientSecret = CLIENT_SECRET,
+                    GrantType = CustomGrantTypes.TrustedDevice,
+                    Parameters = {
+                        { "code", challenge },
+                        { "code_signature", signature },
+                        { "code_verifier", codeVerifier },
+                        { "registration_id", registrationId.ToString() },
+                        { "public_key", CERTIFICATE_PUBLIC_KEY },
+                        { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+                    }
+                });
+            }
+
+            // 5. Login with fingerprint. This is expected to fail.
+            var tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
             Assert.True(tokenResponse.IsError);
             Assert.True(tokenResponse.ErrorDescription == "requires_password");
+            // 6. Now we login with username and password using the resource owner password grant. This should make the device usable again.
+            await LoginWithPasswordGrant("g.manoltzas_new@indice.gr", "123abc!", deviceId);
+            // 7. Login again with fingerprint. This is expected to succeed.
+            tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
+            Assert.False(tokenResponse.IsError);
         }
         #endregion
 
@@ -434,16 +451,20 @@ namespace Indice.AspNetCore.Identity.Tests
             return result.Challenge;
         }
 
-        private async Task<string> LoginWithPasswordGrant(string userName, string password) {
+        private async Task<string> LoginWithPasswordGrant(string userName, string password, string deviceId = null) {
             var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-            var tokenResponse = await _httpClient.RequestPasswordTokenAsync(new PasswordTokenRequest {
+            var request = new PasswordTokenRequest {
                 Address = discoveryDocument.TokenEndpoint,
                 ClientId = CLIENT_ID,
                 ClientSecret = CLIENT_SECRET,
                 Scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1",
                 UserName = userName,
                 Password = password
-            });
+            };
+            if (!string.IsNullOrEmpty(deviceId)) {
+                request.Parameters.Add("device_id", deviceId);
+            }
+            var tokenResponse = await _httpClient.RequestPasswordTokenAsync(request);
             return tokenResponse.AccessToken;
         }
 

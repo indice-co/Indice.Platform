@@ -267,9 +267,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Generates a password reset token and sends it to the user via email.
-        /// </summary>
+        /// <summary>Generates a password reset token and sends it to the user via email.</summary>
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>

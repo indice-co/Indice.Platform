@@ -50,6 +50,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <typeparam name="TUser">The type of user.</typeparam>
         /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
         public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder) where TUser : User {
+            builder.Services.AddTransient<IResourceOwnerPasswordValidationFilter<TUser>, IdentityResourceOwnerPasswordValidator<TUser>>();
             builder.AddResourceOwnerValidator<ExtendedResourceOwnerPasswordValidator<TUser>>();
             var profileServiceImplementation = builder.Services.Where(x => x.ServiceType == typeof(IProfileService)).LastOrDefault()?.ImplementationType;
             if (profileServiceImplementation != null) {

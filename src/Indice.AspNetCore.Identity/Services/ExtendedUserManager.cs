@@ -179,12 +179,12 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary>Adds the developer-totp claim to the provided user and provides a random 6-digit code. If the user is not a member of the 'Developer' role, it is also added automatically.</summary>
         /// <param name="user">The user.</param>
-        public async Task<IdentityResult> AddDeveloperTotpAsync(TUser user) {
+        public async Task<IdentityResult> SetDeveloperTotpAsync(TUser user) {
             var isDeveloper = await IsInRoleAsync(user, BasicRoleNames.Developer);
             if (!isDeveloper) {
                 await AddToRoleAsync(user, BasicRoleNames.Developer);
             }
-            user.AddDeveloperTotp();
+            user.GenerateDeveloperTotp();
             return await UpdateUserAsync(user);
         }
 
@@ -260,10 +260,16 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
-        public async Task<IdentityResult> AddDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
+        public async Task<IdentityResult> CreateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (device is null) {
+                throw new ArgumentNullException(nameof(device));
+            }
             var deviceStore = GetDeviceStore();
-            var result = await deviceStore.AddDeviceAsync(user, device, cancellationToken);
+            var result = await deviceStore.CreateDeviceAsync(user, device, cancellationToken);
             if (result.Succeeded) {
                 await _eventService.Publish(new DeviceCreatedEvent(device, user));
             }
@@ -278,6 +284,12 @@ namespace Indice.AspNetCore.Identity
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
         public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (device is null) {
+                throw new ArgumentNullException(nameof(device));
+            }
             var deviceStore = GetDeviceStore();
             var result = await deviceStore.UpdateDeviceAsync(user, device, cancellationToken);
             if (result.Succeeded) {
@@ -293,6 +305,9 @@ namespace Indice.AspNetCore.Identity
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
         public Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
             var deviceStore = GetDeviceStore();
             return deviceStore.GetDevicesAsync(user, cancellationToken);
         }
@@ -305,6 +320,9 @@ namespace Indice.AspNetCore.Identity
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
         public async Task<IdentityResult> SetMaxDevicesCountAsync(TUser user, int maxDevicesCount, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
             var deviceStore = GetDeviceStore();
             var result = await deviceStore.SetMaxDevicesCountAsync(user, maxDevicesCount, cancellationToken);
             if (!result.Succeeded) {
@@ -321,6 +339,12 @@ namespace Indice.AspNetCore.Identity
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="deviceId"/> parameters are null.</exception>
         public Task<UserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (string.IsNullOrWhiteSpace(deviceId)) {
+                throw new ArgumentNullException(nameof(deviceId));
+            }
             var deviceStore = GetDeviceStore();
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
@@ -332,19 +356,52 @@ namespace Indice.AspNetCore.Identity
         /// <param name="user">The user instance.</param>
         /// <param name="device">The device to delete.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user device, if any.</returns>
-        /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (device is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
             var deviceStore = GetDeviceStore();
             await deviceStore.RemoveDeviceAsync(user, device, cancellationToken);
             await _eventService.Publish(new DeviceDeletedEvent(device, user));
         }
 
-        internal Task SetDevicesRequirePasswordAsync(TUser user, CancellationToken cancellationToken = default) {
+        /// <summary>Sets the device state to require username/password in the next login.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="device">The device to update.</param>
+        /// <param name="requiresPassword">Boolean value for <see cref="UserDevice.RequiresPassword"/> field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Task<IdentityResult> SetDeviceRequiresPasswordAsync(TUser user, UserDevice device, bool requiresPassword, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (device is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
             var deviceStore = GetDeviceStore();
-            return deviceStore.SetDevicesRequirePasswordAsync(user, cancellationToken);
+            return deviceStore.SetDeviceRequiresPasswordAsync(user, device, requiresPassword, cancellationToken);
+        }
+
+        /// <summary>Sets all user devices state to require username/password in the next login.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="requiresPassword">Boolean value for <see cref="UserDevice.RequiresPassword"/> field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken = default) {
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var deviceStore = GetDeviceStore();
+            return deviceStore.SetAllDevicesRequirePasswordAsync(user, requiresPassword, cancellationToken);
         }
 
         private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {

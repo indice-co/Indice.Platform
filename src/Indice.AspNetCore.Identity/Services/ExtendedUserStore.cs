@@ -59,9 +59,9 @@ namespace Indice.AspNetCore.Identity.Data
             }
         }
 
-        private DbSet<UserDevice> Devices => Context.Set<UserDevice>();
+        private DbSet<UserDevice> DevicesSet => Context.Set<UserDevice>();
         /// <inheritdoc/>
-        public IQueryable<UserDevice> UserDevices => Devices.AsQueryable();
+        public IQueryable<UserDevice> UserDevices => DevicesSet.AsQueryable();
         /// <inheritdoc/>
         public int? PasswordHistoryLimit { get; protected set; }
         /// <inheritdoc/>
@@ -101,9 +101,6 @@ namespace Indice.AspNetCore.Identity.Data
         public Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null) {
-                throw new ArgumentNullException(nameof(user));
-            }
             // Set the policy.
             user.PasswordExpirationPolicy = policy;
             // Calculate expiration date based on policy.
@@ -115,15 +112,14 @@ namespace Indice.AspNetCore.Identity.Data
         public Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null) {
-                throw new ArgumentNullException(nameof(user));
-            }
             user.PasswordExpired = changePassword;
             return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
         public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
             // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             // If EmailAsUserName option is enabled and a username is not set, then assign email to username.
@@ -172,23 +168,14 @@ namespace Indice.AspNetCore.Identity.Data
         public Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null) {
-                throw new ArgumentNullException(nameof(user));
-            }
             user.LastSignInDate = timestamp ?? DateTimeOffset.UtcNow;
             return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public async Task<IdentityResult> AddDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
+        public async Task<IdentityResult> CreateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (device is null) {
-                throw new ArgumentNullException(nameof(device));
-            }
             var userClaims = await GetClaimsAsync(user, cancellationToken);
             var maxDevicesCountClaim = userClaims.FirstOrDefault(x => x.Type == BasicClaimTypes.MaxDevicesCount)?.Value;
             int? userMaxDevicesCount = null;
@@ -196,14 +183,14 @@ namespace Indice.AspNetCore.Identity.Data
                 userMaxDevicesCount = parsedUserMaxDevicesClaim;
             }
             var maxDevicesCount = userMaxDevicesCount ?? DefaultAllowedRegisteredDevices ?? int.MaxValue;
-            var numberOfUserDevices = await Devices.CountAsync(x => x.UserId == user.Id);
+            var numberOfUserDevices = await DevicesSet.CountAsync(x => x.UserId == user.Id);
             if (maxDevicesCount == numberOfUserDevices) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = "MaxNumberOfDevices",
                     Description = "You have reached the maximum number of registered devices."
                 });
             }
-            Devices.Add(device);
+            DevicesSet.Add(device);
             await SaveChanges(cancellationToken);
             return IdentityResult.Success;
         }
@@ -212,28 +199,9 @@ namespace Indice.AspNetCore.Identity.Data
         public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            var devices = await Devices
+            var devices = await DevicesSet
                 .Include(x => x.User)
                 .Where(x => x.UserId == user.Id)
-                .Select(x => new UserDevice(x.Id) {
-                    RequiresPassword = x.RequiresPassword,
-                    Data = x.Data,
-                    DateCreated = x.DateCreated,
-                    DeviceId = x.DeviceId,
-                    IsPushNotificationsEnabled = x.IsPushNotificationsEnabled,
-                    LastSignInDate = x.LastSignInDate,
-                    Model = x.Model,
-                    Name = x.Name,
-                    OsVersion = x.OsVersion,
-                    Password = x.Password,
-                    Platform = x.Platform,
-                    PublicKey = x.PublicKey,
-                    User = x.User,
-                    UserId = user.Id
-                })
                 .ToListAsync(cancellationToken);
             return devices;
         }
@@ -242,68 +210,26 @@ namespace Indice.AspNetCore.Identity.Data
         public async Task<UserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(deviceId)) {
-                throw new ArgumentNullException(nameof(deviceId));
-            }
-            var device = await Devices
-                .Include(x => x.User)
-                .SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
-            return device is not null ? new UserDevice(device.Id) {
-                RequiresPassword = device.RequiresPassword,
-                Data = device.Data,
-                DateCreated = device.DateCreated,
-                DeviceId = device.DeviceId,
-                IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
-                LastSignInDate = device.LastSignInDate,
-                Model = device.Model,
-                Name = device.Name,
-                OsVersion = device.OsVersion,
-                Password = device.Password,
-                Platform = device.Platform,
-                PublicKey = device.PublicKey,
-                User = device.User,
-                UserId = user.Id
-            } : default;
+            return await DevicesSet.Include(x => x.User).SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            var deviceId = device.DeviceId;
-            if (string.IsNullOrWhiteSpace(deviceId)) {
-                return IdentityResult.Failed(new IdentityError {
-                    Code = "MissingDeviceId",
-                    Description = "Device id is missing."
-                });
-            }
-            var foundDevice = await Devices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
-            if (foundDevice is not null) {
-                foundDevice.Data = device.Data;
-                foundDevice.IsPushNotificationsEnabled = foundDevice.IsPushNotificationsEnabled;
-                foundDevice.Model = device.Model;
-                foundDevice.Name = device.Name;
-                foundDevice.OsVersion = device.OsVersion;
-                foundDevice.Platform = device.Platform;
+            Context.Update(device);
+            try {
                 await SaveChanges(cancellationToken);
-                return IdentityResult.Success;
+            } catch (DbUpdateConcurrencyException) {
+                return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
             }
-            return await AddDeviceAsync(user, device, cancellationToken);
+            return IdentityResult.Success;
         }
 
         /// <inheritdoc/>
         public async Task<IdentityResult> SetMaxDevicesCountAsync(TUser user, int maxDevicesCount, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
             if (maxDevicesCount < 1) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = "InsufficientNumberOfDevices",
@@ -316,7 +242,7 @@ namespace Indice.AspNetCore.Identity.Data
                     Description = $"Cannot set max number to {maxDevicesCount}. Maximum value can be {MaxAllowedRegisteredDevices}."
                 });
             }
-            var numberOfUserDevices = await Devices.CountAsync(x => x.UserId == user.Id);
+            var numberOfUserDevices = await DevicesSet.CountAsync(x => x.UserId == user.Id);
             if (numberOfUserDevices > maxDevicesCount) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = "LargeNumberOfDevices",
@@ -333,28 +259,32 @@ namespace Indice.AspNetCore.Identity.Data
         public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (device is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            Devices.Remove(device);
+            DevicesSet.Remove(device);
             await SaveChanges(cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task SetDevicesRequirePasswordAsync(TUser user, CancellationToken cancellationToken) {
+        public async Task<IdentityResult> SetDeviceRequiresPasswordAsync(TUser user, UserDevice device, bool requiresPassword, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            var devices = await Devices.Where(x => x.UserId == user.Id).ToListAsync();
+            device.RequiresPassword = requiresPassword;
+            return await UpdateDeviceAsync(user, device, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var devices = await GetDevicesAsync(user, cancellationToken);
             foreach (var device in devices) {
-                device.RequiresPassword = true;
+                device.RequiresPassword = requiresPassword;
             }
-            await SaveChanges(cancellationToken);
+            try {
+                await SaveChanges(cancellationToken);
+            } catch (DbUpdateConcurrencyException) {
+                return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+            }
+            return IdentityResult.Success;
         }
     }
 }

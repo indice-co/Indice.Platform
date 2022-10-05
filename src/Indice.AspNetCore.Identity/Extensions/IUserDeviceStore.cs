@@ -22,7 +22,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="device">The device to create.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
-        Task<IdentityResult> AddDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken);
+        Task<IdentityResult> CreateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken);
         /// <summary>Get the devices registered by the specified user.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -36,7 +36,7 @@ namespace Indice.AspNetCore.Identity
         Task<UserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken);
         /// <summary>Updates the given device. If the device does not exists, it is automatically created.</summary>
         /// <param name="user">The user instance.</param>
-        /// <param name="device">The device to update (or create).</param>
+        /// <param name="device">The device to update.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user device, if any.</returns>
         Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken);
@@ -54,8 +54,16 @@ namespace Indice.AspNetCore.Identity
         Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken);
         /// <summary>Blocks devices for fingerprint or 4-pin login and requires credentials.</summary>
         /// <param name="user">The user instance.</param>
+        /// <param name="device">The device to update.</param>
+        /// <param name="requiresPassword">Boolean value for <see cref="UserDevice.RequiresPassword"/> field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        Task SetDevicesRequirePasswordAsync(TUser user, CancellationToken cancellationToken);
+        Task<IdentityResult> SetDeviceRequiresPasswordAsync(TUser user, UserDevice device, bool requiresPassword, CancellationToken cancellationToken);
+        /// <summary>Blocks all devices for fingerprint or 4-pin login and requires credentials.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="requiresPassword">Boolean value for <see cref="UserDevice.RequiresPassword"/> field.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken);
     }
 }

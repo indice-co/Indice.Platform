@@ -81,6 +81,7 @@ namespace Microsoft.Extensions.DependencyInjection
             options.Services.AddTransient<DeviceAuthorizationResponseGenerator>();
             options.Services.AddTransient<InitRegistrationRequestValidator>();
             options.Services.AddTransient<InitRegistrationResponseGenerator>();
+            options.Services.AddTransient<IResourceOwnerPasswordValidationFilter<User>, DeviceResourceOwnerPasswordValidator<User>>();
         }
 
         private static void RegisterEndpoints(this IIdentityServerBuilder builder) {

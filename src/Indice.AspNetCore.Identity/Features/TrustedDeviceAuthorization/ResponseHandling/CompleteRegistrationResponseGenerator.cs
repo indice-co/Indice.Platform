@@ -45,7 +45,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
                 case InteractionMode.Pin when validationResult.Device == null:
                     var password = DevicePasswordHasher.HashPassword(device, validationResult.Pin);
                     device.Password = password;
-                    result = await UserManager.AddDeviceAsync(validationResult.User, device);
+                    result = await UserManager.CreateDeviceAsync(validationResult.User, device);
                     errors = result.Errors;
                     break;
                 case InteractionMode.Pin when validationResult.Device != null:
@@ -54,7 +54,7 @@ namespace Indice.AspNetCore.Identity.TrustedDeviceAuthorization.ResponseHandling
                     break;
                 case InteractionMode.Fingerprint when validationResult.Device == null:
                     device.PublicKey = validationResult.PublicKey;
-                    result = await UserManager.AddDeviceAsync(validationResult.User, device);
+                    result = await UserManager.CreateDeviceAsync(validationResult.User, device);
                     errors = result.Errors;
                     break;
                 case InteractionMode.Fingerprint when validationResult.Device != null:
