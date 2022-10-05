@@ -38,10 +38,16 @@ namespace Indice.Features.Cases.Models.Responses
         /// The case type tags.
         /// </summary>
         public string? Tags { get; set; }
+
+        /// <summary>
+        /// The case type configuration.
+        /// </summary>
+        public string? Config { get; set; }
+
         /// <summary>
         /// The allowed Roles For case Creation.
         /// </summary>
-        public List<string>? AllowedRolesForCreation { get; set; }
+        public List<string>? CanCreateRoles { get; set; }
 
         /// <summary>
         /// The translations for the case type metadata (eg title).

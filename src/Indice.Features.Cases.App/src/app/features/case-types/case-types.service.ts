@@ -54,7 +54,10 @@ export class CaseTypesService {
             "tags": {
                 "type": "string"
             },
-            "allowedRolesForCaseCreation": {
+            "config": {
+                "type": "string"
+            },
+            "canCreateRoles": {
                 "type": "string"
             },
             "checkpointTypes": {
@@ -178,7 +181,19 @@ export class CaseTypesService {
                     "flex-flow": "row wrap",
                     "items": [
                         {
-                            "key": "allowedRolesForCaseCreation",
+                            "key": "config",
+                            "title": "Case Type Configuration",
+                            "type": "textarea",
+                            "htmlClass": "px-2 my-2"
+                        }
+                    ]
+                },
+                {
+                    "type": "flex",
+                    "flex-flow": "row wrap",
+                    "items": [
+                        {
+                            "key": "canCreateRoles",
                             "title": "Επιτρεπτοί Ρόλοι για Δημιουργία αίτησης",
                             "htmlClass": "px-2 my-2"
                         }
@@ -304,7 +319,8 @@ export class CaseTypesService {
             translations: event?.translations,
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags,
-            allowedRolesForCaseCreation: event?.allowedRolesForCaseCreation,
+            config: event?.config,
+            canCreateRoles: event?.canCreateRoles,
             checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeDetails(item)),
         });
         this._api.createCaseType(undefined, request).pipe(
@@ -329,7 +345,8 @@ export class CaseTypesService {
             translations: event?.translations,
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags,
-            allowedRolesForCaseCreation: event?.allowedRolesForCaseCreation,
+            config: event?.config,
+            canCreateRoles: event?.canCreateRoles,
             checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeDetails(item)),
         })
         this._api.updateCaseType(caseTypeId, undefined, request).pipe(

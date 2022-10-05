@@ -112,15 +112,15 @@ namespace Indice.Features.Messages.Core.Handlers
             var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
                 await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
-                    options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
+                    options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
             }
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.Email)) {
                 await eventDispatcher.RaiseEventAsync(SendEmailEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
-                    options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendEmail));
+                    options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendEmail));
             }
             if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.SMS)) {
                 await eventDispatcher.RaiseEventAsync(SendSmsEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
-                    options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms));
+                    options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendSms));
             }
         }
     }

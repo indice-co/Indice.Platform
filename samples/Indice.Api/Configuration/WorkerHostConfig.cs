@@ -13,6 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 hostOptions.UseLockManagerAzure();
             })
             .AddMessageJobs(jobsOptions => {
+                jobsOptions.UseFilesAzure();
                 jobsOptions.UsePushNotificationServiceAzure();
                 jobsOptions.UseEmailServiceSparkpost(jobsOptions.Configuration);
                 jobsOptions.UseSmsServiceYubotoOmni(jobsOptions.Configuration);

@@ -35,7 +35,7 @@
   <ItemGroup>
     <PackageReference Include="Indice.Features.Multitenancy.Core" Version="6.0.0" />
     <PackageReference Include="Indice.Services" Version="6.1.11" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.8.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">

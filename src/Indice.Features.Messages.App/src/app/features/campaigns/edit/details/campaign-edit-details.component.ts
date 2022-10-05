@@ -68,7 +68,9 @@ export class CampaignDetailsEditComponent implements OnInit {
             initialState: {
                 title: 'Δημοσίευση',
                 message: `Είστε σίγουρος ότι θέλετε να δημοσιεύσετε την καμπάνια '${this.campaign?.title}';`,
-                data: this.campaign
+                data: this.campaign,
+                acceptText: 'Δημοσίευση',
+                type: 'success'
             },
             keyboard: true
         });

@@ -17,13 +17,13 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddMessageEndpoints(options => {
                     options.ApiPrefix = "api";
                     options.ConfigureDbContext = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
-                    options.DatabaseSchema = "msg";
+                    options.DatabaseSchema = "cmp";
                     options.RequiredScope = $"backoffice:{MessagesApi.Scope}";
                     options.UserClaimType = JwtClaimTypes.Subject;
                     options.UseFilesAzure();
                     //options.UseFilesLocal(fileOptions => fileOptions.Path = "uploads");
-                    //options.UseEventDispatcherAzure();
-                    options.UseEventDispatcherHosting();
+                    options.UseEventDispatcherAzure();
+                    //options.UseEventDispatcherHosting();
                     options.UseIdentityContactResolver(resolverOptions => {
                         resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);
                         resolverOptions.ClientId = configuration["IdentityServer:ClientId"];

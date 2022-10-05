@@ -44,7 +44,7 @@ namespace Indice.Features.Cases.Services
             return caseType ?? throw new Exception("CaseType is invalid."); // todo proper exception;
         }
 
-        public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool isForCaseCreation) {
+        public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool canCreate) {
             if (user.IsAdmin()) {
                 return await GetAdminCases();
             }
@@ -54,7 +54,7 @@ namespace Indice.Features.Cases.Services
                 .Select(c => c.Value)
                 .ToList();
 
-            var caseTypeIds = isForCaseCreation ? await GetCaseTypeIdsForCaseCreation(roleClaims) : await GetCaseTypeIds(roleClaims);
+            var caseTypeIds = canCreate ? await GetCaseTypeIdsForCaseCreation(roleClaims) : await GetCaseTypeIds(roleClaims);
 
             var caseTypes = await _dbContext.CaseTypes
                 .AsQueryable()
@@ -66,6 +66,7 @@ namespace Indice.Features.Cases.Services
                     Layout = c.Layout,
                     Code = c.Code,
                     Tags = c.Tags,
+                    Config = c.Config,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
                 })
                 .ToListAsync();
@@ -93,7 +94,8 @@ namespace Indice.Features.Cases.Services
                 Translations = caseType.Translations,
                 LayoutTranslations = caseType.LayoutTranslations,
                 Tags = caseType.Tags,
-                AllowedRolesForCaseCreation = caseType.AllowedRolesForCaseCreation
+                Config = caseType.Config,
+                CanCreateRoles = caseType.CanCreateRoles
             };
 
             if (caseType.CheckpointTypes is null) {
@@ -176,7 +178,8 @@ namespace Indice.Features.Cases.Services
                 Translations = dbCaseType.Translations,
                 LayoutTranslations = dbCaseType.LayoutTranslations,
                 Tags = dbCaseType.Tags,
-                AllowedRolesForCaseCreation = dbCaseType.AllowedRolesForCaseCreation,
+                Config = dbCaseType.Config,
+                CanCreateRoles = dbCaseType.CanCreateRoles,
                 CheckpointTypes = dbCaseType.CheckpointTypes.Select(checkpointType => new CheckpointTypeDetails {
                     Id = checkpointType.Id,
                     Name = checkpointType.Name,
@@ -208,7 +211,8 @@ namespace Indice.Features.Cases.Services
             dbCaseType.Translations = caseType.Translations;
             dbCaseType.LayoutTranslations = caseType.LayoutTranslations;
             dbCaseType.Tags = caseType.Tags;
-            dbCaseType.AllowedRolesForCaseCreation = caseType.AllowedRolesForCaseCreation;
+            dbCaseType.Config = caseType.Config;
+            dbCaseType.CanCreateRoles = caseType.CanCreateRoles;
 
             _dbContext.CaseTypes.Update(dbCaseType);
 
@@ -253,8 +257,8 @@ namespace Indice.Features.Cases.Services
             return caseTypes.ToResultSet();
         }
         private async Task<List<Guid>> GetCaseTypeIdsForCaseCreation(List<string> roleClaims) {
-            var caseTypeExpressions = roleClaims.Select(roleClaim => (Expression<Func<DbCaseType, bool>>)(dbCaseType => EF.Functions.Like(dbCaseType.AllowedRolesForCaseCreation, $"%{roleClaim}%")));
-            // Aggregate the expressions with OR that resolves to SQL: AllowedRolesForCaseCreation LIKE %roleClaim1% OR tag LIKE %roleClaim2% etc
+            var caseTypeExpressions = roleClaims.Select(roleClaim => (Expression<Func<DbCaseType, bool>>)(dbCaseType => EF.Functions.Like(dbCaseType.CanCreateRoles, $"%{roleClaim}%")));
+            // Aggregate the expressions with OR that resolves to SQL: CanCreateRoles LIKE %roleClaim1% OR tag LIKE %roleClaim2% etc
             var aggregatedExpression = caseTypeExpressions.Aggregate((expression, next) => {
                 var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
                 return Expression.Lambda<Func<DbCaseType, bool>>(orExp, expression.Parameters);

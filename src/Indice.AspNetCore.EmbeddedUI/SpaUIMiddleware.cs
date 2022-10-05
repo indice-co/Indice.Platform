@@ -62,7 +62,7 @@ namespace Indice.AspNetCore.EmbeddedUI
             var staticFileMiddleware = staticFileMiddlewareFactory.Create(baseRequestPath, _next, _assembly, _embeddedUIRoot, _options, contentTypeProvider);
             var requestPath = httpContext.Request.Path.Value;
             if (!contentTypeProvider.TryGetContentType(requestPath, out var _)) {
-                httpContext.Request.Path = new PathString($"/{baseRequestPath}/index.html");
+                httpContext.Request.Path = new PathString($"{baseRequestPath.TrimEnd('/')}/index.html");
             }
             await staticFileMiddleware.Invoke(httpContext);
         }

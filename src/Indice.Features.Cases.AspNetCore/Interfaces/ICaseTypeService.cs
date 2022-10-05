@@ -29,8 +29,8 @@ namespace Indice.Features.Cases.Interfaces
         /// Get the case type a user is authorized for.
         /// </summary>
         /// <param name="user"></param>
-        /// <param name="isForCaseCreation">Differentiates between the case types that an admin user can 1) view and 2) select for a case creation</param>
-        Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool isForCaseCreation);
+        /// <param name="canCreate">Differentiates between the case types that an admin user can 1) view and 2) select for a case creation</param>
+        Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool canCreate);
 
         /// <summary>
         /// Get the case type details by its Id.

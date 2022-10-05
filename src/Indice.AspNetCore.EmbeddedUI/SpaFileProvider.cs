@@ -89,7 +89,7 @@ namespace Indice.AspNetCore.EmbeddedUI
                 ["%(ClientId)"] = _options.ClientId,
                 ["%(DocumentTitle)"] = _options.DocumentTitle,
                 ["%(Host)"] = _options.Host.TrimEnd('/'),
-                ["%(Path)"] = _options.Path.Trim('/'),
+                ["%(Path)"] = _options.Path.TrimEnd('/'),
                 ["%(HeadContent)"] = _options.HeadContent,
                 ["%(Culture)"] = CultureInfo.CurrentCulture.TwoLetterISOLanguageName,
                 ["%(ProductVersion)"] = _options.Version,
