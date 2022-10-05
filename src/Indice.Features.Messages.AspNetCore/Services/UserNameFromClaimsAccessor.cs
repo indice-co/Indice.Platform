@@ -18,6 +18,12 @@ namespace Indice.Features.Messages.AspNetCore.Services
         }
 
         /// <inheritdoc />
-        public string Resolve() => _httpContextAccessor.HttpContext.User.FindFirstValue(JwtClaimTypes.Name);
+        public string Resolve() {
+            var principal = _httpContextAccessor.HttpContext.User;
+            return principal.FindFirstValue(JwtClaimTypes.Name) 
+                ?? principal.FindFirstValue(JwtClaimTypes.Email)
+                ?? principal.FindFirstValue(JwtClaimTypes.ClientId)
+                ?? "system";
+        }
     }
 }

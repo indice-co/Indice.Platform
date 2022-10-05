@@ -13,15 +13,19 @@
     <div class="modal-actions-container mt-2"
          role="group">
         <button type="button"
-                class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-gray-500 sm:text-sm"
+                class="basic-modal-close"
                 (click)="answer(false)">
             Κλείσιμο
         </button>
         &nbsp;
         <button type="button"
-                class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm"
+                class="basic-modal-accept"
+                [ngClass]="{ 
+                    'basic-modal-accept-error': type === 'error', 
+                    'basic-modal-accept-success': type === 'success' 
+                }"
                 (click)="answer(true)">
-            Διαγραφή
+            {{ acceptText }}
         </button>
     </div>
 </div>

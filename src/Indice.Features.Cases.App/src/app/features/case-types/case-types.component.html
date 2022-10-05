@@ -1,0 +1,43 @@
+<lib-view-layout title="Λίστα Τύπων Αιτήσεων"
+                 [busy]="!items"
+                 [actions]="formActions"
+                 [meta-items]="metaItems">
+    <lib-list-view [items]="items"
+                   [count]="count"
+                   [busy]="!items">
+        <lib-list-column title="ΤΙΤΛΟΣ">
+            <ng-template let-item>{{ item.title }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΚΩΔΙΚΟΣ">
+            <ng-template let-item>{{ item.code }}</ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΕΤΙΚΕΤΕΣ">
+            <ng-template let-item>
+                <ng-container *ngIf="item.tags">
+                    <ng-container *ngFor="let tag of item.tags.split(',')">
+                        <span
+                              class="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800">{{tag}}</span> &nbsp;
+                    </ng-container>
+                </ng-container>
+            </ng-template>
+        </lib-list-column>
+        <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+            <ng-template let-item>
+                <a href="#"
+                   [routerLinkActive]="['nav-link-profile-active']"
+                   [routerLinkActiveOptions]="{ exact: true }"
+                   [routerLink]="[item.id + '/edit']"
+                   class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
+                    <span>Επεξεργασία</span>
+                </a>
+                &nbsp;
+                <a href="#"
+                   [routerLink]=""
+                   (click)="openModal(item.id)"
+                   class="bg-red-600 hover:bg-red-800 cursor-pointer text-white font-bold p-2 inline-flex rounded text-xs">
+                    <span>Διαγραφή</span>
+                </a>
+            </ng-template>
+        </lib-list-column>
+    </lib-list-view>
+</lib-view-layout>

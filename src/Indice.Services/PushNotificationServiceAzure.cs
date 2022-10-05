@@ -9,23 +9,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Services
 {
-    /// <summary>
-    /// Push notification service implementation using <see cref="Microsoft.Azure.NotificationHubs"/>.
-    /// </summary>
+    /// <summary>Push notification service implementation using <see cref="Microsoft.Azure.NotificationHubs"/>.</summary>
     public class PushNotificationServiceAzure : IPushNotificationService
     {
-        /// <summary>
-        /// The connection string parameter name. The setting key that will be searched inside the configuration.
-        /// </summary>
+        /// <summary>The connection string parameter name. The setting key that will be searched inside the configuration.</summary>
         public const string ConnectionStringName = "PushNotificationsConnection";
-        /// <summary>
-        /// The push notification hub path string parameter name. The setting key that will be searched inside the configuration.
-        /// </summary>
+        /// <summary>The push notification hub path string parameter name. The setting key that will be searched inside the configuration.</summary>
         public const string NotificationsHubPath = "PushNotificationsHubPath";
 
-        /// <summary>
-        /// Constructs the <see cref="PushNotificationServiceAzure"/>.
-        /// </summary>
+        /// <summary>Constructs the <see cref="PushNotificationServiceAzure"/>.</summary>
         /// <param name="options">Connection string for Azure and Notifications hub name.</param>
         public PushNotificationServiceAzure(PushNotificationAzureOptions options) {
             if (string.IsNullOrWhiteSpace(options?.ConnectionString) || string.IsNullOrWhiteSpace(options?.NotificationHubPath)) {
@@ -108,47 +100,29 @@ namespace Indice.Services
         }
     }
 
-    /// <summary>
-    /// Push notification service options.
-    /// </summary>
+    /// <summary>Push notification service options.</summary>
     public class PushNotificationAzureOptions
     {
         internal IServiceCollection Services { get; set; }
-        /// <summary>
-        /// The section name in application settings.
-        /// </summary>
+        /// <summary>The section name in application settings.</summary>
         public const string Name = "PushNotifications";
-        /// <summary>
-        /// The connection string to the push notification account.
-        /// </summary>
+        /// <summary>The connection string to the push notification account.</summary>
         public string ConnectionString { get; set; }
-        /// <summary>
-        /// Notifications hub name, if any.
-        /// </summary>
+        /// <summary>Notifications hub name, if any.</summary>
         public string NotificationHubPath { get; set; }
-        /// <summary>
-        /// Specifies whether the notification is handled by the operating system.
-        /// </summary>
+        /// <summary>Specifies whether the notification is handled by the operating system.</summary>
         public bool? SilentNotifications { get; set; }
-        /// <summary>
-        /// Gets or sets HTTP message handler.
-        /// </summary>
+        /// <summary>Gets or sets HTTP message handler.</summary>
         public HttpClientHandler MessageHandler { get; set; }
     }
 
-    /// <summary>
-    /// Generic and silent push notification templates for Android and iOS.
-    /// </summary>
+    /// <summary>Generic and silent push notification templates for Android and iOS.</summary>
     public class PushNotificationServiceAzureTemplates
     {
-        /// <summary>
-        /// Generic templates.
-        /// </summary>
+        /// <summary>Generic templates.</summary>
         public class Generic
         {
-            /// <summary>
-            /// iOS generic template.
-            /// </summary>
+            /// <summary>iOS generic template.</summary>
             public const string IOS = @"{
                 ""aps"":{
                     ""alert"": ""$(message)"", 
@@ -161,9 +135,7 @@ namespace Indice.Services
                 }
             }";
 
-            /// <summary>
-            /// Android generic template.
-            /// </summary>
+            /// <summary>Android generic template.</summary>
             public const string ANDROID = @"{
                 ""notification"":{
                     ""title"": ""$(message)"",
@@ -177,14 +149,10 @@ namespace Indice.Services
             }";
         }
 
-        /// <summary>
-        /// Silent templates.
-        /// </summary>
+        /// <summary>Silent templates.</summary>
         public class Silent
         {
-            /// <summary>
-            /// iOS silent template.
-            /// </summary>
+            /// <summary>iOS silent template.</summary>
             public const string IOS = @"{
                 ""aps"":{, 
                     ""category"": ""$(classification)"",
@@ -201,9 +169,7 @@ namespace Indice.Services
                 }
             }";
 
-            /// <summary>
-            /// Android silent template.
-            /// </summary>
+            /// <summary>Android silent template.</summary>
             public const string ANDROID = @"{
                 ""data"":{
                     ""message"": ""$(message)"", 

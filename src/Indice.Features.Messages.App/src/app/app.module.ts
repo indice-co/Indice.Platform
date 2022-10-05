@@ -1,13 +1,13 @@
-import { LOCALE_ID, NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
-import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
-import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
+import { APP_LANGUAGES, APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
+import { AuthHttpInterceptor, AUTH_SETTINGS, IndiceAuthModule, TenantHeaderInterceptor, TenantService, TENANT_PREFIX_URL } from '@indice/ng-auth';
 import { AppComponent } from './app.component';
+import { AppLanguagesService } from './shared/services/app-languages.service';
 import { AppLinks } from './app.links';
 import { AppRoutingModule } from './app-routing.module';
 import { BadRequestInterceptor } from './core/bad-request-interceptor';
@@ -25,12 +25,17 @@ import { CampaignRecipientsComponent } from './features/campaigns/create/steps/r
 import { CampaignReportsComponent } from './features/campaigns/edit/reports/campaign-reports.component';
 import { CampaignsComponent } from './features/campaigns/campaigns.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { DistributionListContactCreateComponent } from './features/distribution-lists/contacts/create/distribution-list-contact-create.component';
-import { DistributionListContactsComponent } from './features/distribution-lists/contacts/distribution-list-contacts.component';
+import { DistributionListContactCreateComponent } from './features/distribution-lists/edit/contacts/create/distribution-list-contact-create.component';
+import { DistributionListContactEditComponent } from './features/distribution-lists/edit/contacts/edit/distribution-list-contact-edit.component';
+import { DistributionListContactsComponent } from './features/distribution-lists/edit/contacts/distribution-list-contacts.component';
 import { DistributionListCreateComponent } from './features/distribution-lists/create/distribution-list-create.component';
+import { DistributionListDetailsEditComponent } from './features/distribution-lists/edit/details/distribution-list-edit-details.component';
+import { DistributionListDetailsEditRightpaneComponent } from './features/distribution-lists/edit/details/rightpane/distribution-list-edit-details-rightpane.component';
 import { DistributionListEditComponent } from './features/distribution-lists/edit/distribution-list-edit.component';
 import { DistributionListsComponent } from './features/distribution-lists/distribution-lists.component';
+import { HighlightModule, HIGHLIGHT_OPTIONS } from 'ngx-highlightjs';
 import { HomeComponent } from './features/home/home.component';
+import { HttpStatusComponent } from './shared/components/http-status/http-status.component';
 import { LocalDropDownMenuComponent } from './shared/components/drop-down-menu/drop-down-menu.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
 import { MESSAGES_API_BASE_URL } from './core/services/messages-api.service';
@@ -41,11 +46,44 @@ import { PageIllustrationComponent } from './shared/components/page-illustration
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
 import { SafePipe } from './shared/pipes/safe.pipe';
 import { ShellConfig } from './shell.config';
+import { TemplateContentEditComponent } from './features/templates/edit/content/template-edit-content.component';
+import { TemplateCreateComponent } from './features/templates/create/template-create.component';
+import { TemplateDetailsEditComponent } from './features/templates/edit/details/template-edit-details.component';
+import { TemplateDetailsEditRightpaneComponent } from './features/templates/edit/details/rightpane/template-edit-details-rightpane.component';
+import { TemplateEditComponent } from './features/templates/edit/template-edit.component';
 import { TemplatesComponent } from './features/templates/templates.component';
-import { ToggleButtonComponent } from './shared/components/toggle-button/toggle-button.component';
 import * as app from 'src/app/core/models/settings';
 import localeGreek from '@angular/common/locales/el';
 registerLocaleData(localeGreek);
+
+const providers: Provider[] = [
+  DatePipe,
+  ModalService,
+  JsonPipe,
+  { provide: APP_LINKS, useClass: AppLinks },
+  { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
+  { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
+  { provide: HTTP_INTERCEPTORS, useClass: BadRequestInterceptor, multi: true },
+  { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },
+  { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
+  { provide: TENANT_PREFIX_URL, useExisting: MESSAGES_API_BASE_URL },
+  { provide: LOCALE_ID, useValue: 'el-GR' },
+  {
+    provide: HIGHLIGHT_OPTIONS,
+    useValue: {
+      lineNumbers: false,
+      coreLibraryLoader: () => import('highlight.js/lib/core'),
+      languages: {
+        json: () => import('highlight.js/lib/languages/json')
+      }
+    }
+  },
+  { provide: APP_LANGUAGES, useClass: AppLanguagesService }
+]
+
+if (app.settings.tenantId) {
+  providers.push({ provide: HTTP_INTERCEPTORS, useClass: TenantHeaderInterceptor, multi: true, deps: [MESSAGES_API_BASE_URL, TenantService] })
+}
 
 @NgModule({
   declarations: [
@@ -65,8 +103,11 @@ registerLocaleData(localeGreek);
     CampaignsComponent,
     DashboardComponent,
     DistributionListContactCreateComponent,
+    DistributionListContactEditComponent,
     DistributionListContactsComponent,
     DistributionListCreateComponent,
+    DistributionListDetailsEditComponent,
+    DistributionListDetailsEditRightpaneComponent,
     DistributionListEditComponent,
     DistributionListsComponent,
     HomeComponent,
@@ -78,8 +119,13 @@ registerLocaleData(localeGreek);
     PageIllustrationComponent,
     RadioButtonsListComponent,
     SafePipe,
+    TemplateContentEditComponent,
+    TemplateCreateComponent,
+    TemplateDetailsEditComponent,
+    TemplateDetailsEditRightpaneComponent,
+    TemplateEditComponent,
     TemplatesComponent,
-    ToggleButtonComponent
+    HttpStatusComponent
   ],
   imports: [
     AppRoutingModule,
@@ -92,28 +138,7 @@ registerLocaleData(localeGreek);
     IndiceComponentsModule.forRoot(),
     ReactiveFormsModule
   ],
-  providers: [
-    DatePipe,
-    ModalService,
-    JsonPipe,
-    { provide: APP_LINKS, useFactory: () => new AppLinks() },
-    { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
-    { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: BadRequestInterceptor, multi: true },
-    { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },
-    { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
-    { provide: LOCALE_ID, useValue: 'el-GR' },
-    {
-      provide: HIGHLIGHT_OPTIONS,
-      useValue: {
-        lineNumbers: false,
-        coreLibraryLoader: () => import('highlight.js/lib/core'),
-        languages: {
-          json: () => import('highlight.js/lib/languages/json')
-        }
-      }
-    }
-  ],
+  providers: providers,
   bootstrap: [AppComponent]
 })
 export class AppModule { }

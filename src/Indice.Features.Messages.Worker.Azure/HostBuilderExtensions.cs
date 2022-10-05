@@ -9,6 +9,7 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Features.Messages.Worker.Azure;
 using Indice.Services;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,29 +23,32 @@ namespace Microsoft.Extensions.Hosting
         /// <summary>Configures services used by the queue triggers used for campaign management system.</summary>
         /// <param name="hostBuilder">A program initialization abstraction.</param>
         /// <param name="configure">Configure action for <see cref="MessageOptions"/>.</param>
-        public static IHostBuilder ConfigureMessages(this IHostBuilder hostBuilder, Action<IConfiguration, MessageOptions> configure = null) {
+        public static IHostBuilder ConfigureMessageFunctions(this IHostBuilder hostBuilder, Action<IConfiguration, IHostEnvironment, MessageOptions> configure = null) =>
             hostBuilder.ConfigureServices((hostBuilderContext, services) => {
                 var options = new MessageOptions {
                     Services = services
                 };
-                configure?.Invoke(hostBuilderContext.Configuration, options);
+                configure?.Invoke(hostBuilderContext.Configuration, hostBuilderContext.HostingEnvironment, options);
                 services.AddCoreServices(options, hostBuilderContext.Configuration);
                 services.AddJobHandlerServices();
+                services.Configure<WorkerOptions>(options => {
+                    options.InputConverters.RegisterAt<MessagesInputConverter>(0);
+                });
             });
-            return hostBuilder;
-        }
 
         private static IServiceCollection AddCoreServices(this IServiceCollection services, MessageOptions options, IConfiguration configuration) {
             services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
             services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
+            services.TryAddTransient<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());
             services.TryAddTransient<IEmailService, EmailServiceNoop>();
             services.TryAddTransient<IContactResolver, ContactResolverNoop>();
-            Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
+            Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
             services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
             services.TryAddTransient<IDistributionListService, DistributionListService>();
             services.TryAddTransient<IMessageService, MessageService>();
             services.TryAddTransient<IContactService, ContactService>();
             services.TryAddTransient<ICampaignService, CampaignService>();
+            services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<ITemplateService, TemplateService>();
             services.TryAddTransient<CreateCampaignRequestValidator>();
@@ -76,9 +80,9 @@ namespace Microsoft.Extensions.Hosting
         /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
         /// <param name="options">Options used when configuring campaign Azure Functions.</param>
         /// <param name="configure">Configure the available options. Null to use defaults.</param>
-        public static MessageOptions UseEventDispatcherAzure(this MessageOptions options, Action<IServiceProvider, MessagesEventDispatcherAzureOptions> configure = null) {
+        public static MessageOptions UseEventDispatcherAzure(this MessageOptions options, Action<IServiceProvider, MessageEventDispatcherAzureOptions> configure = null) {
             options.Services.AddEventDispatcherAzure(KeyedServiceNames.EventDispatcherServiceKey, (serviceProvider, options) => {
-                var eventDispatcherOptions = new MessagesEventDispatcherAzureOptions {
+                var eventDispatcherOptions = new MessageEventDispatcherAzureOptions {
                     ConnectionString = serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString(EventDispatcherAzure.CONNECTION_STRING_NAME),
                     Enabled = true,
                     EnvironmentName = serviceProvider.GetRequiredService<IHostEnvironment>().EnvironmentName,
@@ -93,6 +97,22 @@ namespace Microsoft.Extensions.Hosting
                 options.TenantIdSelector = eventDispatcherOptions.TenantIdSelector;
                 options.UseCompression = true;
             });
+            return options;
+        }
+
+        /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
+        /// <param name="options">Options used to configure the Campaigns API feature.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static MessageOptions UseFilesLocal(this MessageOptions options, Action<FileServiceLocalOptions> configure = null) {
+            options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
+            return options;
+        }
+
+        /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
+        /// <param name="options">Options used to configure the Campaigns API feature.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static MessageOptions UseFilesAzure(this MessageOptions options, Action<FileServiceAzureOptions> configure = null) {
+            options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
             return options;
         }
 

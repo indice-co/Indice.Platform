@@ -91,9 +91,7 @@ namespace Indice.Services
     /// <summary>Builder for <see cref="TotpMessage"/>.</summary>
     public class TotpMessageBuilder
     {
-        /// <summary>
-        /// The claims principal.
-        /// </summary>
+        /// <summary>The claims principal.</summary>
         public ClaimsPrincipal ClaimsPrincipal { get; internal set; }
         /// <summary>
         /// The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.
@@ -105,35 +103,21 @@ namespace Indice.Services
         /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
         /// </summary>
         public ExpandoObject Data { get; internal set; }
-        /// <summary>
-        /// Security token.
-        /// </summary>
+        /// <summary>Security token.</summary>
         public string SecurityToken { get; internal set; }
-        /// <summary>
-        /// Email address or phone number.
-        /// </summary>
+        /// <summary>Email address or phone number.</summary>
         public string PhoneNumberOrEmail { get; internal set; }
-        /// <summary>
-        /// Chosen delivery channel.
-        /// </summary>
+        /// <summary>Chosen delivery channel.</summary>
         public TotpDeliveryChannel DeliveryChannel { get; internal set; } = TotpDeliveryChannel.Sms;
-        /// <summary>
-        /// The purpose.
-        /// </summary>
+        /// <summary>The purpose.</summary>
         public string Purpose { get; internal set; } = TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-        /// <summary>
-        /// The type of the Push Notification.
-        /// </summary>
+        /// <summary>The type of the Push Notification.</summary>
         /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/>.</remarks>
         public string Classification { get; internal set; }
-        /// <summary>
-        /// The subject of message when applicable.
-        /// </summary>
+        /// <summary>The subject of message when applicable.</summary>
         public string Subject { get; set; }
 
-        /// <summary>
-        /// Sets the <see cref="ClaimsPrincipal"/> property.
-        /// </summary>
+        /// <summary>Sets the <see cref="ClaimsPrincipal"/> property.</summary>
         /// <param name="claimsPrincipal">The claims principal.</param>
         /// <returns>The <see cref="ITotpContactBuilder"/>.</returns>
         public ITotpMessageContentBuilder UsePrincipal(ClaimsPrincipal claimsPrincipal) {
@@ -142,9 +126,7 @@ namespace Indice.Services
             return totpMessageContentBuilder;
         }
 
-        /// <summary>
-        /// Sets the <see cref="SecurityToken"/> property.
-        /// </summary>
+        /// <summary>Sets the <see cref="SecurityToken"/> property.</summary>
         /// <param name="securityToken">Security token.</param>
         /// <returns>The <see cref="ITotpContactBuilder"/>.</returns>
         public ITotpMessageContentBuilder UseSecurityToken(string securityToken) {
@@ -156,9 +138,7 @@ namespace Indice.Services
             return totpMessageContentBuilder;
         }
 
-        /// <summary>
-        /// Builds the <see cref="TotpMessage"/>.
-        /// </summary>
+        /// <summary>Builds the <see cref="TotpMessage"/>.</summary>
         public TotpMessage Build() => new() {
             ClaimsPrincipal = ClaimsPrincipal,
             Message = Message,
@@ -225,14 +205,10 @@ namespace Indice.Services
         }
     }
 
-    /// <summary>
-    /// Builder for <see cref="TotpMessage"/>.
-    /// </summary>
+    /// <summary>Builder for <see cref="TotpMessage"/>.</summary>
     public interface ITotpMessageContentBuilder
     {
-        /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.Message"/> property.
-        /// </summary>
+        /// <summary>Sets the <see cref="TotpMessageBuilder.Message"/> property.</summary>
         /// <param name="message">The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <returns></returns>
         ITotpContactBuilder WithMessage(string message);
@@ -243,9 +219,7 @@ namespace Indice.Services
     {
         private readonly TotpMessageBuilder _totpMessageBuilder;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="TotpPurposeBuilder"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="TotpPurposeBuilder"/>.</summary>
         /// <param name="totpMessageBuilder">The instance of <see cref="TotpMessageBuilder"/>.</param>
         public TotpMessageContentBuilder(TotpMessageBuilder totpMessageBuilder) {
             _totpMessageBuilder = totpMessageBuilder ?? throw new ArgumentNullException(nameof(totpMessageBuilder));
@@ -262,26 +236,18 @@ namespace Indice.Services
         }
     }
 
-    /// <summary>
-    /// Builder for <see cref="TotpMessage"/>.
-    /// </summary>
+    /// <summary>Builder for <see cref="TotpMessage"/>.</summary>
     public interface ITotpContactBuilder : ITotpPhoneProviderBuilder
     {
-        /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.PhoneNumberOrEmail"/> property.
-        /// </summary>
+        /// <summary>Sets the <see cref="TotpMessageBuilder.PhoneNumberOrEmail"/> property.</summary>
         /// <param name="email">Email address.</param>
         /// <returns></returns>
         ITotpPurposeBuilder ToEmail(string email);
-        /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.PhoneNumberOrEmail"/> property.
-        /// </summary>
+        /// <summary>Sets the <see cref="TotpMessageBuilder.PhoneNumberOrEmail"/> property.</summary>
         /// <param name="phoneNumber">Phone number.</param>
         /// <returns></returns>
         ITotpPhoneProviderBuilder ToPhoneNumber(string phoneNumber);
-        /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.Purpose"/> property.
-        /// </summary>
+        /// <summary>Sets the <see cref="TotpMessageBuilder.Purpose"/> property.</summary>
         /// <param name="purpose">The purpose.</param>
         void WithPurpose(string purpose);
     }
@@ -291,9 +257,7 @@ namespace Indice.Services
     {
         private readonly TotpMessageBuilder _totpMessageBuilder;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="TotpPurposeBuilder"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="TotpPurposeBuilder"/>.</summary>
         /// <param name="totpMessageBuilder">The instance of <see cref="TotpMessageBuilder"/>.</param>
         public TotpContactBuilder(TotpMessageBuilder totpMessageBuilder) : base(totpMessageBuilder) {
             _totpMessageBuilder = totpMessageBuilder ?? throw new ArgumentNullException(nameof(totpMessageBuilder));
@@ -328,14 +292,10 @@ namespace Indice.Services
         }
     }
 
-    /// <summary>
-    /// Builder for <see cref="TotpMessage"/>.
-    /// </summary>
+    /// <summary>Builder for <see cref="TotpMessage"/>.</summary>
     public interface ITotpPurposeBuilder
     {
-        /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.Purpose"/> property.
-        /// </summary>
+        /// <summary>Sets the <see cref="TotpMessageBuilder.Purpose"/> property.</summary>
         /// <param name="purpose">The purpose.</param>
         ITotpDataBuilder WithPurpose(string purpose);
     }
@@ -345,9 +305,7 @@ namespace Indice.Services
     {
         private readonly TotpMessageBuilder _totpMessageBuilder;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="TotpPurposeBuilder"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="TotpPurposeBuilder"/>.</summary>
         /// <param name="totpMessageBuilder">The instance of <see cref="TotpMessageBuilder"/>.</param>
         public TotpPurposeBuilder(TotpMessageBuilder totpMessageBuilder) {
             _totpMessageBuilder = totpMessageBuilder ?? throw new ArgumentNullException(nameof(totpMessageBuilder));
@@ -364,32 +322,20 @@ namespace Indice.Services
         }
     }
 
-    /// <summary>
-    /// Builder for <see cref="TotpMessage"/>.
-    /// </summary>
+    /// <summary>Builder for <see cref="TotpMessage"/>.</summary>
     public interface ITotpPhoneProviderBuilder
     {
-        /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Sms"/>.
-        /// </summary>
+        /// <summary>Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Sms"/>.</summary>
         /// <param name="subject">The subject of the SMS message.</param>
         ITotpPurposeBuilder UsingSms(string subject = null);
-        /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Viber"/>.
-        /// </summary>
+        /// <summary>Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Viber"/>.</summary>
         /// <param name="subject">The subject of the SMS message.</param>
         ITotpPurposeBuilder UsingViber(string subject = null);
-        /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Telephone"/>.
-        /// </summary>
+        /// <summary>Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.Telephone"/>.</summary>
         ITotpPurposeBuilder UsingTelephone();
-        /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.PushNotification"/>.
-        /// </summary>
+        /// <summary>Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to <see cref="TotpDeliveryChannel.PushNotification"/>.</summary>
         ITotpPurposeBuilder UsingPushNotification();
-        /// <summary>
-        /// Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to the specified value.
-        /// </summary>
+        /// <summary>Sets the <see cref="TotpMessageBuilder.DeliveryChannel"/> property to the specified value.</summary>
         /// <param name="deliveryChannel">The delivery channel.</param>
         /// <param name="subject">The subject of message when applicable.</param>
         ITotpPurposeBuilder UsingDeliveryChannel(TotpDeliveryChannel deliveryChannel, string subject = null);
@@ -400,9 +346,7 @@ namespace Indice.Services
     {
         private readonly TotpMessageBuilder _totpMessageBuilder;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="TotpPurposeBuilder"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="TotpPurposeBuilder"/>.</summary>
         /// <param name="totpMessageBuilder">The instance of <see cref="TotpMessageBuilder"/>.</param>
         public TotpPhoneProviderBuilder(TotpMessageBuilder totpMessageBuilder) {
             _totpMessageBuilder = totpMessageBuilder ?? throw new ArgumentNullException(nameof(totpMessageBuilder));
@@ -431,119 +375,71 @@ namespace Indice.Services
     #endregion
 
     #region Models Supporting ITotpService
-    /// <summary>
-    /// <see cref="ITotpService"/> result.
-    /// </summary>
+    /// <summary><see cref="ITotpService"/> result.</summary>
     public class TotpResult
     {
-        /// <summary>
-        /// Constructs an error result.
-        /// </summary>
+        /// <summary>Constructs an error result.</summary>
         /// <param name="error">The error.</param>
         public static TotpResult ErrorResult(string error) => new TotpResult {
             Error = error
         };
 
-        /// <summary>
-        /// Constructs a success result.
-        /// </summary>
+        /// <summary>Constructs a success result.</summary>
         public static TotpResult SuccessResult => new() { Success = true };
-        /// <summary>
-        /// Indicates success.
-        /// </summary>
+        /// <summary>Indicates success.</summary>
         public bool Success { get; set; }
-        /// <summary>
-        /// The error occurred.
-        /// </summary>
+        /// <summary>The error occurred.</summary>
         public string Error { get; set; }
     }
 
-    /// <summary>
-    /// Specific exception used to pass errors between <see cref="ITotpService"/> and the caller.
-    /// </summary>
+    /// <summary>Specific exception used to pass errors between <see cref="ITotpService"/> and the caller.</summary>
     [Serializable]
     public class TotpServiceException : Exception
     {
-        /// <summary>
-        /// Constructs the <see cref="TotpServiceException"/>.
-        /// </summary>
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
         public TotpServiceException() { }
 
-        /// <summary>
-        /// Constructs the <see cref="TotpServiceException"/>.
-        /// </summary>
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
         public TotpServiceException(string message) : base(message) { }
 
-        /// <summary>
-        /// Constructs the <see cref="TotpServiceException"/>.
-        /// </summary>
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
         public TotpServiceException(string message, Exception innerException) : base(message, innerException) { }
 
-        /// <summary>
-        /// Constructs the <see cref="TotpServiceException"/>.
-        /// </summary>
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
         protected TotpServiceException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 
-    /// <summary>
-    /// TOTP provider metadata.
-    /// </summary>
+    /// <summary>TOTP provider metadata.</summary>
     public class TotpProviderMetadata
     {
-        /// <summary>
-        /// The provider type.
-        /// </summary>
+        /// <summary>The provider type.</summary>
         public TotpProviderType Type { get; set; }
-        /// <summary>
-        /// The provider channel.
-        /// </summary>
+        /// <summary>The provider channel.</summary>
         public TotpDeliveryChannel Channel { get; set; }
-        /// <summary>
-        /// The name which is used to register the provider in the list of token providers.
-        /// </summary>
+        /// <summary>The name which is used to register the provider in the list of token providers.</summary>
         public string Name => $"{Channel}";
-        /// <summary>
-        /// The display name.
-        /// </summary>
+        /// <summary>The display name.</summary>
         public string DisplayName { get; set; }
-        /// <summary>
-        /// Can generate TOTP. If false this provider can only validate TOTPs.
-        /// </summary>
+        /// <summary>Can generate TOTP. If false this provider can only validate TOTPs.</summary>
         public bool CanGenerate { get; set; }
     }
 
-    /// <summary>
-    /// Supported TOTP delivery factors.
-    /// </summary>
+    /// <summary>Supported TOTP delivery factors.</summary>
     public enum TotpDeliveryChannel
     {
-        /// <summary>
-        /// SMS
-        /// </summary>
+        /// <summary>SMS</summary>
         Sms = 1,
-        /// <summary>
-        /// Email
-        /// </summary>
+        /// <summary>Email</summary>
         Email = 2,
-        /// <summary>
-        /// Telephone
-        /// </summary>
+        /// <summary>Telephone</summary>
         Telephone = 3,
-        /// <summary>
-        /// Viber
-        /// </summary>
+        /// <summary>Viber</summary>
         Viber = 4,
-        /// <summary>
-        /// E-token
-        /// </summary>
+        /// <summary>E-token</summary>
         EToken = 5,
-        /// <summary>
-        /// Push notification
-        /// </summary>
+        /// <summary>Push notification</summary>
         PushNotification = 6,
-        /// <summary>
-        /// None
-        /// </summary>
+        /// <summary>None</summary>
         None
     }
 

@@ -25,14 +25,14 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="configure"></param>
         /// <returns>The <see cref="WorkerHostBuilder"/> used to configure the worker host.</returns>
         public static WorkerHostBuilder AddMessageJobs(this WorkerHostBuilder workerHostBuilder, Action<MessageJobsOptions> configure = null) {
-            var options = new MessageJobsOptions {
-                Services = workerHostBuilder.Services
-            };
-            configure?.Invoke(options);
-            options.Services = null;
-            workerHostBuilder.AddJobHandlers();
             var serviceProvider = workerHostBuilder.Services.BuildServiceProvider();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+            var options = new MessageJobsOptions {
+                Services = workerHostBuilder.Services,
+                Configuration = configuration
+            };
+            configure?.Invoke(options);
+            workerHostBuilder.AddJobHandlers();
             workerHostBuilder.Services.AddCoreServices(options, configuration);
             workerHostBuilder.Services.AddJobHandlerServices();
             return workerHostBuilder;
@@ -76,16 +76,23 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         private static void AddCoreServices(this IServiceCollection services, MessageJobsOptions options, IConfiguration configuration) {
+            options.Services.AddKeyedService<IEventDispatcher, EventDispatcherHosting, string>(
+                key: KeyedServiceNames.EventDispatcherServiceKey,
+                serviceProvider => new EventDispatcherHosting(new MessageQueueFactory(serviceProvider)),
+                serviceLifetime: ServiceLifetime.Transient
+            );
             services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
-            services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
-            services.TryAddTransient<IEmailService, EmailServiceNoop>();
-            services.TryAddTransient<IContactResolver, ContactResolverNoop>();
+            services.AddEmailServiceNoop();
+            services.AddPushNotificationServiceNoop();
+            services.AddSmsServiceNoop();
+            services.TryAddSingleton<IContactResolver, ContactResolverNoop>();
             Action<DbContextOptionsBuilder> sqlServerConfiguration = (builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
             services.AddDbContext<CampaignsDbContext>(options.ConfigureDbContext ?? sqlServerConfiguration);
             services.TryAddTransient<IDistributionListService, DistributionListService>();
             services.TryAddTransient<IMessageService, MessageService>();
             services.TryAddTransient<IContactService, ContactService>();
             services.TryAddTransient<ICampaignService, CampaignService>();
+            services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<ITemplateService, TemplateService>();
             services.TryAddTransient<CreateCampaignRequestValidator>();
@@ -95,22 +102,23 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         }
 
+        /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
+        /// <param name="options">Options used to configure the Campaigns API feature.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static void UseFilesLocal(this MessageJobsOptions options, Action<FileServiceLocalOptions> configure = null) =>
+            options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
+
+        /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
+        /// <param name="options">Options used to configure the Campaigns API feature.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static void UseFilesAzure(this MessageJobsOptions options, Action<FileServiceAzureOptions> configure = null) =>
+            options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
+
         /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
         public static MessageJobsOptions UsePushNotificationServiceAzure(this MessageJobsOptions options, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) {
             options.Services.AddPushNotificationServiceAzure(KeyedServiceNames.PushNotificationServiceKey, configure);
-            return options;
-        }
-
-        /// <summary>Adds <see cref="IEventDispatcher"/> using Indice worker host as a queuing mechanism.</summary>
-        /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
-        public static MessageJobsOptions UseEventDispatcherHosting(this MessageJobsOptions options) {
-            options.Services.AddKeyedService<IEventDispatcher, EventDispatcherHosting, string>(
-                key: KeyedServiceNames.EventDispatcherServiceKey,
-                serviceProvider => new EventDispatcherHosting(new MessageQueueFactory(serviceProvider)),
-                serviceLifetime: ServiceLifetime.Transient
-            );
             return options;
         }
 
@@ -147,9 +155,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return options;
         }
 
-        /// <summary>
-        /// Adds an instance of <see cref="ISmsService"/> using Yuboto.
-        /// </summary>
+        /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageJobsOptions UseSmsServiceViber(this MessageJobsOptions options, IConfiguration configuration) {

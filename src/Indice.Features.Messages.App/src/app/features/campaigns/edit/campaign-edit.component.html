@@ -3,23 +3,7 @@
                  #layout>
     <div class="min-h-full">
         <main>
-            <div class="mx-auto px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:px-8">
-                <div class="flex items-center space-x-5"></div>
-                <div class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
-                    <button type="button"
-                            (click)="deleteCampaign()"
-                            class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
-                        Διαγραφή
-                    </button>
-                    <button type="button"
-                            (click)="publishCampaign()"
-                            *ngIf="!campaign?.published"
-                            class="side-view-layout-action-button-submit">
-                        Δημοσίευση
-                    </button>
-                </div>
-            </div>
-            <div class="mt-8 mx-auto grid gap-6 sm:px-6 lg:grid-flow-col-dense grid-cols-1 lg:grid-cols-6">
+            <div class="mb-8 mx-auto grid gap-6 lg:grid-flow-col-dense grid-cols-1 lg:grid-cols-6">
                 <section aria-labelledby="timeline-title"
                          class="lg:col-start-1 lg:col-span-1">
                     <div class="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
@@ -27,7 +11,8 @@
                              aria-label="Sidebar">
                             <a [routerLink]="['details']"
                                class="vertical-navigation-link-base"
-                               [ngClass]="isActive(['campaigns', campaign?.id || '', 'details']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
+                               routerLinkActive="vertical-navigation-link-active"
+                               [routerLinkActiveOptions]="{ exact: true }"
                                aria-current="page">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
@@ -42,7 +27,8 @@
                                 <span class="truncate">Βασικές πληροφορίες</span>
                             </a>
                             <a [routerLink]="['content']"
-                               [ngClass]="isActive(['campaigns', campaign?.id || '', 'content']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
+                               routerLinkActive="vertical-navigation-link-active"
+                               [routerLinkActiveOptions]="{ exact: true }"
                                class="vertical-navigation-link-base">
                                 <svg xmlns="http://www.w3.org/2000/svg"
                                      class="text-gray-400 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
@@ -57,7 +43,8 @@
                                 <span class="truncate">Περιεχόμενο</span>
                             </a>
                             <a [routerLink]="['reports']"
-                               [ngClass]="isActive(['campaigns', campaign?.id || '', 'reports']) ? 'vertical-navigation-link-active' : 'vertical-navigation-link'"
+                               routerLinkActive="vertical-navigation-link-active"
+                               [routerLinkActiveOptions]="{ exact: true }"
                                class="vertical-navigation-link-base">
                                 <svg class="text-gray-400 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
                                      xmlns="http://www.w3.org/2000/svg"

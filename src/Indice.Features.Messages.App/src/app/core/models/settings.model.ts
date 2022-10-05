@@ -5,6 +5,7 @@ export interface IAppSettings {
     isTemplate: boolean,
     production: boolean;
     version: string;
+    tenantId: string | undefined;
 }
 
 export interface IAuthSettings {

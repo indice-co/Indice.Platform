@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
+    <Copyright>Copyright (c) 2022 Indice</Copyright>
+    <Description>Indice.Features.Cases.UI Class Library</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <SpaDistFolder>..\Indice.Features.Cases.App\dist\cases-app</SpaDistFolder>
+    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
+    <VersionPrefix>6.1.0</VersionPrefix>
+    <VersionSuffix>beta-19</VersionSuffix>
+    <LangVersion>Latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <Company>Indice</Company>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+    <PackageIcon>icon-310.png</PackageIcon>
+    <PackageId>Indice.Features.Cases.UI</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+    <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
+    <PackageTags>AspNetCore;Cases;CaseManagement</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="cases-ui-dist/**/*" />
+  </ItemGroup>
+  <!-- Use Visual Studio npm package if it is installed. -->
+  <PropertyGroup Condition="Exists('$(VsInstallRoot)\Web\External\npm.cmd')">
+    <Path>$(Path)$(VsInstallRoot)\Web\External\;</Path>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="cases-ui-dist\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="6.0.4" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <SpaSourceFolder Include="..\Indice.Features.Cases.App" />
+  </ItemGroup>
+  <!-- Run 'npm install' command to download node modules for cases ui. -->
+  <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
+    <Exec Command="npm install --force" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
+  </Target>
+  <!-- Run 'npm run build:template' in order to build the cases ui app. -->
+  <Target Name="SpaBuild" BeforeTargets="DispatchToInnerBuilds" Condition="!Exists('$(SpaDistFolder)')">
+    <Exec Command="npm run build:template" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+  </Target>
+  <!-- Copy artifacts from dist folder inside the project, so they can be used as embedded resources. -->
+  <Target Name="CopyFiles" BeforeTargets="Build">
+    <ItemGroup>
+      <SpaDistFolderGlob Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\index.html" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SpaDistFolderGlob)" DestinationFiles="@(SpaDistFolderGlob->'$(ProjectDir)\cases-ui-dist\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+</Project>

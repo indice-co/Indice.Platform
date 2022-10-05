@@ -1,10 +1,12 @@
 ﻿using Indice.EntityFrameworkCore.Functions;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Data.Models;
+using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
+using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Messages.Core.Services
 {
@@ -42,6 +44,16 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         /// <inheritdoc />
+        public async Task Delete(Guid id) {
+            var template = await DbContext.Templates.SingleOrDefaultAsync(x => x.Id == id);
+            if (template is null) {
+                return;
+            }
+            DbContext.Templates.Remove(template);
+            await DbContext.SaveChangesAsync();
+        }
+
+        /// <inheritdoc />
         public async Task<Template> GetById(Guid id) {
             var template = await DbContext.Templates.FindAsync(id);
             if (template is null) {
@@ -75,6 +87,17 @@ namespace Indice.Features.Messages.Core.Services
                 Name = x.Name
             });
             return new ResultSet<TemplateListItem>(templateItems, result.Count);
+        }
+
+        /// <inheritdoc />
+        public async Task Update(Guid id, UpdateTemplateRequest request) {
+            var template = await DbContext.Templates.FindAsync(id);
+            if (template is null) {
+                throw MessageExceptions.TemplateNotFound(id);
+            }
+            template.Name = request.Name;
+            template.Content = request.Content;
+            await DbContext.SaveChangesAsync();
         }
     }
 }

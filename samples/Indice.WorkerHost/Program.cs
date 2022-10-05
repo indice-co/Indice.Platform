@@ -21,9 +21,8 @@ host.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => {
             .AddMessageJobs(options => {
                 var configuration = hostBuilderContext.Configuration;
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
-                options.DatabaseSchema = "cmp";
-                options.UseEventDispatcherHosting()
-                       .UsePushNotificationServiceAzure()
+                options.DatabaseSchema = "msg";
+                options.UsePushNotificationServiceAzure()
                        .UseEmailServiceSparkpost(configuration)
                        .UseSmsServiceYubotoOmni(configuration)
                        .UseIdentityContactResolver(resolverOptions => {

@@ -1,24 +1,52 @@
-<lib-side-view-layout title="Επεξεργασία λίστας" [ok-close-dialog]="false" [ok-label]="'Αποθήκευση'" [cancel-label]="'Κλείσιμο'" (ok)="submitButton.nativeElement.click()" [disabled]="!distributionListForm.valid || submitInProgress"
-    #sideViewLayout>
-    <div class="mt-4">
-        <form #distributionListForm="ngForm" (ngSubmit)="onSubmit()">
-            <div class="px-4 space-y-2 pb-4">
-                <div class="grid grid-cols-4 gap-4">
-                    <!-- Όνομα -->
-                    <div class="col-span-4">
-                        <label for="distributionListName" class="field-label">Όνομα (*)</label>
-                        <div class="mt-1 flex rounded-sm">
-                            <input type="text" name="distributionListName" id="distributionListName" [(ngModel)]="model.name" placeholder="Το όνομα του τύπου..." maxlength="128" required #distributionListName="ngModel">
-                        </div>
-                        <p *ngIf="distributionListName.invalid && (distributionListName.dirty || distributionListName.touched)" class="mt-2 text-sm text-red-600">
-                            <span *ngIf="distributionListName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
-                            <span *ngIf="distributionListName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
-                        </p>
-                        <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται η λίστα διανομής.</p>
+<lib-view-layout [meta-items]="metaItems"
+                 title="Φόρτωση δεδομένων"
+                 #layout>
+    <div class="min-h-full">
+        <main>
+            <div class="mb-8 mx-auto grid gap-6 lg:grid-flow-col-dense grid-cols-1 lg:grid-cols-6">
+                <section aria-labelledby="timeline-title"
+                         class="lg:col-start-1 lg:col-span-1">
+                    <div class="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
+                        <nav class="space-y-1"
+                             aria-label="Sidebar">
+                            <a [routerLink]="['details']"
+                               routerLinkActive="vertical-navigation-link-active"
+                               [routerLinkActiveOptions]="{ exact: true }"
+                               class="vertical-navigation-link-base"
+                               aria-current="page">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke="currentColor"
+                                     stroke-width="2">
+                                    <path stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="truncate">Βασικές πληροφορίες</span>
+                            </a>
+                            <a [routerLink]="['contacts']"
+                               routerLinkActive="vertical-navigation-link-active"
+                               [routerLinkActiveOptions]="{ exact: true }"
+                               class="vertical-navigation-link-base"
+                               aria-current="page">
+                                <svg class="text-gray-500 flex-shrink-0 -ml-1 mr-3 h-6 w-6"
+                                     fill="none"
+                                     viewBox="0 0 24 24"
+                                     stroke="currentColor"
+                                     stroke-width="2">
+                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                </svg>
+                                <span class="truncate">Επαφές</span>
+                            </a>
+                        </nav>
                     </div>
+                </section>
+                <div class="space-y-6 lg:col-start-2 lg:col-span-5">
+                    <router-outlet></router-outlet>
                 </div>
             </div>
-            <button type="submit" [style.visibility]="'hidden'" #submitBtn>Submit</button>
-        </form>
+        </main>
     </div>
-</lib-side-view-layout>
+</lib-view-layout>

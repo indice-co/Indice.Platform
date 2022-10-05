@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
+import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MessagesApiClient, Template, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
@@ -28,11 +28,12 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         this.sortOptions = [new MenuOption('Όνομα', 'name')];
     }
 
-    public newItemLink: string | null = 'create-template';
+    public newItemLink: string | null = null;
     public full = true;
 
     public ngOnInit(): void {
         super.ngOnInit();
+        this.actions.push(new RouterViewAction(Icons.Add, 'templates/add', null, null));
     }
 
     public loadItems(): Observable<IResultSet<Template> | null | undefined> {
@@ -53,9 +54,9 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         });
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
-                this._api.deleteMessageType(response.result.data.id).subscribe(() => {
+                this._api.deleteTemplate(response.result.data.id).subscribe(() => {
                     this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Το πρότυπο με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates']));
                 });
             }
         });

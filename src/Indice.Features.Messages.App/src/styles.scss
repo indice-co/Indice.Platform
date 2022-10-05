@@ -36,6 +36,22 @@
   .vertical-navigation-link-active {
     @apply text-gray-900 bg-gray-200;
   }
+
+  .basic-modal-close {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-gray-500 sm:text-sm;
+  }
+
+  .basic-modal-accept {
+    @apply inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md focus:outline-none focus:ring-1 focus:ring-offset-1 sm:text-sm;
+  }
+
+  .basic-modal-accept-error {
+    @apply text-red-700 bg-red-100 hover:bg-red-200 focus:ring-red-500;
+  }
+
+  .basic-modal-accept-success {
+    @apply text-green-700 bg-green-100 hover:bg-green-200 focus:ring-green-500;
+  }
 }
 
 .sr-only {
@@ -75,8 +91,9 @@
   padding-top: 0.2rem !important;
 }
 
-.p-1 {
-  padding: 1rem;
+.modal-content {
+  padding: 0.5rem;
+  border: none;
 }
 
 .modal-actions-container {

@@ -8,7 +8,7 @@
     <LangVersion>Latest</LangVersion>
     <Nullable>disable</Nullable>
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>6.1.3</VersionPrefix>
+    <VersionPrefix>6.1.12</VersionPrefix>
     <!--<VersionSuffix>beta-10</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -27,8 +27,9 @@
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Services" Version="6.1.9" />
-    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.3" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.12" />
+    <PackageReference Include="Indice.Features.Multitenancy.Worker.Azure" Version="6.0.0" />
+    <PackageReference Include="Indice.Services" Version="6.1.12" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.6.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.0.0" />
   </ItemGroup>
@@ -41,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
+    <ProjectReference Include="..\Indice.Features.Multitenancy.Worker.Azure\Indice.Features.Multitenancy.Worker.Azure.csproj" />
     <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
   </ItemGroup>
 </Project>

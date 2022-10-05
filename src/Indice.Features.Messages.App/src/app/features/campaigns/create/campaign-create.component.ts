@@ -8,8 +8,7 @@ import { CampaignContentComponent } from './steps/content/campaign-content.compo
 import { CampaignPreview } from './steps/preview/campaign-preview';
 import { CampaignPreviewComponent } from './steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './steps/recipients/campaign-recipients.component';
-import { CreateCampaignRequest, MessagesApiClient, MessageChannelKind, Period, Hyperlink, Campaign, MessageContent, Template } from 'src/app/core/services/messages-api.service';
-import { UtilitiesService } from 'src/app/shared/utilities.service';
+import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, MessageContent, Template } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-campaign-create',
@@ -26,7 +25,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         private _api: MessagesApiClient,
         private _router: Router,
         private _changeDetector: ChangeDetectorRef,
-        private _utilities: UtilitiesService,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
@@ -37,6 +35,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     public basicInfoData: any = {};
     public templateId: string | undefined;
     public metaItems: HeaderMetaItem[] | null = [];
+    public content: { [key: string]: MessageContent; } | undefined
 
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
@@ -47,9 +46,11 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     }
 
     public ngOnInit(): void {
-        this.metaItems = [
-            { key: 'info', icon: Icons.Details, text: 'Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο campaign.' }
-        ];
+        this.metaItems = [{
+            key: 'info',
+            icon: Icons.Details,
+            text: 'Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο campaign.'
+        }];
     }
 
     public ngAfterViewChecked(): void {
@@ -69,7 +70,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             .subscribe({
                 next: (campaign: Campaign) => {
                     this.submitInProgress = false;
-                    this._router.navigate(['campaigns']);
+                    this._router.navigate(['campaigns', campaign.id]);
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
                 }
             });
@@ -79,10 +80,8 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         if (event.selectedIndex === 1) {
             if (this.templateId) {
                 this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
-                    this._contentStep.init(this._basicInfoStep.channelsState.map(x => ({ channel: x.value, checked: x.checked })), template.content);
+                    this.content = template.content;
                 });
-            } else {
-                this._contentStep.init(this._basicInfoStep.channelsState.map(x => ({ channel: x.value, checked: x.checked })), undefined);
             }
         }
         this.previewData.title = this._basicInfoStep.title.value;
@@ -116,7 +115,6 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
                 to: this._basicInfoStep.to.value ? new Date(this._basicInfoStep.to.value) : undefined
             }),
             isGlobal: this._recipientsStep.sendVia.value === 'user-base',
-            messageChannelKind: this._basicInfoStep.channels.value,
             published: this._previewStep.published.value,
             title: this._basicInfoStep.title.value,
             data: this._contentStep.data.value,
@@ -125,22 +123,15 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             recipientListId: this._recipientsStep.distributionList.value?.value || undefined,
             content: {}
         });
-        for (const channel of this._basicInfoStep.channels.value) {
-            switch (channel) {
-                case MessageChannelKind.Inbox:
-                    data.content![this._utilities.toCamelCase(channel)] = new MessageContent({ title: this._contentStep.inboxSubject.value, body: this._contentStep.inboxBody.value });
-                    break;
-                case MessageChannelKind.Email:
-                    data.content![this._utilities.toCamelCase(channel)] = new MessageContent({ title: this._contentStep.emailSubject.value, body: this._contentStep.emailBody.value });
-                    break;
-                case MessageChannelKind.PushNotification:
-                    data.content![this._utilities.toCamelCase(channel)] = new MessageContent({ title: this._contentStep.pushNotificationSubject.value, body: this._contentStep.pushNotificationBody.value });
-                    break;
-                case MessageChannelKind.SMS:
-                    data.content![this._utilities.toCamelCase(channel)] = new MessageContent({ title: this._contentStep.smsSubject.value, body: this._contentStep.smsBody.value });
-                    break;
-            }
+        const formContents = this._contentStep?.form.controls.content.value;
+        let content: { [key: string]: MessageContent; } = {};
+        for (const item of formContents) {
+            content[item.channel] = new MessageContent({
+                title: item.subject,
+                body: item.body
+            })
         }
+        data.content = content;
         return data;
     }
 }

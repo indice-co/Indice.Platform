@@ -1,0 +1,88 @@
+<lib-view-layout [title]="'Λεπτομέρειες Αίτησης'"
+                 *ngIf="model$ | async as model">
+    <ng-container *ngIf="caseActions$ | async as caseActions">
+        <main class="details-view-container">
+            <div class="lg:grid lg:grid-cols-12 lg:gap-x-5">
+                <aside class="py-6 px-2 sm:px-6 lg:py-0 lg:px-0 lg:col-span-4 md:col-span-3">
+                    <section aria-labelledby="menu"
+                             class="min-w-full">
+                        <div class="bg-white shadow rounded-sm">
+                            <app-case-detail-info [title]="'Βασικά στοιχεία αίτησης'"
+                                                  [keyValuePairs]="{
+                                                    'Κωδικός Αίτησης:': model?.id,
+                                                    'Ημ. Υποβολής:': model?.createdByWhen | date:'dd/MM/YYYY',
+                                                    'Τύπος Αίτησης:':model?.caseType?.title,
+                                                    'Κανάλι:':model?.channel,
+                                                    'Τρέχον Σημείο Ελέγχου:':model?.checkpointTypeCode | removePrefix,
+                                                    'Ανάθεση σε:':model?.assignedToName || ' - '}">
+                            </app-case-detail-info>
+
+                            <app-case-detail-info [title]="'Στοιχεία Πελάτη'"
+                                                  [keyValuePairs]="{
+                                                    'Κωδικός Πελάτη:': model?.customerId,
+                                                    'Όνομα Πελάτη:': model?.customerName,
+                                                    'Α.Φ.Μ. Πελάτη:':model?.metadata?.TaxId,
+                                                    'Κατάστημα Πελάτη:':model?.groupId}">
+                            </app-case-detail-info>
+
+                            <app-case-detail-info *ngIf="model?.metadata?.UserRole"
+                                                  [title]="'Στοιχεία Χρήστη'"
+                                                  [keyValuePairs]="{
+                                                    'Επώνυμο Χρήστη:': model?.metadata?.UserSurname,
+                                                    'Όνομα Χρήστη:': model?.metadata?.UserFirstName,
+                                                    'Ρόλος Χρήστη:':model?.metadata?.UserRole,
+                                                    'ΑΠ Χρήστη:':model?.metadata?.UserCustomerId}">
+                            </app-case-detail-info>
+                        </div>
+                        <div class="bg-white shadow rounded-sm"
+                             *ngIf="caseActions.hasAssignment || model.draft">
+                            <div class="mt-2 px-4 py-4 flow-root">
+                                <app-case-assignment [caseId]="model.id"
+                                                     [enabled]="caseActions.hasAssignment"
+                                                     (caseAssigned)="onActionsChanged()"></app-case-assignment>
+
+                                <!-- TODO: will we add unassignment button? -->
+                                <!-- <app-case-unassignment [enabled]="caseActions.hasUnassignment"></app-case-unassignment> -->
+                                <app-case-discard-draft [caseId]="model.id"
+                                                        [enabled]="model.draft"
+                                                        (caseDiscarded)="onCaseDiscarded()">
+                                </app-case-discard-draft>
+                            </div>
+                        </div>
+                        <div class="bg-white shadow rounded-sm">
+                            <ng-container *ngIf="timelineEntries$ | async as timelineEntries">
+                                <div class="mt-2 px-4 py-1 flow-root">
+                                    <app-case-timeline [timelineEntries]="timelineEntries"></app-case-timeline>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </section>
+                </aside>
+                <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-8 md:col-span-9">
+                    <div class="bg-white shadow-sm rounded-sm"
+                         *ngIf="model">
+                        <div class="px-4 py-5 sm:px-6">
+                            <app-case-form [case]="model"
+                                           [formEditable]="caseActions.hasEdit"
+                                           (updateDataEvent)="updateData($event)"
+                                           (formIsValid)="isValid($event)"
+                                           (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
+                            <app-case-print-pdf [caseId]="model.id"
+                                                [enabled]="!model.draft"
+                                                [buttonDisabled]="!formValid || formUnSavedChanges"
+                                                (pdfButtonClicked)="onPdfButtonClicked($event)">
+                            </app-case-print-pdf>
+                            <app-approval-buttons [formUnSavedChanges]="formUnSavedChanges"
+                                                  [formValid]="formValid"
+                                                  [caseId]="model.id"
+                                                  [enabled]="caseActions.hasApproval"
+                                                  [showWarningModal]="showWarningModal"
+                                                  [warningModalState]="warningModalState">
+                            </app-approval-buttons>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </ng-container>
+</lib-view-layout>

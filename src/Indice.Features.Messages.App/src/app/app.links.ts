@@ -1,5 +1,4 @@
-import { ExternalNavLink, IAppLinks, NavLink } from '@indice/ng-components';
-
+import { ExternalNavLink, IAppLinks, Icons, NavLink } from '@indice/ng-components';
 import { Observable, of } from 'rxjs';
 
 export class AppLinks implements IAppLinks {
@@ -9,11 +8,11 @@ export class AppLinks implements IAppLinks {
     public profileActions: Observable<NavLink[]> = of([]);
 
     public main: Observable<NavLink[]> = of([
-        new NavLink('Αρχική', '/dashboard', false),
-        new NavLink('Campaigns', '/campaigns', false),
-        new NavLink('Τύποι Μηνυμάτων', '/message-types', false),
-        new NavLink('Λίστες Διανομής', '/distribution-lists', false),
-        new NavLink('Templates', '/templates', false)
+        new NavLink('Αρχική', 'dashboard', false, false, Icons.Dashboard),
+        new NavLink('Καμπάνιες', '/campaigns', false, false, Icons.Messages),
+        new NavLink('Τύποι Μηνυμάτων', '/message-types', false, false, Icons.Details),
+        new NavLink('Λίστες Διανομής', '/distribution-lists', false, false, Icons.TilesView),
+        new NavLink('Πρότυπα', '/templates', false, false, Icons.SendEmail)
     ]);
 
     public profile: Observable<NavLink[]> = of([

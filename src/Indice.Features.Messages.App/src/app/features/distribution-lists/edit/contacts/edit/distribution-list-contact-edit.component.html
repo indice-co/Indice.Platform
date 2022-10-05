@@ -1,0 +1,113 @@
+<lib-side-view-layout title="Επεξεργασία επαφής"
+                      [ok-close-dialog]="false"
+                      [ok-label]="'Αποθήκευση'"
+                      [cancel-label]="'Κλείσιμο'"
+                      (ok)="submitButton.nativeElement.click()"
+                      [disabled]="!contactForm.valid || submitInProgress"
+                      #sideViewLayout>
+    <div class="mt-4">
+        <form #contactForm="ngForm"
+              (ngSubmit)="onSubmit()">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="grid grid-cols-4 gap-1">
+                    <!-- Προσφώνηση -->
+                    <div class="col-span-4">
+                        <label for="salutation"
+                               class="field-label">
+                            Προσφώνηση
+                        </label>
+                        <div class="flex rounded-sm">
+                            <input type="text"
+                                   name="salutation"
+                                   id="salutation"
+                                   placeholder="Προσφώνηση..."
+                                   [(ngModel)]="model.salutation"
+                                   #salutation="ngModel">
+                        </div>
+                        <p class="field-info col-span-3">Η προσφώνηση (π.χ κύριε ή κ.).</p>
+                    </div>
+                    <!-- Όνομα -->
+                    <div class="col-span-4">
+                        <label for="firstName"
+                               class="field-label">
+                            Όνομα
+                        </label>
+                        <div class="flex rounded-sm">
+                            <input type="text"
+                                   name="firstName"
+                                   id="firstName"
+                                   placeholder="Όνομα..."
+                                   [(ngModel)]="model.firstName"
+                                   #firstName="ngModel">
+                        </div>
+                    </div>
+                    <!-- Επώνυμο -->
+                    <div class="col-span-4">
+                        <label for="lastName"
+                               class="field-label">
+                            Επώνυμο
+                        </label>
+                        <div class="flex rounded-sm">
+                            <input type="text"
+                                   name="lastName"
+                                   id="lastName"
+                                   placeholder="Επώνυμο..."
+                                   [(ngModel)]="model.lastName"
+                                   #lastName="ngModel">
+                        </div>
+                    </div>
+                    <!-- Όνομα Εμφάνισης -->
+                    <div class="col-span-4">
+                        <label for="fullName"
+                               class="field-label">
+                            Όνομα Εμφάνισης
+                        </label>
+                        <div class="flex rounded-sm">
+                            <input type="text"
+                                   name="fullName"
+                                   id="fullName"
+                                   placeholder="Όνομα Εμφάνισης..."
+                                   [(ngModel)]="model.fullName"
+                                   #fullName="ngModel">
+                        </div>
+                    </div>
+                    <!-- Email -->
+                    <div class="col-span-4">
+                        <label for="email"
+                               class="field-label">
+                            Email
+                        </label>
+                        <div class="flex rounded-sm">
+                            <input type="text"
+                                   name="email"
+                                   id="email"
+                                   placeholder="Email..."
+                                   [(ngModel)]="model.email"
+                                   #email="ngModel">
+                        </div>
+                    </div>
+                    <!-- Τηλέφωνο -->
+                    <div class="col-span-4">
+                        <label for="phoneNumber"
+                               class="field-label">
+                            Τηλέφωνο
+                        </label>
+                        <div class="flex rounded-sm">
+                            <input type="text"
+                                   name="phoneNumber"
+                                   id="phoneNumber"
+                                   placeholder="Τηλέφωνο..."
+                                   [(ngModel)]="model.phoneNumber"
+                                   #phoneNumber="ngModel">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button type="submit"
+                    [style.visibility]="'hidden'"
+                    #submitBtn>
+                Submit
+            </button>
+        </form>
+    </div>
+</lib-side-view-layout>

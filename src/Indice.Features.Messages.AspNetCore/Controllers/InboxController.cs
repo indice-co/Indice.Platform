@@ -119,19 +119,6 @@ namespace Indice.Features.Messages.AspNetCore.Controllers
             return NoContent();
         }
 
-        [AllowAnonymous]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        [HttpGet("messages/cta/{trackingCode}")]
-        public async Task<IActionResult> Track([FromRoute] Base64Id trackingCode) {
-            var campaignId = trackingCode.Id;
-            var campaign = await CampaignService.GetById(campaignId);
-            if (campaign is null) {
-                return NotFound();
-            }
-            await CampaignService.UpdateHit(trackingCode.Id);
-            return Redirect(campaign.ActionLink.Href);
-        }
-
         /// <summary>
         /// Gets the attachment associated with a campaign.
         /// </summary>

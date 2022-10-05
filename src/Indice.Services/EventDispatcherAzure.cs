@@ -25,7 +25,7 @@ namespace Indice.Services
         private readonly bool _useCompression;
         private readonly QueueMessageEncoding _queueMessageEncoding;
         private readonly Func<ClaimsPrincipal> _claimsPrincipalSelector;
-        private readonly Func<Guid?> _tenantIdSelector;
+        private readonly Func<string> _tenantIdSelector;
         private readonly JsonSerializerOptions _jsonSerializerOptions;
 
         /// <summary>Create a new <see cref="EventDispatcherAzure"/> instance.</summary>
@@ -36,14 +36,14 @@ namespace Indice.Services
         /// <param name="queueMessageEncoding">Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</param>
         /// <param name="claimsPrincipalSelector">Provides a way to access the current <see cref="ClaimsPrincipal"/> inside a service.</param>
         /// <param name="tenantIdSelector">Provides a way to access the current tenant id if any.</param>
-        public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal> claimsPrincipalSelector, Func<Guid?> tenantIdSelector) {
+        public EventDispatcherAzure(string connectionString, string environmentName, bool enabled, bool useCompression, QueueMessageEncoding queueMessageEncoding, Func<ClaimsPrincipal> claimsPrincipalSelector, Func<string> tenantIdSelector) {
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
             _environmentName = Regex.Replace(environmentName ?? "Development", @"\s+", "-").ToLowerInvariant();
             _enabled = enabled;
             _useCompression = useCompression;
             _queueMessageEncoding = queueMessageEncoding;
             _claimsPrincipalSelector = claimsPrincipalSelector ?? throw new ArgumentNullException(nameof(claimsPrincipalSelector));
-            _tenantIdSelector = tenantIdSelector ?? new Func<Guid?>(() => new Guid?());
+            _tenantIdSelector = tenantIdSelector ?? new Func<string>(() => null);
             _jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         }
 
@@ -110,7 +110,7 @@ namespace Indice.Services
         /// <summary>A function that retrieves the current thread user from the current operation context.</summary>
         public Func<ClaimsPrincipal> ClaimsPrincipalSelector { get; set; }
         /// <summary>A function that retrieves the current tenant id by any means possible. This is optional.</summary>
-        public Func<Guid?> TenantIdSelector { get; set; }
+        public Func<string> TenantIdSelector { get; set; }
         /// <summary>Determines how <see cref="Azure.Storage.Queues.Models.QueueMessage.Body"/> is represented in HTTP requests and responses.</summary>
         public QueueMessageEncoding QueueMessageEncoding { get; set; } = QueueMessageEncoding.Base64;
         /// <summary>When selected, applies Brotli compression algorithm in the queue message payload. Defaults to false.</summary>

@@ -4,15 +4,11 @@ using Indice.AspNetCore.EmbeddedUI;
 
 namespace Microsoft.AspNetCore.Builder
 {
-    /// <summary>
-    /// Extension methods on <see cref="IApplicationBuilder"/>, used to register the <see cref="SpaUIMiddleware{TOptions}"/> middleware.
-    /// </summary>
+    /// <summary>Extension methods on <see cref="IApplicationBuilder"/>, used to register the <see cref="SpaUIMiddleware{TOptions}"/> middleware.</summary>
     /// <example>https://docs.microsoft.com/en-us/aspnet/core/fundamentals/middleware/write?view=aspnetcore-5.0#middleware-extension-method</example>
     public static class SpaUIMiddlewareExtensions
     {
-        /// <summary>
-        /// Registers the single page application, using the provided options.
-        /// </summary>
+        /// <summary>Registers the single page application, using the provided options.</summary>
         /// <typeparam name="TOptions">The type of options.</typeparam>
         /// <param name="builder">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="embeddedUIRoot">Embedded UI root folder name.</param>
@@ -25,15 +21,12 @@ namespace Microsoft.AspNetCore.Builder
             };
             optionsAction?.Invoke(options);
             if (options.Enabled) {
-                options.Version = assembly.GetName().Version.ToString(fieldCount: 3);
                 builder.UseMiddleware<SpaUIMiddleware<TOptions>>(options, embeddedUIRoot, assembly);
             }
             return builder;
         }
 
-        /// <summary>
-        /// Registers the single page application, using the provided options.
-        /// </summary>
+        /// <summary>Registers the single page application, using the provided options.</summary>
         /// <param name="builder">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="embeddedUIRoot">Embedded UI root folder name.</param>
         /// <param name="assembly">The assembly containing the embedded resources.</param>

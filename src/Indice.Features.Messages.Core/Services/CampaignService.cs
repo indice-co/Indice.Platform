@@ -92,6 +92,7 @@ namespace Indice.Features.Messages.Core.Services
             campaign.ActionLink = request.ActionLink;
             campaign.ActivePeriod = request.ActivePeriod;
             campaign.Content = request.Content;
+            campaign.MessageChannelKind = Enum.Parse<MessageChannelKind>(string.Join(',', request.Content.Select(x => x.Key)), ignoreCase: true);
             campaign.Title = request.Title;
             campaign.TypeId = request.TypeId;
             campaign.DistributionListId = request.RecipientListId;

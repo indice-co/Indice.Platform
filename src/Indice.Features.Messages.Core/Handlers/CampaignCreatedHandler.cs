@@ -32,7 +32,7 @@ namespace Indice.Features.Messages.Core.Handlers
             if (campaign.IsGlobal && campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
                 await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromCampaignCreatedEvent(campaign, broadcast: true),
-                    options => options.WrapInEnvelope(false).At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
+                    builder => builder.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
             }
             // If campaign is not global and a distribution list has been set, then we will create multiple events in order to resolve contact info, merge campaign template with contact data and dispatch messages in various channels.
             if (!campaign.IsGlobal) {
@@ -45,15 +45,9 @@ namespace Indice.Features.Messages.Core.Handlers
                     });
                     contacts.AddRange(contactsResultSet.Items);
                 }
-                //if (campaign.RecipientIds.Any()) {
-                //    contacts.AddRange(campaign.RecipientIds.Select(id => new Contact { RecipientId = id }));
-                //}
-                if (campaign.Recipients.Any()) {
-                    contacts.AddRange(campaign.Recipients.Select(x => x.ToContact()));
-                }
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
                 foreach (var contact in contacts) {
-                    await eventDispatcher.RaiseEventAsync(ResolveMessageEvent.FromCampaignCreatedEvent(campaign, contact), options => options.WrapInEnvelope(false).WithQueueName(EventNames.ResolveMessage));
+                    await eventDispatcher.RaiseEventAsync(ResolveMessageEvent.FromCampaignCreatedEvent(campaign, contact), builder => builder.WrapInEnvelope().WithQueueName(EventNames.ResolveMessage));
                 }
             }
         }

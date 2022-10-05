@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Indice.Configuration;
-using Indice.Extensions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -23,15 +22,11 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .WithMessage("Please provide a title for the campaign.")
                 .MaximumLength(TextSizePresets.M128)
                 .WithMessage($"Campaign title cannot exceed {TextSizePresets.M128} characters.");
-            RuleFor(campaign => campaign.MessageChannelKind)
-                .Must(channel => channel != MessageChannelKind.None)
-                .WithMessage($"Please specify the campaign channel.");
             RuleFor(campaign => campaign.Content)
                 .Must(content => content.Count > 0)
                 .WithMessage("Please provide content for the campaign.")
-                .Must(HaveContentAccordingToChannelKind)
-                .WithMessage("Please provide content for all defined channels of the campaign.")
-                .When(campaign => campaign.Content.Count > 0);
+                .Must(content => Enum.TryParse<MessageChannelKind>(string.Join(',', content.Select(x => x.Key)), ignoreCase: true, out _))
+                .WithMessage("Channels provided in the content are not valid.");
             RuleFor(campaign => campaign.RecipientListId)
                 .Must(id => id is null)
                 .When(campaign => campaign.IsGlobal) // DistributionListId property must not be provided when campaign is global.
@@ -43,10 +38,6 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .MustAsync(BeExistingTypeId)
                 .When(campaign => campaign.TypeId.HasValue) // Check that TypeId is valid, when it is provided.
                 .WithMessage("Specified type id is not valid.");
-            RuleFor(campaign => campaign.ActivePeriod.From)
-                .Must(from => from.Value.Date >= DateTimeOffset.UtcNow.Date)
-                .When(campaign => campaign.ActivePeriod?.From is not null)
-                .WithMessage("Campaign should start now or in a future date.");
             RuleFor(campaign => campaign.ActivePeriod)
                 .Must(campaign => campaign.To > campaign.From)
                 .When(campaign => campaign.ActivePeriod?.From is not null && campaign.ActivePeriod?.To is not null)
@@ -57,22 +48,9 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .WithMessage($"Campaign action text cannot exceed {TextSizePresets.M128} characters.");
             RuleFor(campaign => campaign.ActionLink.Href)
                 .MaximumLength(TextSizePresets.L1024)
-                .WithMessage($"Campaign action URL cannot exceed {TextSizePresets.L1024} characters.")
-                .Matches(@"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$")
-                .WithMessage($"Campaign action URL is not valid.")
-                .When(x => !string.IsNullOrWhiteSpace(x.ActionLink?.Href));
-        }
-
-        private bool HaveContentAccordingToChannelKind(CampaignRequestBase campaign, Dictionary<string, MessageContent> content) {
-            var channels = campaign.MessageChannelKind.GetFlagValues().ToList();
-            channels.Remove(MessageChannelKind.None);
-            foreach (var channel in channels) {
-                var pair = content.Where(x => x.Key.ToLower() == channel.ToString().ToLower()).FirstOrDefault();
-                if (pair.Key is null) {
-                    return false;
-                }
-            }
-            return true;
+                .Matches(@"^https?:\/\/\w+(\.\w+)*(:[0-9]+)?(\/.*)?$")
+                .When(x => !string.IsNullOrWhiteSpace(x.ActionLink?.Href))
+                .WithMessage($"Campaign action URL is not valid.");
         }
 
         private async Task<bool> BeExistingTypeId(Guid? id, CancellationToken cancellationToken) => await _messageTypeService.GetById(id.Value) is not null;

@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Description>Indice.Features.Multitenancy.Worker.Azure Class Library</Description>
+    <Copyright>Copyright (c) 2022 Indice</Copyright>
+    <AssemblyTitle>Indice.Features.Multitenancy.Worker.Azure</AssemblyTitle>
+    <VersionPrefix>6.0.0</VersionPrefix>
+    <!--<VersionSuffix>beta-01</VersionSuffix>-->
+    <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
+    <TargetFrameworks>net5.0;net6.0;</TargetFrameworks>
+    <AssemblyName>Indice.Features.Multitenancy.Worker.Azure</AssemblyName>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Indice</RootNamespace>
+    <LangVersion>Latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Label="Package">
+    <IsPackable>true</IsPackable>
+    <PackageId>Indice.Features.Multitenancy.Worker.Azure</PackageId>
+    <PackageTags>Multitenancy;Functions;Azure;</PackageTags>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageIcon>icon-310.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+    <Company>Indice</Company>
+    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+    <!-- including PDB files in NuGet for source link because symbolsource.org does not support portable PDBs -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.Features.Multitenancy.Core" Version="6.0.0" />
+    <PackageReference Include="Indice.Services" Version="6.1.11" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Features.Multitenancy.Core\Indice.Features.Multitenancy.Core.csproj" />
+    <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
+  </ItemGroup>
+</Project>

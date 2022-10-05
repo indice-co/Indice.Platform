@@ -16,5 +16,12 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
         /// <summary>Gets a list of all available templates.</summary>
         /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         Task<ResultSet<TemplateListItem>> GetList(ListOptions options);
+        /// <summary>Permanently deletes a template from the store.</summary>
+        /// <param name="id">The id of the template.</param>
+        Task Delete(Guid id);
+        /// <summary>Updates an existing template.</summary>
+        /// <param name="id">The id of the template.</param>
+        /// <param name="request">The request model used to update an existing template.</param>
+        Task Update(Guid id, UpdateTemplateRequest request);
     }
 }

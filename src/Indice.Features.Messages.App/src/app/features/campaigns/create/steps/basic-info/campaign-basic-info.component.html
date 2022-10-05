@@ -199,51 +199,5 @@
                 </div>
             </div>
         </fieldset>
-        <!-- Κανάλια επικοινωνίας -->
-        <fieldset>
-            <legend class="sr-only">Κανάλια επικοινωνίας (*)</legend>
-            <div class="text-base font-medium text-gray-900"
-                 aria-hidden="true">
-                Κανάλια επικοινωνίας (*)
-            </div>
-            <label for="campaignType"
-                   class="field-label hidden"
-                   aria-hidden="true">
-                Κανάλια επικοινωνίας (*)
-            </label>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-2 sm:col-span-1">
-                    <div class="divide-y divide-gray-200">
-                        <div *ngFor="let channel of channelsState; let i = index"
-                             class="relative flex items-start py-4">
-                            <div class="min-w-0 flex-1 text-sm">
-                                <label [for]="'channel-' + i"
-                                       class="font-medium text-gray-700">
-                                    {{ channel.name }}
-                                </label>
-                                <p [id]="'channel-' + i + '-description'"
-                                   class="text-gray-500">
-                                    {{ channel.description }}
-                                </p>
-                            </div>
-                            <div class="ml-3 flex items-center h-5">
-                                <input [id]="'channel-' + i"
-                                       [value]="channel.value"
-                                       [attr.aria-describedby]="'channel-' + i + '-description'"
-                                       (change)="onChannelCheckboxChange($event)"
-                                       name="channels"
-                                       type="checkbox"
-                                       class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
-                                       [checked]="channel.checked">
-                            </div>
-                        </div>
-                    </div>
-                    <p *ngIf="channels.invalid"
-                       class="mt-2 text-sm text-red-600">
-                        <span *ngIf="channels.errors!['required']">Παρακαλώ επιλέξτε τουλάχιστον ένα κανάλι επικοινωνίας.</span>
-                    </p>
-                </div>
-            </div>
-        </fieldset>
     </div>
 </form>

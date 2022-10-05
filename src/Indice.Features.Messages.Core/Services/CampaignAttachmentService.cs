@@ -1,21 +1,21 @@
-﻿using Indice.Features.Messages.Core.Data;
+﻿using System.Net.Http.Headers;
+using System.Net.Mime;
+using Indice.Extensions;
+using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Exceptions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Services;
 using Indice.Types;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.Core.Services
 {
-    /// <summary>
-    /// An implementation of <see cref="ICampaignAttachmentService"/> for Entity Framework Core.
-    /// </summary>
+    /// <summary>An implementation of <see cref="ICampaignAttachmentService"/> for Entity Framework Core.</summary>
     public class CampaignAttachmentService : ICampaignAttachmentService
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="CampaignService"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="CampaignService"/>.</summary>
         /// <param name="getFileService">File storage abstraction.</param>
         /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
         /// <param name="campaignManagementOptions">Options used to configure the Campaigns management API feature.</param>
@@ -52,13 +52,39 @@ namespace Indice.Features.Messages.Core.Services
         }
 
         /// <inheritdoc />
-        public async Task Associate(Guid id, Guid attachmentId) {
-            var campaign = await DbContext.Campaigns.FindAsync(id);
+        public async Task Associate(Guid campaignId, Guid attachmentId) {
+            var campaign = await DbContext.Campaigns.FindAsync(campaignId);
             if (campaign is null) {
-                throw MessageExceptions.CampaignNotFound(id);
+                throw MessageExceptions.CampaignNotFound(campaignId);
             }
             campaign.AttachmentId = attachmentId;
             await DbContext.SaveChangesAsync();
+        }
+
+        /// <inheritdoc />
+        public async Task<FileAttachment> GetFile(Guid campaignId, Guid attachmentId) {
+            var dbAttachment = await DbContext
+                .Campaigns
+                .Where(x => x.Id == campaignId)
+                .Select(x => x.Attachment)
+                .SingleOrDefaultAsync();
+            if (dbAttachment is null) {
+                return null;
+            }
+            var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension.TrimStart('.')}";
+            var data = await FileService.GetAsync(path);
+            if (data is null) {
+                return null;
+            }
+            return new FileAttachment {
+                ContentLength = dbAttachment.ContentLength,
+                ContentType = dbAttachment.ContentType,
+                Data = data,
+                FileExtension = dbAttachment.FileExtension,
+                Guid = dbAttachment.Guid,
+                Id = dbAttachment.Id,
+                Name = dbAttachment.Name
+            };
         }
     }
 }

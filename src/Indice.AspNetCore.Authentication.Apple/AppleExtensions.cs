@@ -2,6 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Authentication.Apple;
 using Microsoft.AspNetCore.Authentication;
@@ -98,7 +102,42 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                     return Task.CompletedTask;
                 };
+                options.Events.OnTokenResponseReceived ??= OnTokenResponseReceivedExtractUserClaims;
                 options.UsePkce = false; // Apple does not currently support PKCE (April 2021).
             });
+
+
+
+        private static Task OnTokenResponseReceivedExtractUserClaims(TokenResponseReceivedContext context) {
+            var userText = context.Request.Form["user"].FirstOrDefault();
+            if (userText is not null) {
+                var claims = ExtractClaimsFromUser(JsonSerializer.Deserialize<JsonElement>(userText));
+                var enrichedPrincipal = new ClaimsPrincipal(new ClaimsIdentity(context.Principal.Identity, claims, context.Principal.Identity.AuthenticationType, "name", "role"));
+                context.Principal = enrichedPrincipal;
+            }
+            return Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Extracts the claims from the user received from the authorization endpoint.
+        /// </summary>
+        /// <param name="user">The user object to extract the claims from.</param>
+        /// <returns>
+        /// An <see cref="IEnumerable{Claim}"/> containing the claims extracted from the user information.
+        /// </returns>
+        private static IEnumerable<Claim> ExtractClaimsFromUser(JsonElement user) {
+            var claims = new List<Claim>();
+
+            if (user.TryGetProperty("name", out var name)) {
+                claims.Add(new Claim("given_name", name.GetString("firstName") ?? string.Empty, "string"));
+                claims.Add(new Claim("family_name", name.GetString("lastName") ?? string.Empty, "string"));
+            }
+
+            if (user.TryGetProperty("email", out var email)) {
+                claims.Add(new Claim("email", email.GetString() ?? string.Empty, "string"));
+            }
+
+            return claims;
+        }
     }
 }

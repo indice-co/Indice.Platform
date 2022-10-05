@@ -32,11 +32,15 @@ function createAppSettings(): IAppSettings {
             client_id: !isTemplate ? environment.auth_settings.client_id : clientId,
             filterProtocolClaims: environment.auth_settings.filterProtocolClaims,
             loadUserInfo: environment.auth_settings.loadUserInfo,
-            post_logout_redirect_uri: !isTemplate ? environment.auth_settings.post_logout_redirect_uri : `${host}/${baseHref}` + (postLogoutRedirectUri && postLogoutRedirectUri !== '' ? `/${postLogoutRedirectUri}` : ''),
-            redirect_uri: !isTemplate ? environment.auth_settings.redirect_uri : `${host}/${baseHref}/${environment.auth_settings.redirect_uri}`,
+            post_logout_redirect_uri: !isTemplate ? environment.auth_settings.post_logout_redirect_uri : [host.replace(/\/$/su, ""), baseHref.replace(/(^\/)|(\/$)/sug, ""), environment.auth_settings.post_logout_redirect_uri].filter(x => x?.length > 0).join('/'),
+            redirect_uri: !isTemplate ? environment.auth_settings.redirect_uri : [host.replace(/\/$/su, ""), baseHref.replace(/(^\/)|(\/$)/sug, ""), environment.auth_settings.redirect_uri].filter(x => x?.length > 0).join('/'),
             response_type: environment.auth_settings.response_type,
             scope: environment.auth_settings.scope,
-            silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : `${host}/${baseHref}/${environment.auth_settings.silent_redirect_uri}`,
+            silent_redirect_uri: !isTemplate ? environment.auth_settings.silent_redirect_uri : [ host.replace(/\/$/su, ""), 
+                                                                                                 baseHref.replace(/(^\/)|(\/$)/sug, ""), 
+                                                                                                 environment.auth_settings.silent_redirect_uri ]
+                                                                                                .filter(x => x?.length > 0)
+                                                                                                .join('/'),
             revokeAccessTokenOnSignout: environment.auth_settings.revokeAccessTokenOnSignout,
             accessTokenExpiringNotificationTime: environment.auth_settings.accessTokenExpiringNotificationTime,
             monitorSession: environment.auth_settings.monitorSession,

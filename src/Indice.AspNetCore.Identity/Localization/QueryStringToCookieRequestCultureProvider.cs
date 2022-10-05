@@ -28,7 +28,15 @@ namespace Indice.AspNetCore.Identity.Localization
                 exists = queryString.TryGetValue("returnUrl", out var returnUrl);
                 if (exists) {
                     var request = returnUrl.ToArray()[0];
-                    var uri = new Uri("https://example.com" + request);
+#if NET6_0_OR_GREATER
+                    if (!Uri.TryCreate("https://example.com" + request.TrimStart('~'), new UriCreationOptions { }, out var uri)) {
+                        return NullProviderCultureResult;
+                    }
+#else
+                    if (!Uri.TryCreate("https://example.com" + request.TrimStart('~'), UriKind.Absolute, out var uri)) {
+                        return NullProviderCultureResult;
+                    }
+#endif
                     var returnUrlQueryString = QueryHelpers.ParseQuery(uri.Query);
                     var requestCulture = returnUrlQueryString.FirstOrDefault(x => x.Key == QueryParameterName).Value;
                     var cultureFromReturnUrl = requestCulture.ToString();
@@ -54,8 +62,8 @@ namespace Indice.AspNetCore.Identity.Localization
         public static QueryStringToCookieRequestCultureProvider Create(string queryParameterName) => new() { QueryParameterName = queryParameterName };
 
         /// <summary>Creates a new instance of <see cref="QueryStringToCookieRequestCultureProvider"/> used to look for standard 'ui_locales' parameter in the authorize endpoint.</summary>
-        public static QueryStringToCookieRequestCultureProvider CreateForUiLocales() => new() { 
-            QueryParameterName = OidcConstants.AuthorizeRequest.UiLocales 
+        public static QueryStringToCookieRequestCultureProvider CreateForUiLocales() => new() {
+            QueryParameterName = OidcConstants.AuthorizeRequest.UiLocales
         };
 
         private static ProviderCultureResult ParseDefaultParameterValue(string value) {
