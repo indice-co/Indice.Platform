@@ -12,9 +12,7 @@ import { CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core
 })
 export class CasesComponent extends BaseListComponent<CasePartial> implements OnInit {
     public newItemLink = 'new-case';
-    public formActions: ViewAction[] = [
-        new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
-    ];
+    public formActions: ViewAction[] = [];
 
     constructor(
         private _route: ActivatedRoute,
@@ -42,7 +40,6 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
                 dataType: 'array',
                 options: [],
                 multiTerm: true
-
             }
             for (let caseType of caseTypes.items!) { // fill caseTypeSearchOption's SelectInputOptions
                 caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
@@ -89,8 +86,20 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             ];
             // now that we have the searchOptions, call parent's ngOnInit!
             super.ngOnInit();
-        }
-        );
+        });
+
+        // independent call to fetch the case Types that the user can select for Case Creation
+        this._api.getCaseTypes(true)
+            .pipe(take(1))
+            .subscribe(
+                (caseTypesForCaseCreation: CasePartialResultSet) => {
+                    if (caseTypesForCaseCreation.count !== 0) {
+                        this.formActions = [
+                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
+                        ];
+                    }
+                }
+            );
     }
 
     loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {

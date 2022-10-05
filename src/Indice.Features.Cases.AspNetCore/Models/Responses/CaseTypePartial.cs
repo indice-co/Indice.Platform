@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Indice.Types;
 
 namespace Indice.Features.Cases.Models.Responses
@@ -42,7 +43,12 @@ namespace Indice.Features.Cases.Models.Responses
         /// The case type configuration.
         /// </summary>
         public string? Config { get; set; }
-        
+
+        /// <summary>
+        /// The allowed Roles For case Creation.
+        /// </summary>
+        public List<string>? CanCreateRoles { get; set; }
+
         /// <summary>
         /// The translations for the case type metadata (eg title).
         /// </summary>

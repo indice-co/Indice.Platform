@@ -57,6 +57,9 @@ export class CaseTypesService {
             "config": {
                 "type": "string"
             },
+            "canCreateRoles": {
+                "type": "string"
+            },
             "checkpointTypes": {
                 "type": "array",
                 "items": {
@@ -186,6 +189,17 @@ export class CaseTypesService {
                     ]
                 },
                 {
+                    "type": "flex",
+                    "flex-flow": "row wrap",
+                    "items": [
+                        {
+                            "key": "canCreateRoles",
+                            "title": "Επιτρεπτοί Ρόλοι για Δημιουργία αίτησης",
+                            "htmlClass": "px-2 my-2"
+                        }
+                    ]
+                },
+                {
                     "key": "checkpointTypes",
                     "type": "array",
                     "listItems": 1,
@@ -306,6 +320,7 @@ export class CaseTypesService {
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags,
             config: event?.config,
+            canCreateRoles: event?.canCreateRoles,
             checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeDetails(item)),
         });
         this._api.createCaseType(undefined, request).pipe(
@@ -331,6 +346,7 @@ export class CaseTypesService {
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags,
             config: event?.config,
+            canCreateRoles: event?.canCreateRoles,
             checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeDetails(item)),
         })
         this._api.updateCaseType(caseTypeId, undefined, request).pipe(

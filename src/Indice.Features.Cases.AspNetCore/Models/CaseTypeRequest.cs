@@ -57,5 +57,10 @@ namespace Indice.Features.Cases.Models
         /// The case type configuration.
         /// </summary>
         public string? Config { get; set; }
+
+        /// <summary>
+        /// The allowed Roles that can create a new Case
+        /// </summary>
+        public string? CanCreateRoles { get; set; }
     }
 }

@@ -24,7 +24,7 @@ namespace Indice.Features.Cases.Data.Config
                 .Property(p => p.Translations);
             builder
                 .Property(p => p.Layout)
-                .IsRequired(false); 
+                .IsRequired(false);
             builder
                 .Property(p => p.LayoutTranslations)
                 .IsRequired(false);
@@ -34,6 +34,10 @@ namespace Indice.Features.Cases.Data.Config
                 .IsRequired(false);
             builder
                 .Property(p => p.Config)
+                .HasMaxLength(TextSizePresets.M256)
+                .IsRequired(false);
+            builder
+                .Property(p => p.CanCreateRoles)
                 .HasMaxLength(TextSizePresets.M256)
                 .IsRequired(false);
         }
