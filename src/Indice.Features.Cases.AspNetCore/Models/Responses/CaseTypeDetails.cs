@@ -54,6 +54,11 @@ namespace Indice.Features.Cases.Models.Responses
         public string? Config { get; set; }
 
         /// <summary>
+        /// The allowed Roles that can create a new Case.
+        /// </summary>
+        public string? CanCreateRoles { get; set; }
+
+        /// <summary>
         /// The checkpoints for this case type.
         /// </summary>
         public IEnumerable<CheckpointTypeDetails> CheckpointTypes { get; set; }

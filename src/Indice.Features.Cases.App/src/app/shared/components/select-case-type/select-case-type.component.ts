@@ -15,7 +15,7 @@ export class SelectCaseTypeComponent implements OnInit {
   @Output() selectedCaseTypeEvent = new EventEmitter<string>();
 
   constructor(private api: CasesApiService) {
-    this.caseTypes$ = this.api.getCaseTypes().pipe(
+    this.caseTypes$ = this.api.getCaseTypes(true).pipe(
       map((result: CaseTypePartialResultSet) => result.items as CaseTypePartial[])
     )
   }

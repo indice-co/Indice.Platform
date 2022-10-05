@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
@@ -42,20 +44,17 @@ namespace Indice.Features.Cases.Services
             return caseType ?? throw new Exception("CaseType is invalid."); // todo proper exception;
         }
 
-        public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user) {
+        public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool canCreate) {
             if (user.IsAdmin()) {
                 return await GetAdminCases();
             }
+
             var roleClaims = user.Claims
                 .Where(c => c.Type == JwtClaimTypes.Role)
                 .Select(c => c.Value)
                 .ToList();
 
-            var caseTypeIds = await _dbContext.RoleCaseTypes
-                .AsQueryable()
-                .Where(r => roleClaims.Contains(r.RoleName))
-                .Select(c => c.CaseTypeId)
-                .ToListAsync();
+            var caseTypeIds = canCreate ? await GetCaseTypeIdsForCaseCreation(roleClaims) : await GetCaseTypeIds(roleClaims);
 
             var caseTypes = await _dbContext.CaseTypes
                 .AsQueryable()
@@ -95,7 +94,8 @@ namespace Indice.Features.Cases.Services
                 Translations = caseType.Translations,
                 LayoutTranslations = caseType.LayoutTranslations,
                 Tags = caseType.Tags,
-                Config = caseType.Config
+                Config = caseType.Config,
+                CanCreateRoles = caseType.CanCreateRoles
             };
 
             if (caseType.CheckpointTypes is null) {
@@ -179,6 +179,7 @@ namespace Indice.Features.Cases.Services
                 LayoutTranslations = dbCaseType.LayoutTranslations,
                 Tags = dbCaseType.Tags,
                 Config = dbCaseType.Config,
+                CanCreateRoles = dbCaseType.CanCreateRoles,
                 CheckpointTypes = dbCaseType.CheckpointTypes.Select(checkpointType => new CheckpointTypeDetails {
                     Id = checkpointType.Id,
                     Name = checkpointType.Name,
@@ -211,6 +212,7 @@ namespace Indice.Features.Cases.Services
             dbCaseType.LayoutTranslations = caseType.LayoutTranslations;
             dbCaseType.Tags = caseType.Tags;
             dbCaseType.Config = caseType.Config;
+            dbCaseType.CanCreateRoles = caseType.CanCreateRoles;
 
             _dbContext.CaseTypes.Update(dbCaseType);
 
@@ -254,5 +256,28 @@ namespace Indice.Features.Cases.Services
                     .ToListAsync();
             return caseTypes.ToResultSet();
         }
+        private async Task<List<Guid>> GetCaseTypeIdsForCaseCreation(List<string> roleClaims) {
+            var caseTypeExpressions = roleClaims.Select(roleClaim => (Expression<Func<DbCaseType, bool>>)(dbCaseType => EF.Functions.Like(dbCaseType.CanCreateRoles, $"%{roleClaim}%")));
+            // Aggregate the expressions with OR that resolves to SQL: CanCreateRoles LIKE %roleClaim1% OR tag LIKE %roleClaim2% etc
+            var aggregatedExpression = caseTypeExpressions.Aggregate((expression, next) => {
+                var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                return Expression.Lambda<Func<DbCaseType, bool>>(orExp, expression.Parameters);
+            });
+
+            return await _dbContext.CaseTypes
+                .AsQueryable()
+                .Where(aggregatedExpression)
+                .Select(c => c.Id)
+                .ToListAsync();
+        }
+
+        private async Task<List<Guid>> GetCaseTypeIds(List<string> roleClaims) {
+            return await _dbContext.RoleCaseTypes
+                    .AsQueryable()
+                    .Where(r => roleClaims.Contains(r.RoleName))
+                    .Select(c => c.CaseTypeId)
+                    .ToListAsync();
+        }
+
     }
 }

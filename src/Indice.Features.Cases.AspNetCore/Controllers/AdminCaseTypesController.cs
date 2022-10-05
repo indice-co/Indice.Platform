@@ -33,12 +33,13 @@ namespace Indice.Features.Cases.Controllers
         /// <summary>
         /// Get case types.
         /// </summary>
+        /// <param name="canCreate">Differentiates between the case types that an admin user can 1) view and 2) select for a case creation</param>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<CaseTypePartial>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetCaseTypes() {
-            var caseTypes = await _caseTypeService.Get(User);
+        public async Task<IActionResult> GetCaseTypes(bool canCreate = false) {
+            var caseTypes = await _caseTypeService.Get(User, canCreate);
             return Ok(caseTypes);
         }
 
