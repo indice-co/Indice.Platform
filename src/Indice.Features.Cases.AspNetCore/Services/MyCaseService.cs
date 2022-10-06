@@ -246,6 +246,12 @@ namespace Indice.Features.Cases.Services
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
                 })
                 .ToListAsync();
+
+            // translate case types
+            for (var i = 0; i < caseTypes.Count; i++) {
+                caseTypes[i] = caseTypes[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            }
+
             return caseTypes.ToResultSet();
         }
     }
