@@ -9,6 +9,7 @@ using Indice.AspNetCore.Identity.Events;
 using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -19,6 +20,7 @@ namespace Indice.AspNetCore.Identity
     public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     {
         private readonly IPlatformEventService _eventService;
+        private readonly IdentityMessageDescriber _messageDescriber;
 
         /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
         /// <param name="userStore">The persistence store the manager will operate over.</param>
@@ -32,6 +34,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="services">The <see cref="IServiceProvider"/> used to resolve services.</param>
         /// <param name="logger">The logger used to log messages, warnings and errors.</param>
         /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public ExtendedUserManager(
             IUserStore<TUser> userStore,
             IOptionsSnapshot<IdentityOptions> optionsAccessor,
@@ -43,19 +46,27 @@ namespace Indice.AspNetCore.Identity
             IServiceProvider services,
             ILogger<ExtendedUserManager<TUser>> logger,
             IdentityMessageDescriber identityMessageDescriber,
-            IPlatformEventService eventService
+            IPlatformEventService eventService,
+            IConfiguration configuration
         ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
-            MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
+            _messageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            MaxScaEnabledDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(MaxScaEnabledDevices)) ??
+                                   configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxScaEnabledDevices)) ??
+                                   int.MaxValue;
+            ScaEnableActivationDelay = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<TimeSpan?>(nameof(ScaEnableActivationDelay)) ??
+                                       configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<TimeSpan?>(nameof(ScaEnableActivationDelay)) ??
+                                       TimeSpan.Zero;
         }
 
         /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
         public bool SupportsEmailAsUserName => GetUserStore()?.EmailAsUserName == true;
-        /// <summary>Provides an extensibility point for localizing messages used inside the package.</summary>
-        public IdentityMessageDescriber MessageDescriber { get; }
         /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
         public IQueryable<UserDevice> UserDevices => GetDeviceStore()?.UserDevices;
-
+        /// <summary></summary>
+        public int MaxScaEnabledDevices { get; }
+        /// <summary></summary>
+        public TimeSpan ScaEnableActivationDelay { get; }
 
         /// <summary>Sets the password expiration policy for the specified user.</summary>
         /// <param name="user">The user whose password expiration policy to set.</param>
@@ -324,11 +335,7 @@ namespace Indice.AspNetCore.Identity
                 throw new ArgumentNullException(nameof(user));
             }
             var deviceStore = GetDeviceStore();
-            var result = await deviceStore.SetMaxDevicesCountAsync(user, maxDevicesCount, cancellationToken);
-            if (!result.Succeeded) {
-                return result;
-            }
-            return await UpdateAsync(user);
+            return await deviceStore.SetMaxDevicesCountAsync(user, maxDevicesCount, cancellationToken);
         }
 
         /// <summary>Get the devices registered by the specified user.</summary>
@@ -378,7 +385,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task<IdentityResult> SetDeviceRequiresPasswordAsync(TUser user, UserDevice device, bool requiresPassword, CancellationToken cancellationToken = default) {
+        public async Task<IdentityResult> SetDeviceRequiresPasswordAsync(TUser user, UserDevice device, bool requiresPassword, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
@@ -387,7 +394,8 @@ namespace Indice.AspNetCore.Identity
                 throw new ArgumentNullException(nameof(user));
             }
             var deviceStore = GetDeviceStore();
-            return deviceStore.SetDeviceRequiresPasswordAsync(user, device, requiresPassword, cancellationToken);
+            await deviceStore.SetDeviceRequiresPasswordAsync(user, device, requiresPassword, cancellationToken);
+            return await UpdateDeviceAsync(user, device, cancellationToken);
         }
 
         /// <summary>Sets all user devices state to require username/password in the next login.</summary>
@@ -402,6 +410,32 @@ namespace Indice.AspNetCore.Identity
             }
             var deviceStore = GetDeviceStore();
             return deviceStore.SetAllDevicesRequirePasswordAsync(user, requiresPassword, cancellationToken);
+        }
+
+        /// <summary></summary>
+        /// <param name="user"></param>
+        /// <param name="device"></param>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task<IdentityResult> RequestScaEnableForDevice(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (device is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var alreadyRequested = device.ScaEnabled ||
+                (device.ScaActivationDate.HasValue && device.ScaActivationDate.Value < DateTimeOffset.UtcNow.Add(ScaEnableActivationDelay));
+            if (alreadyRequested) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "ScaAlreadyRequested",
+                    Description = "Strong customer authentication is already requested for this device."
+                });
+            }
+            var deviceStore = GetDeviceStore();
+            await deviceStore.RequestScaEnableForDevice(user, device, cancellationToken);
+            return await UpdateDeviceAsync(user, device, cancellationToken);
         }
 
         private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {

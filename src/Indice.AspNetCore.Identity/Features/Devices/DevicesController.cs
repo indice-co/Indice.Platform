@@ -62,7 +62,7 @@ namespace Indice.AspNetCore.Identity.Api
             }
             var devices = await UserManager
                 .UserDevices
-                .Where(UserDevicePredicate(user.Id, options))
+                .Where(DevicesController.UserDevicePredicate(user.Id, options))
                 .Select(userDevice => DeviceInfo.FromUserDevice(userDevice))
                 .ToResultSetAsync(options);
             return Ok(devices);
@@ -175,6 +175,30 @@ namespace Indice.AspNetCore.Identity.Api
             return NoContent();
         }
 
+        /// <summary></summary>
+        /// <param name="deviceId">The device id.</param>
+        /// <response code="202">Accepted</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("{deviceId}/sca/request")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        public async Task<IActionResult> RequestScaEnableForDevice([FromRoute] string deviceId) {
+            var user = await UserManager.GetUserAsync(User);
+            if (user is null) {
+                return NotFound();
+            }
+            var device = await UserManager.GetDeviceByIdAsync(user, deviceId);
+            if (device is null) {
+                return NotFound();
+            }
+            var result = await UserManager.RequestScaEnableForDevice(user, device);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            return Accepted();
+        }
+
         /// <summary>Deletes the device.</summary>
         /// <param name="deviceId">The id of the device.</param>
         /// <response code="204">No Content</response>
@@ -200,7 +224,7 @@ namespace Indice.AspNetCore.Identity.Api
             return NoContent();
         }
 
-        private Expression<Func<UserDevice, bool>> UserDevicePredicate(string userId, ListOptions<UserDeviceFilter> options) =>
+        private static Expression<Func<UserDevice, bool>> UserDevicePredicate(string userId, ListOptions<UserDeviceFilter> options) =>
             options?.Filter.IsPushNotificationEnabled == null
                 ? x => x.UserId == userId
                 : x => x.UserId == userId && x.IsPushNotificationsEnabled == options.Filter.IsPushNotificationEnabled.Value;

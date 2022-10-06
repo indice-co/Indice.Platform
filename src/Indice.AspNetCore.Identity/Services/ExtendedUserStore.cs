@@ -54,6 +54,7 @@ namespace Indice.AspNetCore.Identity.Data
                                               configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(DefaultAllowedRegisteredDevices));
             MaxAllowedRegisteredDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(MaxAllowedRegisteredDevices)) ??
                                           configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxAllowedRegisteredDevices));
+            // Validate settings where needed.
             if (DefaultAllowedRegisteredDevices.HasValue && MaxAllowedRegisteredDevices.HasValue && DefaultAllowedRegisteredDevices.Value > MaxAllowedRegisteredDevices.Value) {
                 throw new ApplicationException("Value of setting DefaultAllowedRegisteredDevices cannot exceed the value of MaxAllowedRegisteredDevices.");
             }
@@ -89,7 +90,7 @@ namespace Indice.AspNetCore.Identity.Data
                                  UserId = user.Id,
                                  DateCreated = changeDate,
                                  PasswordHash = passwordHash
-                             });
+                             }, cancellationToken);
             }
             user.LastPasswordChangeDate = changeDate;
             // Calculate expiration date based on policy.
@@ -183,7 +184,7 @@ namespace Indice.AspNetCore.Identity.Data
                 userMaxDevicesCount = parsedUserMaxDevicesClaim;
             }
             var maxDevicesCount = userMaxDevicesCount ?? DefaultAllowedRegisteredDevices ?? int.MaxValue;
-            var numberOfUserDevices = await DevicesSet.CountAsync(x => x.UserId == user.Id);
+            var numberOfUserDevices = await DevicesSet.CountAsync(x => x.UserId == user.Id, cancellationToken: cancellationToken);
             if (maxDevicesCount == numberOfUserDevices) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = "MaxNumberOfDevices",
@@ -204,11 +205,7 @@ namespace Indice.AspNetCore.Identity.Data
         public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var devices = await DevicesSet
-                .Include(x => x.User)
-                .Where(x => x.UserId == user.Id)
-                .ToListAsync(cancellationToken);
-            return devices;
+            return await DevicesSet.Include(x => x.User).Where(x => x.UserId == user.Id).ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -247,7 +244,7 @@ namespace Indice.AspNetCore.Identity.Data
                     Description = $"Cannot set max number to {maxDevicesCount}. Maximum value can be {MaxAllowedRegisteredDevices}."
                 });
             }
-            var numberOfUserDevices = await DevicesSet.CountAsync(x => x.UserId == user.Id);
+            var numberOfUserDevices = await DevicesSet.CountAsync(x => x.UserId == user.Id, cancellationToken: cancellationToken);
             if (numberOfUserDevices > maxDevicesCount) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = "LargeNumberOfDevices",
@@ -269,11 +266,11 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IdentityResult> SetDeviceRequiresPasswordAsync(TUser user, UserDevice device, bool requiresPassword, CancellationToken cancellationToken) {
+        public Task SetDeviceRequiresPasswordAsync(TUser user, UserDevice device, bool requiresPassword, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             device.RequiresPassword = requiresPassword;
-            return await UpdateDeviceAsync(user, device, cancellationToken);
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
@@ -290,6 +287,14 @@ namespace Indice.AspNetCore.Identity.Data
                 return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
             }
             return IdentityResult.Success;
+        }
+
+        /// <inheritdoc/>
+        public Task RequestScaEnableForDevice(TUser user, UserDevice device, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            device.RequiresPassword = true;
+            return Task.CompletedTask;
         }
     }
 }
