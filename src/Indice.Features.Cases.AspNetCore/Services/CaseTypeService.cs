@@ -62,6 +62,8 @@ namespace Indice.Features.Cases.Services
                 .Select(c => new CaseTypePartial {
                     Id = c.Id,
                     Title = c.Title,
+                    Category = c.Category,
+                    Description = c.Description,
                     DataSchema = c.DataSchema,
                     Layout = c.Layout,
                     Code = c.Code,
@@ -89,6 +91,8 @@ namespace Indice.Features.Cases.Services
                 Id = Guid.NewGuid(),
                 Code = caseType.Code,
                 Title = caseType.Title,
+                Category = caseType.Category,
+                Description = caseType.Description,
                 DataSchema = caseType.DataSchema,
                 Layout = caseType.Layout,
                 Translations = caseType.Translations,
@@ -173,6 +177,8 @@ namespace Indice.Features.Cases.Services
                 Id = id,
                 Code = dbCaseType.Code,
                 Title = dbCaseType.Title,
+                Category = dbCaseType.Category,
+                Description = dbCaseType.Description,
                 DataSchema = dbCaseType.DataSchema,
                 Layout = dbCaseType.Layout,
                 Translations = dbCaseType.Translations,
@@ -206,6 +212,8 @@ namespace Indice.Features.Cases.Services
 
             // Update case type entity
             dbCaseType.Title = caseType.Title;
+            dbCaseType.Category = caseType.Category;
+            dbCaseType.Description = caseType.Description;
             dbCaseType.DataSchema = caseType.DataSchema;
             dbCaseType.Layout = caseType.Layout;
             dbCaseType.Translations = caseType.Translations;

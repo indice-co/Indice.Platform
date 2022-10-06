@@ -39,6 +39,12 @@ export class CaseTypesService {
             "title": {
                 "type": "string"
             },
+            "category": {
+                "type": "string"
+            },
+            "description": {
+                "type": "string"
+            },
             "dataSchema": {
                 "type": "string"
             },
@@ -123,6 +129,22 @@ export class CaseTypesService {
                             "validationMessages": {
                                 "required": "Υποχρεωτικό Πεδίο."
                             }
+                        }
+                    ]
+                },
+                {
+                    "type": "flex",
+                    "flex-flow": "row wrap",
+                    "items": [
+                        {
+                            "key": "category",
+                            "title": "Κατηγορία",
+                            "htmlClass": "px-2 my-2"
+                        },
+                        {
+                            "key": "description",
+                            "title": "Περιγραφή",
+                            "htmlClass": "px-2 my-2"
                         }
                     ]
                 },
@@ -313,6 +335,8 @@ export class CaseTypesService {
     public onCreateSubmit(event: any): void {
         const request = new CaseTypeRequest({
             title: event.title,
+            category: event.category,
+            description: event.description,
             code: event.code,
             dataSchema: event.dataSchema,
             layout: event?.layout,
@@ -339,6 +363,8 @@ export class CaseTypesService {
         const request = new CaseTypeRequest({
             id: caseTypeId,
             title: event.title,
+            category: event.category,
+            description: event.description,
             code: event.code,
             dataSchema: event.dataSchema,
             layout: event?.layout,
