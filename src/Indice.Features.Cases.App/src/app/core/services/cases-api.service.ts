@@ -4745,6 +4745,10 @@ export class CaseTypeDetails implements ICaseTypeDetails {
     code?: string | undefined;
     /** The case type title. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
@@ -4776,6 +4780,8 @@ export class CaseTypeDetails implements ICaseTypeDetails {
             this.id = _data["id"];
             this.code = _data["code"];
             this.title = _data["title"];
+            this.description = _data["description"];
+            this.category = _data["category"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
             this.translations = _data["translations"];
@@ -4803,6 +4809,8 @@ export class CaseTypeDetails implements ICaseTypeDetails {
         data["id"] = this.id;
         data["code"] = this.code;
         data["title"] = this.title;
+        data["description"] = this.description;
+        data["category"] = this.category;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
         data["translations"] = this.translations;
@@ -4827,6 +4835,10 @@ export interface ICaseTypeDetails {
     code?: string | undefined;
     /** The case type title. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
@@ -4853,6 +4865,10 @@ export class CaseTypePartial implements ICaseTypePartial {
     code?: string | undefined;
     /** The case type title. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
@@ -4880,6 +4896,8 @@ export class CaseTypePartial implements ICaseTypePartial {
             this.id = _data["id"];
             this.code = _data["code"];
             this.title = _data["title"];
+            this.description = _data["description"];
+            this.category = _data["category"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
             this.tags = _data["tags"];
@@ -4911,6 +4929,8 @@ export class CaseTypePartial implements ICaseTypePartial {
         data["id"] = this.id;
         data["code"] = this.code;
         data["title"] = this.title;
+        data["description"] = this.description;
+        data["category"] = this.category;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
         data["tags"] = this.tags;
@@ -4939,6 +4959,10 @@ export interface ICaseTypePartial {
     code?: string | undefined;
     /** The case type title. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
@@ -5009,6 +5033,10 @@ export class CaseTypeRequest implements ICaseTypeRequest {
     code?: string | undefined;
     /** The Title of the case type. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The Data Schema of the case type */
     dataSchema?: string | undefined;
     /** the Layout of the case type */
@@ -5040,6 +5068,8 @@ export class CaseTypeRequest implements ICaseTypeRequest {
             this.id = _data["id"];
             this.code = _data["code"];
             this.title = _data["title"];
+            this.description = _data["description"];
+            this.category = _data["category"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
             this.translations = _data["translations"];
@@ -5067,6 +5097,8 @@ export class CaseTypeRequest implements ICaseTypeRequest {
         data["id"] = this.id;
         data["code"] = this.code;
         data["title"] = this.title;
+        data["description"] = this.description;
+        data["category"] = this.category;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
         data["translations"] = this.translations;
@@ -5091,6 +5123,10 @@ export interface ICaseTypeRequest {
     code?: string | undefined;
     /** The Title of the case type. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The Data Schema of the case type */
     dataSchema?: string | undefined;
     /** the Layout of the case type */
