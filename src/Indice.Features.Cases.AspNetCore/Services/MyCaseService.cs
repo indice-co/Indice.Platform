@@ -214,14 +214,13 @@ namespace Indice.Features.Cases.Services
                 Code = dbCaseType.Code,
                 DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
                 Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
+                LayoutTranslations = dbCaseType.LayoutTranslations,
                 Title = dbCaseType.Title,
                 Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
             };
 
             // translate case type
-            caseType = caseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
-            caseType.Layout = _jsonTranslationService.Translate(caseType.Layout, dbCaseType.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
-            caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, dbCaseType.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
+            caseType = TranslateCaseType(caseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
 
             return caseType;
         }
@@ -242,6 +241,7 @@ namespace Indice.Features.Cases.Services
                     Category = dbCaseType.Category,
                     DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
                     Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
+                    LayoutTranslations = dbCaseType.LayoutTranslations,
                     Code = dbCaseType.Code,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
                 })
@@ -249,10 +249,17 @@ namespace Indice.Features.Cases.Services
 
             // translate case types
             for (var i = 0; i < caseTypes.Count; i++) {
-                caseTypes[i] = caseTypes[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+                caseTypes[i] = TranslateCaseType(caseTypes[i], CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
             }
 
             return caseTypes.ToResultSet();
+        }
+
+        private CaseTypePartial TranslateCaseType(CaseTypePartial caseTypePartial, string culture, bool includeTranslations) {
+            var caseType = caseTypePartial.Translate(culture, includeTranslations);
+            caseType.Layout = _jsonTranslationService.Translate(caseType.Layout, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
+            caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
+            return caseType;
         }
     }
 }
