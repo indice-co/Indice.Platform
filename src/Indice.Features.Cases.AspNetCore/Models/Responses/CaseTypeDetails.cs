@@ -24,6 +24,16 @@ namespace Indice.Features.Cases.Models.Responses
         public string? Title { get; set; }
 
         /// <summary>
+        /// The case type description.
+        /// </summary>
+        public string? Description { get; set; }
+
+        /// <summary>
+        /// The case type category.
+        /// </summary>
+        public string? Category { get; set; }
+
+        /// <summary>
         /// The case type json schema.
         /// </summary>
         public string? DataSchema { get; set; }

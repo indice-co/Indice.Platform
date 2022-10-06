@@ -238,6 +238,8 @@ namespace Indice.Features.Cases.Services
                 .Select(dbCaseType => new CaseTypePartial {
                     Id = dbCaseType.Id,
                     Title = dbCaseType.Title,
+                    Description = dbCaseType.Description,
+                    Category = dbCaseType.Category,
                     DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
                     Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
                     Code = dbCaseType.Code,

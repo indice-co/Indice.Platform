@@ -8,6 +8,8 @@ namespace Indice.Features.Cases.Data.Models
         public Guid Id { get; set; }
         public string Code { get; set; }
         public string Title { get; set; }
+        public string? Description { get; set; }
+        public string? Category { get; set; }
         public string DataSchema { get; set; }
         public string? Layout { get; set; }
         public string? Translations { get; set; }
