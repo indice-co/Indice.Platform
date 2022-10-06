@@ -57,7 +57,7 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> GetDevices([FromQuery] ListOptions<UserDeviceFilter> options = null) {
             var user = await UserManager.GetUserAsync(User);
-            if (user == null) {
+            if (user is null) {
                 return NotFound();
             }
             var devices = await UserManager
@@ -77,7 +77,7 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> GetDeviceById([FromRoute] string deviceId) {
             var user = await UserManager.GetUserAsync(User);
-            if (user == null) {
+            if (user is null) {
                 return NotFound();
             }
             var device = await UserManager.GetDeviceByIdAsync(user, deviceId);
@@ -98,7 +98,7 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> CreateDevice([FromBody] RegisterDeviceRequest request) {
             var user = await UserManager.GetUserAsync(User);
-            if (user == null) {
+            if (user is null) {
                 return NotFound();
             }
             var device = await UserManager.GetDeviceByIdAsync(user, request.DeviceId);
@@ -145,7 +145,7 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateDevice([FromRoute] string deviceId, [FromBody] UpdateDeviceRequest request) {
             var user = await UserManager.GetUserAsync(User);
-            if (user == null) {
+            if (user is null) {
                 return NotFound();
             }
             var device = await UserManager.GetDeviceByIdAsync(user, deviceId);
@@ -184,7 +184,7 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> DeleteDevice([FromRoute] string deviceId) {
             var user = await UserManager.GetUserAsync(User);
-            if (user == null) {
+            if (user is null) {
                 return NotFound();
             }
             var device = await UserManager.GetDeviceByIdAsync(user, deviceId);

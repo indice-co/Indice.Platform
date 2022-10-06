@@ -190,8 +190,13 @@ namespace Indice.AspNetCore.Identity.Data
                     Description = "You have reached the maximum number of registered devices."
                 });
             }
+            device.UserId = user.Id;
             DevicesSet.Add(device);
-            await SaveChanges(cancellationToken);
+            try {
+                await SaveChanges(cancellationToken);
+            } catch (DbUpdateConcurrencyException) {
+                return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+            }
             return IdentityResult.Success;
         }
 
