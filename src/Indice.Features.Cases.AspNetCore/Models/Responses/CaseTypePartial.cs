@@ -76,6 +76,8 @@ namespace Indice.Features.Cases.Models.Responses
             var type = (CaseTypePartial)MemberwiseClone();
             if (!string.IsNullOrEmpty(culture) && Translations != null && Translations.TryGetValue(culture, out var translation)) {
                 type.Title = translation.Title;
+                type.Description = translation.Description;
+                type.Category = translation.Category;
             }
             if (!includeTranslations) {
                 type.Translations = default;
