@@ -73,6 +73,18 @@ namespace Indice.Features.Cases.Controllers
         }
 
         /// <summary>
+        /// Get case data by Id.
+        /// </summary>
+        /// <param name="caseId">The Id of the case.</param>
+        [ProducesResponseType(typeof(string), 200)]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("{caseId:guid}/data")]
+        public async Task<IActionResult> GetMyCaseDataById(Guid caseId) {
+            var @case = await _myCaseService.GetMyCaseDataById(User, caseId);
+            return Ok(@case);
+        }
+
+        /// <summary>
         /// Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.
         /// </summary>
         /// <param name="request">The draft.</param>

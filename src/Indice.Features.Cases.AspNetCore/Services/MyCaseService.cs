@@ -89,12 +89,7 @@ namespace Indice.Features.Cases.Services
 
         public async Task<CaseDetails> GetCaseById(ClaimsPrincipal user, Guid caseId) {
             var userId = user.FindSubjectId();
-            var @case = await _dbContext.Cases
-                .AsNoTracking()
-                .Include(c => c.CaseType)
-                .Include(c => c.PublicCheckpoint)
-                .Include(c => c.Attachments)
-                .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
+            var @case = await GetDbCaseById(caseId, userId);
 
             if (@case is null) {
                 return null!;
@@ -105,10 +100,28 @@ namespace Indice.Features.Cases.Services
                 throw new Exception("Case not found.");
             }
 
+            var caseData = await GetDbCaseData(caseId, userId, @case);
+            var caseDetails = await GetCaseByIdInternal(@case, caseData, true, schemaKey: SchemaSelector);
+            if (caseDetails == null) {
+                throw new Exception("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
+            }
+            return caseDetails;
+        }
+
+        private async Task<DbCase> GetDbCaseById(Guid caseId, string userId) {
+            return await _dbContext.Cases
+                            .AsNoTracking()
+                            .Include(c => c.CaseType)
+                            .Include(c => c.PublicCheckpoint)
+                            .Include(c => c.Attachments)
+                            .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
+        }
+
+        private async Task<DbCaseData> GetDbCaseData(Guid caseId, string userId, DbCase? @case) {
             var caseDataQueryable = _dbContext.CaseData
-                .AsNoTracking()
-                .Where(dbCaseData => dbCaseData.CaseId == caseId)
-                .AsQueryable();
+                            .AsNoTracking()
+                            .Where(dbCaseData => dbCaseData.CaseId == caseId)
+                            .AsQueryable();
 
             // If the case is not Completed, return customer's own data (most recent)
             if (@case.CompletedBy?.When == null) {
@@ -118,11 +131,14 @@ namespace Indice.Features.Cases.Services
             caseDataQueryable = caseDataQueryable.OrderByDescending(c => c.CreatedBy.When);
 
             var caseData = await caseDataQueryable.FirstOrDefaultAsync();
-            var caseDetails = await GetCaseByIdInternal(@case, caseData, true, schemaKey: SchemaSelector);
-            if (caseDetails == null) {
-                throw new Exception("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
-            }
-            return caseDetails;
+            return caseData;
+        }
+
+        public async Task<string> GetMyCaseDataById(ClaimsPrincipal user, Guid caseId) {
+            var userId = user.FindSubjectId();
+            var @case = await GetDbCaseById(caseId, userId);
+            var caseData = await GetDbCaseData(caseId, userId, @case);
+            return caseData.Data;
         }
 
         public async Task<MyCasePartial> GetMyCasePartialById(ClaimsPrincipal user, Guid caseId) {
