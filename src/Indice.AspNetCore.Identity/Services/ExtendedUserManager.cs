@@ -20,7 +20,6 @@ namespace Indice.AspNetCore.Identity
     public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     {
         private readonly IPlatformEventService _eventService;
-        private readonly IdentityMessageDescriber _messageDescriber;
 
         /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
         /// <param name="userStore">The persistence store the manager will operate over.</param>
@@ -49,8 +48,16 @@ namespace Indice.AspNetCore.Identity
             IPlatformEventService eventService,
             IConfiguration configuration
         ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
-            _messageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
             _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+            MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
+            DefaultAllowedRegisteredDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(DefaultAllowedRegisteredDevices)) ??
+                                              configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(DefaultAllowedRegisteredDevices));
+            MaxAllowedRegisteredDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(MaxAllowedRegisteredDevices)) ??
+                                          configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxAllowedRegisteredDevices));
+            // Validate settings where needed.
+            if (DefaultAllowedRegisteredDevices.HasValue && MaxAllowedRegisteredDevices.HasValue && DefaultAllowedRegisteredDevices.Value > MaxAllowedRegisteredDevices.Value) {
+                throw new ApplicationException("Value of setting DefaultAllowedRegisteredDevices cannot exceed the value of MaxAllowedRegisteredDevices.");
+            }
             MaxScaEnabledDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(MaxScaEnabledDevices)) ??
                                    configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxScaEnabledDevices)) ??
                                    int.MaxValue;
@@ -67,6 +74,12 @@ namespace Indice.AspNetCore.Identity
         public int MaxScaEnabledDevices { get; }
         /// <summary></summary>
         public TimeSpan ScaEnableActivationDelay { get; }
+        /// <summary>Provides an extensibility point for localizing messages used inside the package.</summary>
+        public IdentityMessageDescriber MessageDescriber { get; }
+        /// <summary>The maximum number of devices a user can register.</summary>
+        public int? MaxAllowedRegisteredDevices { get; }
+        /// <summary>The default number of devices a user can register.</summary>
+        public int? DefaultAllowedRegisteredDevices { get; }
 
         /// <summary>Sets the password expiration policy for the specified user.</summary>
         /// <param name="user">The user whose password expiration policy to set.</param>
@@ -280,6 +293,21 @@ namespace Indice.AspNetCore.Identity
                 throw new ArgumentNullException(nameof(device));
             }
             var deviceStore = GetDeviceStore();
+            var userClaims = await GetClaimsAsync(user);
+            var maxDevicesCountClaim = userClaims.FirstOrDefault(x => x.Type == BasicClaimTypes.MaxDevicesCount)?.Value;
+            int? userMaxDevicesCount = null;
+            if (maxDevicesCountClaim is not null && int.TryParse(maxDevicesCountClaim, out var parsedUserMaxDevicesClaim)) {
+                userMaxDevicesCount = parsedUserMaxDevicesClaim;
+            }
+            var maxDevicesCount = userMaxDevicesCount ?? DefaultAllowedRegisteredDevices ?? int.MaxValue;
+            var numberOfUserDevices = await deviceStore.GetDevicesCountAsync(user, cancellationToken);
+            if (maxDevicesCount == numberOfUserDevices) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "MaxNumberOfDevices",
+                    Description = "You have reached the maximum number of registered devices."
+                });
+            }
+            device.UserId = user.Id;
             var result = await deviceStore.CreateDeviceAsync(user, device, cancellationToken);
             if (result.Succeeded) {
                 await _eventService.Publish(new DeviceCreatedEvent(device, user));
@@ -334,8 +362,29 @@ namespace Indice.AspNetCore.Identity
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (maxDevicesCount < 1) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "InsufficientNumberOfDevices",
+                    Description = "User must have at least 1 device."
+                });
+            }
+            if (MaxAllowedRegisteredDevices.HasValue && maxDevicesCount > MaxAllowedRegisteredDevices.Value) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "LargeNumberOfDevices",
+                    Description = $"Cannot set max number to {maxDevicesCount}. Maximum value can be {MaxAllowedRegisteredDevices}."
+                });
+            }
             var deviceStore = GetDeviceStore();
-            return await deviceStore.SetMaxDevicesCountAsync(user, maxDevicesCount, cancellationToken);
+            var numberOfUserDevices = await deviceStore.GetDevicesCountAsync(user, cancellationToken);
+            if (numberOfUserDevices > maxDevicesCount) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "LargeNumberOfDevices",
+                    Description = $"User already has {numberOfUserDevices} devices. Cannot set max number to {maxDevicesCount}."
+                });
+            }
+            return await AddClaimsAsync(user, new List<Claim> {
+                new Claim(BasicClaimTypes.MaxDevicesCount, maxDevicesCount.ToString())
+            });
         }
 
         /// <summary>Get the devices registered by the specified user.</summary>
@@ -352,10 +401,10 @@ namespace Indice.AspNetCore.Identity
             if (string.IsNullOrWhiteSpace(deviceId)) {
                 throw new ArgumentNullException(nameof(deviceId));
             }
-            var deviceStore = GetDeviceStore();
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
+            var deviceStore = GetDeviceStore();
             return deviceStore.GetDeviceByIdAsync(user, deviceId, cancellationToken);
         }
 
@@ -425,16 +474,21 @@ namespace Indice.AspNetCore.Identity
             if (device is null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            var alreadyRequested = device.ScaEnabled ||
-                (device.ScaActivationDate.HasValue && device.ScaActivationDate.Value < DateTimeOffset.UtcNow.Add(ScaEnableActivationDelay));
-            if (alreadyRequested) {
+            if (device.ScaEnabled || (device.ScaActivationDate.HasValue && device.ScaActivationDate.Value > DateTimeOffset.UtcNow)) {
                 return IdentityResult.Failed(new IdentityError {
-                    Code = "ScaAlreadyRequested",
-                    Description = "Strong customer authentication is already requested for this device."
+                    Code = "ScaDeviceAlreadyEnabled",
+                    Description = "Device is already SCA enabled or pending activation."
                 });
             }
             var deviceStore = GetDeviceStore();
-            await deviceStore.RequestScaEnableForDevice(user, device, cancellationToken);
+            var scaEnabledOrPendingDevices = await deviceStore.GetScaEnabledOrPendingDevicesCountAsync(user, cancellationToken);
+            if (scaEnabledOrPendingDevices == MaxScaEnabledDevices) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = "ScaDeviceLimitReached",
+                    Description = "You have reached the maximum number of SCA enabled devices."
+                });
+            }
+            await deviceStore.SetScaActivationDateAsync(user, device, ScaEnableActivationDelay, cancellationToken);
             return await UpdateDeviceAsync(user, device, cancellationToken);
         }
 

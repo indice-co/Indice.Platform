@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -50,29 +48,17 @@ namespace Indice.AspNetCore.Identity.Data
                                        configuration.GetSection(nameof(PasswordOptions)).GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy));
             EmailAsUserName = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}").GetValue<bool?>(nameof(EmailAsUserName)) ??
                               configuration.GetSection(nameof(UserOptions)).GetValue<bool?>(nameof(EmailAsUserName));
-            DefaultAllowedRegisteredDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(DefaultAllowedRegisteredDevices)) ??
-                                              configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(DefaultAllowedRegisteredDevices));
-            MaxAllowedRegisteredDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(MaxAllowedRegisteredDevices)) ??
-                                          configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxAllowedRegisteredDevices));
-            // Validate settings where needed.
-            if (DefaultAllowedRegisteredDevices.HasValue && MaxAllowedRegisteredDevices.HasValue && DefaultAllowedRegisteredDevices.Value > MaxAllowedRegisteredDevices.Value) {
-                throw new ApplicationException("Value of setting DefaultAllowedRegisteredDevices cannot exceed the value of MaxAllowedRegisteredDevices.");
-            }
         }
 
-        private DbSet<UserDevice> DevicesSet => Context.Set<UserDevice>();
+        private DbSet<UserDevice> UserDeviceSet => Context.Set<UserDevice>();
         /// <inheritdoc/>
-        public IQueryable<UserDevice> UserDevices => DevicesSet.AsQueryable();
+        public IQueryable<UserDevice> UserDevices => UserDeviceSet.AsQueryable();
         /// <inheritdoc/>
         public int? PasswordHistoryLimit { get; protected set; }
         /// <inheritdoc/>
         public PasswordExpirationPolicy? PasswordExpirationPolicy { get; protected set; }
         /// <inheritdoc/>
         public bool? EmailAsUserName { get; protected set; }
-        /// <inheritdoc/>
-        public int? MaxAllowedRegisteredDevices { get; protected set; }
-        /// <inheritdoc/>
-        public int? DefaultAllowedRegisteredDevices { get; protected set; }
 
         /// <inheritdoc/>
         public override async Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default) {
@@ -177,22 +163,7 @@ namespace Indice.AspNetCore.Identity.Data
         public async Task<IdentityResult> CreateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var userClaims = await GetClaimsAsync(user, cancellationToken);
-            var maxDevicesCountClaim = userClaims.FirstOrDefault(x => x.Type == BasicClaimTypes.MaxDevicesCount)?.Value;
-            int? userMaxDevicesCount = null;
-            if (maxDevicesCountClaim is not null && int.TryParse(maxDevicesCountClaim, out var parsedUserMaxDevicesClaim)) {
-                userMaxDevicesCount = parsedUserMaxDevicesClaim;
-            }
-            var maxDevicesCount = userMaxDevicesCount ?? DefaultAllowedRegisteredDevices ?? int.MaxValue;
-            var numberOfUserDevices = await DevicesSet.CountAsync(x => x.UserId == user.Id, cancellationToken: cancellationToken);
-            if (maxDevicesCount == numberOfUserDevices) {
-                return IdentityResult.Failed(new IdentityError {
-                    Code = "MaxNumberOfDevices",
-                    Description = "You have reached the maximum number of registered devices."
-                });
-            }
-            device.UserId = user.Id;
-            DevicesSet.Add(device);
+            UserDeviceSet.Add(device);
             try {
                 await SaveChanges(cancellationToken);
             } catch (DbUpdateConcurrencyException) {
@@ -205,14 +176,21 @@ namespace Indice.AspNetCore.Identity.Data
         public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            return await DevicesSet.Include(x => x.User).Where(x => x.UserId == user.Id).ToListAsync(cancellationToken);
+            return await UserDeviceSet.Include(x => x.User).Where(x => x.UserId == user.Id).ToListAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public Task<int> GetDevicesCountAsync(TUser user, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            return UserDevices.CountAsync(x => x.UserId == user.Id, cancellationToken: cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task<UserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            return await DevicesSet.Include(x => x.User).SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
+            return await UserDeviceSet.Include(x => x.User).SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -229,39 +207,10 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IdentityResult> SetMaxDevicesCountAsync(TUser user, int maxDevicesCount, CancellationToken cancellationToken) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (maxDevicesCount < 1) {
-                return IdentityResult.Failed(new IdentityError {
-                    Code = "InsufficientNumberOfDevices",
-                    Description = "User must have at least 1 device."
-                });
-            }
-            if (MaxAllowedRegisteredDevices.HasValue && maxDevicesCount > MaxAllowedRegisteredDevices.Value) {
-                return IdentityResult.Failed(new IdentityError {
-                    Code = "LargeNumberOfDevices",
-                    Description = $"Cannot set max number to {maxDevicesCount}. Maximum value can be {MaxAllowedRegisteredDevices}."
-                });
-            }
-            var numberOfUserDevices = await DevicesSet.CountAsync(x => x.UserId == user.Id, cancellationToken: cancellationToken);
-            if (numberOfUserDevices > maxDevicesCount) {
-                return IdentityResult.Failed(new IdentityError {
-                    Code = "LargeNumberOfDevices",
-                    Description = $"User already has {numberOfUserDevices} devices. Cannot set max number to {maxDevicesCount}."
-                });
-            }
-            await AddClaimsAsync(user, new List<Claim> {
-                new Claim(BasicClaimTypes.MaxDevicesCount, maxDevicesCount.ToString())
-            }, cancellationToken); ;
-            return IdentityResult.Success;
-        }
-
-        /// <inheritdoc/>
         public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            DevicesSet.Remove(device);
+            UserDeviceSet.Remove(device);
             await SaveChanges(cancellationToken);
         }
 
@@ -290,11 +239,18 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public Task RequestScaEnableForDevice(TUser user, UserDevice device, CancellationToken cancellationToken) {
+        public Task SetScaActivationDateAsync(TUser user, UserDevice device, TimeSpan delay, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            device.RequiresPassword = true;
+            device.ScaActivationDate = DateTimeOffset.UtcNow.Add(delay);
             return Task.CompletedTask;
+        }
+
+        /// <inheritdoc/>
+        public Task<int> GetScaEnabledOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            return UserDevices.CountAsync(x => x.UserId == user.Id && (x.ScaEnabled || (x.ScaActivationDate.HasValue && x.ScaActivationDate.Value > DateTimeOffset.UtcNow)));
         }
     }
 }

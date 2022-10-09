@@ -62,7 +62,7 @@ namespace Indice.AspNetCore.Identity.Api
             }
             var devices = await UserManager
                 .UserDevices
-                .Where(DevicesController.UserDevicePredicate(user.Id, options))
+                .Where(UserDevicePredicate(user.Id, options))
                 .Select(userDevice => DeviceInfo.FromUserDevice(userDevice))
                 .ToResultSetAsync(options);
             return Ok(devices);

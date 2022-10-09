@@ -693,7 +693,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             var result = new Dictionary<string, (string Description, string Hint)>();
             var passwordOptions = _userManager.Options.Password;
             var errorDescriber = _userManager.ErrorDescriber as ExtendedIdentityErrorDescriber;
-            var messageDescriber = _userManager._messageDescriber;
+            var messageDescriber = _userManager.MessageDescriber;
             result.Add(nameof(IdentityErrorDescriber.PasswordTooShort),
                 (_userManager.ErrorDescriber.PasswordTooShort(passwordOptions.RequiredLength).Description, Hint: errorDescriber?.PasswordTooShortRequirement(passwordOptions.RequiredLength)));
             if (passwordOptions.RequiredUniqueChars > 1) {
