@@ -89,13 +89,7 @@ namespace Indice.Features.Cases.Services
 
         public async Task<CaseDetails> GetCaseById(ClaimsPrincipal user, Guid caseId) {
             var userId = user.FindSubjectId();
-            var @case = await _dbContext.Cases
-                .AsNoTracking()
-                .Include(c => c.CaseType)
-                .Include(c => c.PublicCheckpoint)
-                .Include(c => c.Attachments)
-                .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
-
+            var @case = await GetDbCaseById(caseId, userId);
             if (@case is null) {
                 return null!;
             }
@@ -105,54 +99,9 @@ namespace Indice.Features.Cases.Services
                 throw new Exception("Case not found.");
             }
 
-            var caseDataQueryable = _dbContext.CaseData
-                .AsNoTracking()
-                .Where(dbCaseData => dbCaseData.CaseId == caseId)
-                .AsQueryable();
-
-            // If the case is not Completed, return customer's own data (most recent)
-            if (@case.CompletedBy?.When == null) {
-                caseDataQueryable = caseDataQueryable.Where(dbCaseData => dbCaseData.CreatedBy.Id == userId);
-            }
-
-            caseDataQueryable = caseDataQueryable.OrderByDescending(c => c.CreatedBy.When);
-
-            var caseData = await caseDataQueryable.FirstOrDefaultAsync();
+            var caseData = await GetDbCaseData(caseId, userId, @case);
             var caseDetails = await GetCaseByIdInternal(@case, caseData, true, schemaKey: SchemaSelector);
-            if (caseDetails == null) {
-                throw new Exception("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
-            }
-            return caseDetails;
-        }
-
-        public async Task<MyCasePartial> GetMyCasePartialById(ClaimsPrincipal user, Guid caseId) {
-            var userId = user.FindSubjectId();
-            var query = await _dbContext.Cases
-                .Include(c => c.CaseType)
-                .Include(c => c.Comments)
-                .Include(c => c.Checkpoints)
-                .ThenInclude(ch => ch.CheckpointType)
-                .AsQueryable()
-                .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
-
-            var myCase = new MyCasePartial {
-                Id = query.Id,
-                Created = query.CreatedBy.When,
-                CaseTypeCode = query.CaseType.Code,
-                PublicStatus = query.Checkpoints
-                    .OrderByDescending(c => c.CreatedBy.When)
-                    .FirstOrDefault(c => !c.CheckpointType.Private)!
-                    .CheckpointType.PublicStatus,
-                Checkpoint = query.Checkpoints
-                    .OrderByDescending(c => c.CreatedBy.When)
-                    .FirstOrDefault(c => !c.CheckpointType.Private)!
-                    .CheckpointType.Name,
-                Message = query.Comments
-                    .OrderByDescending(p => p.CreatedBy.When)
-                    .FirstOrDefault(c => !c.Private)?
-                    .Text
-            };
-            return myCase;
+            return caseDetails ?? throw new Exception("Case not found."); // todo  proper exception 
         }
 
         public async Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options) {
@@ -260,6 +209,30 @@ namespace Indice.Features.Cases.Services
             caseType.Layout = _jsonTranslationService.Translate(caseType.Layout, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
             caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
             return caseType;
+        }
+
+        private async Task<DbCase?> GetDbCaseById(Guid caseId, string userId) {
+            return await _dbContext.Cases
+                .AsNoTracking()
+                .Include(c => c.CaseType)
+                .Include(c => c.PublicCheckpoint)
+                .Include(c => c.Attachments)
+                .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
+        }
+
+        private async Task<DbCaseData?> GetDbCaseData(Guid caseId, string userId, DbCase? @case) {
+            var caseDataQueryable = _dbContext.CaseData
+                .AsNoTracking()
+                .Where(dbCaseData => dbCaseData.CaseId == caseId)
+                .AsQueryable();
+
+            // If the case is not Completed, return customer's own data (most recent)
+            if (@case?.CompletedBy?.When == null) {
+                caseDataQueryable = caseDataQueryable.Where(dbCaseData => dbCaseData.CreatedBy.Id == userId);
+            }
+
+            caseDataQueryable = caseDataQueryable.OrderByDescending(c => c.CreatedBy.When);
+            return await caseDataQueryable.FirstOrDefaultAsync();
         }
     }
 }
