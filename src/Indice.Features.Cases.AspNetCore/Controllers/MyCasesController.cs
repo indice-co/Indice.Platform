@@ -61,25 +61,13 @@ namespace Indice.Features.Cases.Controllers
         }
 
         /// <summary>
-        /// Get case partial by Id.
-        /// </summary>
-        /// <param name="caseId">The Id of the case.</param>
-        [ProducesResponseType(typeof(MyCasePartial), 200)]
-        [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{caseId:guid}")]
-        public async Task<IActionResult> GetMyCaseById(Guid caseId) {
-            var @case = await _myCaseService.GetMyCasePartialById(User, caseId);
-            return Ok(@case);
-        }
-
-        /// <summary>
         /// Get case details by Id.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
         [ProducesResponseType(typeof(CaseDetails), 200)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{caseId:guid}/details")]
-        public async Task<IActionResult> GetCaseById(Guid caseId) {
+        [HttpGet("{caseId:guid}")]
+        public async Task<IActionResult> GetMyCaseById(Guid caseId) {
             var @case = await _myCaseService.GetCaseById(User, caseId);
             return Ok(@case);
         }

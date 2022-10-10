@@ -145,36 +145,6 @@ namespace Indice.Features.Cases.Services
             return caseData;
         }
 
-        public async Task<MyCasePartial> GetMyCasePartialById(ClaimsPrincipal user, Guid caseId) {
-            var userId = user.FindSubjectId();
-            var query = await _dbContext.Cases
-                .Include(c => c.CaseType)
-                .Include(c => c.Comments)
-                .Include(c => c.Checkpoints)
-                .ThenInclude(ch => ch.CheckpointType)
-                .AsQueryable()
-                .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
-
-            var myCase = new MyCasePartial {
-                Id = query.Id,
-                Created = query.CreatedBy.When,
-                CaseTypeCode = query.CaseType.Code,
-                PublicStatus = query.Checkpoints
-                    .OrderByDescending(c => c.CreatedBy.When)
-                    .FirstOrDefault(c => !c.CheckpointType.Private)!
-                    .CheckpointType.PublicStatus,
-                Checkpoint = query.Checkpoints
-                    .OrderByDescending(c => c.CreatedBy.When)
-                    .FirstOrDefault(c => !c.CheckpointType.Private)!
-                    .CheckpointType.Name,
-                Message = query.Comments
-                    .OrderByDescending(p => p.CreatedBy.When)
-                    .FirstOrDefault(c => !c.Private)?
-                    .Text
-            };
-            return myCase;
-        }
-
         public async Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options) {
             var userId = user.FindSubjectId();
             var dbCaseQueryable = _dbContext.Cases
