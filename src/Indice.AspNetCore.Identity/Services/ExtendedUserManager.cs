@@ -303,8 +303,8 @@ namespace Indice.AspNetCore.Identity
             var numberOfUserDevices = await deviceStore.GetDevicesCountAsync(user, cancellationToken);
             if (maxDevicesCount == numberOfUserDevices) {
                 return IdentityResult.Failed(new IdentityError {
-                    Code = "MaxNumberOfDevices",
-                    Description = "You have reached the maximum number of registered devices."
+                    Code = nameof(MessageDescriber.MaxNumberOfDevices),
+                    Description = MessageDescriber.MaxNumberOfDevices()
                 });
             }
             device.UserId = user.Id;
@@ -364,22 +364,24 @@ namespace Indice.AspNetCore.Identity
             }
             if (maxDevicesCount < 1) {
                 return IdentityResult.Failed(new IdentityError {
-                    Code = "InsufficientNumberOfDevices",
-                    Description = "User must have at least 1 device."
+                    Code = nameof(MessageDescriber.InsufficientNumberOfDevices),
+                    Description = MessageDescriber.InsufficientNumberOfDevices()
                 });
             }
+            // Check if user tries to set the number of allowed devices to a value greater than the allowed one. 
             if (MaxAllowedRegisteredDevices.HasValue && maxDevicesCount > MaxAllowedRegisteredDevices.Value) {
                 return IdentityResult.Failed(new IdentityError {
-                    Code = "LargeNumberOfDevices",
-                    Description = $"Cannot set max number to {maxDevicesCount}. Maximum value can be {MaxAllowedRegisteredDevices}."
+                    Code = nameof(MessageDescriber.LargeNumberOfDevices),
+                    Description = MessageDescriber.LargeNumberOfDevices(maxDevicesCount, MaxAllowedRegisteredDevices.Value)
                 });
             }
             var deviceStore = GetDeviceStore();
             var numberOfUserDevices = await deviceStore.GetDevicesCountAsync(user, cancellationToken);
+            // User tries to set the number of allowed devices to a value lower than the current number.
             if (numberOfUserDevices > maxDevicesCount) {
                 return IdentityResult.Failed(new IdentityError {
-                    Code = "LargeNumberOfDevices",
-                    Description = $"User already has {numberOfUserDevices} devices. Cannot set max number to {maxDevicesCount}."
+                    Code = nameof(MessageDescriber.LargeNumberOfUserDevices),
+                    Description = MessageDescriber.LargeNumberOfUserDevices(numberOfUserDevices, maxDevicesCount)
                 });
             }
             return await AddClaimsAsync(user, new List<Claim> {
@@ -476,16 +478,16 @@ namespace Indice.AspNetCore.Identity
             }
             if (device.ScaEnabled || (device.ScaActivationDate.HasValue && device.ScaActivationDate.Value > DateTimeOffset.UtcNow)) {
                 return IdentityResult.Failed(new IdentityError {
-                    Code = "ScaDeviceAlreadyEnabled",
-                    Description = "Device is already SCA enabled or pending activation."
+                    Code = nameof(MessageDescriber.ScaDeviceAlreadyEnabled),
+                    Description = MessageDescriber.ScaDeviceAlreadyEnabled()
                 });
             }
             var deviceStore = GetDeviceStore();
             var scaEnabledOrPendingDevices = await deviceStore.GetScaEnabledOrPendingDevicesCountAsync(user, cancellationToken);
             if (scaEnabledOrPendingDevices == MaxScaEnabledDevices) {
                 return IdentityResult.Failed(new IdentityError {
-                    Code = "ScaDeviceLimitReached",
-                    Description = "You have reached the maximum number of SCA enabled devices."
+                    Code = nameof(MessageDescriber.ScaDeviceLimitReached),
+                    Description = MessageDescriber.ScaDeviceLimitReached()
                 });
             }
             await deviceStore.SetScaActivationDateAsync(user, device, ScaEnableActivationDelay, cancellationToken);

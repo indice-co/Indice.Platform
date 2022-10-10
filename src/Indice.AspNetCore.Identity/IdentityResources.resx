@@ -135,6 +135,18 @@
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
     <value>Forgot password</value>
   </data>
+  <data name="InsufficientNumberOfDevices" xml:space="preserve">
+    <value>User must have at least 1 device.</value>
+  </data>
+  <data name="LargeNumberOfDevices" xml:space="preserve">
+    <value>Cannot set max number of devices to {0}. Maximum value can be {1}.</value>
+  </data>
+  <data name="LargeNumberOfUserDevices" xml:space="preserve">
+    <value>User already has {0} devices. Cannot set max number to {1}.</value>
+  </data>
+  <data name="MaxNumberOfDevices" xml:space="preserve">
+    <value>You have reached the maximum number of registered devices.</value>
+  </data>
   <data name="OtpSecuredValidatorOtpBody" xml:space="preserve">
     <value>Your verification code is '{0}'.</value>
   </data>
@@ -194,6 +206,12 @@
   </data>
   <data name="PhoneNumberVerificationMessage" xml:space="preserve">
     <value>SMS verification code is {0}.</value>
+  </data>
+  <data name="ScaDeviceAlreadyEnabled" xml:space="preserve">
+    <value>Device is already SCA enabled or pending activation.</value>
+  </data>
+  <data name="ScaDeviceLimitReached" xml:space="preserve">
+    <value>You have reached the maximum number of SCA enabled devices.</value>
   </data>
   <data name="UserAlreadyHasEmail" xml:space="preserve">
     <value>User already has email '{0}'.</value>

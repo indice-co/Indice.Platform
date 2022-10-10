@@ -115,6 +115,42 @@ namespace Indice.AspNetCore.Identity {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to User must have at least 1 device..
+        /// </summary>
+        internal static string InsufficientNumberOfDevices {
+            get {
+                return ResourceManager.GetString("InsufficientNumberOfDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot set max number of devices to {0}. Maximum value can be {1}..
+        /// </summary>
+        internal static string LargeNumberOfDevices {
+            get {
+                return ResourceManager.GetString("LargeNumberOfDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User already has {0} devices. Cannot set max number to {1}..
+        /// </summary>
+        internal static string LargeNumberOfUserDevices {
+            get {
+                return ResourceManager.GetString("LargeNumberOfUserDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have reached the maximum number of registered devices..
+        /// </summary>
+        internal static string MaxNumberOfDevices {
+            get {
+                return ResourceManager.GetString("MaxNumberOfDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your verification code is &apos;{0}&apos;..
         /// </summary>
         internal static string OtpSecuredValidatorOtpBody {
@@ -291,6 +327,24 @@ namespace Indice.AspNetCore.Identity {
         internal static string PhoneNumberVerificationMessage {
             get {
                 return ResourceManager.GetString("PhoneNumberVerificationMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device is already SCA enabled or pending activation..
+        /// </summary>
+        internal static string ScaDeviceAlreadyEnabled {
+            get {
+                return ResourceManager.GetString("ScaDeviceAlreadyEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have reached the maximum number of SCA enabled devices..
+        /// </summary>
+        internal static string ScaDeviceLimitReached {
+            get {
+                return ResourceManager.GetString("ScaDeviceLimitReached", resourceCulture);
             }
         }
         

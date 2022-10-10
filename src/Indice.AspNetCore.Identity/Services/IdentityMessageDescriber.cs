@@ -52,5 +52,17 @@ namespace Indice.AspNetCore.Identity
         public virtual string OtpSecuredValidatorOtpBody() => string.Format(IdentityResources.Culture, IdentityResources.OtpSecuredValidatorOtpBody, "{0}");
         /// <summary>Registration OTP code for device {0} is {1}.</summary>
         public virtual string DeviceRegistrationCodeMessage(string deviceName, InteractionMode interactionMode) => string.Format(IdentityResources.Culture, IdentityResources.DeviceRegistrationOtpCode, deviceName, "{0}");
+        /// <summary>User cannot add a device because the limit is reached.</summary>
+        public virtual string MaxNumberOfDevices() => string.Format(IdentityResources.Culture, IdentityResources.MaxNumberOfDevices);
+        /// <summary>User tries to set the number of allowed devices to a value greater than the allowed one.</summary>
+        public virtual string LargeNumberOfDevices(int userMaxDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.Culture, IdentityResources.LargeNumberOfDevices);
+        /// <summary>User tries to set the number of allowed devices to a value lower than the current number.</summary>
+        public virtual string LargeNumberOfUserDevices(int userDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.Culture, IdentityResources.LargeNumberOfUserDevices);
+        /// <summary>User tries to set the number of allowed devices to a value lower than 1.</summary>
+        public virtual string InsufficientNumberOfDevices() => string.Format(IdentityResources.Culture, IdentityResources.InsufficientNumberOfDevices);
+        /// <summary>SCA is already enabled for this device.</summary>
+        public virtual string ScaDeviceAlreadyEnabled() => string.Format(IdentityResources.Culture, IdentityResources.ScaDeviceAlreadyEnabled);
+        /// <summary>User cannot add any other device for SCA.</summary>
+        public virtual string ScaDeviceLimitReached() => string.Format(IdentityResources.Culture, IdentityResources.ScaDeviceLimitReached);
     }
 }
