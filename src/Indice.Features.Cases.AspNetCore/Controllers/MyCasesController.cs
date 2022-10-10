@@ -61,7 +61,7 @@ namespace Indice.Features.Cases.Controllers
         }
 
         /// <summary>
-        /// Get case by Id.
+        /// Get case partial by Id.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
         [ProducesResponseType(typeof(MyCasePartial), 200)]
@@ -73,14 +73,14 @@ namespace Indice.Features.Cases.Controllers
         }
 
         /// <summary>
-        /// Get case data by Id.
+        /// Get case details by Id.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
-        [ProducesResponseType(typeof(string), 200)]
+        [ProducesResponseType(typeof(CaseDetails), 200)]
         [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("{caseId:guid}/data")]
-        public async Task<IActionResult> GetMyCaseDataById(Guid caseId) {
-            var @case = await _myCaseService.GetMyCaseDataById(User, caseId);
+        [HttpGet("{caseId:guid}/details")]
+        public async Task<IActionResult> GetCaseById(Guid caseId) {
+            var @case = await _myCaseService.GetCaseById(User, caseId);
             return Ok(@case);
         }
 

@@ -107,7 +107,12 @@ namespace Indice.Features.Cases.Services
             }
             return caseDetails;
         }
-
+        /// <summary>
+        /// Get a <see cref="DbCase"/> by Id
+        /// </summary>
+        /// <param name="caseId"></param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         private async Task<DbCase> GetDbCaseById(Guid caseId, string userId) {
             return await _dbContext.Cases
                             .AsNoTracking()
@@ -116,7 +121,13 @@ namespace Indice.Features.Cases.Services
                             .Include(c => c.Attachments)
                             .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
         }
-
+        /// <summary>
+        /// Get <see cref="DbCaseData"/> by caseId 
+        /// </summary>
+        /// <param name="caseId"></param>
+        /// <param name="userId"></param>
+        /// <param name="case"></param>
+        /// <returns></returns>
         private async Task<DbCaseData> GetDbCaseData(Guid caseId, string userId, DbCase? @case) {
             var caseDataQueryable = _dbContext.CaseData
                             .AsNoTracking()
@@ -124,7 +135,7 @@ namespace Indice.Features.Cases.Services
                             .AsQueryable();
 
             // If the case is not Completed, return customer's own data (most recent)
-            if (@case.CompletedBy?.When == null) {
+            if (@case?.CompletedBy?.When == null) {
                 caseDataQueryable = caseDataQueryable.Where(dbCaseData => dbCaseData.CreatedBy.Id == userId);
             }
 
@@ -132,13 +143,6 @@ namespace Indice.Features.Cases.Services
 
             var caseData = await caseDataQueryable.FirstOrDefaultAsync();
             return caseData;
-        }
-
-        public async Task<string> GetMyCaseDataById(ClaimsPrincipal user, Guid caseId) {
-            var userId = user.FindSubjectId();
-            var @case = await GetDbCaseById(caseId, userId);
-            var caseData = await GetDbCaseData(caseId, userId, @case);
-            return caseData.Data;
         }
 
         public async Task<MyCasePartial> GetMyCasePartialById(ClaimsPrincipal user, Guid caseId) {

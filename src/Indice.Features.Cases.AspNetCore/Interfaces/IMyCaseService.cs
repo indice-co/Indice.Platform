@@ -59,13 +59,6 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="caseId">The Id of the case.</param>
         /// <returns></returns>
         Task<MyCasePartial> GetMyCasePartialById(ClaimsPrincipal user, Guid caseId);
-        /// <summary>
-        /// Get the case data
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="caseId"></param>
-        /// <returns></returns>
-        Task<string> GetMyCaseDataById(ClaimsPrincipal user, Guid caseId);
 
         /// <summary>
         /// Get the cases of the User.
