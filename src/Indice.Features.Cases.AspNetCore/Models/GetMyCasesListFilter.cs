@@ -15,10 +15,6 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The current status of the case.
         /// </summary>
-        public CasePublicStatus? PublicStatus { get; set; }
-        /// <summary>
-        /// The checkpoint name of the case.
-        /// </summary>
-        public List<string>? CheckpointNames { get; set; }
+        public List<CasePublicStatus>? PublicStatuses { get; set; }
     }
 }

@@ -171,24 +171,15 @@ namespace Indice.Features.Cases.Services
                 dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
             }
 
-            // filter PublicStatus
-            if (options.Filter.PublicStatus != null) {
-                dbCaseQueryable = dbCaseQueryable.Where(c => c.PublicCheckpoint.CheckpointType.PublicStatus == options.Filter.PublicStatus);
-            }
-
-            // filter CheckpointNames
-            if (options.Filter.CheckpointNames != null && options.Filter.CheckpointNames.Count() > 0) {
-                var expressions = options.Filter.CheckpointNames.Select(name => (Expression<Func<DbCase, bool>>)(c => EF.Functions.Like(c.PublicCheckpoint.CheckpointType.Code, $"%{name}")));
-                // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code LIKE %CheckpointName1 OR tag LIKE %CheckpointName2 etc
+            // filter PublicStatuses
+            if (options.Filter.PublicStatuses != null && options.Filter.PublicStatuses.Count() > 0) {
+                var expressions = options.Filter.PublicStatuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.PublicStatus == status));
+                // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.PublicStatus == status1 OR == status2 etc
                 var aggregatedExpression = expressions.Aggregate((expression, next) => {
                     var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
                     return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
                 });
                 dbCaseQueryable = dbCaseQueryable.Where(aggregatedExpression);
-            }
-
-            if (options.Filter.CheckpointNames != null) {
-                dbCaseQueryable = dbCaseQueryable.Where(c => EF.Functions.Like(c.PublicCheckpoint.CheckpointType.Code, $"%{options.Filter.CheckpointNames[0]}"));
             }
 
             var myCasePartialQueryable =
