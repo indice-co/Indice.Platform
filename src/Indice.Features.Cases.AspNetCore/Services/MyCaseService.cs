@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Indice.Features.Cases.Data;
@@ -119,26 +120,37 @@ namespace Indice.Features.Cases.Services
                 dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
             }
 
+            // filter PublicStatuses
+            if (options.Filter.PublicStatuses != null && options.Filter.PublicStatuses.Count() > 0) {
+                var expressions = options.Filter.PublicStatuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.PublicStatus == status));
+                // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.PublicStatus == status1 OR == status2 etc
+                var aggregatedExpression = expressions.Aggregate((expression, next) => {
+                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
+                });
+                dbCaseQueryable = dbCaseQueryable.Where(aggregatedExpression);
+            }
+
             var myCasePartialQueryable =
-                dbCaseQueryable.Select(p => new MyCasePartial {
-                    Id = p.Id,
-                    Created = p.CreatedBy.When,
-                    CaseTypeCode = p.CaseType.Code,
-                    PublicStatus = p.Checkpoints
-                        .OrderByDescending(c => c.CreatedBy.When)
-                        .FirstOrDefault(c => !c.CheckpointType.Private)!
-                        .CheckpointType.PublicStatus,
-                    Checkpoint = p.Checkpoints
-                        .OrderByDescending(c => c.CreatedBy.When)
-                        .FirstOrDefault(c => !c.CheckpointType.Private)!
-                        .CheckpointType.Name,
-                    Message = _caseSharedResourceService.GetLocalizedHtmlString(p.Comments // get the translated version of the comment (if exist)
-                        .OrderByDescending(p => p.CreatedBy.When)
-                        .FirstOrDefault(c => !c.Private)
-                        .Text ?? string.Empty),
-                    Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(p.CaseType.Translations)
-                })
-                .Where(p => p.PublicStatus != CasePublicStatus.Deleted);// Do not fetch cases in deleted checkpoint
+                    dbCaseQueryable.Select(p => new MyCasePartial {
+                        Id = p.Id,
+                        Created = p.CreatedBy.When,
+                        CaseTypeCode = p.CaseType.Code,
+                        PublicStatus = p.Checkpoints
+                            .OrderByDescending(c => c.CreatedBy.When)
+                            .FirstOrDefault(c => !c.CheckpointType.Private)!
+                            .CheckpointType.PublicStatus,
+                        Checkpoint = p.Checkpoints
+                            .OrderByDescending(c => c.CreatedBy.When)
+                            .FirstOrDefault(c => !c.CheckpointType.Private)!
+                            .CheckpointType.Name,
+                        Message = _caseSharedResourceService.GetLocalizedHtmlString(p.Comments // get the translated version of the comment (if exist)
+                            .OrderByDescending(p => p.CreatedBy.When)
+                            .FirstOrDefault(c => !c.Private)
+                            .Text ?? string.Empty),
+                        Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(p.CaseType.Translations)
+                    })
+                    .Where(p => p.PublicStatus != CasePublicStatus.Deleted);// Do not fetch cases in deleted checkpoint
 
             if (string.IsNullOrEmpty(options.Sort)) {
                 options.Sort = $"{nameof(MyCasePartial.Created)}-";
