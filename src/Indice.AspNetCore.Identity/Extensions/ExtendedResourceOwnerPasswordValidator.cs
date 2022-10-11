@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.TrustedDeviceAuthorization.Configuration;
+using Indice.AspNetCore.Identity.DeviceAuthentication.Configuration;
 using Indice.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -119,7 +119,7 @@ namespace Indice.AspNetCore.Identity
             var client = context.Request.Client;
             var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];
             var subject = await _userManager.GetUserIdAsync(context.User);
-            if (!client.AllowedGrantTypes.Contains(CustomGrantTypes.TrustedDevice) || string.IsNullOrWhiteSpace(deviceId)) {
+            if (!client.AllowedGrantTypes.Contains(CustomGrantTypes.DeviceAuthentication) || string.IsNullOrWhiteSpace(deviceId)) {
                 context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
                 return;
             }

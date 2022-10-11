@@ -207,6 +207,9 @@
   <data name="PhoneNumberVerificationMessage" xml:space="preserve">
     <value>SMS verification code is {0}.</value>
   </data>
+  <data name="RequiresOtpMessage" xml:space="preserve">
+    <value>OTP code is {0}.</value>
+  </data>
   <data name="ScaDeviceAlreadyEnabled" xml:space="preserve">
     <value>Device is already SCA enabled or pending activation.</value>
   </data>

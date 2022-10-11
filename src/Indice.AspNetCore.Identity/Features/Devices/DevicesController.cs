@@ -7,6 +7,7 @@ using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Filters;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -179,11 +180,12 @@ namespace Indice.AspNetCore.Identity.Api
         /// <param name="deviceId">The device id.</param>
         /// <response code="202">Accepted</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("{deviceId}/sca/request")]
+        [HttpPut("{deviceId}/trust")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> RequestScaEnableForDevice([FromRoute] string deviceId) {
+        [RequiresOtp]
+        public async Task<IActionResult> SetTrustedDevice([FromRoute] string deviceId) {
             var user = await UserManager.GetUserAsync(User);
             if (user is null) {
                 return NotFound();
@@ -192,7 +194,7 @@ namespace Indice.AspNetCore.Identity.Api
             if (device is null) {
                 return NotFound();
             }
-            var result = await UserManager.RequestScaEnableForDevice(user, device);
+            var result = await UserManager.SetTrustedDevice(user, device);
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }

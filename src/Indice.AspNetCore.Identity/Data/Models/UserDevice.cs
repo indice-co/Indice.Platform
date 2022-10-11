@@ -45,10 +45,12 @@ namespace Indice.AspNetCore.Identity.Data.Models
         public dynamic Data { get; set; }
         /// <summary>Indicates whether the device is blocked.</summary>
         public bool RequiresPassword { get; set; }
-        /// <summary>Indicates whether the device is capable of strong customer authentication scenarios.</summary>
-        public bool ScaEnabled { get; set; }
-        /// <summary>The date that the device can be activated for SCA.</summary>
-        public DateTimeOffset? ScaActivationDate { get; set; }
+        /// <summary>Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios).</summary>
+        public bool IsTrusted { get; set; }
+        /// <summary>The date that the device can be activated for trust.</summary>
+        public DateTimeOffset? TrustActivationDate { get; set; }
+        /// <summary>Indicates whether device is blocked for any action.</summary>
+        public bool Blocked { get; set; }
         /// <summary>The user associated with this device.</summary>
         public virtual User User { get; set; }
     }

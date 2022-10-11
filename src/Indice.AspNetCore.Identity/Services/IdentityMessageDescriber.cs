@@ -1,4 +1,5 @@
 ﻿using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Filters;
 
 namespace Indice.AspNetCore.Identity
 {
@@ -64,5 +65,7 @@ namespace Indice.AspNetCore.Identity
         public virtual string ScaDeviceAlreadyEnabled() => string.Format(IdentityResources.Culture, IdentityResources.ScaDeviceAlreadyEnabled);
         /// <summary>User cannot add any other device for SCA.</summary>
         public virtual string ScaDeviceLimitReached() => string.Format(IdentityResources.Culture, IdentityResources.ScaDeviceLimitReached);
+        /// <summary>Message content when <see cref="RequiresOtpAttribute"/> is used.</summary>
+        public virtual string RequiresOtpMessage() => string.Format(IdentityResources.Culture, IdentityResources.RequiresOtpMessage);
     }
 }

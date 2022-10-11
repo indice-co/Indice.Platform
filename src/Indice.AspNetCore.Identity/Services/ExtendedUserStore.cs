@@ -239,18 +239,18 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public Task SetScaActivationDateAsync(TUser user, UserDevice device, TimeSpan delay, CancellationToken cancellationToken) {
+        public Task SetTrustActivationDateAsync(TUser user, UserDevice device, TimeSpan delay, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            device.ScaActivationDate = DateTimeOffset.UtcNow.Add(delay);
+            device.TrustActivationDate = DateTimeOffset.UtcNow.Add(delay);
             return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public Task<int> GetScaEnabledOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken) {
+        public Task<int> GetTrustedOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            return UserDevices.CountAsync(x => x.UserId == user.Id && (x.ScaEnabled || (x.ScaActivationDate.HasValue && x.ScaActivationDate.Value > DateTimeOffset.UtcNow)));
+            return UserDevices.CountAsync(x => x.UserId == user.Id && (x.IsTrusted || (x.TrustActivationDate.HasValue && x.TrustActivationDate.Value > DateTimeOffset.UtcNow)));
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="user">The user instance.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        Task<int> GetScaEnabledOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken);
+        Task<int> GetTrustedOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken);
         /// <summary>Get the device registered by the specified user, using it's unique id.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="deviceId">The id of the device to look for.</param>
@@ -47,13 +47,13 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user device, if any.</returns>
         Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken);
-        /// <summary>Sets the <see cref="UserDevice.ScaActivationDate"/> property based on the provided <paramref name="delay"/>.</summary>
+        /// <summary>Sets the <see cref="UserDevice.TrustActivationDate"/> property based on the provided <paramref name="delay"/>.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="device">The device to update.</param>
         /// <param name="delay">Delay in the form of <see cref="TimeSpan"/> </param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        Task SetScaActivationDateAsync(TUser user, UserDevice device, TimeSpan delay, CancellationToken cancellationToken);
+        Task SetTrustActivationDateAsync(TUser user, UserDevice device, TimeSpan delay, CancellationToken cancellationToken);
         /// <summary>Blocks devices for fingerprint or 4-pin login and requires credentials.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="device">The device to update.</param>

@@ -12,7 +12,7 @@
         /// <summary>
         /// Trusted device authorization.
         /// </summary>
-        public const string TrustedDevice = "trusted_device";
+        public const string DeviceAuthentication = "device_authentication";
         /// <summary>
         /// Otp authenticate.
         /// </summary>

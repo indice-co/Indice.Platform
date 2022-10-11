@@ -58,12 +58,12 @@ namespace Indice.AspNetCore.Identity
             if (DefaultAllowedRegisteredDevices.HasValue && MaxAllowedRegisteredDevices.HasValue && DefaultAllowedRegisteredDevices.Value > MaxAllowedRegisteredDevices.Value) {
                 throw new ApplicationException("Value of setting DefaultAllowedRegisteredDevices cannot exceed the value of MaxAllowedRegisteredDevices.");
             }
-            MaxScaEnabledDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(MaxScaEnabledDevices)) ??
-                                   configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxScaEnabledDevices)) ??
-                                   int.MaxValue;
-            ScaEnableActivationDelay = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<TimeSpan?>(nameof(ScaEnableActivationDelay)) ??
-                                       configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<TimeSpan?>(nameof(ScaEnableActivationDelay)) ??
-                                       TimeSpan.Zero;
+            MaxTrustedDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(MaxTrustedDevices)) ??
+                                configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxTrustedDevices)) ??
+                                int.MaxValue;
+            TrustActivationDelay = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<TimeSpan?>(nameof(TrustActivationDelay)) ??
+                                   configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<TimeSpan?>(nameof(TrustActivationDelay)) ??
+                                   TimeSpan.Zero;
         }
 
         /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
@@ -71,9 +71,9 @@ namespace Indice.AspNetCore.Identity
         /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
         public IQueryable<UserDevice> UserDevices => GetDeviceStore()?.UserDevices;
         /// <summary></summary>
-        public int MaxScaEnabledDevices { get; }
+        public int MaxTrustedDevices { get; }
         /// <summary></summary>
-        public TimeSpan ScaEnableActivationDelay { get; }
+        public TimeSpan TrustActivationDelay { get; }
         /// <summary>Provides an extensibility point for localizing messages used inside the package.</summary>
         public IdentityMessageDescriber MessageDescriber { get; }
         /// <summary>The maximum number of devices a user can register.</summary>
@@ -468,7 +468,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="device"></param>
         /// <param name="cancellationToken"></param>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<IdentityResult> RequestScaEnableForDevice(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
+        public async Task<IdentityResult> SetTrustedDevice(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
@@ -476,21 +476,21 @@ namespace Indice.AspNetCore.Identity
             if (device is null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (device.ScaEnabled || (device.ScaActivationDate.HasValue && device.ScaActivationDate.Value > DateTimeOffset.UtcNow)) {
+            if (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = nameof(MessageDescriber.ScaDeviceAlreadyEnabled),
                     Description = MessageDescriber.ScaDeviceAlreadyEnabled()
                 });
             }
             var deviceStore = GetDeviceStore();
-            var scaEnabledOrPendingDevices = await deviceStore.GetScaEnabledOrPendingDevicesCountAsync(user, cancellationToken);
-            if (scaEnabledOrPendingDevices == MaxScaEnabledDevices) {
+            var trustedOrPendingDevices = await deviceStore.GetTrustedOrPendingDevicesCountAsync(user, cancellationToken);
+            if (trustedOrPendingDevices == MaxTrustedDevices) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = nameof(MessageDescriber.ScaDeviceLimitReached),
                     Description = MessageDescriber.ScaDeviceLimitReached()
                 });
             }
-            await deviceStore.SetScaActivationDateAsync(user, device, ScaEnableActivationDelay, cancellationToken);
+            await deviceStore.SetTrustActivationDateAsync(user, device, TrustActivationDelay, cancellationToken);
             return await UpdateDeviceAsync(user, device, cancellationToken);
         }
 

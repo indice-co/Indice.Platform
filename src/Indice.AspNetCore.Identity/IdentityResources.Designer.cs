@@ -331,6 +331,15 @@ namespace Indice.AspNetCore.Identity {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OTP code is {0}..
+        /// </summary>
+        internal static string RequiresOtpMessage {
+            get {
+                return ResourceManager.GetString("RequiresOtpMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Device is already SCA enabled or pending activation..
         /// </summary>
         internal static string ScaDeviceAlreadyEnabled {
