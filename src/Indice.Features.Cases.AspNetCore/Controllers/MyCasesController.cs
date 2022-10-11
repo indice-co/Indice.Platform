@@ -54,9 +54,7 @@ namespace Indice.Features.Cases.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<MyCasePartial>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetCases([FromQuery] ListOptions<GetMyCasesListFilter> options) {
-            var cases = await _myCaseService.GetCases(
-                User,
-                options);
+            var cases = await _myCaseService.GetCases(User, options);
             return Ok(cases);
         }
 
