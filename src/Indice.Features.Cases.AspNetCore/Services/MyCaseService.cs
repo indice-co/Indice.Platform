@@ -121,7 +121,7 @@ namespace Indice.Features.Cases.Services
             }
 
             // filter PublicStatuses
-            if (options.Filter.PublicStatuses != null && options.Filter.PublicStatuses.Count() > 0) {
+            if (options.Filter?.PublicStatuses != null && options.Filter.PublicStatuses.Count() > 0) {
                 var expressions = options.Filter.PublicStatuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.PublicStatus == status));
                 // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.PublicStatus == status1 OR == status2 etc
                 var aggregatedExpression = expressions.Aggregate((expression, next) => {
@@ -129,6 +129,28 @@ namespace Indice.Features.Cases.Services
                     return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
                 });
                 dbCaseQueryable = dbCaseQueryable.Where(aggregatedExpression);
+            }
+
+            // filter CreatedFrom
+            if (options.Filter?.CreatedFrom != null) {
+                dbCaseQueryable = dbCaseQueryable.Where(c => c.CreatedBy.When >= options.Filter.CreatedFrom);
+            }
+            // filter CreatedTo
+            if (options.Filter?.CreatedTo != null) {
+                dbCaseQueryable = dbCaseQueryable.Where(c => c.CreatedBy.When <= options.Filter.CreatedTo);
+            }
+            // filter CompletedFrom
+            if (options.Filter?.CompletedFrom != null) {
+                dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When >= options.Filter.CompletedFrom);
+            }
+            // filter CompletedTo
+            if (options.Filter?.CompletedTo != null) {
+                dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When <= options.Filter.CompletedTo);
+            }
+
+            // filter CaseTypeCodes
+            if (options.Filter?.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Count() > 0) {
+                dbCaseQueryable = dbCaseQueryable.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
             }
 
             var myCasePartialQueryable =
@@ -152,11 +174,13 @@ namespace Indice.Features.Cases.Services
                     })
                     .Where(p => p.PublicStatus != CasePublicStatus.Deleted);// Do not fetch cases in deleted checkpoint
 
+            // sorting option
             if (string.IsNullOrEmpty(options.Sort)) {
                 options.Sort = $"{nameof(MyCasePartial.Created)}-";
             }
 
             var result = await myCasePartialQueryable.ToResultSetAsync(options);
+
             // translate
             for (var i = 0; i < result.Items.Length; i++) {
                 result.Items[i] = result.Items[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
