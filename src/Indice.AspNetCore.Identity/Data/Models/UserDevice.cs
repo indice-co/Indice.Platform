@@ -49,6 +49,8 @@ namespace Indice.AspNetCore.Identity.Data.Models
         public bool IsTrusted { get; set; }
         /// <summary>The date that the device can be activated for trust.</summary>
         public DateTimeOffset? TrustActivationDate { get; set; }
+        /// <summary>Determines whether the device is pending trust activation.</summary>
+        public bool IsPendingTrustActivation => TrustActivationDate.HasValue && TrustActivationDate.Value > DateTimeOffset.UtcNow;
         /// <summary>Indicates whether device is blocked for any action.</summary>
         public bool Blocked { get; set; }
         /// <summary>The user associated with this device.</summary>

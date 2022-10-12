@@ -7,10 +7,7 @@ namespace Indice.MultitenantApi.Swagger.Filters
     public class TenantIdHeaderParameterOperationFilter : IOperationFilter
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context) {
-            var filterPipeline = context.ApiDescription.ActionDescriptor.FilterDescriptors;
-            if (operation.Parameters == null) {
-                operation.Parameters = new List<OpenApiParameter>();
-            }
+            operation.Parameters ??= new List<OpenApiParameter>();
             operation.Parameters.Add(new OpenApiParameter {
                 Name = "X-Tenant-Id",
                 In = ParameterLocation.Header,

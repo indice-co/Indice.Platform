@@ -95,6 +95,7 @@ namespace Indice.Identity
                 options.AddFluentValidationSupport();
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
                 options.AddFormFileSupport();
+                options.AddRequiresOtpOperationFilter();
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });

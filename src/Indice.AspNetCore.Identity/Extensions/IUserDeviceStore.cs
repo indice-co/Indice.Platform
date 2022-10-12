@@ -54,6 +54,13 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         Task SetTrustActivationDateAsync(TUser user, UserDevice device, TimeSpan delay, CancellationToken cancellationToken);
+        /// <summary>Sets the <see cref="UserDevice.IsTrusted"/> property based on the provided <paramref name="isTrusted"/>.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="device">The device to update.</param>
+        /// <param name="isTrusted"></param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        Task SetDeviceIsTrusted(TUser user, UserDevice device, bool isTrusted, CancellationToken cancellationToken);
         /// <summary>Blocks devices for fingerprint or 4-pin login and requires credentials.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="device">The device to update.</param>

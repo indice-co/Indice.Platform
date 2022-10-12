@@ -61,11 +61,13 @@ namespace Indice.AspNetCore.Identity
         public virtual string LargeNumberOfUserDevices(int userDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.Culture, IdentityResources.LargeNumberOfUserDevices);
         /// <summary>User tries to set the number of allowed devices to a value lower than 1.</summary>
         public virtual string InsufficientNumberOfDevices() => string.Format(IdentityResources.Culture, IdentityResources.InsufficientNumberOfDevices);
-        /// <summary>SCA is already enabled for this device.</summary>
-        public virtual string ScaDeviceAlreadyEnabled() => string.Format(IdentityResources.Culture, IdentityResources.ScaDeviceAlreadyEnabled);
-        /// <summary>User cannot add any other device for SCA.</summary>
-        public virtual string ScaDeviceLimitReached() => string.Format(IdentityResources.Culture, IdentityResources.ScaDeviceLimitReached);
+        /// <summary>Device is pending trust activation.</summary>
+        public virtual string DevicePendingTrustActivation() => string.Format(IdentityResources.Culture, IdentityResources.DevicePendingTrustActivation);
+        /// <summary>User cannot add any other trusted devices.</summary>
+        public virtual string TrustedDevicesLimitReached() => string.Format(IdentityResources.Culture, IdentityResources.TrustedDevicesLimitReached);
+        /// <summary>Device is already trusted.</summary>
+        public virtual string DeviceAlreadyTrusted() => string.Format(IdentityResources.Culture, IdentityResources.DeviceAlreadyTrusted);
         /// <summary>Message content when <see cref="RequiresOtpAttribute"/> is used.</summary>
-        public virtual string RequiresOtpMessage() => string.Format(IdentityResources.Culture, IdentityResources.RequiresOtpMessage);
+        public virtual string RequiresOtpMessage() => IdentityResources.RequiresOtpMessage;
     }
 }

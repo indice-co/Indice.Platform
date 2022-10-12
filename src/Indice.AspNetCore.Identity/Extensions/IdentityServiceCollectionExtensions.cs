@@ -62,7 +62,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
             if (totpOptions.EnableDeveloperTotp) {
                 var implementation = services.LastOrDefault(x => x.ServiceType == typeof(ITotpService))?.ImplementationType;
-                if (implementation != null) {
+                if (implementation is not null) {
                     var decoratorType = typeof(DeveloperTotpService);
                     services.TryAddTransient(implementation);
                     services.AddTransient(typeof(ITotpService), decoratorType);

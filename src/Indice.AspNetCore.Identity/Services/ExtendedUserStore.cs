@@ -252,5 +252,13 @@ namespace Indice.AspNetCore.Identity.Data
             ThrowIfDisposed();
             return UserDevices.CountAsync(x => x.UserId == user.Id && (x.IsTrusted || (x.TrustActivationDate.HasValue && x.TrustActivationDate.Value > DateTimeOffset.UtcNow)));
         }
+
+        /// <inheritdoc/>
+        public Task SetDeviceIsTrusted(TUser user, UserDevice device, bool isTrusted, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            device.IsTrusted = isTrusted;
+            return Task.CompletedTask;
+        }
     }
 }

@@ -476,21 +476,42 @@ namespace Indice.AspNetCore.Identity
             if (device is null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)) {
+            // 1. Device is already trusted.
+            if (device.IsTrusted) {
                 return IdentityResult.Failed(new IdentityError {
-                    Code = nameof(MessageDescriber.ScaDeviceAlreadyEnabled),
-                    Description = MessageDescriber.ScaDeviceAlreadyEnabled()
+                    Code = nameof(UserDevice.IsTrusted),
+                    Description = MessageDescriber.DeviceAlreadyTrusted()
                 });
             }
+            // 2. We need to check if device is pending trust activation. If so, trust activation date was set during a call prior to this.
+            if (device.IsPendingTrustActivation) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = nameof(UserDevice.TrustActivationDate),
+                    Description = MessageDescriber.DevicePendingTrustActivation()
+                });
+            }
+            // 3. At this point there are two cases:
             var deviceStore = GetDeviceStore();
-            var trustedOrPendingDevices = await deviceStore.GetTrustedOrPendingDevicesCountAsync(user, cancellationToken);
-            if (trustedOrPendingDevices == MaxTrustedDevices) {
-                return IdentityResult.Failed(new IdentityError {
-                    Code = nameof(MessageDescriber.ScaDeviceLimitReached),
-                    Description = MessageDescriber.ScaDeviceLimitReached()
-                });
+            // a. The user wants to request device trust activation. If no delay is specified, we immediately trust the device, going to case b.
+            var isDeviceActivationRequest = !device.TrustActivationDate.HasValue;
+            if (isDeviceActivationRequest) {
+                if (MaxTrustedDevices > 0) {
+                    var trustedOrPendingDevices = await deviceStore.GetTrustedOrPendingDevicesCountAsync(user, cancellationToken);
+                    if (trustedOrPendingDevices == MaxTrustedDevices) {
+                        return IdentityResult.Failed(new IdentityError {
+                            Code = nameof(UserDevice.TrustActivationDate),
+                            Description = MessageDescriber.TrustedDevicesLimitReached()
+                        });
+                    }
+                }
+                await deviceStore.SetTrustActivationDateAsync(user, device, TrustActivationDelay, cancellationToken);
             }
-            await deviceStore.SetTrustActivationDateAsync(user, device, TrustActivationDelay, cancellationToken);
+            // b. The user waited for the required delay to pass and now wants to activate device trust.
+            var isDeviceTrustRequest = device.TrustActivationDate.HasValue && !device.IsPendingTrustActivation;
+            if (isDeviceTrustRequest) {
+                await deviceStore.SetDeviceIsTrusted(user, device, isTrusted: true, cancellationToken);
+            }
+            // 4. Commit changes to the database.
             return await UpdateDeviceAsync(user, device, cancellationToken);
         }
 

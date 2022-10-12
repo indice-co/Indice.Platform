@@ -61,6 +61,24 @@ namespace Indice.AspNetCore.Identity {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Device is already trusted..
+        /// </summary>
+        internal static string DeviceAlreadyTrusted {
+            get {
+                return ResourceManager.GetString("DeviceAlreadyTrusted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device is pending trust activation..
+        /// </summary>
+        internal static string DevicePendingTrustActivation {
+            get {
+                return ResourceManager.GetString("DevicePendingTrustActivation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Registration OTP code for device {0} is {1}..
         /// </summary>
         internal static string DeviceRegistrationOtpCode {
@@ -340,20 +358,11 @@ namespace Indice.AspNetCore.Identity {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Device is already SCA enabled or pending activation..
+        ///   Looks up a localized string similar to You have reached the maximum number of trusted devices..
         /// </summary>
-        internal static string ScaDeviceAlreadyEnabled {
+        internal static string TrustedDevicesLimitReached {
             get {
-                return ResourceManager.GetString("ScaDeviceAlreadyEnabled", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You have reached the maximum number of SCA enabled devices..
-        /// </summary>
-        internal static string ScaDeviceLimitReached {
-            get {
-                return ResourceManager.GetString("ScaDeviceLimitReached", resourceCulture);
+                return ResourceManager.GetString("TrustedDevicesLimitReached", resourceCulture);
             }
         }
         

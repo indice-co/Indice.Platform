@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DeviceAlreadyTrusted" xml:space="preserve">
+    <value>Device is already trusted.</value>
+  </data>
+  <data name="DevicePendingTrustActivation" xml:space="preserve">
+    <value>Device is pending trust activation.</value>
+  </data>
   <data name="DeviceRegistrationOtpCode" xml:space="preserve">
     <value>Registration OTP code for device {0} is {1}.</value>
   </data>
@@ -210,11 +216,8 @@
   <data name="RequiresOtpMessage" xml:space="preserve">
     <value>OTP code is {0}.</value>
   </data>
-  <data name="ScaDeviceAlreadyEnabled" xml:space="preserve">
-    <value>Device is already SCA enabled or pending activation.</value>
-  </data>
-  <data name="ScaDeviceLimitReached" xml:space="preserve">
-    <value>You have reached the maximum number of SCA enabled devices.</value>
+  <data name="TrustedDevicesLimitReached" xml:space="preserve">
+    <value>You have reached the maximum number of trusted devices.</value>
   </data>
   <data name="UserAlreadyHasEmail" xml:space="preserve">
     <value>User already has email '{0}'.</value>

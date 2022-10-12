@@ -29,6 +29,10 @@ namespace Indice.AspNetCore.Identity.Api.Models
         public bool SupportsFingerprintLogin { get; set; }
         /// <summary>Indicates whether the device is blocked.</summary>
         public bool RequiresPassword { get; set; }
+        /// <summary>The date that the device can be activated for trust.</summary>
+        public DateTimeOffset? TrustActivationDate { get; set; }
+        /// <summary>Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios).</summary>
+        public bool IsTrusted { get; set; }
         /// <summary>Extra metadata for the device.</summary>
         public dynamic Data { get; set; }
 
@@ -39,6 +43,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
             DateCreated = device.DateCreated,
             DeviceId = device.DeviceId,
             IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
+            IsTrusted = device.IsTrusted,
             LastSignInDate = device.LastSignInDate,
             Model = device.Model,
             Name = device.Name,
@@ -46,7 +51,8 @@ namespace Indice.AspNetCore.Identity.Api.Models
             Platform = device.Platform,
             RequiresPassword = device.RequiresPassword,
             SupportsFingerprintLogin = device.SupportsFingerprintLogin,
-            SupportsPinLogin = device.SupportsPinLogin
+            SupportsPinLogin = device.SupportsPinLogin,
+            TrustActivationDate = device.TrustActivationDate
         };
     }
 }

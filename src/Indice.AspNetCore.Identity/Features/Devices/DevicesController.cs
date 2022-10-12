@@ -3,7 +3,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data.Models;
@@ -30,7 +29,6 @@ namespace Indice.AspNetCore.Identity.Api
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status500InternalServerError, type: typeof(ProblemDetails))]
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
-    [ProblemDetailsExceptionFilter]
     internal class DevicesController : ControllerBase
     {
         /// <summary>The name of the controller.</summary>
