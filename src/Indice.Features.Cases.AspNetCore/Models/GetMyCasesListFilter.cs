@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Indice.Features.Cases.Data.Models;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Models
 {
@@ -37,5 +38,9 @@ namespace Indice.Features.Cases.Models
         /// The CompletedTo filter.
         /// </summary>
         public DateTime? CompletedTo { get; set; }
+        /// <summary>
+        /// Construct filter clauses based on case data.
+        /// </summary>
+        public List<FilterClause>? Data { get; set; }
     }
 }
