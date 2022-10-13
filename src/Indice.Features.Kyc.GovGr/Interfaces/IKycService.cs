@@ -9,6 +9,6 @@ namespace Indice.Features.Kyc.GovGr.Interfaces
         /// <summary>
         /// Get Data from eGov KYC
         /// </summary>
-        Task<EGovKycResponsePayload> GetEGovKycData(string clientName, string code);
+        Task<EGovKycResponsePayload> GetData(string clientName, string code);
     }
 }

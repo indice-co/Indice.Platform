@@ -29,15 +29,12 @@ namespace Indice.Features.Kyc.GovGr.Services
         /// <summary>
         /// Get Data from eGov KYC
         /// </summary>
-        public async Task<EGovKycResponsePayload> GetEGovKycData(string clientName, string code) {
+        public async Task<EGovKycResponsePayload> GetData(string clientName, string code) {
             if (clientName is null) { throw new ArgumentNullException(nameof(clientName)); }
             if (code is null) { throw new ArgumentNullException(nameof(code)); }
 
-            var clientSettings = _settings.Clients.FirstOrDefault(x => x.Name == clientName);
-
-            if (clientSettings is null) {
-                throw new Exception($"Client with name {clientName} not found");
-            }
+            var clientSettings = _settings.Clients.FirstOrDefault(x => x.Name == clientName)
+                                 ?? throw new Exception($"Client with name {clientName} not found");
 
             // exchange authorization code with access token, using basic authentication 
             var accessToken = await GetAccessToken(_settings.TokenEndpoint, clientSettings.ClientId, clientSettings.ClientSecret, code, clientSettings.RedirectUri);

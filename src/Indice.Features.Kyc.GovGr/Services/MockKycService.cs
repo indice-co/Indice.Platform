@@ -306,7 +306,7 @@ namespace Indice.Features.Kyc.GovGr.Services
         /// <summary>
         /// Get Data from eGov KYC
         /// </summary>
-        public Task<EGovKycResponsePayload> GetEGovKycData(string clientName, string code) {
+        public Task<EGovKycResponsePayload> GetData(string clientName, string code) {
             return Task.FromResult(JsonSerializer.Deserialize<EGovKycResponsePayload>(JsonString));
         }
     }

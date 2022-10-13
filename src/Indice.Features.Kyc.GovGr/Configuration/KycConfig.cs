@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>
         /// Add GovGr Kyc service.
         /// </summary>
-        public static void AddEGovKyc(this IServiceCollection services, Action<KycSettings> configure = null) {
+        public static void AddKycGovGr(this IServiceCollection services, Action<KycSettings> configure = null) {
             var serviceProvider = services.BuildServiceProvider();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             // Initialize empty options.
