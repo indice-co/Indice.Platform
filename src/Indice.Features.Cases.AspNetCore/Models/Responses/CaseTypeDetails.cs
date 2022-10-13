@@ -24,6 +24,16 @@ namespace Indice.Features.Cases.Models.Responses
         public string? Title { get; set; }
 
         /// <summary>
+        /// The case type description.
+        /// </summary>
+        public string? Description { get; set; }
+
+        /// <summary>
+        /// The case type category.
+        /// </summary>
+        public string? Category { get; set; }
+
+        /// <summary>
         /// The case type json schema.
         /// </summary>
         public string? DataSchema { get; set; }
@@ -47,6 +57,16 @@ namespace Indice.Features.Cases.Models.Responses
         /// The case type tags.
         /// </summary>
         public string? Tags { get; set; }
+
+        /// <summary>
+        /// The case type configuration.
+        /// </summary>
+        public string? Config { get; set; }
+
+        /// <summary>
+        /// The allowed Roles that can create a new Case.
+        /// </summary>
+        public string? CanCreateRoles { get; set; }
 
         /// <summary>
         /// The checkpoints for this case type.

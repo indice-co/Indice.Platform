@@ -21,6 +21,7 @@ import { LookupWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-fr
 import { InputWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/input-widget/input-widget.component';
 import { TextAreaWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
 import { FileWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
+import { CaseDetailInfoComponent } from './components/case-detail-info/case-detail-info.component';
 
 
 
@@ -33,6 +34,7 @@ import { FileWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-fram
     ToggleButtonComponent,
     SelectCaseTypeComponent,
     SearchCustomerComponent,
+    CaseDetailInfoComponent,
     // ajsf
     FileWidgetComponent,
     TailwindFrameworkComponent,
@@ -64,6 +66,7 @@ import { FileWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-fram
     ToggleButtonComponent,
     SelectCaseTypeComponent,
     SearchCustomerComponent,
+    CaseDetailInfoComponent,
     // ajsf
     TailwindFrameworkComponent,
     // pipes

@@ -1,4 +1,4 @@
-import { LOCALE_ID, NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
@@ -56,6 +56,35 @@ import * as app from 'src/app/core/models/settings';
 import localeGreek from '@angular/common/locales/el';
 registerLocaleData(localeGreek);
 
+const providers: Provider[] = [
+  DatePipe,
+  ModalService,
+  JsonPipe,
+  { provide: APP_LINKS, useClass: AppLinks },
+  { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
+  { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
+  { provide: HTTP_INTERCEPTORS, useClass: BadRequestInterceptor, multi: true },
+  { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },
+  { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
+  { provide: TENANT_PREFIX_URL, useExisting: MESSAGES_API_BASE_URL },
+  { provide: LOCALE_ID, useValue: 'el-GR' },
+  {
+    provide: HIGHLIGHT_OPTIONS,
+    useValue: {
+      lineNumbers: false,
+      coreLibraryLoader: () => import('highlight.js/lib/core'),
+      languages: {
+        json: () => import('highlight.js/lib/languages/json')
+      }
+    }
+  },
+  { provide: APP_LANGUAGES, useClass: AppLanguagesService }
+]
+
+if (app.settings.tenantId) {
+  providers.push({ provide: HTTP_INTERCEPTORS, useClass: TenantHeaderInterceptor, multi: true, deps: [MESSAGES_API_BASE_URL, TenantService] })
+}
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -109,31 +138,7 @@ registerLocaleData(localeGreek);
     IndiceComponentsModule.forRoot(),
     ReactiveFormsModule
   ],
-  providers: [
-    DatePipe,
-    ModalService,
-    JsonPipe,
-    { provide: APP_LINKS, useClass: AppLinks },
-    { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
-    { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: BadRequestInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: TenantHeaderInterceptor, multi: true, deps: [MESSAGES_API_BASE_URL, TenantService] },
-    { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },
-    { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
-    { provide: TENANT_PREFIX_URL, useExisting: MESSAGES_API_BASE_URL },
-    { provide: LOCALE_ID, useValue: 'el-GR' },
-    {
-      provide: HIGHLIGHT_OPTIONS,
-      useValue: {
-        lineNumbers: false,
-        coreLibraryLoader: () => import('highlight.js/lib/core'),
-        languages: {
-          json: () => import('highlight.js/lib/languages/json')
-        }
-      }
-    },
-    { provide: APP_LANGUAGES, useClass: AppLanguagesService }
-  ],
+  providers: providers,
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net.Mime;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Cases.Interfaces;
@@ -52,21 +54,19 @@ namespace Indice.Features.Cases.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<MyCasePartial>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetCases([FromQuery] ListOptions<GetMyCasesListFilter> options) {
-            var cases = await _myCaseService.GetCases(
-                User,
-                options);
+            var cases = await _myCaseService.GetCases(User, options);
             return Ok(cases);
         }
 
         /// <summary>
-        /// Get case by Id.
+        /// Get case details by Id.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
-        [ProducesResponseType(typeof(MyCasePartial), 200)]
+        [ProducesResponseType(typeof(CaseDetails), 200)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{caseId:guid}")]
         public async Task<IActionResult> GetMyCaseById(Guid caseId) {
-            var @case = await _myCaseService.GetMyCasePartialById(User, caseId);
+            var @case = await _myCaseService.GetCaseById(User, caseId);
             return Ok(@case);
         }
 
@@ -148,8 +148,19 @@ namespace Indice.Features.Cases.Controllers
         }
 
         private async Task<byte[]> CreatePdf(CaseDetails @case) {
+            var isPortrait = true;
+            var digitallySigned = false;
+            if (@case.CaseType.Config is not null) {
+                var caseTypeConfig = JsonSerializer.Deserialize<JsonDocument>(@case.CaseType.Config);
+                if (caseTypeConfig.RootElement.TryGetProperty("IsPortrait", out var isPortraitConfig)) {
+                    isPortrait = isPortraitConfig.GetBoolean();
+                }
+                if (caseTypeConfig.RootElement.TryGetProperty("DigitallySigned", out var digitallySignedConfig)) {
+                    digitallySigned = digitallySignedConfig.GetBoolean();
+                }
+            }
             var template = await _caseTemplateService.RenderTemplateAsync(@case);
-            return await _casePdfService.HtmlToPdfAsync(template);
+            return await _casePdfService.HtmlToPdfAsync(template, isPortrait, digitallySigned);
         }
     }
 }

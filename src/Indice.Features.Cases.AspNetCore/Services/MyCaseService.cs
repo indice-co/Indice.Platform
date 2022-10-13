@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Indice.Features.Cases.Data;
@@ -89,70 +90,19 @@ namespace Indice.Features.Cases.Services
 
         public async Task<CaseDetails> GetCaseById(ClaimsPrincipal user, Guid caseId) {
             var userId = user.FindSubjectId();
-            var @case = await _dbContext.Cases
-                .AsNoTracking()
-                .Include(c => c.CaseType)
-                .Include(c => c.PublicCheckpoint)
-                .Include(c => c.Attachments)
-                .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
-
+            var @case = await GetDbCaseById(caseId, userId);
             if (@case is null) {
                 return null!;
             }
 
-            var caseDataQueryable = _dbContext.CaseData
-                .AsNoTracking()
-                .Where(dbCaseData => dbCaseData.CaseId == caseId)
-                .AsQueryable();
-
-            // If the case has been created from the Customer itself, return his own data (most recent)
-            if (@case.Channel == CasesApiConstants.Channels.Customer) {
-                caseDataQueryable = caseDataQueryable
-                    .Where(dbCaseData => dbCaseData.CreatedBy.Id == userId)
-                    .OrderByDescending(c => c.CreatedBy.When);
-            }
-
-            // If the case has been created from an Agent, return the first record of Agent's data
+            // the customer should be able to see only cases that have been created from him/herself!
             if (@case.Channel == CasesApiConstants.Channels.Agent) {
-                caseDataQueryable = caseDataQueryable.OrderBy(c => c.CreatedBy.When);
+                throw new Exception("Case not found.");
             }
 
-            var caseData = await caseDataQueryable.FirstOrDefaultAsync();
+            var caseData = await GetDbCaseData(caseId, userId, @case);
             var caseDetails = await GetCaseByIdInternal(@case, caseData, true, schemaKey: SchemaSelector);
-            if (caseDetails == null) {
-                throw new Exception("Case not found."); // todo  proper exception & handle from problemConfig (NotFound)
-            }
-            return caseDetails;
-        }
-
-        public async Task<MyCasePartial> GetMyCasePartialById(ClaimsPrincipal user, Guid caseId) {
-            var userId = user.FindSubjectId();
-            var query = await _dbContext.Cases
-                .Include(c => c.CaseType)
-                .Include(c => c.Comments)
-                .Include(c => c.Checkpoints)
-                .ThenInclude(ch => ch.CheckpointType)
-                .AsQueryable()
-                .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
-
-            var myCase = new MyCasePartial {
-                Id = query.Id,
-                Created = query.CreatedBy.When,
-                CaseTypeCode = query.CaseType.Code,
-                PublicStatus = query.Checkpoints
-                    .OrderByDescending(c => c.CreatedBy.When)
-                    .FirstOrDefault(c => !c.CheckpointType.Private)!
-                    .CheckpointType.PublicStatus,
-                Checkpoint = query.Checkpoints
-                    .OrderByDescending(c => c.CreatedBy.When)
-                    .FirstOrDefault(c => !c.CheckpointType.Private)!
-                    .CheckpointType.Name,
-                Message = query.Comments
-                    .OrderByDescending(p => p.CreatedBy.When)
-                    .FirstOrDefault(c => !c.Private)?
-                    .Text
-            };
-            return myCase;
+            return caseDetails ?? throw new Exception("Case not found."); // todo  proper exception 
         }
 
         public async Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options) {
@@ -170,32 +120,67 @@ namespace Indice.Features.Cases.Services
                 dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
             }
 
-            var myCasePartialQueryable =
-                dbCaseQueryable.Select(p => new MyCasePartial {
-                    Id = p.Id,
-                    Created = p.CreatedBy.When,
-                    CaseTypeCode = p.CaseType.Code,
-                    PublicStatus = p.Checkpoints
-                        .OrderByDescending(c => c.CreatedBy.When)
-                        .FirstOrDefault(c => !c.CheckpointType.Private)!
-                        .CheckpointType.PublicStatus,
-                    Checkpoint = p.Checkpoints
-                        .OrderByDescending(c => c.CreatedBy.When)
-                        .FirstOrDefault(c => !c.CheckpointType.Private)!
-                        .CheckpointType.Name,
-                    Message = _caseSharedResourceService.GetLocalizedHtmlString(p.Comments // get the translated version of the comment (if exist)
-                        .OrderByDescending(p => p.CreatedBy.When)
-                        .FirstOrDefault(c => !c.Private)
-                        .Text ?? string.Empty),
-                    Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(p.CaseType.Translations)
-                })
-                .Where(p => p.PublicStatus != CasePublicStatus.Deleted);// Do not fetch cases in deleted checkpoint
+            // filter PublicStatuses
+            if (options.Filter?.PublicStatuses != null && options.Filter.PublicStatuses.Count() > 0) {
+                var expressions = options.Filter.PublicStatuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.PublicStatus == status));
+                // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.PublicStatus == status1 OR == status2 etc
+                var aggregatedExpression = expressions.Aggregate((expression, next) => {
+                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
+                });
+                dbCaseQueryable = dbCaseQueryable.Where(aggregatedExpression);
+            }
 
+            // filter CreatedFrom
+            if (options.Filter?.CreatedFrom != null) {
+                dbCaseQueryable = dbCaseQueryable.Where(c => c.CreatedBy.When >= options.Filter.CreatedFrom);
+            }
+            // filter CreatedTo
+            if (options.Filter?.CreatedTo != null) {
+                dbCaseQueryable = dbCaseQueryable.Where(c => c.CreatedBy.When <= options.Filter.CreatedTo);
+            }
+            // filter CompletedFrom
+            if (options.Filter?.CompletedFrom != null) {
+                dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When >= options.Filter.CompletedFrom);
+            }
+            // filter CompletedTo
+            if (options.Filter?.CompletedTo != null) {
+                dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When <= options.Filter.CompletedTo);
+            }
+
+            // filter CaseTypeCodes
+            if (options.Filter?.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Count() > 0) {
+                dbCaseQueryable = dbCaseQueryable.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
+            }
+
+            var myCasePartialQueryable =
+                    dbCaseQueryable.Select(p => new MyCasePartial {
+                        Id = p.Id,
+                        Created = p.CreatedBy.When,
+                        CaseTypeCode = p.CaseType.Code,
+                        PublicStatus = p.Checkpoints
+                            .OrderByDescending(c => c.CreatedBy.When)
+                            .FirstOrDefault(c => !c.CheckpointType.Private)!
+                            .CheckpointType.PublicStatus,
+                        Checkpoint = p.Checkpoints
+                            .OrderByDescending(c => c.CreatedBy.When)
+                            .FirstOrDefault(c => !c.CheckpointType.Private)!
+                            .CheckpointType.Name,
+                        Message = _caseSharedResourceService.GetLocalizedHtmlString(p.Comments // get the translated version of the comment (if exist)
+                            .OrderByDescending(p => p.CreatedBy.When)
+                            .FirstOrDefault(c => !c.Private)
+                            .Text ?? string.Empty),
+                        Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(p.CaseType.Translations)
+                    })
+                    .Where(p => p.PublicStatus != CasePublicStatus.Deleted);// Do not fetch cases in deleted checkpoint
+
+            // sorting option
             if (string.IsNullOrEmpty(options.Sort)) {
                 options.Sort = $"{nameof(MyCasePartial.Created)}-";
             }
 
             var result = await myCasePartialQueryable.ToResultSetAsync(options);
+
             // translate
             for (var i = 0; i < result.Items.Length; i++) {
                 result.Items[i] = result.Items[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
@@ -214,14 +199,13 @@ namespace Indice.Features.Cases.Services
                 Code = dbCaseType.Code,
                 DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
                 Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
+                LayoutTranslations = dbCaseType.LayoutTranslations,
                 Title = dbCaseType.Title,
                 Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
             };
 
             // translate case type
-            caseType = caseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
-            caseType.Layout = _jsonTranslationService.Translate(caseType.Layout, dbCaseType.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
-            caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, dbCaseType.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
+            caseType = TranslateCaseType(caseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
 
             return caseType;
         }
@@ -238,13 +222,53 @@ namespace Indice.Features.Cases.Services
                 .Select(dbCaseType => new CaseTypePartial {
                     Id = dbCaseType.Id,
                     Title = dbCaseType.Title,
+                    Description = dbCaseType.Description,
+                    Category = dbCaseType.Category,
                     DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
                     Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
+                    LayoutTranslations = dbCaseType.LayoutTranslations,
                     Code = dbCaseType.Code,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
                 })
                 .ToListAsync();
+
+            // translate case types
+            for (var i = 0; i < caseTypes.Count; i++) {
+                caseTypes[i] = TranslateCaseType(caseTypes[i], CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            }
+
             return caseTypes.ToResultSet();
+        }
+
+        private CaseTypePartial TranslateCaseType(CaseTypePartial caseTypePartial, string culture, bool includeTranslations) {
+            var caseType = caseTypePartial.Translate(culture, includeTranslations);
+            caseType.Layout = _jsonTranslationService.Translate(caseType.Layout, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
+            caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
+            return caseType;
+        }
+
+        private async Task<DbCase?> GetDbCaseById(Guid caseId, string userId) {
+            return await _dbContext.Cases
+                .AsNoTracking()
+                .Include(c => c.CaseType)
+                .Include(c => c.PublicCheckpoint)
+                .Include(c => c.Attachments)
+                .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
+        }
+
+        private async Task<DbCaseData?> GetDbCaseData(Guid caseId, string userId, DbCase? @case) {
+            var caseDataQueryable = _dbContext.CaseData
+                .AsNoTracking()
+                .Where(dbCaseData => dbCaseData.CaseId == caseId)
+                .AsQueryable();
+
+            // If the case is not Completed, return customer's own data (most recent)
+            if (@case?.CompletedBy?.When == null) {
+                caseDataQueryable = caseDataQueryable.Where(dbCaseData => dbCaseData.CreatedBy.Id == userId);
+            }
+
+            caseDataQueryable = caseDataQueryable.OrderByDescending(c => c.CreatedBy.When);
+            return await caseDataQueryable.FirstOrDefaultAsync();
         }
     }
 }

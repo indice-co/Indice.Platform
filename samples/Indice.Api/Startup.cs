@@ -43,7 +43,7 @@ namespace Indice.Api
                     .AddDbContext<ApiDbContext>(builder => {
                         builder.UseSqlServer(Configuration.GetConnectionString("SettingsDb"));
                     });
-            services.AddWorkerHostConfig(Configuration);
+            //services.AddWorkerHostConfig(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -121,7 +121,7 @@ namespace Indice.Api
                 });
             });
             app.UseCampaignsUI(options => {
-                options.PathPrefix = "messages";
+                options.PathPrefix = "/messages";
                 options.ClientId = "backoffice-ui";
                 options.Scope = "backoffice backoffice:messages";
                 options.DocumentTitle = "Campaigns UI";

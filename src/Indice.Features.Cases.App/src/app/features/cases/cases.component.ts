@@ -12,9 +12,7 @@ import { CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core
 })
 export class CasesComponent extends BaseListComponent<CasePartial> implements OnInit {
     public newItemLink = 'new-case';
-    public formActions: ViewAction[] = [
-        new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
-    ];
+    public formActions: ViewAction[] = [];
 
     constructor(
         private _route: ActivatedRoute,
@@ -36,60 +34,79 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             caseTypes: this._api.getCaseTypes(),
             checkpointTypes: this._api.getDistinctCheckpointNames()
         }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
-                const caseTypeSearchOption: SearchOption = {
-                    field: 'caseTypeCodes',
-                    name: 'ΤΥΠΟΣ ΑΙΤΗΣΗΣ',
-                    dataType: 'array',
-                    options: [],
-                    multiTerm: true
-
-                }
-                for (let caseType of caseTypes.items!) { // fill caseTypeSearchOption's SelectInputOptions
-                    caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
-                }
-                const checkpointTypeSearchOption: SearchOption = {
-                    field: 'checkpointTypeCodes',
-                    name: 'ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ',
-                    dataType: 'array',
-                    options: [],
-                    multiTerm: true
-                }
-                for (let checkpointType of checkpointTypes) { // fill checkpointTypeSearchOption's SelectInputOptions
-                    checkpointTypeSearchOption.options?.push({ value: checkpointType, label: checkpointType })
-                }
-                this.searchOptions = [
-                    {
-                        field: 'customerId',
-                        name: 'ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ',
-                        dataType: 'string'
-                    },
-                    {
-                        field: 'customerName',
-                        name: 'ΟΝΟΜΑ ΠΕΛΑΤΗ',
-                        dataType: 'string'
-                    },
-                    {
-                        field: 'TaxId', // this must be exactly the same "case-wise" with db's json property!
-                        name: 'Α.Φ.Μ. ΠΕΛΑΤΗ',
-                        dataType: 'string'
-                    },
-                    {
-                        field: 'dateRange',
-                        name: 'ΗΜ. ΥΠΟΒΟΛΗΣ',
-                        dataType: 'daterange'
-                    },
-                    caseTypeSearchOption,
-                    checkpointTypeSearchOption
-                ];
-                // now that we have the searchOptions, call parent's ngOnInit!
-                super.ngOnInit();
+            const caseTypeSearchOption: SearchOption = {
+                field: 'caseTypeCodes',
+                name: 'ΤΥΠΟΣ ΑΙΤΗΣΗΣ',
+                dataType: 'array',
+                options: [],
+                multiTerm: true
             }
-        );
+            for (let caseType of caseTypes.items!) { // fill caseTypeSearchOption's SelectInputOptions
+                caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
+            }
+            const checkpointTypeSearchOption: SearchOption = {
+                field: 'checkpointTypeCodes',
+                name: 'ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ',
+                dataType: 'array',
+                options: [],
+                multiTerm: true
+            }
+            for (let checkpointType of checkpointTypes) { // fill checkpointTypeSearchOption's SelectInputOptions
+                checkpointTypeSearchOption.options?.push({ value: checkpointType, label: checkpointType })
+            }
+            this.searchOptions = [
+                {
+                    field: 'customerId',
+                    name: 'ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ',
+                    dataType: 'string'
+                },
+                {
+                    field: 'customerName',
+                    name: 'ΟΝΟΜΑ ΠΕΛΑΤΗ',
+                    dataType: 'string'
+                },
+                {
+                    field: 'TaxId', // this must be exactly the same "case-wise" with db's json property!
+                    name: 'Α.Φ.Μ. ΠΕΛΑΤΗ',
+                    dataType: 'string'
+                },
+                {
+                    field: 'groupIds',
+                    name: 'ΑΡΙΘΜΟΣ ΚΑΤΑΣΤΗΜΑΤΟΣ',
+                    dataType: 'string',
+                    multiTerm: true
+                },
+                {
+                    field: 'dateRange',
+                    name: 'ΗΜ. ΥΠΟΒΟΛΗΣ',
+                    dataType: 'daterange'
+                },
+                caseTypeSearchOption,
+                checkpointTypeSearchOption
+            ];
+            // now that we have the searchOptions, call parent's ngOnInit!
+            super.ngOnInit();
+        });
+
+        // independent call to fetch the case Types that the user can select for Case Creation
+        this._api.getCaseTypes(true)
+            .pipe(take(1))
+            .subscribe(
+                (caseTypesForCaseCreation: CasePartialResultSet) => {
+                    if (caseTypesForCaseCreation.count !== 0) {
+                        this.formActions = [
+                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
+                        ];
+                    }
+                }
+            );
     }
 
     loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
         let customerId = this.filters?.find(f => f.member === 'customerId')?.value;
         let customerName = this.filters?.find(f => f.member === 'customerName')?.value;
+        let groupIds: string[] = [];
+        this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(f.value));
         let from = this.filters?.find(f => f.member === 'from')?.value;
         let to = this.filters?.find(f => f.member === 'to')?.value;
         let caseTypeCodes: string[] = [];
@@ -107,7 +124,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
                 to ? new Date(to) : undefined,
                 caseTypeCodes,
                 checkpointTypeCodes,
-                undefined,
+                groupIds,
                 filterMetadata,
                 this.page,
                 this.pageSize,

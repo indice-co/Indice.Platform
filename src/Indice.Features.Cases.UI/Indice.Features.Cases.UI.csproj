@@ -9,7 +9,7 @@
     <SpaDistFolder>..\Indice.Features.Cases.App\dist\cases-app</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
     <VersionPrefix>6.1.0</VersionPrefix>
-    <VersionSuffix>beta-14</VersionSuffix>
+    <VersionSuffix>beta-19</VersionSuffix>
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -42,7 +42,7 @@
     <None Remove="cases-ui-dist\index.html" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="6.0.1" />
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="6.0.4" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />

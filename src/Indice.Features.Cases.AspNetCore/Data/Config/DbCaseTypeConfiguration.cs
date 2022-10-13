@@ -21,15 +21,31 @@ namespace Indice.Features.Cases.Data.Config
                 .Property(p => p.Title)
                 .HasMaxLength(TextSizePresets.M128);
             builder
+                .Property(p => p.Description)
+                .HasMaxLength(TextSizePresets.M128)
+                .IsRequired(false);
+            builder
+                .Property(p => p.Category)
+                .HasMaxLength(TextSizePresets.M128)
+                .IsRequired(false);
+            builder
                 .Property(p => p.Translations);
             builder
                 .Property(p => p.Layout)
-                .IsRequired(false); 
+                .IsRequired(false);
             builder
                 .Property(p => p.LayoutTranslations)
                 .IsRequired(false);
             builder
                 .Property(p => p.Tags)
+                .HasMaxLength(TextSizePresets.M256)
+                .IsRequired(false);
+            builder
+                .Property(p => p.Config)
+                .HasMaxLength(TextSizePresets.M256)
+                .IsRequired(false);
+            builder
+                .Property(p => p.CanCreateRoles)
                 .HasMaxLength(TextSizePresets.M256)
                 .IsRequired(false);
         }

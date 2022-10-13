@@ -92,6 +92,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddTransient<IMessageService, MessageService>();
             services.TryAddTransient<IContactService, ContactService>();
             services.TryAddTransient<ICampaignService, CampaignService>();
+            services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
             services.TryAddTransient<IMessageTypeService, MessageTypeService>();
             services.TryAddTransient<ITemplateService, TemplateService>();
             services.TryAddTransient<CreateCampaignRequestValidator>();
@@ -100,6 +101,18 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
             services.TryAddTransient<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         }
+
+        /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
+        /// <param name="options">Options used to configure the Campaigns API feature.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static void UseFilesLocal(this MessageJobsOptions options, Action<FileServiceLocalOptions> configure = null) =>
+            options.Services.AddFiles(options => options.AddFileSystem(KeyedServiceNames.FileServiceKey, configure));
+
+        /// <summary>Adds <see cref="IFileService"/> using Azure Blob Storage as the backing store.</summary>
+        /// <param name="options">Options used to configure the Campaigns API feature.</param>
+        /// <param name="configure">Configure the available options. Null to use defaults.</param>
+        public static void UseFilesAzure(this MessageJobsOptions options, Action<FileServiceAzureOptions> configure = null) =>
+            options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
 
         /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
@@ -142,9 +155,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return options;
         }
 
-        /// <summary>
-        /// Adds an instance of <see cref="ISmsService"/> using Yuboto.
-        /// </summary>
+        /// <summary>Adds an instance of <see cref="ISmsService"/> using Yuboto.</summary>
         /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static MessageJobsOptions UseSmsServiceViber(this MessageJobsOptions options, IConfiguration configuration) {
