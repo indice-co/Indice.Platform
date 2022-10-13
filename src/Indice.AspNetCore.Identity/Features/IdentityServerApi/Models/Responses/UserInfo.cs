@@ -91,21 +91,52 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <summary>Converts a type of <see cref="User"/> to <see cref="BasicUserInfo"/>.</summary>
         /// <param name="user">The instance to convert.</param>
         /// <returns>A new instance of <see cref="BasicUserInfo"/>.</returns>
-        public static BasicUserInfo ToBasicUserInfo(this User user) => new BasicUserInfo {
-            Id = user.Id,
+        public static BasicUserInfo ToBasicUserInfo(this User user) => new() {
+            AccessFailedCount = user.AccessFailedCount,
+            Blocked = user.Blocked,
             CreateDate = user.CreateDate,
             Email = user.Email,
             EmailConfirmed = user.EmailConfirmed,
+            Id = user.Id,
+            IsAdmin = user.Admin,
+            LastSignInDate = user.LastSignInDate,
             LockoutEnabled = user.LockoutEnabled,
             LockoutEnd = user.LockoutEnd,
+            PasswordExpirationDate = user.PasswordExpirationDate,
+            PasswordExpirationPolicy = user.PasswordExpirationPolicy,
             PhoneNumber = user.PhoneNumber,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
             TwoFactorEnabled = user.TwoFactorEnabled,
-            UserName = user.UserName,
+            UserName = user.UserName
+        };
+
+        /// <summary>
+        /// Converts a type of <see cref="User"/> to <see cref="BasicUserInfo"/>.
+        /// </summary>
+        /// <param name="user">The instance to convert.</param>
+        /// <returns>A new instance of <see cref="BasicUserInfo"/>.</returns>
+        public static SingleUserInfo ToSingleUserInfo(this User user) => new() {
+            AccessFailedCount = user.AccessFailedCount,
             Blocked = user.Blocked,
-            PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+            Claims = user.Claims.Select(x => new ClaimInfo { 
+                Id = x.Id, 
+                Type = x.ClaimType, 
+                Value = x.ClaimValue 
+            }),
+            CreateDate = user.CreateDate,
+            Email = user.Email,
+            EmailConfirmed = user.EmailConfirmed,
+            Id = user.Id,
             IsAdmin = user.Admin,
-            AccessFailedCount = user.AccessFailedCount
+            LastSignInDate = user.LastSignInDate,
+            LockoutEnabled = user.LockoutEnabled,
+            LockoutEnd = user.LockoutEnd,
+            PasswordExpirationDate = user.PasswordExpirationDate,
+            PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+            PhoneNumber = user.PhoneNumber,
+            PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+            TwoFactorEnabled = user.TwoFactorEnabled,
+            UserName = user.UserName
         };
     }
 }
