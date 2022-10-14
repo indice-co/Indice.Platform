@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
@@ -244,10 +245,14 @@ namespace Indice.Features.Cases.Services
                     DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
                     Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
                     LayoutTranslations = dbCaseType.LayoutTranslations,
+                    Config = dbCaseType.Config,
                     Code = dbCaseType.Code,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
                 })
                 .ToListAsync();
+
+            // sort by Config.Order
+            caseTypes = caseTypes.OrderBy(c => c, new CaseTypeComparer()).ToList();
 
             // translate case types
             for (var i = 0; i < caseTypes.Count; i++) {
@@ -286,6 +291,34 @@ namespace Indice.Features.Cases.Services
 
             caseDataQueryable = caseDataQueryable.OrderByDescending(c => c.CreatedBy.When);
             return await caseDataQueryable.FirstOrDefaultAsync();
+        }
+    }
+
+    /// <summary>
+    /// A Comparer for case types.
+    /// </summary>
+    public class CaseTypeComparer : IComparer<CaseTypePartial>
+    {
+        /// <summary>
+        /// Compares case types.
+        /// </summary>
+        /// <param name="ct1"></param>
+        /// <param name="ct2"></param>
+        public int Compare(CaseTypePartial? ct1, CaseTypePartial? ct2) {
+            if (string.IsNullOrEmpty(ct1?.Config)) {
+                return -1;
+            }
+            if (string.IsNullOrEmpty(ct2?.Config)) {
+                return 1;
+            }
+
+            var ct1Config = JsonSerializer.Deserialize<JsonDocument>(ct1.Config);
+            var ct2Config = JsonSerializer.Deserialize<JsonDocument>(ct2.Config);
+
+            var ct1OrderExists = ct1Config!.RootElement.TryGetProperty("Order", out var ct1Order);
+            var ct2OrderExists = ct2Config!.RootElement.TryGetProperty("Order", out var ct2Order);
+
+            return (ct1OrderExists ? ct1Order.GetInt32() : 0) - (ct2OrderExists ? ct2Order.GetInt32() : 0);
         }
     }
 }
