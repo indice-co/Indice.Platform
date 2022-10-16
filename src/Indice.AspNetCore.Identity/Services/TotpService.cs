@@ -19,7 +19,7 @@ namespace Indice.AspNetCore.Identity
     public class TotpService : ITotpService
     {
         private const int CacheExpirationInSeconds = 30;
-        private readonly UserManager<User> _userManager;
+        private readonly ExtendedUserManager<User> _userManager;
         private readonly ISmsServiceFactory _smsServiceFactory;
         private readonly IPushNotificationService _pushNotificationService;
         private readonly IDistributedCache _cache;
@@ -36,7 +36,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="logger">Represents a type used to perform logging.</param>
         /// <param name="rfc6238AuthenticationService">Time-Based One-Time Password Algorithm service.</param>
         public TotpService(
-            UserManager<User> userManager,
+            ExtendedUserManager<User> userManager,
             ISmsServiceFactory smsServiceFactory,
             IPushNotificationService pushNotificationService,
             IDistributedCache distributedCache,
@@ -106,7 +106,7 @@ namespace Indice.AspNetCore.Identity
                 case TotpDeliveryChannel.EToken:
                     throw new NotSupportedException($"Delivery channel '{channel}' is not supported.");
                 case TotpDeliveryChannel.PushNotification:
-                    if (_pushNotificationService == null) {
+                    if (_pushNotificationService is null) {
                         throw new ArgumentNullException(nameof(_pushNotificationService), $"Cannot send push notification since there is no implementation of {nameof(IPushNotificationService)}.");
                     }
                     await _pushNotificationService.SendAsync(builder => builder

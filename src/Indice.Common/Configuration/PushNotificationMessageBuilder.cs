@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using Indice.Serialization;
+using Indice.Types;
 
 namespace Indice.Services
 {
@@ -17,9 +20,11 @@ namespace Indice.Services
         /// <summary>The body of the push notification.</summary>
         public string Body { get; set; }
         /// <summary>The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc.</summary>
-        public string UserTag { get; set; }
+        public PushNotificationTag? UserTag { get; set; }
+        /// <summary>The device identifier.</summary>
+        public PushNotificationTag? DeviceTag { get; set; }
         /// <summary>The tags of the push notification.</summary>
-        public string[] Tags { get; set; } = Array.Empty<string>();
+        public List<PushNotificationTag> Tags { get; set; } = new List<PushNotificationTag>();
         /// <summary>The type of the push notification.</summary>
         public string Classification { get; set; }
     }
@@ -73,7 +78,7 @@ namespace Indice.Services
             if (string.IsNullOrEmpty(userTag)) {
                 throw new ArgumentException("You must define the userId of the push notification.", nameof(userTag));
             }
-            builder.UserTag = userTag;
+            builder.UserTag = new PushNotificationTag(userTag, PushNotificationTagKind.User);
             return builder;
         }
 
@@ -84,7 +89,7 @@ namespace Indice.Services
             if (string.IsNullOrEmpty(deviceId)) {
                 throw new ArgumentException("You must define the device id of the push notification.", nameof(deviceId));
             }
-            builder.UserTag = deviceId;
+            builder.DeviceTag = new PushNotificationTag(deviceId, PushNotificationTagKind.Device);
             return builder;
         }
 
@@ -95,7 +100,7 @@ namespace Indice.Services
             if (tags?.Length == 0) {
                 throw new ArgumentException("You must set the tags to the push notification.", nameof(tags));
             }
-            builder.Tags = tags;
+            builder.Tags.AddRange(tags.Select(tag => new PushNotificationTag(tag, PushNotificationTagKind.Unspecified)));
             return builder;
         }
 
@@ -109,7 +114,14 @@ namespace Indice.Services
 
         /// <summary>Returns the <see cref="PushNotificationMessage"/> instance made by the builder.</summary>
         /// <param name="builder">The builder.</param>
-        public static PushNotificationMessage Build(this PushNotificationMessageBuilder builder) =>
-            new(builder.Title, builder.Body, builder.Data, builder.UserTag, builder.Tags, builder.Classification);
+        public static PushNotificationMessage Build(this PushNotificationMessageBuilder builder) {
+            if (builder.UserTag is not null) {
+                builder.Tags.Add(builder.UserTag.Value);
+            }
+            if (builder.DeviceTag is not null) {
+                builder.Tags.Add(builder.DeviceTag.Value);
+            }
+            return new PushNotificationMessage(builder.Title, builder.Body, builder.Data, builder.Tags, builder.Classification);
+        }
     }
 }

@@ -100,7 +100,7 @@ namespace Indice.Services
                 await NotificationHub.SendTemplateNotificationAsync(
                     properties,
                     tags.Select(
-                        tag => tag.Kind == PushNotificationTagKind.User
+                        tag => tag.Kind == PushNotificationTagKind.User || tag.Kind == PushNotificationTagKind.Unspecified
                             ? tag.Value
                             : "$InstallationId:{" + tag.Value + "}" // https://learn.microsoft.com/en-us/azure/notification-hubs/notification-hubs-push-notification-registration-management#installations
                     )

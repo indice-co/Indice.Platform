@@ -72,7 +72,7 @@ namespace Indice.Services
         /// <param name="body">Body of notification.</param>
         /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
         /// <param name="classification">The type of the Push Notification.</param>
-        public static Task SendToDeviceAsync(this IPushNotificationService service, string deviceId, string title, string body, string data = null, string classification = null) => 
+        public static Task SendToDeviceAsync(this IPushNotificationService service, string deviceId, string title, string body, string data = null, string classification = null) =>
             service.SendAsync(title, body, new List<PushNotificationTag> { new PushNotificationTag(deviceId, PushNotificationTagKind.Device) }, data, classification);
 
         /// <summary>Send notification to devices registered to userId with optional data as payload.</summary>
@@ -85,7 +85,7 @@ namespace Indice.Services
             var builder = new PushNotificationMessageBuilder();
             configurePushNotificationMessage.Invoke(builder);
             var pushNotificationMessage = builder.Build();
-            await service.SendAsync(pushNotificationMessage.Title, pushNotificationMessage.Body, pushNotificationMessage.Data, pushNotificationMessage.UserTag, pushNotificationMessage.Classification, pushNotificationMessage.Tags.ToArray());
+            await service.SendAsync(pushNotificationMessage.Title, pushNotificationMessage.Body, pushNotificationMessage.Tags, pushNotificationMessage.Data, pushNotificationMessage.Classification);
         }
 
         /// <summary>Sends a notification to all registered devices.</summary>
