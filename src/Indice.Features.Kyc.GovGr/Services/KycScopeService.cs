@@ -12,30 +12,33 @@ namespace Indice.Features.Kyc.GovGr.Services
     {
         private readonly IStringLocalizer<KycScopeService> _localizer;
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="localizer"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public KycScopeService(IStringLocalizer<KycScopeService> localizer) {
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         }
 
-        /// <summary>
-        /// Get eGov KYC Scopes with localized descriptions
-        /// </summary>
+        /// <inheritdoc />
         public List<KycScope> GetEGovKycScopes(IStringLocalizer localizer = null) {
             var loc = localizer ?? _localizer;
             return new List<KycScope> {
                  new KycScope {
-                     Scope = KycScopeType.contactInfo.ToString(),
+                     Scope = GovGrKycScopes.ContactInfo,
                      Description = loc["ContactInfoDescription"]
                  },
                  new KycScope {
-                     Scope = KycScopeType.identity.ToString(),
+                     Scope = GovGrKycScopes.Identity,
                      Description = loc["IdentityDescription"]
                  },
                  new KycScope {
-                     Scope = KycScopeType.income.ToString(),
+                     Scope = GovGrKycScopes.Income,
                      Description = loc["IncomeDescription"]
                  },
                  new KycScope {
-                     Scope = KycScopeType.professionalActivity.ToString(),
+                     Scope = GovGrKycScopes.ProfessionalActivity,
                      Description = loc["ProfessionalActivityDescription"]
                  }
             };

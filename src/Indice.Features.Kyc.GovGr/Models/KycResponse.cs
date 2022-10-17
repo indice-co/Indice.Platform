@@ -4,126 +4,168 @@
 //----------------------
 
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Indice.Features.Kyc.GovGr.Enums;
 
 namespace Indice.Features.Kyc.GovGr.Models
 {
     /// <summary>
-    /// The encoded response from the EGovKyc resource server
+    /// The encoded response from the EGovKyc resource server (JWS - json web signature?)
     /// </summary>
     public class KycResponse
     {
-        public string payload { get; set; }
-        public string @protected { get; set; }
-        public string signature { get; set; }
+
+        [JsonPropertyName("payload")]
+        public string Payload { get; set; }
+        [JsonPropertyName("protected")]
+        public string Protected { get; set; }
+        [JsonPropertyName("signature")]
+        public string Signature { get; set; }
     }
 
+    /// <summary>
+    /// Document information.
+    /// </summary>
     public class DocumentInfo
     {
         /// <summary>
         /// Ημερομηνία λήξης
         /// </summary>
-        public string expireDate { get; set; }
+        [JsonPropertyName("expireDate")]
+        public string ExpireDate { get; set; }
         /// <summary>
         /// Μοναδικός αριθμός εγγράφου, ο ΑΔΤ
         /// </summary>
-        public string id { get; set; }
+        [JsonPropertyName("id")]
+        public string Id { get; set; }
         /// <summary>
         /// Ημερομηνία έκδοσης εγγράφου
         /// </summary>
-        public string issueDate { get; set; }
+        [JsonPropertyName("issueDate")]
+        public string IssueDate { get; set; }
         /// <summary>
         /// Κωδικός Αρχής έκδοσης
         /// </summary>
-        public string issuerId { get; set; }
+        [JsonPropertyName("issuerId")]
+        public string IssuerId { get; set; }
         /// <summary>
         /// Αρχή έκδοσης
         /// </summary>
-        public string issuerName { get; set; }
+        [JsonPropertyName("issuerName")]
+        public string IssuerName { get; set; }
         /// <summary>
         /// Τύπος εγγράφου, π.χ. prado
         /// </summary>
-        public string type { get; set; }
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
         /// <summary>
         /// Είδος εγγράφου
         /// </summary>
-        public string category { get; set; }
+        [JsonPropertyName("category")]
+        public string Category { get; set; }
         /// <summary>
         /// Προηγούμενος Μοναδικός αριθμός εγγράφου
         /// </summary>
-        public string previousId { get; set; }
+        [JsonPropertyName("previousId")]
+        public string PreviousId { get; set; }
     }
 
+    /// <summary>
+    /// User information
+    /// </summary>
     public class UserInfo
     {
         /// <summary>
         /// Ημερομηνία γέννησης
         /// </summary>
-        public string birthDate { get; set; }
+        [JsonPropertyName("birthDate")]
+        public string BirthDate { get; set; }
         /// <summary>
         /// Έτος γέννησης
         /// </summary>
-        public string birthYear { get; set; }
+        [JsonPropertyName("birthYear")]
+        public string BirthYear { get; set; }
         /// <summary>
         /// Τοποθεσία γέννησης
         /// </summary>
-        public string birthPlace { get; set; }
+        [JsonPropertyName("birthPlace")]
+        public string BirthPlace { get; set; }
         /// <summary>
         /// Πατρώνυμο
         /// </summary>
-        public string fatherName { get; set; }
+        [JsonPropertyName("fatherName")]
+        public string FatherName { get; set; }
         /// <summary>
         /// Απόδοση με λατινικούς χαρακτήρες του fatherName
         /// </summary>
-        public string fatherNameLatin { get; set; }
+        [JsonPropertyName("fatherNameLatin")]
+        public string FatherNameLatin { get; set; }
         /// <summary>
         /// Φύλο
         /// </summary>
-        public string gender { get; set; }
+        [JsonPropertyName("gender")]
+        public string Gender { get; set; }
         /// <summary>
         /// Φωτογραφία
         /// </summary>
-        public string image { get; set; }
+        [JsonPropertyName("image")]
+        public string Image { get; set; }
         /// <summary>
         /// τύπος/κωδικοποίηση φωτογραφίας
         /// </summary>
-        public string imageMimeType { get; set; }
+        [JsonPropertyName("imageMimeType")]
+        public string ImageMimeType { get; set; }
         /// <summary>
         /// Μητρώνυμο
         /// </summary>
-        public string motherName { get; set; }
+        [JsonPropertyName("motherName")]
+        public string MotherName { get; set; }
         /// <summary>
         /// Απόδοση με λατινικούς χαρακτήρες του motherName
         /// </summary>
-        public string motherNameLatin { get; set; }
+        [JsonPropertyName("motherNameLatin")]
+        public string MotherNameLatin { get; set; }
         /// <summary>
         /// Όνομα
         /// </summary>
-        public string name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
         /// <summary>
         /// Απόδοση με λατινικούς χαρακτήρες του name
         /// </summary>
-        public string nameLatin { get; set; }
+        [JsonPropertyName("nameLatin")]
+        public string NameLatin { get; set; }
         /// <summary>
         /// Επώνυμο
         /// </summary>
-        public string surname { get; set; }
+        [JsonPropertyName("surname")]
+        public string Surname { get; set; }
         /// <summary>
         /// Απόδοση με λατινικούς χαρακτήρες του surname
         /// </summary>
-        public string surnameLatin { get; set; }
+        [JsonPropertyName("surnameLatin")]
+        public string SurnameLatin { get; set; }
     }
 
-    public class Result
+    /// <summary>
+    /// Encapsulates a message and a <see cref="GovGrKycStatusCode"/>
+    /// </summary>
+    public class GovGrKycResult
     {
-        public string message { get; set; }
-        public KycStatusCode status { get; set; }
+        /// <summary>The text message</summary>
+        [JsonPropertyName("message")]
+        public string Message { get; set; }
+        /// <summary>The status code</summary>
+        [JsonPropertyName("status")]
+        public GovGrKycStatusCode Status { get; set; }
     }
 
     public class GrcBo
     {
-        public GrcBoData data { get; set; }
-        public Result result { get; set; }
+        [JsonPropertyName("data")]
+        public GrcBoData Data { get; set; }
+        [JsonPropertyName("result")]
+        public GovGrKycResult Result { get; set; }
     }
 
     public class GrcBoData
@@ -131,22 +173,27 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// Στοιχεία σχετικά με το έγγραφο επιβεβαίωσης
         /// </summary>
-        public DocumentInfo documentInfo { get; set; }
+        [JsonPropertyName("documentInfo")]
+        public DocumentInfo DocumentInfo { get; set; }
         /// <summary>
         /// Στοιχεία σχετικά με τον χρήστη
         /// </summary>
-        public UserInfo userInfo { get; set; }
+        [JsonPropertyName("userInfo")]
+        public UserInfo UserInfo { get; set; }
     }
 
     public class Identity
     {
-        public IdentityData data { get; set; }
-        public Result result { get; set; }
+        [JsonPropertyName("data")]
+        public IdentityData Data { get; set; }
+        [JsonPropertyName("result")]
+        public GovGrKycResult Result { get; set; }
     }
 
     public class IdentityData
     {
-        public GrcBo grcBo { get; set; }
+        [JsonPropertyName("grcBo")]
+        public GrcBo GrcBo { get; set; }
     }
 
     public class EGovKycAddress
@@ -154,11 +201,13 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// πόλη
         /// </summary>
-        public string city { get; set; }
+        [JsonPropertyName("city")]
+        public string City { get; set; }
         /// <summary>
         /// κωδικός χώρας
         /// </summary>
-        public string country { get; set; }
+        [JsonPropertyName("country")]
+        public string Country { get; set; }
         /// <summary>
         /// πίνακας με τα στοιχεία διεύθυνσης “Οδός και αριθμός”, “Τ.Κ”, “Πόλη”
         /// </summary>
@@ -166,21 +215,26 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// αριθμός
         /// </summary>
-        public string number { get; set; }
+        [JsonPropertyName("number")]
+        public string Number { get; set; }
         /// <summary>
         /// οδός
         /// </summary>
-        public string street { get; set; }
+        [JsonPropertyName("street")]
+        public string Street { get; set; }
         /// <summary>
         /// Τ.Κ.
         /// </summary>
-        public string postalCode { get; set; }
+        [JsonPropertyName("postalCode")]
+        public string PostalCode { get; set; }
     }
 
     public class ContactInfo
     {
-        public ContactInfoData data { get; set; }
-        public Result result { get; set; }
+        [JsonPropertyName("data")]
+        public ContactInfoData Data { get; set; }
+        [JsonPropertyName("result")]
+        public GovGrKycResult Result { get; set; }
     }
 
     public class ContactInfoData
@@ -188,29 +242,36 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// στοιχεία διεύθυνσης διαμονής
         /// </summary>
-        public EGovKycAddress address { get; set; }
+        [JsonPropertyName("address")]
+        public EGovKycAddress Address { get; set; }
         /// <summary>
         /// στοιχεία διεύθυνσης επικοινωνίας
         /// </summary>
-        public EGovKycAddress contactAddress { get; set; }
+        [JsonPropertyName("contactAddress")]
+        public EGovKycAddress ContactAddress { get; set; }
         /// <summary>
         /// ηλεκτρονική διεύθυνση αλληλογραφίας
         /// </summary>
-        public string email { get; set; }
+        [JsonPropertyName("email")]
+        public string Email { get; set; }
         /// <summary>
         /// κινητό τηλέφωνο
         /// </summary>
-        public string mobile { get; set; }
+        [JsonPropertyName("mobile")]
+        public string Mobile { get; set; }
         /// <summary>
         /// σταθερό τηλέφωνο
         /// </summary>
-        public string telephone { get; set; }
+        [JsonPropertyName("telephone")]
+        public string Telephone { get; set; }
     }
 
     public class Income
     {
-        public IncomeData data { get; set; }
-        public Result result { get; set; }
+        [JsonPropertyName("data")]
+        public IncomeData Data { get; set; }
+        [JsonPropertyName("result")]
+        public GovGrKycResult Result { get; set; }
     }
 
     public class IncomeData
@@ -218,75 +279,93 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// Προστιθέμενη διαφορά δαπανών
         /// </summary>
-        public string addedCostDiffs { get; set; }
+        [JsonPropertyName("addedCostDiffs")]
+        public string AddedCostDiffs { get; set; }
         /// <summary>
         /// Επιχειρηματική δραστηριότητα
         /// </summary>
-        public string businessIncome { get; set; }
+        [JsonPropertyName("businessIncome")]
+        public string BusinessIncome { get; set; }
         /// <summary>
         /// Υπεραξία μεταβίβασης κεφαλαίου
         /// </summary>
-        public string capitalTransferValue { get; set; }
+        [JsonPropertyName("capitalTransferValue")]
+        public string CapitalTransferValue { get; set; }
         /// <summary>
         /// Ζημιές από επιχειρηματική δραστηριότητα, ιδίου έτους
         /// </summary>
-        public string damageBusinessCurr { get; set; }
+        [JsonPropertyName("damageBusinessCurr")]
+        public string DamageBusinessCurr { get; set; }
         /// <summary>
         /// Ζημιές από επιχειρηματική δραστηριότητα, προηγούμενων ετών
         /// </summary>
-        public string damageBusinessPrev { get; set; }
+        [JsonPropertyName("damageBusinessPrev")]
+        public string DamageBusinessPrev { get; set; }
         /// <summary>
         /// Ζημιές από αγροτική δραστηριότητα, ιδίου έτους
         /// </summary>
-        public string damageFarmingCurr { get; set; }
+        [JsonPropertyName("damageFarmingCurr")]
+        public string DamageFarmingCurr { get; set; }
         /// <summary>
         /// Ζημιές από αγροτική δραστηριότητα, προηγούμενων ετών
         /// </summary>
-        public string damageFarmingPrev { get; set; }
+        [JsonPropertyName("damageFarmingPrev")]
+        public string DamageFarmingPrev { get; set; }
         /// <summary>
         /// Εισόδημα από αγροτική δραστηριότητα
         /// </summary>
-        public string farmingIncome { get; set; }
+        [JsonPropertyName("farmingIncome")]
+        public string FarmingIncome { get; set; }
         /// <summary>
         /// Ακαθάριστα Έσοδα, από επιχειρηματική δραστηριότητα
         /// </summary>
-        public string grossBusiness { get; set; }
+        [JsonPropertyName("grossBusiness")]
+        public string GrossBusiness { get; set; }
         /// <summary>
         /// Ακαθάριστα Έσοδα, από αγροτική δραστηριότητα
         /// </summary>
-        public string grossFarming { get; set; }
+        [JsonPropertyName("grossFarming")]
+        public string GrossFarming { get; set; }
         /// <summary>
         /// Εισόδημα από Μερίσματα – Τόκους - Δικαιώματα
         /// </summary>
-        public string investmentIncome { get; set; }
+        [JsonPropertyName("investmentIncome")]
+        public string InvestmentIncome { get; set; }
         /// <summary>
         /// Ναυτικό εισόδημα
         /// </summary>
-        public string maritimeIncome { get; set; }
+        [JsonPropertyName("maritimeIncome")]
+        public string MaritimeIncome { get; set; }
         /// <summary>
         /// Έτος αναφοράς
         /// </summary>
-        public string refYear { get; set; }
+        [JsonPropertyName("refYear")]
+        public string RefYear { get; set; }
         /// <summary>
         /// Ημερμηνία έκδοσης πράξης
         /// </summary>
-        public string releaseDate { get; set; }
+        [JsonPropertyName("releaseDate")]
+        public string ReleaseDate { get; set; }
         /// <summary>
         /// Ακίνητη περιουσία
         /// </summary>
-        public string rentalIncome { get; set; }
+        [JsonPropertyName("rentalIncome")]
+        public string RentalIncome { get; set; }
         /// <summary>
         /// Αυτοτελώς Φορολογούμενα Ποσά
         /// </summary>
-        public string taxableAmounts { get; set; }
+        [JsonPropertyName("taxableAmounts")]
+        public string TaxableAmounts { get; set; }
         /// <summary>
         /// Επίδομα ανεργίας
         /// </summary>
-        public string unemploymentBenefits { get; set; }
+        [JsonPropertyName("unemploymentBenefits")]
+        public string UnemploymentBenefits { get; set; }
         /// <summary>
         /// Μισθωτή Εργασία – Συντάξεις
         /// </summary>
-        public string wagesPensionsIncome { get; set; }
+        [JsonPropertyName("wagesPensionsIncome")]
+        public string WagesPensionsIncome { get; set; }
     }
 
     public class Department
@@ -294,15 +373,18 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// ΚΑΔ, παραρτήματος
         /// </summary>
-        public string activityCode { get; set; }
+        [JsonPropertyName("activityCode")]
+        public string ActivityCode { get; set; }
         /// <summary>
         /// Περιγραφή δραστηριότητας
         /// </summary>
-        public string activityDescr { get; set; }
+        [JsonPropertyName("activityDescr")]
+        public string ActivityDescr { get; set; }
         /// <summary>
         /// Στοιχεία διεύθυνσης παραρτήματος
         /// </summary>
-        public EGovKycAddress address { get; set; }
+        [JsonPropertyName("address")]
+        public EGovKycAddress Address { get; set; }
     }
 
     public class Main
@@ -310,15 +392,18 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// ΚΑΔ, κύριας δραστηριότητας
         /// </summary>
-        public string activityCode { get; set; }
+        [JsonPropertyName("activityCode")]
+        public string ActivityCode { get; set; }
         /// <summary>
         /// Περιγραφή κύριας δραστηριότητας
         /// </summary>
-        public string activityDescr { get; set; }
+        [JsonPropertyName("activityDescr")]
+        public string ActivityDescr { get; set; }
         /// <summary>
         /// Στοιχεία διεύθυνσης Έδρας
         /// </summary>
-        public EGovKycAddress address { get; set; }
+        [JsonPropertyName("address")]
+        public EGovKycAddress Address { get; set; }
         /// <summary>
         /// Πίνακας δραστηριοτήτων με τα παρακάτω στοιχεία
         /// </summary>
@@ -330,19 +415,23 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// Στοιχεία παραρτήματος (optional)
         /// </summary>
-        public Department department { get; set; }
+        [JsonPropertyName("department")]
+        public Department Department { get; set; }
         /// <summary>
         /// Στοιχεία Έδρας
         /// </summary>
-        public Main main { get; set; }
+        [JsonPropertyName("main")]
+        public Main Main { get; set; }
         /// <summary>
         /// Επωνυμία
         /// </summary>
-        public string name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
         /// <summary>
         /// ΑΦΜ επιχείρησης
         /// </summary>
-        public string tin { get; set; }
+        [JsonPropertyName("tin")]
+        public string Tin { get; set; }
     }
 
     public class PrivateSectorOccupation
@@ -350,15 +439,18 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// Κωδικός ειδικότητας. Ακολουθεί το πρότυπο ΣΤΕΠ-92
         /// </summary>
-        public string code { get; set; }
+        [JsonPropertyName("code")]
+        public string Code { get; set; }
         /// <summary>
         /// Περιγραφή ειδικότητας. Ακολουθεί το πρότυπο ΣΤΕΠ-92
         /// </summary>
-        public string descr { get; set; }
+        [JsonPropertyName("descr")]
+        public string Descr { get; set; }
         /// <summary>
         /// Τύπος/Πρότυπο κωδικοποίησης (ΣΤΕΠ-92)
         /// </summary>
-        public string type { get; set; }
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
     }
 
     public class PublicSectorOccupation
@@ -366,33 +458,40 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// Κωδικός κατηγορίας προσωπικού. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/EmployeeCategories
         /// </summary>
-        public string categoryCode { get; set; }
+        [JsonPropertyName("categoryCode")]
+        public string CategoryCode { get; set; }
         /// <summary>
         /// Περιγραφή κατηγορίας προσωπικού. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/EmployeeCategories
         /// </summary>
-        public string categoryDescription { get; set; }
+        [JsonPropertyName("categoryDescription")]
+        public string CategoryDescription { get; set; }
         /// <summary>
         /// Κωδικός Κλάδου. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/ProfessionCategories
         /// </summary>
-        public string sectorCode { get; set; }
+        [JsonPropertyName("sectorCode")]
+        public string SectorCode { get; set; }
         /// <summary>
         /// Περιγραφή κλάδου. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/ProfessionCategories
         /// </summary>
-        public string sectorDescription { get; set; }
+        [JsonPropertyName("sectorDescription")]
+        public string SectorDescription { get; set; }
         /// <summary>
         /// Κωδικός ειδικότητας. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/Specialities
         /// </summary>
-        public string specialtyCode { get; set; }
+        [JsonPropertyName("specialtyCode")]
+        public string SpecialtyCode { get; set; }
         /// <summary>
         /// Περιγραφή ειδικότητας. check: https://hr.apografi.gov.gr/api/public/metadata/dictionary/Specialities
         /// </summary>
-        public string specialtyDescription { get; set; }
+        [JsonPropertyName("specialtyDescription")]
+        public string SpecialtyDescription { get; set; }
     }
 
     public class PrivateEmployeeInfo
     {
         public List<PrivateEmployeeInfoData> data { get; set; }
-        public Result result { get; set; }
+        [JsonPropertyName("result")]
+        public GovGrKycResult Result { get; set; }
     }
 
     public class PrivateEmployeeInfoData
@@ -400,15 +499,18 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// καθεστώς εργασίας, 0=Πλήρης, 1=Μερική και 2=Εκ περιτροπής
         /// </summary>
-        public string contractType { get; set; }
+        [JsonPropertyName("contractType")]
+        public string ContractType { get; set; }
         /// <summary>
         /// Επιχείρηση
         /// </summary>
-        public Firm firm { get; set; }
+        [JsonPropertyName("firm")]
+        public Firm Firm { get; set; }
         /// <summary>
         /// Ειδικότητα (για ιδιωτικό υπάλληλο)
         /// </summary>
-        public PrivateSectorOccupation occupation { get; set; }
+        [JsonPropertyName("occupation")]
+        public PrivateSectorOccupation Occupation { get; set; }
     }
 
     public class EmploymentPosition
@@ -416,15 +518,18 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// Επωνυμία φορέα
         /// </summary>
-        public string name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
         /// <summary>
         /// ΑΦΜ φορέα
         /// </summary>
-        public string tin { get; set; }
+        [JsonPropertyName("tin")]
+        public string Tin { get; set; }
         /// <summary>
         /// Στοιχεία διεύθυνσης φορέα
         /// </summary>
-        public EGovKycAddress address { get; set; }
+        [JsonPropertyName("address")]
+        public EGovKycAddress Address { get; set; }
     }
 
     public class WorkPosition
@@ -432,21 +537,25 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// Επωνυμία φορέα
         /// </summary>
-        public string name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
         /// <summary>
         /// ΑΦΜ φορέα
         /// </summary>
-        public string tin { get; set; }
+        [JsonPropertyName("tin")]
+        public string Tin { get; set; }
         /// <summary>
         /// Στοιχεία διεύθυνσης φορέα
         /// </summary>
-        public EGovKycAddress address { get; set; }
+        [JsonPropertyName("address")]
+        public EGovKycAddress Address { get; set; }
     }
 
     public class PublicEmployeeInfo
     {
         public List<PublicEmployeeInfoData> data { get; set; }
-        public Result result { get; set; }
+        [JsonPropertyName("result")]
+        public GovGrKycResult Result { get; set; }
     }
 
     public class PublicEmployeeInfoData
@@ -454,23 +563,28 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// Ειδικότητα (για δημόσιο υπάλληλο)
         /// </summary>
-        public PublicSectorOccupation occupation { get; set; }
+        [JsonPropertyName("occupation")]
+        public PublicSectorOccupation Occupation { get; set; }
         /// <summary>
         /// Ένδειξη (true/false) αν είναι η κύρια σχέση εργασίας
         /// </summary>
-        public string primary { get; set; }
+        [JsonPropertyName("primary")]
+        public string Primary { get; set; }
         /// <summary>
         /// Στοιχεία φορέα οργανικής θέσης
         /// </summary>
-        public EmploymentPosition employmentPosition { get; set; }
+        [JsonPropertyName("employmentPosition")]
+        public EmploymentPosition EmploymentPosition { get; set; }
         /// <summary>
         /// Στοιχεία φορέα θέσης απασχόλησης (Optional)
         /// </summary>
-        public WorkPosition workPosition { get; set; }
+        [JsonPropertyName("workPosition")]
+        public WorkPosition WorkPosition { get; set; }
         /// <summary>
         /// Εργασιακή σχέση
         /// </summary>
-        public string employmentType { get; set; }
+        [JsonPropertyName("employmentType")]
+        public string EmploymentType { get; set; }
     }
 
     public class Activity
@@ -478,51 +592,65 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// ΚΑΔ
         /// </summary>
-        public string activityCode { get; set; }
+        [JsonPropertyName("activityCode")]
+        public string ActivityCode { get; set; }
         /// <summary>
         /// Περιγραφή δραστηριότητας
         /// </summary>
-        public string activityDescr { get; set; }
+        [JsonPropertyName("activityDescr")]
+        public string ActivityDescr { get; set; }
         /// <summary>
         /// Τύπος δραστηριότητας (1 ή 2)
         /// </summary>
-        public string activityType { get; set; }
+        [JsonPropertyName("activityType")]
+        public string ActivityType { get; set; }
         /// <summary>
         /// Περιγραφή τύπου δραστηριότητας (ΚΥΡΙΑ ή ΔΕΥΤΕΡΕΥΟΥΣΑ)
         /// </summary>
-        public string activityTypeDesc { get; set; }
+        [JsonPropertyName("activityTypeDesc")]
+        public string ActivityTypeDesc { get; set; }
     }
 
     public class SelfEmployedInfo
     {
-        public SelfEmployedInfoData data { get; set; }
-        public Result result { get; set; }
+        [JsonPropertyName("data")]
+        public SelfEmployedInfoData Data { get; set; }
+        [JsonPropertyName("result")]
+        public GovGrKycResult Result { get; set; }
     }
 
     public class SelfEmployedInfoData
     {
-        public Main main { get; set; }
+        [JsonPropertyName("main")]
+        public Main Main { get; set; }
         /// <summary>
         /// Επωνυμία
         /// </summary>
-        public string name { get; set; }
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
         /// <summary>
         /// ΑΦΜ αυτοαπασχολούμενου (ίδιο με το principal)
         /// </summary>
-        public string tin { get; set; }
+        [JsonPropertyName("tin")]
+        public string Tin { get; set; }
     }
 
     public class ProfessionalActivity
     {
-        public ProfessionalActivityData data { get; set; }
-        public Result result { get; set; }
+        [JsonPropertyName("data")]
+        public ProfessionalActivityData Data { get; set; }
+        [JsonPropertyName("result")]
+        public GovGrKycResult Result { get; set; }
     }
 
     public class ProfessionalActivityData
     {
-        public PrivateEmployeeInfo privateEmployeeInfo { get; set; }
-        public PublicEmployeeInfo publicEmployeeInfo { get; set; }
-        public SelfEmployedInfo selfEmployedInfo { get; set; }
+        [JsonPropertyName("privateEmployeeInfo")]
+        public PrivateEmployeeInfo PrivateEmployeeInfo { get; set; }
+        [JsonPropertyName("publicEmployeeInfo")]
+        public PublicEmployeeInfo PublicEmployeeInfo { get; set; }
+        [JsonPropertyName("selfEmployedInfo")]
+        public SelfEmployedInfo SelfEmployedInfo { get; set; }
     }
 
     public class ResponseData
@@ -530,19 +658,23 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// Στοιχεία ταυτότητας
         /// </summary>
-        public Identity identity { get; set; }
+        [JsonPropertyName("identity")]
+        public Identity Identity { get; set; }
         /// <summary>
         /// Στοιχεία επικοινωνίας
         /// </summary>
-        public ContactInfo contactInfo { get; set; }
+        [JsonPropertyName("contactInfo")]
+        public ContactInfo ContactInfo { get; set; }
         /// <summary>
         /// Στοιχεία εισοδήματος
         /// </summary>
-        public Income income { get; set; }
+        [JsonPropertyName("income")]
+        public Income Income { get; set; }
         /// <summary>
         /// Στοιχεία επαγγελματικής δραστηριότητας
         /// </summary>
-        public ProfessionalActivity professionalActivity { get; set; }
+        [JsonPropertyName("professionalActivity")]
+        public ProfessionalActivity ProfessionalActivity { get; set; }
     }
 
     public class Response
@@ -550,9 +682,12 @@ namespace Indice.Features.Kyc.GovGr.Models
         /// <summary>
         /// Ο ΑΦΜ του χρήστη
         /// </summary>
-        public string principal { get; set; }
-        public ResponseData data { get; set; }
-        public Result result { get; set; }
+        [JsonPropertyName("principal")]
+        public string Principal { get; set; }
+        [JsonPropertyName("data")]
+        public ResponseData Data { get; set; }
+        [JsonPropertyName("result")]
+        public GovGrKycResult Result { get; set; }
     }
 
     /// <summary>
@@ -560,12 +695,19 @@ namespace Indice.Features.Kyc.GovGr.Models
     /// </summary>
     public class EGovKycResponsePayload
     {
-        public Response response { get; set; }
-        public int iat { get; set; }
-        public string aud { get; set; }
-        public int jti { get; set; }
-        public string iss { get; set; }
-        public string sub { get; set; }
-        public string version { get; set; }
+        [JsonPropertyName("response")]
+        public Response Response { get; set; }
+        [JsonPropertyName("iat")]
+        public int Iat { get; set; }
+        [JsonPropertyName("aud")]
+        public string Aud { get; set; }
+        [JsonPropertyName("jti")]
+        public int Jti { get; set; }
+        [JsonPropertyName("iss")]
+        public string Iss { get; set; }
+        [JsonPropertyName("sub")]
+        public string Sub { get; set; }
+        [JsonPropertyName("version")]
+        public string Version { get; set; }
     }
 }

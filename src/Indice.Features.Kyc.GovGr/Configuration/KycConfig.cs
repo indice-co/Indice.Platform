@@ -6,6 +6,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    /// <summary>
+    /// Configuration extensions regarding eKYC for gov GR
+    /// </summary>
     public static class KycConfig
     {
         /// <summary>

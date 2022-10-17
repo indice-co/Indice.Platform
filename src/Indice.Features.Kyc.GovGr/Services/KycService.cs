@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using IdentityModel.Client;
+using Indice.Extensions;
 using Indice.Features.Kyc.GovGr.Configuration;
 using Indice.Features.Kyc.GovGr.Interfaces;
 using Indice.Features.Kyc.GovGr.Models;
@@ -73,28 +74,8 @@ namespace Indice.Features.Kyc.GovGr.Services
             var httpResponse = await apiClient.GetAsync(resourceServerEndpoint);
             var response = await httpResponse.Content.ReadAsStringAsync();
             var encodedResponse = JsonSerializer.Deserialize<KycResponse>(response);
-            // for some reason we need the help of this wrapper for successful decode, check: https://stackoverflow.com/questions/11743160/how-do-i-encode-and-decode-a-base64-string
-            var jsonString = Decode(encodedResponse.payload);
-
+            var jsonString = encodedResponse.Payload.Base64UrlSafeDecode();
             return JsonSerializer.Deserialize<EGovKycResponsePayload>(jsonString);
         }
-
-        #region helpers
-
-        private static string Decode(string text) {
-            text = text.Replace('_', '/').Replace('-', '+');
-            switch (text.Length % 4) {
-                case 2:
-                    text += "==";
-                    break;
-                case 3:
-                    text += "=";
-                    break;
-            }
-            return Encoding.UTF8.GetString(Convert.FromBase64String(text));
-        }
-
-        #endregion
-
     }
 }
