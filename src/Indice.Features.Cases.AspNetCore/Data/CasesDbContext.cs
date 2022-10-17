@@ -2,7 +2,6 @@
 using System.Reflection;
 using Indice.EntityFrameworkCore;
 using Indice.Features.Cases.Data.Models;
-using Indice.Features.Cases.Data.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases.Data
@@ -31,7 +30,6 @@ namespace Indice.Features.Cases.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.HasDefaultSchema(CasesApiConstants.DatabaseSchema);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-            modelBuilder.AddDateTimeLocalValueConverter();
         }
     }
 }

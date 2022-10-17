@@ -13,7 +13,7 @@ namespace Indice.Features.Cases.Data.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public DateTime? When { get; set; }
+        public DateTimeOffset? When { get; set; }
 
         public void Clear() {
             Id = null;
@@ -22,20 +22,20 @@ namespace Indice.Features.Cases.Data.Models
             When = null;
         }
 
-        public void Update(ClaimsPrincipal user, DateTime? now = null) {
+        public void Update(ClaimsPrincipal user, DateTimeOffset? now = null) {
             Populate(this, user, now);
         }
 
-        public static AuditMeta Create(ClaimsPrincipal user, DateTime? now = null) {
+        public static AuditMeta Create(ClaimsPrincipal user, DateTimeOffset? now = null) {
             return Populate(null, user, now);
         }
 
-        private static AuditMeta Populate(AuditMeta meta, ClaimsPrincipal user, DateTime? now = null) {
+        private static AuditMeta Populate(AuditMeta meta, ClaimsPrincipal user, DateTimeOffset? now = null) {
             meta = meta ?? new AuditMeta();
             meta.Id = user.FindFirstValue(JwtClaimTypes.Subject);
             meta.Email = user.FindFirstValue(JwtClaimTypes.Email);
             meta.Name = $"{user.FindFirstValue(BasicClaimTypes.GivenName)} {user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim();
-            meta.When = now ?? DateTime.UtcNow;
+            meta.When = now ?? DateTimeOffset.UtcNow;
             return meta;
         }
     }
