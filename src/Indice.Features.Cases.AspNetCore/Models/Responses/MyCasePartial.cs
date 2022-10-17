@@ -17,7 +17,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The date the case was created.
         /// </summary>
-        public DateTime? Created { get; set; }
+        public DateTimeOffset? Created { get; set; }
 
         /// <summary>
         /// The current status of the case.

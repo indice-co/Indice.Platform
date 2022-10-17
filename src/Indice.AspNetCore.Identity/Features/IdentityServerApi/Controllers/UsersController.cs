@@ -337,7 +337,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ResendConfirmationEmail([FromRoute] string userId) {
-            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
+            var user = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
             }
@@ -346,8 +346,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var eventInfo = user.ToBasicUserInfo();
-            await _eventService.Publish(new UserEmailConfirmationResendEvent(eventInfo, token));
+            await _eventService.Publish(new UserEmailConfirmationResendEvent(user.ToSingleUserInfo(), token));
             return NoContent();
         }
 

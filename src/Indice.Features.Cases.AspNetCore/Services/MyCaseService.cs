@@ -181,10 +181,27 @@ namespace Indice.Features.Cases.Services
 
             var result = await myCasePartialQueryable.ToResultSetAsync(options);
 
+            if (options.Filter?.Data != null) {
+                var casesIdList = result.Items.Select(c => c.Id).ToList();
+                // note: this searches all "data history" of case
+                var filteredcasesIdList = await _dbContext.CaseData
+                    .AsNoTracking()
+                    .Where(dbCaseData => casesIdList.Contains(dbCaseData.CaseId))
+                    .Where(options.Filter.Data)
+                    .Select(d => d.CaseId)
+                    .Distinct()
+                    .AsQueryable()
+                    .ToListAsync();
+
+                result.Items = result.Items.Where(x => filteredcasesIdList.Contains(x.Id)).ToArray();
+                result.Count = result.Items.Count();
+            }
+
             // translate
             for (var i = 0; i < result.Items.Length; i++) {
                 result.Items[i] = result.Items[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
             }
+
             return result;
         }
 

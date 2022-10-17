@@ -14,7 +14,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
         /// </summary>
         /// <param name="user">The instance of the user that email verification will be resend.</param>
         /// <param name="confirmationToken">The generated email confirmation token.</param>
-        public UserEmailConfirmationResendEvent(BasicUserInfo user, string confirmationToken) {
+        public UserEmailConfirmationResendEvent(SingleUserInfo user, string confirmationToken) {
             User = user ?? throw new ArgumentNullException(nameof(user));
             ConfirmationToken = confirmationToken ?? throw new ArgumentNullException(nameof(confirmationToken));
         }
@@ -22,7 +22,7 @@ namespace Indice.AspNetCore.Identity.Api.Events
         /// <summary>
         /// The instance of the user that email verification will be resend.
         /// </summary>
-        public BasicUserInfo User { get; }
+        public SingleUserInfo User { get; }
         /// <summary>
         /// The generated email confirmation token.
         /// </summary>

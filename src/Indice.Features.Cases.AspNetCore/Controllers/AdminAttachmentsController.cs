@@ -38,7 +38,7 @@ namespace Indice.Features.Cases.Controllers
             if (attachment is null) {
                 return NotFound();
             }
-            var fileName = $"{attachmentId}-{DateTime.UtcNow.Date:dd-MM-yyyy}.{attachment.FileExtension}";
+            var fileName = $"{attachmentId}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.{attachment.FileExtension}";
             return File(attachment.Data, attachment.ContentType, fileName);
         }
     }

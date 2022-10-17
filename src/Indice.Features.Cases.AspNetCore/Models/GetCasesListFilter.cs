@@ -24,12 +24,12 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The created date of the case, starting from, to filter.
         /// </summary>
-        public DateTime? From { get; set; }
+        public DateTimeOffset? From { get; set; }
 
         /// <summary>
         /// The create date of the case, ending to, to filter.
         /// </summary>
-        public DateTime? To { get; set; }
+        public DateTimeOffset? To { get; set; }
 
         /// <summary>
         /// The list of case type codes to filter.
