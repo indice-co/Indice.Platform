@@ -16,7 +16,7 @@ namespace Indice.Features.Cases.Data.Models
         public DbAttachment(string fileName, Stream dataStream, bool saveData = false) : this() => PopulateFrom(fileName, CaseId, dataStream, saveData);
 
         public Guid Id { get; set; }
-        public DateTime LastModified { get; set; }
+        public DateTimeOffset LastModified { get; set; }
         public Guid CaseId { get; set; }
         public Guid Guid { get; set; }
         public string Name { get; set; }

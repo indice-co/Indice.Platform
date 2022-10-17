@@ -25,19 +25,19 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The CreatedFrom filter.
         /// </summary>
-        public DateTime? CreatedFrom { get; set; }
+        public DateTimeOffset? CreatedFrom { get; set; }
         /// <summary>
         /// The CreatedTo filter.
         /// </summary>
-        public DateTime? CreatedTo { get; set; }
+        public DateTimeOffset? CreatedTo { get; set; }
         /// <summary>
         /// The CompletedFrom filter.
         /// </summary>
-        public DateTime? CompletedFrom { get; set; }
+        public DateTimeOffset? CompletedFrom { get; set; }
         /// <summary>
         /// The CompletedTo filter.
         /// </summary>
-        public DateTime? CompletedTo { get; set; }
+        public DateTimeOffset? CompletedTo { get; set; }
         /// <summary>
         /// Construct filter clauses based on case data.
         /// </summary>

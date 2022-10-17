@@ -143,7 +143,7 @@ namespace Indice.Features.Cases.Controllers
         public async Task<IActionResult> DownloadMyCasePdf(Guid caseId) {
             var @case = await _myCaseService.GetCaseById(User, caseId);
             var file = await CreatePdf(@case);
-            var fileName = $"{@case.CaseType.Code}-{DateTime.UtcNow.Date:dd-MM-yyyy}.pdf";
+            var fileName = $"{@case.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
             return File(file, "application/pdf", fileName);
         }
 
