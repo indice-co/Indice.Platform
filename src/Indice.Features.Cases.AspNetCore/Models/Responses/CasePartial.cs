@@ -42,7 +42,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The created date of the case.
         /// </summary>
-        public DateTime? CreatedByWhen { get; set; }
+        public DateTimeOffset? CreatedByWhen { get; set; }
 
         /// <summary>
         /// The Id of the user that created the case.

@@ -142,7 +142,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
 
             // Else continue to change the checkpoint.
             if (lastCheckpoint != null) {
-                lastCheckpoint.CompletedDate = DateTime.UtcNow;
+                lastCheckpoint.CompletedDate = DateTimeOffset.UtcNow;
             }
 
             var newCheckpoint = new DbCheckpoint {
