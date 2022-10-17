@@ -60,6 +60,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// <inheritdoc/>
         public bool? EmailAsUserName { get; protected set; }
 
+        #region Method Overrides
         /// <inheritdoc/>
         public override async Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default) {
             var changeDate = DateTime.UtcNow;
@@ -82,25 +83,6 @@ namespace Indice.AspNetCore.Identity.Data
             // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             await base.SetPasswordHashAsync(user, passwordHash, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            // Set the policy.
-            user.PasswordExpirationPolicy = policy;
-            // Calculate expiration date based on policy.
-            user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
-            return Task.CompletedTask;
-        }
-
-        /// <inheritdoc/>
-        public Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            user.PasswordExpired = changePassword;
-            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
@@ -149,6 +131,26 @@ namespace Indice.AspNetCore.Identity.Data
             if (EmailAsUserName.HasValue && EmailAsUserName.Value) {
                 await base.SetEmailAsync(user, userName, cancellationToken);
             }
+        }
+        #endregion
+
+        /// <inheritdoc/>
+        public Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            // Set the policy.
+            user.PasswordExpirationPolicy = policy;
+            // Calculate expiration date based on policy.
+            user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc/>
+        public Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            user.PasswordExpired = changePassword;
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc/>

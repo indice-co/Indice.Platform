@@ -81,6 +81,75 @@ namespace Indice.AspNetCore.Identity
         /// <summary>The default number of devices a user can register.</summary>
         public int? DefaultAllowedRegisteredDevices { get; }
 
+        #region Method Overrides
+        /// <inheritdoc />
+        public async override Task<IdentityResult> CreateAsync(TUser user) {
+            var result = await base.CreateAsync(user);
+            if (result.Succeeded) {
+                await _eventService.Publish(new UserCreatedEvent(user));
+            }
+            return result;
+        }
+
+        /// <inheritdoc />
+        public async override Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword) {
+            var result = await base.ChangePasswordAsync(user, currentPassword, newPassword);
+            if (result.Succeeded) {
+                await _eventService.Publish(new PasswordChangedEvent(user));
+            }
+            return result;
+        }
+
+        /// <inheritdoc />
+        public override async Task<IdentityResult> ResetPasswordAsync(TUser user, string token, string newPassword) {
+            var result = await base.ResetPasswordAsync(user, token, newPassword);
+            if (!result.Succeeded) {
+                return result;
+            }
+            await _eventService.Publish(new PasswordChangedEvent(user));
+            if (await IsLockedOutAsync(user)) {
+                return await SetLockoutEndDateAsync(user, null);
+            }
+            return result;
+        }
+
+        /// <inheritdoc />
+        public override async Task<IdentityResult> AccessFailedAsync(TUser user) {
+            var result = await base.AccessFailedAsync(user);
+            if (await IsLockedOutAsync(user)) {
+                await _eventService.Publish(new AccountLockedEvent(user));
+            }
+            return result;
+        }
+
+        /// <inheritdoc />
+        public async override Task<IdentityResult> SetUserNameAsync(TUser user, string userName) {
+            var result = await base.SetUserNameAsync(user, userName);
+            if (result.Succeeded) {
+                await _eventService.Publish(new UserNameChangedEvent(user));
+            }
+            return result;
+        }
+
+        /// <inheritdoc />
+        public override async Task<IdentityResult> ChangePhoneNumberAsync(TUser user, string phoneNumber, string token) {
+            var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
+            if (result.Succeeded) {
+                await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
+            }
+            return result;
+        }
+
+        /// <inheritdoc />
+        public async override Task<IdentityResult> ConfirmEmailAsync(TUser user, string token) {
+            var result = await base.ConfirmEmailAsync(user, token);
+            if (result.Succeeded) {
+                await _eventService.Publish(new EmailConfirmedEvent(user));
+            }
+            return result;
+        }
+        #endregion
+
         /// <summary>Sets the password expiration policy for the specified user.</summary>
         /// <param name="user">The user whose password expiration policy to set.</param>
         /// <param name="policy">The password expiration policy to set.</param>
@@ -150,24 +219,6 @@ namespace Indice.AspNetCore.Identity
             return await CreateAsync(user);
         }
 
-        /// <inheritdoc />
-        public async override Task<IdentityResult> CreateAsync(TUser user) {
-            var result = await base.CreateAsync(user);
-            if (result.Succeeded) {
-                await _eventService.Publish(new UserCreatedEvent(user));
-            }
-            return result;
-        }
-
-        /// <inheritdoc />
-        public async override Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword) {
-            var result = await base.ChangePasswordAsync(user, currentPassword, newPassword);
-            if (result.Succeeded) {
-                await _eventService.Publish(new PasswordChangedEvent(user));
-            }
-            return result;
-        }
-
         /// <summary>Reset's a user's password.</summary>
         /// <param name="user">The user.</param>
         /// <param name="newPassword">The new password.</param>
@@ -188,19 +239,6 @@ namespace Indice.AspNetCore.Identity
             return result;
         }
 
-        /// <inheritdoc />
-        public override async Task<IdentityResult> ResetPasswordAsync(TUser user, string token, string newPassword) {
-            var result = await base.ResetPasswordAsync(user, token, newPassword);
-            if (!result.Succeeded) {
-                return result;
-            }
-            await _eventService.Publish(new PasswordChangedEvent(user));
-            if (await IsLockedOutAsync(user)) {
-                return await SetLockoutEndDateAsync(user, null);
-            }
-            return result;
-        }
-
         /// <summary>Adds the developer-totp claim to the provided user and provides a random 6-digit code. If the user is not a member of the 'Developer' role, it is also added automatically.</summary>
         /// <param name="user">The user.</param>
         public async Task<IdentityResult> SetDeveloperTotpAsync(TUser user) {
@@ -210,15 +248,6 @@ namespace Indice.AspNetCore.Identity
             }
             user.GenerateDeveloperTotp();
             return await UpdateUserAsync(user);
-        }
-
-        /// <inheritdoc />
-        public override async Task<IdentityResult> AccessFailedAsync(TUser user) {
-            var result = await base.AccessFailedAsync(user);
-            if (await IsLockedOutAsync(user)) {
-                await _eventService.Publish(new AccountLockedEvent(user));
-            }
-            return result;
         }
 
         /// <summary>Replaces any claims with the same claim type on the specified user with the newClaim.</summary>
@@ -247,33 +276,6 @@ namespace Indice.AspNetCore.Identity
                 }
             } else {
                 result = await base.AddClaimAsync(user, newClaim);
-            }
-            return result;
-        }
-
-        /// <inheritdoc />
-        public async override Task<IdentityResult> SetUserNameAsync(TUser user, string userName) {
-            var result = await base.SetUserNameAsync(user, userName);
-            if (result.Succeeded) {
-                await _eventService.Publish(new UserNameChangedEvent(user));
-            }
-            return result;
-        }
-
-        /// <inheritdoc />
-        public override async Task<IdentityResult> ChangePhoneNumberAsync(TUser user, string phoneNumber, string token) {
-            var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
-            if (result.Succeeded) {
-                await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
-            }
-            return result;
-        }
-
-        /// <inheritdoc />
-        public async override Task<IdentityResult> ConfirmEmailAsync(TUser user, string token) {
-            var result = await base.ConfirmEmailAsync(user, token);
-            if (result.Succeeded) {
-                await _eventService.Publish(new EmailConfirmedEvent(user));
             }
             return result;
         }
@@ -497,7 +499,7 @@ namespace Indice.AspNetCore.Identity
             if (isDeviceActivationRequest) {
                 if (MaxTrustedDevices > 0) {
                     var trustedOrPendingDevices = await deviceStore.GetTrustedOrPendingDevicesCountAsync(user, cancellationToken);
-                    if (trustedOrPendingDevices == MaxTrustedDevices) {
+                    if (trustedOrPendingDevices >= MaxTrustedDevices) {
                         return IdentityResult.Failed(new IdentityError {
                             Code = nameof(UserDevice.TrustActivationDate),
                             Description = MessageDescriber.TrustedDevicesLimitReached()
