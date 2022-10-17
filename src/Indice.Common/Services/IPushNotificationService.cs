@@ -63,7 +63,7 @@ namespace Indice.Services
         /// <param name="classification">The type of the Push Notification.</param>
         /// <param name="tags">Optional tag parameters.</param>
         public static Task SendAsync<TData>(this IPushNotificationService service, string title, string body, TData data, string userTag, string classification = null, params string[] tags) where TData : class =>
-            service.SendAsync(title, body, data != null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null, userTag, classification, tags);
+            service.SendAsync(title, body, data is not null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null, userTag, classification, tags);
 
         /// <summary>Sends a notification directly to the device specified by it's unique id.</summary>
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
@@ -79,7 +79,7 @@ namespace Indice.Services
         /// <param name="service">Instance of <see cref="IPushNotificationService"/>.</param>
         /// <param name="configurePushNotificationMessage">The delegate that will be used to build the <see cref="PushNotificationMessage"/>.</param>
         public static async Task SendAsync(this IPushNotificationService service, Action<PushNotificationMessageBuilder> configurePushNotificationMessage) {
-            if (configurePushNotificationMessage == null) {
+            if (configurePushNotificationMessage is null) {
                 throw new ArgumentNullException(nameof(configurePushNotificationMessage));
             }
             var builder = new PushNotificationMessageBuilder();

@@ -5,9 +5,9 @@ using System.Runtime.Serialization;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Indice.Extensions;
 using Indice.Security;
 using Indice.Serialization;
-using Indice.Extensions;
 
 namespace Indice.Services
 {

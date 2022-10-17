@@ -463,10 +463,10 @@ namespace Indice.AspNetCore.Identity
             return deviceStore.SetAllDevicesRequirePasswordAsync(user, requiresPassword, cancellationToken);
         }
 
-        /// <summary></summary>
-        /// <param name="user"></param>
-        /// <param name="device"></param>
-        /// <param name="cancellationToken"></param>
+        /// <summary>Begins the operation of trusting a user device.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="device">The device to mark as trusted.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <exception cref="ArgumentNullException"></exception>
         public async Task<IdentityResult> SetTrustedDevice(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
