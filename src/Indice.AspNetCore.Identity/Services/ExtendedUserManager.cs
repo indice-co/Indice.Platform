@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity
 {
-    /// <summary>Provides the APIs for managing user in a persistence store.</summary>
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     /// <typeparam name="TUser">The type encapsulating a user.</typeparam>
     public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     {

@@ -124,11 +124,7 @@ namespace Indice.AspNetCore.Identity
                 return;
             }
             var device = await _userManager.GetDeviceByIdAsync(context.User, deviceId);
-            if (device is null) {
-                SetError(context, ResourceOwnerPasswordErrorCodes.DeviceNotFound);
-                return;
-            }
-            if (device.RequiresPassword) {
+            if (device is not null && device.RequiresPassword) {
                 await _userManager.SetDeviceRequiresPasswordAsync(context.User, device, requiresPassword: false);
             }
             context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
