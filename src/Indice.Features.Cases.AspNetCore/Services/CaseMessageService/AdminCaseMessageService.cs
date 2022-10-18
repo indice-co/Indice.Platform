@@ -71,9 +71,10 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                     Id = @case.CaseTypeId
                 },
                 GroupId = @case.GroupId,
-                CheckpointTypeId = latestCheckpoint!.Id
+                CheckpointTypeId = latestCheckpoint!.Id,
+                CreatedById = @case.CreatedBy.Id
             };
-            
+
             if (!await _caseAuthorizationService.IsValid(user, caseDetails)) {
                 throw new ResourceUnauthorizedException();
             }
