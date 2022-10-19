@@ -190,7 +190,7 @@ export interface ICasesApiService {
     /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
-     * @param caseTypeCode (optional) 
+     * @param caseTypeCode (optional) The case type code, used for filtering customers based on case type (implementantion on client code)
      * @param api_version (optional) 
      * @return Success
      */
@@ -246,7 +246,7 @@ export interface ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getCases2(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
+    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
     /**
      * Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.
      * @param api_version (optional) 
@@ -2561,7 +2561,7 @@ export class CasesApiService implements ICasesApiService {
     /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
-     * @param caseTypeCode (optional) 
+     * @param caseTypeCode (optional) The case type code, used for filtering customers based on case type (implementantion on client code)
      * @param api_version (optional) 
      * @return Success
      */
@@ -3118,7 +3118,7 @@ export class CasesApiService implements ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getCases2(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet> {
+    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet> {
         let url_ = this.baseUrl + "/api/my/cases?";
         if (filter_CaseTypeTags === null)
             throw new Error("The parameter 'filter_CaseTypeTags' cannot be null.");
@@ -3183,11 +3183,11 @@ export class CasesApiService implements ICasesApiService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetCases2(response_);
+            return this.processGetMyCases(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetCases2(response_ as any);
+                    return this.processGetMyCases(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<MyCasePartialResultSet>;
                 }
@@ -3196,7 +3196,7 @@ export class CasesApiService implements ICasesApiService {
         }));
     }
 
-    protected processGetCases2(response: HttpResponseBase): Observable<MyCasePartialResultSet> {
+    protected processGetMyCases(response: HttpResponseBase): Observable<MyCasePartialResultSet> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
