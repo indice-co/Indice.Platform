@@ -1,13 +1,18 @@
-<div class="flex gap-6 mb-6" *ngIf="(caseTypes$ | async) as model">
+<div class="flex gap-6 mb-6"
+     *ngIf="(caseTypes$ | async) as model">
     <div>
-        <label class="block tracking-wide text-gray-700 text-xs font-bold mb-2" for="caseType">
+        <label class="block tracking-wide text-gray-700 text-xs font-bold mb-2"
+               for="caseType">
             Είδος Αίτησης
         </label>
-        <select [(ngModel)]="caseType" (ngModelChange)="onSelect(caseType)" name="caseType" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm
+        <select [(ngModel)]="caseType"
+                (ngModelChange)="onSelect(caseType)"
+                name="caseType"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm
 focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             <ng-container *ngFor="let caseType of model">
-                <option [ngValue]="caseType">{{ caseType.title }}</option>
+                <option [ngValue]="caseType.code">{{ caseType.title }}</option>
             </ng-container>
         </select>
     </div>

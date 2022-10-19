@@ -1,4 +1,3 @@
-import { CaseTypePartial } from './../../../core/services/cases-api.service';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
@@ -11,7 +10,7 @@ import { CasesApiService, CreateDraftCaseRequest, CustomerDetails, CustomerMeta 
 })
 export class CaseCreatePageComponent implements OnInit {
   public customer?: CustomerDetails;
-  public caseType?: CaseTypePartial;
+  public caseTypeCode?: string;
 
   constructor(
     private api: CasesApiService,
@@ -25,7 +24,7 @@ export class CaseCreatePageComponent implements OnInit {
 
   public createDraft() {
     const request = new CreateDraftCaseRequest({
-      caseTypeCode: this.caseType?.code,
+      caseTypeCode: this.caseTypeCode,
       customer: new CustomerMeta({
         customerId: this.customer?.customerId,
         firstName: this.customer?.firstName,

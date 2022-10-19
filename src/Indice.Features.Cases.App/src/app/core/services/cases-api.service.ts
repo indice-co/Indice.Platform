@@ -190,12 +190,11 @@ export interface ICasesApiService {
     /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
-     * @param taxId (optional) The tax identification of the customer.
-     * @param includeLegal (optional) Use to return legal customers
+     * @param caseTypeCode (optional) 
      * @param api_version (optional) 
      * @return Success
      */
-    getCustomers(customerId?: string | undefined, taxId?: string | undefined, includeLegal?: boolean | undefined, api_version?: string | undefined): Observable<CustomerDetails[]>;
+    getCustomers(customerId?: string | undefined, caseTypeCode?: string | undefined, api_version?: string | undefined): Observable<CustomerDetails[]>;
     /**
      * Fetch customer data for a specific case type code.
      * @param customerId The Id of the customer to the integrator's system.
@@ -2562,25 +2561,20 @@ export class CasesApiService implements ICasesApiService {
     /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
-     * @param taxId (optional) The tax identification of the customer.
-     * @param includeLegal (optional) Use to return legal customers
+     * @param caseTypeCode (optional) 
      * @param api_version (optional) 
      * @return Success
      */
-    getCustomers(customerId?: string | undefined, taxId?: string | undefined, includeLegal?: boolean | undefined, api_version?: string | undefined): Observable<CustomerDetails[]> {
+    getCustomers(customerId?: string | undefined, caseTypeCode?: string | undefined, api_version?: string | undefined): Observable<CustomerDetails[]> {
         let url_ = this.baseUrl + "/api/manage/integrations/customers?";
         if (customerId === null)
             throw new Error("The parameter 'customerId' cannot be null.");
         else if (customerId !== undefined)
             url_ += "CustomerId=" + encodeURIComponent("" + customerId) + "&";
-        if (taxId === null)
-            throw new Error("The parameter 'taxId' cannot be null.");
-        else if (taxId !== undefined)
-            url_ += "TaxId=" + encodeURIComponent("" + taxId) + "&";
-        if (includeLegal === null)
-            throw new Error("The parameter 'includeLegal' cannot be null.");
-        else if (includeLegal !== undefined)
-            url_ += "IncludeLegal=" + encodeURIComponent("" + includeLegal) + "&";
+        if (caseTypeCode === null)
+            throw new Error("The parameter 'caseTypeCode' cannot be null.");
+        else if (caseTypeCode !== undefined)
+            url_ += "CaseTypeCode=" + encodeURIComponent("" + caseTypeCode) + "&";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
         else if (api_version !== undefined)

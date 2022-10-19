@@ -11,8 +11,9 @@ import { map } from 'rxjs/internal/operators';
 })
 export class SelectCaseTypeComponent implements OnInit {
   public caseTypes$: Observable<CaseTypePartial[]>;
-  public caseType = new CaseTypePartial;
-  @Output() selectedCaseTypeEvent = new EventEmitter<CaseTypePartial>();
+  public caseType = '';
+  @Output() selectedCaseTypeEvent = new EventEmitter<string>();
+
 
   constructor(private api: CasesApiService) {
     this.caseTypes$ = this.api.getCaseTypes(true).pipe(
@@ -22,7 +23,7 @@ export class SelectCaseTypeComponent implements OnInit {
 
   ngOnInit(): void { }
 
-  onSelect(value: CaseTypePartial) {
+  onSelect(value:any) {
     this.selectedCaseTypeEvent.emit(value);
   }
 }

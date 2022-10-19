@@ -8,7 +8,7 @@ import { CasesApiService, CustomerDetails } from 'src/app/core/services/cases-ap
   styleUrls: ['./search-customer.component.scss']
 })
 export class SearchCustomerComponent {
-  @Input() caseTypeConfig: string | undefined;
+  @Input() caseTypeCode: string | undefined;
   @Output() selectedCustomerEvent = new EventEmitter<CustomerDetails>();
   public searchValue: string | undefined
   public results$: Observable<Selectable<CustomerDetails>[]> | undefined;
@@ -18,8 +18,7 @@ export class SearchCustomerComponent {
   // when user clicks search, the obs of results is
   // set to be drawn by the view
   onSearch() {
-    var caseTypeSupportsLegal = this.caseTypeConfig ? JSON.parse(this.caseTypeConfig) : undefined;
-    this.results$ = this.api.getCustomers(this.searchValue, undefined, caseTypeSupportsLegal?.SupportsLegalCustomers)
+    this.results$ = this.api.getCustomers(this.searchValue, this.caseTypeCode)
       .pipe(
         map((res) => {
           return res.map(c => new Selectable(c))
