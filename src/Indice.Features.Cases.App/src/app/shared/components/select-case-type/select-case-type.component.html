@@ -7,7 +7,7 @@
 focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
             <ng-container *ngFor="let caseType of model">
-                <option [ngValue]="caseType.code">{{ caseType.title }}</option>
+                <option [ngValue]="caseType">{{ caseType.title }}</option>
             </ng-container>
         </select>
     </div>
