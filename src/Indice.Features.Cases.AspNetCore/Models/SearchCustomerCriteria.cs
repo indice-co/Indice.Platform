@@ -14,5 +14,10 @@
         /// The tax identification of the customer.
         /// </summary>
         public string? TaxId { get; set; }
+        
+        /// <summary>
+        /// Use to return legal customers
+        /// </summary>
+        public bool IncludeLegal { get; set; } = false;
     }
 }
