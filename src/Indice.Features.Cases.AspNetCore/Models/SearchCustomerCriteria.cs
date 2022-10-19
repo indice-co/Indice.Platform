@@ -9,10 +9,9 @@
         /// The Id of the customer as provided by the consumer/integrator.
         /// </summary>
         public string? CustomerId { get; set; }
-
         /// <summary>
-        /// The tax identification of the customer.
+        /// The case type code, used for filtering customers based on case type (implementantion on client code)
         /// </summary>
-        public string? TaxId { get; set; }
+        public string? CaseTypeCode { get; set; }
     }
 }

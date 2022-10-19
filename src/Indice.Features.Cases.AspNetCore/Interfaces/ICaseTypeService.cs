@@ -11,7 +11,7 @@ namespace Indice.Features.Cases.Interfaces
     /// <summary>
     /// The Case Type services for managing <see cref="DbCaseType"/> domain model.
     /// </summary>
-    internal interface ICaseTypeService
+    public interface ICaseTypeService
     {
         /// <summary>
         /// Get a case type by its code.
