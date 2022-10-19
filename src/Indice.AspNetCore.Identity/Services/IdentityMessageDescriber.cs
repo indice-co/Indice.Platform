@@ -56,9 +56,9 @@ namespace Indice.AspNetCore.Identity
         /// <summary>User cannot add a device because the limit is reached.</summary>
         public virtual string MaxNumberOfDevices() => string.Format(IdentityResources.Culture, IdentityResources.MaxNumberOfDevices);
         /// <summary>User tries to set the number of allowed devices to a value greater than the allowed one.</summary>
-        public virtual string LargeNumberOfDevices(int userMaxDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.Culture, IdentityResources.LargeNumberOfDevices);
+        public virtual string LargeNumberOfDevices(int userMaxDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.Culture, IdentityResources.LargeNumberOfDevices, userMaxDevicesCount, maxAllowedRegisteredDevices);
         /// <summary>User tries to set the number of allowed devices to a value lower than the current number.</summary>
-        public virtual string LargeNumberOfUserDevices(int userDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.Culture, IdentityResources.LargeNumberOfUserDevices);
+        public virtual string LargeNumberOfUserDevices(int userDevicesCount, int maxAllowedRegisteredDevices) => string.Format(IdentityResources.Culture, IdentityResources.LargeNumberOfUserDevices, userDevicesCount, maxAllowedRegisteredDevices);
         /// <summary>User tries to set the number of allowed devices to a value lower than 1.</summary>
         public virtual string InsufficientNumberOfDevices() => string.Format(IdentityResources.Culture, IdentityResources.InsufficientNumberOfDevices);
         /// <summary>Device is pending trust activation.</summary>

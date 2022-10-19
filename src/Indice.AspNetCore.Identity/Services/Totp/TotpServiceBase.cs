@@ -77,7 +77,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cacheKey"></param>
         protected async Task AddCacheKeyAsync(string cacheKey) {
             var unixTime = DateTimeOffset.UtcNow.AddSeconds(CACHE_EXPIRATION_SECONDS).ToUnixTimeSeconds();
-            await ServiceProvider.GetRequiredService<IDistributedCache>().SetStringAsync(cacheKey, $"{unixTime}", new DistributedCacheEntryOptions {
+            await ServiceProvider.GetRequiredService<IDistributedCache>().SetStringAsync(cacheKey, unixTime.ToString(), new DistributedCacheEntryOptions {
                 AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(120)
             });
         }
@@ -96,7 +96,7 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary></summary>
         /// <param name="purpose"></param>
-        /// <param name="phoneNumberOrEmail"></param>
-        protected static string GetModifier(string purpose, string phoneNumberOrEmail) => $"{purpose}:{phoneNumberOrEmail}";
+        /// <param name="phoneNumber"></param>
+        protected static string GetModifier(string purpose, string phoneNumber) => $"{purpose}:{phoneNumber}";
     }
 }

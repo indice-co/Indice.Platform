@@ -49,13 +49,11 @@ namespace Microsoft.Extensions.DependencyInjection
             var serviceProvider = services.BuildServiceProvider();
             var totpSection = serviceProvider.GetRequiredService<IConfiguration>().GetSection(TotpOptions.Name);
             var totpOptions = new TotpOptions {
-                Services = services,
                 CodeDuration = totpSection.GetValue<int?>(nameof(TotpOptions.CodeDuration)) ?? TotpOptions.DefaultCodeDuration,
                 CodeLength = totpSection.GetValue<int?>(nameof(TotpOptions.CodeLength)) ?? TotpOptions.DefaultCodeLength,
                 EnableDeveloperTotp = totpSection.GetValue<bool>(nameof(TotpOptions.EnableDeveloperTotp))
             };
             configure?.Invoke(totpOptions);
-            totpOptions.Services = null;
             services.TryAddSingleton(totpOptions);
             services.TryAddTransient<IPushNotificationService, PushNotificationServiceNoop>();
             services.TryAddTransient<ITotpService, TotpService>();
@@ -68,6 +66,25 @@ namespace Microsoft.Extensions.DependencyInjection
                     services.AddTransient(typeof(ITotpService), decoratorType);
                 }
             }
+            return services;
+        }
+
+        internal static IServiceCollection AddTotpServiceFactory(this IServiceCollection services, Action<TotpOptions> configure = null) {
+            var serviceProvider = services.BuildServiceProvider();
+            var totpSection = serviceProvider.GetRequiredService<IConfiguration>().GetSection(TotpOptions.Name);
+            var totpOptions = new TotpOptions {
+                CodeDuration = totpSection.GetValue<int?>(nameof(TotpOptions.CodeDuration)) ?? TotpOptions.DefaultCodeDuration,
+                CodeLength = totpSection.GetValue<int?>(nameof(TotpOptions.CodeLength)) ?? TotpOptions.DefaultCodeLength,
+                EnableDeveloperTotp = totpSection.GetValue<bool>(nameof(TotpOptions.EnableDeveloperTotp))
+            };
+            configure?.Invoke(totpOptions);
+            services.Configure<TotpOptions>(options => {
+                options.CodeDuration = totpOptions.CodeDuration;
+                options.CodeLength = totpOptions.CodeLength;
+                options.EnableDeveloperTotp = totpOptions.EnableDeveloperTotp;
+            });
+            services.TryAddTransient<TotpServiceFactory>();
+            services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
             return services;
         }
     }

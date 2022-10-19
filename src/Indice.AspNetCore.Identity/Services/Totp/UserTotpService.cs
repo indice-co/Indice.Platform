@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -11,38 +13,43 @@ using Microsoft.Extensions.Localization;
 namespace Indice.AspNetCore.Identity
 {
     /// <summary></summary>
-    public sealed class UserBasedTotpService<TUser> : TotpServiceBase where TUser : User
+    /// <typeparam name="TUser">The type of user entity.</typeparam>
+    public class UserTotpService<TUser> : TotpServiceBase where TUser : User
     {
-        private readonly ExtendedUserManager<TUser> _userManager;
-        private readonly IStringLocalizer<UserBasedTotpService<TUser>> _localizer;
+        private readonly IStringLocalizer<UserTotpService<TUser>> _localizer;
 
-        /// <summary>Creates a new instance of <see cref="UserBasedTotpService{TUser}"/>.</summary>
+        /// <summary>Creates a new instance of <see cref="UserTotpService{TUser}"/>.</summary>
         /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-        /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UserBasedTotpService{TUser}"/>.</param>
+        /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UserTotpService{TUser}"/>.</param>
         /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public UserBasedTotpService(
+        public UserTotpService(
             ExtendedUserManager<TUser> userManager,
-            IStringLocalizer<UserBasedTotpService<TUser>> localizer,
+            IStringLocalizer<UserTotpService<TUser>> localizer,
             IServiceProvider serviceProvider
         ) : base(serviceProvider) {
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         }
+
+        /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+        protected ExtendedUserManager<TUser> UserManager { get; }
 
         /// <summary>Creates a TOTP and sends it as an SMS message.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="message">The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
-        public Task<TotpResult> SendToSmsAsync(TUser user, string message, string subject, string purpose = null) => SendAsync(user, message, subject, TotpDeliveryChannel.Sms, purpose: purpose);
+        public Task<TotpResult> SendToSmsAsync(TUser user, string message, string subject, string purpose = null)
+            => SendAsync(user, message, subject, TotpDeliveryChannel.Sms, purpose: purpose);
 
         /// <summary>Creates a TOTP and sends it as a Viber message.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="message">The message to be sent in Viber. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
-        public Task<TotpResult> SendToViberAsync(TUser user, string message, string subject, string purpose = null) => SendAsync(user, message, subject, TotpDeliveryChannel.Viber, purpose: purpose);
+        public Task<TotpResult> SendToViberAsync(TUser user, string message, string subject, string purpose = null)
+            => SendAsync(user, message, subject, TotpDeliveryChannel.Viber, purpose: purpose);
 
         /// <summary>Creates a TOTP and sends it as a push notification.</summary>
         /// <param name="user">The user instance.</param>
@@ -62,7 +69,6 @@ namespace Indice.AspNetCore.Identity
         /// <param name="data">The data to send.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
         /// <param name="pushNotificationClassification">The notification's type.</param>
-        /// <returns></returns>
         public Task<TotpResult> SendToPushNotificationAsync<TData>(TUser user, string message, string subject, TData data, string purpose = null, string pushNotificationClassification = null) where TData : class {
             var dataJson = JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings());
             return SendToPushNotificationAsync(user, message, subject, purpose, pushNotificationClassification, dataJson);
@@ -86,7 +92,7 @@ namespace Indice.AspNetCore.Identity
             string pushNotificationClassification = null,
             string pushNotificationData = null
         ) {
-            var user = await _userManager.GetUserAsync(principal);
+            var user = await UserManager.GetUserAsync(principal);
             return await SendAsync(user, message, subject, channel, purpose, pushNotificationClassification, pushNotificationData);
         }
 
@@ -99,7 +105,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="pushNotificationClassification">The notification's type.</param>
         /// <param name="pushNotificationData">The push notification data (preferably as a JSON string).</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task<TotpResult> SendAsync(
+        public virtual async Task<TotpResult> SendAsync(
             TUser user,
             string message,
             string subject,
@@ -115,15 +121,88 @@ namespace Indice.AspNetCore.Identity
                 return TotpResult.ErrorResult(_localizer["User's phone number does not exist or is not verified."]);
             }
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-            var token = await _userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose);
+            var token = await UserManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose);
             message = _localizer[message, token];
-            var cacheKey = $"{nameof(UserBasedTotpService<TUser>)}:{user.Id}:{channel}:{token}:{purpose}";
+            var cacheKey = $"{nameof(UserTotpService<TUser>)}:{user.Id}:{channel}:{token}:{purpose}";
             if (await CacheKeyExistsAsync(cacheKey)) {
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
             await SendToChannelAsync(channel, message, subject, user.PhoneNumber, deviceId: null, user.Id, pushNotificationClassification, pushNotificationData);
             await AddCacheKeyAsync(cacheKey);
             return TotpResult.SuccessResult;
+        }
+
+        /// <summary>Verifies the TOTP received for the given claims principal.</summary>
+        /// <param name="principal">The current user principal.</param>
+        /// <param name="code">The TOTP code to verify.</param>
+        /// <param name="purpose">Optional reason to generate the TOTP.</param>
+        public async Task<TotpResult> VerifyAsync(
+            ClaimsPrincipal principal,
+            string code,
+            string purpose = null
+        ) {
+            var user = await UserManager.GetUserAsync(principal);
+            return await VerifyAsync(user, code, purpose);
+        }
+
+        /// <summary>Verifies the TOTP received for the given user.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="code">The TOTP code to verify.</param>
+        /// <param name="purpose">Optional reason to generate the TOTP.</param>
+        public virtual async Task<TotpResult> VerifyAsync(
+            TUser user,
+            string code,
+            string purpose = null
+        ) {
+            purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
+            var verified = await UserManager.VerifyUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose, code);
+            if (verified) {
+                await UserManager.UpdateSecurityStampAsync(user);
+                return TotpResult.SuccessResult;
+            } else {
+                return TotpResult.ErrorResult(_localizer["The verification code is invalid."]);
+            }
+        }
+
+        /// <summary>Gets list of available providers for the given user.</summary>
+        /// <param name="user">The user entity type.</param>
+        public virtual async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(TUser user) {
+            var validProviders = await UserManager.GetValidTwoFactorProvidersAsync(user);
+            var providers = new[] {
+                new TotpProviderMetadata {
+                    Type = TotpProviderType.Phone,
+                    Channel = TotpDeliveryChannel.Sms,
+                    DisplayName = "SMS",
+                    CanGenerate = true
+                },
+                new TotpProviderMetadata {
+                    Type = TotpProviderType.Phone,
+                    Channel = TotpDeliveryChannel.Viber,
+                    DisplayName = "Viber",
+                    CanGenerate = true
+                },
+                new TotpProviderMetadata {
+                    Type = TotpProviderType.Phone,
+                    Channel = TotpDeliveryChannel.PushNotification,
+                    DisplayName = "PushNotification",
+                    CanGenerate = true
+                },
+                new TotpProviderMetadata {
+                    Type = TotpProviderType.EToken,
+                    Channel = TotpDeliveryChannel.EToken,
+                    DisplayName = "e-Token",
+                    CanGenerate = false
+                }
+            };
+            return providers.Where(x => validProviders.Contains(x.Type.ToString())).ToDictionary(x => x.Name);
+        }
+
+        /// <summary>Gets list of available providers for the given claims principal.</summary>
+        /// <param name="principal">The user principal.</param>
+        /// <exception cref="TotpServiceException">Used to pass errors between service and the caller.</exception>
+        public async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(ClaimsPrincipal principal) {
+            var user = await UserManager.GetUserAsync(principal);
+            return await GetProvidersAsync(user);
         }
     }
 }

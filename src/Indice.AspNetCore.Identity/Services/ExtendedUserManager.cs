@@ -386,9 +386,7 @@ namespace Indice.AspNetCore.Identity
                     Description = MessageDescriber.LargeNumberOfUserDevices(numberOfUserDevices, maxDevicesCount)
                 });
             }
-            return await AddClaimsAsync(user, new List<Claim> {
-                new Claim(BasicClaimTypes.MaxDevicesCount, maxDevicesCount.ToString())
-            });
+            return await ReplaceClaimAsync(user, BasicClaimTypes.MaxDevicesCount, maxDevicesCount.ToString());
         }
 
         /// <summary>Get the devices registered by the specified user.</summary>
