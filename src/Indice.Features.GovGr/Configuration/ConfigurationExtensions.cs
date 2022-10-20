@@ -1,7 +1,7 @@
 ﻿using System;
-using Indice.Features.Kyc.GovGr.Configuration;
-using Indice.Features.Kyc.GovGr.Interfaces;
-using Indice.Features.Kyc.GovGr.Services;
+using Indice.Features.GovGr;
+using Indice.Features.GovGr.Configuration;
+using Indice.Features.GovGr.Interfaces;
 using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -9,22 +9,22 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Configuration extensions regarding eKYC for gov GR
     /// </summary>
-    public static class KycConfig
+    public static class GovGrKycConfigurationExtensions
     {
         /// <summary>
         /// Add GovGr Kyc service.
         /// </summary>
-        public static void AddKycGovGr(this IServiceCollection services, Action<KycSettings> configure = null) {
+        public static void AddKycGovGr(this IServiceCollection services, Action<GovGrKycSettings> configure = null) {
             var serviceProvider = services.BuildServiceProvider();
             var configuration = serviceProvider.GetRequiredService<IConfiguration>();
             // Initialize empty options.
-            var options = new KycSettings();
+            var options = new GovGrKycSettings();
             // Bind 'EGovKycSettings' section from application settings to 'options' object.
-            configuration.Bind(KycSettings.Name, options);
+            configuration.Bind(GovGrKycSettings.Name, options);
             // Invoke provided action from caller and override 'options' object.
             configure?.Invoke(options);
             // Register options in the DI container.
-            services.Configure<KycSettings>(settings => {
+            services.Configure<GovGrKycSettings>(settings => {
                 settings.TokenEndpoint = options.TokenEndpoint;
                 settings.ResourceServerEndpoint = options.ResourceServerEndpoint;
                 settings.UseMockServices = options.UseMockServices;
@@ -32,13 +32,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 settings.SkipCheckTin = options.SkipCheckTin;
             });
             // Register custom services.
-            if (!options.UseMockServices) {
-                services.AddHttpClient(nameof(KycService));
-                services.AddTransient<IKycService, KycService>();
-            } else {
-                services.AddTransient<IKycService, MockKycService>();
-            }
-            services.AddTransient<IKycScopeService, KycScopeService>();
+            services.AddHttpClient(nameof(GovGrKycClient));
+            services.AddTransient<IKycService, GovGrKycClient>();
+            services.AddTransient<GovGrKycScopeDescriber>();
         }
     }
 }

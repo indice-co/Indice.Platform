@@ -1,13 +1,13 @@
 ﻿using System.Text.Json.Serialization;
-using Indice.Features.Kyc.GovGr.Extensions;
+using Indice.Features.GovGr.Serialization;
 
-namespace Indice.Features.Kyc.GovGr.Enums
+namespace Indice.Features.GovGr.Models
 {
     /// <summary>
     /// GovGr KYC StatusCodes
     /// </summary>
     [JsonConverter(typeof(StringKycStatusCodeConverter))]
-    public enum GovGrKycStatusCode
+    public enum KycStatusCode
     {
         /// <summary><see cref="Unknown"/></summary>
         Unknown,

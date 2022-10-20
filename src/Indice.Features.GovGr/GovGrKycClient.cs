@@ -6,22 +6,23 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using IdentityModel.Client;
 using Indice.Extensions;
-using Indice.Features.Kyc.GovGr.Configuration;
-using Indice.Features.Kyc.GovGr.Interfaces;
-using Indice.Features.Kyc.GovGr.Models;
+using Indice.Features.GovGr;
+using Indice.Features.GovGr.Configuration;
+using Indice.Features.GovGr.Interfaces;
+using Indice.Features.GovGr.Models;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Kyc.GovGr.Services
+namespace Indice.Features.GovGr
 {
     /// <inheritdoc />
-    public class KycService : IKycService
+    public class GovGrKycClient : IKycService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly KycSettings _settings;
+        private readonly GovGrKycSettings _settings;
 
-        public KycService(
+        public GovGrKycClient(
             IHttpClientFactory httpClientFactory,
-            IOptions<KycSettings> settings
+            IOptions<GovGrKycSettings> settings
             ) {
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
@@ -30,7 +31,10 @@ namespace Indice.Features.Kyc.GovGr.Services
         /// <summary>
         /// Get Data from eGov KYC
         /// </summary>
-        public async Task<EGovKycResponsePayload> GetData(string clientName, string code) {
+        public async Task<KycPayload> GetData(string clientName, string code) {
+            if (_settings.UseMockServices)
+                return JsonSerializer.Deserialize<KycPayload>(GovGrConstants.KycMockJsonString);
+
             if (clientName is null) { throw new ArgumentNullException(nameof(clientName)); }
             if (code is null) { throw new ArgumentNullException(nameof(code)); }
 
@@ -47,7 +51,7 @@ namespace Indice.Features.Kyc.GovGr.Services
         /// Get Access Token from EGovKyc Identity server
         /// </summary>
         private async Task<string> GetAccessToken(string tokenEndpoint, string clientId, string clientSecret, string code, string redirectUri) {
-            var tokenClient = _httpClientFactory.CreateClient(nameof(KycService));
+            var tokenClient = _httpClientFactory.CreateClient(nameof(GovGrKycClient));
 
             // https://en.wikipedia.org/wiki/Basic_access_authentication
             var credentials = Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}");
@@ -67,15 +71,15 @@ namespace Indice.Features.Kyc.GovGr.Services
         /// <summary>
         /// Get EGovKycResponsePayload from EGovKyc Resource server
         /// </summary>
-        private async Task<EGovKycResponsePayload> GetEGovKycResponsePayload(string accessToken, string resourceServerEndpoint) {
-            var apiClient = _httpClientFactory.CreateClient(nameof(KycService));
+        private async Task<KycPayload> GetEGovKycResponsePayload(string accessToken, string resourceServerEndpoint) {
+            var apiClient = _httpClientFactory.CreateClient(nameof(GovGrKycClient));
 
             apiClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
             var httpResponse = await apiClient.GetAsync(resourceServerEndpoint);
             var response = await httpResponse.Content.ReadAsStringAsync();
-            var encodedResponse = JsonSerializer.Deserialize<KycResponse>(response);
+            var encodedResponse = JsonSerializer.Deserialize<KycHttpResponse>(response);
             var jsonString = encodedResponse.Payload.Base64UrlSafeDecode();
-            return JsonSerializer.Deserialize<EGovKycResponsePayload>(jsonString);
+            return JsonSerializer.Deserialize<KycPayload>(jsonString);
         }
     }
 }
