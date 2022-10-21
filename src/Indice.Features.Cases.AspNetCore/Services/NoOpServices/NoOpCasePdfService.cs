@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models.Responses;
-using Indice.Types;
 
 namespace Indice.Features.Cases.Services.NoOpServices
 {
-    internal class NoOpLookupService : ILookupService
+    internal class NoOpCasePdfService : ICasePdfService
     {
-        public Task<ResultSet<LookupItem>> Get(string lookupName, string? searchValues = null) =>
+        public Task<byte[]> HtmlToPdfAsync(string htmlTemplate, bool isPortrait = true, bool digitallySigned = false) =>
             throw new NotImplementedException("Implement this interface with your own data sources.");
     }
 }
