@@ -1,0 +1,188 @@
+﻿using System;
+using System.Security.Claims;
+using System.Text.Json;
+using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Serialization;
+using Indice.Services;
+
+namespace Indice.AspNetCore.Identity
+{
+    /// <summary>Builder class for configuring <see cref="TotpServiceUser{TUser}"/> parameters.</summary>
+    /// <typeparam name="TUser">The type of user entity.</typeparam>
+    public sealed class TotpServiceUserParametersBuilder<TUser> : TotpServiceUserParameters<TUser> where TUser : User
+    {
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.ClaimsPrincipal"/> property.</summary>
+        /// <param name="claimsPrincipal">The claims principal.</param>
+        public TotpServiceUserMessageBuilder<TUser> ToPrincipal(ClaimsPrincipal claimsPrincipal) {
+            ClaimsPrincipal = claimsPrincipal ?? throw new ArgumentNullException($"Parameter {nameof(claimsPrincipal)} cannot be null.");
+            return new TotpServiceUserMessageBuilder<TUser>(this);
+        }
+
+        /// <summary>Sets the <see cref="User"/> property.</summary>
+        /// <param name="user">The user entity.</param>
+        public TotpServiceUserMessageBuilder<TUser> ToUser(TUser user) {
+            User = user ?? throw new ArgumentNullException($"Parameter {nameof(user)} cannot be null.");
+            return new TotpServiceUserMessageBuilder<TUser>(this);
+        }
+
+        /// <summary>Creates a new <see cref="TotpServiceUserParameters{TUser}"/> instance.</summary>
+        public TotpServiceUserParameters<TUser> Build() => new() {
+            ClaimsPrincipal = ClaimsPrincipal,
+            Classification = Classification,
+            Data = Data,
+            DeliveryChannel = DeliveryChannel,
+            Message = Message,
+            Purpose = Purpose,
+            Subject = Subject,
+            User = User
+        };
+    }
+
+    /// <summary>Builder class.</summary>
+    /// <typeparam name="TUser">The type of user entity.</typeparam>
+    public sealed class TotpServiceUserMessageBuilder<TUser> where TUser : User
+    {
+        private readonly TotpServiceUserParametersBuilder<TUser> _builder;
+
+        /// <summary>Creates a new instance of <see cref="TotpServiceUserMessageBuilder{TUser}"/>.</summary>
+        /// <param name="builder">The instance of <see cref="TotpServiceUserParametersBuilder{TUser}"/>.</param>
+        public TotpServiceUserMessageBuilder(TotpServiceUserParametersBuilder<TUser> builder) => _builder = builder;
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Message"/> property.</summary>
+        /// <param name="message">The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
+        public TotpServiceUserSubjectBuilder<TUser> WithMessage(string message) {
+            _builder.Subject = message;
+            return new TotpServiceUserSubjectBuilder<TUser>(_builder);
+        }
+    }
+
+    /// <summary>Builder class.</summary>
+    /// <typeparam name="TUser">The type of user entity.</typeparam>
+    public sealed class TotpServiceUserSubjectBuilder<TUser> where TUser : User
+    {
+        private readonly TotpServiceUserParametersBuilder<TUser> _builder;
+
+        /// <summary>Creates a new instance of <see cref="TotpServiceUserSubjectBuilder{TUser}"/>.</summary>
+        /// <param name="builder">The instance of <see cref="TotpServiceUserParametersBuilder{TUser}"/>.</param>
+        public TotpServiceUserSubjectBuilder(TotpServiceUserParametersBuilder<TUser> builder) => _builder = builder;
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Subject"/> property.</summary>
+        /// <param name="subject">The subject of message.</param>
+        public TotpServiceUserDeliveryChannelBuilder<TUser> WithSubject(string subject) {
+            _builder.Subject = subject;
+            return new TotpServiceUserDeliveryChannelBuilder<TUser>(_builder);
+        }
+    }
+
+    /// <summary>Builder class.</summary>
+    /// <typeparam name="TUser">The type of user entity.</typeparam>
+    public sealed class TotpServiceUserDeliveryChannelBuilder<TUser> where TUser : User
+    {
+        private readonly TotpServiceUserParametersBuilder<TUser> _builder;
+
+        /// <summary>Creates a new instance of <see cref="TotpServiceUserDeliveryChannelBuilder{TUser}"/>.</summary>
+        /// <param name="builder">The instance of <see cref="TotpServiceUserParametersBuilder{TUser}"/>.</param>
+        public TotpServiceUserDeliveryChannelBuilder(TotpServiceUserParametersBuilder<TUser> builder) => _builder = builder;
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.DeliveryChannel"/> property.</summary>
+        /// <param name="deliveryChannel">Chosen delivery channel.</param>
+        public TotpServiceUserOptionalParametersBuilder<TUser> UsingDeliveryChannel(TotpDeliveryChannel deliveryChannel) {
+            _builder.DeliveryChannel = deliveryChannel;
+            return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
+        }
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.DeliveryChannel"/> property.</summary>
+        public TotpServiceUserPurposeBuilder<TUser> UsingSms() {
+            _builder.DeliveryChannel = TotpDeliveryChannel.Sms;
+            return new TotpServiceUserPurposeBuilder<TUser>(_builder);
+        }
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.DeliveryChannel"/> property.</summary>
+        public TotpServiceUserPurposeBuilder<TUser> UsingViber() {
+            _builder.DeliveryChannel = TotpDeliveryChannel.Viber;
+            return new TotpServiceUserPurposeBuilder<TUser>(_builder);
+        }
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.DeliveryChannel"/> property.</summary>
+        public TotpServiceUserOptionalParametersBuilder<TUser> UsingPushNotification() {
+            _builder.DeliveryChannel = TotpDeliveryChannel.PushNotification;
+            return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
+        }
+    }
+
+    /// <summary>Builder class.</summary>
+    /// <typeparam name="TUser">The type of user entity.</typeparam>
+    public sealed class TotpServiceUserPurposeBuilder<TUser> where TUser : User
+    {
+        private readonly TotpServiceUserParametersBuilder<TUser> _builder;
+
+        /// <summary>Creates a new instance of <see cref="TotpServiceUserPurposeBuilder{TUser}"/>.</summary>
+        /// <param name="builder">The instance of <see cref="TotpServiceUserParametersBuilder{TUser}"/>.</param>
+        public TotpServiceUserPurposeBuilder(TotpServiceUserParametersBuilder<TUser> builder) => _builder = builder;
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Purpose"/> property.</summary>
+        /// <param name="purpose">The purpose.</param>
+        public void WithPurpose(string purpose) => _builder.Purpose = purpose;
+    }
+
+    /// <summary>Builder class.</summary>
+    /// <typeparam name="TUser">The type of user entity.</typeparam>
+    public sealed class TotpServiceUserOptionalParametersBuilder<TUser> where TUser : User
+    {
+        private readonly TotpServiceUserParametersBuilder<TUser> _builder;
+
+        /// <summary>Creates a new instance of <see cref="TotpServiceUserOptionalParametersBuilder{TUser}"/>.</summary>
+        /// <param name="builder">The instance of <see cref="TotpServiceUserParametersBuilder{TUser}"/>.</param>
+        public TotpServiceUserOptionalParametersBuilder(TotpServiceUserParametersBuilder<TUser> builder) => _builder = builder;
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Purpose"/> property.</summary>
+        /// <param name="purpose">The purpose.</param>
+        public TotpServiceUserOptionalParametersBuilder<TUser> WithPurpose(string purpose) {
+            _builder.Purpose = purpose;
+            return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
+        }
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Classification"/> property.</summary>
+        /// <param name="classification">The type of the push notification.</param>
+        public TotpServiceUserOptionalParametersBuilder<TUser> WithClassification(string classification) {
+            _builder.Classification = classification;
+            return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
+        }
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Data"/> property.</summary>
+        /// <param name="data">The payload data to be sent in push notification.</param>
+        public TotpServiceUserOptionalParametersBuilder<TUser> WithData(string data) {
+            _builder.Data = data;
+            return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
+        }
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Data"/> property.</summary>
+        /// <param name="data">The payload data to be sent in push notification.</param>
+        public TotpServiceUserOptionalParametersBuilder<TUser> WithData<TData>(TData data) {
+            _builder.Data = JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings());
+            return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
+        }
+    }
+
+    /// <summary></summary>
+    /// <typeparam name="TUser">The type of user entity.</typeparam>
+    public class TotpServiceUserParameters<TUser> where TUser : User
+    {
+        /// <summary>The claims principal.</summary>
+        public ClaimsPrincipal ClaimsPrincipal { get; internal set; }
+        /// <summary>The type of the push notification.</summary>
+        public string Classification { get; internal set; }
+        /// <summary>The payload data to be sent in push notification.</summary>
+        public string Data { get; internal set; }
+        /// <summary>Chosen delivery channel.</summary>
+        public TotpDeliveryChannel DeliveryChannel { get; internal set; }
+        /// <summary>The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</summary>
+        public string Message { get; internal set; }
+        /// <summary>The purpose.</summary>
+        public string Purpose { get; internal set; }
+        /// <summary>The subject of message.</summary>
+        public string Subject { get; internal set; }
+        /// <summary>The user entity.</summary>
+        public TUser User { get; internal set; }
+    }
+}

@@ -11,16 +11,16 @@ namespace Indice.AspNetCore.Identity
 {
     /// <summary></summary>
     /// <typeparam name="TUser">The type of user entity.</typeparam>
-    public sealed class DeveloperTotpService<TUser> : UserTotpService<TUser> where TUser : User
+    public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where TUser : User
     {
-        /// <summary>Creates a new instance of <see cref="DeveloperTotpService{TUser}"/>.</summary>
+        /// <summary>Creates a new instance of <see cref="TotpServiceDeveloper{TUser}"/>.</summary>
         /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-        /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="DeveloperTotpService{TUser}"/>.</param>
+        /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="TotpServiceDeveloper{TUser}"/>.</param>
         /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public DeveloperTotpService(
+        public TotpServiceDeveloper(
             ExtendedUserManager<TUser> userManager,
-            IStringLocalizer<DeveloperTotpService<TUser>> localizer,
+            IStringLocalizer<TotpServiceDeveloper<TUser>> localizer,
             IServiceProvider serviceProvider
         ) : base(userManager, localizer, serviceProvider) { }
 

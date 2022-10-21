@@ -129,8 +129,6 @@ namespace Indice.AspNetCore.Identity
             }
             context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
         }
-
-        private void SetError(ResourceOwnerPasswordValidationContext context, string errorCode) => context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, errorCode);
     }
 
     /// <summary><see cref="IResourceOwnerPasswordValidator"/> that integrates with ASP.NET Identity.</summary>
@@ -174,7 +172,7 @@ namespace Indice.AspNetCore.Identity
             context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
         }
 
-        private void SetError(ResourceOwnerPasswordValidationContext context, string errorCode) => context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, errorCode);
+        private static void SetError(ResourceOwnerPasswordValidationContext context, string errorCode) => context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, errorCode);
     }
 
     internal class ResourceOwnerPasswordErrorCodes

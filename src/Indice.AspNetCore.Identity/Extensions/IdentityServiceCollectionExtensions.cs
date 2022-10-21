@@ -69,7 +69,10 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        internal static IServiceCollection AddTotpServiceFactory(this IServiceCollection services, Action<TotpOptions> configure = null) {
+        /// <summary></summary>
+        /// <param name="services"></param>
+        /// <param name="configure"></param>
+        public static IServiceCollection AddTotpServiceFactory(this IServiceCollection services, Action<TotpOptions> configure = null) {
             var serviceProvider = services.BuildServiceProvider();
             var totpSection = serviceProvider.GetRequiredService<IConfiguration>().GetSection(TotpOptions.Name);
             var totpOptions = new TotpOptions {

@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Indice.Services;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.AspNetCore.Identity
+namespace Indice.Services
 {
     /// <summary></summary>
     public abstract class TotpServiceBase
@@ -58,7 +58,9 @@ namespace Indice.AspNetCore.Identity
                                              if (string.IsNullOrEmpty(deviceId)) {
                                                  builder.ToDevice(deviceId);
                                              } else {
-                                                 builder.ToUser(userId);
+                                                 if (!string.IsNullOrWhiteSpace(userId)) {
+                                                     builder.ToUser(userId);
+                                                 }
                                              }
                                              builder.WithData(pushNotificationData)
                                                     .WithClassification(pushNotificationClassification);
@@ -99,4 +101,108 @@ namespace Indice.AspNetCore.Identity
         /// <param name="phoneNumber"></param>
         protected static string GetModifier(string purpose, string phoneNumber) => $"{purpose}:{phoneNumber}";
     }
+
+    #region Classes supporting TOTP services
+    /// <summary><see cref="TotpServiceBase"/> result.</summary>
+    public class TotpResult
+    {
+        /// <summary>Constructs an error result.</summary>
+        /// <param name="error">The error.</param>
+        public static TotpResult ErrorResult(string error) => new TotpResult {
+            Error = error
+        };
+
+        /// <summary>Constructs a success result.</summary>
+        public static TotpResult SuccessResult => new() { Success = true };
+        /// <summary>Indicates success.</summary>
+        public bool Success { get; set; }
+        /// <summary>The error occurred.</summary>
+        public string Error { get; set; }
+    }
+
+    /// <summary>Specific exception used to pass errors between <see cref="ITotpService"/> and the caller.</summary>
+    [Serializable]
+    public class TotpServiceException : Exception
+    {
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
+        public TotpServiceException() { }
+
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
+        public TotpServiceException(string message) : base(message) { }
+
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
+        public TotpServiceException(string message, Exception innerException) : base(message, innerException) { }
+
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
+        protected TotpServiceException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    }
+
+    /// <summary>TOTP provider metadata.</summary>
+    public class TotpProviderMetadata
+    {
+        /// <summary>The provider type.</summary>
+        public TotpProviderType Type { get; set; }
+        /// <summary>The provider channel.</summary>
+        public TotpDeliveryChannel Channel { get; set; }
+        /// <summary>The name which is used to register the provider in the list of token providers.</summary>
+        public string Name => $"{Channel}";
+        /// <summary>The display name.</summary>
+        public string DisplayName { get; set; }
+        /// <summary>Can generate TOTP. If false this provider can only validate TOTPs.</summary>
+        public bool CanGenerate { get; set; }
+    }
+
+    /// <summary>Supported TOTP delivery factors.</summary>
+    public enum TotpDeliveryChannel
+    {
+        /// <summary>SMS</summary>
+        Sms = 1,
+        /// <summary>Email</summary>
+        Email = 2,
+        /// <summary>Telephone</summary>
+        Telephone = 3,
+        /// <summary>Viber</summary>
+        Viber = 4,
+        /// <summary>E-token</summary>
+        EToken = 5,
+        /// <summary>Push notification</summary>
+        PushNotification = 6,
+        /// <summary>None</summary>
+        None
+    }
+
+    /// <summary>Supported TOTP providers used for MFA.</summary>
+    public enum TotpProviderType
+    {
+        /// <summary>Phone.</summary>
+        Phone = 1,
+        /// <summary>E-token.</summary>
+        EToken = 3,
+        /// <summary>Standard OTP.</summary>
+        StandardOtp = 4
+    }
+
+    /// <summary>Constant values for <see cref="ITotpService"/>.</summary>
+    public static class TotpConstants
+    {
+        /// <summary>Token generation purpose.</summary>
+        public static class TokenGenerationPurpose
+        {
+            /// <summary>Strong Customer Authentication.</summary>
+            public const string StrongCustomerAuthentication = "Strong Customer Authentication";
+            /// <summary>Two Factor Authentication.</summary>
+            public const string TwoFactorAuthentication = "Two Factor Authentication";
+            /// <summary>Session OTP.</summary>
+            public const string SessionOtp = "Session OTP";
+        }
+
+        /// <summary>Grant type.</summary>
+        public static class GrantType
+        {
+            /// <summary>TOTP custom grant type.</summary>
+
+            public const string Totp = "totp";
+        }
+    }
+    #endregion
 }

@@ -59,11 +59,9 @@ namespace Indice.AspNetCore.Identity
                 throw new ApplicationException("Value of setting DefaultAllowedRegisteredDevices cannot exceed the value of MaxAllowedRegisteredDevices.");
             }
             MaxTrustedDevices = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<int?>(nameof(MaxTrustedDevices)) ??
-                                configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxTrustedDevices)) ??
-                                int.MaxValue;
+                                configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxTrustedDevices));
             TrustActivationDelay = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<TimeSpan?>(nameof(TrustActivationDelay)) ??
-                                   configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<TimeSpan?>(nameof(TrustActivationDelay)) ??
-                                   TimeSpan.Zero;
+                                   configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<TimeSpan?>(nameof(TrustActivationDelay));
         }
 
         /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
@@ -71,9 +69,9 @@ namespace Indice.AspNetCore.Identity
         /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
         public IQueryable<UserDevice> UserDevices => GetDeviceStore()?.UserDevices;
         /// <summary></summary>
-        public int MaxTrustedDevices { get; }
+        public int? MaxTrustedDevices { get; }
         /// <summary></summary>
-        public TimeSpan TrustActivationDelay { get; }
+        public TimeSpan? TrustActivationDelay { get; }
         /// <summary>Provides an extensibility point for localizing messages used inside the package.</summary>
         public IdentityMessageDescriber MessageDescriber { get; }
         /// <summary>The maximum number of devices a user can register.</summary>
@@ -495,16 +493,16 @@ namespace Indice.AspNetCore.Identity
             // a. The user wants to request device trust activation. If no delay is specified, we immediately trust the device, going to case b.
             var isDeviceActivationRequest = !device.TrustActivationDate.HasValue;
             if (isDeviceActivationRequest) {
-                if (MaxTrustedDevices > 0) {
+                if (MaxTrustedDevices.HasValue && MaxTrustedDevices.Value > 0) {
                     var trustedOrPendingDevices = await deviceStore.GetTrustedOrPendingDevicesCountAsync(user, cancellationToken);
-                    if (trustedOrPendingDevices >= MaxTrustedDevices) {
+                    if (trustedOrPendingDevices >= MaxTrustedDevices.Value) {
                         return IdentityResult.Failed(new IdentityError {
                             Code = nameof(UserDevice.TrustActivationDate),
                             Description = MessageDescriber.TrustedDevicesLimitReached()
                         });
                     }
                 }
-                await deviceStore.SetTrustActivationDateAsync(user, device, TrustActivationDelay, cancellationToken);
+                await deviceStore.SetTrustActivationDateAsync(user, device, TrustActivationDelay.HasValue ? TrustActivationDelay.Value : TimeSpan.Zero, cancellationToken);
             }
             // b. The user waited for the required delay to pass and now wants to activate device trust.
             var isDeviceTrustRequest = device.TrustActivationDate.HasValue && !device.IsPendingTrustActivation;

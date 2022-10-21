@@ -11,7 +11,7 @@ namespace Indice.AspNetCore.Identity.Data
         where TUser : User, new()
         where TRole : Role, new()
     {
-        /// <summary></summary>
+        /// <summary>Creates a new instance of <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</summary>
         /// <param name="dbContextOptions">The options to be used by a <see cref="DbContext"/>.</param>
         public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions) : base(dbContextOptions) {
 #if DEBUG

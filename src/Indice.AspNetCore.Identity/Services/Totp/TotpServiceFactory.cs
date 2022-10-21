@@ -2,6 +2,7 @@
 using System.Security;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
+using Indice.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
@@ -20,24 +21,24 @@ namespace Indice.AspNetCore.Identity
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
-        /// <summary>Creates a new instance of <see cref="UserTotpService{TUser}"/>.</summary>
+        /// <summary>Creates a new instance of <see cref="TotpServiceUser{TUser}"/>.</summary>
         /// <typeparam name="TUser">The type of user entity.</typeparam>
-        public UserTotpService<TUser> Create<TUser>() where TUser : User {
+        public TotpServiceUser<TUser> Create<TUser>() where TUser : User {
             var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<TUser>>();
             var options = _serviceProvider.GetRequiredService<IOptions<TotpOptions>>();
             if (options.Value.EnableDeveloperTotp) {
-                var developerTotpServiceLocalizer = _serviceProvider.GetRequiredService<IStringLocalizer<DeveloperTotpService<TUser>>>();
-                return new DeveloperTotpService<TUser>(userManager, developerTotpServiceLocalizer, _serviceProvider);
+                var totpServiceDeveloperLocalizer = _serviceProvider.GetRequiredService<IStringLocalizer<TotpServiceDeveloper<TUser>>>();
+                return new TotpServiceDeveloper<TUser>(userManager, totpServiceDeveloperLocalizer, _serviceProvider);
             }
-            var userTotpServiceLocalizer = _serviceProvider.GetRequiredService<IStringLocalizer<UserTotpService<TUser>>>();
-            return new UserTotpService<TUser>(userManager, userTotpServiceLocalizer, _serviceProvider);
+            var totpServiceUserLocalizer = _serviceProvider.GetRequiredService<IStringLocalizer<TotpServiceUser<TUser>>>();
+            return new TotpServiceUser<TUser>(userManager, totpServiceUserLocalizer, _serviceProvider);
         }
 
-        /// <summary>Creates a new instance of <see cref="SecurityTokenTotpService"/>.</summary>
-        public SecurityTokenTotpService Create() {
+        /// <summary>Creates a new instance of <see cref="TotpServiceSecurityToken"/>.</summary>
+        public TotpServiceSecurityToken Create() {
             var rfc6238AuthenticationService = _serviceProvider.GetRequiredService<Rfc6238AuthenticationService>();
-            var localizer = _serviceProvider.GetRequiredService<IStringLocalizer<SecurityTokenTotpService>>();
-            return new SecurityTokenTotpService(_serviceProvider, rfc6238AuthenticationService, localizer);
+            var localizer = _serviceProvider.GetRequiredService<IStringLocalizer<TotpServiceSecurityToken>>();
+            return new TotpServiceSecurityToken(_serviceProvider, rfc6238AuthenticationService, localizer);
         }
     }
 }

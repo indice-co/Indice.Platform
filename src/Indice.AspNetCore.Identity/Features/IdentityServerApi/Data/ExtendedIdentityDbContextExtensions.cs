@@ -8,14 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.AspNetCore.Identity.Data
 {
-    /// <summary>
-    /// Extensions on type <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.
-    /// </summary>
+    /// <summary>Extensions on type <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</summary>
     internal static class ExtendedIdentityDbContextExtensions
     {
-        /// <summary>
-        /// A method that seeds the database with an admin account.
-        /// </summary>
+        /// <summary>A method that seeds the database with an admin account.</summary>
         /// <typeparam name="TUser">The type of user.</typeparam>
         /// <typeparam name="TRole">The type of role.</typeparam>
         /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
@@ -26,17 +22,17 @@ namespace Indice.AspNetCore.Identity.Data
                 return;
             }
             const string adminEmail = "company@indice.gr";
-            var hasAdminAccount = dbContext.Users.Any(x => x.Email == adminEmail);
+            var hasAdminAccount = dbContext.Users.Any(user => user.Email == adminEmail);
             if (hasAdminAccount) {
                 return;
             }
             var admin = new TUser {
-                Id = "ab9769f1-d532-4b7d-9922-3da003157ebd",
                 Admin = true,
                 ConcurrencyStamp = $"{Guid.NewGuid()}",
                 CreateDate = DateTime.UtcNow,
                 Email = adminEmail,
                 EmailConfirmed = true,
+                Id = "ab9769f1-d532-4b7d-9922-3da003157ebd",
                 LockoutEnabled = false,
                 NormalizedEmail = adminEmail.ToUpper(),
                 NormalizedUserName = adminEmail.ToUpper(),
@@ -69,9 +65,7 @@ namespace Indice.AspNetCore.Identity.Data
             dbContext.SaveChanges();
         }
 
-        /// <summary>
-        /// A method that seeds the database with initial realistic data.
-        /// </summary>
+        /// <summary>A method that seeds the database with initial realistic data.</summary>
         /// <typeparam name="TUser">The type of user.</typeparam>
         /// <typeparam name="TRole">The type of role.</typeparam>
         /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
@@ -82,9 +76,7 @@ namespace Indice.AspNetCore.Identity.Data
             dbContext.SaveChanges();
         }
 
-        /// <summary>
-        /// A method that seeds the database with initial realistic data.
-        /// </summary>
+        /// <summary>A method that seeds the database with initial realistic data.</summary>
         /// <typeparam name="TUser">The type of user.</typeparam>
         /// <typeparam name="TRole">The type of role.</typeparam>
         /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>

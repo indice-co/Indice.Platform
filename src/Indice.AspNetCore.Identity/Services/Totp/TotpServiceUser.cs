@@ -14,18 +14,18 @@ namespace Indice.AspNetCore.Identity
 {
     /// <summary></summary>
     /// <typeparam name="TUser">The type of user entity.</typeparam>
-    public class UserTotpService<TUser> : TotpServiceBase where TUser : User
+    public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     {
-        private readonly IStringLocalizer<UserTotpService<TUser>> _localizer;
+        private readonly IStringLocalizer<TotpServiceUser<TUser>> _localizer;
 
-        /// <summary>Creates a new instance of <see cref="UserTotpService{TUser}"/>.</summary>
+        /// <summary>Creates a new instance of <see cref="TotpServiceUser{TUser}"/>.</summary>
         /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-        /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UserTotpService{TUser}"/>.</param>
+        /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="TotpServiceUser{TUser}"/>.</param>
         /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public UserTotpService(
+        public TotpServiceUser(
             ExtendedUserManager<TUser> userManager,
-            IStringLocalizer<UserTotpService<TUser>> localizer,
+            IStringLocalizer<TotpServiceUser<TUser>> localizer,
             IServiceProvider serviceProvider
         ) : base(serviceProvider) {
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -56,10 +56,10 @@ namespace Indice.AspNetCore.Identity
         /// <param name="message">The message to be sent in push notification. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
-        /// <param name="pushNotificationClassification">The notification's type.</param>
-        /// <param name="pushNotificationData">The push notification data (preferably as a JSON string).</param>
-        public Task<TotpResult> SendToPushNotificationAsync(TUser user, string message, string subject, string purpose = null, string pushNotificationClassification = null, string pushNotificationData = null)
-            => SendAsync(user, message, subject, TotpDeliveryChannel.PushNotification, purpose, pushNotificationClassification, pushNotificationData);
+        /// <param name="classification">The notification's type.</param>
+        /// <param name="data">The push notification data (preferably as a JSON string).</param>
+        public Task<TotpResult> SendToPushNotificationAsync(TUser user, string message, string subject, string purpose = null, string classification = null, string data = null)
+            => SendAsync(user, message, subject, TotpDeliveryChannel.PushNotification, purpose, classification, data);
 
         /// <summary>Creates a TOTP and sends it as a push notification.</summary>
         /// <typeparam name="TData">The type of data to send.</typeparam>
@@ -68,10 +68,10 @@ namespace Indice.AspNetCore.Identity
         /// <param name="subject">The subject of message.</param>
         /// <param name="data">The data to send.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
-        /// <param name="pushNotificationClassification">The notification's type.</param>
-        public Task<TotpResult> SendToPushNotificationAsync<TData>(TUser user, string message, string subject, TData data, string purpose = null, string pushNotificationClassification = null) where TData : class {
+        /// <param name="classification">The notification's type.</param>
+        public Task<TotpResult> SendToPushNotificationAsync<TData>(TUser user, string message, string subject, TData data, string purpose = null, string classification = null) where TData : class {
             var dataJson = JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings());
-            return SendToPushNotificationAsync(user, message, subject, purpose, pushNotificationClassification, dataJson);
+            return SendToPushNotificationAsync(user, message, subject, purpose, classification, dataJson);
         }
 
         /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
@@ -80,8 +80,8 @@ namespace Indice.AspNetCore.Identity
         /// <param name="subject">The subject of message.</param>
         /// <param name="channel">The delivery channel.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
-        /// <param name="pushNotificationClassification">The notification's type.</param>
-        /// <param name="pushNotificationData">The push notification data (preferably as a JSON string).</param>
+        /// <param name="classification">The notification's type.</param>
+        /// <param name="data">The push notification data (preferably as a JSON string).</param>
         /// <exception cref="ArgumentNullException"></exception>
         public async Task<TotpResult> SendAsync(
             ClaimsPrincipal principal,
@@ -89,11 +89,23 @@ namespace Indice.AspNetCore.Identity
             string subject,
             TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
             string purpose = null,
-            string pushNotificationClassification = null,
-            string pushNotificationData = null
+            string classification = null,
+            string data = null
         ) {
             var user = await UserManager.GetUserAsync(principal);
-            return await SendAsync(user, message, subject, channel, purpose, pushNotificationClassification, pushNotificationData);
+            return await SendAsync(user, message, subject, channel, purpose, classification, data);
+        }
+
+        /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
+        /// <param name="configureAction"></param>
+        public Task<TotpResult> SendAsync(Action<TotpServiceUserParametersBuilder<TUser>> configureAction) {
+            var builder = new TotpServiceUserParametersBuilder<TUser>();
+            configureAction(builder);
+            var @params = builder.Build();
+            if (@params.ClaimsPrincipal is not null) {
+                return SendAsync(@params.ClaimsPrincipal, @params.Message, @params.Subject, @params.DeliveryChannel, @params.Purpose, @params.Classification, @params.Data);
+            }
+            return SendAsync(@params.User, @params.Message, @params.Subject, @params.DeliveryChannel, @params.Purpose, @params.Classification, @params.Data);
         }
 
         /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
@@ -102,8 +114,8 @@ namespace Indice.AspNetCore.Identity
         /// <param name="subject">The subject of message.</param>
         /// <param name="channel">The delivery channel.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
-        /// <param name="pushNotificationClassification">The notification's type.</param>
-        /// <param name="pushNotificationData">The push notification data (preferably as a JSON string).</param>
+        /// <param name="classification">The notification's type.</param>
+        /// <param name="data">The push notification data (preferably as a JSON string).</param>
         /// <exception cref="ArgumentNullException"></exception>
         public virtual async Task<TotpResult> SendAsync(
             TUser user,
@@ -111,8 +123,8 @@ namespace Indice.AspNetCore.Identity
             string subject,
             TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
             string purpose = null,
-            string pushNotificationClassification = null,
-            string pushNotificationData = null
+            string classification = null,
+            string data = null
         ) {
             if (user is null) {
                 throw new ArgumentNullException(nameof(user), "User is null.");
@@ -123,11 +135,14 @@ namespace Indice.AspNetCore.Identity
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
             var token = await UserManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose);
             message = _localizer[message, token];
-            var cacheKey = $"{nameof(UserTotpService<TUser>)}:{user.Id}:{channel}:{token}:{purpose}";
+            var cacheKey = $"{nameof(TotpServiceUser<TUser>)}:{user.Id}:{channel}:{token}:{purpose}";
             if (await CacheKeyExistsAsync(cacheKey)) {
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
-            await SendToChannelAsync(channel, message, subject, user.PhoneNumber, deviceId: null, user.Id, pushNotificationClassification, pushNotificationData);
+            if (channel == TotpDeliveryChannel.PushNotification) {
+                // TODO: Find device id.
+            }
+            await SendToChannelAsync(channel, message, subject, user.PhoneNumber, deviceId: null, user.Id, classification, data);
             await AddCacheKeyAsync(cacheKey);
             return TotpResult.SuccessResult;
         }
@@ -149,11 +164,15 @@ namespace Indice.AspNetCore.Identity
         /// <param name="user">The user instance.</param>
         /// <param name="code">The TOTP code to verify.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public virtual async Task<TotpResult> VerifyAsync(
             TUser user,
             string code,
             string purpose = null
         ) {
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user), "User is null.");
+            }
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
             var verified = await UserManager.VerifyUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose, code);
             if (verified) {
@@ -166,7 +185,11 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary>Gets list of available providers for the given user.</summary>
         /// <param name="user">The user entity type.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public virtual async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(TUser user) {
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user), "User is null.");
+            }
             var validProviders = await UserManager.GetValidTwoFactorProvidersAsync(user);
             var providers = new[] {
                 new TotpProviderMetadata {
