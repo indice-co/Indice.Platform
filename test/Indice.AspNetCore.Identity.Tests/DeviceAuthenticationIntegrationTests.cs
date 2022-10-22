@@ -167,17 +167,22 @@ namespace Indice.AspNetCore.Identity.Tests
                 builder.AddInMemoryCollection(new List<KeyValuePair<string, string>> {
                     new KeyValuePair<string, string>("IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices", "20"),
                     new KeyValuePair<string, string>("IdentityOptions:User:Devices:MaxAllowedRegisteredDevices", "40"),
-                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:RequireCredentialsOnAccountChange", "true")
+                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:RequireCredentialsOnAccountChange", "true"),
+                    new KeyValuePair<string, string>("Totp:EnableDeveloperTotp", "true")
                 });
             });
             builder.ConfigureServices(services => {
-                services.AddSingleton<ITotpService, MockTotpService>();
-                services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(IDENTITY_DATABASE_NAME));
+                services.AddTotpServiceFactory()
+                        .AddSmsServiceNoop()
+                        .AddPushNotificationServiceNoop()
+                        .AddLocalization()
+                        .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(IDENTITY_DATABASE_NAME));
                 services.AddIdentity<User, Role>()
                         .AddUserManager<ExtendedUserManager<User>>()
                         .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                         .AddExtendedSignInManager()
-                        .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>();
+                        .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+                        .AddExtendedPhoneNumberTokenProvider();
                 services.AddIdentityServer(options => options.EmitStaticAudienceClaim = true)
                         .AddInMemoryIdentityResources(GetIdentityResources())
                         .AddInMemoryApiScopes(GetApiScopes())
@@ -368,6 +373,8 @@ namespace Indice.AspNetCore.Identity.Tests
             if (!result.Succeeded) {
                 Assert.Fail("User could not be created.");
             }
+            await userManager.AddToRoleAsync(user, BasicRoleNames.Developer);
+            await userManager.AddClaimAsync(user, new Claim(BasicClaimTypes.DeveloperTotp, "123456"));
             // 2. Register a new device using biometric login.
             var deviceId = Guid.NewGuid().ToString();
             var response = await Register_Device_Using_Biometric(deviceId, userName: "g.manoltzas@indice.gr");

@@ -30,20 +30,20 @@ namespace Indice.AspNetCore.Identity.DeviceAuthentication.Validation
             ILogger<CompleteRegistrationRequestValidator> logger,
             ISystemClock systemClock,
             ITokenValidator tokenValidator,
-            ITotpService totpService,
+            TotpServiceFactory totpServiceFactory,
             ExtendedUserManager<User> userManager
         ) : base(clientStore, tokenValidator) {
             CodeChallengeStore = codeChallengeStore;
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             SystemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
-            TotpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
+            TotpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
             UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
         public IDeviceAuthenticationCodeChallengeStore CodeChallengeStore { get; }
         public ILogger<CompleteRegistrationRequestValidator> Logger { get; }
         public ISystemClock SystemClock { get; }
-        public ITotpService TotpService { get; }
+        public TotpServiceFactory TotpServiceFactory { get; }
         public ExtendedUserManager<User> UserManager { get; }
 
         public override async Task<CompleteRegistrationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
@@ -137,11 +137,7 @@ namespace Indice.AspNetCore.Identity.DeviceAuthentication.Validation
             }
             // Validate OTP code, if needed.
             if (!otpAuthenticated) {
-                var totpResult = await TotpService.Verify(
-                    principal: principal,
-                    code: parameters.Get(RegistrationRequestParameters.OtpCode),
-                    purpose: Constants.DeviceAuthenticationOtpPurpose(userId, authorizationCode.DeviceId)
-                );
+                var totpResult = await TotpServiceFactory.Create<User>().VerifyAsync(user, parameters.Get(RegistrationRequestParameters.OtpCode), Constants.DeviceAuthenticationOtpPurpose(userId, authorizationCode.DeviceId));
                 if (!totpResult.Success) {
                     return Error(totpResult.Error);
                 }

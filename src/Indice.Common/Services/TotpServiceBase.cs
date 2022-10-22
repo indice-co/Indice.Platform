@@ -28,18 +28,21 @@ namespace Indice.Services
         /// <param name="phoneNumber">Phone number (used when selected <paramref name="channel"/> is <see cref="TotpDeliveryChannel.Sms"/> or <see cref="TotpDeliveryChannel.Viber"/>).</param>
         /// <param name="deviceId">Device identifier (used when selected <paramref name="channel"/> is <see cref="TotpDeliveryChannel.PushNotification"/>).</param>
         /// <param name="userId">User identifier.</param>
-        /// <param name="pushNotificationClassification">The classification type when selected <paramref name="channel"/> is <see cref="TotpDeliveryChannel.PushNotification"/>.</param>
-        /// <param name="pushNotificationData">The push notification data (preferably as a JSON string) when selected <paramref name="channel"/> is <see cref="TotpDeliveryChannel.PushNotification"/>.</param>
+        /// <param name="category">The classification type when selected <paramref name="channel"/> is <see cref="TotpDeliveryChannel.PushNotification"/>.</param>
+        /// <param name="data">The push notification data (preferably as a JSON string) when selected <paramref name="channel"/> is <see cref="TotpDeliveryChannel.PushNotification"/>.</param>
         /// <exception cref="InvalidOperationException"></exception>
         protected async Task SendToChannelAsync(
             TotpDeliveryChannel channel,
+            // TotpMessage
             string message,
             string subject,
+            // Recipient
             string phoneNumber = null,
             string deviceId = null,
             string userId = null,
-            string pushNotificationClassification = null,
-            string pushNotificationData = null
+            // TotpMessage
+            string category = null,
+            string data = null
         ) {
             subject ??= "OTP";
             switch (channel) {
@@ -62,8 +65,8 @@ namespace Indice.Services
                                                      builder.ToUser(userId);
                                                  }
                                              }
-                                             builder.WithData(pushNotificationData)
-                                                    .WithClassification(pushNotificationClassification);
+                                             builder.WithData(data)
+                                                    .WithClassification(category);
                                          });
                     break;
                 case TotpDeliveryChannel.Email:

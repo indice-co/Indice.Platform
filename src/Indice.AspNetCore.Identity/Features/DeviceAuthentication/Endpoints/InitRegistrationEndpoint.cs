@@ -12,13 +12,13 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Extensions;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.DeviceAuthentication.Configuration;
 using Indice.AspNetCore.Identity.DeviceAuthentication.Endpoints.Results;
 using Indice.AspNetCore.Identity.DeviceAuthentication.ResponseHandling;
 using Indice.AspNetCore.Identity.DeviceAuthentication.Stores;
 using Indice.AspNetCore.Identity.DeviceAuthentication.Validation;
 using Indice.Security;
-using Indice.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -33,7 +33,7 @@ namespace Indice.AspNetCore.Identity.DeviceAuthentication.Endpoints
             InitRegistrationResponseGenerator responseGenerator,
             IProfileService profileService,
             IResourceStore resourceStore,
-            ITotpService totpService,
+            TotpServiceFactory totpServiceFactory,
             IUserDeviceStore userDeviceStore,
             IdentityMessageDescriber identityMessageDescriber
         ) {
@@ -43,7 +43,7 @@ namespace Indice.AspNetCore.Identity.DeviceAuthentication.Endpoints
             ResourceStore = resourceStore;
             Response = responseGenerator ?? throw new ArgumentNullException(nameof(responseGenerator));
             Token = tokenUsageValidator ?? throw new ArgumentNullException(nameof(tokenUsageValidator));
-            TotpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
+            TotpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
             UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
             IdentityMessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
         }
@@ -54,7 +54,7 @@ namespace Indice.AspNetCore.Identity.DeviceAuthentication.Endpoints
         public InitRegistrationResponseGenerator Response { get; }
         public IProfileService ProfileService { get; }
         public IResourceStore ResourceStore { get; }
-        public ITotpService TotpService { get; }
+        public TotpServiceFactory TotpServiceFactory { get; }
         public IUserDeviceStore UserDeviceStore { get; }
         public IdentityMessageDescriber IdentityMessageDescriber { get; }
 
@@ -107,16 +107,12 @@ namespace Indice.AspNetCore.Identity.DeviceAuthentication.Endpoints
             var otpAuthenticated = !string.IsNullOrWhiteSpace(otpAuthenticatedValue) && bool.Parse(otpAuthenticatedValue);
             if (!otpAuthenticated) {
                 // Send OTP code.
-                void messageBuilder(TotpMessageBuilder message) {
-                    var builder = message.UsePrincipal(requestValidationResult.Principal).WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.Name, requestValidationResult.InteractionMode));
-                    if (requestValidationResult.DeliveryChannel == TotpDeliveryChannel.Sms) {
-                        builder.UsingSms();
-                    } else {
-                        builder.UsingViber();
-                    }
-                    builder.WithPurpose(Constants.DeviceAuthenticationOtpPurpose(requestValidationResult.UserId, requestValidationResult.DeviceId));
-                }
-                var totpResult = await TotpService.Send(messageBuilder);
+                var totpResult = await TotpServiceFactory.Create<User>().SendAsync(totp => totp
+                    .ToPrincipal(requestValidationResult.Principal)
+                    .WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.Name, requestValidationResult.InteractionMode))
+                    .UsingDeliveryChannel(requestValidationResult.DeliveryChannel)
+                    .WithPurpose(Constants.DeviceAuthenticationOtpPurpose(requestValidationResult.UserId, requestValidationResult.DeviceId))
+                );
                 if (!totpResult.Success) {
                     return Error(totpResult.Error);
                 }

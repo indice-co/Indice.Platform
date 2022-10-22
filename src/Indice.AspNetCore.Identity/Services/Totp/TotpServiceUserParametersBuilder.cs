@@ -50,26 +50,8 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Message"/> property.</summary>
         /// <param name="message">The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
-        public TotpServiceUserSubjectBuilder<TUser> WithMessage(string message) {
-            _builder.Subject = message;
-            return new TotpServiceUserSubjectBuilder<TUser>(_builder);
-        }
-    }
-
-    /// <summary>Builder class.</summary>
-    /// <typeparam name="TUser">The type of user entity.</typeparam>
-    public sealed class TotpServiceUserSubjectBuilder<TUser> where TUser : User
-    {
-        private readonly TotpServiceUserParametersBuilder<TUser> _builder;
-
-        /// <summary>Creates a new instance of <see cref="TotpServiceUserSubjectBuilder{TUser}"/>.</summary>
-        /// <param name="builder">The instance of <see cref="TotpServiceUserParametersBuilder{TUser}"/>.</param>
-        public TotpServiceUserSubjectBuilder(TotpServiceUserParametersBuilder<TUser> builder) => _builder = builder;
-
-        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Subject"/> property.</summary>
-        /// <param name="subject">The subject of message.</param>
-        public TotpServiceUserDeliveryChannelBuilder<TUser> WithSubject(string subject) {
-            _builder.Subject = subject;
+        public TotpServiceUserDeliveryChannelBuilder<TUser> WithMessage(string message) {
+            _builder.Message = message;
             return new TotpServiceUserDeliveryChannelBuilder<TUser>(_builder);
         }
     }
@@ -92,15 +74,15 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.DeliveryChannel"/> property.</summary>
-        public TotpServiceUserPurposeBuilder<TUser> UsingSms() {
+        public TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser> UsingSms() {
             _builder.DeliveryChannel = TotpDeliveryChannel.Sms;
-            return new TotpServiceUserPurposeBuilder<TUser>(_builder);
+            return new TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser>(_builder);
         }
 
         /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.DeliveryChannel"/> property.</summary>
-        public TotpServiceUserPurposeBuilder<TUser> UsingViber() {
+        public TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser> UsingViber() {
             _builder.DeliveryChannel = TotpDeliveryChannel.Viber;
-            return new TotpServiceUserPurposeBuilder<TUser>(_builder);
+            return new TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser>(_builder);
         }
 
         /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.DeliveryChannel"/> property.</summary>
@@ -112,17 +94,27 @@ namespace Indice.AspNetCore.Identity
 
     /// <summary>Builder class.</summary>
     /// <typeparam name="TUser">The type of user entity.</typeparam>
-    public sealed class TotpServiceUserPurposeBuilder<TUser> where TUser : User
+    public sealed class TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser> where TUser : User
     {
         private readonly TotpServiceUserParametersBuilder<TUser> _builder;
 
-        /// <summary>Creates a new instance of <see cref="TotpServiceUserPurposeBuilder{TUser}"/>.</summary>
+        /// <summary>Creates a new instance of <see cref="TotpServiceUserSmsOrViberOptionalParametersBuilder{TUser}"/>.</summary>
         /// <param name="builder">The instance of <see cref="TotpServiceUserParametersBuilder{TUser}"/>.</param>
-        public TotpServiceUserPurposeBuilder(TotpServiceUserParametersBuilder<TUser> builder) => _builder = builder;
+        public TotpServiceUserSmsOrViberOptionalParametersBuilder(TotpServiceUserParametersBuilder<TUser> builder) => _builder = builder;
 
         /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Purpose"/> property.</summary>
         /// <param name="purpose">The purpose.</param>
-        public void WithPurpose(string purpose) => _builder.Purpose = purpose;
+        public TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser> WithPurpose(string purpose) {
+            _builder.Purpose = purpose;
+            return new TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser>(_builder);
+        }
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Subject"/> property.</summary>
+        /// <param name="subject">The subject of message.</param>
+        public TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser> WithSubject(string subject) {
+            _builder.Subject = subject;
+            return new TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser>(_builder);
+        }
     }
 
     /// <summary>Builder class.</summary>
@@ -146,6 +138,13 @@ namespace Indice.AspNetCore.Identity
         /// <param name="classification">The type of the push notification.</param>
         public TotpServiceUserOptionalParametersBuilder<TUser> WithClassification(string classification) {
             _builder.Classification = classification;
+            return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
+        }
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Subject"/> property.</summary>
+        /// <param name="subject">The subject of message.</param>
+        public TotpServiceUserOptionalParametersBuilder<TUser> WithSubject(string subject) {
+            _builder.Subject = subject;
             return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using IdentityModel;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,7 +43,6 @@ namespace Indice.AspNetCore.Identity.Data
                 SecurityStamp = $"{Guid.NewGuid()}",
                 UserName = adminEmail
             };
-            admin.GenerateDeveloperTotp();
             dbContext.Users.Add(admin);
             dbContext.UserClaims.Add(new IdentityUserClaim<string> {
                 ClaimType = JwtClaimTypes.GivenName,
@@ -52,6 +52,11 @@ namespace Indice.AspNetCore.Identity.Data
             dbContext.UserClaims.Add(new IdentityUserClaim<string> {
                 ClaimType = JwtClaimTypes.FamilyName,
                 ClaimValue = "Company",
+                UserId = admin.Id
+            });
+            dbContext.UserClaims.Add(new IdentityUserClaim<string> {
+                ClaimType = BasicClaimTypes.DeveloperTotp,
+                ClaimValue = "123456",
                 UserId = admin.Id
             });
             var initialRoles = InitialRoles<TRole>.Get();

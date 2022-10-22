@@ -37,7 +37,6 @@ namespace Indice.AspNetCore.Identity
         /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
         /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
         public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, Action<TotpOptions> configure = null) {
-            builder.Services.AddDefaultTotpService(configure);
             var serviceProvider = builder.Services.BuildServiceProvider();
             var configuredTotpOptions = serviceProvider.GetRequiredService<TotpOptions>();
             var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();

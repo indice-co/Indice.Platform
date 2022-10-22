@@ -28,8 +28,8 @@ namespace Indice.AspNetCore.Identity
         public override async Task<TotpResult> SendAsync(
             TUser user,
             string message,
-            string subject,
             TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
+            string subject = null,
             string purpose = null,
             string pushNotificationClassification = null,
             string pushNotificationData = null
@@ -43,7 +43,7 @@ namespace Indice.AspNetCore.Identity
             if (hasDeveloperTotp) {
                 return TotpResult.SuccessResult;
             }
-            return await base.SendAsync(user, message, subject, channel, purpose, pushNotificationClassification, pushNotificationData);
+            return await base.SendAsync(user, message, channel, subject, purpose, pushNotificationClassification, pushNotificationData);
         }
 
         /// <inheritdoc />

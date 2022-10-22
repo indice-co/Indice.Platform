@@ -5,7 +5,6 @@ using Indice.Configuration;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity
 {
@@ -25,8 +24,8 @@ namespace Indice.AspNetCore.Identity
         /// <typeparam name="TUser">The type of user entity.</typeparam>
         public TotpServiceUser<TUser> Create<TUser>() where TUser : User {
             var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<TUser>>();
-            var options = _serviceProvider.GetRequiredService<IOptions<TotpOptions>>();
-            if (options.Value.EnableDeveloperTotp) {
+            var options = _serviceProvider.GetRequiredService<TotpOptions>();
+            if (options.EnableDeveloperTotp) {
                 var totpServiceDeveloperLocalizer = _serviceProvider.GetRequiredService<IStringLocalizer<TotpServiceDeveloper<TUser>>>();
                 return new TotpServiceDeveloper<TUser>(userManager, totpServiceDeveloperLocalizer, _serviceProvider);
             }

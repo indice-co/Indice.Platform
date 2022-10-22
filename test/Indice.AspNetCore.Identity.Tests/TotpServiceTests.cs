@@ -18,8 +18,6 @@ namespace Indice.AspNetCore.Identity.Tests
 {
     public class TotpServiceTests
     {
-        private const string IDENTITY_DATABASE_NAME = "IdentityDb";
-
         public TotpServiceTests() {
             var builder = new WebHostBuilder();
             builder.ConfigureAppConfiguration(builder => {
@@ -31,9 +29,10 @@ namespace Indice.AspNetCore.Identity.Tests
                 services.TryAddTransient<IPlatformEventService, PlatformEventService>();
                 services.AddTotpServiceFactory()
                         .AddSmsServiceNoop()
+                        .AddPushNotificationServiceNoop()
                         .AddLocalization()
                         .AddDistributedMemoryCache()
-                        .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(IDENTITY_DATABASE_NAME))
+                        .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                         .AddIdentity<User, Role>()
                         .AddUserManager<ExtendedUserManager<User>>()
                         .AddExtendedSignInManager()
@@ -82,8 +81,8 @@ namespace Indice.AspNetCore.Identity.Tests
             var totpResult = await totpService.SendAsync(totp => totp
                 .ToUser(user)
                 .WithMessage("Your one-time code is {0}. It is valid for 2 minutes.")
-                .WithSubject("OTP")
                 .UsingSms()
+                .WithSubject("OTP")
             );
             Assert.True(totpResult.Success);
             totpResult = await totpService.VerifyAsync(user, DEVELOPER_TOTP);
@@ -98,8 +97,8 @@ namespace Indice.AspNetCore.Identity.Tests
             var totpResult = await totpService.SendAsync(totp => totp
                 .UseSecurityToken(securityToken)
                 .WithMessage("Your one-time code is {0}. It is valid for 2 minutes.")
-                .WithSubject("OTP")
                 .ToPhoneNumber("699XXXXXXX")
+                .WithSubject("OTP")
             );
             Assert.True(totpResult.Success);
         }

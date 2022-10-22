@@ -41,7 +41,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
         public Task<TotpResult> SendToSmsAsync(TUser user, string message, string subject, string purpose = null)
-            => SendAsync(user, message, subject, TotpDeliveryChannel.Sms, purpose: purpose);
+            => SendAsync(user, message, TotpDeliveryChannel.Sms, subject, purpose: purpose);
 
         /// <summary>Creates a TOTP and sends it as a Viber message.</summary>
         /// <param name="user">The user instance.</param>
@@ -49,7 +49,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
         public Task<TotpResult> SendToViberAsync(TUser user, string message, string subject, string purpose = null)
-            => SendAsync(user, message, subject, TotpDeliveryChannel.Viber, purpose: purpose);
+            => SendAsync(user, message, TotpDeliveryChannel.Viber, subject, purpose: purpose);
 
         /// <summary>Creates a TOTP and sends it as a push notification.</summary>
         /// <param name="user">The user instance.</param>
@@ -59,7 +59,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="classification">The notification's type.</param>
         /// <param name="data">The push notification data (preferably as a JSON string).</param>
         public Task<TotpResult> SendToPushNotificationAsync(TUser user, string message, string subject, string purpose = null, string classification = null, string data = null)
-            => SendAsync(user, message, subject, TotpDeliveryChannel.PushNotification, purpose, classification, data);
+            => SendAsync(user, message, TotpDeliveryChannel.PushNotification, subject, purpose, classification, data);
 
         /// <summary>Creates a TOTP and sends it as a push notification.</summary>
         /// <typeparam name="TData">The type of data to send.</typeparam>
@@ -77,8 +77,8 @@ namespace Indice.AspNetCore.Identity
         /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
         /// <param name="principal">The current user principal.</param>
         /// <param name="message">The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
-        /// <param name="subject">The subject of message.</param>
         /// <param name="channel">The delivery channel.</param>
+        /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
         /// <param name="classification">The notification's type.</param>
         /// <param name="data">The push notification data (preferably as a JSON string).</param>
@@ -86,14 +86,14 @@ namespace Indice.AspNetCore.Identity
         public async Task<TotpResult> SendAsync(
             ClaimsPrincipal principal,
             string message,
-            string subject,
             TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
+            string subject = null,
             string purpose = null,
             string classification = null,
             string data = null
         ) {
             var user = await UserManager.GetUserAsync(principal);
-            return await SendAsync(user, message, subject, channel, purpose, classification, data);
+            return await SendAsync(user, message, channel, subject, purpose, classification, data);
         }
 
         /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
@@ -103,16 +103,16 @@ namespace Indice.AspNetCore.Identity
             configureAction(builder);
             var @params = builder.Build();
             if (@params.ClaimsPrincipal is not null) {
-                return SendAsync(@params.ClaimsPrincipal, @params.Message, @params.Subject, @params.DeliveryChannel, @params.Purpose, @params.Classification, @params.Data);
+                return SendAsync(@params.ClaimsPrincipal, @params.Message, @params.DeliveryChannel, @params.Subject, @params.Purpose, @params.Classification, @params.Data);
             }
-            return SendAsync(@params.User, @params.Message, @params.Subject, @params.DeliveryChannel, @params.Purpose, @params.Classification, @params.Data);
+            return SendAsync(@params.User, @params.Message, @params.DeliveryChannel, @params.Subject, @params.Purpose, @params.Classification, @params.Data);
         }
 
         /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="message">The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
-        /// <param name="subject">The subject of message.</param>
         /// <param name="channel">The delivery channel.</param>
+        /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
         /// <param name="classification">The notification's type.</param>
         /// <param name="data">The push notification data (preferably as a JSON string).</param>
@@ -120,8 +120,8 @@ namespace Indice.AspNetCore.Identity
         public virtual async Task<TotpResult> SendAsync(
             TUser user,
             string message,
-            string subject,
             TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
+            string subject = null,
             string purpose = null,
             string classification = null,
             string data = null

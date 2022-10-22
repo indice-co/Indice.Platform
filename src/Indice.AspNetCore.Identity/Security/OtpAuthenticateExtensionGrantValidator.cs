@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Models;
@@ -16,36 +15,32 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity
 {
-    /// <summary>
-    /// An extension grant that receives a valid token, sends an OTP to the user that when verified issues a new token that is marked approproately.
-    /// </summary>
+    /// <summary>An extension grant that receives a valid token, sends an OTP to the user that when verified issues a new token that is marked appropriately.</summary>
     public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantValidator
     {
         private readonly ITokenValidator _tokenValidator;
         private readonly UserManager<User> _userManager;
         private readonly Rfc6238AuthenticationService _rfc6238AuthenticationService;
         private readonly IdentityMessageDescriber _identityMessageDescriber;
-        private readonly ITotpService _totpService;
+        private readonly TotpServiceFactory _totpServiceFactory;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="OtpAuthenticateExtensionGrantValidator"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="OtpAuthenticateExtensionGrantValidator"/>.</summary>
         /// <param name="validator">Validates an access token.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="totpOptions">Configuration used in <see cref="System.Security.Rfc6238AuthenticationService"/> service.</param>
         /// <param name="identityMessageDescriber">Provides an extensibility point for altering localizing used inside the package.</param>
-        /// <param name="totpService">Used to generate, send and verify time based one time passwords.</param>
+        /// <param name="totpServiceFactory">Used to generate, send and verify time based one time passwords.</param>
         public OtpAuthenticateExtensionGrantValidator(
             ITokenValidator validator,
             UserManager<User> userManager,
             TotpOptions totpOptions,
             IdentityMessageDescriber identityMessageDescriber,
-            ITotpService totpService
+            TotpServiceFactory totpServiceFactory
         ) {
             _tokenValidator = validator ?? throw new ArgumentNullException(nameof(validator));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _identityMessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
-            _totpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
+            _totpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
             _rfc6238AuthenticationService = new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength);
         }
 
@@ -82,11 +77,12 @@ namespace Indice.AspNetCore.Identity
             /* 5. Check if an OTP is provided in the request. */
             var purpose = $"{TotpConstants.TokenGenerationPurpose.SessionOtp}:{user.Id}";
             var otp = rawRequest.Get("otp");
-            var principal = Principal.Create("OtpAuthenticatedUser", new List<Claim> { 
-                new Claim(JwtClaimTypes.Subject, subject) 
+            var principal = Principal.Create("OtpAuthenticatedUser", new List<Claim> {
+                new Claim(JwtClaimTypes.Subject, subject)
             }
             .ToArray());
             /* 5.1 If an OTP is not provided, then we must send one to the user's confirmed phone number. */
+            var totpService = _totpServiceFactory.Create<User>();
             if (string.IsNullOrWhiteSpace(otp)) {
                 /* 5.1.1 In order to send the OTP we have to decide the delivery channel. Delivery channel can optionally be sent in the request. */
                 var providedChannel = rawRequest.Get("channel");
@@ -99,19 +95,20 @@ namespace Indice.AspNetCore.Identity
                         return;
                     }
                 }
-                await _totpService.Send(builder => 
-                    builder.UsePrincipal(principal)
-                           .WithMessage(_identityMessageDescriber.OtpSecuredValidatorOtpBody())
-                           .ToPhoneNumber(user.PhoneNumber)
-                           .UsingDeliveryChannel(channel, _identityMessageDescriber.OtpSecuredValidatorOtpSubject)
-                           .WithPurpose(purpose));
+                await totpService.SendAsync(totp =>
+                    totp.ToPrincipal(principal)
+                        .WithMessage(_identityMessageDescriber.OtpSecuredValidatorOtpBody())
+                        .UsingDeliveryChannel(channel)
+                        .WithSubject(_identityMessageDescriber.OtpSecuredValidatorOtpSubject)
+                        .WithPurpose(purpose)
+                );
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "An OTP code was sent to the user. Please replay the request and include the verification code.", new Dictionary<string, object> {
                     { "otp_sent", true }
                 });
                 return;
             }
             /* 5.2 If an OTP is provided, then we must verify it at first. */
-            var totpVerificationResult = await _totpService.Verify(principal, otp, purpose: purpose);
+            var totpVerificationResult = await totpService.VerifyAsync(principal, otp, purpose);
             /* If OTP verification code is not valid respond accordingly. */
             if (!totpVerificationResult.Success) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "OTP verification code could not be validated.");

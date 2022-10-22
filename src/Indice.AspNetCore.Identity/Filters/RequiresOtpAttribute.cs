@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using IdentityModel;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Security;
 using Indice.Services;
 using Indice.Types;
@@ -43,22 +44,23 @@ namespace Indice.AspNetCore.Identity.Filters
                 throw new BusinessException("A phone number does not exist in user claims.");
             }
             var serviceProvicer = httpContext.RequestServices;
-            var totpService = serviceProvicer.GetRequiredService<ITotpService>();
+            var totpServiceFactory = serviceProvicer.GetRequiredService<TotpServiceFactory>();
+            var totpService = totpServiceFactory.Create<User>();
             var messageDescriber = serviceProvicer.GetRequiredService<IdentityMessageDescriber>();
             var totp = httpContext.Request.Headers[HeaderName].ToString();
             var purpose = $"{nameof(RequiresOtpAttribute)}:{subject}:{phoneNumber}";
             // No TOTP is present in the request, so will try to send one using the preferred delivery channel.
             if (string.IsNullOrWhiteSpace(totp)) {
-                await totpService.Send(builder =>
-                    builder.UsePrincipal(principal)
-                           .WithMessage(messageDescriber.RequiresOtpMessage())
-                           .UsingDeliveryChannel(DeliveryChannel)
-                           .WithPurpose(purpose)
+                await totpService.SendAsync(totp =>
+                    totp.ToPrincipal(principal)
+                        .WithMessage(messageDescriber.RequiresOtpMessage())
+                        .UsingDeliveryChannel(DeliveryChannel)
+                        .WithPurpose(purpose)
                 );
                 throw new BusinessException("TOTP is required.", "totp", new List<string> { "An TOTP code is required to call this endpoint." });
             }
             // If a TOTP exists in the request, then we need to verify it.
-            var totpResult = await totpService.Verify(principal, totp, purpose: purpose);
+            var totpResult = await totpService.VerifyAsync(principal, totp, purpose);
             if (!totpResult.Success) {
                 throw new BusinessException("TOTP not required.", "totp", new List<string> { "The TOTP code could not be verified." });
             }

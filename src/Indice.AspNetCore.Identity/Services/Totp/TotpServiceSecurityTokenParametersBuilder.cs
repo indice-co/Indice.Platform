@@ -35,25 +35,8 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary>Sets the <see cref="TotpServiceSecurityTokenParameters.Message"/> property.</summary>
         /// <param name="message">The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
-        public TotpServiceSecurityTokenSubjectBuilder WithMessage(string message) {
-            _builder.Subject = message;
-            return new TotpServiceSecurityTokenSubjectBuilder(_builder);
-        }
-    }
-
-    /// <summary>Builder class.</summary>
-    public sealed class TotpServiceSecurityTokenSubjectBuilder
-    {
-        private readonly TotpServiceSecurityTokenParametersBuilder _builder;
-
-        /// <summary>Creates a new instance of <see cref="TotpServiceSecurityTokenSubjectBuilder"/>.</summary>
-        /// <param name="builder">The instance of <see cref="TotpServiceSecurityTokenParametersBuilder"/>.</param>
-        public TotpServiceSecurityTokenSubjectBuilder(TotpServiceSecurityTokenParametersBuilder builder) => _builder = builder;
-
-        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Subject"/> property.</summary>
-        /// <param name="subject">The subject of message.</param>
-        public TotpServiceSecurityTokenPhoneNumberBuilder WithSubject(string subject) {
-            _builder.Subject = subject;
+        public TotpServiceSecurityTokenPhoneNumberBuilder WithMessage(string message) {
+            _builder.Message = message;
             return new TotpServiceSecurityTokenPhoneNumberBuilder(_builder);
         }
     }
@@ -69,24 +52,34 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary>Sets the <see cref="TotpServiceSecurityTokenParameters.PhoneNumber"/> property.</summary>
         /// <param name="phoneNumber">The receiver's phone number.</param>
-        public TotpServiceSecurityTokenPurposeBuilder ToPhoneNumber(string phoneNumber) {
+        public TotpServiceSecurityTokenOptionalParametersBuilder ToPhoneNumber(string phoneNumber) {
             _builder.PhoneNumber = phoneNumber;
-            return new TotpServiceSecurityTokenPurposeBuilder(_builder);
+            return new TotpServiceSecurityTokenOptionalParametersBuilder(_builder);
         }
     }
 
     /// <summary>Builder class.</summary>
-    public sealed class TotpServiceSecurityTokenPurposeBuilder
+    public sealed class TotpServiceSecurityTokenOptionalParametersBuilder
     {
         private readonly TotpServiceSecurityTokenParametersBuilder _builder;
 
-        /// <summary>Creates a new instance of <see cref="TotpServiceSecurityTokenPurposeBuilder"/>.</summary>
+        /// <summary>Creates a new instance of <see cref="TotpServiceSecurityTokenOptionalParametersBuilder"/>.</summary>
         /// <param name="builder">The instance of <see cref="TotpServiceSecurityTokenParametersBuilder"/>.</param>
-        public TotpServiceSecurityTokenPurposeBuilder(TotpServiceSecurityTokenParametersBuilder builder) => _builder = builder;
+        public TotpServiceSecurityTokenOptionalParametersBuilder(TotpServiceSecurityTokenParametersBuilder builder) => _builder = builder;
 
         /// <summary>Sets the <see cref="TotpServiceSecurityTokenParameters.Purpose"/> property.</summary>
         /// <param name="purpose">The purpose.</param>
-        public void WithPurpose(string purpose) => _builder.Purpose = purpose;
+        public TotpServiceSecurityTokenOptionalParametersBuilder WithPurpose(string purpose) {
+            _builder.Purpose = purpose;
+            return new TotpServiceSecurityTokenOptionalParametersBuilder(_builder);
+        }
+
+        /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.Subject"/> property.</summary>
+        /// <param name="subject">The subject of message.</param>
+        public TotpServiceSecurityTokenOptionalParametersBuilder WithSubject(string subject) {
+            _builder.Subject = subject;
+            return new TotpServiceSecurityTokenOptionalParametersBuilder(_builder);
+        }
     }
 
     /// <summary></summary>
