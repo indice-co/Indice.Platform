@@ -1,14 +1,13 @@
 ﻿using System.Text.Json;
 using System.Threading.Tasks;
-using Indice.Features.Kyc.GovGr.Interfaces;
-using Indice.Features.Kyc.GovGr.Models;
+using Indice.Features.GovGr.Interfaces;
+using Indice.Features.GovGr.Models;
 
-namespace Indice.Features.Kyc.GovGr.Services
+namespace Indice.Features.GovGr
 {
-    /// <inheritdoc />
-    public class MockKycService : IKycService
+    internal static class GovGrConstants
     {
-        private const string JsonString = @"
+        public static readonly string KycMockJsonString = @"
                 {
                    ""response"":{
                       ""principal"":""068933130"",
@@ -296,18 +295,11 @@ namespace Indice.Features.Kyc.GovGr.Services
                       }
                    },
                    ""iat"":1637766104,
-                   ""aud"":""chaniabank.gr-dev-chaniaWebBanking"",
+                   ""aud"":""somedomain.gr"",
                    ""jti"":7461,
                    ""iss"":""kyc-demo"",
                    ""sub"":""068933130"",
                    ""version"":""1.1""
                 }";
-
-        /// <summary>
-        /// Get Data from eGov KYC
-        /// </summary>
-        public Task<EGovKycResponsePayload> GetData(string clientName, string code) {
-            return Task.FromResult(JsonSerializer.Deserialize<EGovKycResponsePayload>(JsonString));
-        }
     }
 }

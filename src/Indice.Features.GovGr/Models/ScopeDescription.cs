@@ -1,9 +1,9 @@
-﻿namespace Indice.Features.Kyc.GovGr.Models
+﻿namespace Indice.Features.GovGr.Models
 {
     /// <summary>
     /// The KycScope details model.
     /// </summary>
-    public class KycScope
+    public class ScopeDescription
     {
         /// <summary>
         /// The name of the scope.

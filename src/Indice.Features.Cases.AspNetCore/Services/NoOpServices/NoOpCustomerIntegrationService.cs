@@ -9,12 +9,10 @@ namespace Indice.Features.Cases.Services.NoOpServices
 {
     internal class NoOpCustomerIntegrationService : ICustomerIntegrationService
     {
-        public Task<CustomerData> GetCustomerData(string customerId, string caseTypeCode) {
+        public Task<IEnumerable<CustomerDetails>> GetCustomers(SearchCustomerCriteria criteria) =>
             throw new NotImplementedException("Implement this interface with your own data sources.");
-        }
 
-        public Task<IEnumerable<CustomerDetails>> GetCustomers(SearchCustomerCriteria criteria) {
+        public Task<CustomerData> GetCustomerData(string customerId, string caseTypeCode) =>
             throw new NotImplementedException("Implement this interface with your own data sources.");
-        }
     }
 }

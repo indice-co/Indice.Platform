@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Kyc.GovGr.Enums
+﻿namespace Indice.Features.GovGr
 {
     /// <summary>
     /// Gov GR KYC available scopes

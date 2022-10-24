@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Indice.Features.Kyc.GovGr.Enums;
+using Indice.Features.GovGr.Models;
 
-namespace Indice.Features.Kyc.GovGr.Extensions
+namespace Indice.Features.GovGr.Serialization
 {
     /// <summary>
-    /// JsonConverter for handling <see cref="GovGrKycStatusCode"/> enums.
+    /// JsonConverter for handling <see cref="KycStatusCode"/> enums.
     /// </summary>
-    public class StringKycStatusCodeConverter : JsonConverter<GovGrKycStatusCode>
+    public class StringKycStatusCodeConverter : JsonConverter<KycStatusCode>
     {
         /// <inheritdoc/>
-        public override GovGrKycStatusCode Read(
+        public override KycStatusCode Read(
             ref Utf8JsonReader reader,
             Type typeToConvert,
             JsonSerializerOptions options) =>
@@ -20,16 +20,16 @@ namespace Indice.Features.Kyc.GovGr.Extensions
         /// <inheritdoc/>
         public override void Write(
             Utf8JsonWriter writer,
-            GovGrKycStatusCode value,
+            KycStatusCode value,
             JsonSerializerOptions options) =>
                 writer.WriteStringValue(((int)value).ToString());
 
-        private GovGrKycStatusCode _tryParseEGovKycStatusCode(string stringValue) {
-            var result = GovGrKycStatusCode.Unknown;
+        private KycStatusCode _tryParseEGovKycStatusCode(string stringValue) {
+            var result = KycStatusCode.Unknown;
             // the use of Parse (instead of TryParse) is intentional: we want to get informed in case of a gov.gr response change
             var enumValue = int.Parse(stringValue);
-            if (Enum.IsDefined(typeof(GovGrKycStatusCode), enumValue)) {
-                result = (GovGrKycStatusCode)enumValue;
+            if (Enum.IsDefined(typeof(KycStatusCode), enumValue)) {
+                result = (KycStatusCode)enumValue;
             }
             return result;
         }
