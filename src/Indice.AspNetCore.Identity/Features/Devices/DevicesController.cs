@@ -105,16 +105,17 @@ namespace Indice.AspNetCore.Identity.Api
                 ModelState.AddModelError(nameof(request.DeviceId), $"A device with id {request.DeviceId} already exists.");
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
+            var id = Guid.NewGuid();
             var shouldEnablePushNotifications = !string.IsNullOrWhiteSpace(request.PnsHandle);
             if (shouldEnablePushNotifications) {
                 try {
-                    await PushNotificationService.Register(request.DeviceId, request.PnsHandle, request.Platform, user.Id, request.Tags?.ToArray());
+                    await PushNotificationService.Register(id.ToString(), request.PnsHandle, request.Platform, user.Id, request.Tags?.ToArray());
                 } catch (Exception exception) {
                     Logger.LogError("An exception occurred when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
                     throw;
                 }
             }
-            device = new UserDevice {
+            device = new UserDevice(id) {
                 Data = request.Data,
                 DateCreated = DateTimeOffset.UtcNow,
                 DeviceId = request.DeviceId,

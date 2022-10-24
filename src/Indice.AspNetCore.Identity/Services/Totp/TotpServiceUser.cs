@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Models;
 using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
@@ -140,9 +141,13 @@ namespace Indice.AspNetCore.Identity
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
             if (channel == TotpDeliveryChannel.PushNotification) {
-                // TODO: Find device id.
+                var trustedDevices = await UserManager.GetDevicesAsync(user, new GetDevicesFilter(isTrusted: true));
+                foreach (var device in trustedDevices) {
+                    await SendToChannelAsync(channel, message, subject, user.PhoneNumber, device.Id.ToString(), user.Id, classification, data);
+                }
+            } else {
+                await SendToChannelAsync(channel, message, subject, user.PhoneNumber, deviceId: null, user.Id, classification, data);
             }
-            await SendToChannelAsync(channel, message, subject, user.PhoneNumber, deviceId: null, user.Id, classification, data);
             await AddCacheKeyAsync(cacheKey);
             return TotpResult.SuccessResult;
         }
