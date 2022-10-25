@@ -2,6 +2,7 @@
 using Indice.Features.GovGr;
 using Indice.Features.GovGr.Configuration;
 using Indice.Features.GovGr.Interfaces;
+using Indice.Features.Kyc.GovGr;
 using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -32,9 +33,9 @@ namespace Microsoft.Extensions.DependencyInjection
                 settings.SkipCheckTin = options.SkipCheckTin;
             });
             // Register custom services.
-            services.AddHttpClient(nameof(GovGrKycClient));
-            services.AddTransient<IKycService, GovGrKycClient>();
             services.AddTransient<GovGrKycScopeDescriber>();
+            services.AddHttpClient<GovGrClient>();
+
         }
     }
 }

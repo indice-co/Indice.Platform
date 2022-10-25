@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -10,39 +12,48 @@ using Indice.Features.GovGr;
 using Indice.Features.GovGr.Configuration;
 using Indice.Features.GovGr.Interfaces;
 using Indice.Features.GovGr.Models;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.GovGr
 {
     /// <inheritdoc />
-    public class GovGrKycClient : IKycService
+    internal class GovGrKycClient : IKycService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly HttpClient _httpClient;
+        private readonly GovGrKycScopeDescriber _govGrKycScopeDescriber;
         private readonly GovGrKycSettings _settings;
 
-        public GovGrKycClient(
-            IHttpClientFactory httpClientFactory,
-            IOptions<GovGrKycSettings> settings
-            ) {
-            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+        internal GovGrKycClient(
+            HttpClient httpClient,
+            IOptions<GovGrKycSettings> settings,
+            GovGrKycScopeDescriber govGrKycScopeDescriber,
+            string clientName) {
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _govGrKycScopeDescriber = govGrKycScopeDescriber ?? throw new ArgumentNullException(nameof(govGrKycScopeDescriber));
             _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+            
+            if (clientName is null) { 
+                throw new ArgumentNullException(nameof(clientName));
+            }
+            Credentials = _settings.Clients.FirstOrDefault(x => x.Name == clientName) ?? throw new Exception($"Client with name {clientName} not found");
         }
+
+        public GovGrKycSettings.Credentials Credentials { get; }
+
+        public List<ScopeDescription> GetAvailableScopes(IStringLocalizer localizer = null) => _govGrKycScopeDescriber.GetDescriptions(localizer);
 
         /// <summary>
         /// Get Data from eGov KYC
         /// </summary>
-        public async Task<KycPayload> GetData(string clientName, string code) {
+        public async Task<KycPayload> GetData(string code) {
             if (_settings.UseMockServices)
                 return JsonSerializer.Deserialize<KycPayload>(GovGrConstants.KycMockJsonString);
 
-            if (clientName is null) { throw new ArgumentNullException(nameof(clientName)); }
             if (code is null) { throw new ArgumentNullException(nameof(code)); }
 
-            var clientSettings = _settings.Clients.FirstOrDefault(x => x.Name == clientName)
-                                 ?? throw new Exception($"Client with name {clientName} not found");
-
             // exchange authorization code with access token, using basic authentication 
-            var accessToken = await GetAccessToken(_settings.TokenEndpoint, clientSettings.ClientId, clientSettings.ClientSecret, code, clientSettings.RedirectUri);
+            var accessToken = await GetAccessToken(_settings.TokenEndpoint, Credentials.ClientId, Credentials.ClientSecret, code, Credentials.RedirectUri);
             // get data from resource server
             return await GetEGovKycResponsePayload(accessToken, _settings.ResourceServerEndpoint);
         }
@@ -51,7 +62,7 @@ namespace Indice.Features.GovGr
         /// Get Access Token from EGovKyc Identity server
         /// </summary>
         private async Task<string> GetAccessToken(string tokenEndpoint, string clientId, string clientSecret, string code, string redirectUri) {
-            var tokenClient = _httpClientFactory.CreateClient(nameof(GovGrKycClient));
+            var tokenClient = _httpClient;
 
             // https://en.wikipedia.org/wiki/Basic_access_authentication
             var credentials = Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}");
@@ -72,7 +83,7 @@ namespace Indice.Features.GovGr
         /// Get EGovKycResponsePayload from EGovKyc Resource server
         /// </summary>
         private async Task<KycPayload> GetEGovKycResponsePayload(string accessToken, string resourceServerEndpoint) {
-            var apiClient = _httpClientFactory.CreateClient(nameof(GovGrKycClient));
+            var apiClient = _httpClient;
 
             apiClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
             var httpResponse = await apiClient.GetAsync(resourceServerEndpoint);
