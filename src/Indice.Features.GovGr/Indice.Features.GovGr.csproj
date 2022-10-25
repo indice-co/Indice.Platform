@@ -47,6 +47,9 @@
     <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Update="Resources\Services\KycScopeService.en.resx">

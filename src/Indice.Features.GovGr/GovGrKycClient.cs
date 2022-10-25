@@ -22,24 +22,20 @@ namespace Indice.Features.GovGr
     {
         private readonly HttpClient _httpClient;
         private readonly GovGrKycScopeDescriber _govGrKycScopeDescriber;
-        private readonly GovGrKycSettings _settings;
+        private readonly GovGrSettings _settings;
 
         internal GovGrKycClient(
             HttpClient httpClient,
-            IOptions<GovGrKycSettings> settings,
+            IOptions<GovGrSettings> settings,
             GovGrKycScopeDescriber govGrKycScopeDescriber,
-            string clientName) {
+            GovGrSettings.Credentials clientCredentials) {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _govGrKycScopeDescriber = govGrKycScopeDescriber ?? throw new ArgumentNullException(nameof(govGrKycScopeDescriber));
             _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
-            
-            if (clientName is null) { 
-                throw new ArgumentNullException(nameof(clientName));
-            }
-            Credentials = _settings.Clients.FirstOrDefault(x => x.Name == clientName) ?? throw new Exception($"Client with name {clientName} not found");
+            Credentials = clientCredentials ?? throw new ArgumentNullException(nameof(clientCredentials));
         }
 
-        public GovGrKycSettings.Credentials Credentials { get; }
+        protected GovGrSettings.Credentials Credentials { get; }
 
         public List<ScopeDescription> GetAvailableScopes(IStringLocalizer localizer = null) => _govGrKycScopeDescriber.GetDescriptions(localizer);
 

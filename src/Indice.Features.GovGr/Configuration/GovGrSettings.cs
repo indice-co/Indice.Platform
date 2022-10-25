@@ -5,12 +5,12 @@ namespace Indice.Features.GovGr.Configuration
     /// <summary>
     /// The Kyc settings.
     /// </summary>
-    public class GovGrKycSettings
+    public class GovGrSettings
     {
         /// <summary>
         /// The name of the AppSetting
         /// </summary>
-        public const string Name = nameof(GovGrKycSettings);
+        public const string Name = "GovGr";
 
         /// <summary>
         /// TokenEndpoint
