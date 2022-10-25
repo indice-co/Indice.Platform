@@ -69,6 +69,7 @@ namespace Indice.Features.Cases
             // Register no op services.
             services.AddTransient<ILookupService, NoOpLookupService>();
             services.AddTransient<ICustomerIntegrationService, NoOpCustomerIntegrationService>();
+            services.AddTransient<ICasePdfService, NoOpCasePdfService>();
 
             // Register custom services.
             services.AddTransient<IMyCaseService, MyCaseService>();
