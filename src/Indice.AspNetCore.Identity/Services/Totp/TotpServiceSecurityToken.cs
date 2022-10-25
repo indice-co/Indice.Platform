@@ -59,7 +59,16 @@ namespace Indice.AspNetCore.Identity
             if (await CacheKeyExistsAsync(cacheKey)) {
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
-            await SendToChannelAsync(CHANNEL, message, subject, phoneNumber);
+            await SendToChannelAsync(
+                CHANNEL,
+                new TotpRecipient {
+                    PhoneNumber = phoneNumber
+                },
+                new TotpMessage {
+                    Message = message,
+                    Subject = subject
+                }
+            );
             await AddCacheKeyAsync(cacheKey);
             return TotpResult.SuccessResult;
         }

@@ -104,7 +104,7 @@ namespace Indice.Services
                             ? tag.Value
                             : "$InstallationId:{" + tag.Value + "}" // https://learn.microsoft.com/en-us/azure/notification-hubs/notification-hubs-push-notification-registration-management#installations
                     )
-            );
+                );
             } else {
                 await NotificationHub.SendTemplateNotificationAsync(properties);
             }

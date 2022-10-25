@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity
@@ -20,19 +19,32 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
         Task<IdentityResult> CreateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken);
-        /// <summary>Get the devices registered by the specified user.</summary>
+        /// <summary>Gets the devices registered by the specified user.</summary>
         /// <param name="user">The user instance.</param>
-        /// <param name="filter">Filter options for querying devices.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
-        Task<IList<UserDevice>> GetDevicesAsync(TUser user, GetDevicesFilter filter = null, CancellationToken cancellationToken = default);
-        /// <summary>Get the devices count registered by the specified user.</summary>
+        Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken);
+        /// <summary>Gets the trusted devices registered by the specified user.</summary>
         /// <param name="user">The user instance.</param>
-        /// <param name="filter">Filter options for querying devices.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the trusted user devices.</returns>
+        Task<IList<UserDevice>> GetTrustedDevicesAsync(TUser user, CancellationToken cancellationToken);
+        /// <summary>Gets the trusted or pending activation devices registered by the specified user.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the trusted or pending activation user devices.</returns>
+        Task<IList<UserDevice>> GetTrustedOrPendingDevicesAsync(TUser user, CancellationToken cancellationToken);
+        /// <summary>Gets the devices count registered by the specified user.</summary>
+        /// <param name="user">The user instance.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
-        Task<int> GetDevicesCountAsync(TUser user, GetDevicesFilter filter = null, CancellationToken cancellationToken = default);
-        /// <summary>Get the device registered by the specified user, using it's unique id.</summary>
+        Task<int> GetDevicesCountAsync(TUser user, CancellationToken cancellationToken);
+        /// <summary>Gets the devices count registered by the specified user.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
+        Task<int> GetTrustedOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken);
+        /// <summary>Gets the device registered by the specified user, using it's unique id.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="deviceId">The id of the device to look for.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>

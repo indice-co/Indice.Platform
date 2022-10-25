@@ -91,10 +91,10 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         private static void RegisterEvents(this DeviceAuthenticationOptions options) {
-            var requireCredentialsOnAccountChange = options.Configuration.GetValue<bool?>("IdentityOptions:User:Devices:RequireCredentialsOnAccountChange") ??
-                                                    options.Configuration.GetValue<bool?>("User:Devices:RequireCredentialsOnAccountChange") ??
+            var requirePasswordAfterUserUpdate = options.Configuration.GetValue<bool?>("IdentityOptions:User:Devices:RequirePasswordAfterUserUpdate") ??
+                                                    options.Configuration.GetValue<bool?>("User:Devices:RequirePasswordAfterUserUpdate") ??
                                                     false;
-            if (requireCredentialsOnAccountChange) {
+            if (requirePasswordAfterUserUpdate) {
                 options.Services.AddPlatformEventHandler<UserNameChangedEvent, UserNameOrPasswordChangedEventHandler>();
                 options.Services.AddPlatformEventHandler<PasswordChangedEvent, UserNameOrPasswordChangedEventHandler>();
             }

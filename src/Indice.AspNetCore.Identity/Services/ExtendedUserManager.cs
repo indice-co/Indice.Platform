@@ -301,7 +301,7 @@ namespace Indice.AspNetCore.Identity
                 userMaxDevicesCount = parsedUserMaxDevicesClaim;
             }
             var maxDevicesCount = userMaxDevicesCount ?? DefaultAllowedRegisteredDevices ?? int.MaxValue;
-            var numberOfUserDevices = await deviceStore.GetDevicesCountAsync(user, filter: null, cancellationToken);
+            var numberOfUserDevices = await deviceStore.GetDevicesCountAsync(user, cancellationToken);
             if (maxDevicesCount == numberOfUserDevices) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = nameof(MessageDescriber.MaxNumberOfDevices),
@@ -340,17 +340,30 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary>Get the devices registered by the specified user.</summary>
         /// <param name="user">The user instance.</param>
-        /// <param name="filter">Filter options for querying devices.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
         /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
-        public Task<IList<UserDevice>> GetDevicesAsync(TUser user, GetDevicesFilter filter = null, CancellationToken cancellationToken = default) {
+        public Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
             var deviceStore = GetDeviceStore();
-            return deviceStore.GetDevicesAsync(user, filter, cancellationToken);
+            return deviceStore.GetDevicesAsync(user, cancellationToken);
+        }
+
+        /// <summary>Get the devices registered by the specified user.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
+        public Task<IList<UserDevice>> GetTrustedDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var deviceStore = GetDeviceStore();
+            return deviceStore.GetTrustedDevicesAsync(user, cancellationToken);
         }
 
         /// <summary>Sets the maximum number of devices a user can register.</summary>
@@ -364,7 +377,7 @@ namespace Indice.AspNetCore.Identity
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            if (maxDevicesCount < 1) {
+            if (maxDevicesCount < 0) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = nameof(MessageDescriber.InsufficientNumberOfDevices),
                     Description = MessageDescriber.InsufficientNumberOfDevices()
@@ -378,7 +391,7 @@ namespace Indice.AspNetCore.Identity
                 });
             }
             var deviceStore = GetDeviceStore();
-            var numberOfUserDevices = await deviceStore.GetDevicesCountAsync(user, filter: null, cancellationToken);
+            var numberOfUserDevices = await deviceStore.GetDevicesCountAsync(user, cancellationToken);
             // User tries to set the number of allowed devices to a value lower than the current number.
             if (numberOfUserDevices > maxDevicesCount) {
                 return IdentityResult.Failed(new IdentityError {
@@ -444,7 +457,6 @@ namespace Indice.AspNetCore.Identity
             if (device is null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            var deviceStore = GetDeviceStore();
             device.RequiresPassword = requiresPassword;
             return await UpdateDeviceAsync(user, device, cancellationToken);
         }
@@ -496,7 +508,7 @@ namespace Indice.AspNetCore.Identity
             var isDeviceActivationRequest = !device.TrustActivationDate.HasValue;
             if (isDeviceActivationRequest) {
                 if (MaxTrustedDevices.HasValue && MaxTrustedDevices.Value > 0) {
-                    var trustedOrPendingDevices = await deviceStore.GetDevicesCountAsync(user, new GetDevicesFilter(isTrusted: true, isPendingTrustActivation: true), cancellationToken);
+                    var trustedOrPendingDevices = await deviceStore.GetTrustedOrPendingDevicesCountAsync(user, cancellationToken);
                     if (trustedOrPendingDevices >= MaxTrustedDevices.Value) {
                         return IdentityResult.Failed(new IdentityError {
                             Code = nameof(UserDevice.TrustActivationDate),

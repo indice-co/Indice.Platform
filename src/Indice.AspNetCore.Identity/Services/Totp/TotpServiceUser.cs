@@ -141,12 +141,37 @@ namespace Indice.AspNetCore.Identity
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
             if (channel == TotpDeliveryChannel.PushNotification) {
-                var trustedDevices = await UserManager.GetDevicesAsync(user, new GetDevicesFilter(isTrusted: true));
+                var trustedDevices = await UserManager.GetTrustedDevicesAsync(user);
                 foreach (var device in trustedDevices) {
-                    await SendToChannelAsync(channel, message, subject, user.PhoneNumber, device.Id.ToString(), user.Id, classification, data);
+                    await SendToChannelAsync(
+                        channel,
+                        new TotpRecipient {
+                            DeviceId = device.Id.ToString(),
+                            UserId = user.Id,
+                            PhoneNumber = user.PhoneNumber
+                        },
+                        new TotpMessage {
+                            Message = message,
+                            Subject = subject,
+                            Category = classification,
+                            Data = data
+                        }
+                    );
                 }
             } else {
-                await SendToChannelAsync(channel, message, subject, user.PhoneNumber, deviceId: null, user.Id, classification, data);
+                await SendToChannelAsync(
+                    channel,
+                    new TotpRecipient {
+                        UserId = user.Id,
+                        PhoneNumber = user.PhoneNumber
+                    },
+                    new TotpMessage {
+                        Message = message,
+                        Subject = subject,
+                        Category = classification,
+                        Data = data
+                    }
+                );
             }
             await AddCacheKeyAsync(cacheKey);
             return TotpResult.SuccessResult;

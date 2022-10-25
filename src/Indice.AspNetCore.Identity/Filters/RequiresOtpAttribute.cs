@@ -62,7 +62,7 @@ namespace Indice.AspNetCore.Identity.Filters
             // If a TOTP exists in the request, then we need to verify it.
             var totpResult = await totpService.VerifyAsync(principal, totp, purpose);
             if (!totpResult.Success) {
-                throw new BusinessException("TOTP not required.", "totp", new List<string> { "The TOTP code could not be verified." });
+                throw new BusinessException("TOTP not verified.", "totp", new List<string> { "The TOTP code could not be verified." });
             }
             await next();
         }

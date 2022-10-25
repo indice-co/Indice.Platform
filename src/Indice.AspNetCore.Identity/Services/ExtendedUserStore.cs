@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -176,21 +175,49 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, GetDevicesFilter filter = null, CancellationToken cancellationToken = default) {
+        public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             return await UserDeviceSet
                 .Include(device => device.User)
-                .ApplyFilter(filter)
                 .Where(device => device.UserId == user.Id)
                 .ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task<int> GetDevicesCountAsync(TUser user, GetDevicesFilter filter = null, CancellationToken cancellationToken = default) {
+        public async Task<IList<UserDevice>> GetTrustedDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            return await UserDevices.ApplyFilter(filter).CountAsync(device => device.UserId == user.Id, cancellationToken);
+            return await UserDeviceSet
+                .Include(device => device.User)
+                .Where(device => device.UserId == user.Id && device.IsTrusted)
+                .ToListAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IList<UserDevice>> GetTrustedOrPendingDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            return await UserDeviceSet
+                .Include(device => device.User)
+                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)))
+                .ToListAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<int> GetDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            return await UserDevices.CountAsync(device => device.UserId == user.Id, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<int> GetTrustedOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            return await UserDevices
+                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)))
+                .CountAsync(device => device.UserId == user.Id, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -225,7 +252,7 @@ namespace Indice.AspNetCore.Identity.Data
         public async Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var devices = await GetDevicesAsync(user, null, cancellationToken);
+            var devices = await GetDevicesAsync(user, cancellationToken);
             foreach (var device in devices) {
                 device.RequiresPassword = requiresPassword;
             }
@@ -235,19 +262,6 @@ namespace Indice.AspNetCore.Identity.Data
                 return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
             }
             return IdentityResult.Success;
-        }
-    }
-
-    internal static class QueryableExtensions
-    {
-        public static IQueryable<UserDevice> ApplyFilter(this IQueryable<UserDevice> query, GetDevicesFilter filter) {
-            if (filter is not null) {
-                query = query.Where(device =>
-                    (filter.IsTrusted == null || device.IsTrusted == filter.IsTrusted) ||
-                    (filter.IsPendingTrustActivation == null || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow))
-                );
-            }
-            return query;
         }
     }
 }

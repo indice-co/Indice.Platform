@@ -167,7 +167,7 @@ namespace Indice.AspNetCore.Identity.Tests
                 builder.AddInMemoryCollection(new List<KeyValuePair<string, string>> {
                     new KeyValuePair<string, string>("IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices", "20"),
                     new KeyValuePair<string, string>("IdentityOptions:User:Devices:MaxAllowedRegisteredDevices", "40"),
-                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:RequireCredentialsOnAccountChange", "true"),
+                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:RequirePasswordAfterUserUpdate", "true"),
                     new KeyValuePair<string, string>("Totp:EnableDeveloperTotp", "true")
                 });
             });
