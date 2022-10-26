@@ -11,7 +11,7 @@ namespace Indice.Features.GovGr.Interfaces
         /// <summary>
         /// Get Data from eGov KYC
         /// </summary>
-        Task<KycPayload> GetData(string code);
+        Task<KycPayload> GetDataAsync(string code);
         /// <summary>
         /// Get available scopes for the KYC endpoint
         /// </summary>
