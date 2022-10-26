@@ -12,6 +12,7 @@ using Indice.Features.GovGr;
 using Indice.Features.GovGr.Configuration;
 using Indice.Features.GovGr.Interfaces;
 using Indice.Features.GovGr.Models;
+using Indice.Features.GovGr.Types;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
@@ -72,7 +73,7 @@ namespace Indice.Features.GovGr
         /// </summary>
         private async Task<string> GetAccessToken(string code) {
             // https://en.wikipedia.org/wiki/Basic_access_authentication
-            _httpClient.SetBasicAuthenticationOAuth(_settings.Credentials.ClientId, _settings.Credentials.ClientSecret);
+            //_httpClient.SetBasicAuthenticationOAuth(_settings.Credentials.ClientId, _settings.Credentials.ClientSecret);
 
             var tokenResponse = await _httpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest {
                 Address = "/oauth/token",
@@ -81,7 +82,9 @@ namespace Indice.Features.GovGr
                 Code = code,
                 RedirectUri = _settings.Credentials.RedirectUri,
             });
-
+            if (tokenResponse.IsError) {
+                throw new GovGrServiceException(tokenResponse.Error);
+            }
             return tokenResponse.AccessToken;
         }
     }

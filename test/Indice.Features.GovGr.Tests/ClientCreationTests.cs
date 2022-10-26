@@ -8,7 +8,6 @@ namespace Indice.Features.GovGr.Tests
         public ClientCreationTests() {
             var inMemorySettings = new Dictionary<string, string> {
                 ["GovGr:Kyc:Environment"] = "Mock",
-                ["GovGr:Kyc:Credentials:Name"] = "Web",
                 ["GovGr:Kyc:Credentials:ClientId"] = "ebanking",
                 ["GovGr:Kyc:Credentials:ClientSecret"] = "secret",
                 ["GovGr:Wallet:Sandbox"] = "true",
@@ -34,6 +33,13 @@ namespace Indice.Features.GovGr.Tests
             /// TODO do something meaningful
             var govGR = ServiceProvider.GetRequiredService<GovGrClient>();
             var data = await govGR.Kyc(clientCredentials: null, environment:"Mock").GetDataAsync("123");
+            Assert.NotNull(data);
+        }
+        [Fact]
+        public async Task CreateKycClient() {
+            /// TODO do something meaningful
+            var govGR = ServiceProvider.GetRequiredService<GovGrClient>();
+            var data = await govGR.Kyc().GetDataAsync("123");
             Assert.NotNull(data);
         }
 
