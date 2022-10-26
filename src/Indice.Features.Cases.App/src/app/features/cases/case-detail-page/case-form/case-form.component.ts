@@ -140,39 +140,58 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
           }
         }
       }
-      forkJoin(callsDict)
-        .pipe(
-          tap(
-            // we can match the received attachment guids to the respective fields with the help of the keys/dataPointers!
-            (response: { [key: string]: CasesAttachmentLink }) => {
-              let stringifiedData = JSON.stringify(event);
-              for (const key in response) {
-                if (response.hasOwnProperty(key)) {
-                  // we simply replace the dataPointer with the guid that we received from the server
-                  stringifiedData = stringifiedData.replace(key, response[key].id!);
-                }
-              }
-              // finally, submit the case
-              this._api.submitAdminCase(this.case?.id!, stringifiedData)
-                .pipe(
-                  tap(() => {
-                    this._fileUploadService.reset();
-                    this._toaster.show(ToastType.Success, 'Επιτυχής Επεξεργασία', `Η επεξεργασία της αίτησης ολοκληρώθηκε.`, 5000);
-                    this.updateDataEvent.emit({ draft: true });
-                  }),
-                  catchError((err: ProblemDetails) => { // error during case submit
-                    this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
-                    this.router.navigate(['/cases']);
-                    return EMPTY;
-                  })
-                )
-                .subscribe();
+      if (Object.keys(callsDict).length === 0) { // there are no documents to be uploaded!
+        // submit the case with no attachments
+        let stringifiedData = JSON.stringify(event);
+        this._api.submitAdminCase(this.case?.id!, stringifiedData)
+          .pipe(
+            tap(() => {
+              this._fileUploadService.reset();
+              this._toaster.show(ToastType.Success, 'Επιτυχής Επεξεργασία', `Η επεξεργασία της αίτησης ολοκληρώθηκε.`, 5000);
+              this.updateDataEvent.emit({ draft: true });
             }),
-          catchError(() => { // error during attachments upload
-            this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Προέκυψε πρόβλημα κατά την αποθήκευση των εγγράφων.`, 5000);
-            return EMPTY;
-          }))
-        .subscribe();
+            catchError((err: ProblemDetails) => { // error during case submit
+              this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
+              this.router.navigate(['/cases']);
+              return EMPTY;
+            })
+          )
+          .subscribe();
+      } else {
+        forkJoin(callsDict)
+          .pipe(
+            tap(
+              // we can match the received attachment guids to the respective fields with the help of the keys/dataPointers!
+              (response: { [key: string]: CasesAttachmentLink }) => {
+                let stringifiedData = JSON.stringify(event);
+                for (const key in response) {
+                  if (response.hasOwnProperty(key)) {
+                    // we simply replace the dataPointer with the guid that we received from the server
+                    stringifiedData = stringifiedData.replace(key, response[key].id!);
+                  }
+                }
+                // finally, submit the case
+                this._api.submitAdminCase(this.case?.id!, stringifiedData)
+                  .pipe(
+                    tap(() => {
+                      this._fileUploadService.reset();
+                      this._toaster.show(ToastType.Success, 'Επιτυχής Επεξεργασία', `Η επεξεργασία της αίτησης ολοκληρώθηκε.`, 5000);
+                      this.updateDataEvent.emit({ draft: true });
+                    }),
+                    catchError((err: ProblemDetails) => { // error during case submit
+                      this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
+                      this.router.navigate(['/cases']);
+                      return EMPTY;
+                    })
+                  )
+                  .subscribe();
+              }),
+            catchError(() => { // error during attachments upload
+              this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Προέκυψε πρόβλημα κατά την αποθήκευση των εγγράφων.`, 5000);
+              return EMPTY;
+            }))
+          .subscribe();
+      }
     } else {
       const editCaseRequest = new EditCaseRequest({ data: JSON.stringify(event) });
       this._api.editCase(this.case?.id!, undefined, editCaseRequest)
@@ -293,15 +312,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     // form is view-only -> add readonly property to all objects of layout object!
     layout.forEach((element: any) => {
       element.readonly = "true";
-      if (element.hasOwnProperty('items')) { // ajsf sections have items!
-        element.items.forEach((item: any) => {
-          item.readonly = "true";
-          if (item.hasOwnProperty('items')) { // ajsf flex containers have items!
-            item.items.forEach((i: any) => {
-              i.readonly = "true";
-            });
-          }
-        });
+      if (element.hasOwnProperty('items')) { // ajsf sections may have items, which may be flex containers, which may have items...
+        this.addReadonlyProperties(element.items);
       }
     });
   }

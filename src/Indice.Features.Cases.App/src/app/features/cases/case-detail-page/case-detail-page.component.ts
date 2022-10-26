@@ -52,9 +52,9 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   }
 
   public updateData(event: { draft: boolean }): void {
-    if (event.draft) {
-      this.getCaseActionsAndThenRequestModel();
-    }
+    // if (event.draft) {
+    this.getCaseActionsAndThenRequestModel();
+    // }
     this.showWarningModal = true;
     this.getTimeline();
   }
