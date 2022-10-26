@@ -123,7 +123,9 @@ namespace Indice.AspNetCore.Identity.Api
                 Model = request.Model,
                 Name = request.Name,
                 OsVersion = request.OsVersion,
-                Platform = request.Platform
+                Platform = request.Platform,
+                PnsHandle = request.PnsHandle,
+                Tags = request.Tags?.ToArray()
             };
             var result = await UserManager.CreateDeviceAsync(user, device);
             if (!result.Succeeded) {
@@ -154,7 +156,7 @@ namespace Indice.AspNetCore.Identity.Api
             }
             var shouldEnablePushNotifications = !string.IsNullOrWhiteSpace(request.PnsHandle);
             var shouldUnRegisterDevice = device.IsPushNotificationsEnabled && !shouldEnablePushNotifications;
-            var shouldRegisterDevice = !device.IsPushNotificationsEnabled && shouldEnablePushNotifications;
+            var shouldRegisterDevice = (!device.IsPushNotificationsEnabled && shouldEnablePushNotifications) || device.PnsHandle != request.PnsHandle;
             try {
                 if (shouldUnRegisterDevice) {
                     await PushNotificationService.UnRegister(deviceId);
@@ -171,13 +173,15 @@ namespace Indice.AspNetCore.Identity.Api
             device.Model = request.Model;
             device.OsVersion = request.OsVersion;
             device.Data = request.Data;
+            device.PnsHandle = request.PnsHandle;
+            device.Tags = request.Tags?.ToArray();
             await UserManager.UpdateDeviceAsync(user, device);
             return NoContent();
         }
 
-        /// <summary></summary>
+        /// <summary>Starts the process of trusting a device.</summary>
         /// <param name="deviceId">The device id.</param>
-        /// <response code="202">Accepted</response>
+        /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpPut("{deviceId}/trust")]
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
@@ -197,7 +201,32 @@ namespace Indice.AspNetCore.Identity.Api
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            return Accepted();
+            return NoContent();
+        }
+
+        /// <summary>Sets a device as untrusted.</summary>
+        /// <param name="deviceId">The device id.</param>
+        /// <response code="204">No Content</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("{deviceId}/untrust")]
+        [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+        [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+        [RequiresOtp]
+        public async Task<IActionResult> SetUntrustedDevice([FromRoute] string deviceId) {
+            var user = await UserManager.GetUserAsync(User);
+            if (user is null) {
+                return NotFound();
+            }
+            var device = await UserManager.GetDeviceByIdAsync(user, deviceId);
+            if (device is null) {
+                return NotFound();
+            }
+            var result = await UserManager.SetUntrustedDevice(user, device);
+            if (!result.Succeeded) {
+                return BadRequest(result.Errors.ToValidationProblemDetails());
+            }
+            return NoContent();
         }
 
         /// <summary>Deletes the device.</summary>

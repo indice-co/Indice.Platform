@@ -475,7 +475,7 @@ namespace Indice.AspNetCore.Identity
             return deviceStore.SetAllDevicesRequirePasswordAsync(user, requiresPassword, cancellationToken);
         }
 
-        /// <summary>Begins the operation of trusting a user device.</summary>
+        /// <summary>Begins the process of trusting a user device.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="device">The device to mark as trusted.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -516,8 +516,7 @@ namespace Indice.AspNetCore.Identity
                         });
                     }
                 }
-                var delay = TrustActivationDelay.HasValue ? TrustActivationDelay.Value : TimeSpan.Zero;
-                device.TrustActivationDate = DateTimeOffset.UtcNow.Add(delay);
+                device.TrustActivationDate = DateTimeOffset.UtcNow.Add(TrustActivationDelay ?? TimeSpan.Zero);
             }
             // b. The user waited for the required delay to pass and now wants to activate device trust.
             var isDeviceTrustRequest = device.TrustActivationDate.HasValue && !device.IsPendingTrustActivation;
@@ -525,6 +524,22 @@ namespace Indice.AspNetCore.Identity
                 device.IsTrusted = true;
             }
             // 4. Commit changes to the database.
+            return await UpdateDeviceAsync(user, device, cancellationToken);
+        }
+
+        /// <summary>Sets a device as untrusted.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="device">The device to mark as trusted.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        public async Task<IdentityResult> SetUntrustedDevice(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            if (device is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            device.IsTrusted = false;
             return await UpdateDeviceAsync(user, device, cancellationToken);
         }
 

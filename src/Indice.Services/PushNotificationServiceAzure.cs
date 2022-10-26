@@ -28,9 +28,7 @@ namespace Indice.Services
                 PushNotificationAzureOptions.ConnectionString,
                 PushNotificationAzureOptions.NotificationHubPath,
                 PushNotificationAzureOptions.MessageHandler is not null
-                    ? new NotificationHubSettings {
-                        MessageHandler = PushNotificationAzureOptions.MessageHandler
-                    }
+                    ? new NotificationHubSettings { MessageHandler = PushNotificationAzureOptions.MessageHandler }
                     : null
             );
         }
@@ -39,7 +37,7 @@ namespace Indice.Services
         private PushNotificationAzureOptions PushNotificationAzureOptions { get; }
 
         /// <inheritdoc/>
-        public async Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) {
+        public async Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags) {
             if (string.IsNullOrEmpty(deviceId)) {
                 throw new ArgumentNullException(nameof(deviceId));
             }
@@ -49,7 +47,7 @@ namespace Indice.Services
             var installationRequest = new Installation {
                 InstallationId = deviceId,
                 PushChannel = pnsHandle,
-                Tags = tags,
+                Tags = tags.Select(tag => tag.ToString()).ToList(),
                 Templates = new Dictionary<string, InstallationTemplate>()
             };
             switch (devicePlatform) {
