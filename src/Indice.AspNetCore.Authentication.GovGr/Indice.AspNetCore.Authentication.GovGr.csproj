@@ -3,7 +3,7 @@
     <Description>Indice.AspNetCore.Authentication.GovGr Class Library</Description>
     <Copyright>Copyright (c) 2021 Indice</Copyright>
     <AssemblyTitle>Indice.AspNetCore.Authentication.GovGr</AssemblyTitle>
-    <VersionPrefix>6.0.3</VersionPrefix>
+    <VersionPrefix>6.0.4</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
@@ -45,7 +45,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.1.22" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.GovGr" Version="6.1.1" />
+    <PackageReference Include="Indice.Features.GovGr" Version="6.1.3" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
