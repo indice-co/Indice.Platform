@@ -10,7 +10,7 @@
     <AssemblyName>Indice.Features.GovGr</AssemblyName>
     <AssemblyTitle>Indice.Features.GovGr</AssemblyTitle>
     <Authors>Christos Asvestopoulos, Constantinos Leftheris</Authors>
-    <VersionPrefix>6.1.0</VersionPrefix>
+    <VersionPrefix>6.1.1</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->
   </PropertyGroup>
 
@@ -36,6 +36,7 @@
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="6.0.0" />
     <PackageReference Include="Indice.Common" Version="6.1.11" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
