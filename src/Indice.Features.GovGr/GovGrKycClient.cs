@@ -63,6 +63,10 @@ namespace Indice.Features.GovGr
             _httpClient.SetBearerToken(accessToken);
             var httpResponse = await _httpClient.GetAsync("/1/data");
             var response = await httpResponse.Content.ReadAsStringAsync();
+
+            if (!httpResponse.IsSuccessStatusCode) {
+                throw new GovGrServiceException(response);
+            }
             var encodedResponse = JsonSerializer.Deserialize<KycHttpResponse>(response);
             var jsonString = encodedResponse.Payload.Base64UrlSafeDecode();
             return JsonSerializer.Deserialize<KycPayload>(jsonString);
@@ -77,10 +81,10 @@ namespace Indice.Features.GovGr
 
             var tokenResponse = await _httpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest {
                 Address = "/oauth/token",
-                ClientId = _settings.Credentials.ClientId,
-                ClientSecret = _settings.Credentials.ClientSecret,
+                ClientId = _settings.ClientId,
+                ClientSecret = _settings.ClientSecret,
+                RedirectUri = _settings.RedirectUri,
                 Code = code,
-                RedirectUri = _settings.Credentials.RedirectUri,
             });
             if (tokenResponse.IsError) {
                 throw new GovGrServiceException(tokenResponse.Error);

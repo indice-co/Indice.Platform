@@ -8,8 +8,8 @@ namespace Indice.Features.GovGr.Tests
         public ClientCreationTests() {
             var inMemorySettings = new Dictionary<string, string> {
                 ["GovGr:Kyc:Environment"] = "Mock",
-                ["GovGr:Kyc:Credentials:ClientId"] = "ebanking",
-                ["GovGr:Kyc:Credentials:ClientSecret"] = "secret",
+                ["GovGr:Kyc:ClientId"] = "ebanking",
+                ["GovGr:Kyc:ClientSecret"] = "secret",
                 ["GovGr:Wallet:Sandbox"] = "true",
                 ["GovGr:Wallet:Token"] = "XX",
                 ["TestGreekIdentityNumber"] = "000",
@@ -32,14 +32,15 @@ namespace Indice.Features.GovGr.Tests
         public async Task CreateMockClient() {
             /// TODO do something meaningful
             var govGR = ServiceProvider.GetRequiredService<GovGrClient>();
-            var data = await govGR.Kyc(clientCredentials: null, environment:"Mock").GetDataAsync("123");
+            var data = await govGR.Kyc(clientId:null, clientSecret:null, redirectUri:null, environment:"Mock").GetDataAsync("123");
             Assert.NotNull(data);
         }
         [Fact]
         public async Task CreateKycClient() {
             /// TODO do something meaningful
+            var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
             var govGR = ServiceProvider.GetRequiredService<GovGrClient>();
-            var data = await govGR.Kyc().GetDataAsync("123");
+            var data = await govGR.Kyc().GetDataAsync(configuration["GovGr:Kyc:Code"]);
             Assert.NotNull(data);
         }
 
@@ -49,7 +50,7 @@ namespace Indice.Features.GovGr.Tests
 
             var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
             var govGR = ServiceProvider.GetRequiredService<GovGrClient>();
-            var data = await govGR.Documents(serviceName: "GOV-WALLET-PRESENT-ID-DEMO", token: configuration["GovGr:Wallet:Token"]).PostAsync(new() {
+            var data = await govGR.Documents(token: configuration["GovGr:Wallet:Token"], serviceName: "GOV-WALLET-PRESENT-ID-DEMO").PostAsync(new() {
                 Document = new() {
                     Template = new() {
                         DigestSha256 = string.Empty

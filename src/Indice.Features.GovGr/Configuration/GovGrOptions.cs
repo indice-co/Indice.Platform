@@ -40,9 +40,19 @@ namespace Indice.Features.GovGr.Configuration
             /// </summary>
             public string Environment { get; set; }
             /// <summary>
-            /// Client credentials
+            /// ClientId
             /// </summary>
-            public Credentials Credentials { get; set; }
+            public string ClientId { get; set; }
+
+            /// <summary>
+            /// ClientSecret
+            /// </summary>
+            public string ClientSecret { get; set; }
+
+            /// <summary>
+            /// RedirectUri the callback url that ends the flow. This is different per client
+            /// </summary>
+            public string RedirectUri { get; set; }
 
             /// <summary>
             /// Check if in production
@@ -93,27 +103,6 @@ namespace Indice.Features.GovGr.Configuration
             /// The service token. Api key
             /// </summary>
             public string Token { get; set; }
-        }
-
-        /// <summary>
-        /// The GovGr Client details.
-        /// </summary>
-        public class Credentials
-        {
-            /// <summary>
-            /// ClientId
-            /// </summary>
-            public string ClientId { get; set; }
-
-            /// <summary>
-            /// ClientSecret
-            /// </summary>
-            public string ClientSecret { get; set; }
-
-            /// <summary>
-            /// RedirectUri the callback url that ends the flow. This is different per client
-            /// </summary>
-            public string RedirectUri { get; set; }
         }
     }
 }
