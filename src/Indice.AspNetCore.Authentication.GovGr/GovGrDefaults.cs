@@ -16,11 +16,11 @@
         /// <summary>
         /// The default endpoint used to perform gov.gr authentication.
         /// </summary>
-        public static readonly string AuthorizationEndpoint = "https://kycdemo.gsis.gr/oauth";
+        public static readonly string AuthorizationEndpoint = "https://kyc.gov.gr/oauth";
         /// <summary>
         /// The OAuth endpoint used to exchange access tokens.
         /// </summary>
-        public static readonly string TokenEndpoint = "https://kycdemo.gsis.gr/oauth/token";
+        public static readonly string TokenEndpoint = "https://kyc.gov.gr/oauth/token";
         /// <summary>
         /// The OAuth endpoint used to discover OpenId connect supported features.
         /// </summary>
@@ -28,7 +28,7 @@
         /// <summary>
         /// The authority.
         /// </summary>
-        public static readonly string Authority = "https://kycdemo.gsis.gr";
+        public static readonly string Authority = "https://kyc.gov.gr";
         /// <summary>
         /// No user info endpoint is provided, which means all of the claims about users have to be included in the (expiring and potentially large) id_token.
         /// </summary>

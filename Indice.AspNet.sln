@@ -97,6 +97,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Cases", "samples\Ind
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.GovGr", "src\Indice.Features.GovGr\Indice.Features.GovGr.csproj", "{BA6B3853-FB1D-4164-8B9C-D1F8F2CB54B9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.GovGr.Tests", "test\Indice.Features.GovGr.Tests\Indice.Features.GovGr.Tests.csproj", "{B93E28CD-0ECD-4827-B474-9FD64585E850}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -263,6 +265,10 @@ Global
 		{BA6B3853-FB1D-4164-8B9C-D1F8F2CB54B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA6B3853-FB1D-4164-8B9C-D1F8F2CB54B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA6B3853-FB1D-4164-8B9C-D1F8F2CB54B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B93E28CD-0ECD-4827-B474-9FD64585E850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B93E28CD-0ECD-4827-B474-9FD64585E850}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B93E28CD-0ECD-4827-B474-9FD64585E850}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B93E28CD-0ECD-4827-B474-9FD64585E850}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -308,6 +314,7 @@ Global
 		{C36E547A-83BE-4320-8E3C-6734C31DB4FD} = {09C5F009-8096-498D-A578-511456E53E65}
 		{49189ADD-68D3-4FC3-BF91-55B3BE8FD08E} = {09C5F009-8096-498D-A578-511456E53E65}
 		{BA6B3853-FB1D-4164-8B9C-D1F8F2CB54B9} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{B93E28CD-0ECD-4827-B474-9FD64585E850} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

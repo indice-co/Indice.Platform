@@ -59,21 +59,20 @@ namespace Indice.AspNetCore.Authentication.GovGr
                 }
                 // Manually set these two endpoint since there is not a well known configuration endpoint.
                 options.Configuration = new OpenIdConnectConfiguration {
-                    TokenEndpoint = GovGrDefaults.TokenEndpoint,
-                    AuthorizationEndpoint = GovGrDefaults.AuthorizationEndpoint
+                    TokenEndpoint = govGrOptions.TokenEndpoint,
+                    AuthorizationEndpoint = govGrOptions.AuthorizationEndpoint
                 };
                 options.SaveTokens = true;
-                options.Authority = GovGrDefaults.Authority;
+                options.Authority = govGrOptions.Authority;
                 options.CallbackPath = govGrOptions.CallbackPath ?? new PathString("/signin-govgr");
                 options.SignInScheme = govGrOptions.SignInScheme ?? CookieAuthenticationDefaults.AuthenticationScheme;
                 options.ResponseType = "code";
                 options.DisableTelemetry = true;
                 options.SaveTokens = true;
                 options.Scope.Clear();
-                options.Scope.Add("identity");
-                options.Scope.Add("income");
-                options.Scope.Add("contactInfo");
-                options.Scope.Add("professionalActivity");
+                foreach (var scope in govGrOptions.Scopes) {
+                    options.Scope.Add(scope);
+                }
                 options.ClientId = govGrOptions.ClientId;
                 options.ClientSecret = govGrOptions.ClientSecret;
                 options.UsePkce = false;

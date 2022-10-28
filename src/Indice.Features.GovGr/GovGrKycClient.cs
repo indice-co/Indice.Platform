@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -10,76 +12,84 @@ using Indice.Features.GovGr;
 using Indice.Features.GovGr.Configuration;
 using Indice.Features.GovGr.Interfaces;
 using Indice.Features.GovGr.Models;
+using Indice.Features.GovGr.Types;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.GovGr
 {
     /// <inheritdoc />
-    public class GovGrKycClient : IKycService
+    internal class GovGrKycClient : IKycService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly GovGrKycSettings _settings;
+        private const string FQDN_DEMO = "kycdemo.gsis.gr";
+        private const string FQDN_STAGE = "kyc-stage.gov.gr";
+        private const string FQDN_PROD = "kyc.gov.gr";
+        private readonly HttpClient _httpClient;
+        private readonly GovGrKycScopeDescriber _govGrKycScopeDescriber;
+        private readonly GovGrOptions.KycOptions _settings;
 
-        public GovGrKycClient(
-            IHttpClientFactory httpClientFactory,
-            IOptions<GovGrKycSettings> settings
-            ) {
-            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-            _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+        internal GovGrKycClient(
+            HttpClient httpClient,
+            GovGrKycScopeDescriber govGrKycScopeDescriber,
+            GovGrOptions.KycOptions settings) {
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _govGrKycScopeDescriber = govGrKycScopeDescriber ?? throw new ArgumentNullException(nameof(govGrKycScopeDescriber));
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+
+            if (_httpClient.BaseAddress is null) {
+                _httpClient.BaseAddress = BaseAddress;
+            }
         }
+
+
+        protected string BaseDomain => _settings.IsStaging ? FQDN_STAGE : 
+                                       _settings.IsDevelopment ? FQDN_DEMO : FQDN_PROD;
+        protected Uri BaseAddress => new($"https://{BaseDomain}");
+
+        public List<ScopeDescription> GetAvailableScopes(IStringLocalizer localizer = null) => _govGrKycScopeDescriber.GetDescriptions(localizer);
 
         /// <summary>
         /// Get Data from eGov KYC
         /// </summary>
-        public async Task<KycPayload> GetData(string clientName, string code) {
-            if (_settings.UseMockServices)
+        public async Task<KycPayload> GetDataAsync(string code) {
+            if (_settings.IsMock)
                 return JsonSerializer.Deserialize<KycPayload>(GovGrConstants.KycMockJsonString);
 
-            if (clientName is null) { throw new ArgumentNullException(nameof(clientName)); }
             if (code is null) { throw new ArgumentNullException(nameof(code)); }
 
-            var clientSettings = _settings.Clients.FirstOrDefault(x => x.Name == clientName)
-                                 ?? throw new Exception($"Client with name {clientName} not found");
-
             // exchange authorization code with access token, using basic authentication 
-            var accessToken = await GetAccessToken(_settings.TokenEndpoint, clientSettings.ClientId, clientSettings.ClientSecret, code, clientSettings.RedirectUri);
-            // get data from resource server
-            return await GetEGovKycResponsePayload(accessToken, _settings.ResourceServerEndpoint);
+            var accessToken = await GetAccessToken(code);
+            
+            _httpClient.SetBearerToken(accessToken);
+            var httpResponse = await _httpClient.GetAsync("/1/data");
+            var response = await httpResponse.Content.ReadAsStringAsync();
+
+            if (!httpResponse.IsSuccessStatusCode) {
+                throw new GovGrServiceException(response);
+            }
+            var encodedResponse = JsonSerializer.Deserialize<KycHttpResponse>(response);
+            var jsonString = encodedResponse.Payload.Base64UrlSafeDecode();
+            return JsonSerializer.Deserialize<KycPayload>(jsonString);
         }
 
         /// <summary>
         /// Get Access Token from EGovKyc Identity server
         /// </summary>
-        private async Task<string> GetAccessToken(string tokenEndpoint, string clientId, string clientSecret, string code, string redirectUri) {
-            var tokenClient = _httpClientFactory.CreateClient(nameof(GovGrKycClient));
-
+        private async Task<string> GetAccessToken(string code) {
             // https://en.wikipedia.org/wiki/Basic_access_authentication
-            var credentials = Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}");
-            tokenClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Basic " + Convert.ToBase64String(credentials));
+            //_httpClient.SetBasicAuthenticationOAuth(_settings.Credentials.ClientId, _settings.Credentials.ClientSecret);
 
-            var tokenResponse = await tokenClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest {
-                Address = tokenEndpoint,
-                ClientId = clientId,
-                ClientSecret = clientSecret,
+            var tokenResponse = await _httpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest {
+                Address = "/oauth/token",
+                ClientId = _settings.ClientId,
+                ClientSecret = _settings.ClientSecret,
+                RedirectUri = _settings.RedirectUri,
                 Code = code,
-                RedirectUri = redirectUri,
             });
-
+            if (tokenResponse.IsError) {
+                throw new GovGrServiceException(tokenResponse.Error);
+            }
             return tokenResponse.AccessToken;
-        }
-
-        /// <summary>
-        /// Get EGovKycResponsePayload from EGovKyc Resource server
-        /// </summary>
-        private async Task<KycPayload> GetEGovKycResponsePayload(string accessToken, string resourceServerEndpoint) {
-            var apiClient = _httpClientFactory.CreateClient(nameof(GovGrKycClient));
-
-            apiClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "Bearer " + accessToken);
-            var httpResponse = await apiClient.GetAsync(resourceServerEndpoint);
-            var response = await httpResponse.Content.ReadAsStringAsync();
-            var encodedResponse = JsonSerializer.Deserialize<KycHttpResponse>(response);
-            var jsonString = encodedResponse.Payload.Base64UrlSafeDecode();
-            return JsonSerializer.Deserialize<KycPayload>(jsonString);
         }
     }
 }

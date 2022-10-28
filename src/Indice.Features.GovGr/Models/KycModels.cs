@@ -5,6 +5,9 @@
 
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using IdentityModel;
+using Indice.Features.GovGr.Serialization;
+using static Indice.Features.GovGr.Models.KycPayload;
 
 namespace Indice.Features.GovGr.Models
 {
@@ -30,21 +33,53 @@ namespace Indice.Features.GovGr.Models
     /// </summary>
     public class KycPayload
     {
+        /// <summary>Response</summary>
         [JsonPropertyName("response")]
         public KycResponse Response { get; set; }
+        /// <summary>Issued at claim (epoch date), <see cref="JwtClaimTypes.IssuedAt"/></summary>
         [JsonPropertyName("iat")]
         public int Iat { get; set; }
+        /// <summary>Audience claim, <see cref="JwtClaimTypes.Audience"/></summary>
         [JsonPropertyName("aud")]
         public string Aud { get; set; }
+        /// <summary>Jwt ID claim, <see cref="JwtClaimTypes.JwtId"/></summary>
         [JsonPropertyName("jti")]
         public int Jti { get; set; }
+        /// <summary>Issuer claim, <see cref="JwtClaimTypes.Issuer"/></summary>
         [JsonPropertyName("iss")]
         public string Iss { get; set; }
+        /// <summary>Subject claim, <see cref="JwtClaimTypes.Subject"/></summary>
         [JsonPropertyName("sub")]
         public string Sub { get; set; }
+        /// <summary>Response Version</summary>
         [JsonPropertyName("version")]
         public string Version { get; set; }
 
+
+
+        /// <summary>Kyc result wrapper</summary>
+        public class KycDataWrapper<TData> where TData : class
+        {
+            /// <summary>Data</summary>
+            [JsonPropertyName("data")]
+            public TData Data { get; set; }
+            /// <summary>Result</summary>
+            [JsonPropertyName("result")]
+            public KycResult Result { get; set; }
+        }
+
+        /// <summary>
+        /// Encapsulates a message and a <see cref="KycStatusCode"/>
+        /// </summary>
+        public class KycResult
+        {
+            /// <summary>The text message</summary>
+            [JsonPropertyName("message")]
+            public string Message { get; set; }
+            /// <summary>The status code</summary>
+            [JsonPropertyName("status")]
+            public KycStatusCode Status { get; set; }
+        }
 
         /// <summary>
         /// Document information.
@@ -170,27 +205,7 @@ namespace Indice.Features.GovGr.Models
             public string SurnameLatin { get; set; }
         }
 
-        /// <summary>
-        /// Encapsulates a message and a <see cref="KycStatusCode"/>
-        /// </summary>
-        public class KycResult
-        {
-            /// <summary>The text message</summary>
-            [JsonPropertyName("message")]
-            public string Message { get; set; }
-            /// <summary>The status code</summary>
-            [JsonPropertyName("status")]
-            public KycStatusCode Status { get; set; }
-        }
-
-        public class GrcBo
-        {
-            [JsonPropertyName("data")]
-            public GrcBoData Data { get; set; }
-            [JsonPropertyName("result")]
-            public KycResult Result { get; set; }
-        }
-
+        /// <summary>GrcBo Data</summary>
         public class GrcBoData
         {
             /// <summary>
@@ -205,20 +220,15 @@ namespace Indice.Features.GovGr.Models
             public UserInfo UserInfo { get; set; }
         }
 
-        public class Identity
-        {
-            [JsonPropertyName("data")]
-            public IdentityData Data { get; set; }
-            [JsonPropertyName("result")]
-            public KycResult Result { get; set; }
-        }
-
+        /// <summary>Identity Data</summary>
         public class IdentityData
         {
+            /// <summary>GrcBo</summary>
             [JsonPropertyName("grcBo")]
-            public GrcBo GrcBo { get; set; }
+            public KycDataWrapper<GrcBoData> GrcBo { get; set; }
         }
 
+        /// <summary>Address</summary>
         public class Address
         {
             /// <summary>
@@ -252,14 +262,7 @@ namespace Indice.Features.GovGr.Models
             public string PostalCode { get; set; }
         }
 
-        public class ContactInfo
-        {
-            [JsonPropertyName("data")]
-            public ContactInfoData Data { get; set; }
-            [JsonPropertyName("result")]
-            public KycResult Result { get; set; }
-        }
-
+        /// <summary>Contact Info Data</summary>
         public class ContactInfoData
         {
             /// <summary>
@@ -289,14 +292,7 @@ namespace Indice.Features.GovGr.Models
             public string Telephone { get; set; }
         }
 
-        public class Income
-        {
-            [JsonPropertyName("data")]
-            public IncomeData Data { get; set; }
-            [JsonPropertyName("result")]
-            public KycResult Result { get; set; }
-        }
-
+        /// <summary>Income Data</summary>
         public class IncomeData
         {
             /// <summary>
@@ -391,6 +387,7 @@ namespace Indice.Features.GovGr.Models
             public string WagesPensionsIncome { get; set; }
         }
 
+        /// <summary>Department</summary>
         public class Department
         {
             /// <summary>
@@ -410,7 +407,8 @@ namespace Indice.Features.GovGr.Models
             public Address Address { get; set; }
         }
 
-        public class Main
+        /// <summary>Main Activity</summary>
+        public class MainActivity
         {
             /// <summary>
             /// ΚΑΔ, κύριας δραστηριότητας
@@ -430,9 +428,11 @@ namespace Indice.Features.GovGr.Models
             /// <summary>
             /// Πίνακας δραστηριοτήτων με τα παρακάτω στοιχεία
             /// </summary>
-            public List<Activity> activities { get; set; }
+            [JsonPropertyName("activities")]
+            public List<Activity> Activities { get; set; }
         }
 
+        /// <summary>Firm</summary>
         public class Firm
         {
             /// <summary>
@@ -444,7 +444,7 @@ namespace Indice.Features.GovGr.Models
             /// Στοιχεία Έδρας
             /// </summary>
             [JsonPropertyName("main")]
-            public Main Main { get; set; }
+            public MainActivity Main { get; set; }
             /// <summary>
             /// Επωνυμία
             /// </summary>
@@ -457,6 +457,7 @@ namespace Indice.Features.GovGr.Models
             public string Tin { get; set; }
         }
 
+        /// <summary>Private Sector Occupation</summary>
         public class PrivateSectorOccupation
         {
             /// <summary>
@@ -476,6 +477,7 @@ namespace Indice.Features.GovGr.Models
             public string Type { get; set; }
         }
 
+        /// <summary>Public Sector Occupation</summary>
         public class PublicSectorOccupation
         {
             /// <summary>
@@ -510,13 +512,7 @@ namespace Indice.Features.GovGr.Models
             public string SpecialtyDescription { get; set; }
         }
 
-        public class PrivateEmployeeInfo
-        {
-            public List<PrivateEmployeeInfoData> data { get; set; }
-            [JsonPropertyName("result")]
-            public KycResult Result { get; set; }
-        }
-
+        /// <summary>Private Employee Info Data</summary>
         public class PrivateEmployeeInfoData
         {
             /// <summary>
@@ -536,6 +532,7 @@ namespace Indice.Features.GovGr.Models
             public PrivateSectorOccupation Occupation { get; set; }
         }
 
+        /// <summary>Employment Position</summary>
         public class EmploymentPosition
         {
             /// <summary>
@@ -555,6 +552,7 @@ namespace Indice.Features.GovGr.Models
             public Address Address { get; set; }
         }
 
+        /// <summary>Work Position</summary>
         public class WorkPosition
         {
             /// <summary>
@@ -574,13 +572,7 @@ namespace Indice.Features.GovGr.Models
             public Address Address { get; set; }
         }
 
-        public class PublicEmployeeInfo
-        {
-            public List<PublicEmployeeInfoData> data { get; set; }
-            [JsonPropertyName("result")]
-            public KycResult Result { get; set; }
-        }
-
+        /// <summary>Public Employee Info Data</summary>
         public class PublicEmployeeInfoData
         {
             /// <summary>
@@ -610,6 +602,7 @@ namespace Indice.Features.GovGr.Models
             public string EmploymentType { get; set; }
         }
 
+        /// <summary>Activity/Δραστηριότητα</summary>
         public class Activity
         {
             /// <summary>
@@ -634,18 +627,14 @@ namespace Indice.Features.GovGr.Models
             public string ActivityTypeDesc { get; set; }
         }
 
-        public class SelfEmployedInfo
-        {
-            [JsonPropertyName("data")]
-            public SelfEmployedInfoData Data { get; set; }
-            [JsonPropertyName("result")]
-            public KycResult Result { get; set; }
-        }
-
+        /// <summary>Self Employed Info Data</summary>
         public class SelfEmployedInfoData
         {
+            /// <summary>
+            /// Main activity, Κύρια δραστηριότητα
+            /// </summary>
             [JsonPropertyName("main")]
-            public Main Main { get; set; }
+            public MainActivity Main { get; set; }
             /// <summary>
             /// Επωνυμία
             /// </summary>
@@ -658,59 +647,108 @@ namespace Indice.Features.GovGr.Models
             public string Tin { get; set; }
         }
 
-        public class ProfessionalActivity
-        {
-            [JsonPropertyName("data")]
-            public ProfessionalActivityData Data { get; set; }
-            [JsonPropertyName("result")]
-            public KycResult Result { get; set; }
-        }
-
+        /// <summary>Professional Activity Data</summary>
         public class ProfessionalActivityData
         {
+            /// <summary>Private Employed Info</summary>
             [JsonPropertyName("privateEmployeeInfo")]
-            public PrivateEmployeeInfo PrivateEmployeeInfo { get; set; }
+            public KycDataWrapper<List<PrivateEmployeeInfoData>> PrivateEmployeeInfo { get; set; }
+            /// <summary>Public Employed Info</summary>
             [JsonPropertyName("publicEmployeeInfo")]
-            public PublicEmployeeInfo PublicEmployeeInfo { get; set; }
+            public KycDataWrapper<List<PublicEmployeeInfoData>> PublicEmployeeInfo { get; set; }
+            /// <summary>Self Employed Info</summary>
             [JsonPropertyName("selfEmployedInfo")]
-            public SelfEmployedInfo SelfEmployedInfo { get; set; }
+            public KycDataWrapper<SelfEmployedInfoData> SelfEmployedInfo { get; set; }
         }
 
+        /// <summary>Encapsulates the actual KYC data.</summary>
         public class ResponseData
         {
             /// <summary>
             /// Στοιχεία ταυτότητας
             /// </summary>
             [JsonPropertyName("identity")]
-            public Identity Identity { get; set; }
+            public KycDataWrapper<IdentityData> Identity { get; set; }
             /// <summary>
             /// Στοιχεία επικοινωνίας
             /// </summary>
             [JsonPropertyName("contactInfo")]
-            public ContactInfo ContactInfo { get; set; }
+            public KycDataWrapper<ContactInfoData> ContactInfo { get; set; }
             /// <summary>
             /// Στοιχεία εισοδήματος
             /// </summary>
             [JsonPropertyName("income")]
-            public Income Income { get; set; }
+            public KycDataWrapper<IncomeData> Income { get; set; }
             /// <summary>
             /// Στοιχεία επαγγελματικής δραστηριότητας
             /// </summary>
             [JsonPropertyName("professionalActivity")]
-            public ProfessionalActivity ProfessionalActivity { get; set; }
+            public KycDataWrapper<ProfessionalActivityData> ProfessionalActivity { get; set; }
         }
 
+        /// <summary>Encapsulates a govgr KYC response.</summary>
         public class KycResponse
         {
-            /// <summary>
-            /// Ο ΑΦΜ του χρήστη
-            /// </summary>
+            /// <summary>Ο ΑΦΜ του χρήστη</summary>
             [JsonPropertyName("principal")]
             public string Principal { get; set; }
+            /// <summary>The response data</summary>
             [JsonPropertyName("data")]
             public ResponseData Data { get; set; }
+            /// <summary>Any message regarding the response, fault or other.</summary>
             [JsonPropertyName("result")]
             public KycResult Result { get; set; }
         }
+    }
+
+
+    /// <summary>
+    /// GovGr KYC StatusCodes
+    /// </summary>
+    [JsonConverter(typeof(StringKycStatusCodeConverter))]
+    public enum KycStatusCode
+    {
+        /// <summary><see cref="Unknown"/></summary>
+        Unknown,
+        /// <summary><see cref="SuccessAndData"/></summary>
+        SuccessAndData = 1200,
+        /// <summary><see cref="SuccessButNoData"/></summary>
+        SuccessButNoData = 1201,
+        /// <summary><see cref="SuccessButPartialData"/></summary>
+        SuccessButPartialData = 1202,
+        /// <summary><see cref="CommunicationFailureWithGSIS"/></summary>
+        CommunicationFailureWithGSIS = 1400,
+        /// <summary><see cref="ConnectionFailureWithGSIS"/></summary>
+        ConnectionFailureWithGSIS = 1401,
+        /// <summary><see cref="ErroneousResponseFromGSIS"/></summary>
+        ErroneousResponseFromGSIS = 1402,
+        /// <summary><see cref="FailureInGSISInteroperabilityCenter"/></summary>
+        FailureInGSISInteroperabilityCenter = 1410,
+        /// <summary><see cref="CommunicationFailureBetweenGSISAndInformationProvider"/></summary>
+        CommunicationFailureBetweenGSISAndInformationProvider = 1411,
+        /// <summary><see cref="CommunicationFailureBetweenGSISAndInfrastructure"/></summary>
+        CommunicationFailureBetweenGSISAndInfrastructure = 1412,
+        /// <summary><see cref="ErrorInGSIS"/></summary>
+        ErrorInGSIS = 1413,
+        /// <summary><see cref="ErrorInGSISInteroperabilityCenter"/></summary>
+        ErrorInGSISInteroperabilityCenter = 1510,
+        /// <summary><see cref="NoAuthenticationToGSIS"/></summary>
+        NoAuthenticationToGSIS = 1511,
+        /// <summary><see cref="NoAuthorizationToGSIS"/></summary>
+        NoAuthorizationToGSIS = 1512,
+        /// <summary><see cref="ErroneousRequestToGSIS"/></summary>
+        ErroneousRequestToGSIS = 1513,
+        /// <summary><see cref="InvalidInputToGSIS"/></summary>
+        InvalidInputToGSIS = 1514,
+        /// <summary><see cref="CallLimitExceedanceToGSIS"/></summary>
+        CallLimitExceedanceToGSIS = 1515,
+        /// <summary><see cref="ErrorInInformationProviderInfrastructure"/></summary>
+        ErrorInInformationProviderInfrastructure = 1520,
+        /// <summary><see cref="ErrorInInformationProviderData"/></summary>
+        ErrorInInformationProviderData = 1521,
+        /// <summary><see cref="NoKycPermission"/></summary>
+        NoKycPermission = 1530,
+        /// <summary><see cref="NoEnoughData"/></summary>
+        NoEnoughData = 1539,
     }
 }

@@ -22,7 +22,7 @@ namespace Indice.Features.GovGr
         }
 
         /// <inheritdoc />
-        public List<ScopeDescription> GetDiscriptions(IStringLocalizer localizer = null) {
+        public List<ScopeDescription> GetDescriptions(IStringLocalizer localizer = null) {
             var loc = localizer ?? _localizer;
             return new List<ScopeDescription> {
                  new ScopeDescription {
