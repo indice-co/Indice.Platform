@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { CaseActions, CaseDetails, CasesApiService, CustomActionTrigger, ICustomActionTrigger, TimelineEntry } from 'src/app/core/services/cases-api.service';
+import { CaseActions, CaseDetails, CasesApiService, CustomActionRequest, ICustomActionRequest, TimelineEntry } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-detail-page',
@@ -51,12 +51,9 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     this.componentDestroy$.complete();
   }
 
-  public updateData(event: { draft: boolean }): void {
-    if (event.draft) {
-      this.getCaseActionsAndThenRequestModel();
-    }
-    this.showWarningModal = true;
-    this.getTimeline();
+  public updateData(event: { draft: boolean }): void {    
+    this.getCaseActionsAndThenRequestModel();
+    this.showWarningModal = true;    
   }
 
   public isValid(event: boolean): void {
@@ -120,8 +117,8 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
    * Trigger a blocking workflow activity by its Id.
    * @param event The action Id to trigger the corresponding custom workflow action.
    */
-  onCustomActionTrigger(event: ICustomActionTrigger) {
-    this.api.triggerAction(this.caseId, '', new CustomActionTrigger({ id: event?.id, value: event?.value }))
+  onCustomActionTrigger(event: ICustomActionRequest) {
+    this.api.triggerAction(this.caseId, '', new CustomActionRequest({ id: event?.id, value: event?.value }))
       .pipe(
         tap(() => this.onActionsChanged())
       )

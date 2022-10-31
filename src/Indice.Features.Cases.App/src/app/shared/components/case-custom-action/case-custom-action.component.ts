@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CustomCaseAction, ICustomActionTrigger } from 'src/app/core/services/cases-api.service';
+import { CustomCaseAction, ICustomActionRequest } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-custom-action',
@@ -9,7 +9,7 @@ import { CustomCaseAction, ICustomActionTrigger } from 'src/app/core/services/ca
 export class CaseCustomActionComponent implements OnInit {
 
   @Input() action: CustomCaseAction | undefined;
-  @Output() actionTriggered = new EventEmitter<ICustomActionTrigger>();
+  @Output() actionTriggered = new EventEmitter<ICustomActionRequest>();
 
   value: string | undefined;
 

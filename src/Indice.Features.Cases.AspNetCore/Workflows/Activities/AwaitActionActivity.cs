@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Reflection;
 using System.Threading.Tasks;
 using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
-using Elsa.Metadata;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
@@ -43,7 +41,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         /// The name of the action button to show at Cases Back-office UI.
         /// </summary>
         [ActivityInput(
-            Label = "Name Name",
+            Label = "Action Name",
             Hint = "The name of the action button to show at Cases Back-office UI.",
             UIHint = ActivityInputUIHints.SingleLine,
             DefaultSyntax = SyntaxNames.Literal,
@@ -55,8 +53,8 @@ namespace Indice.Features.Cases.Workflows.Activities
         /// The description of the action button to show at Cases Back-office UI.
         /// </summary>
         [ActivityInput(
-            Label = "Name Description",
-            Hint = "The description of the action button to show at Cases Back-office UI.",
+            Label = "Action Description",
+            Hint = "The description of the action to show at Cases Back-office UI.",
             UIHint = ActivityInputUIHints.MultiLine,
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal }
@@ -82,18 +80,20 @@ namespace Indice.Features.Cases.Workflows.Activities
             Label = "Show Input to Back-Office UI",
             Hint = "Show an Input field to Back-Office UI and send the value to the output of this activity."
         )]
-        public bool ShowInput { get; set; } = false;
+        public bool ShowInput { get; set; }
 
         /// <summary>
         /// The case data.
         /// </summary>
         [ActivityOutput]
-        public object Output { get; set; }
+        public object? Output { get; set; }
 
+        /// <inheritdoc />
         public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
             return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternal(context) : Suspend();
         }
 
+        /// <inheritdoc />
         protected override async ValueTask<IActivityExecutionResult> OnResumeAsync(ActivityExecutionContext context) {
             return await OnExecuteInternal(context);
         }
