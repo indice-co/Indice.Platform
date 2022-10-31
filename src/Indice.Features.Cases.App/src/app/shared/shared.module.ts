@@ -22,6 +22,7 @@ import { InputWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-fra
 import { TextAreaWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
 import { FileWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
 import { CaseDetailInfoComponent } from './components/case-detail-info/case-detail-info.component';
+import { CaseCustomActionComponent } from './components/case-custom-action/case-custom-action.component';
 
 
 
@@ -47,7 +48,8 @@ import { CaseDetailInfoComponent } from './components/case-detail-info/case-deta
     TextAreaWidgetComponent,
     // pipes
     BeautifyBooleanPipe,
-    RemovePrefixPipe
+    RemovePrefixPipe,
+    CaseCustomActionComponent
   ],
   imports: [
     CommonModule,
@@ -71,7 +73,8 @@ import { CaseDetailInfoComponent } from './components/case-detail-info/case-deta
     TailwindFrameworkComponent,
     // pipes
     BeautifyBooleanPipe,
-    RemovePrefixPipe
+    RemovePrefixPipe,
+    CaseCustomActionComponent
   ]
 })
 export class SharedModule { }

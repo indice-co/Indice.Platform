@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { CaseActions, CaseDetails, CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.service';
+import { CaseActions, CaseDetails, CasesApiService, CustomActionTrigger, ICustomActionTrigger, TimelineEntry } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-detail-page',
@@ -102,6 +102,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     this.toaster.show(ToastType.Info, 'Ακύρωση αίτησης', 'Η αίτηση έχει ακυρωθεί')
     this.router.navigate(['/cases']);
   }
+
   /**
    * Event for PDF print action, 
    * registers the state of the PDF print action
@@ -114,6 +115,19 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     }
     this.showWarningModal = !printed;
   }
+
+  /**
+   * Trigger a blocking workflow activity by its Id.
+   * @param event The action Id to trigger the corresponding custom workflow action.
+   */
+  onCustomActionTrigger(event: ICustomActionTrigger) {
+    this.api.triggerAction(this.caseId, '', new CustomActionTrigger({ id: event?.id, value: event?.value }))
+      .pipe(
+        tap(() => this.onActionsChanged())
+      )
+      .subscribe();
+  }
+
   private getCaseActions() {
     this.api.getCaseActions(this.caseId)
       .pipe(

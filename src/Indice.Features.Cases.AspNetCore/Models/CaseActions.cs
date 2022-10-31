@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Cases.Models
+﻿using System.Collections.Generic;
+
+namespace Indice.Features.Cases.Models
 {
     /// <summary>
     /// The available actions for a user, depending on his role and checkpoint of the case.
@@ -24,5 +26,10 @@
         /// User can approve/reject the case.
         /// </summary>
         public bool HasApproval { get; set; }
+
+        /// <summary>
+        /// The list of custom action blocking activity that will generate the corresponding component.
+        /// </summary>
+        public IEnumerable<CustomCaseAction> CustomActions { get; set; }
     }
 }

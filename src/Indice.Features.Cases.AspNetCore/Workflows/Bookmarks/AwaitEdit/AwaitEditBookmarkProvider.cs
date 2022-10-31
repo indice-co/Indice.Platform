@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Elsa.Services;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Workflows.Activities;
+using Indice.Features.Cases.Workflows.Services;
 
 namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitEdit
 {

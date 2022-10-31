@@ -26,14 +26,17 @@ namespace Indice.Features.Cases.Controllers
         private readonly IAwaitApprovalInvoker _approvalInvoker;
         private readonly IAwaitAssignmentInvoker _awaitAssignmentInvoker;
         private readonly IAwaitEditInvoker _awaitEditInvoker;
+        private readonly IAwaitActionInvoker _awaitActionInvoker;
 
         public AdminWorkflowInvokerController(
             IAwaitApprovalInvoker approvalInvoker, 
             IAwaitAssignmentInvoker awaitAssignmentInvoker, 
-            IAwaitEditInvoker awaitEditInvoker) {
+            IAwaitEditInvoker awaitEditInvoker, 
+            IAwaitActionInvoker awaitActionInvoker) {
             _approvalInvoker = approvalInvoker ?? throw new ArgumentNullException(nameof(approvalInvoker));
             _awaitAssignmentInvoker = awaitAssignmentInvoker ?? throw new ArgumentNullException(nameof(awaitAssignmentInvoker));
             _awaitEditInvoker = awaitEditInvoker ?? throw new ArgumentNullException(nameof(awaitEditInvoker));
+            _awaitActionInvoker = awaitActionInvoker ?? throw new ArgumentNullException(nameof(awaitActionInvoker));
         }
 
         /// <summary>
@@ -90,6 +93,24 @@ namespace Indice.Features.Cases.Controllers
             var executedWorkflow = await _awaitEditInvoker.ExecuteWorkflowsAsync(caseId, request.Data);
             if (!executedWorkflow.Any()) {
                 throw new Exception("You cannot edit at this point.");
+            }
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Invoke the custom action activity to trigger a business action for the case.
+        /// </summary>
+        /// <param name="caseId">The Id of the case.</param>
+        /// <param name="request">The custom workflow action to trigger</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        [HttpPost("cases/{caseId:guid}/trigger-action")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+        public async Task<IActionResult> TriggerAction(Guid caseId, [FromBody] CustomActionRequest request) {
+            var executedWorkflow = await _awaitActionInvoker.ExecuteWorkflowsAsync(caseId, request);
+            if (!executedWorkflow.Any()) {
+                throw new Exception("You cannot perform this action at this point.");
             }
             return NoContent();
         }

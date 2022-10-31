@@ -234,6 +234,7 @@ namespace Indice.Features.Cases
             services.AddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
             services.AddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
             services.AddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
+            services.AddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
         }
 
         /// <summary>
