@@ -1,0 +1,23 @@
+<div class="p-5">
+    <hr class="mb-3">
+    <div class="col-span-4">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
+            {{action?.name}}
+        </h3>
+    </div>
+    <div *ngIf="action?.description">
+        <label for="comment-textarea"
+               class="field-label"> {{action?.description}}</label>
+        <div class="my-2 flex rounded-sm" *ngIf="action?.hasInput">
+            <input type="text" [(ngModel)]="value">
+        </div>
+    </div>
+    <div>
+        <button href="#"
+                class="btn-info mr-1"
+                title="Εκτέλεση"
+                (click)="triggerAction()">
+            <p>{{action?.name}}</p>&nbsp;
+        </button>
+    </div>
+</div>

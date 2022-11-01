@@ -148,6 +148,14 @@ export interface ICasesApiService {
      */
     getCaseTimeline(caseId: string, api_version?: string | undefined): Observable<TimelineEntry[]>;
     /**
+     * Invoke the custom action activity to trigger a business action for the case.
+     * @param caseId The Id of the case.
+     * @param api_version (optional) 
+     * @param body (optional) The custom workflow action to trigger
+     * @return No Content
+     */
+    triggerAction(caseId: string, api_version?: string | undefined, body?: CustomActionRequest | undefined): Observable<void>;
+    /**
      * Get case types.
      * @param canCreate (optional) Differentiates between the case types that an admin user can 1) view and 2) select for a case creation
      * @param api_version (optional) 
@@ -1987,6 +1995,103 @@ export class CasesApiService implements ICasesApiService {
             }));
         }
         return _observableOf<TimelineEntry[]>(null as any);
+    }
+
+    /**
+     * Invoke the custom action activity to trigger a business action for the case.
+     * @param caseId The Id of the case.
+     * @param api_version (optional) 
+     * @param body (optional) The custom workflow action to trigger
+     * @return No Content
+     */
+    triggerAction(caseId: string, api_version?: string | undefined, body?: CustomActionRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/trigger-action?";
+        if (caseId === undefined || caseId === null)
+            throw new Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTriggerAction(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTriggerAction(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processTriggerAction(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
     }
 
     /**
@@ -4219,6 +4324,8 @@ export class CaseActions implements ICaseActions {
     hasEdit?: boolean;
     /** User can approve/reject the case. */
     hasApproval?: boolean;
+    /** The list of custom action blocking activity that will generate the corresponding component. */
+    customActions?: CustomCaseAction[] | undefined;
 
     constructor(data?: ICaseActions) {
         if (data) {
@@ -4235,6 +4342,11 @@ export class CaseActions implements ICaseActions {
             this.hasUnassignment = _data["hasUnassignment"];
             this.hasEdit = _data["hasEdit"];
             this.hasApproval = _data["hasApproval"];
+            if (Array.isArray(_data["customActions"])) {
+                this.customActions = [] as any;
+                for (let item of _data["customActions"])
+                    this.customActions!.push(CustomCaseAction.fromJS(item));
+            }
         }
     }
 
@@ -4251,6 +4363,11 @@ export class CaseActions implements ICaseActions {
         data["hasUnassignment"] = this.hasUnassignment;
         data["hasEdit"] = this.hasEdit;
         data["hasApproval"] = this.hasApproval;
+        if (Array.isArray(this.customActions)) {
+            data["customActions"] = [];
+            for (let item of this.customActions)
+                data["customActions"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -4265,6 +4382,8 @@ export interface ICaseActions {
     hasEdit?: boolean;
     /** User can approve/reject the case. */
     hasApproval?: boolean;
+    /** The list of custom action blocking activity that will generate the corresponding component. */
+    customActions?: CustomCaseAction[] | undefined;
 }
 
 /** Minimal Case Attachment response model. */
@@ -5690,6 +5809,110 @@ export interface ICreateDraftCaseRequest {
     metadata?: { [key: string]: string; } | undefined;
     /** The channel that created the draft case */
     channel?: string | undefined;
+}
+
+/** The custom action trigger request. */
+export class CustomActionRequest implements ICustomActionRequest {
+    /** The Id of the custom action. */
+    id?: string;
+    /** The value of the custom action (non-required). */
+    value?: string | undefined;
+
+    constructor(data?: ICustomActionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): CustomActionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomActionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+/** The custom action trigger request. */
+export interface ICustomActionRequest {
+    /** The Id of the custom action. */
+    id?: string;
+    /** The value of the custom action (non-required). */
+    value?: string | undefined;
+}
+
+/** Custom action blocking activity that will generate the corresponding component. */
+export class CustomCaseAction implements ICustomCaseAction {
+    /** The Id to trigger the action. */
+    id?: string | undefined;
+    /** The name of the action. */
+    name?: string | undefined;
+    /** The description of the action. */
+    description?: string | undefined;
+    /** Indicates if the custom action has input field. */
+    hasInput?: boolean | undefined;
+
+    constructor(data?: ICustomCaseAction) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.hasInput = _data["hasInput"];
+        }
+    }
+
+    static fromJS(data: any): CustomCaseAction {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomCaseAction();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["hasInput"] = this.hasInput;
+        return data;
+    }
+}
+
+/** Custom action blocking activity that will generate the corresponding component. */
+export interface ICustomCaseAction {
+    /** The Id to trigger the action. */
+    id?: string | undefined;
+    /** The name of the action. */
+    name?: string | undefined;
+    /** The description of the action. */
+    description?: string | undefined;
+    /** Indicates if the custom action has input field. */
+    hasInput?: boolean | undefined;
 }
 
 /** Customer Data as Json string */
