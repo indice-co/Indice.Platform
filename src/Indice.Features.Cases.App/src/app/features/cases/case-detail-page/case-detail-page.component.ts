@@ -29,9 +29,12 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   public showCustomDataValidation = false;
   public now: Date = new Date();
   public typeId?: string;
+  public caseTypeConfig: any;
+
   /** shows the warning modal conditionally */
   public showWarningModal: boolean = false;
   public warningModalState = { title: 'Έγκριση αίτησης', description: 'Δεν έχετε τυπώσει το PDF της αίτησης, θέλετε να προχωρήσετε στην έγκρισή της;' };
+
   constructor(
     private api: CasesApiService,
     private route: ActivatedRoute,
@@ -74,7 +77,10 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
             this.getCustomerData$(caseDetails), // draft mode, we need to prefill the form with customer data (if any)
             of(caseDetails))
         }),
-        tap((response: CaseDetails) => this._model.next(response)),
+        tap((response: CaseDetails) => {
+          this.caseTypeConfig = response.caseType?.config ? JSON.parse(response.caseType?.config) : {};
+          this._model.next(response);
+        }),
         takeUntil(this.componentDestroy$)
       ).subscribe();
 
