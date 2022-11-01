@@ -9,6 +9,12 @@ namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitAssignment
     /// </summary>
     public class AwaitAssignmentBookmark : IBookmark
     {
+        /// <summary>
+        /// Create a new <see cref="AwaitAssignmentBookmark"/> bookmark.
+        /// </summary>
+        /// <param name="caseId">The Id of the case.</param>
+        /// <param name="role">The role to create the bookmark for.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public AwaitAssignmentBookmark(string caseId, string role) {
             Role = role;
             CaseId = string.IsNullOrEmpty(caseId) ? throw new ArgumentNullException(nameof(caseId), "CaseId cannot be null or empty.") : caseId;

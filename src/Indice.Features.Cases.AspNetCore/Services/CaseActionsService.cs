@@ -114,7 +114,6 @@ namespace Indice.Features.Cases.Services
         /// <param name="userRoles">The user roles.</param>
         /// <returns></returns>
         private async Task<IEnumerable<CustomCaseAction>> GetCustomCaseActions(Guid caseId, IEnumerable<string> userRoles) {
-
             // Always provide an empty string as a role in order to handle "null" allowed Roles of activity input.
             userRoles = userRoles.Concat(new[] { string.Empty });
 
@@ -143,7 +142,6 @@ namespace Indice.Features.Cases.Services
             var bookmarks = from actionId in actionIds
                             from userRole in userRoles
                             select new AwaitActionBookmark(caseId.ToString(), userRole, actionId);
-
 
             var actions = await _bookmarkFinder.FindBookmarksAsync(
                 activityType: nameof(AwaitActionActivity),

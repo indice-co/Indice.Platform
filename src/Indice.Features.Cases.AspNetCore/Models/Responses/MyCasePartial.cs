@@ -28,6 +28,10 @@ namespace Indice.Features.Cases.Models.Responses
         /// The case type code of the case.
         /// </summary>
         public string CaseTypeCode { get; set; }
+        
+        /// <summary>
+        /// The case type title of the case.
+        /// </summary>
         public string Title { get; set; }
 
         /// <summary>
@@ -66,6 +70,9 @@ namespace Indice.Features.Cases.Models.Responses
         #endregion
     }
 
+    /// <summary>
+    /// The translation wrapper for <see cref="MyCasePartial"/> model.
+    /// </summary>
     public class MyCasePartialTranslation
     {
         /// <summary>

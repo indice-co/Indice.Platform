@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Elsa.Services;
 using Indice.Features.Cases.Workflows.Activities;
+using Indice.Features.Cases.Workflows.Services;
 
 namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitAssignment
 {
@@ -14,7 +15,7 @@ namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitAssignment
     {
         /// <summary>
         /// Creates a new <see cref="AwaitAssignmentBookmark"/> from the tuple (CaseId, AllowedRole) as taken from the context.
-        /// When the <see cref="AwaitApprovalInvoker"/> tries to find the correct bookmark to resume the corresponding activity,
+        /// When the <see cref="AwaitAssignmentInvoker"/> tries to find the correct bookmark to resume the corresponding activity,
         /// it will create a new <see cref=" AwaitAssignmentBookmark"/> with the same tuple (CaseId, UserRole).
         /// </summary>
         /// <param name="context"></param>

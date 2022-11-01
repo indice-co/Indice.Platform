@@ -17,11 +17,20 @@ namespace Indice.Features.Cases.Workflows.Activities
     public abstract class BaseCaseActivity : Activity
     {
         private readonly IAdminCaseMessageService _adminCaseMessageService;
+        
+        /// <summary>
+        /// The base activity regarding cases
+        /// </summary>
+        /// <param name="caseMessageService">The <see cref="IAdminCaseMessageService"/>.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         protected BaseCaseActivity(
             IAdminCaseMessageService caseMessageService) {
             _adminCaseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
         }
 
+        /// <summary>
+        /// The Id of the case.
+        /// </summary>
         [ActivityInput(
             Category = "Case Properties",
             Label = "CaseId",
@@ -31,6 +40,9 @@ namespace Indice.Features.Cases.Workflows.Activities
         )]
         public Guid? CaseId { get; set; } = null;
 
+        /// <summary>
+        /// Indicates if the base class will handle exceptions.
+        /// </summary>
         [ActivityInput(
             Category = "Case Properties",
             Label = "HandleActivityError",

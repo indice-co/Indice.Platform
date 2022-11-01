@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Elsa.Services;
@@ -16,8 +15,8 @@ namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitAction
     internal class AwaitActionBookmarkProvider : BookmarkProvider<AwaitActionBookmark, AwaitActionActivity>
     {
         /// <summary>
-        /// Creates a new <see cref="AwaitActionBookmark"/> from the tuple (CaseId, AllowedRole) as taken from the context.
-        /// When the <see cref="AwaitApprovalInvoker"/> tries to find the correct bookmark to resume the corresponding activity,
+        /// Creates a new <see cref="AwaitActionBookmark"/> from the tuple (CaseId, AllowedRole, ActionId) as taken from the context.
+        /// When the <see cref="AwaitActionInvoker"/> tries to find the correct bookmark to resume the corresponding activity,
         /// it will create a new <see cref=" WorkflowsQuery"/> with the same tuple (CaseId, UserRole).
         /// </summary>
         /// <param name="context"></param>
