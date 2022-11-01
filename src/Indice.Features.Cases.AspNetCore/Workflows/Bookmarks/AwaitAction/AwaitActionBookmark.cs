@@ -1,19 +1,18 @@
 ﻿using System;
-using Elsa.Attributes;
 using Elsa.Services;
 using Indice.Features.Cases.Workflows.Activities;
 
-namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval
+namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitAction
 {
     /// <summary>
-    /// Bookmark model for <see cref="AwaitApprovalActivity"/>.
+    /// Bookmark model for <see cref="AwaitActionActivity"/>.
     /// </summary>
-    internal class AwaitApprovalBookmark : IBookmark
+    internal class AwaitActionBookmark : IBookmark
     {
-        public AwaitApprovalBookmark(string caseId, string role, bool blockPreviousApprover = false) {
+        public AwaitActionBookmark(string caseId, string role, string actionId) {
             CaseId = string.IsNullOrEmpty(caseId) ? throw new ArgumentNullException(nameof(caseId), "CaseId cannot be null or empty.") : caseId;
             Role = role;
-            BlockPreviousApprover = blockPreviousApprover;
+            ActionId = actionId;
         }
 
         /// <summary>
@@ -27,9 +26,8 @@ namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval
         public string Role { get; set; }
 
         /// <summary>
-        /// Block previous approver from triggering the bookmark.
+        /// The Id of the action that represents this bookmark.
         /// </summary>
-        [ExcludeFromHash]
-        public bool BlockPreviousApprover { get; set; }
+        public string ActionId { get; }
     }
 }

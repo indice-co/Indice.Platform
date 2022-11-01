@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { EMPTY, forkJoin, Observable } from 'rxjs';
+import { EMPTY, forkJoin, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { CaseDetails, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
@@ -126,7 +126,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
   public onSubmit(event: any): void {
     if (this.case?.draft) {
       // we have to send user's document(s) to the server
-      const callsDict: { [key: string]: Observable<CasesAttachmentLink> } = {};
+      const callsDict: { [key: string]: Observable<CasesAttachmentLink> } = { '': of({} as CasesAttachmentLink) };
       // what is the key of the dictionary here? the dataPointer (e.g. "/homeAddress/attachmentId") that was added in the file-upload widget
       for (const key in this._fileUploadService.files) {
         if (this._fileUploadService.files.hasOwnProperty(key)) {
@@ -147,7 +147,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
             (response: { [key: string]: CasesAttachmentLink }) => {
               let stringifiedData = JSON.stringify(event);
               for (const key in response) {
-                if (response.hasOwnProperty(key)) {
+                if (response.hasOwnProperty(key) && key !== '') {
                   // we simply replace the dataPointer with the guid that we received from the server
                   stringifiedData = stringifiedData.replace(key, response[key].id!);
                 }
