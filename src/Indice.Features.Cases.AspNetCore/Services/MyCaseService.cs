@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Events;
+using Indice.Features.Cases.Exceptions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
@@ -255,6 +256,16 @@ namespace Indice.Features.Cases.Services
             }
 
             return caseTypes.ToResultSet();
+        }
+
+        public async Task MarkPdfAsRead(ClaimsPrincipal user, Guid caseId) {
+            var userId = user.FindSubjectId();
+            var @case = await GetDbCaseById(caseId, userId);
+            if (@case is null) {
+                throw new CaseNotFoundException("Case not found.");
+            }
+            @case.IsRead = true;
+            await _dbContext.SaveChangesAsync();
         }
 
         private CaseTypePartial TranslateCaseType(CaseTypePartial caseTypePartial, string culture, bool includeTranslations) {

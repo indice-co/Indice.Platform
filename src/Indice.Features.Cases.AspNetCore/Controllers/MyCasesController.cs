@@ -147,6 +147,14 @@ namespace Indice.Features.Cases.Controllers
             return File(file, "application/pdf", fileName);
         }
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [HttpPut("{caseId:guid}/mark-as-read")]
+        public async Task<IActionResult> MarkPdfAsRead([FromRoute] Guid caseId) {
+            await _myCaseService.MarkPdfAsRead(User, caseId);
+            return Ok();
+        }
+
         private async Task<byte[]> CreatePdf(CaseDetails @case) {
             var isPortrait = true;
             var digitallySigned = false;
