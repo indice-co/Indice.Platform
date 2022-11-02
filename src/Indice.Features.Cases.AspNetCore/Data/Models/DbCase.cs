@@ -20,6 +20,7 @@ namespace Indice.Features.Cases.Data.Models
         public AuditMeta? AssignedTo { get; set; }
         public bool Draft { get; set; }
         public string Channel { get; set; }
+        public bool? Read { get; set; }
         public virtual DbCaseType CaseType { get; set; }
         public virtual DbCheckpoint? PublicCheckpoint { get; set; }
         public virtual List<DbAttachment> Attachments { get; set; } = new List<DbAttachment>();
