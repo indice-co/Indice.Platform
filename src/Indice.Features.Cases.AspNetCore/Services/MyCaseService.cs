@@ -159,6 +159,7 @@ namespace Indice.Features.Cases.Services
                         Id = p.Id,
                         Created = p.CreatedBy.When,
                         CaseTypeCode = p.CaseType.Code,
+                        Read = p.Read,
                         PublicStatus = p.Checkpoints
                             .OrderByDescending(c => c.CreatedBy.When)
                             .FirstOrDefault(c => !c.CheckpointType.Private)!
@@ -258,14 +259,16 @@ namespace Indice.Features.Cases.Services
             return caseTypes.ToResultSet();
         }
 
-        public async Task MarkPdfAsRead(ClaimsPrincipal user, Guid caseId) {
+        public async Task MarkCaseRead(ClaimsPrincipal user, Guid caseId) {
             var userId = user.FindSubjectId();
             var @case = await GetDbCaseById(caseId, userId);
             if (@case is null) {
                 throw new CaseNotFoundException("Case not found.");
             }
-            @case.IsRead = true;
-            await _dbContext.SaveChangesAsync();
+            if (@case.Read != true) {
+                @case.Read = true;
+                await _dbContext.SaveChangesAsync();
+            }
         }
 
         private CaseTypePartial TranslateCaseType(CaseTypePartial caseTypePartial, string culture, bool includeTranslations) {

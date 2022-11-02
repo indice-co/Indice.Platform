@@ -144,15 +144,8 @@ namespace Indice.Features.Cases.Controllers
             var @case = await _myCaseService.GetCaseById(User, caseId);
             var file = await CreatePdf(@case);
             var fileName = $"{@case.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
+            await _myCaseService.MarkCaseRead(User, caseId);
             return File(file, "application/pdf", fileName);
-        }
-
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [HttpPut("{caseId:guid}/mark-as-read")]
-        public async Task<IActionResult> MarkPdfAsRead([FromRoute] Guid caseId) {
-            await _myCaseService.MarkPdfAsRead(User, caseId);
-            return Ok();
         }
 
         private async Task<byte[]> CreatePdf(CaseDetails @case) {

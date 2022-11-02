@@ -79,6 +79,6 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="user">The Id of the user to retrieve the case</param>
         /// <param name="caseId">The Id of the case</param>
         /// <returns></returns>
-        Task MarkPdfAsRead(ClaimsPrincipal user, Guid caseId);
+        Task MarkCaseRead(ClaimsPrincipal user, Guid caseId);
     }
 }
