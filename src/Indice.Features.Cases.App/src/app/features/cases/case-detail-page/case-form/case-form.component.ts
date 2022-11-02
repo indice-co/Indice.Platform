@@ -83,6 +83,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
       return;
     }
     if (changes.hasOwnProperty('case')) {
+      this.showForm = false;
+      this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
       // deep copy layout
       this.copiedLayout = JSON.parse(this.case.caseType?.layout!);
       /**
@@ -111,6 +113,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     this.layout = layout;
     this.data = this.initialData;
     this.populateForm(this.data);
+    this.showForm = true;
     this.changeDetector.detectChanges();
   }
 
@@ -274,17 +277,11 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
         element.htmlClass = element.htmlClass.replace('disableCheckbox', '');
       }
     }
+
     layout.forEach((element: any) => {
       activateElement(element);
-      if (element.hasOwnProperty('items')) { // ajsf sections have items!
-        element.items.forEach((item: any) => {
-          activateElement(item);
-          if (item.hasOwnProperty('items')) { // ajsf flex containers have items!
-            item.items.forEach((i: any) => {
-              activateElement(i);
-            });
-          }
-        });
+      if (element.hasOwnProperty('items')) {
+        this.removeReadonlyProperties(element.items);;
       }
     });
   }
@@ -293,15 +290,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     // form is view-only -> add readonly property to all objects of layout object!
     layout.forEach((element: any) => {
       element.readonly = "true";
-      if (element.hasOwnProperty('items')) { // ajsf sections have items!
-        element.items.forEach((item: any) => {
-          item.readonly = "true";
-          if (item.hasOwnProperty('items')) { // ajsf flex containers have items!
-            item.items.forEach((i: any) => {
-              i.readonly = "true";
-            });
-          }
-        });
+      if (element.hasOwnProperty('items')) { // ajsf sections may have items, which may be flex containers, which may have items...
+        this.addReadonlyProperties(element.items);
       }
     });
   }

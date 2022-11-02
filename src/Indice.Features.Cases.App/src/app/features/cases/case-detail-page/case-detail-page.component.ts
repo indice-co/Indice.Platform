@@ -54,9 +54,9 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     this.componentDestroy$.complete();
   }
 
-  public updateData(event: { draft: boolean }): void {    
+  public updateData(event: { draft: boolean }): void {
     this.getCaseActionsAndThenRequestModel();
-    this.showWarningModal = true;    
+    this.showWarningModal = this.caseTypeConfig?.boOptions?.showWarningModal === false ? false : true;
   }
 
   public isValid(event: boolean): void {
@@ -116,7 +116,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     if (printed === undefined) {
       return;
     }
-    this.showWarningModal = !printed;
+    this.showWarningModal = this.caseTypeConfig?.boOptions?.showWarningModal === false ? false : !printed;
   }
 
   /**
@@ -124,7 +124,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
    * @param event The action Id to trigger the corresponding custom workflow action.
    */
   onCustomActionTrigger(event: ICustomActionRequest) {
-    this.api.triggerAction(this.caseId, '', new CustomActionRequest({ id: event?.id, value: event?.value }))
+    this.api.triggerAction(this.caseId, undefined, new CustomActionRequest({ id: event?.id, value: event?.value }))
       .pipe(
         tap(() => this.onActionsChanged())
       )
