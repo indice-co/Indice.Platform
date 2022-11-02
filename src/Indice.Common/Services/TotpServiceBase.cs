@@ -125,7 +125,7 @@ namespace Indice.Services
     /// <summary>TOTP recipient info DTO.</summary>
     public class TotpRecipient
     {
-        /// <summary>Phone number (used when selected selected delivery channel is <see cref="TotpDeliveryChannel.Sms"/> or <see cref="TotpDeliveryChannel.Viber"/>).</summary>
+        /// <summary>Phone number (used when selected delivery channel is <see cref="TotpDeliveryChannel.Sms"/> or <see cref="TotpDeliveryChannel.Viber"/>).</summary>
         public string PhoneNumber { get; set; }
         /// <summary>Device identifier (used when selected delivery channel is <see cref="TotpDeliveryChannel.PushNotification"/>).</summary>
         public string DeviceId { get; set; }

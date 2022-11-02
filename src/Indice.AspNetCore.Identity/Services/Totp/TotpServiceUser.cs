@@ -5,7 +5,6 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
