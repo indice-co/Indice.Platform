@@ -88,11 +88,7 @@ namespace Indice.Features.Cases
             services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
 
             // Register application DbContext.
-            if (casesApiOptions.ConfigureDbContext != null) {
-                services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext);
-            } else {
-                services.AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-            }
+            services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext ?? (builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))));
 
             return mvcBuilder;
         }
@@ -160,11 +156,7 @@ namespace Indice.Features.Cases
             services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
 
             // Register application DbContext.
-            if (casesApiOptions.ConfigureDbContext != null) {
-                services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext);
-            } else {
-                services.AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-            }
+            services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext ?? (builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))));
 
             return mvcBuilder;
         }
