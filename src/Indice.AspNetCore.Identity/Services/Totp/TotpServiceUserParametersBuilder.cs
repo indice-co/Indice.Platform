@@ -163,7 +163,7 @@ namespace Indice.AspNetCore.Identity
         }
     }
 
-    /// <summary></summary>
+    /// <summary>Data class that contains the parameters required for <see cref="TotpServiceUser{TUser}"/>.</summary>
     /// <typeparam name="TUser">The type of user entity.</typeparam>
     public class TotpServiceUserParameters<TUser> where TUser : User
     {

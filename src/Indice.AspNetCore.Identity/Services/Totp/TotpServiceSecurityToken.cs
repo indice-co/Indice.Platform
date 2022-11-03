@@ -33,7 +33,7 @@ namespace Indice.AspNetCore.Identity
             var builder = new TotpServiceSecurityTokenParametersBuilder();
             configureAction(builder);
             var @params = builder.Build();
-            return SendAsync(@params.SecurityToken, @params.Message, @params.Subject, @params.PhoneNumber, @params.Purpose);
+            return SendAsync(@params.SecurityToken, @params.Message, @params.Subject, @params.PhoneNumber, @params.DeliveryChannel, @params.Purpose);
         }
 
         /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
@@ -41,26 +41,27 @@ namespace Indice.AspNetCore.Identity
         /// <param name="message">The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
         /// <param name="subject">The subject of message.</param>
         /// <param name="phoneNumber">The receiver's phone number.</param>
+        /// <param name="channel">The delivery channel.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
         public async Task<TotpResult> SendAsync(
             string securityToken,
             string message,
             string subject,
             string phoneNumber,
+            TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
             string purpose = null
         ) {
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-            const TotpDeliveryChannel CHANNEL = TotpDeliveryChannel.Sms;
             var modifier = GetModifier(purpose, phoneNumber);
             var encodedToken = Encoding.Unicode.GetBytes(securityToken);
             var token = _rfc6238AuthenticationService.GenerateCode(encodedToken, modifier).ToString("D6", CultureInfo.InvariantCulture);
             message = _localizer[message, token];
-            var cacheKey = $"{nameof(TotpServiceSecurityToken)}:{phoneNumber}:{CHANNEL}:{token}:{purpose}";
+            var cacheKey = $"{nameof(TotpServiceSecurityToken)}:{phoneNumber}:{channel}:{token}:{purpose}";
             if (await CacheKeyExistsAsync(cacheKey)) {
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
             await SendToChannelAsync(
-                CHANNEL,
+                channel,
                 new TotpRecipient {
                     PhoneNumber = phoneNumber
                 },

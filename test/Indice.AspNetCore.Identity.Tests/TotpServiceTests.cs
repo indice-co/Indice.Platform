@@ -98,6 +98,7 @@ namespace Indice.AspNetCore.Identity.Tests
                 .UseSecurityToken(securityToken)
                 .WithMessage("Your one-time code is {0}. It is valid for 2 minutes.")
                 .ToPhoneNumber("699XXXXXXX")
+                .UsingSms()
                 .WithSubject("OTP")
             );
             Assert.True(totpResult.Success);

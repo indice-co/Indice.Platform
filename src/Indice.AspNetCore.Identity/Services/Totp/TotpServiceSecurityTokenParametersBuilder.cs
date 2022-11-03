@@ -1,4 +1,5 @@
 ﻿using System;
+using Indice.Services;
 
 namespace Indice.AspNetCore.Identity
 {
@@ -20,7 +21,8 @@ namespace Indice.AspNetCore.Identity
             PhoneNumber = PhoneNumber,
             Purpose = Purpose,
             SecurityToken = SecurityToken,
-            Subject = Subject
+            Subject = Subject,
+            DeliveryChannel = DeliveryChannel
         };
     }
 
@@ -52,8 +54,30 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary>Sets the <see cref="TotpServiceSecurityTokenParameters.PhoneNumber"/> property.</summary>
         /// <param name="phoneNumber">The receiver's phone number.</param>
-        public TotpServiceSecurityTokenOptionalParametersBuilder ToPhoneNumber(string phoneNumber) {
+        public TotpServiceSecurityTokenDeliveryChannelBuilder ToPhoneNumber(string phoneNumber) {
             _builder.PhoneNumber = phoneNumber;
+            return new TotpServiceSecurityTokenDeliveryChannelBuilder(_builder);
+        }
+    }
+
+    /// <summary>Builder class.</summary>
+    public sealed class TotpServiceSecurityTokenDeliveryChannelBuilder
+    {
+        private readonly TotpServiceSecurityTokenParametersBuilder _builder;
+
+        /// <summary>Creates a new instance of <see cref="TotpServiceSecurityTokenParametersBuilder"/>.</summary>
+        /// <param name="builder">The instance of <see cref="TotpServiceSecurityTokenParametersBuilder"/>.</param>
+        public TotpServiceSecurityTokenDeliveryChannelBuilder(TotpServiceSecurityTokenParametersBuilder builder) => _builder = builder;
+
+        /// <summary>Sets the <see cref="TotpServiceSecurityTokenParameters.DeliveryChannel"/> property.</summary>
+        public TotpServiceSecurityTokenOptionalParametersBuilder UsingSms() {
+            _builder.DeliveryChannel = TotpDeliveryChannel.Sms;
+            return new TotpServiceSecurityTokenOptionalParametersBuilder(_builder);
+        }
+
+        /// <summary>Sets the <see cref="TotpServiceSecurityTokenParameters.DeliveryChannel"/> property.</summary>
+        public TotpServiceSecurityTokenOptionalParametersBuilder UsingViber() {
+            _builder.DeliveryChannel = TotpDeliveryChannel.Viber;
             return new TotpServiceSecurityTokenOptionalParametersBuilder(_builder);
         }
     }
@@ -82,7 +106,7 @@ namespace Indice.AspNetCore.Identity
         }
     }
 
-    /// <summary></summary>
+    /// <summary>Data class that contains the parameters required for <see cref="TotpServiceSecurityToken"/>.</summary>
     public class TotpServiceSecurityTokenParameters
     {
         /// <summary>The type of the push notification.</summary>
@@ -99,5 +123,7 @@ namespace Indice.AspNetCore.Identity
         public string SecurityToken { get; set; }
         /// <summary>The subject of message.</summary>
         public string Subject { get; internal set; }
+        /// <summary>Chosen delivery channel.</summary>
+        public TotpDeliveryChannel DeliveryChannel { get; internal set; }
     }
 }
