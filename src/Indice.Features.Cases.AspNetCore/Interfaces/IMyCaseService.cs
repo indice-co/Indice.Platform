@@ -72,13 +72,5 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="options">The <see cref="GetMyCaseTypesListFilter"/> options.</param>
         /// <returns></returns>
         Task<ResultSet<CaseTypePartial>> GetCaseTypes(ListOptions<GetMyCaseTypesListFilter> options);
-
-        /// <summary>
-        /// Mark a user case as read.
-        /// </summary>
-        /// <param name="user">The Id of the user to retrieve the case</param>
-        /// <param name="caseId">The Id of the case</param>
-        /// <returns></returns>
-        Task MarkCaseRead(ClaimsPrincipal user, Guid caseId);
     }
 }

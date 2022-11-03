@@ -43,12 +43,6 @@ namespace Indice.Features.Cases.Models.Responses
         /// The message that has been submitted from the backoffice.
         /// </summary>
         public string Message { get; set; }
-
-        /// <summary>
-        /// Indicate if the case has been downloaded by the user.
-        /// </summary>
-        public bool? Read { get; set; }
-
         /// <summary>
         /// Translations.
         /// </summary>
