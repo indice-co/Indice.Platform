@@ -37,12 +37,17 @@ export class LookupWidgetComponent implements OnInit {
     let lookupName = this.options['lookup-name'] ?? this.controlName;
     this._lookupsService.getLookup(lookupName)
       .subscribe(
-        (occupations: LookupItemResultSet) => {
-          for (let i = 0; i < occupations?.count! - 1; i++) {
-            this.options.typeahead.source.push(occupations?.items![i].value + ' - ' + occupations?.items![i].name);
+        (lookUpItems: LookupItemResultSet) => {
+          for (let i = 0; i < lookUpItems?.count! - 1; i++) {
+            this.options.typeahead.source.push(lookUpItems?.items![i].value + ' - ' + lookUpItems?.items![i].name);
           }
         }
       );
+    this.formControl.valueChanges.subscribe(
+      (value: any) => {
+        this.searchTerm = value;
+      }
+    );
   }
 
   updateValue(event: any) {

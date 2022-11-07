@@ -30,11 +30,11 @@
               [id]="'control' + layoutNode?._id"
               [readonly]="options?.readonly ? 'readonly' : null"
               (input)="updateValue($event)"
-              [(ngModel)]="displayValue"
+              [(ngModel)]="formControl.value"
               [min]="min"
               [max]="max"
               type="date">
-       <input *ngIf="!boundControl"
+       <!-- <input *ngIf="!boundControl"
               [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
               [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
               [attr.maxlength]="options?.maxLength"
@@ -49,7 +49,7 @@
               [readonly]="options?.readonly ? 'readonly' : null"
               [type]="layoutNode?.type"
               [value]="controlValue"
-              (input)="updateValue($event)">
+              (input)="updateValue($event)"> -->
        <datalist *ngIf="options?.typeahead?.source"
                  [id]="'control' + layoutNode?._id + 'Autocomplete'">
               <option *ngFor="let word of options?.typeahead?.source"

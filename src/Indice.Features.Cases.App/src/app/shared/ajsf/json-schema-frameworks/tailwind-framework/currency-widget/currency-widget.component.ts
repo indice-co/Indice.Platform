@@ -29,10 +29,12 @@ export class CurrencyWidgetComponent implements OnInit {
   ngOnInit() {
     this.options = this.layoutNode.options || {};
     this.jsf.initializeControl(this);
-    if (this.formControl.value) {
-      const number = parseFloat(this.formControl.value);
-      this.displayValue = number.toLocaleString('el');
-    }
+    this.formControl.valueChanges.subscribe(
+      (value: string) => {
+        const number = parseFloat(value);
+        this.displayValue = number.toLocaleString('el');
+      }
+    );
   }
 
   updateValue(event: any) {

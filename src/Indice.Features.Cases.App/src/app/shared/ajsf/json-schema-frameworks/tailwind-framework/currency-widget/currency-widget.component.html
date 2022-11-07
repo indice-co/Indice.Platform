@@ -6,6 +6,8 @@
               [innerHTML]="options?.title"></label>
        <input *ngIf="boundControl"
               [formControl]="formControl"
+              type="hidden">
+       <input [class]="options?.fieldHtmlClass || ''"
               [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
               [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
               [attr.maxlength]="options?.maxLength"
@@ -13,12 +15,6 @@
               [attr.pattern]="options?.pattern"
               [attr.placeholder]="options?.placeholder"
               [attr.required]="options?.required"
-              [class]="options?.fieldHtmlClass || ''"
-              [id]="'control' + layoutNode?._id"
-              [name]="controlName"
-              [readonly]="options?.readonly ? 'readonly' : null"
-              type="hidden">
-       <input [class]="options?.fieldHtmlClass || ''"
               [id]="'mask-control' + layoutNode?._id"
               [name]="'mask' + controlName"
               [readonly]="options?.readonly ? 'readonly' : null"
