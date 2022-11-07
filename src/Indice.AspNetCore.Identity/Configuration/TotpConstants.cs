@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity
+﻿namespace Indice.Configuration
 {
     /// <summary>Constant values for TOTP services.</summary>
     public static class TotpConstants

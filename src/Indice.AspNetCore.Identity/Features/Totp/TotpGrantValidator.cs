@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Configuration;
 using Indice.Security;
-using Indice.Services;
 
 namespace Indice.AspNetCore.Identity.Features
 {
@@ -32,7 +32,6 @@ namespace Indice.AspNetCore.Identity.Features
         public async Task ValidateAsync(ExtensionGrantValidationContext context) {
             var userToken = context.Request.Raw.Get("token");
             var code = context.Request.Raw.Get("code");
-            var provider = default(TotpProviderType?);
             var reason = context.Request.Raw.Get("reason");
             if (string.IsNullOrEmpty(userToken)) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Access token 'token' parameter missing from payload.");

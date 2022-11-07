@@ -4,7 +4,7 @@
     <Copyright>Copyright (c) 2020 Indice</Copyright>
     <AssemblyTitle>Indice.EntityFrameworkCore</AssemblyTitle>
     <VersionPrefix>6.2.0</VersionPrefix>
-    <VersionSuffix>beta-02</VersionSuffix>
+    <VersionSuffix>beta-03</VersionSuffix>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>
     <AssemblyName>Indice.EntityFrameworkCore</AssemblyName>
@@ -34,7 +34,7 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="6.2.0-beta-02" />
+    <PackageReference Include="Indice.Common" Version="6.2.0-beta-03" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Services
 {
-    /// <summary></summary>
+    /// <summary>Base abstract class for creating a TOTP service.</summary>
     public abstract class TotpServiceBase
     {
         private const int CACHE_EXPIRATION_SECONDS = 30;
@@ -63,8 +64,8 @@ namespace Indice.Services
             }
         }
 
-        /// <summary></summary>
-        /// <param name="cacheKey"></param>
+        /// <summary>Adds a cache entry with the given key.</summary>
+        /// <param name="cacheKey">The key to the cache.</param>
         protected async Task AddCacheKeyAsync(string cacheKey) {
             var unixTime = DateTimeOffset.UtcNow.AddSeconds(CACHE_EXPIRATION_SECONDS).ToUnixTimeSeconds();
             await ServiceProvider.GetRequiredService<IDistributedCache>().SetStringAsync(cacheKey, unixTime.ToString(), new DistributedCacheEntryOptions {
@@ -72,8 +73,8 @@ namespace Indice.Services
             });
         }
 
-        /// <summary></summary>
-        /// <param name="cacheKey"></param>
+        /// <summary>Checks if the given key exists in the cache.</summary>
+        /// <param name="cacheKey">The key to the cache.</param>
         protected async Task<bool> CacheKeyExistsAsync(string cacheKey) {
             var timeText = await ServiceProvider.GetRequiredService<IDistributedCache>().GetStringAsync(cacheKey);
             var exists = timeText != null;
@@ -84,9 +85,9 @@ namespace Indice.Services
             return exists;
         }
 
-        /// <summary></summary>
-        /// <param name="purpose"></param>
-        /// <param name="phoneNumber"></param>
+        /// <summary>Gets a modifier for the TOTP.</summary>
+        /// <param name="purpose">The purpose.</param>
+        /// <param name="phoneNumber">The phone number.</param>
         protected static string GetModifier(string purpose, string phoneNumber) => $"{purpose}:{phoneNumber}";
     }
 
@@ -131,5 +132,68 @@ namespace Indice.Services
         public string DeviceId { get; set; }
         /// <summary>User identifier.</summary>
         public string UserId { get; set; }
+    }
+
+    /// <summary>TOTP provider metadata.</summary>
+    public class TotpProviderMetadata
+    {
+        /// <summary>The provider type.</summary>
+        public TotpProviderType Type { get; set; }
+        /// <summary>The provider channel.</summary>
+        public TotpDeliveryChannel Channel { get; set; }
+        /// <summary>The name which is used to register the provider in the list of token providers.</summary>
+        public string Name => $"{Channel}";
+        /// <summary>The display name.</summary>
+        public string DisplayName { get; set; }
+        /// <summary>Can generate TOTP. If false this provider can only validate TOTPs.</summary>
+        public bool CanGenerate { get; set; }
+    }
+
+    /// <summary>Supported TOTP providers used for MFA.</summary>
+    public enum TotpProviderType
+    {
+        /// <summary>Phone.</summary>
+        Phone = 1,
+        /// <summary>E-token.</summary>
+        EToken = 3,
+        /// <summary>Standard OTP.</summary>
+        StandardOtp = 4
+    }
+
+    /// <summary><see cref="TotpServiceBase"/> result.</summary>
+    public class TotpResult
+    {
+        /// <summary>Constructs an error result.</summary>
+        /// <param name="error">The error.</param>
+        public static TotpResult ErrorResult(string error) => new() {
+            Error = error
+        };
+
+        /// <summary>Indicates success.</summary>
+        public bool Success { get; private set; }
+        /// <summary>The error occurred.</summary>
+        public string Error { get; private set; }
+
+        /// <summary>Constructs a success result.</summary>
+        public static TotpResult SuccessResult => new() {
+            Success = true
+        };
+    }
+
+    /// <summary>Specific exception used to pass errors when using .</summary>
+    [Serializable]
+    public class TotpServiceException : Exception
+    {
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
+        public TotpServiceException() { }
+
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
+        public TotpServiceException(string message) : base(message) { }
+
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
+        public TotpServiceException(string message, Exception innerException) : base(message, innerException) { }
+
+        /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
+        protected TotpServiceException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }
