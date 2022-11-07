@@ -5,9 +5,9 @@ using Indice.Features.Cases.Models;
 namespace Indice.Features.Cases.Events
 {
     /// <summary>
-    /// The event that will be raised <b>after</b> the case service handles a <see cref="Message"/>.
+    /// The event that will be raised <b>before</b> the case service handles a <see cref="Message"/>.
     /// </summary>
-    public class CaseMessageSentEvent : ICaseEvent
+    public class CaseMessageCreatedEvent : ICaseEvent
     {
         /// <summary>
         /// The Id of the case.
@@ -24,7 +24,7 @@ namespace Indice.Features.Cases.Events
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
         /// <param name="message">The <see cref="Message"/> that has been sent to the case service.</param>
-        public CaseMessageSentEvent(Guid caseId, Message message) {
+        public CaseMessageCreatedEvent(Guid caseId, Message message) {
             CaseId = caseId;
             Message = message;
         }
