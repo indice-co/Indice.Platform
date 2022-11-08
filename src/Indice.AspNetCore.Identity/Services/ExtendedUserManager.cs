@@ -539,6 +539,13 @@ namespace Indice.AspNetCore.Identity
             if (device is null) {
                 throw new ArgumentNullException(nameof(user));
             }
+            if (device.IsPendingTrustActivation) {
+                return IdentityResult.Failed(new IdentityError {
+                    Code = nameof(UserDevice.TrustActivationDate),
+                    Description = MessageDescriber.DevicePendingTrustActivation()
+                });
+            }
+            device.TrustActivationDate = null;
             device.IsTrusted = false;
             return await UpdateDeviceAsync(user, device, cancellationToken);
         }

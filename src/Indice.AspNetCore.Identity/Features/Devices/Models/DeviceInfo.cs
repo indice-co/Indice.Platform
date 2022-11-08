@@ -33,6 +33,8 @@ namespace Indice.AspNetCore.Identity.Api.Models
         public DateTimeOffset? TrustActivationDate { get; set; }
         /// <summary>Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios).</summary>
         public bool IsTrusted { get; set; }
+        /// <summary>Indicates whether the user can activate device trust after waiting for the specified delay.</summary>
+        public bool CanActivateDeviceTrust => TrustActivationDate.HasValue && TrustActivationDate.Value <= DateTimeOffset.UtcNow && !IsTrusted;
         /// <summary>Extra metadata for the device.</summary>
         public dynamic Data { get; set; }
 

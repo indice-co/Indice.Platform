@@ -212,7 +212,6 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [RequiresOtp]
         public async Task<IActionResult> SetUntrustedDevice([FromRoute] string deviceId) {
             var user = await UserManager.GetUserAsync(User);
             if (user is null) {

@@ -57,12 +57,12 @@ namespace Indice.AspNetCore.Identity.Filters
                         .UsingDeliveryChannel(DeliveryChannel)
                         .WithPurpose(purpose)
                 );
-                throw new BusinessException("TOTP is required.", "totp", new List<string> { "An TOTP code is required to call this endpoint." });
+                throw new BusinessException("TOTP is required.", "requiresTotp", new List<string> { "An TOTP code is required to call this endpoint." });
             }
             // If a TOTP exists in the request, then we need to verify it.
             var totpResult = await totpService.VerifyAsync(principal, totp, purpose);
             if (!totpResult.Success) {
-                throw new BusinessException("TOTP not verified.", "totp", new List<string> { "The TOTP code could not be verified." });
+                throw new BusinessException("TOTP not verified.", "requiresTotp", new List<string> { "The TOTP code could not be verified." });
             }
             await next();
         }
