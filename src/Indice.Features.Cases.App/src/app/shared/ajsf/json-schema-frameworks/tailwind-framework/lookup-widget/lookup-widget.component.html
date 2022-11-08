@@ -30,7 +30,7 @@
               [name]="controlName"
               [readonly]="options?.readonly ? 'readonly' : null"
               [type]="'text'"
-              (change)="updateCode()"
+              (change)="updateValue()"
               [(ngModel)]="searchTerm">
        <!-- <input *ngIf="!boundControl"
            [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
