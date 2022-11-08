@@ -30,6 +30,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
         protected async Task<Guid?> SendInternal(DbCase @case, Message message, ClaimsPrincipal user) {
             Guid? attachmentId = null;
             var caseId = @case.Id;
+            if (message == null) throw new ArgumentNullException(nameof(message));
             if (message.File == null && message.CheckpointTypeName == null && message.Comment == null && message.Data == null) {
                 return attachmentId;
             }
