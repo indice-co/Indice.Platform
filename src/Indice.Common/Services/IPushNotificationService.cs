@@ -40,8 +40,8 @@ namespace Indice.Services
         /// <param name="userTag">UserId to be passed as tag.</param>
         /// <param name="tags">Optional tag parameters.</param>
         public static Task Register(this IPushNotificationService service, string deviceId, string pnsHandle, DevicePlatform devicePlatform, string userTag, params string[] tags) {
-            var allTags = tags?.Select(tagValue => new PushNotificationTag(tagValue)).ToArray() ?? Array.Empty<PushNotificationTag>();
-            allTags.Append(new PushNotificationTag(userTag, PushNotificationTagKind.User));
+            var allTags = tags?.Select(tagValue => new PushNotificationTag(tagValue)) ?? Enumerable.Empty<PushNotificationTag>();
+            allTags = allTags.Append(new PushNotificationTag(userTag, PushNotificationTagKind.User));
             return service.Register(deviceId, pnsHandle, devicePlatform, allTags.ToList());
         }
 
@@ -54,9 +54,9 @@ namespace Indice.Services
         /// <param name="classification">The type of the push notification.</param>
         /// <param name="tags">Optional tag parameters.</param>
         public static Task SendToUserAsync(this IPushNotificationService service, string title, string body, string data, string userTag, string classification = null, params string[] tags) {
-            var allTags = tags?.Select(tagValue => new PushNotificationTag(tagValue)).ToArray() ?? Array.Empty<PushNotificationTag>();
-            allTags.Append(new PushNotificationTag(userTag, PushNotificationTagKind.User));
-            return service.SendAsync(title, body, allTags, data, classification);
+            var allTags = tags?.Select(tagValue => new PushNotificationTag(tagValue)) ?? Enumerable.Empty<PushNotificationTag>();
+            allTags = allTags.Append(new PushNotificationTag(userTag, PushNotificationTagKind.User));
+            return service.SendAsync(title, body, allTags.ToList(), data, classification);
         }
 
         /// <summary>Send notifications to devices registered to userId with payload data and classification.</summary>
@@ -81,7 +81,7 @@ namespace Indice.Services
         /// <param name="data">Data passed to mobile client, not visible to notification toast.</param>
         /// <param name="classification">The type of the push notification.</param>
         public static Task SendToDeviceAsync(this IPushNotificationService service, string deviceId, string title, string body, string data = null, string classification = null) {
-            var tags = Array.Empty<PushNotificationTag>().Append(new PushNotificationTag(deviceId, PushNotificationTagKind.Device)).ToList();
+            var tags = Enumerable.Empty<PushNotificationTag>().Append(new PushNotificationTag(deviceId, PushNotificationTagKind.Device)).ToList();
             return service.SendAsync(title, body, tags, data, classification);
         }
 
