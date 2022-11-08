@@ -1,7 +1,7 @@
 import { JsonSchemaFormService } from "@ajsf-extended/core";
 import { Component, Input, OnInit } from '@angular/core';
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { takeUntil, tap } from "rxjs/operators";
 import { LookupItemResultSet } from "src/app/core/services/cases-api.service";
 import { LookupsService } from "src/app/core/services/lookups.service";
 
@@ -53,14 +53,13 @@ export class LookupWidgetComponent implements OnInit {
     );
     // subscribe to formControl value Changes in order to inform UI
     this.formControl.valueChanges.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(
-      (value: any) => {
+      takeUntil(this.destroy$),
+      tap((value: any) => {
         this.searchTerm = (value !== undefined && value !== null) ?
           this.options.typeahead.source.find((s: string) => s.startsWith(`${value} ${this.separator}`)) :
           value;
-      }
-    );
+      })
+    ).subscribe();
   }
 
   ngOnDestroy() {

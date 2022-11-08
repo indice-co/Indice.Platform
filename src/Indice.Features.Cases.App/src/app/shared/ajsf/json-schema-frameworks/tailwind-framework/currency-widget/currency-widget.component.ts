@@ -1,7 +1,7 @@
 import { JsonSchemaFormService } from '@ajsf-extended/core';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import { takeUntil, map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-currency-widget',
@@ -41,12 +41,11 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$),
       map((value: string) =>
         parseFloat(value).toLocaleString('el')
-      )
-    ).subscribe(
-      (value: string) => {
+      ),
+      tap((value: string) => {
         this.displayValue = value;
-      }
-    );
+      })
+    ).subscribe();
   }
 
   ngOnDestroy() {
