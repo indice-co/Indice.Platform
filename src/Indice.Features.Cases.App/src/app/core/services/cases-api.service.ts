@@ -4266,9 +4266,13 @@ export interface IApprovalRequest {
 
 /** Audit metadata related with the user principal that "did" the action. */
 export class AuditMeta implements IAuditMeta {
+    /** The Id of the user. */
     id?: string | undefined;
+    /** The name of the user. */
     name?: string | undefined;
+    /** The email of the user. */
     email?: string | undefined;
+    /** The timestamp the audit happened. */
     when?: Date | undefined;
 
     constructor(data?: IAuditMeta) {
@@ -4308,9 +4312,13 @@ export class AuditMeta implements IAuditMeta {
 
 /** Audit metadata related with the user principal that "did" the action. */
 export interface IAuditMeta {
+    /** The Id of the user. */
     id?: string | undefined;
+    /** The name of the user. */
     name?: string | undefined;
+    /** The email of the user. */
     email?: string | undefined;
+    /** The timestamp the audit happened. */
     when?: Date | undefined;
 }
 
@@ -5863,8 +5871,12 @@ export class CustomCaseAction implements ICustomCaseAction {
     id?: string | undefined;
     /** The name of the action. */
     name?: string | undefined;
+    /** The label of the action. */
+    label?: string | undefined;
     /** The description of the action. */
     description?: string | undefined;
+    /** Input Prefill. */
+    inputPrefill?: string | undefined;
     /** Indicates if the custom action has input field. */
     hasInput?: boolean | undefined;
 
@@ -5881,7 +5893,9 @@ export class CustomCaseAction implements ICustomCaseAction {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.label = _data["label"];
             this.description = _data["description"];
+            this.inputPrefill = _data["inputPrefill"];
             this.hasInput = _data["hasInput"];
         }
     }
@@ -5897,7 +5911,9 @@ export class CustomCaseAction implements ICustomCaseAction {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["label"] = this.label;
         data["description"] = this.description;
+        data["inputPrefill"] = this.inputPrefill;
         data["hasInput"] = this.hasInput;
         return data;
     }
@@ -5909,8 +5925,12 @@ export interface ICustomCaseAction {
     id?: string | undefined;
     /** The name of the action. */
     name?: string | undefined;
+    /** The label of the action. */
+    label?: string | undefined;
     /** The description of the action. */
     description?: string | undefined;
+    /** Input Prefill. */
+    inputPrefill?: string | undefined;
     /** Indicates if the custom action has input field. */
     hasInput?: boolean | undefined;
 }
@@ -6234,6 +6254,7 @@ export class MyCasePartial implements IMyCasePartial {
     publicStatus?: CasePublicStatus;
     /** The case type code of the case. */
     caseTypeCode?: string | undefined;
+    /** The case type title of the case. */
     title?: string | undefined;
     /** The checkpoint name of the case. */
     checkpoint?: string | undefined;
@@ -6306,6 +6327,7 @@ export interface IMyCasePartial {
     publicStatus?: CasePublicStatus;
     /** The case type code of the case. */
     caseTypeCode?: string | undefined;
+    /** The case type title of the case. */
     title?: string | undefined;
     /** The checkpoint name of the case. */
     checkpoint?: string | undefined;
@@ -6363,6 +6385,7 @@ export interface IMyCasePartialResultSet {
     items?: MyCasePartial[] | undefined;
 }
 
+/** The translation wrapper for Indice.Features.Cases.Models.Responses.MyCasePartial model. */
 export class MyCasePartialTranslation implements IMyCasePartialTranslation {
     /** The title of the case type. */
     title?: string | undefined;
@@ -6396,6 +6419,7 @@ export class MyCasePartialTranslation implements IMyCasePartialTranslation {
     }
 }
 
+/** The translation wrapper for Indice.Features.Cases.Models.Responses.MyCasePartial model. */
 export interface IMyCasePartialTranslation {
     /** The title of the case type. */
     title?: string | undefined;

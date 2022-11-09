@@ -14,12 +14,22 @@
         /// The name of the action.
         /// </summary>
         public string? Name { get; set; }
-        
+
+        /// <summary>
+        /// The label of the action.
+        /// </summary>
+        public string? Label { get; set; }
+
         /// <summary>
         /// The description of the action.
         /// </summary>
         public string? Description { get; set; }
-        
+
+        /// <summary>
+        /// Input Prefill.
+        /// </summary>
+        public string? InputPrefill { get; set; }
+
         /// <summary>
         /// Indicates if the custom action has input field.
         /// </summary>

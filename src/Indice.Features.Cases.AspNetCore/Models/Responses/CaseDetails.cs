@@ -16,6 +16,6 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The back-office users that approved the case.
         /// </summary>
-        public IEnumerable<AuditMeta>? Approvers { get; set; }
+        public List<AuditMeta>? Approvers { get; set; }
     }
 }

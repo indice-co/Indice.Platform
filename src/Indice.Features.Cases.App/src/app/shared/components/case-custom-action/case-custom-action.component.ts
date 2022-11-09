@@ -10,14 +10,17 @@ export class CaseCustomActionComponent implements OnInit {
 
   @Input() action: CustomCaseAction | undefined;
   @Output() actionTriggered = new EventEmitter<ICustomActionRequest>();
-
+  buttonDisabled = false;
   value: string | undefined;
 
   constructor() { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.value = this.action?.inputPrefill;
+   }
 
   triggerAction() {
+    this.buttonDisabled = true;
     this.actionTriggered.emit({
       id: this.action?.id!,
       value: this.value!
