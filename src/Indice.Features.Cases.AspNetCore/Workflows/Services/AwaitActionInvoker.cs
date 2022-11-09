@@ -18,7 +18,6 @@ namespace Indice.Features.Cases.Workflows.Services
     internal class AwaitActionInvoker : BaseActivityInvoker, IAwaitActionInvoker
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly string _actionId;
 
         /// <inheritdoc />
         public AwaitActionInvoker(
@@ -42,21 +41,21 @@ namespace Indice.Features.Cases.Workflows.Services
             CancellationToken cancellationToken = default) {
             var instance = await GetWorkflowInstanceByCaseId(caseId, cancellationToken);
 
-            var userRoles = _httpContextAccessor.HttpContext.User
+            var userRoles = _httpContextAccessor.HttpContext?.User
                 .FindAll(x => x.Type == JwtClaimTypes.Role)
                 .Select(claim => claim.Value)
                 .ToList();
 
             // Always provide an empty string as a role in order to handle "null" allowed Roles of activity input.
-            userRoles.Add(string.Empty);
+            userRoles?.Add(string.Empty);
 
             var actionInput = input as CustomActionRequest;
 
-            return userRoles.Select(role => new WorkflowsQuery(
+            return userRoles?.Select(role => new WorkflowsQuery(
                 nameof(AwaitActionActivity),
                 new AwaitActionBookmark(caseId.ToString(), role, actionInput?.Id.ToString() ?? string.Empty),
                 caseId.ToString(),
-                instance.Id));
+                instance.Id)) ?? Enumerable.Empty<WorkflowsQuery>();
         }
     }
 }

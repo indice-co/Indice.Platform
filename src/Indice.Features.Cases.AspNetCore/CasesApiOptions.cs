@@ -13,7 +13,7 @@ namespace Indice.Features.Cases
         /// Configuration <see cref="Action"/> for internal <see cref="DbContext"/>. 
         /// If not provided the underlying store defaults to SQL Server expecting the setting <i>ConnectionStrings:DefaultConnection</i> to be present.
         /// </summary>
-        public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
+        public Action<DbContextOptionsBuilder>? ConfigureDbContext { get; set; }
        
         /// <summary>
         /// The default scope name to be used for Cases API. Defaults to <see cref="CasesApiConstants.Scope"/>.

@@ -19,7 +19,6 @@ export class DateWidgetComponent implements OnInit {
   @Input() dataIndex: any[] = [];
   min: string = ''
   max: string = ''
-  displayValue = '';
 
   constructor(
     private jsf: JsonSchemaFormService
@@ -34,13 +33,9 @@ export class DateWidgetComponent implements OnInit {
       this.max = this.options.max;
     }
     this.jsf.initializeControl(this);
-    if (this.formControl.value) {
-      this.displayValue = this.formControl.value;
-    }
   }
 
   updateValue(event: any) {
-    this.displayValue = event.target.value;
     this.jsf.updateValue(this, event.target.value);
   }
 

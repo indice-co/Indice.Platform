@@ -1,12 +1,14 @@
 import { JsonSchemaFormService } from '@ajsf-extended/core';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil, map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-currency-widget',
   templateUrl: './currency-widget.component.html',
   styleUrls: ['./currency-widget.component.scss']
 })
-export class CurrencyWidgetComponent implements OnInit {
+export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   formControl: any;
   controlName: string | undefined;
   controlValue: string | undefined;
@@ -21,6 +23,7 @@ export class CurrencyWidgetComponent implements OnInit {
   thousandSeparator: string = ".";
   // this is the placeholder for the mask input. The actual control value is a hidden input
   displayValue = '';
+  private destroy$ = new Subject();
 
   constructor(
     private jsf: JsonSchemaFormService
@@ -29,10 +32,25 @@ export class CurrencyWidgetComponent implements OnInit {
   ngOnInit() {
     this.options = this.layoutNode.options || {};
     this.jsf.initializeControl(this);
+    // initialize displayValue if necessary
     if (this.formControl.value) {
-      const number = parseFloat(this.formControl.value);
-      this.displayValue = number.toLocaleString('el');
+      this.displayValue = parseFloat(this.formControl.value).toLocaleString('el');
     }
+    // subscribe to formControl value Changes in order to inform UI
+    this.formControl.valueChanges.pipe(
+      takeUntil(this.destroy$),
+      map((value: string) =>
+        parseFloat(value).toLocaleString('el')
+      ),
+      tap((value: string) => {
+        this.displayValue = value;
+      })
+    ).subscribe();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   updateValue(event: any) {
