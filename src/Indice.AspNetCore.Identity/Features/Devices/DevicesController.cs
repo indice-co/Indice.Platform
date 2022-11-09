@@ -159,10 +159,10 @@ namespace Indice.AspNetCore.Identity.Api
             var shouldRegisterDevice = (!device.IsPushNotificationsEnabled && shouldEnablePushNotifications) || device.PnsHandle != request.PnsHandle;
             try {
                 if (shouldUnRegisterDevice) {
-                    await PushNotificationService.UnRegister(deviceId);
+                    await PushNotificationService.UnRegister(device.Id.ToString());
                 }
                 if (shouldRegisterDevice) {
-                    await PushNotificationService.Register(device.DeviceId, request.PnsHandle, device.Platform, user.Id, request.Tags?.ToArray());
+                    await PushNotificationService.Register(device.Id.ToString(), request.PnsHandle, device.Platform, user.Id, request.Tags?.ToArray());
                 }
             } catch (Exception exception) {
                 Logger.LogError("An exception occurred when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
@@ -245,7 +245,7 @@ namespace Indice.AspNetCore.Identity.Api
                 return NotFound();
             }
             try {
-                await PushNotificationService.UnRegister(deviceId);
+                await PushNotificationService.UnRegister(device.Id.ToString());
             } catch (Exception exception) {
                 Logger.LogError("An exception occurred when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
             }
