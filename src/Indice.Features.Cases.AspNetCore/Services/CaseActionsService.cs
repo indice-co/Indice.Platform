@@ -164,7 +164,7 @@ namespace Indice.Features.Cases.Services
                 Id = activityData.ContainsKey(nameof(AwaitActionActivity.ActionId)) ? activityData[nameof(AwaitActionActivity.ActionId)] as string : null,
                 Name = activityData.ContainsKey(nameof(AwaitActionActivity.ActionName)) ? activityData[nameof(AwaitActionActivity.ActionName)] as string : null,
                 Label = activityData.ContainsKey(nameof(AwaitActionActivity.ActionLabel)) ? activityData[nameof(AwaitActionActivity.ActionLabel)] as string : null,
-                InputPrefill = activityData.ContainsKey(nameof(AwaitActionActivity.ActionInputPrefill)) ? activityData[nameof(AwaitActionActivity.ActionInputPrefill)] as string : null,
+                DefaultValue = activityData.ContainsKey(nameof(AwaitActionActivity.ActionInputDefaultValue)) ? activityData[nameof(AwaitActionActivity.ActionInputDefaultValue)] as string : null,
                 Description = activityData.ContainsKey(nameof(AwaitActionActivity.ActionDescription)) ? activityData[nameof(AwaitActionActivity.ActionDescription)] as string : null,
                 HasInput = activityData.ContainsKey(nameof(AwaitActionActivity.ShowInput)) ? activityData[nameof(AwaitActionActivity.ShowInput)] as bool? : false
             };

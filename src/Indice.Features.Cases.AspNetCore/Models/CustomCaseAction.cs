@@ -26,9 +26,9 @@
         public string? Description { get; set; }
 
         /// <summary>
-        /// Input Prefill.
+        /// The Default Value of action's input.
         /// </summary>
-        public string? InputPrefill { get; set; }
+        public string? DefaultValue { get; set; }
 
         /// <summary>
         /// Indicates if the custom action has input field.

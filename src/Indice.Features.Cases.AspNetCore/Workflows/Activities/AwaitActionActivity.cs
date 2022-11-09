@@ -62,16 +62,16 @@ namespace Indice.Features.Cases.Workflows.Activities
         public string? ActionLabel { get; set; }
 
         /// <summary>
-        /// The Input Prefill of the action button to show at Cases Back-office UI.
+        /// The Input Default Value of the action button to show at Cases Back-office UI.
         /// </summary>
         [ActivityInput(
-            Label = "Action Input Prefill",
-            Hint = "The Input Prefill of the action button to show at Cases Back-office UI.",
+            Label = "Action Input Default Value",
+            Hint = "The Input Default Value of the action button to show at Cases Back-office UI.",
             UIHint = ActivityInputUIHints.SingleLine,
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal, SyntaxNames.JavaScript }
         )]
-        public string? ActionInputPrefill { get; set; }
+        public string? ActionInputDefaultValue { get; set; }
 
         /// <summary>
         /// The description of the action button to show at Cases Back-office UI.

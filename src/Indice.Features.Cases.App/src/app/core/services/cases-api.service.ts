@@ -5875,8 +5875,8 @@ export class CustomCaseAction implements ICustomCaseAction {
     label?: string | undefined;
     /** The description of the action. */
     description?: string | undefined;
-    /** Input Prefill. */
-    inputPrefill?: string | undefined;
+    /** The Default Value of action's input. */
+    defaultValue?: string | undefined;
     /** Indicates if the custom action has input field. */
     hasInput?: boolean | undefined;
 
@@ -5895,7 +5895,7 @@ export class CustomCaseAction implements ICustomCaseAction {
             this.name = _data["name"];
             this.label = _data["label"];
             this.description = _data["description"];
-            this.inputPrefill = _data["inputPrefill"];
+            this.defaultValue = _data["defaultValue"];
             this.hasInput = _data["hasInput"];
         }
     }
@@ -5913,7 +5913,7 @@ export class CustomCaseAction implements ICustomCaseAction {
         data["name"] = this.name;
         data["label"] = this.label;
         data["description"] = this.description;
-        data["inputPrefill"] = this.inputPrefill;
+        data["defaultValue"] = this.defaultValue;
         data["hasInput"] = this.hasInput;
         return data;
     }
@@ -5929,8 +5929,8 @@ export interface ICustomCaseAction {
     label?: string | undefined;
     /** The description of the action. */
     description?: string | undefined;
-    /** Input Prefill. */
-    inputPrefill?: string | undefined;
+    /** The Default Value of action's input. */
+    defaultValue?: string | undefined;
     /** Indicates if the custom action has input field. */
     hasInput?: boolean | undefined;
 }

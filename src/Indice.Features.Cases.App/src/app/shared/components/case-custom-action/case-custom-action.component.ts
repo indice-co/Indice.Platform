@@ -16,7 +16,7 @@ export class CaseCustomActionComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.value = this.action?.inputPrefill;
+    this.value = this.action?.defaultValue;
    }
 
   triggerAction() {
