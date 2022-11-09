@@ -4,7 +4,7 @@
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
     <VersionPrefix>6.2.0</VersionPrefix>
-    <VersionSuffix>beta-03</VersionSuffix>
+    <VersionSuffix>beta-04</VersionSuffix>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>
     <AssemblyName>Indice.Services</AssemblyName>
@@ -34,7 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Queues" Version="12.11.0" />
-    <PackageReference Include="Indice.Common" Version="6.2.0-beta-03" />
+    <PackageReference Include="Indice.Common" Version="6.2.0-beta-04" />
     <PackageReference Include="MailKit" Version="3.3.0" />
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.1.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.13.0" />
