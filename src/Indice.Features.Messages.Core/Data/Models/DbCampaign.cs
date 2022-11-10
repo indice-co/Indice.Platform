@@ -22,7 +22,7 @@ namespace Indice.Features.Messages.Core.Data.Models
         /// <summary>Determines if campaign targets all user base.</summary>
         public bool IsGlobal { get; set; }
         /// <summary>Optional data for the campaign.</summary>
-        public ExpandoObject Data { get; set; }
+        public dynamic Data { get; set; }
         /// <summary>The delivery channel of a campaign.</summary>
         public MessageChannelKind MessageChannelKind { get; set; }
         /// <summary>Foreign key to the <see cref="DbMessageType"/>.</summary>

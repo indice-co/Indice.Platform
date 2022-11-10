@@ -47,7 +47,7 @@ namespace Indice.Services
             var installationRequest = new Installation {
                 InstallationId = deviceId,
                 PushChannel = pnsHandle,
-                Tags = tags.Select(tag => tag.ToString()).ToList(),
+                Tags = tags.Select(tag => tag.Value).ToList(),
                 Templates = new Dictionary<string, InstallationTemplate>()
             };
             switch (devicePlatform) {

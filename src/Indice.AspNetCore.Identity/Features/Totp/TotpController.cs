@@ -64,6 +64,7 @@ namespace Indice.AspNetCore.Identity.Features
                         .ToPrincipal(User)
                         .WithMessage(request.Message)
                         .UsingPushNotification()
+                        .WithSubject(request.Subject)
                         .WithPurpose(request.Purpose)
                         .WithData(request.Data)
                         .WithClassification(request.Classification)
