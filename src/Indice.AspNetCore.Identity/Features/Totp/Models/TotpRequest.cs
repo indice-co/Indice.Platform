@@ -18,5 +18,7 @@ namespace Indice.AspNetCore.Identity.Features.Totp.Models
         /// <summary>The type of the Push Notification.</summary>
         /// <remarks>This applies only for <see cref="TotpDeliveryChannel.PushNotification"/> channel.</remarks>
         public string Classification { get; set; }
+        /// <summary>The subject of the message for the <see cref="TotpDeliveryChannel.PushNotification"/> <see cref="Channel"/>.</summary>
+        public string Subject { get; set; }
     }
 }

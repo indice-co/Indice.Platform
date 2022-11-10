@@ -99,7 +99,7 @@ namespace Indice.Services
                     properties,
                     tags.Select(
                         tag => tag.Kind == PushNotificationTagKind.User || tag.Kind == PushNotificationTagKind.Unspecified
-                            ? tag.Value
+                            ? tag.ToString()
                             : "$InstallationId:{" + tag.Value + "}" // https://learn.microsoft.com/en-us/azure/notification-hubs/notification-hubs-push-notification-registration-management#installations
                     )
                 );
