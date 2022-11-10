@@ -18,8 +18,8 @@ namespace Indice.Features.Cases.Workflows.Activities
     /// </summary>
     [Trigger(
         Category = "Cases",
-        DisplayName = "Await Custom Outcome",
-        Description = "Handles the custom outcome and forwards case data.",
+        DisplayName = "Await Action",
+        Description = "A blocking activity that handles a custom action.",
         Outcomes = new[] { OutcomeNames.Done }
     )]
     public class AwaitActionActivity : BaseCaseActivity
@@ -62,11 +62,11 @@ namespace Indice.Features.Cases.Workflows.Activities
         public string? ActionLabel { get; set; }
 
         /// <summary>
-        /// The Input Default Value of the action button to show at Cases Back-office UI.
+        /// The Default Value of the action input to show at Cases Back-office UI.
         /// </summary>
         [ActivityInput(
             Label = "Action Input Default Value",
-            Hint = "The Input Default Value of the action button to show at Cases Back-office UI.",
+            Hint = "The Default Value of the action input to show at Cases Back-office UI.",
             UIHint = ActivityInputUIHints.SingleLine,
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal, SyntaxNames.JavaScript }
@@ -74,7 +74,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         public string? ActionInputDefaultValue { get; set; }
 
         /// <summary>
-        /// The description of the action button to show at Cases Back-office UI.
+        /// The description of the action to show at Cases Back-office UI.
         /// </summary>
         [ActivityInput(
             Label = "Action Description",
@@ -86,11 +86,11 @@ namespace Indice.Features.Cases.Workflows.Activities
         public string? ActionDescription { get; set; }
 
         /// <summary>
-        /// Admin user role that can provide approval. If left blank, all authenticated users can approve/reject.
+        /// User role that can proceed to this action. If left blank, all authenticated users can proceed to this action.
         /// </summary>
         [ActivityInput(
             Label = "Role",
-            Hint = "Admin user role that can provide approval. If left blank, all authenticated users can approve/reject.",
+            Hint = "User role that can proceed to this action. If left blank, all authenticated users can proceed to this action.",
             UIHint = ActivityInputUIHints.SingleLine,
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal }
@@ -98,7 +98,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         public string? AllowedRole { get; set; } = string.Empty;
 
         /// <summary>
-        /// Indicates if the Back-Office UI wil have the input element.
+        /// Determines whether the Back-Office UI will have an input element.
         /// </summary>
         [ActivityInput(
             Label = "Show Input to Back-Office UI",
@@ -106,9 +106,6 @@ namespace Indice.Features.Cases.Workflows.Activities
         )]
         public bool ShowInput { get; set; }
 
-        /// <summary>
-        /// The case data.
-        /// </summary>
         [ActivityOutput]
         public object? Output { get; set; }
 
@@ -125,13 +122,14 @@ namespace Indice.Features.Cases.Workflows.Activities
         private async Task<IActivityExecutionResult> OnExecuteInternal(ActivityExecutionContext context) {
             CaseId ??= Guid.Parse(context.CorrelationId);
 
-            var input = context.Input as CustomActionRequest;
+            var input = context.Input as ActionRequest;
 
             Output = input?.Value ?? string.Empty;
             context.LogOutputProperty(this, nameof(Output), Output);
 
+            var comment = $"Action \"{ActionName}\" executed successfully";
             await _caseMessageService.Send(CaseId.Value, context.TryGetUser()!, new Message {
-                Comment = $"Action \"{ActionName}\" executed successfully with value \"{Output}\".",
+                Comment = string.IsNullOrEmpty(input?.Value) ? $"{comment}." : $"{comment} with value \"{Output}\".",
                 PrivateComment = true
             });
 

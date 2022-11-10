@@ -31,7 +31,7 @@
         public string? DefaultValue { get; set; }
 
         /// <summary>
-        /// Indicates if the custom action has input field.
+        /// Determines whether the action will have an input element.
         /// </summary>
         public bool? HasInput { get; set; }
     }
