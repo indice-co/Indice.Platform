@@ -14,14 +14,24 @@
         /// The name of the action.
         /// </summary>
         public string? Name { get; set; }
-        
+
+        /// <summary>
+        /// The label of the action.
+        /// </summary>
+        public string? Label { get; set; }
+
         /// <summary>
         /// The description of the action.
         /// </summary>
         public string? Description { get; set; }
-        
+
         /// <summary>
-        /// Indicates if the custom action has input field.
+        /// The Default Value of action's input.
+        /// </summary>
+        public string? DefaultValue { get; set; }
+
+        /// <summary>
+        /// Determines whether the action will have an input element.
         /// </summary>
         public bool? HasInput { get; set; }
     }

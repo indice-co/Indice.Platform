@@ -100,6 +100,7 @@ namespace Indice.Features.Cases.Services
                     .Where(p => p.Committed && p.Action == Approval.Approve)
                     .Select(p => p.CreatedBy)
                     .OrderBy(p => p.When)
+                    .ToList()
             };
 
             return caseDetails;

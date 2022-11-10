@@ -20,16 +20,16 @@ namespace Indice.Features.Cases.Workflows.Interfaces
         /// A background worker will process this queue, and therefore, execute the workflow in the background.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
-        /// <param name="request">The custom action trigger request.</param>
+        /// <param name="request">The action request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, CustomActionRequest request, CancellationToken cancellationToken = default);
+        Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, ActionRequest request, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Executing a workflow will execute the workflow directly before returning.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
-        /// <param name="request">The custom action trigger request.</param>
+        /// <param name="request">The action request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, CustomActionRequest request, CancellationToken cancellationToken = default);
+        Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, ActionRequest request, CancellationToken cancellationToken = default);
     }
 }
