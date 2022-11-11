@@ -47,7 +47,7 @@ namespace Indice.Services
             var installationRequest = new Installation {
                 InstallationId = deviceId,
                 PushChannel = pnsHandle,
-                Tags = tags.Select(tag => tag.Value).ToList(),
+                Tags = tags.Select(tag => tag.ToString()).ToList(),
                 Templates = new Dictionary<string, InstallationTemplate>()
             };
             switch (devicePlatform) {
@@ -99,7 +99,7 @@ namespace Indice.Services
                     properties,
                     tags.Select(
                         tag => tag.Kind == PushNotificationTagKind.User || tag.Kind == PushNotificationTagKind.Unspecified
-                            ? tag.Value
+                            ? tag.ToString()
                             : "$InstallationId:{" + tag.Value + "}" // https://learn.microsoft.com/en-us/azure/notification-hubs/notification-hubs-push-notification-registration-management#installations
                     )
                 );
