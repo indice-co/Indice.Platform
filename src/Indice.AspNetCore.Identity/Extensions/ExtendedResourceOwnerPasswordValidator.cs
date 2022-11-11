@@ -50,7 +50,7 @@ namespace Indice.AspNetCore.Identity
             var extendedContext = new ResourceOwnerPasswordValidationFilterContext<TUser>(context, user);
             if (user is null) {
                 LogError(extendedContext);
-                SetError(extendedContext, ResourceOwnerPasswordErrorCodes.NotFound);
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.NotFound);
                 return;
             }
             var isError = false;
@@ -60,6 +60,7 @@ namespace Indice.AspNetCore.Identity
                 if (extendedContext.Result.IsError) {
                     isError = true;
                     LogError(extendedContext);
+                    context.Result = extendedContext.Result;
                     break;
                 }
             }
@@ -69,10 +70,13 @@ namespace Indice.AspNetCore.Identity
             }
         }
 
-        private void SetError(ResourceOwnerPasswordValidationContext context, string errorCode) => context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, errorCode);
-
         private void LogError(ResourceOwnerPasswordValidationContext context) =>
-            _logger.LogInformation("Authentication failed for user: '{UserName}', reason: '{ErrorDescription}'", context.UserName, _errors.ContainsKey(context.Result.ErrorDescription) ? _errors[context.Result.ErrorDescription] : string.Empty);
+            _logger.LogInformation("Authentication failed for user: '{UserName}', reason: '{ErrorDescription}'",
+                context.UserName,
+                !string.IsNullOrWhiteSpace(context.Result?.ErrorDescription) && _errors.ContainsKey(context.Result.ErrorDescription)
+                    ? _errors[context.Result.ErrorDescription]
+                    : string.Empty
+            );
     }
 
     /// <summary>Class describing the resource owner password validation context.</summary>
@@ -153,26 +157,24 @@ namespace Indice.AspNetCore.Identity
         public async Task ValidateAsync(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
             var result = await _signInManager.CheckPasswordSignInAsync(context.User, context.Password, lockoutOnFailure: true);
             if (context.User.Blocked) {
-                SetError(context, ResourceOwnerPasswordErrorCodes.Blocked);
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.Blocked);
                 return;
             }
             if (result.IsNotAllowed) {
-                SetError(context, ResourceOwnerPasswordErrorCodes.NotAllowed);
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.NotAllowed);
                 return;
             }
             if (result.IsLockedOut) {
-                SetError(context, ResourceOwnerPasswordErrorCodes.LockedOut);
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.LockedOut);
                 return;
             }
             if (!result.Succeeded) {
-                SetError(context, ResourceOwnerPasswordErrorCodes.InvalidCredentials);
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.InvalidCredentials);
                 return;
             }
             var subject = await _userManager.GetUserIdAsync(context.User);
             context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
         }
-
-        private static void SetError(ResourceOwnerPasswordValidationContext context, string errorCode) => context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, errorCode);
     }
 
     internal class ResourceOwnerPasswordErrorCodes
