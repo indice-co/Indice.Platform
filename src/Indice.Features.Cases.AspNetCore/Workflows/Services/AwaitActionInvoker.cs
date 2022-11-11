@@ -28,10 +28,10 @@ namespace Indice.Features.Cases.Workflows.Services
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
-        public Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, CustomActionRequest actionId, CancellationToken cancellationToken = default) =>
+        public Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, ActionRequest actionId, CancellationToken cancellationToken = default) =>
             base.DispatchWorkflowsAsync(caseId, actionId, cancellationToken);
 
-        public Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, CustomActionRequest actionId, CancellationToken cancellationToken = default) =>
+        public Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, ActionRequest actionId, CancellationToken cancellationToken = default) =>
             base.ExecuteWorkflowsAsync(caseId, actionId, cancellationToken);
 
         protected override Task<IEnumerable<WorkflowsQuery>> CreateWorkflowsQueries(Guid caseId, CancellationToken cancellationToken = default) =>
@@ -49,7 +49,7 @@ namespace Indice.Features.Cases.Workflows.Services
             // Always provide an empty string as a role in order to handle "null" allowed Roles of activity input.
             userRoles?.Add(string.Empty);
 
-            var actionInput = input as CustomActionRequest;
+            var actionInput = input as ActionRequest;
 
             return userRoles?.Select(role => new WorkflowsQuery(
                 nameof(AwaitActionActivity),

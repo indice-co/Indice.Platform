@@ -148,13 +148,13 @@ export interface ICasesApiService {
      */
     getCaseTimeline(caseId: string, api_version?: string | undefined): Observable<TimelineEntry[]>;
     /**
-     * Invoke the custom action activity to trigger a business action for the case.
+     * Invoke the action activity to trigger a business action for the case.
      * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) The custom workflow action to trigger
+     * @param body (optional) The action request.
      * @return No Content
      */
-    triggerAction(caseId: string, api_version?: string | undefined, body?: CustomActionRequest | undefined): Observable<void>;
+    triggerAction(caseId: string, api_version?: string | undefined, body?: ActionRequest | undefined): Observable<void>;
     /**
      * Get case types.
      * @param canCreate (optional) Differentiates between the case types that an admin user can 1) view and 2) select for a case creation
@@ -1998,13 +1998,13 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Invoke the custom action activity to trigger a business action for the case.
+     * Invoke the action activity to trigger a business action for the case.
      * @param caseId The Id of the case.
      * @param api_version (optional) 
-     * @param body (optional) The custom workflow action to trigger
+     * @param body (optional) The action request.
      * @return No Content
      */
-    triggerAction(caseId: string, api_version?: string | undefined, body?: CustomActionRequest | undefined): Observable<void> {
+    triggerAction(caseId: string, api_version?: string | undefined, body?: ActionRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/manage/cases/{caseId}/trigger-action?";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
@@ -4214,6 +4214,52 @@ export class CasesApiService implements ICasesApiService {
     }
 }
 
+/** The request that triggers an action. */
+export class ActionRequest implements IActionRequest {
+    /** The Id of the action. */
+    id?: string;
+    /** The value of the action (non-required). */
+    value?: string | undefined;
+
+    constructor(data?: IActionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): ActionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+/** The request that triggers an action. */
+export interface IActionRequest {
+    /** The Id of the action. */
+    id?: string;
+    /** The value of the action (non-required). */
+    value?: string | undefined;
+}
+
 /** The Approval action for a Case. */
 export enum Approval {
     Approve = "Approve",
@@ -4266,9 +4312,13 @@ export interface IApprovalRequest {
 
 /** Audit metadata related with the user principal that "did" the action. */
 export class AuditMeta implements IAuditMeta {
+    /** The Id of the user. */
     id?: string | undefined;
+    /** The name of the user. */
     name?: string | undefined;
+    /** The email of the user. */
     email?: string | undefined;
+    /** The timestamp the audit happened. */
     when?: Date | undefined;
 
     constructor(data?: IAuditMeta) {
@@ -4308,9 +4358,13 @@ export class AuditMeta implements IAuditMeta {
 
 /** Audit metadata related with the user principal that "did" the action. */
 export interface IAuditMeta {
+    /** The Id of the user. */
     id?: string | undefined;
+    /** The name of the user. */
     name?: string | undefined;
+    /** The email of the user. */
     email?: string | undefined;
+    /** The timestamp the audit happened. */
     when?: Date | undefined;
 }
 
@@ -4324,7 +4378,7 @@ export class CaseActions implements ICaseActions {
     hasEdit?: boolean;
     /** User can approve/reject the case. */
     hasApproval?: boolean;
-    /** The list of custom action blocking activity that will generate the corresponding component. */
+    /** The list of custom action blocking activities that will generate the corresponding components. */
     customActions?: CustomCaseAction[] | undefined;
 
     constructor(data?: ICaseActions) {
@@ -4382,7 +4436,7 @@ export interface ICaseActions {
     hasEdit?: boolean;
     /** User can approve/reject the case. */
     hasApproval?: boolean;
-    /** The list of custom action blocking activity that will generate the corresponding component. */
+    /** The list of custom action blocking activities that will generate the corresponding components. */
     customActions?: CustomCaseAction[] | undefined;
 }
 
@@ -5811,61 +5865,19 @@ export interface ICreateDraftCaseRequest {
     channel?: string | undefined;
 }
 
-/** The custom action trigger request. */
-export class CustomActionRequest implements ICustomActionRequest {
-    /** The Id of the custom action. */
-    id?: string;
-    /** The value of the custom action (non-required). */
-    value?: string | undefined;
-
-    constructor(data?: ICustomActionRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.value = _data["value"];
-        }
-    }
-
-    static fromJS(data: any): CustomActionRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new CustomActionRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["value"] = this.value;
-        return data;
-    }
-}
-
-/** The custom action trigger request. */
-export interface ICustomActionRequest {
-    /** The Id of the custom action. */
-    id?: string;
-    /** The value of the custom action (non-required). */
-    value?: string | undefined;
-}
-
 /** Custom action blocking activity that will generate the corresponding component. */
 export class CustomCaseAction implements ICustomCaseAction {
     /** The Id to trigger the action. */
     id?: string | undefined;
     /** The name of the action. */
     name?: string | undefined;
+    /** The label of the action. */
+    label?: string | undefined;
     /** The description of the action. */
     description?: string | undefined;
-    /** Indicates if the custom action has input field. */
+    /** The Default Value of action's input. */
+    defaultValue?: string | undefined;
+    /** Determines whether the action will have an input element. */
     hasInput?: boolean | undefined;
 
     constructor(data?: ICustomCaseAction) {
@@ -5881,7 +5893,9 @@ export class CustomCaseAction implements ICustomCaseAction {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
+            this.label = _data["label"];
             this.description = _data["description"];
+            this.defaultValue = _data["defaultValue"];
             this.hasInput = _data["hasInput"];
         }
     }
@@ -5897,7 +5911,9 @@ export class CustomCaseAction implements ICustomCaseAction {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
+        data["label"] = this.label;
         data["description"] = this.description;
+        data["defaultValue"] = this.defaultValue;
         data["hasInput"] = this.hasInput;
         return data;
     }
@@ -5909,9 +5925,13 @@ export interface ICustomCaseAction {
     id?: string | undefined;
     /** The name of the action. */
     name?: string | undefined;
+    /** The label of the action. */
+    label?: string | undefined;
     /** The description of the action. */
     description?: string | undefined;
-    /** Indicates if the custom action has input field. */
+    /** The Default Value of action's input. */
+    defaultValue?: string | undefined;
+    /** Determines whether the action will have an input element. */
     hasInput?: boolean | undefined;
 }
 
@@ -6234,6 +6254,7 @@ export class MyCasePartial implements IMyCasePartial {
     publicStatus?: CasePublicStatus;
     /** The case type code of the case. */
     caseTypeCode?: string | undefined;
+    /** The case type title of the case. */
     title?: string | undefined;
     /** The checkpoint name of the case. */
     checkpoint?: string | undefined;
@@ -6306,6 +6327,7 @@ export interface IMyCasePartial {
     publicStatus?: CasePublicStatus;
     /** The case type code of the case. */
     caseTypeCode?: string | undefined;
+    /** The case type title of the case. */
     title?: string | undefined;
     /** The checkpoint name of the case. */
     checkpoint?: string | undefined;
@@ -6363,6 +6385,7 @@ export interface IMyCasePartialResultSet {
     items?: MyCasePartial[] | undefined;
 }
 
+/** The translation wrapper for Indice.Features.Cases.Models.Responses.MyCasePartial model. */
 export class MyCasePartialTranslation implements IMyCasePartialTranslation {
     /** The title of the case type. */
     title?: string | undefined;
@@ -6396,6 +6419,7 @@ export class MyCasePartialTranslation implements IMyCasePartialTranslation {
     }
 }
 
+/** The translation wrapper for Indice.Features.Cases.Models.Responses.MyCasePartial model. */
 export interface IMyCasePartialTranslation {
     /** The title of the case type. */
     title?: string | undefined;
