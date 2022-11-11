@@ -8,16 +8,20 @@
     <div *ngIf="action?.description">
         <label for="comment-textarea"
                class="field-label"> {{action?.description}}</label>
-        <div class="my-2 flex rounded-sm" *ngIf="action?.hasInput">
-            <input type="text" [(ngModel)]="value">
+        <div class="my-2 flex rounded-sm"
+             *ngIf="action?.hasInput">
+            <input type="text"
+                   [(ngModel)]="value">
         </div>
     </div>
     <div>
         <button href="#"
                 class="btn-info mr-1"
                 title="Εκτέλεση"
+                [disabled]="buttonDisabled"
+                [ngClass]="{'opacity-50 cursor-not-allowed': buttonDisabled}"
                 (click)="triggerAction()">
-            <p>{{action?.name}}</p>&nbsp;
+            <p>{{action?.label}}</p>&nbsp;
         </button>
     </div>
 </div>

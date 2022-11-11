@@ -28,8 +28,8 @@ namespace Indice.Features.Cases.Models
         public bool HasApproval { get; set; }
 
         /// <summary>
-        /// The list of custom action blocking activity that will generate the corresponding component.
+        /// The list of custom action blocking activities that will generate the corresponding components.
         /// </summary>
-        public IEnumerable<CustomCaseAction> CustomActions { get; set; }
+        public IEnumerable<CustomCaseAction>? CustomActions { get; set; }
     }
 }

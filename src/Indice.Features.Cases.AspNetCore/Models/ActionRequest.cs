@@ -3,17 +3,17 @@
 namespace Indice.Features.Cases.Models
 {
     /// <summary>
-    /// The custom action trigger request.
+    /// The request that triggers an action.
     /// </summary>
-    public class CustomActionRequest
+    public class ActionRequest
     {
         /// <summary>
-        /// The Id of the custom action.
+        /// The Id of the action.
         /// </summary>
         public Guid Id { get; set; }
 
         /// <summary>
-        /// The value of the custom action (non-required).
+        /// The value of the action (non-required).
         /// </summary>
         public string? Value { get; set; }
     }

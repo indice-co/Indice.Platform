@@ -98,16 +98,16 @@ namespace Indice.Features.Cases.Controllers
         }
 
         /// <summary>
-        /// Invoke the custom action activity to trigger a business action for the case.
+        /// Invoke the action activity to trigger a business action for the case.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
-        /// <param name="request">The custom workflow action to trigger</param>
+        /// <param name="request">The action request.</param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         [HttpPost("cases/{caseId:guid}/trigger-action")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> TriggerAction(Guid caseId, [FromBody] CustomActionRequest request) {
+        public async Task<IActionResult> TriggerAction(Guid caseId, [FromBody] ActionRequest request) {
             var executedWorkflow = await _awaitActionInvoker.ExecuteWorkflowsAsync(caseId, request);
             if (!executedWorkflow.Any()) {
                 throw new Exception("You cannot perform this action at this point.");
