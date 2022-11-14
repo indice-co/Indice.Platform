@@ -42,5 +42,9 @@ namespace Indice.Features.Cases.Models
         /// Construct filter clauses based on case data.
         /// </summary>
         public List<FilterClause>? Data { get; set; }
+        /// <summary>
+        /// Construct filter clauses based on case metadata.
+        /// </summary>
+        public List<FilterClause>? Metadata { get; set; }
     }
 }

@@ -113,7 +113,8 @@ namespace Indice.Features.Cases.Services
                 .Include(c => c.Checkpoints)
                 .ThenInclude(ch => ch.CheckpointType)
                 .AsQueryable()
-                .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft);
+                .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft)
+                .Where(options.Filter.Metadata);
 
             foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
                 // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."

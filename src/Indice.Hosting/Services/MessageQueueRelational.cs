@@ -9,6 +9,7 @@ using Indice.Hosting.Data;
 using Indice.Hosting.Data.Models;
 using Indice.Hosting.Models;
 using Microsoft.EntityFrameworkCore;
+using Quartz.Util;
 
 namespace Indice.Hosting.Services
 {
@@ -67,6 +68,7 @@ namespace Indice.Hosting.Services
                     Payload = dataReader.IsDBNull(2) ? default : dataReader.GetString(2),
                     Date = dataReader.GetDateTime(3),
                     RowVersion = dataReader.IsDBNull(4) ? default : dataReader.GetValue(4) as byte[],
+                    DequeueCount = dataReader.GetInt32(5),
                     State = (QMessageState)dataReader.GetInt32(6)
                 };
             }
