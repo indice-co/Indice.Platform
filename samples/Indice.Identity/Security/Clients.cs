@@ -23,7 +23,8 @@ namespace Indice.Identity.Security
                 AllowedGrantTypes = { 
                     GrantType.ResourceOwnerPassword, 
                     GrantType.ClientCredentials, 
-                    CustomGrantTypes.OtpAuthenticate 
+                    CustomGrantTypes.OtpAuthenticate,
+                    CustomGrantTypes.DeviceAuthentication
                 },
                 AllowedScopes = {
                     IdentityServerApi.Scope,
@@ -48,7 +49,8 @@ namespace Indice.Identity.Security
                 },
                 RequireConsent = false,
                 Claims = {
-                    new ClientClaim(BasicClaimTypes.System, "true")
+                    new ClientClaim(BasicClaimTypes.System, "true"),
+                    new ClientClaim(BasicClaimTypes.TrustedDevice, bool.TrueString.ToLower())
                 }
             },
             new Client {

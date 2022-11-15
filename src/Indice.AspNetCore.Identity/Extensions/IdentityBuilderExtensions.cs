@@ -10,25 +10,10 @@ using Microsoft.Extensions.Hosting;
 
 namespace Indice.AspNetCore.Identity
 {
-    /// <summary>
-    /// Extensions on <see cref="IdentityBuilder"/>
-    /// </summary>
+    /// <summary>Extensions on <see cref="IdentityBuilder"/></summary>
     public static class IdentityBuilderExtensions
     {
-        /// <summary>
-        /// Setup a factory that is going to be generating the claims principal.
-        /// </summary>
-        /// <typeparam name="TUserClaimsPrincipalFactory">The type of factory to use in order to generate the claims principal.</typeparam>
-        /// <param name="builder">The type of builder for configuring identity services.</param>
-        [Obsolete("Framework already provides AddClaimsPrincipalFactory extension. Will be removed in future versions.")]
-        public static IdentityBuilder AddClaimsTransform<TUserClaimsPrincipalFactory>(this IdentityBuilder builder) where TUserClaimsPrincipalFactory : class, IUserClaimsPrincipalFactory<User> {
-            builder.Services.AddScoped<IUserClaimsPrincipalFactory<User>, TUserClaimsPrincipalFactory>();
-            return builder;
-        }
-
-        /// <summary>
-        /// Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies.
-        /// </summary>
+        /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies.</summary>
         /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
         /// <param name="builder">The type of builder for configuring identity services.</param>
         public static IdentityBuilder AddExtendedSignInManager<TUser>(this IdentityBuilder builder) where TUser : User {
@@ -40,9 +25,7 @@ namespace Indice.AspNetCore.Identity
             return builder;
         }
 
-        /// <summary>
-        /// Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies, using <see cref="User"/> class as a user type..
-        /// </summary>
+        /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies, using <see cref="User"/> class as a user type..</summary>
         /// <param name="builder">The type of builder for configuring identity services.</param>
         public static IdentityBuilder AddExtendedSignInManager(this IdentityBuilder builder) => builder.AddExtendedSignInManager<User>();
 
@@ -54,7 +37,6 @@ namespace Indice.AspNetCore.Identity
         /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
         /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
         public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, Action<TotpOptions> configure = null) {
-            builder.Services.AddDefaultTotpService(configure);
             var serviceProvider = builder.Services.BuildServiceProvider();
             var configuredTotpOptions = serviceProvider.GetRequiredService<TotpOptions>();
             var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
@@ -90,9 +72,7 @@ namespace Indice.AspNetCore.Identity
         /// <returns>The <see cref="IdentityBuilder"/>.</returns>
         public static IdentityBuilder AddNonCommonPasswordValidator(this IdentityBuilder builder) => builder.AddNonCommonPasswordValidator<User>();
 
-        /// <summary>
-        /// Registers the recommended password validators: <see cref="NonCommonPasswordValidator"/>, <see cref="UnicodeCharactersPasswordValidator"/>, <see cref="PreviousPasswordAwareValidator"/> and <see cref="UserNameAsPasswordValidator"/>.
-        /// </summary>
+        /// <summary>Registers the recommended password validators: <see cref="NonCommonPasswordValidator"/>, <see cref="UnicodeCharactersPasswordValidator"/>, <see cref="PreviousPasswordAwareValidator"/> and <see cref="UserNameAsPasswordValidator"/>.</summary>
         /// <param name="builder">Helper functions for configuring identity services.</param>
         /// <returns>The <see cref="IdentityBuilder"/>.</returns>
         public static IdentityBuilder AddDefaultPasswordValidators(this IdentityBuilder builder) {
@@ -103,9 +83,7 @@ namespace Indice.AspNetCore.Identity
             return builder;
         }
 
-        /// <summary>
-        /// Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.
-        /// </summary>
+        /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
         /// <typeparam name="TDescriber">The type of message describer.</typeparam>
         /// <param name="builder">Helper functions for configuring identity services.</param>
         public static IdentityBuilder AddIdentityMessageDescriber<TDescriber>(this IdentityBuilder builder) where TDescriber : IdentityMessageDescriber {

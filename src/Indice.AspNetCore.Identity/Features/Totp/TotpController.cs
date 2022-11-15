@@ -2,6 +2,7 @@
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Security;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Features.Totp.Models;
 using Indice.Security;
 using Indice.Services;
@@ -23,14 +24,14 @@ namespace Indice.AspNetCore.Identity.Features
     internal class TotpController : ControllerBase
     {
         public TotpController(
-            ITotpService totpService,
+            TotpServiceFactory totpServiceFactory,
             IStringLocalizer<TotpController> localizer
         ) {
-            TotpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
+            TotpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
             Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         }
 
-        public ITotpService TotpService { get; }
+        public TotpServiceFactory TotpServiceFactory { get; }
         public IStringLocalizer<TotpController> Localizer { get; }
 
         /// <summary>Sends a new code via the selected channel.</summary>
@@ -47,38 +48,36 @@ namespace Indice.AspNetCore.Identity.Features
                 return Forbid();
             }
             var result = default(TotpResult);
+            var totpService = TotpServiceFactory.Create<User>();
             switch (request.Channel) {
                 case TotpDeliveryChannel.Sms:
-                    result = await TotpService.Send(options => options.UsePrincipal(User).WithMessage(request.Message).UsingSms().WithPurpose(request.Purpose));
-                    if (!result.Success) {
-                        ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occurred.");
-                        return BadRequest(new ValidationProblemDetails(ModelState));
-                    }
-                    break;
                 case TotpDeliveryChannel.Viber:
-                    result = await TotpService.Send(options => options.UsePrincipal(User).WithMessage(request.Message).UsingViber().WithPurpose(request.Purpose));
-                    if (!result.Success) {
-                        ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occurred.");
-                        return BadRequest(new ValidationProblemDetails(ModelState));
-                    }
+                    result = await totpService.SendAsync(totp =>
+                        totp.ToPrincipal(User)
+                            .WithMessage(request.Message)
+                            .UsingDeliveryChannel(request.Channel)
+                            .WithPurpose(request.Purpose)
+                    );
                     break;
                 case TotpDeliveryChannel.PushNotification:
-                    result = await TotpService.Send(options => options
-                        .UsePrincipal(User)
+                    result = await totpService.SendAsync(totp => totp
+                        .ToPrincipal(User)
                         .WithMessage(request.Message)
                         .UsingPushNotification()
+                        .WithSubject(request.Subject)
                         .WithPurpose(request.Purpose)
                         .WithData(request.Data)
-                        .WithClassification(request.Classification));
-                    if (!result.Success) {
-                        ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occurred.");
-                        return BadRequest(new ValidationProblemDetails(ModelState));
-                    }
+                        .WithClassification(request.Classification)
+                    );
                     break;
                 case TotpDeliveryChannel.Email:
                 case TotpDeliveryChannel.Telephone:
                 default:
                     return StatusCode(405);
+            }
+            if (!result.Success) {
+                ModelState.AddModelError(nameof(request.Channel), result.Error ?? "An error occurred.");
+                return BadRequest(new ValidationProblemDetails(ModelState));
             }
             return NoContent();
         }
@@ -96,7 +95,7 @@ namespace Indice.AspNetCore.Identity.Features
             if (string.IsNullOrEmpty(userId)) {
                 return Forbid();
             }
-            var result = await TotpService.Verify(User, request.Code, request.Provider, request.Purpose);
+            var result = await TotpServiceFactory.Create<User>().VerifyAsync(User, request.Code, request.Purpose);
             if (!result.Success) {
                 ModelState.AddModelError(nameof(request.Code), Localizer["Invalid code"]);
                 return BadRequest(new ValidationProblemDetails(ModelState));

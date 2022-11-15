@@ -6,17 +6,13 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Indice.AspNetCore.Filters
 {
-    /// <summary>
-    /// Sets the maximum allowed file size for the request body.
-    /// </summary>
+    /// <summary>Sets the maximum allowed file size for the request body.</summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class AllowedFileSizeAttribute : Attribute, IActionFilter
     {
         private readonly long _sizeLimit;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="AllowedFileSizeAttribute"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="AllowedFileSizeAttribute"/>.</summary>
         /// <param name="sizeLimit">The maximum allowed file size in bytes.</param>
         public AllowedFileSizeAttribute(long sizeLimit) {
             _sizeLimit = sizeLimit;

@@ -8,9 +8,7 @@ using System.Text;
 
 namespace System.Security
 {
-    /// <summary>
-    /// TOTP: Time-Based One-Time Password Algorithm. More info: https://tools.ietf.org/html/rfc6238
-    /// </summary>
+    /// <summary>TOTP: Time-Based One-Time Password Algorithm. More info: https://tools.ietf.org/html/rfc6238</summary>
     public class Rfc6238AuthenticationService
     {
         private const double MIN_TIMESTEP = 0.5;
@@ -21,9 +19,7 @@ namespace System.Security
         private readonly int _codeLength = MIN_LENGTH;
         private readonly Encoding _encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
 
-        /// <summary>
-        /// Creates a new instance of <see cref="Rfc6238AuthenticationService"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="Rfc6238AuthenticationService"/>.</summary>
         public Rfc6238AuthenticationService(double timestep, int codeLength) {
             if (timestep < MIN_TIMESTEP) {
                 timestep = MIN_TIMESTEP;
@@ -34,9 +30,7 @@ namespace System.Security
             _codeLength = codeLength < 6 ? 6 : codeLength;
         }
 
-        /// <summary>
-        /// Generate the code.
-        /// </summary>
+        /// <summary>Generate the code.</summary>
         /// <param name="securityToken">A security code. This should be a secret.</param>
         /// <param name="modifier">Entropy.</param>
         /// <returns>Returns the generated code.</returns>
@@ -50,9 +44,7 @@ namespace System.Security
             }
         }
 
-        /// <summary>
-        /// Validates the <paramref name="code"/>.
-        /// </summary>
+        /// <summary>Validates the <paramref name="code"/>.</summary>
         /// <param name="securityToken">A security code. This should be a secret.</param>
         /// <param name="code">The code.</param>
         /// <param name="modifier">Entropy.</param>

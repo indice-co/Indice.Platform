@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DeviceAlreadyTrusted" xml:space="preserve">
+    <value>Device is already trusted.</value>
+  </data>
+  <data name="DevicePendingTrustActivation" xml:space="preserve">
+    <value>Device is pending trust activation.</value>
+  </data>
   <data name="DeviceRegistrationOtpCode" xml:space="preserve">
     <value>Registration OTP code for device {0} is {1}.</value>
   </data>
@@ -134,6 +140,18 @@
   </data>
   <data name="ForgotPasswordMessageSubject" xml:space="preserve">
     <value>Forgot password</value>
+  </data>
+  <data name="InsufficientNumberOfDevices" xml:space="preserve">
+    <value>User must have at least 1 device.</value>
+  </data>
+  <data name="LargeNumberOfDevices" xml:space="preserve">
+    <value>Cannot set max number of devices to {0}. Maximum value can be {1}.</value>
+  </data>
+  <data name="LargeNumberOfUserDevices" xml:space="preserve">
+    <value>User already has {0} devices. Cannot set max number to {1}.</value>
+  </data>
+  <data name="MaxNumberOfDevices" xml:space="preserve">
+    <value>You have reached the maximum number of registered devices.</value>
   </data>
   <data name="OtpSecuredValidatorOtpBody" xml:space="preserve">
     <value>Your verification code is '{0}'.</value>
@@ -194,6 +212,12 @@
   </data>
   <data name="PhoneNumberVerificationMessage" xml:space="preserve">
     <value>SMS verification code is {0}.</value>
+  </data>
+  <data name="RequiresOtpMessage" xml:space="preserve">
+    <value>OTP code is {0}.</value>
+  </data>
+  <data name="TrustedDevicesLimitReached" xml:space="preserve">
+    <value>You have reached the maximum number of trusted devices.</value>
   </data>
   <data name="UserAlreadyHasEmail" xml:space="preserve">
     <value>User already has email '{0}'.</value>

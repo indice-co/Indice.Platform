@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Net.Http;
 using Hellang.Middleware.ProblemDetails;
+using Indice.Types;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -21,6 +23,14 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddProblemDetails(options => {
                 // This is the default behavior; only include exception details in a development environment.
                 options.IncludeExceptionDetails = (httpContext, exception) => hostingEnvironment.IsDevelopment();
+                options.Map<BusinessException>(exception => {
+                    var response = new ValidationProblemDetails(exception.Errors) {
+                        Title = exception.Message,
+                        Status = StatusCodes.Status400BadRequest
+                    };
+                    response.Extensions["code"] = exception.Code;
+                    return response;
+                });
                 // This will map NotImplementedException to the 501 Not Implemented status code.
                 options.Map<NotImplementedException>(exception => new StatusCodeProblemDetails(StatusCodes.Status501NotImplemented));
                 // This will map HttpRequestException to the 503 Service Unavailable status code.
