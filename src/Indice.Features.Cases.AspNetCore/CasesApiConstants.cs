@@ -11,7 +11,7 @@ namespace Indice.Features.Cases
         /// <summary>
         /// The assembly name.
         /// </summary>
-        public static readonly string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+        public static readonly string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
         
         /// <summary>
         /// Authentication scheme name used by Cases API.

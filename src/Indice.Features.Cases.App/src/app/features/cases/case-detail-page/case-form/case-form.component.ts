@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild, OnDestroy } from '@angular/core';
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { EMPTY, forkJoin, Observable } from 'rxjs';
+import { EMPTY, forkJoin, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { CaseDetails, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
@@ -83,6 +83,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
       return;
     }
     if (changes.hasOwnProperty('case')) {
+      this.showForm = false;
+      this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
       // deep copy layout
       this.copiedLayout = JSON.parse(this.case.caseType?.layout!);
       /**
@@ -111,6 +113,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     this.layout = layout;
     this.data = this.initialData;
     this.populateForm(this.data);
+    this.showForm = true;
     this.changeDetector.detectChanges();
   }
 
@@ -126,7 +129,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
   public onSubmit(event: any): void {
     if (this.case?.draft) {
       // we have to send user's document(s) to the server
-      const callsDict: { [key: string]: Observable<CasesAttachmentLink> } = {};
+      const callsDict: { [key: string]: Observable<CasesAttachmentLink> } = { '': of({} as CasesAttachmentLink) };
       // what is the key of the dictionary here? the dataPointer (e.g. "/homeAddress/attachmentId") that was added in the file-upload widget
       for (const key in this._fileUploadService.files) {
         if (this._fileUploadService.files.hasOwnProperty(key)) {
@@ -147,7 +150,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
             (response: { [key: string]: CasesAttachmentLink }) => {
               let stringifiedData = JSON.stringify(event);
               for (const key in response) {
-                if (response.hasOwnProperty(key)) {
+                if (response.hasOwnProperty(key) && key !== '') {
                   // we simply replace the dataPointer with the guid that we received from the server
                   stringifiedData = stringifiedData.replace(key, response[key].id!);
                 }
@@ -274,17 +277,11 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
         element.htmlClass = element.htmlClass.replace('disableCheckbox', '');
       }
     }
+
     layout.forEach((element: any) => {
       activateElement(element);
-      if (element.hasOwnProperty('items')) { // ajsf sections have items!
-        element.items.forEach((item: any) => {
-          activateElement(item);
-          if (item.hasOwnProperty('items')) { // ajsf flex containers have items!
-            item.items.forEach((i: any) => {
-              activateElement(i);
-            });
-          }
-        });
+      if (element.hasOwnProperty('items')) {
+        this.removeReadonlyProperties(element.items);;
       }
     });
   }
@@ -293,15 +290,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     // form is view-only -> add readonly property to all objects of layout object!
     layout.forEach((element: any) => {
       element.readonly = "true";
-      if (element.hasOwnProperty('items')) { // ajsf sections have items!
-        element.items.forEach((item: any) => {
-          item.readonly = "true";
-          if (item.hasOwnProperty('items')) { // ajsf flex containers have items!
-            item.items.forEach((i: any) => {
-              i.readonly = "true";
-            });
-          }
-        });
+      if (element.hasOwnProperty('items')) { // ajsf sections may have items, which may be flex containers, which may have items...
+        this.addReadonlyProperties(element.items);
       }
     });
   }

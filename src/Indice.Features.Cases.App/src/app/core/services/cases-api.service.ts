@@ -148,6 +148,14 @@ export interface ICasesApiService {
      */
     getCaseTimeline(caseId: string, api_version?: string | undefined): Observable<TimelineEntry[]>;
     /**
+     * Invoke the action activity to trigger a business action for the case.
+     * @param caseId The Id of the case.
+     * @param api_version (optional) 
+     * @param body (optional) The action request.
+     * @return No Content
+     */
+    triggerAction(caseId: string, api_version?: string | undefined, body?: ActionRequest | undefined): Observable<void>;
+    /**
      * Get case types.
      * @param canCreate (optional) Differentiates between the case types that an admin user can 1) view and 2) select for a case creation
      * @param api_version (optional) 
@@ -190,11 +198,11 @@ export interface ICasesApiService {
     /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
-     * @param taxId (optional) The tax identification of the customer.
+     * @param caseTypeCode (optional) The case type code, used for filtering customers based on case type (implementantion on client code)
      * @param api_version (optional) 
      * @return Success
      */
-    getCustomers(customerId?: string | undefined, taxId?: string | undefined, api_version?: string | undefined): Observable<CustomerDetails[]>;
+    getCustomers(customerId?: string | undefined, caseTypeCode?: string | undefined, api_version?: string | undefined): Observable<CustomerDetails[]>;
     /**
      * Fetch customer data for a specific case type code.
      * @param customerId The Id of the customer to the integrator's system.
@@ -232,6 +240,13 @@ export interface ICasesApiService {
     /**
      * Get the list of the customer's cases.
      * @param filter_CaseTypeTags (optional) The case type tag filter.
+     * @param filter_PublicStatuses (optional) The case status filter.
+     * @param filter_CaseTypeCodes (optional) The case type code filter.
+     * @param filter_CreatedFrom (optional) The CreatedFrom filter.
+     * @param filter_CreatedTo (optional) The CreatedTo filter.
+     * @param filter_CompletedFrom (optional) The CompletedFrom filter.
+     * @param filter_CompletedTo (optional) The CompletedTo filter.
+     * @param filter_Data (optional) Construct filter clauses based on case data.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -239,7 +254,7 @@ export interface ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getCases2(filter_CaseTypeTags?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
+    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
     /**
      * Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.
      * @param api_version (optional) 
@@ -248,12 +263,12 @@ export interface ICasesApiService {
      */
     createDraftCase(api_version?: string | undefined, body?: CreateDraftCaseRequest | undefined): Observable<CreateCaseResponse>;
     /**
-     * Get case by Id.
+     * Get case details by Id.
      * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return Success
      */
-    getMyCaseById(caseId: string, api_version?: string | undefined): Observable<MyCasePartial>;
+    getMyCaseById(caseId: string, api_version?: string | undefined): Observable<CaseDetails>;
     /**
      * Update the case with the business data as defined at the specific case type
      * @param caseId The Id of the case.
@@ -1983,6 +1998,103 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Invoke the action activity to trigger a business action for the case.
+     * @param caseId The Id of the case.
+     * @param api_version (optional) 
+     * @param body (optional) The action request.
+     * @return No Content
+     */
+    triggerAction(caseId: string, api_version?: string | undefined, body?: ActionRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/trigger-action?";
+        if (caseId === undefined || caseId === null)
+            throw new Error("The parameter 'caseId' must be defined.");
+        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTriggerAction(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTriggerAction(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processTriggerAction(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
      * Get case types.
      * @param canCreate (optional) Differentiates between the case types that an admin user can 1) view and 2) select for a case creation
      * @param api_version (optional) 
@@ -2554,20 +2666,20 @@ export class CasesApiService implements ICasesApiService {
     /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
-     * @param taxId (optional) The tax identification of the customer.
+     * @param caseTypeCode (optional) The case type code, used for filtering customers based on case type (implementantion on client code)
      * @param api_version (optional) 
      * @return Success
      */
-    getCustomers(customerId?: string | undefined, taxId?: string | undefined, api_version?: string | undefined): Observable<CustomerDetails[]> {
+    getCustomers(customerId?: string | undefined, caseTypeCode?: string | undefined, api_version?: string | undefined): Observable<CustomerDetails[]> {
         let url_ = this.baseUrl + "/api/manage/integrations/customers?";
         if (customerId === null)
             throw new Error("The parameter 'customerId' cannot be null.");
         else if (customerId !== undefined)
             url_ += "CustomerId=" + encodeURIComponent("" + customerId) + "&";
-        if (taxId === null)
-            throw new Error("The parameter 'taxId' cannot be null.");
-        else if (taxId !== undefined)
-            url_ += "TaxId=" + encodeURIComponent("" + taxId) + "&";
+        if (caseTypeCode === null)
+            throw new Error("The parameter 'caseTypeCode' cannot be null.");
+        else if (caseTypeCode !== undefined)
+            url_ += "CaseTypeCode=" + encodeURIComponent("" + caseTypeCode) + "&";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
         else if (api_version !== undefined)
@@ -3097,6 +3209,13 @@ export class CasesApiService implements ICasesApiService {
     /**
      * Get the list of the customer's cases.
      * @param filter_CaseTypeTags (optional) The case type tag filter.
+     * @param filter_PublicStatuses (optional) The case status filter.
+     * @param filter_CaseTypeCodes (optional) The case type code filter.
+     * @param filter_CreatedFrom (optional) The CreatedFrom filter.
+     * @param filter_CreatedTo (optional) The CreatedTo filter.
+     * @param filter_CompletedFrom (optional) The CompletedFrom filter.
+     * @param filter_CompletedTo (optional) The CompletedTo filter.
+     * @param filter_Data (optional) Construct filter clauses based on case data.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -3104,12 +3223,40 @@ export class CasesApiService implements ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getCases2(filter_CaseTypeTags?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet> {
+    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet> {
         let url_ = this.baseUrl + "/api/my/cases?";
         if (filter_CaseTypeTags === null)
             throw new Error("The parameter 'filter_CaseTypeTags' cannot be null.");
         else if (filter_CaseTypeTags !== undefined)
             filter_CaseTypeTags && filter_CaseTypeTags.forEach(item => { url_ += "Filter.CaseTypeTags=" + encodeURIComponent("" + item) + "&"; });
+        if (filter_PublicStatuses === null)
+            throw new Error("The parameter 'filter_PublicStatuses' cannot be null.");
+        else if (filter_PublicStatuses !== undefined)
+            filter_PublicStatuses && filter_PublicStatuses.forEach(item => { url_ += "Filter.PublicStatuses=" + encodeURIComponent("" + item) + "&"; });
+        if (filter_CaseTypeCodes === null)
+            throw new Error("The parameter 'filter_CaseTypeCodes' cannot be null.");
+        else if (filter_CaseTypeCodes !== undefined)
+            filter_CaseTypeCodes && filter_CaseTypeCodes.forEach(item => { url_ += "Filter.CaseTypeCodes=" + encodeURIComponent("" + item) + "&"; });
+        if (filter_CreatedFrom === null)
+            throw new Error("The parameter 'filter_CreatedFrom' cannot be null.");
+        else if (filter_CreatedFrom !== undefined)
+            url_ += "Filter.CreatedFrom=" + encodeURIComponent(filter_CreatedFrom ? "" + filter_CreatedFrom.toISOString() : "") + "&";
+        if (filter_CreatedTo === null)
+            throw new Error("The parameter 'filter_CreatedTo' cannot be null.");
+        else if (filter_CreatedTo !== undefined)
+            url_ += "Filter.CreatedTo=" + encodeURIComponent(filter_CreatedTo ? "" + filter_CreatedTo.toISOString() : "") + "&";
+        if (filter_CompletedFrom === null)
+            throw new Error("The parameter 'filter_CompletedFrom' cannot be null.");
+        else if (filter_CompletedFrom !== undefined)
+            url_ += "Filter.CompletedFrom=" + encodeURIComponent(filter_CompletedFrom ? "" + filter_CompletedFrom.toISOString() : "") + "&";
+        if (filter_CompletedTo === null)
+            throw new Error("The parameter 'filter_CompletedTo' cannot be null.");
+        else if (filter_CompletedTo !== undefined)
+            url_ += "Filter.CompletedTo=" + encodeURIComponent(filter_CompletedTo ? "" + filter_CompletedTo.toISOString() : "") + "&";
+        if (filter_Data === null)
+            throw new Error("The parameter 'filter_Data' cannot be null.");
+        else if (filter_Data !== undefined)
+            filter_Data && filter_Data.forEach(item => { url_ += "Filter.Data=" + encodeURIComponent("" + item) + "&"; });
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -3141,11 +3288,11 @@ export class CasesApiService implements ICasesApiService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetCases2(response_);
+            return this.processGetMyCases(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetCases2(response_ as any);
+                    return this.processGetMyCases(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<MyCasePartialResultSet>;
                 }
@@ -3154,7 +3301,7 @@ export class CasesApiService implements ICasesApiService {
         }));
     }
 
-    protected processGetCases2(response: HttpResponseBase): Observable<MyCasePartialResultSet> {
+    protected processGetMyCases(response: HttpResponseBase): Observable<MyCasePartialResultSet> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3302,12 +3449,12 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Get case by Id.
+     * Get case details by Id.
      * @param caseId The Id of the case.
      * @param api_version (optional) 
      * @return Success
      */
-    getMyCaseById(caseId: string, api_version?: string | undefined): Observable<MyCasePartial> {
+    getMyCaseById(caseId: string, api_version?: string | undefined): Observable<CaseDetails> {
         let url_ = this.baseUrl + "/api/my/cases/{caseId}?";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
@@ -3333,14 +3480,14 @@ export class CasesApiService implements ICasesApiService {
                 try {
                     return this.processGetMyCaseById(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<MyCasePartial>;
+                    return _observableThrow(e) as any as Observable<CaseDetails>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<MyCasePartial>;
+                return _observableThrow(response_) as any as Observable<CaseDetails>;
         }));
     }
 
-    protected processGetMyCaseById(response: HttpResponseBase): Observable<MyCasePartial> {
+    protected processGetMyCaseById(response: HttpResponseBase): Observable<CaseDetails> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3379,7 +3526,7 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = MyCasePartial.fromJS(resultData200);
+            result200 = CaseDetails.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3387,7 +3534,7 @@ export class CasesApiService implements ICasesApiService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<MyCasePartial>(null as any);
+        return _observableOf<CaseDetails>(null as any);
     }
 
     /**
@@ -4067,6 +4214,52 @@ export class CasesApiService implements ICasesApiService {
     }
 }
 
+/** The request that triggers an action. */
+export class ActionRequest implements IActionRequest {
+    /** The Id of the action. */
+    id?: string;
+    /** The value of the action (non-required). */
+    value?: string | undefined;
+
+    constructor(data?: IActionRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): ActionRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ActionRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+/** The request that triggers an action. */
+export interface IActionRequest {
+    /** The Id of the action. */
+    id?: string;
+    /** The value of the action (non-required). */
+    value?: string | undefined;
+}
+
 /** The Approval action for a Case. */
 export enum Approval {
     Approve = "Approve",
@@ -4119,9 +4312,13 @@ export interface IApprovalRequest {
 
 /** Audit metadata related with the user principal that "did" the action. */
 export class AuditMeta implements IAuditMeta {
+    /** The Id of the user. */
     id?: string | undefined;
+    /** The name of the user. */
     name?: string | undefined;
+    /** The email of the user. */
     email?: string | undefined;
+    /** The timestamp the audit happened. */
     when?: Date | undefined;
 
     constructor(data?: IAuditMeta) {
@@ -4161,9 +4358,13 @@ export class AuditMeta implements IAuditMeta {
 
 /** Audit metadata related with the user principal that "did" the action. */
 export interface IAuditMeta {
+    /** The Id of the user. */
     id?: string | undefined;
+    /** The name of the user. */
     name?: string | undefined;
+    /** The email of the user. */
     email?: string | undefined;
+    /** The timestamp the audit happened. */
     when?: Date | undefined;
 }
 
@@ -4177,6 +4378,8 @@ export class CaseActions implements ICaseActions {
     hasEdit?: boolean;
     /** User can approve/reject the case. */
     hasApproval?: boolean;
+    /** The list of custom action blocking activities that will generate the corresponding components. */
+    customActions?: CustomCaseAction[] | undefined;
 
     constructor(data?: ICaseActions) {
         if (data) {
@@ -4193,6 +4396,11 @@ export class CaseActions implements ICaseActions {
             this.hasUnassignment = _data["hasUnassignment"];
             this.hasEdit = _data["hasEdit"];
             this.hasApproval = _data["hasApproval"];
+            if (Array.isArray(_data["customActions"])) {
+                this.customActions = [] as any;
+                for (let item of _data["customActions"])
+                    this.customActions!.push(CustomCaseAction.fromJS(item));
+            }
         }
     }
 
@@ -4209,6 +4417,11 @@ export class CaseActions implements ICaseActions {
         data["hasUnassignment"] = this.hasUnassignment;
         data["hasEdit"] = this.hasEdit;
         data["hasApproval"] = this.hasApproval;
+        if (Array.isArray(this.customActions)) {
+            data["customActions"] = [];
+            for (let item of this.customActions)
+                data["customActions"].push(item.toJSON());
+        }
         return data;
     }
 }
@@ -4223,6 +4436,8 @@ export interface ICaseActions {
     hasEdit?: boolean;
     /** User can approve/reject the case. */
     hasApproval?: boolean;
+    /** The list of custom action blocking activities that will generate the corresponding components. */
+    customActions?: CustomCaseAction[] | undefined;
 }
 
 /** Minimal Case Attachment response model. */
@@ -4735,6 +4950,7 @@ export enum CasePublicStatus {
     InProgress = "InProgress",
     Completed = "Completed",
     Deleted = "Deleted",
+    Rejected = "Rejected",
 }
 
 /** The case type details model. */
@@ -4745,6 +4961,10 @@ export class CaseTypeDetails implements ICaseTypeDetails {
     code?: string | undefined;
     /** The case type title. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
@@ -4776,6 +4996,8 @@ export class CaseTypeDetails implements ICaseTypeDetails {
             this.id = _data["id"];
             this.code = _data["code"];
             this.title = _data["title"];
+            this.description = _data["description"];
+            this.category = _data["category"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
             this.translations = _data["translations"];
@@ -4803,6 +5025,8 @@ export class CaseTypeDetails implements ICaseTypeDetails {
         data["id"] = this.id;
         data["code"] = this.code;
         data["title"] = this.title;
+        data["description"] = this.description;
+        data["category"] = this.category;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
         data["translations"] = this.translations;
@@ -4827,6 +5051,10 @@ export interface ICaseTypeDetails {
     code?: string | undefined;
     /** The case type title. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
@@ -4853,10 +5081,16 @@ export class CaseTypePartial implements ICaseTypePartial {
     code?: string | undefined;
     /** The case type title. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
     layout?: string | undefined;
+    /** The layout translations for the data schema. */
+    layoutTranslations?: string | undefined;
     /** The case type tags. */
     tags?: string | undefined;
     /** The case type configuration. */
@@ -4880,8 +5114,11 @@ export class CaseTypePartial implements ICaseTypePartial {
             this.id = _data["id"];
             this.code = _data["code"];
             this.title = _data["title"];
+            this.description = _data["description"];
+            this.category = _data["category"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
+            this.layoutTranslations = _data["layoutTranslations"];
             this.tags = _data["tags"];
             this.config = _data["config"];
             if (Array.isArray(_data["canCreateRoles"])) {
@@ -4911,8 +5148,11 @@ export class CaseTypePartial implements ICaseTypePartial {
         data["id"] = this.id;
         data["code"] = this.code;
         data["title"] = this.title;
+        data["description"] = this.description;
+        data["category"] = this.category;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
+        data["layoutTranslations"] = this.layoutTranslations;
         data["tags"] = this.tags;
         data["config"] = this.config;
         if (Array.isArray(this.canCreateRoles)) {
@@ -4939,10 +5179,16 @@ export interface ICaseTypePartial {
     code?: string | undefined;
     /** The case type title. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
     layout?: string | undefined;
+    /** The layout translations for the data schema. */
+    layoutTranslations?: string | undefined;
     /** The case type tags. */
     tags?: string | undefined;
     /** The case type configuration. */
@@ -5009,6 +5255,10 @@ export class CaseTypeRequest implements ICaseTypeRequest {
     code?: string | undefined;
     /** The Title of the case type. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The Data Schema of the case type */
     dataSchema?: string | undefined;
     /** the Layout of the case type */
@@ -5040,6 +5290,8 @@ export class CaseTypeRequest implements ICaseTypeRequest {
             this.id = _data["id"];
             this.code = _data["code"];
             this.title = _data["title"];
+            this.description = _data["description"];
+            this.category = _data["category"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
             this.translations = _data["translations"];
@@ -5067,6 +5319,8 @@ export class CaseTypeRequest implements ICaseTypeRequest {
         data["id"] = this.id;
         data["code"] = this.code;
         data["title"] = this.title;
+        data["description"] = this.description;
+        data["category"] = this.category;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
         data["translations"] = this.translations;
@@ -5091,6 +5345,10 @@ export interface ICaseTypeRequest {
     code?: string | undefined;
     /** The Title of the case type. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
     /** The Data Schema of the case type */
     dataSchema?: string | undefined;
     /** the Layout of the case type */
@@ -5149,9 +5407,14 @@ export interface ICaseTypeSubscription {
     subscribed?: boolean;
 }
 
+/** The Translation of the case type. */
 export class CaseTypeTranslation implements ICaseTypeTranslation {
     /** The title of the case type. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
 
     constructor(data?: ICaseTypeTranslation) {
         if (data) {
@@ -5165,6 +5428,8 @@ export class CaseTypeTranslation implements ICaseTypeTranslation {
     init(_data?: any) {
         if (_data) {
             this.title = _data["title"];
+            this.description = _data["description"];
+            this.category = _data["category"];
         }
     }
 
@@ -5178,13 +5443,20 @@ export class CaseTypeTranslation implements ICaseTypeTranslation {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["title"] = this.title;
+        data["description"] = this.description;
+        data["category"] = this.category;
         return data;
     }
 }
 
+/** The Translation of the case type. */
 export interface ICaseTypeTranslation {
     /** The title of the case type. */
     title?: string | undefined;
+    /** The case type description. */
+    description?: string | undefined;
+    /** The case type category. */
+    category?: string | undefined;
 }
 
 /** Models an attachment that is associated with a case. */
@@ -5593,6 +5865,76 @@ export interface ICreateDraftCaseRequest {
     channel?: string | undefined;
 }
 
+/** Custom action blocking activity that will generate the corresponding component. */
+export class CustomCaseAction implements ICustomCaseAction {
+    /** The Id to trigger the action. */
+    id?: string | undefined;
+    /** The name of the action. */
+    name?: string | undefined;
+    /** The label of the action. */
+    label?: string | undefined;
+    /** The description of the action. */
+    description?: string | undefined;
+    /** The Default Value of action's input. */
+    defaultValue?: string | undefined;
+    /** Determines whether the action will have an input element. */
+    hasInput?: boolean | undefined;
+
+    constructor(data?: ICustomCaseAction) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.label = _data["label"];
+            this.description = _data["description"];
+            this.defaultValue = _data["defaultValue"];
+            this.hasInput = _data["hasInput"];
+        }
+    }
+
+    static fromJS(data: any): CustomCaseAction {
+        data = typeof data === 'object' ? data : {};
+        let result = new CustomCaseAction();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["label"] = this.label;
+        data["description"] = this.description;
+        data["defaultValue"] = this.defaultValue;
+        data["hasInput"] = this.hasInput;
+        return data;
+    }
+}
+
+/** Custom action blocking activity that will generate the corresponding component. */
+export interface ICustomCaseAction {
+    /** The Id to trigger the action. */
+    id?: string | undefined;
+    /** The name of the action. */
+    name?: string | undefined;
+    /** The label of the action. */
+    label?: string | undefined;
+    /** The description of the action. */
+    description?: string | undefined;
+    /** The Default Value of action's input. */
+    defaultValue?: string | undefined;
+    /** Determines whether the action will have an input element. */
+    hasInput?: boolean | undefined;
+}
+
 /** Customer Data as Json string */
 export class CustomerData implements ICustomerData {
     /** The json data as string. */
@@ -5912,6 +6254,7 @@ export class MyCasePartial implements IMyCasePartial {
     publicStatus?: CasePublicStatus;
     /** The case type code of the case. */
     caseTypeCode?: string | undefined;
+    /** The case type title of the case. */
     title?: string | undefined;
     /** The checkpoint name of the case. */
     checkpoint?: string | undefined;
@@ -5984,6 +6327,7 @@ export interface IMyCasePartial {
     publicStatus?: CasePublicStatus;
     /** The case type code of the case. */
     caseTypeCode?: string | undefined;
+    /** The case type title of the case. */
     title?: string | undefined;
     /** The checkpoint name of the case. */
     checkpoint?: string | undefined;
@@ -6041,6 +6385,7 @@ export interface IMyCasePartialResultSet {
     items?: MyCasePartial[] | undefined;
 }
 
+/** The translation wrapper for Indice.Features.Cases.Models.Responses.MyCasePartial model. */
 export class MyCasePartialTranslation implements IMyCasePartialTranslation {
     /** The title of the case type. */
     title?: string | undefined;
@@ -6074,6 +6419,7 @@ export class MyCasePartialTranslation implements IMyCasePartialTranslation {
     }
 }
 
+/** The translation wrapper for Indice.Features.Cases.Models.Responses.MyCasePartial model. */
 export interface IMyCasePartialTranslation {
     /** The title of the case type. */
     title?: string | undefined;

@@ -21,7 +21,7 @@ namespace Indice.Types
         public static async Task<ResultSet<T>> ToResultSetAsync<T>(this IQueryable<T> source, ListOptions options) {
             options ??= new ListOptions();
             foreach (var sorting in options.GetSortings()) {
-                source = source.OrderBy(sorting);
+                source = source.OrderBy(sorting, append: true);
             }
             return await source.ToResultSetAsync(options.Page, options.Size);
         }

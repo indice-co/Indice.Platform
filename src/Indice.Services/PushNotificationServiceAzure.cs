@@ -27,7 +27,9 @@ namespace Indice.Services
             NotificationHub = new NotificationHubClient(
                 PushNotificationAzureOptions.ConnectionString,
                 PushNotificationAzureOptions.NotificationHubPath,
-                PushNotificationAzureOptions.MessageHandler != null ? new NotificationHubSettings { MessageHandler = PushNotificationAzureOptions.MessageHandler } : null
+                PushNotificationAzureOptions.MessageHandler is not null
+                    ? new NotificationHubSettings { MessageHandler = PushNotificationAzureOptions.MessageHandler }
+                    : null
             );
         }
 
@@ -35,7 +37,7 @@ namespace Indice.Services
         private PushNotificationAzureOptions PushNotificationAzureOptions { get; }
 
         /// <inheritdoc/>
-        public async Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<string> tags) {
+        public async Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags) {
             if (string.IsNullOrEmpty(deviceId)) {
                 throw new ArgumentNullException(nameof(deviceId));
             }
@@ -45,7 +47,7 @@ namespace Indice.Services
             var installationRequest = new Installation {
                 InstallationId = deviceId,
                 PushChannel = pnsHandle,
-                Tags = tags,
+                Tags = tags.Select(tag => tag.ToString()).ToList(),
                 Templates = new Dictionary<string, InstallationTemplate>()
             };
             switch (devicePlatform) {
@@ -76,26 +78,33 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string title, string body, IList<string> tags, string data = null, string classification = null) {
+        public async Task SendAsync(string title, string body, IList<PushNotificationTag> tags, string data = null, string classification = null) {
             if (string.IsNullOrEmpty(title)) {
                 throw new ArgumentNullException(nameof(title));
             }
-            var notification = new Dictionary<string, string> {
+            var properties = new Dictionary<string, string> {
                 { "message", title }
             };
             if (!string.IsNullOrWhiteSpace(body)) {
-                notification.Add("body", body);
+                properties.Add("body", body);
             }
             if (!string.IsNullOrEmpty(data)) {
-                notification.Add("data", data);
+                properties.Add("data", data);
             }
             if (!string.IsNullOrEmpty(classification)) {
-                notification.Add("classification", classification);
+                properties.Add("classification", classification);
             }
             if (tags?.Any() == true) {
-                await NotificationHub.SendTemplateNotificationAsync(notification, tags);
+                await NotificationHub.SendTemplateNotificationAsync(
+                    properties,
+                    tags.Select(
+                        tag => tag.Kind == PushNotificationTagKind.User || tag.Kind == PushNotificationTagKind.Unspecified
+                            ? tag.ToString()
+                            : "$InstallationId:{" + tag.Value + "}" // https://learn.microsoft.com/en-us/azure/notification-hubs/notification-hubs-push-notification-registration-management#installations
+                    )
+                );
             } else {
-                await NotificationHub.SendTemplateNotificationAsync(notification);
+                await NotificationHub.SendTemplateNotificationAsync(properties);
             }
         }
     }

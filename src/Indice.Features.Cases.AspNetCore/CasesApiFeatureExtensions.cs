@@ -69,6 +69,7 @@ namespace Indice.Features.Cases
             // Register no op services.
             services.AddTransient<ILookupService, NoOpLookupService>();
             services.AddTransient<ICustomerIntegrationService, NoOpCustomerIntegrationService>();
+            services.AddTransient<ICasePdfService, NoOpCasePdfService>();
 
             // Register custom services.
             services.AddTransient<IMyCaseService, MyCaseService>();
@@ -87,11 +88,7 @@ namespace Indice.Features.Cases
             services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
 
             // Register application DbContext.
-            if (casesApiOptions.ConfigureDbContext != null) {
-                services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext);
-            } else {
-                services.AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-            }
+            services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext ?? (builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))));
 
             return mvcBuilder;
         }
@@ -159,11 +156,7 @@ namespace Indice.Features.Cases
             services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
 
             // Register application DbContext.
-            if (casesApiOptions.ConfigureDbContext != null) {
-                services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext);
-            } else {
-                services.AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-            }
+            services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext ?? (builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))));
 
             return mvcBuilder;
         }
@@ -233,6 +226,7 @@ namespace Indice.Features.Cases
             services.AddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
             services.AddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
             services.AddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
+            services.AddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
         }
 
         /// <summary>

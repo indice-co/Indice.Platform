@@ -34,8 +34,12 @@ namespace Indice.Features.Cases.Services.CaseMessageService
             if (message.File == null && message.CheckpointTypeName == null && message.Comment == null && message.Data == null) {
                 return attachmentId;
             }
+            
             var caseType = await _dbContext.CaseTypes.FindAsync(@case.CaseTypeId);
             if (caseType == null) throw new ArgumentNullException(nameof(caseType));
+
+            await _caseEventService.Publish(new CaseMessageCreatedEvent(caseId, message));
+
             var newCheckpointType = await _dbContext.CheckpointTypes
                 .AsQueryable()
                 .SingleOrDefaultAsync(x => x.Code == $"{caseType.Code}:{message.CheckpointTypeName}");
@@ -142,7 +146,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
 
             // Else continue to change the checkpoint.
             if (lastCheckpoint != null) {
-                lastCheckpoint.CompletedDate = DateTime.UtcNow;
+                lastCheckpoint.CompletedDate = DateTimeOffset.UtcNow;
             }
 
             var newCheckpoint = new DbCheckpoint {

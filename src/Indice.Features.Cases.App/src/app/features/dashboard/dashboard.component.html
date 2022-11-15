@@ -1,7 +1,7 @@
 <lib-view-layout title="Καλώς ήλθατε, {{ user?.profile?.name }}!"
                  [meta-items]="metaItems">
     <div class="cards-deck-4">
-        <lib-kpi-tile title="ΑΙΤΗΣΕΙΣ ΣΕ ΕΚΚΡΕΜΟΤΗΤΑ"
+        <lib-kpi-tile title="ΑΙΤΗΣΕΙΣ"
                       [busy]="!cases"
                       [kpi]="cases?.count"
                       (tile-action)="navigate('/cases')">

@@ -103,7 +103,7 @@ namespace Indice.Features.Messages.Tests
                 Data = new {
                     Code = "123abc"
                 },
-                IsGlobal = true,
+                IsGlobal = false,
                 Published = false,
                 RecipientIds = new List<string> { "ab9769f1-d532-4b7d-9922-3da003157ebd" },
                 Title = "Welcome"

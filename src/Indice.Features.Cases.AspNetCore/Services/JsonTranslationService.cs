@@ -16,7 +16,7 @@ namespace Indice.Features.Cases.Services
         /// <summary>
         /// The properties where the translate method will search and update their values.
         /// </summary>
-        private readonly List<string> _translatableProperties = new List<string> {
+        private readonly List<string> _translatableProperties = new() {
             "title",
             "placeholder",
             "required",
@@ -25,6 +25,9 @@ namespace Indice.Features.Cases.Services
             "helpvalue"
         };
 
+        /// <summary>
+        /// Constructs a new <see cref="JsonTranslationService"/>.
+        /// </summary>
         public JsonTranslationService(IConfiguration configuration) {
             _primaryLanguage = configuration.GetSection("PrimaryTranslationLanguage").Value ?? CasesApiConstants.DefaultTranslationLanguage;
         }

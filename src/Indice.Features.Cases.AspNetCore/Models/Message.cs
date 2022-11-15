@@ -27,12 +27,12 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The comment to add to the checkpoint.
         /// </summary>
-        public string Comment { get; set; }
+        public string? Comment { get; set; }
         
         /// <summary>
         /// The file that is attached with the checkpoint.
         /// </summary>
-        public IFormFile File { get; set; }
+        public IFormFile? File { get; set; }
 
         /// <summary>
         /// The data related with the message.

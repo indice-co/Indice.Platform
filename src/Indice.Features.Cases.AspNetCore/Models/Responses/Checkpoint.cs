@@ -28,7 +28,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The completed date of the checkpoint.
         /// </summary>
-        public DateTime? CompletedDate { get; set; }
+        public DateTimeOffset? CompletedDate { get; set; }
         
         /// <summary>
         /// Indicates if the checkpoint is private, which means not visible to the customer.
@@ -38,6 +38,6 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The due date of the checkpoint.
         /// </summary>
-        public DateTime? DueDate { get; set; }
+        public DateTimeOffset? DueDate { get; set; }
     }
 }

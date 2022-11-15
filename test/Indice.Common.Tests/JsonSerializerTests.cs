@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Serialization;
@@ -62,7 +63,6 @@ namespace Indice.Common.Tests
                 }
             };
             var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\",\"filters\":[\"person.name::In::(String)Constantinos, George\"],\"mystery\":{\"firstName\":\"Constantinos\",\"lastName\":\"Leftheris\"}}";
-            //var jsonExpected = "{\"point\":\"37.9888529,23.7037796\",\"id\":\"UJbzBBXwMUiFktLYLnBYnw\",\"mystery\":{\"firstName\":\"Constantinos\",\"lastName\":\"Leftheris\"}}";
             var json = JsonSerializer.Serialize(model, options);
             Assert.Equal(jsonExpected, json);
             var output = JsonSerializer.Deserialize<TestTypeConverters>(json, options);
@@ -107,14 +107,11 @@ namespace Indice.Common.Tests
                     },
                     new ValueTuple<string>("Bar"))
             };
-
             var options = new JsonSerializerOptions();
             options.Converters.Add(new ValueTupleJsonConverterFactory());
-
-            string jsonString = JsonSerializer.Serialize(objectWithValueTuple, options);
+            var jsonString = JsonSerializer.Serialize(objectWithValueTuple, options);
             Console.WriteLine(jsonString);
-
-            WeatherForecastValueTuple roundTrip = JsonSerializer.Deserialize<WeatherForecastValueTuple>(jsonString, options);
+            var roundTrip = JsonSerializer.Deserialize<WeatherForecastValueTuple>(jsonString, options);
             Assert.Equal((3, 7), roundTrip.Location);
             Assert.Equal(new ValueTuple<string>("FOO"), roundTrip.Temp);
         }
@@ -127,9 +124,9 @@ namespace Indice.Common.Tests
             options.Converters.Add(new JsonStringEnumConverter());
             options.Converters.Add(new DictionaryEnumConverter());
             options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-            var model = new MusicLibrary { 
-                Tracks = new Dictionary<MusicGenre, List<MusicTrack>> { 
-                    [MusicGenre.Metal] = new List<MusicTrack> { 
+            var model = new MusicLibrary {
+                Tracks = new Dictionary<MusicGenre, List<MusicTrack>> {
+                    [MusicGenre.Metal] = new List<MusicTrack> {
                         new MusicTrack { Genre = MusicGenre.Metal, Name = "For whoom the bell tolls", Artist = "Metallica", ReleaseDate = DateTimeOffset.Parse("2021-04-15T18:36:09.2769853+03:00")},
                         new MusicTrack { Genre = MusicGenre.Metal, Name = "Tornado of souls", Artist = "Megadeth", ReleaseDate = DateTimeOffset.Parse("2021-04-15T18:36:09.2769853+03:00") },
                     },
@@ -158,16 +155,40 @@ namespace Indice.Common.Tests
             var sourceModel = new PocoValue<bool> { Value = true };
             var json = JsonSerializer.Serialize(sourceModel, options);
             var targetModel = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
-
             var sourceModel1 = new PocoValue<TheMystery> { Value = new TheMystery { FirstName = "Gus", LastName = "Coin" } };
             json = JsonSerializer.Serialize(sourceModel1, options);
             var targetModel1 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
-
             var sourceModel2 = new PocoValue<double> { Value = 1010.45 };
             json = JsonSerializer.Serialize(sourceModel2, options);
             var targetModel2 = JsonSerializer.Deserialize<PocoValue<string>>(json, options);
 
         }
+
+        [Fact]
+        public void Expando_Object_Support() {
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+            };
+            options.Converters.Add(new JsonStringEnumConverter());
+            options.Converters.Add(new TypeConverterJsonAdapterFactory());
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            var model = new ExpandoObject();
+            model.TryAdd("Person", GeoPoint.Parse("37.9888529,23.7037796"));
+            model.TryAdd("PointList", new TestModel {
+                Point = GeoPoint.Parse("37.9888529,23.7037796"),
+                PointList = new List<GeoPoint> {
+                    GeoPoint.Parse("37.9888529,23.7037796"),
+                    GeoPoint.Parse("37.9689383,23.7309977")
+                }
+            });
+            var expectedJson = "{\"person\":\"37.9888529,23.7037796\",\"pointList\":{\"point\":\"37.9888529,23.7037796\",\"pointList\":[\"37.9888529,23.7037796\",\"37.9689383,23.7309977\"]}}";
+            var actualJson = JsonSerializer.Serialize(model, options);
+            Assert.Equal(expectedJson, actualJson);
+            var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(actualJson, options);
+            Assert.Equal(((JsonElement)modelDictionary["person"]).GetRawText(), "\"37.9888529,23.7037796\"");
+        }
+
         [Fact]
         public void TimeSpan_JsonSupport() {
             var options = new JsonSerializerOptions {
@@ -195,6 +216,7 @@ namespace Indice.Common.Tests
             RoundtripSerialize(new PocoValue<TimeSpan> { Value = new TimeSpan(2, 30, 12) }, options);
             RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
         }
+
         [Fact(Skip = "Not ready")]
         public void DateTime_UTC_JsonSupport() {
             var options = new JsonSerializerOptions {
@@ -218,7 +240,7 @@ namespace Indice.Common.Tests
             result = JsonSerializer.Deserialize<DateTime>("\"1981-01-27T22:00:00\"", options);
             Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
             result = JsonSerializer.Deserialize<DateTime>("\"1981-01-28T00:00:00+02:00\"", options);
-            Assert.Equal(new DateTime(1981, 01, 27, 22, 0, 0, DateTimeKind.Utc) , result);
+            Assert.Equal(new DateTime(1981, 01, 27, 22, 0, 0, DateTimeKind.Utc), result);
         }
 
         [Fact(Skip = "Not ready")]
@@ -235,7 +257,7 @@ namespace Indice.Common.Tests
             Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
         }
 
-        private void RoundtripSerialize<T>(PocoValue<T> source, JsonSerializerOptions options) {
+        private static void RoundtripSerialize<T>(PocoValue<T> source, JsonSerializerOptions options) {
             var json = JsonSerializer.Serialize(source, options);
             var result = JsonSerializer.Deserialize<PocoValue<T>>(json, options);
             Assert.Equal(source.Value, result.Value);
@@ -280,7 +302,7 @@ namespace Indice.Common.Tests
         }
 
         public enum MusicGenre : int
-        { 
+        {
             Metal = 1,
             Rock,
             Goth,
@@ -297,7 +319,7 @@ namespace Indice.Common.Tests
             public DateTimeOffset ReleaseDate { get; set; }
         }
 
-        public class MusicLibrary 
+        public class MusicLibrary
         {
             public Dictionary<MusicGenre, List<MusicTrack>> Tracks { get; set; } = new Dictionary<MusicGenre, List<MusicTrack>>();
         }

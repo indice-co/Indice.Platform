@@ -5,10 +5,13 @@ using Indice.Features.Cases.Data.Models;
 
 namespace Indice.Features.Cases.Interfaces
 {
+    /// <summary>
+    /// Interface for the Case Type Notifications Subscriptions domain.
+    /// </summary>
     public interface ICaseTypeNotificationSubscriptionService
     {
         /// <summary>
-        /// Get users that have opted in for notifications for their branch
+        /// Get users that have opted in for notifications for their group.
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>

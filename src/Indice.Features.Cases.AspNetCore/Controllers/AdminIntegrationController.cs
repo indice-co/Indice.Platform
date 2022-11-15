@@ -25,7 +25,7 @@ namespace Indice.Features.Cases.Controllers
     {
         private readonly ICustomerIntegrationService _customerIntegrationService;
 
-        /// <inheritdoc >
+        /// <inheritdoc/>
         public AdminIntegrationController(ICustomerIntegrationService customerIntegrationService) {
             _customerIntegrationService = customerIntegrationService ?? throw new ArgumentNullException(nameof(customerIntegrationService));
         }

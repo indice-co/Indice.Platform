@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using Indice.Serialization;
+using Indice.Types;
 
 namespace Indice.Services
 {
@@ -15,13 +20,13 @@ namespace Indice.Services
         /// <summary>The body of the push notification.</summary>
         public string Body { get; set; }
         /// <summary>The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc.</summary>
-        public string UserTag { get; set; }
+        public PushNotificationTag? UserTag { get; set; }
+        /// <summary>The device identifier.</summary>
+        public PushNotificationTag? DeviceTag { get; set; }
         /// <summary>The tags of the push notification.</summary>
-        public string[] Tags { get; set; } = Array.Empty<string>();
+        public List<PushNotificationTag> Tags { get; set; } = new List<PushNotificationTag>();
         /// <summary>The type of the push notification.</summary>
         public string Classification { get; set; }
-        /// <summary>The OTP token that must be passed to the client.</summary>
-        public string Token { get; set; }
     }
 
     /// <summary><see cref="PushNotificationMessageBuilder"/> extensions.</summary>
@@ -49,17 +54,6 @@ namespace Indice.Services
             return builder;
         }
 
-        /// <summary>Defines the OTP token that must be passed to the client.</summary>
-        /// <param name="builder">The builder.</param>
-        /// <param name="token">The token.</param>
-        public static PushNotificationMessageBuilder WithToken(this PushNotificationMessageBuilder builder, string token) {
-            if (string.IsNullOrEmpty(token)) {
-                throw new ArgumentException("You must define the otp token of the Push Notification.", nameof(token));
-            }
-            builder.Token = token;
-            return builder;
-        }
-
         /// <summary>Defines the data of the push notification. Data is optional.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="data">The data that will be sent to the push notification.</param>
@@ -68,14 +62,34 @@ namespace Indice.Services
             return builder;
         }
 
+        /// <summary>Defines the data of the push notification. Data is optional.</summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="data">The data that will be sent to the push notification.</param>
+        public static PushNotificationMessageBuilder WithData<TData>(this PushNotificationMessageBuilder builder, TData data) where TData : class {
+            var dataJson = JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings());
+            builder.Data = dataJson;
+            return builder;
+        }
+
         /// <summary>Defines the user that will receive the push notification.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="userTag">The Id of the user.</param>
-        public static PushNotificationMessageBuilder To(this PushNotificationMessageBuilder builder, string userTag) {
+        public static PushNotificationMessageBuilder ToUser(this PushNotificationMessageBuilder builder, string userTag) {
             if (string.IsNullOrEmpty(userTag)) {
                 throw new ArgumentException("You must define the userId of the push notification.", nameof(userTag));
             }
-            builder.UserTag = userTag;
+            builder.UserTag = new PushNotificationTag(userTag, PushNotificationTagKind.User);
+            return builder;
+        }
+
+        /// <summary>Defines the user that will receive the push notification.</summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="deviceId">The Id of the device.</param>
+        public static PushNotificationMessageBuilder ToDevice(this PushNotificationMessageBuilder builder, string deviceId) {
+            if (string.IsNullOrEmpty(deviceId)) {
+                throw new ArgumentException("You must define the device id of the push notification.", nameof(deviceId));
+            }
+            builder.DeviceTag = new PushNotificationTag(deviceId, PushNotificationTagKind.Device);
             return builder;
         }
 
@@ -86,7 +100,7 @@ namespace Indice.Services
             if (tags?.Length == 0) {
                 throw new ArgumentException("You must set the tags to the push notification.", nameof(tags));
             }
-            builder.Tags = tags;
+            builder.Tags.AddRange(tags.Select(tag => new PushNotificationTag(tag, PushNotificationTagKind.Unspecified)));
             return builder;
         }
 
@@ -100,7 +114,14 @@ namespace Indice.Services
 
         /// <summary>Returns the <see cref="PushNotificationMessage"/> instance made by the builder.</summary>
         /// <param name="builder">The builder.</param>
-        public static PushNotificationMessage Build(this PushNotificationMessageBuilder builder) =>
-            new(builder.Title, builder.Body, builder.Token, builder.Data, builder.UserTag, builder.Tags, builder.Classification);
+        public static PushNotificationMessage Build(this PushNotificationMessageBuilder builder) {
+            if (builder.UserTag is not null) {
+                builder.Tags.Add(builder.UserTag.Value);
+            }
+            if (builder.DeviceTag is not null) {
+                builder.Tags.Add(builder.DeviceTag.Value);
+            }
+            return new PushNotificationMessage(builder.Title, builder.Body, builder.Data, builder.Tags, builder.Classification);
+        }
     }
 }

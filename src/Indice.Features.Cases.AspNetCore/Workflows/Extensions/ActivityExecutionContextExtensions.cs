@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Cases.Workflows.Extensions
 {
+    /// <summary>
+    /// Extensions for <see cref="ActivityExecutionContext"/>.
+    /// </summary>
     public static class ActivityExecutionContextExtensions
     {
         /// <summary>

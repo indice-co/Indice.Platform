@@ -25,6 +25,16 @@ namespace Indice.Features.Cases.Models.Responses
         public string? Title { get; set; }
 
         /// <summary>
+        /// The case type description.
+        /// </summary>
+        public string? Description { get; set; }
+
+        /// <summary>
+        /// The case type category.
+        /// </summary>
+        public string? Category { get; set; }
+
+        /// <summary>
         /// The case type json schema.
         /// </summary>
         public string? DataSchema { get; set; }
@@ -33,6 +43,11 @@ namespace Indice.Features.Cases.Models.Responses
         /// The layout for the data schema.
         /// </summary>
         public string? Layout { get; set; }
+
+        /// <summary>
+        /// The layout translations for the data schema.
+        /// </summary>
+        public string? LayoutTranslations { get; set; }
 
         /// <summary>
         /// The case type tags.
@@ -66,6 +81,8 @@ namespace Indice.Features.Cases.Models.Responses
             var type = (CaseTypePartial)MemberwiseClone();
             if (!string.IsNullOrEmpty(culture) && Translations != null && Translations.TryGetValue(culture, out var translation)) {
                 type.Title = translation.Title;
+                type.Description = translation.Description;
+                type.Category = translation.Category;
             }
             if (!includeTranslations) {
                 type.Translations = default;

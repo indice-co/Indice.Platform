@@ -7,9 +7,14 @@ namespace Indice.Features.Cases.Exceptions
     /// </summary>
     public class ResourceUnauthorizedException : Exception
     {
+        /// <inheritdoc />
         public ResourceUnauthorizedException() { }
+        
+        /// <inheritdoc />
         public ResourceUnauthorizedException(string message)
             : base(message) { }
+
+        /// <inheritdoc />
         public ResourceUnauthorizedException(string message, Exception innerException)
             : base(message, innerException) { }
     }

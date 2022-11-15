@@ -247,7 +247,7 @@ namespace Indice.Features.Cases.Controllers
                 return NotFound();
             }
             var file = await CreatePdf(@case);
-            var fileName = $"{@case?.CaseType?.Code}-{DateTime.UtcNow.Date:dd-MM-yyyy}.pdf";
+            var fileName = $"{@case?.CaseType?.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
             return File(file, "application/pdf", fileName);
         }
 

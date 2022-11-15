@@ -11,7 +11,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The timestamp.
         /// </summary>
-        public DateTime Timestamp { get; set; }
+        public DateTimeOffset Timestamp { get; set; }
         
         /// <summary>
         /// User that created the entry.

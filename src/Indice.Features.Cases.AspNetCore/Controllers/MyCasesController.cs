@@ -53,22 +53,20 @@ namespace Indice.Features.Cases.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<MyCasePartial>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetCases([FromQuery] ListOptions<GetMyCasesListFilter> options) {
-            var cases = await _myCaseService.GetCases(
-                User,
-                options);
+        public async Task<IActionResult> GetMyCases([FromQuery] ListOptions<GetMyCasesListFilter> options) {
+            var cases = await _myCaseService.GetCases(User, options);
             return Ok(cases);
         }
 
         /// <summary>
-        /// Get case by Id.
+        /// Get case details by Id.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
-        [ProducesResponseType(typeof(MyCasePartial), 200)]
+        [ProducesResponseType(typeof(CaseDetails), 200)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{caseId:guid}")]
         public async Task<IActionResult> GetMyCaseById(Guid caseId) {
-            var @case = await _myCaseService.GetMyCasePartialById(User, caseId);
+            var @case = await _myCaseService.GetCaseById(User, caseId);
             return Ok(@case);
         }
 
@@ -145,12 +143,12 @@ namespace Indice.Features.Cases.Controllers
         public async Task<IActionResult> DownloadMyCasePdf(Guid caseId) {
             var @case = await _myCaseService.GetCaseById(User, caseId);
             var file = await CreatePdf(@case);
-            var fileName = $"{@case.CaseType.Code}-{DateTime.UtcNow.Date:dd-MM-yyyy}.pdf";
+            var fileName = $"{@case.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
             return File(file, "application/pdf", fileName);
         }
 
         private async Task<byte[]> CreatePdf(CaseDetails @case) {
-            var isPortrait = false;
+            var isPortrait = true;
             var digitallySigned = false;
             if (@case.CaseType.Config is not null) {
                 var caseTypeConfig = JsonSerializer.Deserialize<JsonDocument>(@case.CaseType.Config);

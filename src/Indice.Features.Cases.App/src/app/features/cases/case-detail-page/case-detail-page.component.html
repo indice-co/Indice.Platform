@@ -68,10 +68,16 @@
                                            (formIsValid)="isValid($event)"
                                            (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
                             <app-case-print-pdf [caseId]="model.id"
-                                                [enabled]="!model.draft"
+                                                [enabled]="!(model.draft || caseTypeConfig?.boOptions?.hidePdf)"
                                                 [buttonDisabled]="!formValid || formUnSavedChanges"
                                                 (pdfButtonClicked)="onPdfButtonClicked($event)">
                             </app-case-print-pdf>
+                            <ng-container *ngFor="let action of (caseActions.customActions || [])">
+                                <app-case-custom-action [action]="action"
+                                                        (actionTriggered)="onCustomActionTrigger($event)">
+                                </app-case-custom-action>
+                            </ng-container>
+
                             <app-approval-buttons [formUnSavedChanges]="formUnSavedChanges"
                                                   [formValid]="formValid"
                                                   [caseId]="model.id"

@@ -3,8 +3,8 @@
     <Description>Indice.Services Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <VersionPrefix>6.1.12</VersionPrefix>
-    <!--<VersionSuffix>beta-01</VersionSuffix>-->
+    <VersionPrefix>6.2.0</VersionPrefix>
+    <!--<VersionSuffix>beta-06</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>
     <AssemblyName>Indice.Services</AssemblyName>
@@ -16,7 +16,7 @@
     <IsPackable>true</IsPackable>
     <PackageId>Indice.Services</PackageId>
     <PackageTags>Events;Files;Emails;Sms;Push Notifications;Locking</PackageTags>
-    <PackageReleaseNotes>Update Indice.Common.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix bug on PushNotificationServiceAzure.</PackageReleaseNotes>
     <PackageIcon>icon-310.png</PackageIcon>
     <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -34,27 +34,21 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Queues" Version="12.11.0" />
-    <PackageReference Include="Indice.Common" Version="6.1.11" />
+    <PackageReference Include="Indice.Common" Version="6.2.0" />
     <PackageReference Include="MailKit" Version="3.3.0" />
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.1.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.13.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.24" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.24" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.24" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.24" />
   </ItemGroup>

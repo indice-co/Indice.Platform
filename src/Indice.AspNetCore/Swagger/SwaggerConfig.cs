@@ -3,28 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Serialization;
 using Indice.Types;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Indice.AspNetCore.Swagger
+namespace Microsoft.Extensions.DependencyInjection
 {
-    /// <summary>
-    /// Swagger configuration extensions the Indice way. Exposes usefull defaults for hosting an API. 
-    /// Also leverages appsettings.json configuration through <see cref="GeneralSettings"/> for API setup.
-    /// </summary>
+    /// <summary>Swagger configuration extensions the Indice way. Exposes useful defaults for hosting an API. Also leverages appsettings.json configuration through <see cref="GeneralSettings"/> for API setup.</summary>
     public static class SwaggerConfig
     {
         /// <summary>
-        /// Since Swashbackle 4.0 release the support for for parameters of type IFormFile is out-of-the-box. 
+        /// Since Swashbuckle 4.0 release the support for parameters of type IFormFile is out-of-the-box. 
         /// That is, the generator will automatically detect these and generate the correct Swagger to describe parameters that are passed in formData.
-        /// So this is exported to a seperate operation just in case we still need of it.
+        /// So this is exported to a separate operation just in case we still need of it.
         /// </summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         public static void AddFormFileSupport(this SwaggerGenOptions options) {
@@ -32,15 +29,11 @@ namespace Indice.AspNetCore.Swagger
             options.OperationFilter<FileDownloadOperationFilter>();
         }
 
-        /// <summary>
-        /// Adds support for Fluent validation.
-        /// </summary>
+        /// <summary>Adds support for Fluent validation.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         public static void AddFluentValidationSupport(this SwaggerGenOptions options) => options.SchemaFilter<SchemaFluentValidationFilter>();
 
-        /// <summary>
-        /// Simplifies generics and removes 'info' suffix.
-        /// </summary>
+        /// <summary>Simplifies generics and removes 'info' suffix.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         public static void AddCustomSchemaIds(this SwaggerGenOptions options) {
             // Simplifies generics:
@@ -88,9 +81,7 @@ namespace Indice.AspNetCore.Swagger
             });
         }
 
-        /// <summary>
-        /// Adds polymorphism.
-        /// </summary>
+        /// <summary>Adds polymorphism.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static void AddPolymorphism(this SwaggerGenOptions options, IServiceCollection services) {
@@ -120,9 +111,7 @@ namespace Indice.AspNetCore.Swagger
             }
         }
 
-        /// <summary>
-        /// Add a new Swagger document based on a subscope of the existing API.
-        /// </summary>
+        /// <summary>Add a new Swagger document based on a sub-scope of the existing API.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="scopeOrGroup">The URL segment that the child scope will live under.</param>
@@ -142,11 +131,9 @@ namespace Indice.AspNetCore.Swagger
             return options.AddDoc(scopeOrGroup, title, description, version, apiSettings.TermsOfServiceUrl, license, contact);
         }
 
-        /// <summary>
-        /// Add a new Swagger document based on a subscope of the existing API.
-        /// </summary>
+        /// <summary>Add a new Swagger document based on a sub-scope of the existing API.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
-        /// <param name="scopeOrGroup">The URL segment that the schild scope will live under</param>
+        /// <param name="scopeOrGroup">The URL segment that the child scope will live under</param>
         /// <param name="title">An API title.</param>
         /// <param name="description">An API description.</param>
         /// <param name="version">The API version.</param>
@@ -166,9 +153,7 @@ namespace Indice.AspNetCore.Swagger
             return info;
         }
 
-        /// <summary>
-        /// Adds requirements to the operations protected by the Authorize attribute.
-        /// </summary>
+        /// <summary>Adds requirements to the operations protected by the Authorize attribute.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="name">The security scheme name to protect.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
@@ -184,9 +169,7 @@ namespace Indice.AspNetCore.Swagger
             return options;
         }
 
-        /// <summary>
-        /// Adds Basic authentication via header as a security scheme.
-        /// </summary>
+        /// <summary>Adds Basic authentication via header as a security scheme.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
@@ -202,9 +185,7 @@ namespace Indice.AspNetCore.Swagger
             return options;
         }
 
-        /// <summary>
-        /// Adds the ability to directly put your JWT for authentication.
-        /// </summary>
+        /// <summary>Adds the ability to directly put your JWT for authentication.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
@@ -220,9 +201,7 @@ namespace Indice.AspNetCore.Swagger
             return options;
         }
 
-        /// <summary>
-        /// Adds OpenId Connect security scheme.
-        /// </summary>
+        /// <summary>Adds OpenId Connect security scheme.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
@@ -237,9 +216,7 @@ namespace Indice.AspNetCore.Swagger
             return options;
         }
 
-        /// <summary>
-        /// Adds client credentials security scheme.
-        /// </summary>
+        /// <summary>Adds client credentials security scheme.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
@@ -267,9 +244,7 @@ namespace Indice.AspNetCore.Swagger
             return options;
         }
 
-        /// <summary>
-        /// Adds OAuth 2.0 security scheme using the Authorization Code flow.
-        /// </summary>
+        /// <summary>Adds OAuth 2.0 security scheme using the Authorization Code flow.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
@@ -297,9 +272,7 @@ namespace Indice.AspNetCore.Swagger
             return options;
         }
 
-        /// <summary>
-        /// Adds OAuth 2.0 security scheme using the Implicit flow.
-        /// </summary>
+        /// <summary>Adds OAuth 2.0 security scheme using the Implicit flow.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <param name="name">A unique name for the scheme.</param>
@@ -327,9 +300,7 @@ namespace Indice.AspNetCore.Swagger
             return options;
         }
 
-        /// <summary>
-        /// A set of default settings for exposing an API.
-        /// </summary>
+        /// <summary>A set of default settings for exposing an API.</summary>
         /// <param name="options">The options used to generate the swagger.json file.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         public static void IndiceDefaults(this SwaggerGenOptions options, GeneralSettings settings) {
@@ -361,9 +332,7 @@ namespace Indice.AspNetCore.Swagger
             options.CustomOperationIds(x => (x.ActionDescriptor as ControllerActionDescriptor)?.ActionName);
         }
 
-        /// <summary>
-        /// Includes XML comments from an external assembly. Useful when models are located in more than one assembly.
-        /// </summary>
+        /// <summary>Includes XML comments from an external assembly. Useful when models are located in more than one assembly.</summary>
         /// <param name="options">The options to configure.</param>
         /// <param name="assembly">The assembly to scan for XML comments.</param>
         public static void IncludeXmlComments(this SwaggerGenOptions options, Assembly assembly) {

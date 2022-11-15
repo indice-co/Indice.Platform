@@ -15,6 +15,6 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The created date of the case that created.
         /// </summary>
-        public DateTime Created { get; set; }
+        public DateTimeOffset Created { get; set; }
     }
 }

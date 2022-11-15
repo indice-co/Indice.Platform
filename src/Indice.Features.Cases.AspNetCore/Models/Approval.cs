@@ -5,7 +5,14 @@
     /// </summary>
     public enum Approval
     {
+        /// <summary>
+        /// Approve action.
+        /// </summary>
         Approve,
+
+        /// <summary>
+        /// Reject action.
+        /// </summary>
         Reject
     }
 }
