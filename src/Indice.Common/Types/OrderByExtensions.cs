@@ -11,6 +11,13 @@ namespace Indice.Types
     public static class OrderByExtensions
     {
         /// <summary>
+        /// can identify if the Queryable is indeed <see cref="IOrderedQueryable"/>
+        /// </summary>
+        /// <param name="source">The input queryable</param>
+        /// <returns>True if it has already been sorted at least once</returns>
+        public static bool IsOrdered(IQueryable source) => source.Expression.Type.IsGenericType && typeof(IOrderedQueryable<>).IsAssignableFrom(source.Expression.Type.GetGenericTypeDefinition()); 
+        
+        /// <summary>
         /// Order an <see cref="IQueryable{T}"/> by string member path (<paramref name="property"/>) and <paramref name="direction"/> ASC, DESC.
         /// </summary>
         /// <typeparam name="T">The type of data that the <see cref="IQueryable{T}"/> contains.</typeparam>
@@ -19,7 +26,7 @@ namespace Indice.Types
         /// <param name="direction">ASC or DESC.</param>
         /// <param name="append">A flag indicating if the sort order will reset or be appended to the expression.</param>
         public static IOrderedQueryable<T> ApplyOrder<T>(this IQueryable<T> collection, string property, string direction, bool append) {
-            var methodPrefix = append && collection is IOrderedQueryable<T> ? nameof(Queryable.ThenBy) : nameof(Queryable.OrderBy);
+            var methodPrefix = append && IsOrdered(collection) ? nameof(Queryable.ThenBy) : nameof(Queryable.OrderBy);
             var methodSuffix = direction == SortByClause.DESC ? "Descending" : string.Empty;
             var methodName = methodPrefix + methodSuffix;
             return ApplyOrder(collection, property, methodName);

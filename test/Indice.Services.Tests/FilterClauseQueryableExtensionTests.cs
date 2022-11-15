@@ -69,7 +69,7 @@ namespace Indice.Services.Tests
         public async Task ToResultset_Translates_DynamicJsonPaths_MultiSort_Test() {
             var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
             var query = dbContext.Dummies.AsQueryable();
-            var options = new ListOptions { Sort = "data.displayName,name-" };
+            var options = new ListOptions { Sort = "name-,data.displayName" };
             foreach (var sorting in options.GetSortings()) {
                 query = query.OrderBy(sorting, append:true);
             }
