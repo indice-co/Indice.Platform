@@ -32,7 +32,9 @@
   <ItemGroup>
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
-
+  <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Elsa" Version="2.8.2" />
     <PackageReference Include="Elsa.Activities.Http" Version="2.8.2" />
