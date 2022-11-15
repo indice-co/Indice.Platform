@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
-using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
+using Indice.AspNetCore.Identity.Events;
 using Indice.AspNetCore.Identity.Localization;
 using Indice.AspNetCore.Middleware;
 using Indice.AspNetCore.Swagger;
@@ -95,6 +95,7 @@ namespace Indice.Identity
                 options.AddFluentValidationSupport();
                 options.AddOAuth2AuthorizationCodeFlow(Settings);
                 options.AddFormFileSupport();
+                options.AddRequiresOtpOperationFilter();
                 options.SchemaFilter<CreateUserRequestSchemaFilter>();
                 options.IncludeXmlComments(Assembly.Load(IdentityServerApi.AssemblyName));
             });

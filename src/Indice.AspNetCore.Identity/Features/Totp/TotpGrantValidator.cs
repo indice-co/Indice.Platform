@@ -4,42 +4,34 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
-using Indice.Services;
+using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Configuration;
+using Indice.Security;
 
 namespace Indice.AspNetCore.Identity.Features
 {
-    /// <summary>
-    /// Handles validation of token requests using <see cref="TotpConstants.GrantType.Totp"/> grant type.
-    /// </summary>
+    /// <summary>Handles validation of token requests using <see cref="TotpConstants.GrantType.Totp"/> grant type.</summary>
     public class TotpGrantValidator : IExtensionGrantValidator
     {
         private readonly ITokenValidator _validator;
-        private readonly ITotpService _totpService;
+        private readonly TotpServiceFactory _totpServiceFactory;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="TotpGrantValidator"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="TotpGrantValidator"/>.</summary>
         /// <param name="validator">Interface for the token validator.</param>
-        /// <param name="totpService">Used to generate, send and verify time based one time passwords.</param>
-        public TotpGrantValidator(ITokenValidator validator, ITotpService totpService) {
+        /// <param name="totpServiceFactory">Used to generate, send and verify time based one time passwords.</param>
+        public TotpGrantValidator(ITokenValidator validator, TotpServiceFactory totpServiceFactory) {
             _validator = validator ?? throw new ArgumentNullException(nameof(validator));
-            _totpService = totpService ?? throw new ArgumentNullException(nameof(totpService));
+            _totpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
         }
 
-        /// <summary>
-        /// The grant type.
-        /// </summary>
+        /// <summary>The grant type.</summary>
         public string GrantType => TotpConstants.GrantType.Totp;
 
-        /// <summary>
-        /// Validates the token request.
-        /// </summary>
+        /// <summary>Validates the token request.</summary>
         /// <param name="context">Class describing the extension grant validation context</param>
         public async Task ValidateAsync(ExtensionGrantValidationContext context) {
             var userToken = context.Request.Raw.Get("token");
             var code = context.Request.Raw.Get("code");
-            var providerName = context.Request.Raw.Get("provider");
-            var provider = default(TotpProviderType?);
             var reason = context.Request.Raw.Get("reason");
             if (string.IsNullOrEmpty(userToken)) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Access token 'token' parameter missing from payload.");
@@ -54,18 +46,10 @@ namespace Indice.AspNetCore.Identity.Features
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Access token validation failed");
                 return;
             }
-            if (!string.IsNullOrEmpty(providerName)) {
-                if (Enum.TryParse<TotpProviderType>(providerName, true, out var pv)) {
-                    provider = pv;
-                } else {
-                    context.Result = new GrantValidationResult(TokenRequestErrors.InvalidRequest, "Unsupported 'provider'.");
-                    return;
-                }
-            }
             // Get user's identity.
-            var sub = validationResult.Claims.FirstOrDefault(x => x.Type == "sub").Value;
+            var sub = validationResult.Claims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.Subject).Value;
             var user = new ClaimsPrincipal(new ClaimsIdentity(validationResult.Claims));
-            var totpResult = await _totpService.Verify(user, code, provider, reason);
+            var totpResult = await _totpServiceFactory.Create<User>().VerifyAsync(user, code, reason);
             if (!totpResult.Success) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant);
                 return;

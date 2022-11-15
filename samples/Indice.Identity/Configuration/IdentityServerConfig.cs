@@ -43,7 +43,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.EmitScopesAsSpaceDelimitedStringInJwt = true;
             })
             .AddAspNetIdentity<User>()
-            .AddTrustedDeviceAuthorization(options => {
+            .AddDeviceAuthentication(options => {
                 options.AddUserDeviceStoreEntityFrameworkCore();
             })
             .AddOtpAuthenticateGrantValidator()

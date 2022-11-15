@@ -9,29 +9,19 @@ using Newtonsoft.Json;
 
 namespace Indice.Services
 {
-    /// <summary>
-    /// Sms Service implementation using the Yuboto sms service gateway.
-    /// </summary>
+    /// <summary>Sms Service implementation using the Yuboto sms service gateway.</summary>
     public class SmsServiceYuboto : ISmsService, IDisposable
     {
         private bool _disposed = false;
 
-        /// <summary>
-        /// The settings required to configure the service.
-        /// </summary>
+        /// <summary>The settings required to configure the service.</summary>
         protected SmsServiceSettings Settings { get; }
-        /// <summary>
-        /// The <see cref="System.Net.Http.HttpClient"/>.
-        /// </summary>
+        /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
         protected HttpClient HttpClient { get; }
-        /// <summary>
-        /// Represents a type used to perform logging.
-        /// </summary>
+        /// <summary>Represents a type used to perform logging.</summary>
         protected ILogger<SmsServiceYuboto> Logger { get; }
 
-        /// <summary>
-        /// Constructs the <see cref="SmsServiceYuboto"/> using the <seealso cref="SmsServiceSettings"/>.
-        /// </summary>
+        /// <summary>Constructs the <see cref="SmsServiceYuboto"/> using the <seealso cref="SmsServiceSettings"/>.</summary>
         /// <param name="settings">The settings required to configure the service.</param>
         /// <param name="httpClient">Injected <see cref="System.Net.Http.HttpClient"/> managed by the DI.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
@@ -73,18 +63,14 @@ namespace Indice.Services
             }
         }
 
-        /// <summary>
-        /// Disposes the <see cref="System.Net.Http.HttpClient"/> if not managed by the DI.
-        /// </summary>
+        /// <summary>Disposes the <see cref="System.Net.Http.HttpClient"/> if not managed by the DI.</summary>
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
         // https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose
-        /// <summary>
-        /// Protected implementation of Dispose pattern.
-        /// </summary>
+        /// <summary>Protected implementation of Dispose pattern.</summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
             if (_disposed) {
@@ -98,10 +84,8 @@ namespace Indice.Services
             _disposed = true;
         }
 
-        /// <summary>
-        /// Checkes the implementation if supports the given <paramref name="deliveryChannel"/>.
-        /// </summary>
-        /// <param name="deliveryChannel">A string representing the delivery channel. ie 'SMS'</param>
+        /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
+        /// <param name="deliveryChannel">A string representing the delivery channel. i.e 'SMS'</param>
         /// <returns></returns>
         public bool Supports(string deliveryChannel) => "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
     }
@@ -132,13 +116,9 @@ namespace Indice.Services
 
         string ApiKey { get; set; }
         string Action { get; set; } = "Send";
-        /// <summary>
-        /// Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11).
-        /// </summary>
+        /// <summary>Numeric (maximum number of digits: 16) or alphanumeric characters (maximum number of characters: 11).</summary>
         string From { get; set; }
-        /// <summary>
-        /// Use country code without + or 00.
-        /// </summary>
+        /// <summary>Use country code without + or 00.</summary>
         IEnumerable<string> To { get; set; }
         /// <summary>
         /// Through Yuboto platform, you can send:
@@ -154,25 +134,15 @@ namespace Indice.Services
         /// If you choose to send a long SMS without previously notifying the system, then the system will limit it to 160 characters(simple SMS).
         /// </summary>
         string Message { get; set; }
-        /// <summary>
-        /// Params: sms (default) / flash / unicode
-        /// </summary>
+        /// <summary>Params: sms (default) / flash / unicode</summary>
         public string SmsType { get; set; } = "sms";
-        /// <summary>
-        /// Params: no (default) / yes
-        /// </summary>
+        /// <summary>Params: no (default) / yes</summary>
         public bool IsLongSms { get; set; }
-        /// <summary>
-        /// YYYYMMDD
-        /// </summary>
+        /// <summary>YYYYMMDD</summary>
         public string DateToSend { get; set; }
-        /// <summary>
-        /// HHMM
-        /// </summary>
+        /// <summary>HHMM</summary>
         public string TimeToSend { get; set; }
-        /// <summary>
-        /// Min 30, max 4320 (default).
-        /// </summary>
+        /// <summary>Min 30, max 4320 (default).</summary>
         public int SmsValidity { get; set; } = 4320;
         public bool IsSmsTest { get; set; }
         public string CallbackUrl { get; set; }

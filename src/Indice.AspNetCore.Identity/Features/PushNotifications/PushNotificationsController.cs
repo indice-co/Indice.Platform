@@ -43,7 +43,7 @@ namespace Indice.AspNetCore.Identity.Api
             if (request.Broadcast) {
                 await PushNotificationService.BroadcastAsync(request.Title, request.Body, request.Data, request.Classification);
             } else {
-                await PushNotificationService.SendAsync(request.Title, request.Body, request.Data, request.UserTag, request.Classification, request.Tags ?? Array.Empty<string>());
+                await PushNotificationService.SendToUserAsync(request.Title, request.Body, request.Data, request.UserTag, request.Classification, request.Tags ?? Array.Empty<string>());
             }
             return NoContent();
         }

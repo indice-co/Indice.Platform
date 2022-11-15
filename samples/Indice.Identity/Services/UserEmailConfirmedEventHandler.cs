@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Api.Events;
+using Indice.AspNetCore.Identity.Events;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Services
 {
     /// <summary>
-    /// Handler for <see cref="UserEmailConfirmedEvent"/> raised by IdentityServer API.
+    /// Handler for <see cref="EmailConfirmedEvent"/> raised by IdentityServer API.
     /// </summary>
-    public class UserEmailConfirmedEventHandler : IPlatformEventHandler<UserEmailConfirmedEvent>
+    public class UserEmailConfirmedEventHandler : IPlatformEventHandler<EmailConfirmedEvent>
     {
         private readonly ILogger<UserEmailConfirmedEventHandler> _logger;
 
@@ -21,7 +21,7 @@ namespace Indice.Identity.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task Handle(UserEmailConfirmedEvent @event) {
+        public Task Handle(EmailConfirmedEvent @event) {
             _logger.LogDebug($"User confirmed email: {@event}");
             return Task.CompletedTask;
         }
