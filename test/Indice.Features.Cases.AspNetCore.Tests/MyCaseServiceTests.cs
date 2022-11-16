@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,28 +21,33 @@ using Xunit;
 
 namespace Indice.Features.Cases.Tests
 {
-    public class CaseOrderByTest : IDisposable
+    public class MyCaseServiceTests : IDisposable
     {
-        public CaseOrderByTest() {
+        public MyCaseServiceTests() {
             var inMemorySettings = new Dictionary<string, string> {
-                ["ConnectionStrings:CasesDb"] = "Server=(localdb)\\MSSQLLocalDB;Database=ChaniaBank.Cases;Trusted_Connection=True;MultipleActiveResultSets=true",
+                ["ConnectionStrings:CasesDb"] = "Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.Test;Trusted_Connection=True;MultipleActiveResultSets=true",
             };
             Microsoft.Extensions.Configuration.IConfiguration configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(inMemorySettings)
+                .AddUserSecrets<MyCaseServiceTests>(optional: true)
                 .Build();
             var collection = new ServiceCollection()
                 .AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("CasesDb")));
             ServiceProvider = collection.BuildServiceProvider();
+
+            // ensure created and seed here.
         }
 
         public ServiceProvider ServiceProvider { get; }
 
-        public void Dispose() {
-        }
 
-        [Fact]
-        public async Task FilterBasedOnCode() {
+        [Fact(Skip = "Not ready yet. Fix the seed method")]
+        public async Task CaseOrderBy_DoesNot_Throw_Test() {
             var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+            if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
+                // seed here.
+                await dbContext.SeedAsync();
+            }
             var a = await dbContext.Cases.ToListAsync();
             var mockCaseTypeService = new Mock<ICaseTypeService>();
             var mockCaseEventService = new Mock<ICaseEventService>();
@@ -72,7 +78,11 @@ namespace Indice.Features.Cases.Tests
             var identity = new ClaimsIdentity(claims, "Basic"); // By setting "Basic" we are making the identity "Authenticated" so we can user user.IsAuthenticated() property later in our code
             return new ClaimsPrincipal(identity);
         }
+        public void Dispose() {
+            var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+            dbContext.Database.EnsureDeleted();
+            ServiceProvider.Dispose();
+        }
     }
 
-    
 }
