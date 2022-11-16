@@ -3,7 +3,7 @@
     <Description>Indice.EntityFrameworkCore Class Library</Description>
     <Copyright>Copyright (c) 2020 Indice</Copyright>
     <AssemblyTitle>Indice.EntityFrameworkCore</AssemblyTitle>
-    <VersionPrefix>6.2.1</VersionPrefix>
+    <VersionPrefix>6.2.2</VersionPrefix>
     <!--<VersionSuffix>beta-04</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>

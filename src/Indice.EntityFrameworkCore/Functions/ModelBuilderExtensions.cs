@@ -25,6 +25,9 @@ namespace Indice.EntityFrameworkCore
             modelBuilder.ApplyJsonValue();
             modelBuilder.ApplyJsonCastToDate();
             modelBuilder.ApplyJsonCastToDouble();
+#if !NET5_0_OR_GREATER // netcoreapp3.1
+            modelBuilder.ApplyConvertToBoolean();
+#endif
             return modelBuilder;
         }
 
@@ -71,6 +74,29 @@ namespace Indice.EntityFrameworkCore
                         })
                         .HasSchema(string.Empty);
         }
+
+#if !NET5_0_OR_GREATER
+        /// <summary>
+        /// Applies configuration so that we can user <see cref="Convert.ToBoolean(string)"/>
+        /// </summary>
+        /// <param name="modelBuilder"></param>
+        /// <returns></returns>
+        /// <remarks>This is introduced in .net5 (missing in netcoreapp3.1 <a href="https://learn.microsoft.com/en-us/ef/core/providers/sql-server/functions">EF Sql Server Functions</a></remarks>
+        public static DbFunctionBuilder ApplyConvertToBoolean(this ModelBuilder modelBuilder) {
+            if (modelBuilder is null) {
+                throw new ArgumentNullException(nameof(modelBuilder));
+            }
+            return modelBuilder.HasDbFunction(typeof(Convert).GetMethod(nameof(Convert.ToBoolean), new[] { typeof(string) } ))
+                        .HasTranslation(args => {
+                            var bit = new SqlFragmentExpression("bit");
+                            var convertArgs = new SqlExpression[] { bit }.Concat(args);
+
+                            return SqlFunctionExpression.Create("Convert", convertArgs, typeof(bool?), null);
+
+                        })
+                        .HasSchema(string.Empty);
+        }
+#endif
 
         /// <summary>
         /// Applies configuration so that we can user <see cref="JsonFunctions.CastToDouble(string)"/>

@@ -61,7 +61,6 @@ namespace Indice.Services.Tests
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" });
-            results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
             Assert.True(true);
         }
 
