@@ -3,7 +3,7 @@
     <Description>Indice.Features.Multitenancy.Worker.Azure Class Library</Description>
     <Copyright>Copyright (c) 2022 Indice</Copyright>
     <AssemblyTitle>Indice.Features.Multitenancy.Worker.Azure</AssemblyTitle>
-    <VersionPrefix>6.2.0</VersionPrefix>
+    <VersionPrefix>6.2.1</VersionPrefix>
     <!--<VersionSuffix>beta-01</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>net5.0;net6.0;</TargetFrameworks>
@@ -34,7 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Features.Multitenancy.Core" Version="6.0.0" />
-    <PackageReference Include="Indice.Services" Version="6.2.0" />
+    <PackageReference Include="Indice.Services" Version="6.2.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>

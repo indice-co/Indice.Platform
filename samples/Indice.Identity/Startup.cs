@@ -10,7 +10,6 @@ using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Events;
 using Indice.AspNetCore.Identity.Localization;
 using Indice.AspNetCore.Middleware;
-using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
 using Indice.Identity.Security;
