@@ -31,8 +31,13 @@ namespace Indice.Features.Messages.Core.Handlers
             // If campaign is global and has push notification as delivery channel, then we short-circuit the flow and we immediately broadcast the message.
             if (campaign.IsGlobal && campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
                 var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
-                await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromCampaignCreatedEvent(campaign, broadcast: true),
-                    builder => builder.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
+                await eventDispatcher.RaiseEventAsync(
+                    payload: SendPushNotificationEvent.FromCampaignCreatedEvent(campaign, broadcast: true),
+                    configure: builder =>
+                        builder.WrapInEnvelope()
+                               .At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow)
+                               .WithQueueName(EventNames.SendPushNotification)
+                    );
             }
             // If campaign is not global and a distribution list has been set, then we will create multiple events in order to resolve contact info, merge campaign template with contact data and dispatch messages in various channels.
             if (!campaign.IsGlobal) {

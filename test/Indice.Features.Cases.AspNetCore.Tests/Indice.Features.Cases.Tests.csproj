@@ -6,6 +6,8 @@
     <IsPackable>false</IsPackable>
 
     <LangVersion>latest</LangVersion>
+
+    <UserSecretsId>18f8ae2f-f3b5-4d7d-9233-504524330ca0</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

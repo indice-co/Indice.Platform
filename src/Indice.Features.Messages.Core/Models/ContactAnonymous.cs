@@ -18,12 +18,12 @@
 
         /// <summary>Convert the anonymous contact to a concrete one.</summary>
         public Contact ToContact() => new() {
-            Salutation = Salutation,
             Email = Email,
             FirstName = FirstName,
-            LastName = LastName,
             FullName = FullName,
-            PhoneNumber = PhoneNumber
+            LastName = LastName,
+            PhoneNumber = PhoneNumber,
+            Salutation = Salutation
         };
     }
 }

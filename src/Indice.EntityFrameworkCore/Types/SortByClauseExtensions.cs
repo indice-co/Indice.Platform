@@ -36,7 +36,7 @@ namespace Indice.Types
         public static IOrderedQueryable<TSource> ApplyJsonOrder<TSource>(this IQueryable<TSource> source, SortByClause sorting, bool append) {
             var expression = DynamicExtensions.GetFullMemberExpressionTree<TSource>(sorting.Path, sorting.DataType);
             var returnType = expression.Body.Type;
-            var methodPrefix = append && source is IOrderedQueryable<TSource> ? nameof(Queryable.ThenBy) : nameof(Queryable.OrderBy);
+            var methodPrefix = append && OrderByExtensions.IsOrdered(source) ? nameof(Queryable.ThenBy) : nameof(Queryable.OrderBy);
             var methodSuffix = sorting.Direction == SortByClause.DESC ? "Descending" : string.Empty;
             var methodName = methodPrefix + methodSuffix;
             var result = typeof(Queryable).GetMethods()

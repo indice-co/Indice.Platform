@@ -85,19 +85,6 @@ namespace Microsoft.Extensions.DependencyInjection
             options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ConfigureDbContext);
         }
 
-        /// <summary>
-        /// Registers an implementation of <see cref="IPlatformEventHandler{TEvent}"/> for the specified event type.
-        /// </summary>
-        /// <typeparam name="TEvent">The type of the event to handler.</typeparam>
-        /// <typeparam name="TEventHandler">The handler to user for the specified event.</typeparam>
-        /// <param name="options">Options for configuring the IdentityServer API feature.</param>
-        public static IdentityServerApiEndpointsOptions AddPlatformEventHandler<TEvent, TEventHandler>(this IdentityServerApiEndpointsOptions options)
-            where TEvent : IPlatformEvent
-            where TEventHandler : class, IPlatformEventHandler<TEvent> {
-            options.Services.AddPlatformEventHandler<TEvent, TEventHandler>();
-            return options;
-        }
-
         private static IServiceCollection AddIdentityApiAuthorization(this IServiceCollection services) => services.AddAuthorization(authOptions => {
             authOptions.AddPolicy(IdentityServerApi.Scope, policy => {
                 policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)

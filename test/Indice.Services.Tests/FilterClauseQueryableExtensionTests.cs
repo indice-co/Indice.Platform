@@ -61,7 +61,6 @@ namespace Indice.Services.Tests
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" });
-            results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
             Assert.True(true);
         }
 
@@ -69,7 +68,7 @@ namespace Indice.Services.Tests
         public async Task ToResultset_Translates_DynamicJsonPaths_MultiSort_Test() {
             var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
             var query = dbContext.Dummies.AsQueryable();
-            var options = new ListOptions { Sort = "data.displayName,name-" };
+            var options = new ListOptions { Sort = "name-,data.displayName" };
             foreach (var sorting in options.GetSortings()) {
                 query = query.OrderBy(sorting, append:true);
             }

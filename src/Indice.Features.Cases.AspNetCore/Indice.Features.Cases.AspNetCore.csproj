@@ -12,7 +12,7 @@
     <AssemblyTitle>Indice.Features.Cases.AspNetCore</AssemblyTitle>
     <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
     <VersionPrefix>6.1.0</VersionPrefix>
-    <VersionSuffix>beta-26</VersionSuffix>
+    <VersionSuffix>beta-30</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -32,7 +32,9 @@
   <ItemGroup>
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
-
+  <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
+  </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
   </ItemGroup>
@@ -45,8 +47,8 @@
     <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.8.2" />
     <PackageReference Include="Elsa.Server.Api" Version="2.8.2" />
     <PackageReference Include="IdentityModel" Version="4.5.0" />
-    <PackageReference Include="Indice.AspNetCore" Version="6.1.14" />
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.1.3" />
+    <PackageReference Include="Indice.AspNetCore" Version="6.2.1" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.2.1" />
 
     <PackageReference Include="JsonSchema.Net" Version="2.4.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />

@@ -2,13 +2,13 @@
   <PropertyGroup>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <Copyright>Copyright (c) 2022 Indice</Copyright>
-    <Description>Indice.AspNetCore.Features.Campaigns.Workers.Azure Class Library</Description>
+    <Description>Indice.Features.Messages.Worker.Azure Class Library</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>Latest</LangVersion>
     <Nullable>disable</Nullable>
     <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>6.1.12</VersionPrefix>
+    <VersionPrefix>6.2.1</VersionPrefix>
     <!--<VersionSuffix>beta-10</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
@@ -27,9 +27,9 @@
     <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Messages.Core" Version="6.1.12" />
-    <PackageReference Include="Indice.Features.Multitenancy.Worker.Azure" Version="6.0.0" />
-    <PackageReference Include="Indice.Services" Version="6.1.12" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="6.2.1" />
+    <PackageReference Include="Indice.Features.Multitenancy.Worker.Azure" Version="6.2.1" />
+    <PackageReference Include="Indice.Services" Version="6.2.1" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.6.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.0.0" />
   </ItemGroup>

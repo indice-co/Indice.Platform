@@ -9,6 +9,6 @@ namespace Indice.Services
         public Task SendAsync(string destination, string subject, string body) => Task.CompletedTask;
 
         /// <inheritdoc />
-        public bool Supports(string deliveryChannel) => false;
+        public bool Supports(string deliveryChannel) => true;
     }
 }

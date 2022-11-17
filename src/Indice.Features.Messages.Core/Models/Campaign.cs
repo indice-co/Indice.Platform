@@ -1,5 +1,4 @@
-﻿using System.Dynamic;
-using Indice.Types;
+﻿using Indice.Types;
 
 namespace Indice.Features.Messages.Core.Models
 {
@@ -27,7 +26,7 @@ namespace Indice.Features.Messages.Core.Models
         /// <summary>The delivery channel of a campaign.</summary>
         public MessageChannelKind MessageChannelKind { get; set; }
         /// <summary>Optional data for the campaign.</summary>
-        public ExpandoObject Data { get; set; }
+        public dynamic Data { get; set; }
         /// <summary>Specifies the principal that created the campaign.</summary>
         public string CreatedBy { get; set; }
         /// <summary>Specifies when a campaign was created.</summary>

@@ -71,7 +71,7 @@ namespace Indice.Features.Messages.Core.Handlers
                 }
             }
             contact ??= @event.Contact;
-            if (@event.Contact.NotUpdatedAWhileNow || @event.Contact.IsEmpty) {
+            if ((@event.Contact.NotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
                 await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign.DistributionListId));
             }
             // In case this is not yet published we should stop here so no messages get sent yet.
@@ -91,11 +91,11 @@ namespace Indice.Features.Messages.Core.Handlers
                         text = campaign.ActionLink?.Text,
                     },
                     now = DateTimeOffset.UtcNow,
-                    contact = contact is not null 
-                        ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()) 
+                    contact = contact is not null
+                        ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
                         : null,
-                    data = campaign.Data is not null 
-                        ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings()) 
+                    data = campaign.Data is not null
+                        ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
                         : null
                 };
                 var messageContent = campaign.Content[content.Key];
