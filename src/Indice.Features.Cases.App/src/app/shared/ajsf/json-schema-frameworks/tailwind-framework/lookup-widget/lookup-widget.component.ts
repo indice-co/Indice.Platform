@@ -1,5 +1,5 @@
 import { JsonSchemaFormService } from "@ajsf-extended/core";
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { Subject } from "rxjs";
 import { takeUntil, tap } from "rxjs/operators";
 import { LookupItemResultSet } from "src/app/core/services/cases-api.service";
@@ -28,6 +28,7 @@ export class LookupWidgetComponent implements OnInit {
   private destroy$ = new Subject();
 
   constructor(
+    public changeDetector: ChangeDetectorRef,
     private _lookupsService: LookupsService,
     private jsf: JsonSchemaFormService
   ) { }
@@ -48,6 +49,7 @@ export class LookupWidgetComponent implements OnInit {
         // initialize searchTerm
         if (this.formControl.value) {
           this.searchTerm = this.options.typeahead.source.find((s: string) => s.startsWith(`${this.formControl.value} ${this.separator}`));
+          this.changeDetector.detectChanges();
         }
       }
     );
