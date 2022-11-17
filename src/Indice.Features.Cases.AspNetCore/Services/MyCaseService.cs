@@ -48,7 +48,7 @@ namespace Indice.Features.Cases.Services
             string groupId,
             CustomerMeta customer,
             Dictionary<string, string> metadata,
-            string? channel) {
+            string channel) {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (caseTypeCode == null) throw new ArgumentNullException(nameof(caseTypeCode));
 
@@ -60,7 +60,7 @@ namespace Indice.Features.Cases.Services
                 groupId,
                 customer,
                 metadata,
-                channel ?? CasesApiConstants.Channels.Customer);
+                string.IsNullOrEmpty(channel) ? CasesApiConstants.Channels.Customer : channel);
 
             return new CreateCaseResponse {
                 Id = entity.Id,
@@ -92,7 +92,7 @@ namespace Indice.Features.Cases.Services
             var userId = user.FindSubjectId();
             var @case = await GetDbCaseById(caseId, userId);
             if (@case is null) {
-                return null!;
+                return null;
             }
 
             // the customer should be able to see only cases that have been created from him/herself!
@@ -265,7 +265,7 @@ namespace Indice.Features.Cases.Services
             return caseType;
         }
 
-        private async Task<DbCase?> GetDbCaseById(Guid caseId, string userId) {
+        private async Task<DbCase> GetDbCaseById(Guid caseId, string userId) {
             return await _dbContext.Cases
                 .AsNoTracking()
                 .Include(c => c.CaseType)
@@ -274,7 +274,7 @@ namespace Indice.Features.Cases.Services
                 .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
         }
 
-        private async Task<DbCaseData?> GetDbCaseData(Guid caseId, string userId, DbCase? @case) {
+        private async Task<DbCaseData> GetDbCaseData(Guid caseId, string userId, DbCase @case) {
             var caseDataQueryable = _dbContext.CaseData
                 .AsNoTracking()
                 .Where(dbCaseData => dbCaseData.CaseId == caseId)

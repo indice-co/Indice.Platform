@@ -28,7 +28,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="exception">The exception to send.</param>
         /// <param name="message">The message to log.</param>
         /// <returns></returns>
-        Task Send(Guid caseId, ClaimsPrincipal user, Exception exception, string? message = null);
+        Task Send(Guid caseId, ClaimsPrincipal user, Exception exception, string message = null);
     }
 
     /// <summary>

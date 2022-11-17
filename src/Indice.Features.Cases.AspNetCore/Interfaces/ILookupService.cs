@@ -15,6 +15,6 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="lookupName">The lookup name.</param>
         /// <param name="searchValues">Any search values to filter the results.</param>
         /// <returns></returns>
-        Task<ResultSet<LookupItem>> Get(string lookupName, string? searchValues = null);
+        Task<ResultSet<LookupItem>> Get(string lookupName, string searchValues = null);
     }
 }

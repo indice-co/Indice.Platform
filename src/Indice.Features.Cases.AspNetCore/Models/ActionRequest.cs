@@ -15,6 +15,6 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The value of the action (non-required).
         /// </summary>
-        public string? Value { get; set; }
+        public string Value { get; set; }
     }
 }

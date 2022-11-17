@@ -31,7 +31,7 @@ namespace Indice.Features.Cases.Services
             _caseSharedResourceService = caseSharedResourceService ?? throw new ArgumentNullException(nameof(caseSharedResourceService));
         }
 
-        public async Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string? reason) {
+        public async Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string reason) {
             if (caseId == default) throw new ArgumentNullException(nameof(caseId));
             if (user == null) throw new ArgumentNullException(nameof(user));
 
@@ -46,7 +46,7 @@ namespace Indice.Features.Cases.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<DbCaseApproval?> GetLastApproval(Guid caseId) {
+        public async Task<DbCaseApproval> GetLastApproval(Guid caseId) {
             if (caseId == default) throw new ArgumentNullException(nameof(caseId));
 
             return await _dbContext.CaseApprovals

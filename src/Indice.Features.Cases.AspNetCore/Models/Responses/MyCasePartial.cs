@@ -46,7 +46,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// Translations.
         /// </summary>
-        public TranslationDictionary<MyCasePartialTranslation>? Translations { get; set; }
+        public TranslationDictionary<MyCasePartialTranslation> Translations { get; set; }
 
         #region Methods
 

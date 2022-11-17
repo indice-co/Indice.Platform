@@ -84,7 +84,7 @@ namespace Indice.Features.Cases.Services
             return user.FindSubjectId().Equals(caseDetails.CreatedById);
         }
 
-        private List<string>? ApplyCheckpointTypeFilter(List<string>? checkpointTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
+        private List<string> ApplyCheckpointTypeFilter(List<string> checkpointTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
             var allowedCheckpointTypeCodes = roleCaseTypes
                 .Where(c => roleClaims.Contains(c.RoleName!))
                 .Select(x => x.CheckpointType.Code)
@@ -96,7 +96,7 @@ namespace Indice.Features.Cases.Services
             return checkpointTypeCodes is null ? allowedCheckpointTypeCodes : allowedCheckpointTypeCodes.Intersect(allowedRelativeCheckpointTypeCodes).ToList();
         }
 
-        private List<string>? ApplyCaseTypeFilter(List<string>? caseTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
+        private List<string> ApplyCaseTypeFilter(List<string> caseTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
             var allowedCaseTypeCodes = roleCaseTypes
                 .Where(c => roleClaims.Contains(c.RoleName!))
                 .Select(x => x.CaseType.Code)

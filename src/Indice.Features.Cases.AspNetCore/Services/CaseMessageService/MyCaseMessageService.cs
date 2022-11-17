@@ -27,7 +27,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
             return await SendInternal(@case, message, user);
         }
 
-        public async Task Send(Guid caseId, ClaimsPrincipal user, Exception exception, string? message = null) {
+        public async Task Send(Guid caseId, ClaimsPrincipal user, Exception exception, string message = null) {
             var @case = await GetMyCase(caseId, user);
             await SendInternal(@case, user, exception, message);
         }

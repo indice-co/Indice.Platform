@@ -17,7 +17,7 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The name of the checkpoint the case must proceed.
         /// </summary>
-        public string? CheckpointTypeName { get; set; }
+        public string CheckpointTypeName { get; set; }
         
         /// <summary>
         /// Indicates if the comment should be visible to the customer.
@@ -27,16 +27,16 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The comment to add to the checkpoint.
         /// </summary>
-        public string? Comment { get; set; }
+        public string Comment { get; set; }
         
         /// <summary>
         /// The file that is attached with the checkpoint.
         /// </summary>
-        public IFormFile? File { get; set; }
+        public IFormFile File { get; set; }
 
         /// <summary>
         /// The data related with the message.
         /// </summary>
-        public string? Data { get; set; }
+        public string Data { get; set; }
     }
 }

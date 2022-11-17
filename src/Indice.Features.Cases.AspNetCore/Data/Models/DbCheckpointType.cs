@@ -8,7 +8,7 @@ namespace Indice.Features.Cases.Data.Models
         public Guid Id { get; set; }
         public Guid CaseTypeId { get; set; }
         public string Code { get; private set; }
-        public string? Description { get; set; }
+        public string Description { get; set; }
         public CasePublicStatus PublicStatus { get; set; }
         public bool Private { get; set; }
         public virtual DbCaseType CaseType { get; set; }

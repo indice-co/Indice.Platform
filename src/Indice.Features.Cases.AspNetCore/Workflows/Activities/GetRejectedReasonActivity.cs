@@ -75,7 +75,7 @@ namespace Indice.Features.Cases.Workflows.Activities
             return Outcome(OutcomeNames.Done);
         }
         
-        private string GetCustomerLanguageOrDefault(string? customerCultureName) {
+        private string GetCustomerLanguageOrDefault(string customerCultureName) {
             if (customerCultureName == null) {
                 return _defaultTranslationLanguage;
             }
