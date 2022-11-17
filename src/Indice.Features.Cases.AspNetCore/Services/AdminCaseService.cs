@@ -128,10 +128,10 @@ namespace Indice.Features.Cases.Services
                 query = query.Where(c => c.CustomerName.ToLower().Contains(options.Filter.CustomerName.ToLower()));
             }
             if (options.Filter.From != null) {
-                query = query.Where(c => c.CreatedByWhen >= options.Filter.From);
+                query = query.Where(c => c.CreatedByWhen >= options.Filter.From.Value.Date);
             }
             if (options.Filter.To != null) {
-                query = query.Where(c => c.CreatedByWhen <= options.Filter.To);
+                query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
             }
             // filter CaseTypeCodes
             if (options.Filter.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Count() > 0) {
@@ -230,7 +230,7 @@ namespace Indice.Features.Cases.Services
                 .ToListAsync();
             return attachments.ToResultSet();
         }
-        
+
         public async Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId) {
             var attachment = await _dbContext.Attachments
                 .AsNoTracking()
@@ -244,7 +244,7 @@ namespace Indice.Features.Cases.Services
                 .SingleOrDefaultAsync(x => x.Id == attachmentId);
             return attachment;
         }
-        
+
         public async Task<AuditMeta> AssignCase(ClaimsPrincipal user, Guid caseId) {
             var assignedTo = AuditMeta.Create(user);
             var @case = await _dbContext.Cases.FindAsync(caseId);
