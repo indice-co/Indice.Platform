@@ -24,9 +24,8 @@ public class SchemaValidatorTests
     }";
 
     [Fact]
-    public void IsValid_EmptySchema_True(){
-        var result = _schemaValidator.IsValid(It.IsAny<string>(), It.IsAny<string>());
-        Assert.True(result);
+    public void IsValid_EmptySchema_Throws(){
+        Assert.Throws<ArgumentNullException>(() => _schemaValidator.IsValid(It.IsAny<string>(), It.IsAny<string>()));
     }
 
     [Fact]
