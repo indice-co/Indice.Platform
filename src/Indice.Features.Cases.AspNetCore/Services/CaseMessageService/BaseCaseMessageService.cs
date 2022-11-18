@@ -159,7 +159,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                 @case.PublicCheckpointId = newCheckpoint.Id;
             }
 
-            if (checkpointType.PublicStatus == CasePublicStatus.Completed) {
+            if (checkpointType.PublicStatus == CasePublicStatus.Completed && @case.CompletedBy is not null) {
                 @case.CompletedBy = AuditMeta.Create(user);
             }
 
