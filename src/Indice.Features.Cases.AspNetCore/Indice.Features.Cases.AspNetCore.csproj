@@ -35,9 +35,6 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
   </ItemGroup>
-  <ItemGroup>
-    <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Elsa" Version="2.8.2" />
