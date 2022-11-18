@@ -86,6 +86,30 @@ namespace Indice.Features.Cases.Workflows.Activities
         public string? ActionDescription { get; set; }
 
         /// <summary>
+        /// The class of the action button to show at Cases Back-office UI.
+        /// </summary>
+        [ActivityInput(
+            Label = "Action Class",
+            Hint = "The class of the action button to show at Cases Back-office UI.",
+            UIHint = ActivityInputUIHints.SingleLine,
+            DefaultSyntax = SyntaxNames.Literal,
+            SupportedSyntaxes = new[] { SyntaxNames.Literal }
+        )]
+        public string? ActionClass { get; set; }
+
+        /// <summary>
+        /// The redirect of the action button to show at Cases Back-office UI.
+        /// </summary>
+        [ActivityInput(
+            Label = "Action Redirect",
+            Hint = "The redirect of the action button to show at Cases Back-office UI.",
+            UIHint = ActivityInputUIHints.SingleLine,
+            DefaultSyntax = SyntaxNames.Literal,
+            SupportedSyntaxes = new[] { SyntaxNames.Literal }
+        )]
+        public string? ActionRedirect { get; set; }
+
+        /// <summary>
         /// User role that can proceed to this action. If left blank, all authenticated users can proceed to this action.
         /// </summary>
         [ActivityInput(

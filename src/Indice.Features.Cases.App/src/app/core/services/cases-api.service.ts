@@ -247,6 +247,7 @@ export interface ICasesApiService {
      * @param filter_CompletedFrom (optional) The CompletedFrom filter.
      * @param filter_CompletedTo (optional) The CompletedTo filter.
      * @param filter_Data (optional) Construct filter clauses based on case data.
+     * @param filter_Metadata (optional) Construct filter clauses based on case metadata.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -254,7 +255,7 @@ export interface ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
+    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
     /**
      * Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.
      * @param api_version (optional) 
@@ -3216,6 +3217,7 @@ export class CasesApiService implements ICasesApiService {
      * @param filter_CompletedFrom (optional) The CompletedFrom filter.
      * @param filter_CompletedTo (optional) The CompletedTo filter.
      * @param filter_Data (optional) Construct filter clauses based on case data.
+     * @param filter_Metadata (optional) Construct filter clauses based on case metadata.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -3223,7 +3225,7 @@ export class CasesApiService implements ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet> {
+    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet> {
         let url_ = this.baseUrl + "/api/my/cases?";
         if (filter_CaseTypeTags === null)
             throw new Error("The parameter 'filter_CaseTypeTags' cannot be null.");
@@ -3257,6 +3259,10 @@ export class CasesApiService implements ICasesApiService {
             throw new Error("The parameter 'filter_Data' cannot be null.");
         else if (filter_Data !== undefined)
             filter_Data && filter_Data.forEach(item => { url_ += "Filter.Data=" + encodeURIComponent("" + item) + "&"; });
+        if (filter_Metadata === null)
+            throw new Error("The parameter 'filter_Metadata' cannot be null.");
+        else if (filter_Metadata !== undefined)
+            filter_Metadata && filter_Metadata.forEach(item => { url_ += "Filter.Metadata=" + encodeURIComponent("" + item) + "&"; });
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -5873,6 +5879,10 @@ export class CustomCaseAction implements ICustomCaseAction {
     name?: string | undefined;
     /** The label of the action. */
     label?: string | undefined;
+    /** The class of the action. */
+    class?: string | undefined;
+    /** The redirect of the action. */
+    redirect?: string | undefined;
     /** The description of the action. */
     description?: string | undefined;
     /** The Default Value of action's input. */
@@ -5894,6 +5904,8 @@ export class CustomCaseAction implements ICustomCaseAction {
             this.id = _data["id"];
             this.name = _data["name"];
             this.label = _data["label"];
+            this.class = _data["class"];
+            this.redirect = _data["redirect"];
             this.description = _data["description"];
             this.defaultValue = _data["defaultValue"];
             this.hasInput = _data["hasInput"];
@@ -5912,6 +5924,8 @@ export class CustomCaseAction implements ICustomCaseAction {
         data["id"] = this.id;
         data["name"] = this.name;
         data["label"] = this.label;
+        data["class"] = this.class;
+        data["redirect"] = this.redirect;
         data["description"] = this.description;
         data["defaultValue"] = this.defaultValue;
         data["hasInput"] = this.hasInput;
@@ -5927,6 +5941,10 @@ export interface ICustomCaseAction {
     name?: string | undefined;
     /** The label of the action. */
     label?: string | undefined;
+    /** The class of the action. */
+    class?: string | undefined;
+    /** The redirect of the action. */
+    redirect?: string | undefined;
     /** The description of the action. */
     description?: string | undefined;
     /** The Default Value of action's input. */

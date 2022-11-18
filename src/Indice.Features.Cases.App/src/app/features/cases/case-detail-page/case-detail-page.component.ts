@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { CaseActions, CaseDetails, CasesApiService, ActionRequest, IActionRequest, TimelineEntry } from 'src/app/core/services/cases-api.service';
+import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry, CasePublicStatus } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-detail-page',
@@ -30,6 +30,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   public now: Date = new Date();
   public typeId?: string;
   public caseTypeConfig: any;
+  public casePublicStatus = CasePublicStatus;
 
   /** shows the warning modal conditionally */
   public showWarningModal: boolean = false;
@@ -123,10 +124,16 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
    * Trigger a blocking workflow activity by its Id.
    * @param event The action Id to trigger the corresponding custom workflow action.
    */
-  onCustomActionTrigger(event: IActionRequest) {
+  onCustomActionTrigger(event: { redirect: string | undefined, id: string | undefined, value: string | undefined }) {
     this.api.triggerAction(this.caseId, undefined, new ActionRequest({ id: event?.id, value: event?.value }))
       .pipe(
-        tap(() => this.onActionsChanged())
+        tap(() => {
+          if (event.redirect) {
+            this.router.navigate([`/${event.redirect}`]);
+          } else {
+            this.onActionsChanged();
+          }
+        })
       )
       .subscribe();
   }

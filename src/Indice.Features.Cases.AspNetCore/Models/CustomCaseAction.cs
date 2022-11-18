@@ -21,6 +21,16 @@
         public string? Label { get; set; }
 
         /// <summary>
+        /// The class of the action.
+        /// </summary>
+        public string Class { get; set; }
+
+        /// <summary>
+        /// The redirect of the action.
+        /// </summary>
+        public string Redirect { get; set; }
+
+        /// <summary>
         /// The description of the action.
         /// </summary>
         public string? Description { get; set; }
