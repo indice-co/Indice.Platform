@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CustomCaseAction } from 'src/app/core/services/cases-api.service';
+import { CustomCaseAction, Toaster } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-custom-action',
@@ -9,7 +9,7 @@ import { CustomCaseAction } from 'src/app/core/services/cases-api.service';
 export class CaseCustomActionComponent implements OnInit {
 
   @Input() action: CustomCaseAction | undefined;
-  @Output() actionTriggered = new EventEmitter<{ redirect: string | undefined, id: string | undefined, value: string | undefined }>();
+  @Output() actionTriggered = new EventEmitter<{ redirectToList: boolean | undefined, redirectToaster: Toaster | undefined, id: string | undefined, value: string | undefined }>();
   buttonDisabled = false;
   value: string | undefined;
   class: string | undefined;
@@ -24,7 +24,8 @@ export class CaseCustomActionComponent implements OnInit {
   triggerAction() {
     this.buttonDisabled = true;
     this.actionTriggered.emit({
-      redirect: this.action?.redirect,
+      redirectToList: this.action?.redirectToList,
+      redirectToaster: this.action?.redirectToaster,
       id: this.action?.id!,
       value: this.value!
     });

@@ -26,9 +26,14 @@
         public string Class { get; set; }
 
         /// <summary>
-        /// The redirect of the action.
+        /// Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI.
         /// </summary>
-        public string Redirect { get; set; }
+        public bool? RedirectToList { get; set; }
+
+        /// <summary>
+        /// Redirect Toaster.
+        /// </summary>
+        public Toaster RedirectToaster { get; set; }
 
         /// <summary>
         /// The description of the action.

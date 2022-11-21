@@ -5881,8 +5881,9 @@ export class CustomCaseAction implements ICustomCaseAction {
     label?: string | undefined;
     /** The class of the action. */
     class?: string | undefined;
-    /** The redirect of the action. */
-    redirect?: string | undefined;
+    /** Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI. */
+    redirectToList?: boolean | undefined;
+    redirectToaster?: Toaster;
     /** The description of the action. */
     description?: string | undefined;
     /** The Default Value of action's input. */
@@ -5905,7 +5906,8 @@ export class CustomCaseAction implements ICustomCaseAction {
             this.name = _data["name"];
             this.label = _data["label"];
             this.class = _data["class"];
-            this.redirect = _data["redirect"];
+            this.redirectToList = _data["redirectToList"];
+            this.redirectToaster = _data["redirectToaster"] ? Toaster.fromJS(_data["redirectToaster"]) : <any>undefined;
             this.description = _data["description"];
             this.defaultValue = _data["defaultValue"];
             this.hasInput = _data["hasInput"];
@@ -5925,7 +5927,8 @@ export class CustomCaseAction implements ICustomCaseAction {
         data["name"] = this.name;
         data["label"] = this.label;
         data["class"] = this.class;
-        data["redirect"] = this.redirect;
+        data["redirectToList"] = this.redirectToList;
+        data["redirectToaster"] = this.redirectToaster ? this.redirectToaster.toJSON() : <any>undefined;
         data["description"] = this.description;
         data["defaultValue"] = this.defaultValue;
         data["hasInput"] = this.hasInput;
@@ -5943,8 +5946,9 @@ export interface ICustomCaseAction {
     label?: string | undefined;
     /** The class of the action. */
     class?: string | undefined;
-    /** The redirect of the action. */
-    redirect?: string | undefined;
+    /** Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI. */
+    redirectToList?: boolean | undefined;
+    redirectToaster?: Toaster;
     /** The description of the action. */
     description?: string | undefined;
     /** The Default Value of action's input. */
@@ -6597,6 +6601,52 @@ export interface ITimelineEntry {
     isCheckpoint?: boolean;
     checkpoint?: Checkpoint;
     comment?: Comment;
+}
+
+/** Toaster */
+export class Toaster implements IToaster {
+    /** The Title. */
+    title?: string | undefined;
+    /** The Body. */
+    body?: string | undefined;
+
+    constructor(data?: IToaster) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.title = _data["title"];
+            this.body = _data["body"];
+        }
+    }
+
+    static fromJS(data: any): Toaster {
+        data = typeof data === 'object' ? data : {};
+        let result = new Toaster();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["title"] = this.title;
+        data["body"] = this.body;
+        return data;
+    }
+}
+
+/** Toaster */
+export interface IToaster {
+    /** The Title. */
+    title?: string | undefined;
+    /** The Body. */
+    body?: string | undefined;
 }
 
 /** The request to update the data of the case. */

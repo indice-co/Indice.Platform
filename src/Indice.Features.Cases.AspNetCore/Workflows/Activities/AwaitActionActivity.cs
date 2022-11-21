@@ -98,16 +98,25 @@ namespace Indice.Features.Cases.Workflows.Activities
         public string? ActionClass { get; set; }
 
         /// <summary>
-        /// The redirect of the action button to show at Cases Back-office UI.
+        /// Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI.
         /// </summary>
         [ActivityInput(
-            Label = "Action Redirect",
-            Hint = "The redirect of the action button to show at Cases Back-office UI.",
-            UIHint = ActivityInputUIHints.SingleLine,
-            DefaultSyntax = SyntaxNames.Literal,
-            SupportedSyntaxes = new[] { SyntaxNames.Literal }
+            Label = "Redirect to List",
+            Hint = "Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI."
         )]
-        public string? ActionRedirect { get; set; }
+        public bool RedirectToList { get; set; }
+
+        /// <summary>
+        /// Redirect Toaster.
+        /// </summary>
+        [ActivityInput(
+            Label = "Redirect Toaster",
+            Hint = "Redirect Toaster.",
+            UIHint = ActivityInputUIHints.MultiLine,
+            DefaultSyntax = SyntaxNames.JavaScript,
+            SupportedSyntaxes = new[] { SyntaxNames.JavaScript, SyntaxNames.Liquid }
+        )]
+        public Toaster? RedirectToaster { get; set; }
 
         /// <summary>
         /// User role that can proceed to this action. If left blank, all authenticated users can proceed to this action.
