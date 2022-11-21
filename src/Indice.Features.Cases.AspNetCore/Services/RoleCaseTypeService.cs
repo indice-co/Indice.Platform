@@ -39,6 +39,19 @@ namespace Indice.Features.Cases.Services
 
             // if client is systemic, then bypass checks
             if ((user.HasClaim(JwtClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
+                // we have to convert from CheckpointTypeNames e.g. "Approved" to CheckpointTypeCodes e.g. "CaseX:Approved"!
+                if (filter.CheckpointTypeCodes != null && filter.CheckpointTypeCodes.Count() > 0) {
+                    var codes = await _dbContext.CheckpointTypes
+                        .AsQueryable()
+                        .Select(c => c.Code)
+                        .AsAsyncEnumerable()
+                        .Distinct()
+                        .ToListAsync();
+                    filter.CheckpointTypeCodes = codes
+                        .Where(c => filter.CheckpointTypeCodes
+                                        .Any(name => c.EndsWith($":{name}")))
+                        .ToList();
+                }
                 return filter;
             }
 
@@ -91,7 +104,10 @@ namespace Indice.Features.Cases.Services
                 .ToList();
             // fuzzy match the CheckPointType Code
             var allowedRelativeCheckpointTypeCodes = checkpointTypeCodes != null
-                ? allowedCheckpointTypeCodes.Where(a => checkpointTypeCodes.Any(a.Contains)).ToList()
+                ? allowedCheckpointTypeCodes
+                    .Where(code => checkpointTypeCodes
+                                        .Any(name => code.EndsWith($":{name}")))
+                    .ToList()
                 : Enumerable.Empty<string>();
             return checkpointTypeCodes is null ? allowedCheckpointTypeCodes : allowedCheckpointTypeCodes.Intersect(allowedRelativeCheckpointTypeCodes).ToList();
         }

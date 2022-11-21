@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using IdentityModel;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Interfaces;
+using Indice.Security;
+using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases.Services
@@ -19,26 +21,38 @@ namespace Indice.Features.Cases.Services
         }
 
         public async Task<List<string>> GetDistinctCheckpointNames(ClaimsPrincipal user) {
+            if (user.IsAdmin()) {
+                return await GetAdminDistinctCheckpointNames();
+            }
 
             var roleClaims = user.Claims
                .Where(c => c.Type == JwtClaimTypes.Role)
                .Select(c => c.Value)
                .ToList();
 
-            var caseTypeIds = await _dbContext.RoleCaseTypes
+            var checkpointTypeIds = await _dbContext.RoleCaseTypes
                 .AsQueryable()
                 .Where(r => roleClaims.Contains(r.RoleName))
-                .Select(c => c.CaseTypeId)
+                .Select(c => c.CheckpointTypeId)
                 .ToListAsync();
 
             var checkpointTypes = await _dbContext.CheckpointTypes
                 .AsQueryable()
-                .Where(c => caseTypeIds.Contains(c.CaseTypeId))
-                .Select(c =>   c.Name)
+                .Where(c => checkpointTypeIds.Contains(c.Id))
+                .Select(c => c.Name)
                 .AsAsyncEnumerable()
                 .Distinct()
                 .ToListAsync();
             return checkpointTypes;
+        }
+
+        private async Task<List<string>> GetAdminDistinctCheckpointNames() {
+            return await _dbContext.CheckpointTypes
+                .AsQueryable()
+                .Select(c => c.Name)
+                .AsAsyncEnumerable()
+                .Distinct()
+                .ToListAsync();
         }
     }
 }
