@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Filters;
+using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
@@ -31,17 +32,20 @@ namespace Indice.Features.Cases.Controllers
         private readonly IMyCaseService _myCaseService;
         private readonly ICaseTemplateService _caseTemplateService;
         private readonly ICasePdfService _casePdfService;
+        private readonly ICaseEventService _caseEventService;
         private readonly IMyCaseMessageService _caseMessageService;
 
         public MyCasesController(
             IMyCaseService myCaseService,
             ICaseTemplateService caseTemplateService,
             ICasePdfService casePdfService,
-            IMyCaseMessageService caseMessageService) {
+            IMyCaseMessageService caseMessageService,
+            ICaseEventService caseEventService) {
             _myCaseService = myCaseService ?? throw new ArgumentNullException(nameof(myCaseService));
             _caseTemplateService = caseTemplateService ?? throw new ArgumentNullException(nameof(caseTemplateService));
             _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
             _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
+            _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
         }
 
         /// <summary>
@@ -144,6 +148,7 @@ namespace Indice.Features.Cases.Controllers
             var @case = await _myCaseService.GetCaseById(User, caseId);
             var file = await CreatePdf(@case);
             var fileName = $"{@case.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
+            await _caseEventService.Publish(new CaseDownloadedEvent(caseId, @case.CaseType.Code));
             return File(file, "application/pdf", fileName);
         }
 
