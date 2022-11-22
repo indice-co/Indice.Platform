@@ -164,6 +164,9 @@ namespace Indice.Features.Cases.Services
                 Id = activityData.ContainsKey(nameof(AwaitActionActivity.ActionId)) ? activityData[nameof(AwaitActionActivity.ActionId)] as string : null,
                 Name = activityData.ContainsKey(nameof(AwaitActionActivity.ActionName)) ? activityData[nameof(AwaitActionActivity.ActionName)] as string : null,
                 Label = activityData.ContainsKey(nameof(AwaitActionActivity.ActionLabel)) ? activityData[nameof(AwaitActionActivity.ActionLabel)] as string : null,
+                Class = activityData.ContainsKey(nameof(AwaitActionActivity.ActionClass)) ? activityData[nameof(AwaitActionActivity.ActionClass)] as string : null,
+                RedirectToList = activityData.ContainsKey(nameof(AwaitActionActivity.RedirectToList)) ? activityData[nameof(AwaitActionActivity.RedirectToList)] as bool? : false,
+                SuccessMessage = activityData.ContainsKey(nameof(AwaitActionActivity.SuccessMessage)) ? activityData[nameof(AwaitActionActivity.SuccessMessage)] as SuccessMessage : null,
                 DefaultValue = activityData.ContainsKey(nameof(AwaitActionActivity.ActionInputDefaultValue)) ? activityData[nameof(AwaitActionActivity.ActionInputDefaultValue)] as string : null,
                 Description = activityData.ContainsKey(nameof(AwaitActionActivity.ActionDescription)) ? activityData[nameof(AwaitActionActivity.ActionDescription)] as string : null,
                 HasInput = activityData.ContainsKey(nameof(AwaitActionActivity.ShowInput)) ? activityData[nameof(AwaitActionActivity.ShowInput)] as bool? : false

@@ -160,11 +160,11 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                 .pipe(
                   tap(() => {
                     this._fileUploadService.reset();
-                    this._toaster.show(ToastType.Success, 'Επιτυχής Επεξεργασία', `Η επεξεργασία της αίτησης ολοκληρώθηκε.`, 5000);
+                    this._toaster.show(ToastType.Success, 'Επιτυχής Καταχώριση', `Η αρχική καταχώριση της αίτησης ολοκληρώθηκε.`, 5000);
                     this.updateDataEvent.emit({ draft: true });
                   }),
                   catchError((err: ProblemDetails) => { // error during case submit
-                    this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
+                    this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
                     this.router.navigate(['/cases']);
                     return EMPTY;
                   })
@@ -172,7 +172,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                 .subscribe();
             }),
           catchError(() => { // error during attachments upload
-            this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Προέκυψε πρόβλημα κατά την αποθήκευση των εγγράφων.`, 5000);
+            this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', `Προέκυψε πρόβλημα κατά την αποθήκευση των εγγράφων.`, 5000);
             return EMPTY;
           }))
         .subscribe();
