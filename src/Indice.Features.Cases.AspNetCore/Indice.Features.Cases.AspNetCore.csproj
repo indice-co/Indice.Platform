@@ -12,7 +12,7 @@
     <AssemblyTitle>Indice.Features.Cases.AspNetCore</AssemblyTitle>
     <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
     <VersionPrefix>6.1.0</VersionPrefix>
-    <VersionSuffix>beta-30</VersionSuffix>
+    <VersionSuffix>beta-32</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
