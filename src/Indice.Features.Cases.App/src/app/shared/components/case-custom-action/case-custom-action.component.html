@@ -16,7 +16,7 @@
     </div>
     <div>
         <button href="#"
-                class="btn-info mr-1"
+                [class]="'mr-1 ' + class"
                 title="Εκτέλεση"
                 [disabled]="buttonDisabled"
                 [ngClass]="{'opacity-50 cursor-not-allowed': buttonDisabled}"

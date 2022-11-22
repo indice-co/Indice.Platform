@@ -68,7 +68,7 @@
                                            (formIsValid)="isValid($event)"
                                            (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
                             <app-case-print-pdf [caseId]="model.id"
-                                                [enabled]="!(model.draft || caseTypeConfig?.boOptions?.hidePdf)"
+                                                [enabled]="model.publicStatus === casePublicStatus.Completed || model.publicStatus === casePublicStatus.InProgress || model.publicStatus === casePublicStatus.Rejected"
                                                 [buttonDisabled]="!formValid || formUnSavedChanges"
                                                 (pdfButtonClicked)="onPdfButtonClicked($event)">
                             </app-case-print-pdf>

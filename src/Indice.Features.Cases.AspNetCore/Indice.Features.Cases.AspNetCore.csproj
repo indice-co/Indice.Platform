@@ -12,7 +12,7 @@
     <AssemblyTitle>Indice.Features.Cases.AspNetCore</AssemblyTitle>
     <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
     <VersionPrefix>6.1.0</VersionPrefix>
-    <VersionSuffix>beta-30</VersionSuffix>
+    <VersionSuffix>beta-33</VersionSuffix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -35,6 +35,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Elsa" Version="2.9.2" />
     <PackageReference Include="Elsa.Activities.Http" Version="2.9.2" />

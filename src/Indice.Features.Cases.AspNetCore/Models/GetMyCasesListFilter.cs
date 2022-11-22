@@ -39,6 +39,10 @@ namespace Indice.Features.Cases.Models
         /// </summary>
         public DateTimeOffset? CompletedTo { get; set; }
         /// <summary>
+        /// The Checkpoints filter.
+        /// </summary>
+        public List<string>? Checkpoints { get; set; }
+        /// <summary>
         /// Construct filter clauses based on case data.
         /// </summary>
         public List<FilterClause>? Data { get; set; }
