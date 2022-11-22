@@ -40,18 +40,7 @@ namespace Indice.Features.Cases.Services
             // if client is systemic, then bypass checks
             if ((user.HasClaim(JwtClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
                 // we have to convert from CheckpointTypeNames e.g. "Approved" to CheckpointTypeCodes e.g. "CaseX:Approved"!
-                if (filter.CheckpointTypeCodes != null && filter.CheckpointTypeCodes.Count() > 0) {
-                    var codes = await _dbContext.CheckpointTypes
-                        .AsQueryable()
-                        .Select(c => c.Code)
-                        .AsAsyncEnumerable()
-                        .Distinct()
-                        .ToListAsync();
-                    filter.CheckpointTypeCodes = codes
-                        .Where(c => filter.CheckpointTypeCodes
-                                        .Any(name => c.EndsWith($":{name}")))
-                        .ToList();
-                }
+                filter.CheckpointTypeCodes = await ApplyAdminCheckpointTypeFilter(filter.CheckpointTypeCodes);
                 return filter;
             }
 
@@ -95,6 +84,21 @@ namespace Indice.Features.Cases.Services
 
         private bool IsOwnerOfCase(ClaimsPrincipal user, CaseDetails caseDetails) {
             return user.FindSubjectId().Equals(caseDetails.CreatedById);
+        }
+
+        private async Task<List<string>> ApplyAdminCheckpointTypeFilter(List<string> checkpointTypeCodes) {
+            if (checkpointTypeCodes == null || checkpointTypeCodes.Count() == 0) {
+                return checkpointTypeCodes;
+            }
+            var codes = await _dbContext.CheckpointTypes
+                .AsQueryable()
+                .Select(c => c.Code)
+                .AsAsyncEnumerable()
+                .Distinct()
+                .ToListAsync();
+            return codes
+                .Where(c => checkpointTypeCodes.Any(name => c.EndsWith($":{name}")))
+                .ToList();
         }
 
         private List<string>? ApplyCheckpointTypeFilter(List<string>? checkpointTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
