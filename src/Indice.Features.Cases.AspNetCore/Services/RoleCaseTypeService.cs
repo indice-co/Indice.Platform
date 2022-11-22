@@ -94,7 +94,7 @@ namespace Indice.Features.Cases.Services
                 .AsQueryable()
                 .Select(c => c.Code)
                 .AsAsyncEnumerable()
-                .Distinct()
+                .Distinct() // TODO client-side evaluation, this needs to change
                 .ToListAsync();
             return codes
                 .Where(c => checkpointTypeCodes.Any(name => c.EndsWith($":{name}")))

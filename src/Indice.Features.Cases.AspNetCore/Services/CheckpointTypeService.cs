@@ -41,7 +41,7 @@ namespace Indice.Features.Cases.Services
                 .Where(c => checkpointTypeIds.Contains(c.Id))
                 .Select(c => c.Name)
                 .AsAsyncEnumerable()
-                .Distinct()
+                .Distinct() // TODO client-side evaluation, this needs to change
                 .ToListAsync();
             return checkpointTypes;
         }
@@ -51,7 +51,7 @@ namespace Indice.Features.Cases.Services
                 .AsQueryable()
                 .Select(c => c.Name)
                 .AsAsyncEnumerable()
-                .Distinct()
+                .Distinct() // TODO client-side evaluation, this needs to change
                 .ToListAsync();
         }
     }
