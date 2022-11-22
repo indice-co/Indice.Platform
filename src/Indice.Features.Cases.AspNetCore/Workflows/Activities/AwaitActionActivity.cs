@@ -86,6 +86,39 @@ namespace Indice.Features.Cases.Workflows.Activities
         public string ActionDescription { get; set; }
 
         /// <summary>
+        /// The class of the action button to show at Cases Back-office UI.
+        /// </summary>
+        [ActivityInput(
+            Label = "Action Class",
+            Hint = "The class of the action button to show at Cases Back-office UI.",
+            UIHint = ActivityInputUIHints.SingleLine,
+            DefaultSyntax = SyntaxNames.Literal,
+            SupportedSyntaxes = new[] { SyntaxNames.Literal }
+        )]
+        public string? ActionClass { get; set; }
+
+        /// <summary>
+        /// Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI.
+        /// </summary>
+        [ActivityInput(
+            Label = "Redirect to List",
+            Hint = "Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI."
+        )]
+        public bool RedirectToList { get; set; }
+
+        /// <summary>
+        /// A response message that is returned if the action is completed with success.
+        /// </summary>
+        [ActivityInput(
+            Label = "Success Message",
+            Hint = "A response message that is returned if the action is completed with success.",
+            UIHint = ActivityInputUIHints.MultiLine,
+            DefaultSyntax = SyntaxNames.JavaScript,
+            SupportedSyntaxes = new[] { SyntaxNames.JavaScript, SyntaxNames.Liquid }
+        )]
+        public SuccessMessage SuccessMessage { get; set; }
+
+        /// <summary>
         /// User role that can proceed to this action. If left blank, all authenticated users can proceed to this action.
         /// </summary>
         [ActivityInput(

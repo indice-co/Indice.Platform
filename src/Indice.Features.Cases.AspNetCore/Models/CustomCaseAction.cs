@@ -21,6 +21,21 @@
         public string Label { get; set; }
 
         /// <summary>
+        /// The class of the action.
+        /// </summary>
+        public string Class { get; set; }
+
+        /// <summary>
+        /// Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI.
+        /// </summary>
+        public bool? RedirectToList { get; set; }
+
+        /// <summary>
+        /// A response message that is returned if the action is completed with success.
+        /// </summary>
+        public SuccessMessage SuccessMessage { get; set; }
+
+        /// <summary>
         /// The description of the action.
         /// </summary>
         public string Description { get; set; }

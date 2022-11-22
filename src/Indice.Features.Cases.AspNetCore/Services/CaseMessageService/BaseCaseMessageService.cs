@@ -34,7 +34,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
             if (message.File == null && message.CheckpointTypeName == null && message.Comment == null && message.Data == null) {
                 return attachmentId;
             }
-            
+
             var caseType = await _dbContext.CaseTypes.FindAsync(@case.CaseTypeId);
             if (caseType == null) throw new ArgumentNullException(nameof(caseType));
 
@@ -159,7 +159,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                 @case.PublicCheckpointId = newCheckpoint.Id;
             }
 
-            if (checkpointType.PublicStatus == CasePublicStatus.Completed) {
+            if (checkpointType.PublicStatus == CasePublicStatus.Completed && @case.CompletedBy is null) {
                 @case.CompletedBy = AuditMeta.Create(user);
             }
 
@@ -171,9 +171,9 @@ namespace Indice.Features.Cases.Services.CaseMessageService
         private async Task AddCaseData(ClaimsPrincipal user, DbCase @case, string data) {
             if (string.IsNullOrEmpty(data)) throw new ArgumentNullException(nameof(data));
 
-            // Validate data against case type json schema
-            if (!_schemaValidator.IsValid(@case.CaseType.DataSchema, data)) {
-                throw new Exception("Data validation error."); // todo proper exception handling (BadRequest)
+            // Validate data against case type json schema, only when schema is present
+            if (!string.IsNullOrEmpty(@case.CaseType.DataSchema) && !_schemaValidator.IsValid(@case.CaseType.DataSchema, data)) {
+                throw new Exception("Data validation error.");
             }
 
             // Update checkpoint data
