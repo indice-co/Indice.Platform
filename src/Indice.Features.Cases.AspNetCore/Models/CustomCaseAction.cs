@@ -31,9 +31,9 @@
         public bool? RedirectToList { get; set; }
 
         /// <summary>
-        /// Redirect Toaster.
+        /// A response message that is returned if the action is completed with success.
         /// </summary>
-        public Toaster RedirectToaster { get; set; }
+        public SuccessMessage SuccessMessage { get; set; }
 
         /// <summary>
         /// The description of the action.

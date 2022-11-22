@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry, CasePublicStatus, Toaster } from 'src/app/core/services/cases-api.service';
+import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry, CasePublicStatus, SuccessMessage } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-detail-page',
@@ -124,13 +124,13 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
    * Trigger a blocking workflow activity by its Id.
    * @param event The action Id to trigger the corresponding custom workflow action.
    */
-  onCustomActionTrigger(event: { redirectToList: boolean | undefined, redirectToaster: Toaster | undefined, id: string | undefined, value: string | undefined }) {
+  onCustomActionTrigger(event: { redirectToList: boolean | undefined, successMessage: SuccessMessage | undefined, id: string | undefined, value: string | undefined }) {
     this.api.triggerAction(this.caseId, undefined, new ActionRequest({ id: event?.id, value: event?.value }))
       .pipe(
         tap(() => {
           if (event.redirectToList) {
-            if (event.redirectToaster) {
-              this.toaster.show(ToastType.Info, event.redirectToaster.title, event.redirectToaster.body);
+            if (event.successMessage) {
+              this.toaster.show(ToastType.Info, event.successMessage.title, event.successMessage.body);
             }
             this.router.navigate(['/cases']);
           } else {

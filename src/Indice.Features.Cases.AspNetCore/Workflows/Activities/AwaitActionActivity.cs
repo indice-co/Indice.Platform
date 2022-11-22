@@ -107,16 +107,16 @@ namespace Indice.Features.Cases.Workflows.Activities
         public bool RedirectToList { get; set; }
 
         /// <summary>
-        /// Redirect Toaster.
+        /// A response message that is returned if the action is completed with success.
         /// </summary>
         [ActivityInput(
-            Label = "Redirect Toaster",
-            Hint = "Redirect Toaster.",
+            Label = "Success Message",
+            Hint = "A response message that is returned if the action is completed with success.",
             UIHint = ActivityInputUIHints.MultiLine,
             DefaultSyntax = SyntaxNames.JavaScript,
             SupportedSyntaxes = new[] { SyntaxNames.JavaScript, SyntaxNames.Liquid }
         )]
-        public Toaster? RedirectToaster { get; set; }
+        public SuccessMessage SuccessMessage { get; set; }
 
         /// <summary>
         /// User role that can proceed to this action. If left blank, all authenticated users can proceed to this action.

@@ -246,6 +246,7 @@ export interface ICasesApiService {
      * @param filter_CreatedTo (optional) The CreatedTo filter.
      * @param filter_CompletedFrom (optional) The CompletedFrom filter.
      * @param filter_CompletedTo (optional) The CompletedTo filter.
+     * @param filter_Checkpoints (optional) The Checkpoints filter.
      * @param filter_Data (optional) Construct filter clauses based on case data.
      * @param filter_Metadata (optional) Construct filter clauses based on case metadata.
      * @param page (optional) 
@@ -255,7 +256,7 @@ export interface ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
+    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Checkpoints?: string[] | undefined, filter_Data?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
     /**
      * Create a new case in draft mode. That means no one will be able to edit it besides the creator of the case.
      * @param api_version (optional) 
@@ -3216,6 +3217,7 @@ export class CasesApiService implements ICasesApiService {
      * @param filter_CreatedTo (optional) The CreatedTo filter.
      * @param filter_CompletedFrom (optional) The CompletedFrom filter.
      * @param filter_CompletedTo (optional) The CompletedTo filter.
+     * @param filter_Checkpoints (optional) The Checkpoints filter.
      * @param filter_Data (optional) Construct filter clauses based on case data.
      * @param filter_Metadata (optional) Construct filter clauses based on case metadata.
      * @param page (optional) 
@@ -3225,7 +3227,7 @@ export class CasesApiService implements ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Data?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet> {
+    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_PublicStatuses?: CasePublicStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Checkpoints?: string[] | undefined, filter_Data?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet> {
         let url_ = this.baseUrl + "/api/my/cases?";
         if (filter_CaseTypeTags === null)
             throw new Error("The parameter 'filter_CaseTypeTags' cannot be null.");
@@ -3255,6 +3257,10 @@ export class CasesApiService implements ICasesApiService {
             throw new Error("The parameter 'filter_CompletedTo' cannot be null.");
         else if (filter_CompletedTo !== undefined)
             url_ += "Filter.CompletedTo=" + encodeURIComponent(filter_CompletedTo ? "" + filter_CompletedTo.toISOString() : "") + "&";
+        if (filter_Checkpoints === null)
+            throw new Error("The parameter 'filter_Checkpoints' cannot be null.");
+        else if (filter_Checkpoints !== undefined)
+            filter_Checkpoints && filter_Checkpoints.forEach(item => { url_ += "Filter.Checkpoints=" + encodeURIComponent("" + item) + "&"; });
         if (filter_Data === null)
             throw new Error("The parameter 'filter_Data' cannot be null.");
         else if (filter_Data !== undefined)
@@ -5883,7 +5889,7 @@ export class CustomCaseAction implements ICustomCaseAction {
     class?: string | undefined;
     /** Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI. */
     redirectToList?: boolean | undefined;
-    redirectToaster?: Toaster;
+    successMessage?: SuccessMessage;
     /** The description of the action. */
     description?: string | undefined;
     /** The Default Value of action's input. */
@@ -5907,7 +5913,7 @@ export class CustomCaseAction implements ICustomCaseAction {
             this.label = _data["label"];
             this.class = _data["class"];
             this.redirectToList = _data["redirectToList"];
-            this.redirectToaster = _data["redirectToaster"] ? Toaster.fromJS(_data["redirectToaster"]) : <any>undefined;
+            this.successMessage = _data["successMessage"] ? SuccessMessage.fromJS(_data["successMessage"]) : <any>undefined;
             this.description = _data["description"];
             this.defaultValue = _data["defaultValue"];
             this.hasInput = _data["hasInput"];
@@ -5928,7 +5934,7 @@ export class CustomCaseAction implements ICustomCaseAction {
         data["label"] = this.label;
         data["class"] = this.class;
         data["redirectToList"] = this.redirectToList;
-        data["redirectToaster"] = this.redirectToaster ? this.redirectToaster.toJSON() : <any>undefined;
+        data["successMessage"] = this.successMessage ? this.successMessage.toJSON() : <any>undefined;
         data["description"] = this.description;
         data["defaultValue"] = this.defaultValue;
         data["hasInput"] = this.hasInput;
@@ -5948,7 +5954,7 @@ export interface ICustomCaseAction {
     class?: string | undefined;
     /** Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI. */
     redirectToList?: boolean | undefined;
-    redirectToaster?: Toaster;
+    successMessage?: SuccessMessage;
     /** The description of the action. */
     description?: string | undefined;
     /** The Default Value of action's input. */
@@ -6545,6 +6551,52 @@ export interface IRejectReason {
     value?: string | undefined;
 }
 
+/** A success response message. */
+export class SuccessMessage implements ISuccessMessage {
+    /** The message's Title. */
+    title?: string | undefined;
+    /** The message's Body. */
+    body?: string | undefined;
+
+    constructor(data?: ISuccessMessage) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.title = _data["title"];
+            this.body = _data["body"];
+        }
+    }
+
+    static fromJS(data: any): SuccessMessage {
+        data = typeof data === 'object' ? data : {};
+        let result = new SuccessMessage();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["title"] = this.title;
+        data["body"] = this.body;
+        return data;
+    }
+}
+
+/** A success response message. */
+export interface ISuccessMessage {
+    /** The message's Title. */
+    title?: string | undefined;
+    /** The message's Body. */
+    body?: string | undefined;
+}
+
 /** A class that represents a timeline entry for a case. */
 export class TimelineEntry implements ITimelineEntry {
     /** The timestamp. */
@@ -6601,52 +6653,6 @@ export interface ITimelineEntry {
     isCheckpoint?: boolean;
     checkpoint?: Checkpoint;
     comment?: Comment;
-}
-
-/** Toaster */
-export class Toaster implements IToaster {
-    /** The Title. */
-    title?: string | undefined;
-    /** The Body. */
-    body?: string | undefined;
-
-    constructor(data?: IToaster) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.title = _data["title"];
-            this.body = _data["body"];
-        }
-    }
-
-    static fromJS(data: any): Toaster {
-        data = typeof data === 'object' ? data : {};
-        let result = new Toaster();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["title"] = this.title;
-        data["body"] = this.body;
-        return data;
-    }
-}
-
-/** Toaster */
-export interface IToaster {
-    /** The Title. */
-    title?: string | undefined;
-    /** The Body. */
-    body?: string | undefined;
 }
 
 /** The request to update the data of the case. */

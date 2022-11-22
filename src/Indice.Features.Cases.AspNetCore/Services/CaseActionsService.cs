@@ -166,7 +166,7 @@ namespace Indice.Features.Cases.Services
                 Label = activityData.ContainsKey(nameof(AwaitActionActivity.ActionLabel)) ? activityData[nameof(AwaitActionActivity.ActionLabel)] as string : null,
                 Class = activityData.ContainsKey(nameof(AwaitActionActivity.ActionClass)) ? activityData[nameof(AwaitActionActivity.ActionClass)] as string : null,
                 RedirectToList = activityData.ContainsKey(nameof(AwaitActionActivity.RedirectToList)) ? activityData[nameof(AwaitActionActivity.RedirectToList)] as bool? : false,
-                RedirectToaster = activityData.ContainsKey(nameof(AwaitActionActivity.RedirectToaster)) ? activityData[nameof(AwaitActionActivity.RedirectToaster)] as Toaster : null,
+                SuccessMessage = activityData.ContainsKey(nameof(AwaitActionActivity.SuccessMessage)) ? activityData[nameof(AwaitActionActivity.SuccessMessage)] as SuccessMessage : null,
                 DefaultValue = activityData.ContainsKey(nameof(AwaitActionActivity.ActionInputDefaultValue)) ? activityData[nameof(AwaitActionActivity.ActionInputDefaultValue)] as string : null,
                 Description = activityData.ContainsKey(nameof(AwaitActionActivity.ActionDescription)) ? activityData[nameof(AwaitActionActivity.ActionDescription)] as string : null,
                 HasInput = activityData.ContainsKey(nameof(AwaitActionActivity.ShowInput)) ? activityData[nameof(AwaitActionActivity.ShowInput)] as bool? : false
