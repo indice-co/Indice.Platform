@@ -264,6 +264,7 @@ namespace Indice.Features.Cases.Services
                     .ToListAsync();
             return caseTypes.ToResultSet();
         }
+
         private async Task<List<Guid>> GetCaseTypeIdsForCaseCreation(List<string> roleClaims) {
             var caseTypeExpressions = roleClaims.Select(roleClaim => (Expression<Func<DbCaseType, bool>>)(dbCaseType => EF.Functions.Like(dbCaseType.CanCreateRoles, $"%{roleClaim}%")));
             // Aggregate the expressions with OR that resolves to SQL: CanCreateRoles LIKE %roleClaim1% OR tag LIKE %roleClaim2% etc
