@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Identity.Data.Models;
+﻿using Indice.AspNetCore.Identity.Api.Filters;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Filters;
 
 namespace Indice.AspNetCore.Identity
@@ -69,5 +70,7 @@ namespace Indice.AspNetCore.Identity
         public virtual string DeviceAlreadyTrusted() => string.Format(IdentityResources.Culture, IdentityResources.DeviceAlreadyTrusted);
         /// <summary>Message content when <see cref="RequiresOtpAttribute"/> is used.</summary>
         public virtual string RequiresOtpMessage() => IdentityResources.RequiresOtpMessage;
+        /// <summary>Message content when <see cref="TrustDeviceRequiresOtpAttribute"/> is used.</summary>
+        public virtual string TrustedDeviceRequiresOtpMessage(UserDevice device) => IdentityResources.TrustedDeviceRequiresOtpMessage;
     }
 }

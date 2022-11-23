@@ -216,6 +216,9 @@
   <data name="RequiresOtpMessage" xml:space="preserve">
     <value>OTP code is {0}.</value>
   </data>
+  <data name="TrustedDeviceRequiresOtpMessage" xml:space="preserve">
+    <value>OTP code is {0}.</value>
+  </data>
   <data name="TrustedDevicesLimitReached" xml:space="preserve">
     <value>You have reached the maximum number of trusted devices.</value>
   </data>

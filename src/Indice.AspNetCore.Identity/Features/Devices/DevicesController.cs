@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data.Models;
@@ -187,8 +188,8 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        [RequiresOtp]
-        public async Task<IActionResult> SetTrustedDevice([FromRoute] string deviceId) {
+        [TrustDeviceRequiresOtp]
+        public async Task<IActionResult> TrustDevice([FromRoute] string deviceId) {
             var user = await UserManager.GetUserAsync(User);
             if (user is null) {
                 return NotFound();
@@ -212,7 +213,7 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> SetUntrustedDevice([FromRoute] string deviceId) {
+        public async Task<IActionResult> UntrustDevice([FromRoute] string deviceId) {
             var user = await UserManager.GetUserAsync(User);
             if (user is null) {
                 return NotFound();

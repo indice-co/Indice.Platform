@@ -504,6 +504,7 @@ namespace Indice.AspNetCore.Identity
             }
             // 3. At this point there are two cases:
             var deviceStore = GetDeviceStore();
+
             // a. The user wants to request device trust activation. If no delay is specified, we immediately trust the device, going to case b.
             var isDeviceActivationRequest = !device.TrustActivationDate.HasValue;
             if (isDeviceActivationRequest) {

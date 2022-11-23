@@ -7,13 +7,13 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Indice.AspNetCore.Swagger
 {
-    /// <summary></summary>
+    /// <summary>Swagger operation filter for displaying a header input for operations decorated with <see cref="RequiresOtpAttribute"/>.</summary>
     public class RequiresOtpOperationFilter : IOperationFilter
     {
         private readonly string _headerName;
 
-        /// <summary></summary>
-        /// <param name="headerName"></param>
+        /// <summary>Creates a new instance of <see cref="RequiresOtpAttribute"/>.</summary>
+        /// <param name="headerName">The name of the header.</param>
         public RequiresOtpOperationFilter(string headerName) {
             _headerName = headerName ?? RequiresOtpAttribute.DEFAULT_HEADER_NAME;
         }
@@ -26,7 +26,7 @@ namespace Indice.AspNetCore.Swagger
                 return;
             }
             var actionAttributes = methodInfo.GetCustomAttributes();
-            var hasRequiresOtpAttribute = actionAttributes.SingleOrDefault(attribute => attribute.GetType() == typeof(RequiresOtpAttribute)) is not null;
+            var hasRequiresOtpAttribute = actionAttributes.SingleOrDefault(attribute => attribute.GetType().IsAssignableTo(typeof(RequiresOtpAttribute))) is not null;
             if (!hasRequiresOtpAttribute) {
                 return;
             }

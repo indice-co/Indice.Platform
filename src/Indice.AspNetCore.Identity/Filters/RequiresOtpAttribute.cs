@@ -15,6 +15,8 @@ namespace Indice.AspNetCore.Identity.Filters
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
     {
+        private IServiceProvider _serviceProvider;
+
         /// <summary>The default header value for capturing the TOTP code.</summary>
         public const string DEFAULT_HEADER_NAME = "X-TOTP";
         /// <summary>The name of the header that contains the TOTP code.</summary>
@@ -43,17 +45,16 @@ namespace Indice.AspNetCore.Identity.Filters
             if (string.IsNullOrWhiteSpace(phoneNumber)) {
                 throw new BusinessException("A phone number does not exist in user claims.");
             }
-            var serviceProvicer = httpContext.RequestServices;
-            var totpServiceFactory = serviceProvicer.GetRequiredService<TotpServiceFactory>();
+            _serviceProvider = httpContext.RequestServices;
+            var totpServiceFactory = _serviceProvider.GetRequiredService<TotpServiceFactory>();
             var totpService = totpServiceFactory.Create<User>();
-            var messageDescriber = serviceProvicer.GetRequiredService<IdentityMessageDescriber>();
             var totp = httpContext.Request.Headers[HeaderName].ToString();
-            var purpose = $"{nameof(RequiresOtpAttribute)}:{subject}:{phoneNumber}";
+            var purpose = GetTotpPurpose(subject, phoneNumber);
             // No TOTP is present in the request, so will try to send one using the preferred delivery channel.
             if (string.IsNullOrWhiteSpace(totp)) {
                 await totpService.SendAsync(totp =>
                     totp.ToPrincipal(principal)
-                        .WithMessage(messageDescriber.RequiresOtpMessage())
+                        .WithMessage(GetTotpMessage())
                         .UsingDeliveryChannel(DeliveryChannel)
                         .WithPurpose(purpose)
                 );
@@ -65,6 +66,20 @@ namespace Indice.AspNetCore.Identity.Filters
                 throw new BusinessException("TOTP not verified.", "requiresTotp", new List<string> { "The TOTP code could not be verified." });
             }
             await next();
+        }
+
+        /// <summary>Constructs the TOTP message to be sent.</summary>
+        protected virtual string GetTotpMessage() {
+            var messageDescriber = _serviceProvider.GetRequiredService<IdentityMessageDescriber>();
+            return messageDescriber.RequiresOtpMessage();
+        }
+
+        /// <summary>Constructs the TOTP message to be sent.</summary>
+        /// <param name="subject">The subject of the user.</param>
+        /// <param name="phoneNumber">The phone number of the user.</param>
+        protected virtual string GetTotpPurpose(string subject, string phoneNumber) {
+            var purpose = $"{nameof(RequiresOtpAttribute)}:{subject}:{phoneNumber}";
+            return purpose;
         }
     }
 }
