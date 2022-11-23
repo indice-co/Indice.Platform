@@ -33,6 +33,7 @@ namespace Indice.Features.Cases.Controllers
         /// <summary>
         /// Get Filters.
         /// </summary>
+        /// <response code="200">OK</response>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Filter>))]
@@ -45,7 +46,7 @@ namespace Indice.Features.Cases.Controllers
         /// Save a new Filter.
         /// </summary>
         /// <param name="request"></param>
-        /// <returns></returns>
+        /// <response code="204">No Content</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> SaveFilter([FromBody] SaveFilterRequest request) {

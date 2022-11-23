@@ -14,6 +14,5 @@
         /// The Query Parameters of the request
         /// </summary>
         public string QueryParameters { get; set; }
-
     }
 }
