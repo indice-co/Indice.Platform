@@ -1,0 +1,31 @@
+<div class="fixed z-40 inset-0 overflow-y-auto">
+    <div class="modal-body">
+        <div class="flex items-end sm:items-center justify-center min-h-full p-4 text-center sm:p-0">
+            <div
+                 class="relative bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full sm:p-6">
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900"
+                            id="modal-title">Αποθήκευση Φίλτρου</h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">Παρακαλώ δώστε μια ονομασία στο φίλτρο σας</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <input [(ngModel)]="filterName"
+                           name="filterName"
+                           class="appearance-none block w-full text-gray-700 border border-gray-200 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                           id="filterName"
+                           type="text"
+                           placeholder="Όνομα Φίλτρου">
+                </div>
+                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                    <button type="button"
+                            class="btn-delete"
+                            (click)="closeModal()">Αποθήκευση</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

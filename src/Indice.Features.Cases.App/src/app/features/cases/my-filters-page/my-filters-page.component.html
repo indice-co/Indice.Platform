@@ -1,0 +1,18 @@
+<lib-side-view-layout [title]="'Τα φίλτρα μου'"
+                      (ok)="onSelect(savedFilter)"
+                      ok-label="Εφαρμογή Φίλτρου"
+                      [ok-close-dialog]="true"
+                      (cancel)="onDelete(savedFilter)"
+                      cancel-label="Διαγραφή Φίλτρου">
+    <form class="space-y-8 divide-y divide-gray-200 py-5">
+        <select [(ngModel)]="savedFilter"
+                name="savedFilter"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm
+focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
+dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+            <ng-container *ngFor="let savedFilter of savedFilters">
+                <option [ngValue]="savedFilter">{{ savedFilter.name }}</option>
+            </ng-container>
+        </select>
+    </form>
+</lib-side-view-layout>

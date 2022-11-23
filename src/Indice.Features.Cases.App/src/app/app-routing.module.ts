@@ -14,6 +14,7 @@ import { CaseTypesComponent } from './features/case-types/case-types.component';
 import { AdminGuardService } from './core/services/admin-guard.service';
 import { CaseTypeCreateComponent } from './features/case-types/case-type-create/case-type-create.component';
 import { CaseTypeEditComponent } from './features/case-types/case-type-edit/case-type-edit.component';
+import { MyFiltersPageComponent } from './features/cases/my-filters-page/my-filters-page.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -34,18 +35,19 @@ const routes: Routes = [
       },
       {
         path: 'case-types', pathMatch: 'prefix', canActivate: [AdminGuardService],
-        children : [
+        children: [
           { path: '', component: CaseTypesComponent },
           { path: 'create', component: CaseTypeCreateComponent, pathMatch: 'full' },
-          { path: ':caseTypeId/edit', component: CaseTypeEditComponent, pathMatch: 'full'  }
+          { path: ':caseTypeId/edit', component: CaseTypeEditComponent, pathMatch: 'full' }
         ]
       }
     ]
   },
-  { path: 'notifications', canActivate: [AuthGuardService], component: NotificationsComponent }, 
+  { path: 'notifications', canActivate: [AuthGuardService], component: NotificationsComponent },
 
   /// PATHS FOR NEW SIDE PANE FORMS GO HERE
   { path: 'new-case', component: CaseCreatePageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { paneSize: SidePaneSize.Small25 } },
+  { path: 'my-filters', component: MyFiltersPageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { paneSize: SidePaneSize.Small25 } },
   { path: 'logout', component: LogOutComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
   { path: '**', component: PageNotFoundComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
 ];

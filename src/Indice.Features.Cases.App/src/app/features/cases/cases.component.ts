@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
+import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ViewAction } from '@indice/ng-components';
 import { SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core/services/cases-api.service';
+import { CasePartial, CasePartialResultSet, CasesApiService, } from 'src/app/core/services/cases-api.service';
+import { FiltersModalComponent } from 'src/app/shared/components/filter-modal/filter-modal.component';
 
 @Component({
     selector: 'app-cases',
@@ -17,7 +18,8 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
     constructor(
         private _route: ActivatedRoute,
         private _router: Router,
-        private _api: CasesApiService
+        private _api: CasesApiService,
+        private _modalService: ModalService
     ) {
         super(_route, _router);
         this.view = ListViewType.Table;
@@ -95,11 +97,19 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
                 (caseTypesForCaseCreation: CasePartialResultSet) => {
                     if (caseTypesForCaseCreation.count !== 0) {
                         this.formActions = [
-                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
+                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση'),
+                            new RouterViewAction(Icons.EntryView, 'my-filters', 'rightpane', 'Τα φίλτρα μου', 'Τα φίλτρα μου')
                         ];
                     }
                 }
             );
+    }
+
+    saveFilter(): void {
+        this._modalService.show(FiltersModalComponent, {
+            backdrop: 'static',
+            keyboard: false
+        });
     }
 
     loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {

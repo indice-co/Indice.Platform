@@ -21,6 +21,7 @@ namespace Indice.Features.Cases
             typeof(AdminCheckpointTypesController).GetTypeInfo(),
             typeof(AdminIntegrationController).GetTypeInfo(),
             typeof(LookupController).GetTypeInfo(),
+            typeof(AdminFiltersController).GetTypeInfo(),
         };
 
         public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {
