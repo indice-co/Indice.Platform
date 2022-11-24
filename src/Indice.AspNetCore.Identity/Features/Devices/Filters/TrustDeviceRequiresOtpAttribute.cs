@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Filters;
 using Indice.Types;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,11 +28,21 @@ namespace Indice.AspNetCore.Identity.Api.Filters
                 var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
                 var user = await userManager.GetUserAsync(principal);
                 if (user is null) {
-                    throw new BusinessException("User does not exist.");
+                    var problemDetails = new ValidationProblemDetails {
+                        Detail = "User does not exist.",
+                        Status = StatusCodes.Status400BadRequest
+                    };
+                    context.Result = new BadRequestObjectResult(problemDetails);
+                    return;
                 }
                 _device = await userManager.GetDeviceByIdAsync(user, deviceId.ToString());
                 if (_device is null) {
-                    throw new BusinessException("Device does not exist.");
+                    var problemDetails = new ValidationProblemDetails {
+                        Detail = "Device does not exist.",
+                        Status = StatusCodes.Status400BadRequest
+                    };
+                    context.Result = new BadRequestObjectResult(problemDetails);
+                    return;
                 }
             }
             await base.OnActionExecutionAsync(context, next);

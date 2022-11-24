@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Filters;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -60,11 +58,15 @@ namespace Indice.AspNetCore.Identity.Api
             if (user is null) {
                 return NotFound();
             }
-            var devices = await UserManager
-                .UserDevices
-                .Where(UserDevicePredicate(user.Id, options))
-                .Select(userDevice => DeviceInfo.FromUserDevice(userDevice))
-                .ToResultSetAsync(options);
+            var query = UserManager.UserDevices.Where(device => device.UserId == user.Id);
+            if (options.Filter is not null) {
+                var filter = options.Filter;
+                query = query.Where(device =>
+                    (filter.IsPushNotificationEnabled == null || device.IsPushNotificationsEnabled == filter.IsPushNotificationEnabled) &&
+                    (filter.IsTrusted == null || device.IsTrusted == filter.IsTrusted)
+                );
+            }
+            var devices = await query.Select(DeviceInfoExtensions.ToDeviceInfo).ToResultSetAsync(options);
             return Ok(devices);
         }
 
@@ -84,7 +86,7 @@ namespace Indice.AspNetCore.Identity.Api
             if (device == null) {
                 return NotFound();
             }
-            return Ok(DeviceInfo.FromUserDevice(device));
+            return Ok(DeviceInfoExtensions.ToDeviceInfo.Compile()(device));
         }
 
         /// <summary>Creates a new device and optionally registers for push notifications.</summary>
@@ -132,7 +134,7 @@ namespace Indice.AspNetCore.Identity.Api
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            var response = DeviceInfo.FromUserDevice(device);
+            var response = DeviceInfoExtensions.ToDeviceInfo.Compile()(device);
             return CreatedAtAction(nameof(GetDeviceById), new { deviceId = device.DeviceId }, response);
         }
 
@@ -182,6 +184,7 @@ namespace Indice.AspNetCore.Identity.Api
 
         /// <summary>Starts the process of trusting a device.</summary>
         /// <param name="deviceId">The device id.</param>
+        /// <param name="request">Trust device parameters payload.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
         [HttpPut("{deviceId}/trust")]
@@ -189,7 +192,7 @@ namespace Indice.AspNetCore.Identity.Api
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         [TrustDeviceRequiresOtp]
-        public async Task<IActionResult> TrustDevice([FromRoute] string deviceId) {
+        public async Task<IActionResult> TrustDevice([FromRoute] string deviceId, [FromBody] TrustDeviceRequest request) {
             var user = await UserManager.GetUserAsync(User);
             if (user is null) {
                 return NotFound();
@@ -198,7 +201,7 @@ namespace Indice.AspNetCore.Identity.Api
             if (device is null) {
                 return NotFound();
             }
-            var result = await UserManager.SetTrustedDevice(user, device);
+            var result = await UserManager.SetTrustedDevice(user, device, request.SwapDeviceId);
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
@@ -253,10 +256,5 @@ namespace Indice.AspNetCore.Identity.Api
             await UserManager.RemoveDeviceAsync(user, device);
             return NoContent();
         }
-
-        private static Expression<Func<UserDevice, bool>> UserDevicePredicate(string userId, ListOptions<UserDeviceFilter> options) =>
-            options?.Filter.IsPushNotificationEnabled == null
-                ? x => x.UserId == userId
-                : x => x.UserId == userId && x.IsPushNotificationsEnabled == options.Filter.IsPushNotificationEnabled.Value;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Types;
 
@@ -37,10 +38,11 @@ namespace Indice.AspNetCore.Identity.Api.Models
         public bool CanActivateDeviceTrust => TrustActivationDate.HasValue && TrustActivationDate.Value <= DateTimeOffset.UtcNow && !IsTrusted;
         /// <summary>Extra metadata for the device.</summary>
         public dynamic Data { get; set; }
+    }
 
-        /// <summary>Creates a new instance of <see cref="DeviceInfo"/> from a <see cref="UserDevice"/> object.</summary>
-        /// <param name="device">The device instance.</param>
-        public static DeviceInfo FromUserDevice(UserDevice device) => new() {
+    internal static class DeviceInfoExtensions
+    {
+        public static Expression<Func<UserDevice, DeviceInfo>> ToDeviceInfo = (UserDevice device) => new DeviceInfo {
             Data = device.Data,
             DateCreated = device.DateCreated,
             DeviceId = device.DeviceId,
