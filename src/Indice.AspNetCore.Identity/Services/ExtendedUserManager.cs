@@ -523,7 +523,7 @@ namespace Indice.AspNetCore.Identity
             // a. The user wants to request device trust activation. If no delay is specified, we immediately trust the device, going to case b.
             var isDeviceActivationRequest = !device.TrustActivationDate.HasValue;
             if (isDeviceActivationRequest) {
-                if (MaxTrustedDevices.HasValue && MaxTrustedDevices.Value > 0) {
+                if (MaxTrustedDevices is > 0) {
                     var trustedOrPendingDevices = await deviceStore.GetTrustedOrPendingDevicesCountAsync(user, cancellationToken);
                     if (trustedOrPendingDevices >= MaxTrustedDevices.Value) {
                         return IdentityResult.Failed(new IdentityError {
@@ -533,6 +533,7 @@ namespace Indice.AspNetCore.Identity
                     }
                 }
                 device.TrustActivationDate = DateTimeOffset.UtcNow.Add(TrustActivationDelay ?? TimeSpan.Zero);
+                await _eventService.Publish(new DeviceTrustRequestedEvent(device, user));
             }
             // b. The user waited for the required delay to pass and now wants to activate device trust.
             var isDeviceTrustRequest = device.TrustActivationDate.HasValue && !device.IsPendingTrustActivation;
