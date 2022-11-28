@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Elsa;
+using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Events;
@@ -199,6 +200,8 @@ namespace Indice.Features.Cases
                 elsa.UseEntityFrameworkPersistence(ef => ef.UseSqlServer(configuration.GetConnectionString("WorkflowDb")), false)
                     .AddQuartzTemporalActivities()
                     .AddHttpActivities(configuration.GetSection("Elsa").GetSection("Server").Bind)
+                    .AddEmailActivities(configuration.GetSection("Elsa").GetSection("Smtp").Bind)
+                    .AddUserTaskActivities()
                     .AddActivitiesFrom(typeof(BaseCaseActivity).Assembly);
 
                 // Register consumer assembly
