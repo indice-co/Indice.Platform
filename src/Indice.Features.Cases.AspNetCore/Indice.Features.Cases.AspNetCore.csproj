@@ -38,8 +38,10 @@
 
   <ItemGroup>
     <PackageReference Include="Elsa" Version="2.9.2" />
+    <PackageReference Include="Elsa.Activities.Email" Version="2.9.2" />    
     <PackageReference Include="Elsa.Activities.Http" Version="2.9.2" />
     <PackageReference Include="Elsa.Activities.Temporal.Quartz" Version="2.9.2" />
+    <PackageReference Include="Elsa.Activities.UserTask" Version="2.9.2" />
     <PackageReference Include="Elsa.Designer.Components.Web" Version="2.9.2" />
     <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.9.2" />
     <PackageReference Include="Elsa.Server.Api" Version="2.9.2" />
