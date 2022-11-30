@@ -178,7 +178,7 @@ namespace Indice.Features.Cases.Services
                 .OrderByDescending(c => c.CreatedBy.When)
                 .FirstOrDefaultAsync();
 
-            var caseDetails = await GetCaseByIdInternal(@case, caseData, true, SchemaKey);
+            var caseDetails = await GetCaseByIdInternal(@case, caseData, includeAttachmentData, SchemaKey);
 
             // Check that user role can view this case at this checkpoint.
             if (!await _roleCaseTypeProvider.IsValid(user, caseDetails)) {
