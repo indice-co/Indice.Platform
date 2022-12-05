@@ -10,6 +10,7 @@ using Indice.Identity;
 using Indice.Identity.Services;
 using Indice.Security;
 using Indice.Serialization;
+using Indice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +34,10 @@ namespace Microsoft.Extensions.DependencyInjection
             var mvcBuilder = services.AddControllersWithViews()
                                      .AddRazorRuntimeCompilation()
                                      .AddTotp()
-                                     .AddDevices(options => options.UsePushNotificationsServiceAzure())
+                                     .AddDevices(options => {
+                                         options.UsePushNotificationsServiceAzure();
+                                         options.DefaultTotpDeliveryChannel = TotpDeliveryChannel.Viber;
+                                     })
                                      .AddPushNotifications()
                                      .AddIdentityServerApiEndpoints(options => {
                                          options.AddDbContext(context => context.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
@@ -83,7 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                          options.ConfigureClientsideValidation();
                                      })
                                      .AddAvatars(options => {
-                                         options.TileSizes = new [] { 129 };
+                                         options.TileSizes = new[] { 129 };
                                      })
                                      .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, options => {
                                          options.ResourcesPath = "Resources";

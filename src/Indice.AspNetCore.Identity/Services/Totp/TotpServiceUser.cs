@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography.Xml;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
@@ -136,12 +138,13 @@ namespace Indice.AspNetCore.Identity
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
             var token = await UserManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose);
             message = _localizer[message, token];
-            var cacheKey = $"{nameof(TotpServiceUser<TUser>)}:{user.Id}:{channel}:{token}:{purpose}";
+            var cacheKey = $"{nameof(TotpServiceUser<TUser>)}:{user.Id}:{channel}:{purpose}";
             if (await CacheKeyExistsAsync(cacheKey)) {
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
             if (channel == TotpDeliveryChannel.PushNotification) {
                 var trustedDevices = await UserManager.GetTrustedDevicesAsync(user);
+                var augmentedData = IncludeTokenInPushNotificationData(data, token);
                 foreach (var device in trustedDevices) {
                     await SendToChannelAsync(
                         channel,
@@ -175,6 +178,20 @@ namespace Indice.AspNetCore.Identity
             }
             await AddCacheKeyAsync(cacheKey);
             return TotpResult.SuccessResult;
+        }
+
+        private static string IncludeTokenInPushNotificationData(string data, string token) {
+            var jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+            if (!string.IsNullOrWhiteSpace(data)) {
+                try {
+                    var deserializedData = JsonSerializer.Deserialize<ExpandoObject>(data, jsonSerializerOptions);
+                    deserializedData.TryAdd("otp", token);
+                    data = JsonSerializer.Serialize(deserializedData, jsonSerializerOptions);
+                } catch { }
+            } else {
+                data = JsonSerializer.Serialize(new { otp = token }, jsonSerializerOptions);
+            }
+            return data;
         }
 
         /// <summary>Verifies the TOTP received for the given claims principal.</summary>
