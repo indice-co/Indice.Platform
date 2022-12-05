@@ -6,24 +6,29 @@
                 <div class="sm:flex sm:items-start">
                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                         <h3 class="text-lg leading-6 font-medium text-gray-900"
-                            id="modal-title">Αποθήκευση Φίλτρου</h3>
-                        <div class="mt-2">
-                            <p class="text-sm text-gray-500">Παρακαλώ δώστε μια ονομασία στο φίλτρο σας</p>
+                            id="modal-title">Νέα αναζήτηση</h3>
+                        <div class="mt-1">
+                            <p class="text-sm text-gray-500">Παρακαλώ δώστε μια φιλική ονομασία στην αναζήτησή σας</p>
                         </div>
                     </div>
                 </div>
-                <div>
-                    <input [(ngModel)]="filterName"
-                           name="filterName"
+                <div class="ml-3 mt-2">
+                    <input [(ngModel)]="friendlyName"
+                           name="friendlyName"
                            class="appearance-none block w-full text-gray-700 border border-gray-200 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                           id="filterName"
+                           id="friendlyName"
                            type="text"
-                           placeholder="Όνομα Φίλτρου">
+                           placeholder="Ονομασία Αναζήτησης">
                 </div>
                 <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                     <button type="button"
-                            class="btn-delete"
-                            (click)="closeModal()">Αποθήκευση</button>
+                            class="btn-success"
+                            [ngClass]="{'opacity-50 cursor-not-allowed': !friendlyName}"
+                            [disabled]="!friendlyName"
+                            (click)="saveQuery()">Αποθήκευση</button>
+                    <button type="button"
+                            class="btn-delete mx-2"
+                            (click)="closeModal()">Ακύρωση</button>
                 </div>
             </div>
         </div>

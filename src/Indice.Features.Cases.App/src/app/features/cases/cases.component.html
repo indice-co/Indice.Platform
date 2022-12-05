@@ -4,6 +4,14 @@
                  [meta-items]="metaItems"
                  (onAction)="actionHandler($event)"
                  (onSearch)="searchChanged($event)">
+    <div class="text-right">
+        <button class="btn-success"
+                [ngClass]="{'opacity-50 cursor-not-allowed': !queryParamsHasFilter}"
+                [disabled]="!queryParamsHasFilter"
+                (click)="openQueryModal()">
+            <p>Νέα αναζήτηση</p>
+        </button>
+    </div>
     <lib-list-view [items]="items"
                    [search-options]="searchOptions"
                    [filters]="filters"
@@ -56,9 +64,3 @@
         </lib-list-column>
     </lib-list-view>
 </lib-view-layout>
-
-<button href="#"
-        class="btn-success mt-2"
-        (click)="saveFilter()">
-    <p>Αποθήκευση Φίλτρου</p>
-</button>

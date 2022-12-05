@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ViewAction } from '@indice/ng-components';
 import { SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { CasePartial, CasePartialResultSet, CasesApiService, } from 'src/app/core/services/cases-api.service';
-import { FiltersModalComponent } from 'src/app/shared/components/filter-modal/filter-modal.component';
+import { QueriesModalComponent } from 'src/app/shared/components/query-modal/query-modal.component';
 
 @Component({
     selector: 'app-cases',
@@ -13,7 +13,10 @@ import { FiltersModalComponent } from 'src/app/shared/components/filter-modal/fi
 })
 export class CasesComponent extends BaseListComponent<CasePartial> implements OnInit {
     public newItemLink = 'new-case';
-    public formActions: ViewAction[] = [];
+    public formActions: ViewAction[] = [
+        new RouterViewAction(Icons.EntryView, 'my-queries', 'rightpane', 'Οι αναζητήσεις μου', 'Οι αναζητήσεις μου')
+    ];
+    public queryParamsHasFilter = false;
 
     constructor(
         private _route: ActivatedRoute,
@@ -32,6 +35,10 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
     }
 
     public ngOnInit(): void {
+        // Are there any filters in queryParams?
+        this._route.queryParams.subscribe((params: Params) => {
+            this.queryParamsHasFilter = params['filter'] ? true : false;
+        });
         forkJoin({
             caseTypes: this._api.getCaseTypes(),
             checkpointTypes: this._api.getDistinctCheckpointNames()
@@ -96,17 +103,16 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             .subscribe(
                 (caseTypesForCaseCreation: CasePartialResultSet) => {
                     if (caseTypesForCaseCreation.count !== 0) {
-                        this.formActions = [
-                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση'),
-                            new RouterViewAction(Icons.EntryView, 'my-filters', 'rightpane', 'Τα φίλτρα μου', 'Τα φίλτρα μου')
-                        ];
+                        this.formActions.unshift(
+                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'Υποβολή νέας αίτησης', 'Νέα αίτηση')
+                        );
                     }
                 }
             );
     }
 
-    saveFilter(): void {
-        this._modalService.show(FiltersModalComponent, {
+    openQueryModal(): void {
+        this._modalService.show(QueriesModalComponent, {
             backdrop: 'static',
             keyboard: false
         });

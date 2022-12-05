@@ -15,7 +15,7 @@ namespace Indice.Features.Cases.Data
         }
 
         public DbSet<DbCase> Cases => Set<DbCase>();
-        public DbSet<DbFilter> Filters => Set<DbFilter>();
+        public DbSet<DbQuery> Queries => Set<DbQuery>();
         public DbSet<DbAttachment> Attachments => Set<DbAttachment>();
         public DbSet<DbCaseType> CaseTypes => Set<DbCaseType>();
         public DbSet<DbCheckpoint> Checkpoints => Set<DbCheckpoint>();

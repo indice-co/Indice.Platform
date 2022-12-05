@@ -2,11 +2,11 @@
 
 namespace Indice.Features.Cases.Data.Models
 {
-    public class DbFilter
+    public class DbQuery
     {
         public Guid Id { get; set; }
         public string UserId { get; set; }
-        public string Name { get; set; }
-        public string QueryParameters { get; set; }
+        public string FriendlyName { get; set; }
+        public string Parameters { get; set; }
     }
 }

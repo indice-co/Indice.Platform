@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Indice.Features.Cases.Controllers
 {
     /// <summary>
-    /// Manage filters for Back-office users.
+    /// Manage queries for Back-office users.
     /// </summary>
     [ApiController]
     [ApiExplorerSettings(GroupName = CasesApiConstants.Scope)]
@@ -21,51 +21,51 @@ namespace Indice.Features.Cases.Controllers
     [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-    [Route("[casesApiPrefix]/manage/filters")]
-    internal class AdminFiltersController : ControllerBase
+    [Route("[casesApiPrefix]/manage/queries")]
+    internal class AdminQueriesController : ControllerBase
     {
-        private readonly IFilterService _filterService;
+        private readonly IQueryService _queryService;
 
-        public AdminFiltersController(IFilterService filterService) {
-            _filterService = filterService ?? throw new ArgumentNullException(nameof(filterService));
+        public AdminQueriesController(IQueryService queryService) {
+            _queryService = queryService ?? throw new ArgumentNullException(nameof(queryService));
         }
 
         /// <summary>
-        /// Get Filters.
+        /// Get saved queries.
         /// </summary>
         /// <response code="200">OK</response>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Filter>))]
-        public async Task<IActionResult> GetFilters() {
-            var filters = await _filterService.GetFilters(User);
-            return Ok(filters);
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Query>))]
+        public async Task<IActionResult> GetQueries() {
+            var queries = await _queryService.GetQueries(User);
+            return Ok(queries);
         }
 
         /// <summary>
-        /// Save a new Filter.
+        /// Save a new query.
         /// </summary>
         /// <param name="request"></param>
         /// <response code="204">No Content</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> SaveFilter([FromBody] SaveFilterRequest request) {
-            await _filterService.SaveFilter(User, request);
+        public async Task<IActionResult> SaveQuery([FromBody] SaveQueryRequest request) {
+            await _queryService.SaveQuery(User, request);
             return NoContent();
         }
 
         /// <summary>
-        /// Deletes a Filter.
+        /// Delete a query.
         /// </summary>
-        /// <param name="filterId">The id of the filter.</param>
+        /// <param name="queryId">The id of the query.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
-        [HttpDelete("{filterId:guid}")]
+        [HttpDelete("{queryId:guid}")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> DeleteFilter([FromRoute] Guid filterId) {
-            await _filterService.DeleteFilter(User, filterId);
+        public async Task<IActionResult> DeleteQuery([FromRoute] Guid queryId) {
+            await _queryService.DeleteQuery(User, queryId);
             return NoContent();
         }
     }

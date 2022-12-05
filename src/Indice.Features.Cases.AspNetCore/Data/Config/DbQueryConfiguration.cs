@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Cases.Data.Config
 {
-    internal class DbFilterConfiguration : IEntityTypeConfiguration<DbFilter>
+    internal class DbQueryConfiguration : IEntityTypeConfiguration<DbQuery>
     {
-        public void Configure(EntityTypeBuilder<DbFilter> builder) {
+        public void Configure(EntityTypeBuilder<DbQuery> builder) {
             builder
-                .ToTable("Filter");
+                .ToTable("Query");
             builder
                 .HasKey(p => p.Id);
             builder
@@ -17,11 +17,11 @@ namespace Indice.Features.Cases.Data.Config
                 .IsRequired()
                 .HasMaxLength(TextSizePresets.M128);
             builder
-                .Property(p => p.Name)
+                .Property(p => p.FriendlyName)
                 .IsRequired()
                 .HasMaxLength(TextSizePresets.M128);
             builder
-                .Property(c => c.QueryParameters)
+                .Property(c => c.Parameters)
                 .IsRequired();
 
         }

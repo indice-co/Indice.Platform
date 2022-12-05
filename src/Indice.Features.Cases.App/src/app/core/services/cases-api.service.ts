@@ -196,26 +196,6 @@ export interface ICasesApiService {
      */
     getDistinctCheckpointNames(api_version?: string | undefined): Observable<string[]>;
     /**
-     * Get Filters.
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getFilters(api_version?: string | undefined): Observable<Filter[]>;
-    /**
-     * Save a new Filter.
-     * @param api_version (optional) 
-     * @param body (optional) 
-     * @return No Content
-     */
-    saveFilter(api_version?: string | undefined, body?: SaveFilterRequest | undefined): Observable<void>;
-    /**
-     * Deletes a Filter.
-     * @param filterId The id of the filter.
-     * @param api_version (optional) 
-     * @return No Content
-     */
-    deleteFilter(filterId: string, api_version?: string | undefined): Observable<void>;
-    /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
      * @param caseTypeCode (optional) The case type code, used for filtering customers based on case type (implementantion on client code)
@@ -239,6 +219,26 @@ export interface ICasesApiService {
      * @return Success
      */
     getLookup(lookupName: string, searchValues?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet>;
+    /**
+     * Get saved queries.
+     * @param api_version (optional) 
+     * @return OK
+     */
+    getQueries(api_version?: string | undefined): Observable<Query[]>;
+    /**
+     * Save a new query.
+     * @param api_version (optional) 
+     * @param body (optional) 
+     * @return No Content
+     */
+    saveQuery(api_version?: string | undefined, body?: SaveQueryRequest | undefined): Observable<void>;
+    /**
+     * Delete a query.
+     * @param queryId The id of the query.
+     * @param api_version (optional) 
+     * @return No Content
+     */
+    deleteQuery(queryId: string, api_version?: string | undefined): Observable<void>;
     /**
      * Get the case type subscriptions of a user.
      * @param api_version (optional) 
@@ -2686,276 +2686,6 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Get Filters.
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getFilters(api_version?: string | undefined): Observable<Filter[]> {
-        let url_ = this.baseUrl + "/api/manage/filters?";
-        if (api_version === null)
-            throw new Error("The parameter 'api_version' cannot be null.");
-        else if (api_version !== undefined)
-            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetFilters(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetFilters(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<Filter[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<Filter[]>;
-        }));
-    }
-
-    protected processGetFilters(response: HttpResponseBase): Observable<Filter[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(Filter.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<Filter[]>(null as any);
-    }
-
-    /**
-     * Save a new Filter.
-     * @param api_version (optional) 
-     * @param body (optional) 
-     * @return No Content
-     */
-    saveFilter(api_version?: string | undefined, body?: SaveFilterRequest | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/filters?";
-        if (api_version === null)
-            throw new Error("The parameter 'api_version' cannot be null.");
-        else if (api_version !== undefined)
-            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json-patch+json",
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processSaveFilter(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processSaveFilter(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processSaveFilter(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(null as any);
-    }
-
-    /**
-     * Deletes a Filter.
-     * @param filterId The id of the filter.
-     * @param api_version (optional) 
-     * @return No Content
-     */
-    deleteFilter(filterId: string, api_version?: string | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/api/manage/filters/{filterId}?";
-        if (filterId === undefined || filterId === null)
-            throw new Error("The parameter 'filterId' must be defined.");
-        url_ = url_.replace("{filterId}", encodeURIComponent("" + filterId));
-        if (api_version === null)
-            throw new Error("The parameter 'api_version' cannot be null.");
-        else if (api_version !== undefined)
-            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-            })
-        };
-
-        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processDeleteFilter(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processDeleteFilter(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processDeleteFilter(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<void>(null as any);
-    }
-
-    /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
      * @param caseTypeCode (optional) The case type code, used for filtering customers based on case type (implementantion on client code)
@@ -3249,6 +2979,276 @@ export class CasesApiService implements ICasesApiService {
             }));
         }
         return _observableOf<LookupItemResultSet>(null as any);
+    }
+
+    /**
+     * Get saved queries.
+     * @param api_version (optional) 
+     * @return OK
+     */
+    getQueries(api_version?: string | undefined): Observable<Query[]> {
+        let url_ = this.baseUrl + "/api/manage/queries?";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetQueries(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetQueries(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<Query[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<Query[]>;
+        }));
+    }
+
+    protected processGetQueries(response: HttpResponseBase): Observable<Query[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(Query.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<Query[]>(null as any);
+    }
+
+    /**
+     * Save a new query.
+     * @param api_version (optional) 
+     * @param body (optional) 
+     * @return No Content
+     */
+    saveQuery(api_version?: string | undefined, body?: SaveQueryRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/manage/queries?";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSaveQuery(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSaveQuery(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSaveQuery(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
+     * Delete a query.
+     * @param queryId The id of the query.
+     * @param api_version (optional) 
+     * @return No Content
+     */
+    deleteQuery(queryId: string, api_version?: string | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/manage/queries/{queryId}?";
+        if (queryId === undefined || queryId === null)
+            throw new Error("The parameter 'queryId' must be defined.");
+        url_ = url_.replace("{queryId}", encodeURIComponent("" + queryId));
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteQuery(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteQuery(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteQuery(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
     }
 
     /**
@@ -6469,58 +6469,6 @@ export interface IEditCaseRequest {
     data?: string | undefined;
 }
 
-/** A custom-made that a Back-office user can create, delete etc. */
-export class Filter implements IFilter {
-    /** The Id of the Filter. */
-    id?: string;
-    /** The Name of the Filter. */
-    name?: string | undefined;
-    /** The Query Parameters of the Filter. */
-    queryParameters?: string | undefined;
-
-    constructor(data?: IFilter) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.queryParameters = _data["queryParameters"];
-        }
-    }
-
-    static fromJS(data: any): Filter {
-        data = typeof data === 'object' ? data : {};
-        let result = new Filter();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["queryParameters"] = this.queryParameters;
-        return data;
-    }
-}
-
-/** A custom-made that a Back-office user can create, delete etc. */
-export interface IFilter {
-    /** The Id of the Filter. */
-    id?: string;
-    /** The Name of the Filter. */
-    name?: string | undefined;
-    /** The Query Parameters of the Filter. */
-    queryParameters?: string | undefined;
-}
-
 /** The lookup item model. */
 export class LookupItem implements ILookupItem {
     /** The name or the key of the look up item */
@@ -6847,6 +6795,58 @@ export interface IProblemDetails {
     instance?: string | undefined;
 }
 
+/** A user defined query. */
+export class Query implements IQuery {
+    /** The Id of the Query. */
+    id?: string;
+    /** The Friendly Name of the Query. */
+    friendlyName?: string | undefined;
+    /** The Parameters of the Query. */
+    parameters?: string | undefined;
+
+    constructor(data?: IQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.friendlyName = _data["friendlyName"];
+            this.parameters = _data["parameters"];
+        }
+    }
+
+    static fromJS(data: any): Query {
+        data = typeof data === 'object' ? data : {};
+        let result = new Query();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["friendlyName"] = this.friendlyName;
+        data["parameters"] = this.parameters;
+        return data;
+    }
+}
+
+/** A user defined query. */
+export interface IQuery {
+    /** The Id of the Query. */
+    id?: string;
+    /** The Friendly Name of the Query. */
+    friendlyName?: string | undefined;
+    /** The Parameters of the Query. */
+    parameters?: string | undefined;
+}
+
 /** The reject reason dto. */
 export class RejectReason implements IRejectReason {
     /** The key of the reject reason. This key will be used in resources. */
@@ -6893,14 +6893,14 @@ export interface IRejectReason {
     value?: string | undefined;
 }
 
-/** The SaveFilter Request */
-export class SaveFilterRequest implements ISaveFilterRequest {
-    /** The Name of the request */
-    name?: string | undefined;
-    /** The Query Parameters of the request */
-    queryParameters?: string | undefined;
+/** The Save Query Request */
+export class SaveQueryRequest implements ISaveQueryRequest {
+    /** The Friendly Name of the request */
+    friendlyName?: string | undefined;
+    /** The Parameters of the request */
+    parameters?: string | undefined;
 
-    constructor(data?: ISaveFilterRequest) {
+    constructor(data?: ISaveQueryRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6911,32 +6911,32 @@ export class SaveFilterRequest implements ISaveFilterRequest {
 
     init(_data?: any) {
         if (_data) {
-            this.name = _data["name"];
-            this.queryParameters = _data["queryParameters"];
+            this.friendlyName = _data["friendlyName"];
+            this.parameters = _data["parameters"];
         }
     }
 
-    static fromJS(data: any): SaveFilterRequest {
+    static fromJS(data: any): SaveQueryRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new SaveFilterRequest();
+        let result = new SaveQueryRequest();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["queryParameters"] = this.queryParameters;
+        data["friendlyName"] = this.friendlyName;
+        data["parameters"] = this.parameters;
         return data;
     }
 }
 
-/** The SaveFilter Request */
-export interface ISaveFilterRequest {
-    /** The Name of the request */
-    name?: string | undefined;
-    /** The Query Parameters of the request */
-    queryParameters?: string | undefined;
+/** The Save Query Request */
+export interface ISaveQueryRequest {
+    /** The Friendly Name of the request */
+    friendlyName?: string | undefined;
+    /** The Parameters of the request */
+    parameters?: string | undefined;
 }
 
 /** A success response message. */
