@@ -125,7 +125,7 @@ namespace Indice.AspNetCore.Identity
                 // Store the userId for use after two factor check.
                 var userId = await UserManager.GetUserIdAsync(user);
                 var returnUrl = Context.Request.Query["ReturnUrl"];
-                await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName), new AuthenticationProperties {
+                await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, ExtendedSignInManager<TUser>.StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName), new AuthenticationProperties {
                     RedirectUri = returnUrl,
                     IsPersistent = isPersistent
                 });
@@ -143,6 +143,20 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc/>
+        public override async Task<TUser> GetTwoFactorAuthenticationUserAsync() {
+            var result = await Context.AuthenticateAsync(ExtendedIdentityConstants.TwoFactorUserIdScheme);
+            var claimsPrincipal = result?.Principal;
+            if (claimsPrincipal is null) {
+                return default;
+            }
+            var userId = claimsPrincipal.FindFirstValue(JwtClaimTypes.Name);
+            if (string.IsNullOrWhiteSpace(userId)) {
+                return default;
+            }
+            return await ExtendedUserManager.FindByIdAsync(userId);
+        }
+
+        /// <inheritdoc/>
         public async override Task SignOutAsync() {
             var schemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
             // Check if authentication scheme is registered before trying to sign out, to avoid errors.
@@ -155,16 +169,7 @@ namespace Indice.AspNetCore.Identity
             await base.SignOutAsync();
         }
 
-        internal ClaimsPrincipal StoreTwoFactorInfo(string userId, string loginProvider) {
-            var identity = new ClaimsIdentity(IdentityConstants.TwoFactorUserIdScheme);
-            identity.AddClaim(new Claim(ClaimTypes.Name, userId));
-            if (loginProvider != null) {
-                identity.AddClaim(new Claim(ClaimTypes.AuthenticationMethod, loginProvider));
-            }
-            return new ClaimsPrincipal(identity);
-        }
-
-        internal ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName) {
+        internal static ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName) {
             var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
             identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
             identity.AddClaim(new Claim(JwtClaimTypes.EmailVerified, isEmailConfirmed.ToString().ToLower()));

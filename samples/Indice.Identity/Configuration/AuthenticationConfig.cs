@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -25,6 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.LogoutPath = new PathString("/logout");
             };
             services.ConfigureApplicationCookie(AuthCookie());
+            services.Configure(IdentityConstants.TwoFactorUserIdScheme, AuthCookie());
             var microsoftAuthSettings = configuration.GetSection($"Auth:{MicrosoftAccountDefaults.AuthenticationScheme}").Get<ClientSettings>();
             if (!string.IsNullOrEmpty(microsoftAuthSettings?.ClientId) && !string.IsNullOrEmpty(microsoftAuthSettings?.ClientSecret)) {
                 var serviceProvider = services.BuildServiceProvider();

@@ -6,14 +6,12 @@ using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
-using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -28,10 +26,9 @@ namespace Indice.Identity.Controllers
     {
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IEventService _events;
-        private readonly IClientStore _clientStore;
         private readonly ExtendedUserManager<User> _userManager;
         private readonly ExtendedSignInManager<User> _signInManager;
-        private readonly AccountService _accountService;
+        private readonly IAccountService _accountService;
         private readonly ILogger<AccountController> _logger;
         /// <summary>
         /// The name of the controller.
@@ -43,28 +40,23 @@ namespace Indice.Identity.Controllers
         /// </summary>
         /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
         /// <param name="events">Interface for the event service.</param>
-        /// <param name="clientStore">Retrieval of client configuration.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="signInManager">Provides the APIs for user sign in.</param>
-        /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
-        /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
+        /// <param name="accountService">Wraps account controller operations regarding creating and validating view models.</param>
         public AccountController(
-            IIdentityServerInteractionService interaction, 
-            IEventService events, 
-            IClientStore clientStore, 
-            ExtendedUserManager<User> userManager, 
-            ExtendedSignInManager<User> signInManager, 
-            IAuthenticationSchemeProvider schemeProvider,
-            IHttpContextAccessor httpContextAccessor, 
-            ILogger<AccountController> logger
+            IIdentityServerInteractionService interaction,
+            IEventService events,
+            ExtendedUserManager<User> userManager,
+            ExtendedSignInManager<User> signInManager,
+            ILogger<AccountController> logger,
+            IAccountService accountService
         ) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _events = events ?? throw new ArgumentNullException(nameof(events));
-            _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-            _accountService = new AccountService(interaction, httpContextAccessor, schemeProvider, clientStore);
+            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -143,6 +135,9 @@ namespace Indice.Identity.Controllers
                         _logger.LogError("User '{UserName}' might have clicked a malicious link during login: {ReturnUrl}.", UserName, model.ReturnUrl);
                         throw new Exception("Invalid return URL.");
                     }
+                }
+                if (result.RequiresTwoFactor) {
+                    return RedirectToAction(nameof(MfaController.Index), MfaController.Name, new { model.ReturnUrl });
                 }
                 if (result.IsLockedOut) {
                     _logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsNumber} unsuccessful login attempts.", UserName, user?.AccessFailedCount);
