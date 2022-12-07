@@ -25,10 +25,6 @@ namespace Indice.Features.Cases.Data.Config
                 .HasMaxLength(TextSizePresets.M128)
                 .IsRequired(false);
             builder
-                .Property(p => p.Category)
-                .HasMaxLength(TextSizePresets.M128)
-                .IsRequired(false);
-            builder
                 .Property(p => p.Translations);
             builder
                 .Property(p => p.Layout)
