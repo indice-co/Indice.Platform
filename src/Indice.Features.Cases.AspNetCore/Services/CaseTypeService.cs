@@ -96,7 +96,6 @@ namespace Indice.Features.Cases.Services
                 Id = Guid.NewGuid(),
                 Code = caseType.Code,
                 Title = caseType.Title,
-                //Category = caseType.Category,
                 Description = caseType.Description,
                 DataSchema = caseType.DataSchema,
                 Layout = caseType.Layout,
@@ -217,7 +216,6 @@ namespace Indice.Features.Cases.Services
 
             // Update case type entity
             dbCaseType.Title = caseType.Title;
-            //dbCaseType.Category = caseType.Category;
             dbCaseType.Description = caseType.Description;
             dbCaseType.DataSchema = caseType.DataSchema;
             dbCaseType.Layout = caseType.Layout;

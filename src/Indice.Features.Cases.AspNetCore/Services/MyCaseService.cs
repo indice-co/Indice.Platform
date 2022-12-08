@@ -225,7 +225,6 @@ namespace Indice.Features.Cases.Services
 
         public async Task<ResultSet<CaseTypePartial>> GetCaseTypes(ListOptions<GetMyCaseTypesListFilter> options) {
             var caseTypesQueryable = _dbContext.CaseTypes
-                .Include(x => x.Category)
                 .AsQueryable();
 
             foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
