@@ -66,7 +66,7 @@ namespace Indice.Features.Cases.Services
 
             var caseDetails = new CaseDetails {
                 Id = @case.Id,
-                PublicStatus = latestCheckpoint.CheckpointType.PublicStatus,
+                Status = latestCheckpoint.CheckpointType.Status,
                 CreatedByWhen = @case.CreatedBy.When,
                 CreatedById = @case.CreatedBy.Id,
                 CaseType = new CaseTypePartial {
@@ -83,7 +83,7 @@ namespace Indice.Features.Cases.Services
                 UserId = @case.Customer.UserId,
                 GroupId = @case.GroupId,
                 Metadata = @case.Metadata,
-                CheckpointTypeCode = latestCheckpoint.CheckpointType.Code,
+                CheckpointTypeCode = latestCheckpoint.CheckpointType.Name,
                 CheckpointTypeId = latestCheckpoint.CheckpointType.Id,
                 Attachments = @case.Attachments.Select(attachment => new CaseAttachment {
                     Id = attachment.Id,

@@ -92,7 +92,7 @@ namespace Indice.Features.Cases.Services
             }
             var codes = await _dbContext.CheckpointTypes
                 .AsQueryable()
-                .Select(c => c.Code)
+                .Select(c => c.Name)
                 .AsAsyncEnumerable()
                 .Distinct() // TODO client-side evaluation, this needs to change
                 .ToListAsync();
@@ -106,7 +106,7 @@ namespace Indice.Features.Cases.Services
                 .Where(c => roleClaims.Contains(c.RoleName!))
                 .Select(x => x.CheckpointType.Code)
                 .ToList();
-            // fuzzy match the CheckPointType Code
+            // fuzzy match the CheckPointType Name
             var allowedRelativeCheckpointTypeCodes = checkpointTypeCodes != null
                 ? allowedCheckpointTypeCodes
                     .Where(code => checkpointTypeCodes
@@ -143,7 +143,7 @@ namespace Indice.Features.Cases.Services
                        },
                        CheckpointType = new CheckpointType {
                            Id = c.CheckpointTypeId,
-                           Code = c.CheckpointType!.Code
+                           Code = c.CheckpointType!.Name
                        }
                    })
                    .ToListAsync(),

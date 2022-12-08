@@ -106,7 +106,7 @@ namespace Indice.Features.Cases.Services
                     Id = @case.Id,
                     CustomerId = @case.Customer.CustomerId,
                     CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
-                    PublicStatus = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.PublicStatus,
+                    Status = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Status,
                     CreatedByWhen = @case.CreatedBy.When,
                     CaseType = new CaseTypePartial {
                         Id = @case.CaseType.Id,
@@ -116,7 +116,7 @@ namespace Indice.Features.Cases.Services
                     },
                     Metadata = @case.Metadata,
                     GroupId = @case.GroupId,
-                    CheckpointTypeCode = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Code,
+                    CheckpointTypeCode = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Name,
                     AssignedToName = @case.AssignedTo.Name
                 });
             // filter CustomerId
@@ -309,10 +309,10 @@ namespace Indice.Features.Cases.Services
                     Checkpoint = new Checkpoint {
                         Id = c.Id,
                         Private = c.CheckpointType.Private,
-                        CheckpointTypeCode = c.CheckpointType.Code,
+                        CheckpointTypeCode = c.CheckpointType.Name,
                         CompletedDate = c.CompletedDate,
                         DueDate = c.DueDate,
-                        PublicStatus = c.CheckpointType.PublicStatus
+                        Status = c.CheckpointType.Status
                     }
                 }))
                 .OrderByDescending(c => c.Timestamp)

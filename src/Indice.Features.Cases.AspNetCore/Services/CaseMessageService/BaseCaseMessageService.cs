@@ -42,7 +42,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
 
             var newCheckpointType = await _dbContext.CheckpointTypes
                 .AsQueryable()
-                .SingleOrDefaultAsync(x => x.Code == $"{caseType.Code}:{message.CheckpointTypeName}");
+                .SingleOrDefaultAsync(x => x.Name == $"{caseType.Code}:{message.CheckpointTypeName}");
             if (message.ReplyToCommentId.HasValue) {
                 var exists = await _dbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == message.ReplyToCommentId.Value);
                 if (!exists) {
@@ -74,7 +74,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                 if (!message.PrivateComment.HasValue) {
                     message.PrivateComment = newCheckpointType.Private;
                 }
-                var suffix = $"Case status changed to '{newCheckpointType.Code}'";
+                var suffix = $"Case status changed to '{newCheckpointType.Name}'";
                 message.Comment = string.IsNullOrEmpty(message.Comment) ? suffix : $"{message.Comment}. {suffix}";
             }
 
@@ -140,7 +140,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                 .FirstOrDefaultAsync();
 
             // If the new checkpoint is the same as the last attempt, only add the comment. 
-            if (lastCheckpoint != null && lastCheckpoint.CheckpointType.Code == checkpointType.Code) {
+            if (lastCheckpoint != null && lastCheckpoint.CheckpointType.Name == checkpointType.Name) {
                 return lastCheckpoint;
             }
 
@@ -159,7 +159,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                 @case.PublicCheckpointId = newCheckpoint.Id;
             }
 
-            if (checkpointType.PublicStatus == CasePublicStatus.Completed && @case.CompletedBy is null) {
+            if (checkpointType.Status == CaseStatus.Completed && @case.CompletedBy is null) {
                 @case.CompletedBy = AuditMeta.Create(user);
             }
 

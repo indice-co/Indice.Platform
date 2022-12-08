@@ -27,7 +27,7 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The public status of the checkpoint.
         /// </summary>
-        public CasePublicStatus PublicStatus { get; set; }
+        public CaseStatus Status { get; set; }
 
         /// <summary>
         /// Boolean for whether the checkpoint is private.

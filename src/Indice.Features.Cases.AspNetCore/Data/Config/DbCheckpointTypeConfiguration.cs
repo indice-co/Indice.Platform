@@ -13,17 +13,13 @@ namespace Indice.Features.Cases.Data.Config
             builder
                 .HasKey(p => p.Id);
             builder
-                .HasIndex(p => p.Code);
+                .HasIndex(p => p.Name);
             builder
-                .Property(p => p.Code)
+                .Property(p => p.Name)
                 .HasMaxLength(TextSizePresets.M256);
             builder
                 .Property(p => p.Description)
                 .HasMaxLength(TextSizePresets.M512);
-            builder
-                .Ignore(p => p.CaseTypeCode);
-            builder
-                .Ignore(p => p.Name);
         }
     }
 }

@@ -124,11 +124,11 @@ namespace Indice.Features.Cases.Services
                 var dbCheckpointType = new DbCheckpointType {
                     Id = Guid.NewGuid(),
                     CaseTypeId = newCaseType.Id,
+                    Name = checkpointType.Name,
                     Description = checkpointType.Description,
-                    PublicStatus = checkpointType.PublicStatus,
+                    Status = checkpointType.Status,
                     Private = checkpointType.Private
                 };
-                dbCheckpointType.SetCode(caseType.Code, checkpointType.Name);
 
                 await _dbContext.CheckpointTypes.AddAsync(dbCheckpointType);
 
@@ -195,7 +195,7 @@ namespace Indice.Features.Cases.Services
                     Name = checkpointType.Name,
                     Description = checkpointType.Description,
                     Private = checkpointType.Private,
-                    PublicStatus = checkpointType.PublicStatus,
+                    Status = checkpointType.Status,
                     Roles = caseTypeRoles
                         .Where(roleCaseType => roleCaseType.CheckpointTypeId == checkpointType.Id)
                         .Select(roleCaseType => roleCaseType.RoleName)
