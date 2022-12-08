@@ -157,7 +157,7 @@ namespace Indice.AspNetCore.Identity
                             Message = message,
                             Subject = subject,
                             Category = classification,
-                            Data = data
+                            Data = augmentedData
                         }
                     );
                 }
