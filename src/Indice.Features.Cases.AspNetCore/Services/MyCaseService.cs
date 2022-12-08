@@ -213,6 +213,7 @@ namespace Indice.Features.Cases.Services
                 Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
                 LayoutTranslations = dbCaseType.LayoutTranslations,
                 Title = dbCaseType.Title,
+                Order = dbCaseType.Order,
                 Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
             };
 
@@ -223,7 +224,8 @@ namespace Indice.Features.Cases.Services
         }
 
         public async Task<ResultSet<CaseTypePartial>> GetCaseTypes(ListOptions<GetMyCaseTypesListFilter> options) {
-            var caseTypesQueryable = _dbContext.CaseTypes.AsQueryable();
+            var caseTypesQueryable = _dbContext.CaseTypes
+                .AsQueryable();
 
             foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
                 // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
@@ -231,15 +233,24 @@ namespace Indice.Features.Cases.Services
             }
 
             var caseTypes = await caseTypesQueryable
+                .OrderBy(x => x.Category.Order)
+                .ThenBy(x => x.Order)
                 .Select(dbCaseType => new CaseTypePartial {
                     Id = dbCaseType.Id,
                     Title = dbCaseType.Title,
                     Description = dbCaseType.Description,
-                    Category = dbCaseType.Category,
+                    Category = new CaseTypeCategory {
+                        Id = dbCaseType.Category.Id,
+                        Name = dbCaseType.Category.Name,
+                        Description = dbCaseType.Category.Description,
+                        Order = dbCaseType.Category.Order,
+                        Translations = TranslationDictionary<CaseTypeCategoryTranslation>.FromJson(dbCaseType.Category.Translations)
+                    },
                     DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
                     Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
                     LayoutTranslations = dbCaseType.LayoutTranslations,
                     Code = dbCaseType.Code,
+                    Order = dbCaseType.Order,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
                 })
                 .ToListAsync();
@@ -247,6 +258,9 @@ namespace Indice.Features.Cases.Services
             // translate case types
             for (var i = 0; i < caseTypes.Count; i++) {
                 caseTypes[i] = TranslateCaseType(caseTypes[i], CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+                if (caseTypes[i].Category is not null) {
+                    caseTypes[i].Category = TranslateCaseTypeCategory(caseTypes[i].Category, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+                }
             }
 
             return caseTypes.ToResultSet();
@@ -257,6 +271,11 @@ namespace Indice.Features.Cases.Services
             caseType.Layout = _jsonTranslationService.Translate(caseType.Layout, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
             caseType.DataSchema = _jsonTranslationService.Translate(caseType.DataSchema, caseTypePartial.LayoutTranslations, CultureInfo.CurrentCulture.TwoLetterISOLanguageName);
             return caseType;
+        }
+
+        private CaseTypeCategory TranslateCaseTypeCategory(CaseTypeCategory caseTypeCategory, string culture, bool includeTranslations) {
+            var category = caseTypeCategory.Translate(culture, includeTranslations);
+            return category;
         }
 
         private async Task<DbCase?> GetDbCaseById(Guid caseId, string userId) {
