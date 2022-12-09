@@ -43,8 +43,8 @@ namespace Indice.Features.GovGr
         public IKycService Kyc(string clientId, string clientSecret, string redirectUri, string environment = null) => new GovGrKycClient(_httpClientFactory.CreateClient(nameof(GovGrClient)), _kycScopeDescriber, new() {
                 Environment = environment ?? _settings.Value.Kyc.Environment,
                 ClientId = clientId ?? _settings.Value.Kyc.ClientId,
-                ClientSecret = clientId ?? _settings.Value.Kyc.ClientSecret,
-                RedirectUri = clientId ?? _settings.Value.Kyc.RedirectUri,
+                ClientSecret = clientSecret ?? _settings.Value.Kyc.ClientSecret,
+                RedirectUri = redirectUri ?? _settings.Value.Kyc.RedirectUri
             });
 
         /// <summary>
