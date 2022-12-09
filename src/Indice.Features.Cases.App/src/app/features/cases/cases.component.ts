@@ -14,7 +14,7 @@ import { QueriesModalComponent } from 'src/app/shared/components/query-modal/que
 export class CasesComponent extends BaseListComponent<CasePartial> implements OnInit {
     public newItemLink = 'new-case';
     public formActions: ViewAction[] = [
-        new RouterViewAction(Icons.EntryView, 'my-queries', 'rightpane', 'Οι αναζητήσεις μου', 'Οι αναζητήσεις μου')
+        new RouterViewAction(Icons.EntryView, 'queries', 'rightpane', 'Οι αναζητήσεις μου', 'Οι αναζητήσεις μου')
     ];
     public queryParamsHasFilter = false;
 

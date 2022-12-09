@@ -36,12 +36,11 @@ namespace Indice.Features.Cases.Services
 
         public async Task SaveQuery(ClaimsPrincipal user, SaveQueryRequest request) {
             var dbQuery = new DbQuery {
-                Id = Guid.NewGuid(),
                 UserId = user.FindSubjectId(),
                 FriendlyName = request.FriendlyName,
                 Parameters = request.Parameters,
             };
-            // Create query
+            // save query
             await _dbContext.AddAsync(dbQuery);
             await _dbContext.SaveChangesAsync();
         }

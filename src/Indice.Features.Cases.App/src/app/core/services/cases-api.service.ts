@@ -5255,6 +5255,128 @@ export enum CasePublicStatus {
     Rejected = "Rejected",
 }
 
+/** Case Type Category model. */
+export class CaseTypeCategory implements ICaseTypeCategory {
+    /** The Id of the category */
+    id?: string;
+    /** The Name of the category */
+    name?: string | undefined;
+    /** the Description of the category */
+    description?: string | undefined;
+    /** The Order of the category */
+    order?: number | undefined;
+    /** The translations for the category properties */
+    translations?: { [key: string]: CaseTypeCategoryTranslation; } | undefined;
+
+    constructor(data?: ICaseTypeCategory) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.order = _data["order"];
+            if (_data["translations"]) {
+                this.translations = {} as any;
+                for (let key in _data["translations"]) {
+                    if (_data["translations"].hasOwnProperty(key))
+                        (<any>this.translations)![key] = _data["translations"][key] ? CaseTypeCategoryTranslation.fromJS(_data["translations"][key]) : new CaseTypeCategoryTranslation();
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): CaseTypeCategory {
+        data = typeof data === 'object' ? data : {};
+        let result = new CaseTypeCategory();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["order"] = this.order;
+        if (this.translations) {
+            data["translations"] = {};
+            for (let key in this.translations) {
+                if (this.translations.hasOwnProperty(key))
+                    (<any>data["translations"])[key] = this.translations[key] ? this.translations[key].toJSON() : <any>undefined;
+            }
+        }
+        return data;
+    }
+}
+
+/** Case Type Category model. */
+export interface ICaseTypeCategory {
+    /** The Id of the category */
+    id?: string;
+    /** The Name of the category */
+    name?: string | undefined;
+    /** the Description of the category */
+    description?: string | undefined;
+    /** The Order of the category */
+    order?: number | undefined;
+    /** The translations for the category properties */
+    translations?: { [key: string]: CaseTypeCategoryTranslation; } | undefined;
+}
+
+/** The translation of the case type category. */
+export class CaseTypeCategoryTranslation implements ICaseTypeCategoryTranslation {
+    /** The name of the category */
+    name?: string | undefined;
+    /** the description of the category */
+    description?: string | undefined;
+
+    constructor(data?: ICaseTypeCategoryTranslation) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): CaseTypeCategoryTranslation {
+        data = typeof data === 'object' ? data : {};
+        let result = new CaseTypeCategoryTranslation();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["description"] = this.description;
+        return data;
+    }
+}
+
+/** The translation of the case type category. */
+export interface ICaseTypeCategoryTranslation {
+    /** The name of the category */
+    name?: string | undefined;
+    /** the description of the category */
+    description?: string | undefined;
+}
+
 /** The case type details model. */
 export class CaseTypeDetails implements ICaseTypeDetails {
     /** The Id of the case type. */
@@ -5385,8 +5507,6 @@ export class CaseTypePartial implements ICaseTypePartial {
     title?: string | undefined;
     /** The case type description. */
     description?: string | undefined;
-    /** The case type category. */
-    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
@@ -5397,8 +5517,11 @@ export class CaseTypePartial implements ICaseTypePartial {
     tags?: string | undefined;
     /** The case type configuration. */
     config?: string | undefined;
+    /** The order which the case type will be shown. */
+    order?: number | undefined;
     /** The allowed Roles For case Creation. */
     canCreateRoles?: string[] | undefined;
+    category?: CaseTypeCategory;
     /** The translations for the case type metadata (eg title). */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
 
@@ -5417,17 +5540,18 @@ export class CaseTypePartial implements ICaseTypePartial {
             this.code = _data["code"];
             this.title = _data["title"];
             this.description = _data["description"];
-            this.category = _data["category"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
             this.layoutTranslations = _data["layoutTranslations"];
             this.tags = _data["tags"];
             this.config = _data["config"];
+            this.order = _data["order"];
             if (Array.isArray(_data["canCreateRoles"])) {
                 this.canCreateRoles = [] as any;
                 for (let item of _data["canCreateRoles"])
                     this.canCreateRoles!.push(item);
             }
+            this.category = _data["category"] ? CaseTypeCategory.fromJS(_data["category"]) : <any>undefined;
             if (_data["translations"]) {
                 this.translations = {} as any;
                 for (let key in _data["translations"]) {
@@ -5451,17 +5575,18 @@ export class CaseTypePartial implements ICaseTypePartial {
         data["code"] = this.code;
         data["title"] = this.title;
         data["description"] = this.description;
-        data["category"] = this.category;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
         data["layoutTranslations"] = this.layoutTranslations;
         data["tags"] = this.tags;
         data["config"] = this.config;
+        data["order"] = this.order;
         if (Array.isArray(this.canCreateRoles)) {
             data["canCreateRoles"] = [];
             for (let item of this.canCreateRoles)
                 data["canCreateRoles"].push(item);
         }
+        data["category"] = this.category ? this.category.toJSON() : <any>undefined;
         if (this.translations) {
             data["translations"] = {};
             for (let key in this.translations) {
@@ -5483,8 +5608,6 @@ export interface ICaseTypePartial {
     title?: string | undefined;
     /** The case type description. */
     description?: string | undefined;
-    /** The case type category. */
-    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
@@ -5495,8 +5618,11 @@ export interface ICaseTypePartial {
     tags?: string | undefined;
     /** The case type configuration. */
     config?: string | undefined;
+    /** The order which the case type will be shown. */
+    order?: number | undefined;
     /** The allowed Roles For case Creation. */
     canCreateRoles?: string[] | undefined;
+    category?: CaseTypeCategory;
     /** The translations for the case type metadata (eg title). */
     translations?: { [key: string]: CaseTypeTranslation; } | undefined;
 }
@@ -5715,8 +5841,6 @@ export class CaseTypeTranslation implements ICaseTypeTranslation {
     title?: string | undefined;
     /** The case type description. */
     description?: string | undefined;
-    /** The case type category. */
-    category?: string | undefined;
 
     constructor(data?: ICaseTypeTranslation) {
         if (data) {
@@ -5731,7 +5855,6 @@ export class CaseTypeTranslation implements ICaseTypeTranslation {
         if (_data) {
             this.title = _data["title"];
             this.description = _data["description"];
-            this.category = _data["category"];
         }
     }
 
@@ -5746,7 +5869,6 @@ export class CaseTypeTranslation implements ICaseTypeTranslation {
         data = typeof data === 'object' ? data : {};
         data["title"] = this.title;
         data["description"] = this.description;
-        data["category"] = this.category;
         return data;
     }
 }
@@ -5757,8 +5879,6 @@ export interface ICaseTypeTranslation {
     title?: string | undefined;
     /** The case type description. */
     description?: string | undefined;
-    /** The case type category. */
-    category?: string | undefined;
 }
 
 /** Models an attachment that is associated with a case. */
