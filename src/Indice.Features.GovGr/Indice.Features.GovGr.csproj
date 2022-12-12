@@ -10,7 +10,7 @@
     <AssemblyName>Indice.Features.GovGr</AssemblyName>
     <AssemblyTitle>Indice.Features.GovGr</AssemblyTitle>
     <Authors>Christos Asvestopoulos, Constantinos Leftheris</Authors>
-    <VersionPrefix>6.1.3</VersionPrefix>
+    <VersionPrefix>6.1.4</VersionPrefix>
     <!--<VersionSuffix>beta-02</VersionSuffix>-->
   </PropertyGroup>
 

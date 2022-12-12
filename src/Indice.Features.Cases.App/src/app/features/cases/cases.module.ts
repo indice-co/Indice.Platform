@@ -17,6 +17,8 @@ import { CaseCreatePageComponent } from './case-create-page/case-create-page.com
 import { CaseDiscardDraftComponent } from './case-detail-page/case-discard-draft/case-discard-draft.component';
 import { CasePrintPdfComponent } from './case-detail-page/case-print-pdf/case-print-pdf.component';
 import { CaseWarningModalComponent } from "../../shared/components/case-warning-modal/case-warning-modal.component";
+import { QueriesModalComponent } from "src/app/shared/components/query-modal/query-modal.component";
+import { QueriesPageComponent } from "./queries-page/queries-page.component";
 
 @NgModule({
     declarations: [
@@ -27,9 +29,11 @@ import { CaseWarningModalComponent } from "../../shared/components/case-warning-
         CaseDetailPageComponent,
         CaseFormComponent,
         CaseCreatePageComponent,
+        QueriesPageComponent,
         CaseDiscardDraftComponent,
         CasePrintPdfComponent,
-        CaseWarningModalComponent
+        CaseWarningModalComponent,
+        QueriesModalComponent
     ],
     imports: [
         BrowserModule,
