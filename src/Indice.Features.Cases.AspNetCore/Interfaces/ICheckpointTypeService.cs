@@ -11,7 +11,7 @@ namespace Indice.Features.Cases.Interfaces
     internal interface ICheckpointTypeService
     {
         /// <summary>
-        /// Get the distinct checkpoint <see cref="DbCheckpointType.Name"/> of the system for the authorized role.
+        /// Get the distinct checkpoint <see cref="DbCheckpointType.Code"/> of the system for the authorized role.
         /// </summary>
         /// <param name="user">The user to filter the case types.</param>
         /// <returns></returns>

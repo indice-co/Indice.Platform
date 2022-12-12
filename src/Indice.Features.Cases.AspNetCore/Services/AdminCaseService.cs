@@ -116,7 +116,7 @@ namespace Indice.Features.Cases.Services
                     },
                     Metadata = @case.Metadata,
                     GroupId = @case.GroupId,
-                    CheckpointTypeCode = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Name,
+                    CheckpointTypeCode = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Code,
                     AssignedToName = @case.AssignedTo.Name
                 });
             // filter CustomerId
@@ -309,7 +309,7 @@ namespace Indice.Features.Cases.Services
                     Checkpoint = new Checkpoint {
                         Id = c.Id,
                         Private = c.CheckpointType.Private,
-                        CheckpointTypeCode = c.CheckpointType.Name,
+                        CheckpointTypeCode = c.CheckpointType.Code,
                         CompletedDate = c.CompletedDate,
                         DueDate = c.DueDate,
                         Status = c.CheckpointType.Status

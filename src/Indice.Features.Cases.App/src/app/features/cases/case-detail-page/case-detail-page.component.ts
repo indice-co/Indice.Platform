@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry, CasePublicStatus, SuccessMessage } from 'src/app/core/services/cases-api.service';
+import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-detail-page',
@@ -30,7 +30,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   public now: Date = new Date();
   public typeId?: string;
   public caseTypeConfig: any;
-  public casePublicStatus = CasePublicStatus;
+  public caseStatus = CaseStatus;
 
   /** shows the warning modal conditionally */
   public showWarningModal: boolean = false;

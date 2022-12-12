@@ -144,9 +144,9 @@ namespace Indice.Features.Cases.Services
             if (options.Filter?.CompletedTo != null) {
                 dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When <= options.Filter.CompletedTo);
             }
-            // filter by Checkpoint Name
+            // filter by Checkpoint Code
             foreach (var checkpoint in options.Filter?.Checkpoints ?? new List<string>()) {
-                dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.PublicCheckpoint.CheckpointType.Name, $"%{checkpoint}%"));
+                dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.PublicCheckpoint.CheckpointType.Code, $"%{checkpoint}%"));
             }
 
             // filter CaseTypeCodes
@@ -161,7 +161,7 @@ namespace Indice.Features.Cases.Services
                         Created = p.CreatedBy.When,
                         CaseTypeCode = p.CaseType.Code,
                         Status = p.PublicCheckpoint.CheckpointType.Status,
-                        Checkpoint = p.PublicCheckpoint.CheckpointType.Name,
+                        Checkpoint = p.PublicCheckpoint.CheckpointType.Code,
                         Message = _caseSharedResourceService.GetLocalizedHtmlString(p.Comments // get the translated version of the comment (if exist)
                             .OrderByDescending(p => p.CreatedBy.When)
                             .FirstOrDefault(c => !c.Private)

@@ -14,7 +14,7 @@ namespace Indice.Features.Cases.Models
         public Guid? Id { get; set; }
         
         /// <summary>
-        /// The Name of the case type.
+        /// The Code of the case type.
         /// </summary>
         public string Code { get; set; }
 

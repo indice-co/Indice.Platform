@@ -83,7 +83,7 @@ namespace Indice.Cases
                 app.UseSwagger();
 
 
-                //var enableSwagger = env.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Name}:EnableSwagger");
+                //var enableSwagger = env.IsDevelopment() || Configuration.GetValue<bool>($"{GeneralSettings.Code}:EnableSwagger");
                 //if (enableSwagger)
                 //{
                 app.UseSwaggerUI(swaggerOptions => {

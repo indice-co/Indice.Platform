@@ -83,7 +83,7 @@ namespace Indice.Features.Cases.Services
                 UserId = @case.Customer.UserId,
                 GroupId = @case.GroupId,
                 Metadata = @case.Metadata,
-                CheckpointTypeCode = latestCheckpoint.CheckpointType.Name,
+                CheckpointTypeCode = latestCheckpoint.CheckpointType.Code,
                 CheckpointTypeId = latestCheckpoint.CheckpointType.Id,
                 Attachments = @case.Attachments.Select(attachment => new CaseAttachment {
                     Id = attachment.Id,

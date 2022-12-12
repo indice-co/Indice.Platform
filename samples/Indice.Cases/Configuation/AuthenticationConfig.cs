@@ -17,7 +17,7 @@ namespace Indice.Cases.Configuation
                 .AddIdentityServerAuthentication(options => {
                     // Base address of the Identity Server.
                     options.Authority = settings?.Authority;
-                    // Name of the API resource.
+                    // Code of the API resource.
                     options.ApiName = settings?.Api?.ResourceName ?? "cases-api";
                     // If the incoming token is not a JWT, the middleware will contact the introspection endpoint found in the discovery document to validate the token. 
                     // Since the introspection endpoint requires authentication, we need to supply the configured API secret.

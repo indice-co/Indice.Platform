@@ -13,7 +13,7 @@
                                                     'Ημ. Υποβολής:': model?.createdByWhen | date:'dd/MM/YYYY',
                                                     'Τύπος Αίτησης:':model?.caseType?.title,
                                                     'Κανάλι:':model?.channel,
-                                                    'Τρέχον Σημείο Ελέγχου:':model?.checkpointTypeCode | removePrefix,
+                                                    'Τρέχον Σημείο Ελέγχου:':model?.checkpointTypeCode,
                                                     'Ανάθεση σε:':model?.assignedToName || ' - '}">
                             </app-case-detail-info>
 
@@ -68,7 +68,7 @@
                                            (formIsValid)="isValid($event)"
                                            (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
                             <app-case-print-pdf [caseId]="model.id"
-                                                [enabled]="model.publicStatus === casePublicStatus.Completed || model.publicStatus === casePublicStatus.InProgress || model.publicStatus === casePublicStatus.Rejected"
+                                                [enabled]="model.status === caseStatus.Completed || model.status === caseStatus.InProgress"
                                                 [buttonDisabled]="!formValid || formUnSavedChanges"
                                                 (pdfButtonClicked)="onPdfButtonClicked($event)">
                             </app-case-print-pdf>

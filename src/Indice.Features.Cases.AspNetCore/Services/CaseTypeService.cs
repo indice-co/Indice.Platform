@@ -110,12 +110,12 @@ namespace Indice.Features.Cases.Services
                 throw new ValidationException("At least one checkpoint type is required.");
             }
 
-            var checkpointSubmittedExists = caseType.CheckpointTypes.Any(x => x.Name == "Submitted");
+            var checkpointSubmittedExists = caseType.CheckpointTypes.Any(x => x.Code == "Submitted");
             if (!checkpointSubmittedExists) {
                 throw new ValidationException("At least one checkpoint type with the name 'Submitted' is required.");
             }
 
-            var checkpointNames = caseType.CheckpointTypes.Select(x => x.Name).ToList();
+            var checkpointNames = caseType.CheckpointTypes.Select(x => x.Code).ToList();
             if (checkpointNames.Count != checkpointNames.Distinct().Count()) {
                 throw new ValidationException("You can't have duplicate names in checkpoint types.");
             }
@@ -124,7 +124,7 @@ namespace Indice.Features.Cases.Services
                 var dbCheckpointType = new DbCheckpointType {
                     Id = Guid.NewGuid(),
                     CaseTypeId = newCaseType.Id,
-                    Name = checkpointType.Name,
+                    Code = checkpointType.Code,
                     Description = checkpointType.Description,
                     Status = checkpointType.Status,
                     Private = checkpointType.Private
@@ -192,7 +192,7 @@ namespace Indice.Features.Cases.Services
                 CanCreateRoles = dbCaseType.CanCreateRoles,
                 CheckpointTypes = dbCaseType.CheckpointTypes.Select(checkpointType => new CheckpointTypeDetails {
                     Id = checkpointType.Id,
-                    Name = checkpointType.Name,
+                    Code = checkpointType.Code,
                     Description = checkpointType.Description,
                     Private = checkpointType.Private,
                     Status = checkpointType.Status,

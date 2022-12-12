@@ -17,7 +17,7 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The name of the checkpoint.
         /// </summary>
-        public string Name { get; set; }
+        public string Code { get; set; }
 
         /// <summary>
         /// The description of the checkpoint.

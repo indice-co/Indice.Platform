@@ -6,7 +6,7 @@ import { ApprovalButtonsComponent } from './components/approval-buttons/approval
 import { PageIllustrationComponent } from './components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './components/radio-buttons-list/radio-buttons-list.component';
 import { ToggleButtonComponent } from './components/toggle-button/toggle-button.component';
-import { BeautifyBooleanPipe, RemovePrefixPipe } from './pipes.services';
+import { BeautifyBooleanPipe } from './pipes.services';
 import { TailwindFrameworkComponent } from './ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component';
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
 import { SubmitWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
@@ -48,7 +48,6 @@ import { CaseCustomActionComponent } from './components/case-custom-action/case-
     TextAreaWidgetComponent,
     // pipes
     BeautifyBooleanPipe,
-    RemovePrefixPipe,
     CaseCustomActionComponent
   ],
   imports: [
@@ -73,7 +72,6 @@ import { CaseCustomActionComponent } from './components/case-custom-action/case-
     TailwindFrameworkComponent,
     // pipes
     BeautifyBooleanPipe,
-    RemovePrefixPipe,
     CaseCustomActionComponent
   ]
 })

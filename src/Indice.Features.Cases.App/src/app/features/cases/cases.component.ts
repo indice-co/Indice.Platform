@@ -115,7 +115,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(f.value));
         let filterMetadata: string[] = [];
         this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${f.member}::eq::(${f.dataType})${f.value}`)); // this is the form that the server accepts
-
+        console.log(this.filters);
         return this._api
             .getCases(
                 customerId,
