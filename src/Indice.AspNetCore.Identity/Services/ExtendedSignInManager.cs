@@ -149,7 +149,8 @@ namespace Indice.AspNetCore.Identity
             if (claimsPrincipal is null) {
                 return default;
             }
-            var userId = claimsPrincipal.FindFirstValue(JwtClaimTypes.Name);
+            var userId = claimsPrincipal.FindFirstValue(JwtClaimTypes.Name) ??
+                         claimsPrincipal.FindFirstValue(ClaimTypes.Name);
             if (string.IsNullOrWhiteSpace(userId)) {
                 return default;
             }

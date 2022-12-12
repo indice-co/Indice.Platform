@@ -164,8 +164,7 @@ namespace Indice.AspNetCore.Identity
             };
         }
 
-        /// <summary>Builds the logout view model.</summary>
-        /// <param name="logoutId">The logout id.</param>
+        /// <inheritdoc />
         public async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId) {
             var viewModel = new LogoutViewModel {
                 LogoutId = logoutId,
@@ -182,8 +181,7 @@ namespace Indice.AspNetCore.Identity
             return viewModel;
         }
 
-        /// <summary>Build the post logout view model. <see cref="LoggedOutViewModel"/>.</summary>
-        /// <param name="logoutId">The logout id.</param>
+        /// <inheritdoc />
         public async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string logoutId) {
             // Get context information (client name, post logout redirect URI and iframe for federated sign out).
             var logout = await _interaction.GetLogoutContextAsync(logoutId);
