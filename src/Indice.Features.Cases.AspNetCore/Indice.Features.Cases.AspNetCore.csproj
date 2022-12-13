@@ -4,14 +4,13 @@
     <Description>Indice Case Management System</Description>
     <Copyright>Copyright (c) 2022 Indice</Copyright>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <RootNamespace>Indice.Features.Cases</RootNamespace>
     <LangVersion>Latest</LangVersion>
     <AssemblyName>Indice.Features.Cases.AspNetCore</AssemblyName>
     <AssemblyTitle>Indice.Features.Cases.AspNetCore</AssemblyTitle>
     <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
-    <VersionPrefix>6.1.0</VersionPrefix>
+    <VersionPrefix>6.2.0</VersionPrefix>
     <!--<VersionSuffix>beta-40</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">

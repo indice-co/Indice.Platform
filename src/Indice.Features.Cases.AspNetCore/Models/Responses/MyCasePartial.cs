@@ -22,7 +22,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The current status of the case.
         /// </summary>
-        public CasePublicStatus PublicStatus { get; set; }
+        public CaseStatus Status { get; set; }
 
         /// <summary>
         /// The case type code of the case.
@@ -46,7 +46,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// Translations.
         /// </summary>
-        public TranslationDictionary<MyCasePartialTranslation>? Translations { get; set; }
+        public TranslationDictionary<MyCasePartialTranslation> Translations { get; set; }
 
         #region Methods
 

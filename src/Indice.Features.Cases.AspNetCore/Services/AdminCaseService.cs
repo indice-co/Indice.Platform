@@ -106,7 +106,7 @@ namespace Indice.Features.Cases.Services
                     Id = @case.Id,
                     CustomerId = @case.Customer.CustomerId,
                     CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
-                    PublicStatus = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.PublicStatus,
+                    Status = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Status,
                     CreatedByWhen = @case.CreatedBy.When,
                     CaseType = new CaseTypePartial {
                         Id = @case.CaseType.Id,
@@ -169,7 +169,7 @@ namespace Indice.Features.Cases.Services
                 .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId);
 
             if (@case is null) {
-                return null!;
+                return null;
             }
 
             var caseData = await _dbContext.CaseData
@@ -312,7 +312,7 @@ namespace Indice.Features.Cases.Services
                         CheckpointTypeCode = c.CheckpointType.Code,
                         CompletedDate = c.CompletedDate,
                         DueDate = c.DueDate,
-                        PublicStatus = c.CheckpointType.PublicStatus
+                        Status = c.CheckpointType.Status
                     }
                 }))
                 .OrderByDescending(c => c.Timestamp)

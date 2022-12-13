@@ -15,6 +15,6 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The code of the checkpoint.
         /// </summary>
-        public string? Code { get; set; }
+        public string Code { get; set; }
     }
 }

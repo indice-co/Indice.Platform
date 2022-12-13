@@ -25,7 +25,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="metadata">The metadata the case might have.</param>
         /// <param name="channel">The channel the case was created from.</param>
         /// <returns></returns>
-        Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user, string caseTypeCode, string groupId, CustomerMeta customer, Dictionary<string, string> metadata, string? channel);
+        Task<CreateCaseResponse> CreateDraft(ClaimsPrincipal user, string caseTypeCode, string groupId, CustomerMeta customer, Dictionary<string, string> metadata, string channel);
 
         /// <summary>
         /// Update the case with the case data and does a json instance-schema validation of the case type's schema (<see cref="DbCaseType.DataSchema"/>).

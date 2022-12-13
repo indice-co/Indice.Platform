@@ -35,7 +35,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         /// The Id of the action that will trigger the activity. It's hidden from the elsa dashboard and gets a unique value automatically.
         /// </summary>
         [ActivityInput(IsBrowsable = false)]
-        public string? ActionId { get; set; } = Guid.NewGuid().ToString();
+        public string ActionId { get; set; } = Guid.NewGuid().ToString();
 
         /// <summary>
         /// The name of the action button to show at Cases Back-office UI.
@@ -47,7 +47,7 @@ namespace Indice.Features.Cases.Workflows.Activities
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal }
         )]
-        public string? ActionName { get; set; }
+        public string ActionName { get; set; }
 
         /// <summary>
         /// The label of the action button to show at Cases Back-office UI.
@@ -59,7 +59,7 @@ namespace Indice.Features.Cases.Workflows.Activities
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal }
         )]
-        public string? ActionLabel { get; set; }
+        public string ActionLabel { get; set; }
 
         /// <summary>
         /// The Default Value of the action input to show at Cases Back-office UI.
@@ -71,7 +71,7 @@ namespace Indice.Features.Cases.Workflows.Activities
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal, SyntaxNames.JavaScript }
         )]
-        public string? ActionInputDefaultValue { get; set; }
+        public string ActionInputDefaultValue { get; set; }
 
         /// <summary>
         /// The description of the action to show at Cases Back-office UI.
@@ -83,7 +83,7 @@ namespace Indice.Features.Cases.Workflows.Activities
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal }
         )]
-        public string? ActionDescription { get; set; }
+        public string ActionDescription { get; set; }
 
         /// <summary>
         /// The class of the action button to show at Cases Back-office UI.
@@ -128,7 +128,7 @@ namespace Indice.Features.Cases.Workflows.Activities
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal }
         )]
-        public string? AllowedRole { get; set; } = string.Empty;
+        public string AllowedRole { get; set; } = string.Empty;
 
         /// <summary>
         /// Determines whether the Back-Office UI will have an input element.
@@ -140,7 +140,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         public bool ShowInput { get; set; }
 
         [ActivityOutput]
-        public object? Output { get; set; }
+        public object Output { get; set; }
 
         /// <inheritdoc />
         public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {

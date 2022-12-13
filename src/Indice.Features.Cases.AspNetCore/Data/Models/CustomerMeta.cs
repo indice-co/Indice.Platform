@@ -7,10 +7,10 @@
     /// </summary>
     public class CustomerMeta
     {
-        public string? UserId { get; set; }
-        public string? CustomerId { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
+        public string UserId { get; set; }
+        public string CustomerId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string FullName => $"{FirstName} {LastName}"; // this is an unmapped EFCore property, do not use for querying
     }
 }

@@ -83,7 +83,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         /// <param name="exception">The exception.</param>
         /// <param name="message">The message to send as a comment.</param>
         /// <returns></returns>
-        protected async Task LogCaseError(ActivityExecutionContext context, Exception exception, string? message = null) {
+        protected async Task LogCaseError(ActivityExecutionContext context, Exception exception, string message = null) {
             // Log to Elsa context
             context.LogOutputProperty(this, "Exception", exception);
             // Log to Case (via Comment)

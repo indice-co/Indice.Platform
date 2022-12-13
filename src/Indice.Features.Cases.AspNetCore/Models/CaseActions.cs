@@ -30,6 +30,6 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The list of custom action blocking activities that will generate the corresponding components.
         /// </summary>
-        public IEnumerable<CustomCaseAction>? CustomActions { get; set; }
+        public IEnumerable<CustomCaseAction> CustomActions { get; set; }
     }
 }

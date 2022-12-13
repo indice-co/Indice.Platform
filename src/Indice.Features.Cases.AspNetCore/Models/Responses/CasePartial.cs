@@ -20,9 +20,9 @@ namespace Indice.Features.Cases.Models.Responses
         public Guid CheckpointTypeId { get; set; }
 
         /// <summary>
-        /// The current public status of the case.
+        /// The current status of the case.
         /// </summary>
-        public CasePublicStatus PublicStatus { get; set; }
+        public CaseStatus Status { get; set; }
 
         /// <summary>
         /// The Id of the customer as provided from integration services (core or 3rd party).
@@ -52,37 +52,37 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The <see cref="CaseType"/> of the case.
         /// </summary>
-        public CaseTypePartial? CaseType { get; set; }
+        public CaseTypePartial CaseType { get; set; }
 
         /// <summary>
         /// The case metadata as provided from the client or integrator.
         /// </summary>
-        public Dictionary<string,string>? Metadata { get; set; }
+        public Dictionary<string,string> Metadata { get; set; }
 
         /// <summary>
         /// The Id of the group the case belongs.
         /// </summary>
-        public string? GroupId { get; set; }
+        public string GroupId { get; set; }
 
         /// <summary>
         /// The current checkpoint type code for the case.
         /// </summary>
-        public string? CheckpointTypeCode { get; set; }
+        public string CheckpointTypeCode { get; set; }
 
         /// <summary>
         /// The json data of the case.
         /// </summary>
-        public string? Data { get; set; }
+        public string Data { get; set; }
 
         /// <summary>
         /// The name of the user that has the case assigned.
         /// </summary>
-        public string? AssignedToName { get; set; }
+        public string AssignedToName { get; set; }
 
         /// <summary>
         /// The channel of th case.
         /// </summary>
-        public string? Channel { get; set; }
+        public string Channel { get; set; }
 
         /// <summary>
         /// Indicate if the case is in draft mode.

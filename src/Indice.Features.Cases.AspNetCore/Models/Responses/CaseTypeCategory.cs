@@ -13,7 +13,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// </summary>
         public Guid Id { get; set; }
         /// <summary>
-        /// The Name of the category
+        /// The Code of the category
         /// </summary>
         public string? Name { get; set; }
         /// <summary>

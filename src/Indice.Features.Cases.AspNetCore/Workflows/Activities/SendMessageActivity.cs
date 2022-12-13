@@ -39,7 +39,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         public Message Message { get; set; }
 
         [ActivityOutput]
-        public object? Output { get; set; }
+        public object Output { get; set; }
 
         public override async ValueTask<IActivityExecutionResult> ExecuteAsync(ActivityExecutionContext context) {
             var user = context.TryGetUser();

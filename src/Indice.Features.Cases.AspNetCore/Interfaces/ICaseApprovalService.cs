@@ -22,14 +22,14 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="action">The action of the actor.</param>
         /// <param name="reason">The reason of the rejection.</param>
         /// <returns></returns>
-        Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string? reason);
+        Task AddApproval(Guid caseId, Guid? commentId, ClaimsPrincipal user, Approval action, string reason);
         
         /// <summary>
         /// Get the last <see cref="DbCaseApproval.Committed"/> approval (or null, if it does not exist) for a case.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
         /// <returns></returns>
-        Task<DbCaseApproval?> GetLastApproval(Guid caseId);
+        Task<DbCaseApproval> GetLastApproval(Guid caseId);
 
         /// <summary>
         /// Rollback the last approval for a case. 

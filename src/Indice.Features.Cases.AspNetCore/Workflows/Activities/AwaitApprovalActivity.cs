@@ -48,7 +48,7 @@ namespace Indice.Features.Cases.Workflows.Activities
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal }
         )]
-        public string? AllowedRole { get; set; } = string.Empty;
+        public string AllowedRole { get; set; } = string.Empty;
 
         [ActivityInput(
             Label = "Block previous approver",
@@ -67,7 +67,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         public IEnumerable<string> PublicActions { get; set; } = new List<string>();
 
         [ActivityOutput]
-        public ApprovalRequest? Output { get; set; }
+        public ApprovalRequest Output { get; set; }
 
         [ActivityOutput]
         public string Action { get; set; }
