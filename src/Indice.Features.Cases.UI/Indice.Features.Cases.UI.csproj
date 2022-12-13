@@ -8,7 +8,7 @@
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.Features.Cases.App\dist\cases-app</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <VersionPrefix>6.1.0</VersionPrefix>
+    <VersionPrefix>6.2.0</VersionPrefix>
     <!--<VersionSuffix>beta-27</VersionSuffix>-->
     <LangVersion>Latest</LangVersion>
   </PropertyGroup>
