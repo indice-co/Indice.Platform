@@ -30,11 +30,6 @@ namespace Indice.Features.Cases.Models.Responses
         public string Description { get; set; }
 
         /// <summary>
-        /// The case type category.
-        /// </summary>
-        public string Category { get; set; }
-
-        /// <summary>
         /// The case type json schema.
         /// </summary>
         public string DataSchema { get; set; }
@@ -60,9 +55,19 @@ namespace Indice.Features.Cases.Models.Responses
         public string Config { get; set; }
 
         /// <summary>
+        /// The order which the case type will be shown.
+        /// </summary>
+        public int? Order { get; set; }
+
+        /// <summary>
         /// The allowed Roles For case Creation.
         /// </summary>
         public List<string> CanCreateRoles { get; set; }
+
+        /// <summary>
+        /// The case type category.
+        /// </summary>
+        public CaseTypeCategory? Category { get; set; }
 
         /// <summary>
         /// The translations for the case type metadata (eg title).
@@ -82,7 +87,6 @@ namespace Indice.Features.Cases.Models.Responses
             if (!string.IsNullOrEmpty(culture) && Translations != null && Translations.TryGetValue(culture, out var translation)) {
                 type.Title = translation.Title;
                 type.Description = translation.Description;
-                type.Category = translation.Category;
             }
             if (!includeTranslations) {
                 type.Translations = default;

@@ -21,7 +21,7 @@ namespace Indice.Features.Cases.Workflows.Specifications
         }
 
         public override Expression<Func<WorkflowDefinition, bool>> ToExpression() {
-            Expression<Func<WorkflowDefinition, bool>> expression = (WorkflowDefinition x) => x.Tag != null && x.Tag.Contains(Tag);
+            Expression<Func<WorkflowDefinition, bool>> expression = (WorkflowDefinition x) => x.Tag != null && (x.Tag == Tag || x.Tag.StartsWith($"{Tag},") || x.Tag.EndsWith($",{Tag}") || x.Tag.Contains($",{Tag},"));
             expression = expression.WithVersion(VersionOptions.LatestOrPublished);
             return expression;
         }

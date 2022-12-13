@@ -66,7 +66,7 @@ namespace Indice.Features.Cases.Services
 
             var caseDetails = new CaseDetails {
                 Id = @case.Id,
-                PublicStatus = latestCheckpoint.CheckpointType.PublicStatus,
+                Status = latestCheckpoint.CheckpointType.Status,
                 CreatedByWhen = @case.CreatedBy.When,
                 CreatedById = @case.CreatedBy.Id,
                 CaseType = new CaseTypePartial {

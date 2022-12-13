@@ -20,9 +20,9 @@ namespace Indice.Features.Cases.Models.Responses
         public Guid CheckpointTypeId { get; set; }
 
         /// <summary>
-        /// The current public status of the case.
+        /// The current status of the case.
         /// </summary>
-        public CasePublicStatus PublicStatus { get; set; }
+        public CaseStatus Status { get; set; }
 
         /// <summary>
         /// The Id of the customer as provided from integration services (core or 3rd party).

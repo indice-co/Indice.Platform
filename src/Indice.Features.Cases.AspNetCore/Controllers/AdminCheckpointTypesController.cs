@@ -35,8 +35,8 @@ namespace Indice.Features.Cases.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<string>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetDistinctCheckpointNames() {
-            var checkpointTypes = await _checkpointTypeService.GetDistinctCheckpointNames(User);
+        public async Task<IActionResult> GetDistinctCheckpointCodes() {
+            var checkpointTypes = await _checkpointTypeService.GetDistinctCheckpointCodes(User);
             return Ok(checkpointTypes);
         }
     }

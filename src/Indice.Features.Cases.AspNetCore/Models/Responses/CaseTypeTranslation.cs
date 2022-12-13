@@ -13,9 +13,5 @@
         /// The case type description.
         /// </summary>
         public string Description { get; set; }
-        /// <summary>
-        /// The case type category.
-        /// </summary>
-        public string Category { get; set; }
     }
 }

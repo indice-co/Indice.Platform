@@ -6,16 +6,17 @@ namespace Indice.Features.Cases.Data.Models
     public class DbCaseType
     {
         public Guid Id { get; set; }
+        public Guid? CategoryId { get; set; }
         public string Code { get; set; }
         public string Title { get; set; }
-        public string Description { get; set; }
-        public string Category { get; set; }
+        public string Description { get; set; }        
         public string DataSchema { get; set; }
         public string Layout { get; set; }
         public string Translations { get; set; }
         public string LayoutTranslations { get; set; }
         public string Tags { get; set; }
         public string Config { get; set; }
+        public int? Order { get; set; }
         /// <summary>
         /// The allowed Roles that can create a new Case
         /// </summary>
@@ -24,5 +25,6 @@ namespace Indice.Features.Cases.Data.Models
         /// Available checkpoints for this case type
         /// </summary>
         public virtual List<DbCheckpointType> CheckpointTypes { get; set; }
+        public virtual DbCaseTypeCategory? Category { get; set; }
     }
 }

@@ -4,6 +4,8 @@ using Indice.Services;
 namespace Indice.AspNetCore.Identity.Events
 {
     /// <summary>An event that is raised when a device is updated through <see cref="ExtendedUserManager{TUser}"/>.</summary>
+    /// <typeparam name="TDevice">The type of the device.</typeparam>
+    /// <typeparam name="TUser">The type of the user.</typeparam>
     public class DeviceUpdatedEvent<TDevice, TUser> : IPlatformEvent
         where TDevice : UserDevice
         where TUser : User

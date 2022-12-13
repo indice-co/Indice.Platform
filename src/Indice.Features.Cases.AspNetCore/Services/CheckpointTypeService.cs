@@ -20,7 +20,7 @@ namespace Indice.Features.Cases.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<List<string>> GetDistinctCheckpointNames(ClaimsPrincipal user) {
+        public async Task<List<string>> GetDistinctCheckpointCodes(ClaimsPrincipal user) {
             if (user.IsAdmin()) {
                 return await GetAdminDistinctCheckpointNames();
             }
@@ -39,7 +39,7 @@ namespace Indice.Features.Cases.Services
             var checkpointTypes = await _dbContext.CheckpointTypes
                 .AsQueryable()
                 .Where(c => checkpointTypeIds.Contains(c.Id))
-                .Select(c => c.Name)
+                .Select(c => c.Code)
                 .AsAsyncEnumerable()
                 .Distinct() // TODO client-side evaluation, this needs to change
                 .ToListAsync();
@@ -49,7 +49,7 @@ namespace Indice.Features.Cases.Services
         private async Task<List<string>> GetAdminDistinctCheckpointNames() {
             return await _dbContext.CheckpointTypes
                 .AsQueryable()
-                .Select(c => c.Name)
+                .Select(c => c.Code)
                 .AsAsyncEnumerable()
                 .Distinct() // TODO client-side evaluation, this needs to change
                 .ToListAsync();

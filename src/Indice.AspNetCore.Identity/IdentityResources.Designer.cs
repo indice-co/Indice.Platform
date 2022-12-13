@@ -358,6 +358,15 @@ namespace Indice.AspNetCore.Identity {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OTP code is {0}..
+        /// </summary>
+        internal static string TrustedDeviceRequiresOtpMessage {
+            get {
+                return ResourceManager.GetString("TrustedDeviceRequiresOtpMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You have reached the maximum number of trusted devices..
         /// </summary>
         internal static string TrustedDevicesLimitReached {

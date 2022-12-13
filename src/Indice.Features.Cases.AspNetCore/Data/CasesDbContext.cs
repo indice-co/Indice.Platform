@@ -15,6 +15,7 @@ namespace Indice.Features.Cases.Data
         }
 
         public DbSet<DbCase> Cases => Set<DbCase>();
+        public DbSet<DbQuery> Queries => Set<DbQuery>();
         public DbSet<DbAttachment> Attachments => Set<DbAttachment>();
         public DbSet<DbCaseType> CaseTypes => Set<DbCaseType>();
         public DbSet<DbCheckpoint> Checkpoints => Set<DbCheckpoint>();
@@ -24,6 +25,7 @@ namespace Indice.Features.Cases.Data
         public DbSet<DbCaseData> CaseData => Set<DbCaseData>();
         public DbSet<DbCaseTypeNotificationSubscription> CaseTypeNotificationSubscription => Set<DbCaseTypeNotificationSubscription>();
         public DbSet<DbCaseApproval> CaseApprovals => Set<DbCaseApproval>();
+        public DbSet<DbCaseTypeCategory> CaseTypeCategories => Set<DbCaseTypeCategory>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.ApplyJsonFunctions();

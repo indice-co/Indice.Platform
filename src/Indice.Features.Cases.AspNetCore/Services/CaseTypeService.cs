@@ -62,7 +62,12 @@ namespace Indice.Features.Cases.Services
                 .Select(c => new CaseTypePartial {
                     Id = c.Id,
                     Title = c.Title,
-                    Category = c.Category,
+                    Category = c.Category == null ? null : new CaseTypeCategory {
+                        Id = c.Category.Id,
+                        Name = c.Category.Name,
+                        Description = c.Category.Description,
+                        Translations = TranslationDictionary<CaseTypeCategoryTranslation>.FromJson(c.Category.Translations)
+                    },
                     Description = c.Description,
                     DataSchema = c.DataSchema,
                     Layout = c.Layout,
@@ -91,7 +96,6 @@ namespace Indice.Features.Cases.Services
                 Id = Guid.NewGuid(),
                 Code = caseType.Code,
                 Title = caseType.Title,
-                Category = caseType.Category,
                 Description = caseType.Description,
                 DataSchema = caseType.DataSchema,
                 Layout = caseType.Layout,
@@ -106,12 +110,12 @@ namespace Indice.Features.Cases.Services
                 throw new ValidationException("At least one checkpoint type is required.");
             }
 
-            var checkpointSubmittedExists = caseType.CheckpointTypes.Any(x => x.Name == "Submitted");
+            var checkpointSubmittedExists = caseType.CheckpointTypes.Any(x => x.Code == "Submitted");
             if (!checkpointSubmittedExists) {
                 throw new ValidationException("At least one checkpoint type with the name 'Submitted' is required.");
             }
 
-            var checkpointNames = caseType.CheckpointTypes.Select(x => x.Name).ToList();
+            var checkpointNames = caseType.CheckpointTypes.Select(x => x.Code).ToList();
             if (checkpointNames.Count != checkpointNames.Distinct().Count()) {
                 throw new ValidationException("You can't have duplicate names in checkpoint types.");
             }
@@ -120,11 +124,11 @@ namespace Indice.Features.Cases.Services
                 var dbCheckpointType = new DbCheckpointType {
                     Id = Guid.NewGuid(),
                     CaseTypeId = newCaseType.Id,
+                    Code = checkpointType.Code,
                     Description = checkpointType.Description,
-                    PublicStatus = checkpointType.PublicStatus,
+                    Status = checkpointType.Status,
                     Private = checkpointType.Private
                 };
-                dbCheckpointType.SetCode(caseType.Code, checkpointType.Name);
 
                 await _dbContext.CheckpointTypes.AddAsync(dbCheckpointType);
 
@@ -177,7 +181,7 @@ namespace Indice.Features.Cases.Services
                 Id = id,
                 Code = dbCaseType.Code,
                 Title = dbCaseType.Title,
-                Category = dbCaseType.Category,
+                Category = dbCaseType.Category.Name,
                 Description = dbCaseType.Description,
                 DataSchema = dbCaseType.DataSchema,
                 Layout = dbCaseType.Layout,
@@ -188,10 +192,10 @@ namespace Indice.Features.Cases.Services
                 CanCreateRoles = dbCaseType.CanCreateRoles,
                 CheckpointTypes = dbCaseType.CheckpointTypes.Select(checkpointType => new CheckpointTypeDetails {
                     Id = checkpointType.Id,
-                    Name = checkpointType.Name,
+                    Code = checkpointType.Code,
                     Description = checkpointType.Description,
                     Private = checkpointType.Private,
-                    PublicStatus = checkpointType.PublicStatus,
+                    Status = checkpointType.Status,
                     Roles = caseTypeRoles
                         .Where(roleCaseType => roleCaseType.CheckpointTypeId == checkpointType.Id)
                         .Select(roleCaseType => roleCaseType.RoleName)
@@ -212,7 +216,6 @@ namespace Indice.Features.Cases.Services
 
             // Update case type entity
             dbCaseType.Title = caseType.Title;
-            dbCaseType.Category = caseType.Category;
             dbCaseType.Description = caseType.Description;
             dbCaseType.DataSchema = caseType.DataSchema;
             dbCaseType.Layout = caseType.Layout;
