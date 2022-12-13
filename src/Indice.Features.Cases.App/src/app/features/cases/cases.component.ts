@@ -41,7 +41,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         });
         forkJoin({
             caseTypes: this._api.getCaseTypes(),
-            checkpointTypes: this._api.getDistinctCheckpointNames()
+            checkpointTypes: this._api.getDistinctCheckpointCodes()
         }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
             const caseTypeSearchOption: SearchOption = {
                 field: 'caseTypeCodes',
@@ -131,7 +131,6 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(f.value));
         let filterMetadata: string[] = [];
         this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${f.member}::eq::(${f.dataType})${f.value}`)); // this is the form that the server accepts
-
         return this._api
             .getCases(
                 customerId,

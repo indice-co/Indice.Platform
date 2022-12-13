@@ -109,7 +109,7 @@ namespace Indice.Features.Cases.Services
             var userId = user.FindSubjectId();
             var dbCaseQueryable = _dbContext.Cases
                 .AsQueryable()
-                .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft && p.PublicCheckpoint.CheckpointType.PublicStatus != CasePublicStatus.Deleted)
+                .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
                 .Where(options.Filter.Metadata);
 
             foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
@@ -117,10 +117,10 @@ namespace Indice.Features.Cases.Services
                 dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
             }
 
-            // filter PublicStatuses
-            if (options.Filter?.PublicStatuses != null && options.Filter.PublicStatuses.Count() > 0) {
-                var expressions = options.Filter.PublicStatuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.PublicStatus == status));
-                // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.PublicStatus == status1 OR == status2 etc
+            // filter Statuses
+            if (options.Filter?.Statuses != null && options.Filter.Statuses.Count() > 0) {
+                var expressions = options.Filter.Statuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Status == status));
+                // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Status == status1 OR == status2 etc
                 var aggregatedExpression = expressions.Aggregate((expression, next) => {
                     var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
                     return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
@@ -144,9 +144,16 @@ namespace Indice.Features.Cases.Services
             if (options.Filter?.CompletedTo != null) {
                 dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When <= options.Filter.CompletedTo);
             }
-            // filter by Checkpoint Name
-            foreach (var checkpoint in options.Filter?.Checkpoints ?? new List<string>()) {
-                dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.PublicCheckpoint.CheckpointType.Code, $"%{checkpoint}%"));
+
+            // filter by Checkpoint Code
+            if (options.Filter?.Checkpoints != null && options.Filter.Checkpoints.Count() > 0) {
+                var expressions = options.Filter.Checkpoints.Select(checkpoints => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Code == checkpoints));
+                // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code == checkpoint1 OR == checkpoint2 etc
+                var aggregatedExpression = expressions.Aggregate((expression, next) => {
+                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
+                });
+                dbCaseQueryable = dbCaseQueryable.Where(aggregatedExpression);
             }
 
             // filter CaseTypeCodes
@@ -160,7 +167,7 @@ namespace Indice.Features.Cases.Services
                         Id = p.Id,
                         Created = p.CreatedBy.When,
                         CaseTypeCode = p.CaseType.Code,
-                        PublicStatus = p.PublicCheckpoint.CheckpointType.PublicStatus,
+                        Status = p.PublicCheckpoint.CheckpointType.Status,
                         Checkpoint = p.PublicCheckpoint.CheckpointType.Code,
                         Message = _caseSharedResourceService.GetLocalizedHtmlString(p.Comments // get the translated version of the comment (if exist)
                             .OrderByDescending(p => p.CreatedBy.When)

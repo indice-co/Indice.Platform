@@ -17,7 +17,7 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The case status filter.
         /// </summary>
-        public List<CasePublicStatus>? PublicStatuses { get; set; }
+        public List<CaseStatus>? Statuses { get; set; }
         /// <summary>
         /// The case type code filter.
         /// </summary>

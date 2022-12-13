@@ -40,7 +40,7 @@
                 </svg>
             </span>
             <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900 dark:text-white">
-                <span *ngIf="entry.isCheckpoint">{{entry.checkpoint?.checkpointTypeCode | removePrefix}}</span>
+                <span *ngIf="entry.isCheckpoint">{{entry.checkpoint?.checkpointTypeCode }}</span>
                 <span *ngIf="entry.comment && !entry.comment?.attachment?.id">Σχόλιο</span>
                 <span *ngIf="entry.comment && entry.comment?.attachment?.id">Επισύναψη Αρχείου</span>
                 <span *ngIf="entry.checkpoint?.private"
@@ -48,7 +48,7 @@
                 <span *ngIf="entry.comment?.isCustomer"
                       class="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800 ml-3">Πελάτης</span>
 
-                <ng-container *ngTemplateOutlet="publicStatus;context:{status: entry.checkpoint?.publicStatus}">
+                <ng-container *ngTemplateOutlet="publicStatus;context:{status: entry.checkpoint?.status}">
                 </ng-container>
             </h3>
             <time class="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500"><span

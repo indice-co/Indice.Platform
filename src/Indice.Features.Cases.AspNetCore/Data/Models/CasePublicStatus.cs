@@ -4,10 +4,10 @@ using Newtonsoft.Json.Converters;
 namespace Indice.Features.Cases.Data.Models
 {
     /// <summary>
-    /// Define the status for the customer. It is defined at the <see cref="DbCheckpointType.PublicStatus"/>.
+    /// Define the status for the customer. It is defined at the <see cref="DbCheckpointType.Status"/>.
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter))] // unfortunately, Elsa uses Newtonsoft.Json and overwrites our Converters...
-    public enum CasePublicStatus : short
+    public enum CaseStatus : short
     {
         /// <summary>
         /// Submitted.
@@ -24,10 +24,6 @@ namespace Indice.Features.Cases.Data.Models
         /// <summary>
         /// Deleted.
         /// </summary>
-        Deleted,
-        /// <summary>
-        /// Rejected.
-        /// </summary>
-        Rejected
+        Deleted
     }
 }
