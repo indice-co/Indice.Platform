@@ -240,13 +240,13 @@ namespace Indice.Features.Cases.Services
             }
 
             var caseTypes = await caseTypesQueryable
-                .OrderBy(x => x.Category.Order)
+                .OrderBy(x => x.Category == null ? null : x.Category.Order)
                 .ThenBy(x => x.Order)
                 .Select(dbCaseType => new CaseTypePartial {
                     Id = dbCaseType.Id,
                     Title = dbCaseType.Title,
                     Description = dbCaseType.Description,
-                    Category = new CaseTypeCategory {
+                    Category = dbCaseType.Category == null ? null : new CaseTypeCategory {
                         Id = dbCaseType.Category.Id,
                         Name = dbCaseType.Category.Name,
                         Description = dbCaseType.Category.Description,

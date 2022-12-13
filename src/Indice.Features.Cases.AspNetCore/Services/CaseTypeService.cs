@@ -62,7 +62,7 @@ namespace Indice.Features.Cases.Services
                 .Select(c => new CaseTypePartial {
                     Id = c.Id,
                     Title = c.Title,
-                    Category = new CaseTypeCategory {
+                    Category = c.Category == null ? null : new CaseTypeCategory {
                         Id = c.Category.Id,
                         Name = c.Category.Name,
                         Description = c.Category.Description,

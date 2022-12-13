@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Mime;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Cases.Events;
