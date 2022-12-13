@@ -3,7 +3,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityModel;
-using Indice.AspNetCore.Identity.Authorization;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;

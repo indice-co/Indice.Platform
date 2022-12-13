@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography.Xml;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
@@ -44,7 +43,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
         public Task<TotpResult> SendToSmsAsync(TUser user, string message, string subject, string purpose = null)
-            => SendAsync(user, message, TotpDeliveryChannel.Sms, subject, purpose: purpose);
+            => SendAsync(user, message, TotpDeliveryChannel.Sms, subject, purpose);
 
         /// <summary>Creates a TOTP and sends it as a Viber message.</summary>
         /// <param name="user">The user instance.</param>
@@ -52,7 +51,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
         public Task<TotpResult> SendToViberAsync(TUser user, string message, string subject, string purpose = null)
-            => SendAsync(user, message, TotpDeliveryChannel.Viber, subject, purpose: purpose);
+            => SendAsync(user, message, TotpDeliveryChannel.Viber, subject, purpose);
 
         /// <summary>Creates a TOTP and sends it as a push notification.</summary>
         /// <param name="user">The user instance.</param>

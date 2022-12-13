@@ -7,5 +7,7 @@
         public string OtpCode { get; set; }
         /// <summary>Flag that indicates that the device performed the login should be persisted.</summary>
         public bool RememberDevice { get; set; }
+        /// <summary>The return URL after the login is successful.</summary>
+        public string ReturnUrl { get; set; }
     }
 }
