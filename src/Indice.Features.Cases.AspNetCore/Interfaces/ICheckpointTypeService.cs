@@ -15,6 +15,6 @@ namespace Indice.Features.Cases.Interfaces
         /// </summary>
         /// <param name="user">The user to filter the case types.</param>
         /// <returns></returns>
-        Task<List<string>> GetDistinctCheckpointNames(ClaimsPrincipal user);
+        Task<List<string>> GetDistinctCheckpointCodes(ClaimsPrincipal user);
     }
 }

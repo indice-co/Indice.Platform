@@ -20,7 +20,7 @@ namespace Indice.Features.Cases.Services
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<List<string>> GetDistinctCheckpointNames(ClaimsPrincipal user) {
+        public async Task<List<string>> GetDistinctCheckpointCodes(ClaimsPrincipal user) {
             if (user.IsAdmin()) {
                 return await GetAdminDistinctCheckpointNames();
             }

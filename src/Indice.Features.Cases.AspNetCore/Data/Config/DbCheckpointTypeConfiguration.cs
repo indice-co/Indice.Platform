@@ -13,7 +13,7 @@ namespace Indice.Features.Cases.Data.Config
             builder
                 .HasKey(p => p.Id);
             builder
-                .HasIndex(p => new {  p.Id, p.Code });
+                .HasIndex(p => new { p.CaseTypeId, p.Code });
             builder
                 .Property(p => p.Code)
                 .HasMaxLength(TextSizePresets.M256);

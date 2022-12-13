@@ -193,7 +193,7 @@ export interface ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getDistinctCheckpointNames(api_version?: string | undefined): Observable<string[]>;
+    getDistinctCheckpointCodes(api_version?: string | undefined): Observable<string[]>;
     /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
@@ -2569,7 +2569,7 @@ export class CasesApiService implements ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getDistinctCheckpointNames(api_version?: string | undefined): Observable<string[]> {
+    getDistinctCheckpointCodes(api_version?: string | undefined): Observable<string[]> {
         let url_ = this.baseUrl + "/api/manage/checkpoint-types?";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
@@ -2586,11 +2586,11 @@ export class CasesApiService implements ICasesApiService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetDistinctCheckpointNames(response_);
+            return this.processGetDistinctCheckpointCodes(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetDistinctCheckpointNames(<any>response_);
+                    return this.processGetDistinctCheckpointCodes(<any>response_);
                 } catch (e) {
                     return <Observable<string[]>><any>_observableThrow(e);
                 }
@@ -2599,7 +2599,7 @@ export class CasesApiService implements ICasesApiService {
         }));
     }
 
-    protected processGetDistinctCheckpointNames(response: HttpResponseBase): Observable<string[]> {
+    protected processGetDistinctCheckpointCodes(response: HttpResponseBase): Observable<string[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :

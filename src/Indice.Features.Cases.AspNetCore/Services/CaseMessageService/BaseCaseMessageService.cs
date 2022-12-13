@@ -42,7 +42,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
 
             var newCheckpointType = await _dbContext.CheckpointTypes
                 .AsQueryable()
-                .SingleOrDefaultAsync(x => x.Code == $"{message.CheckpointTypeName}");
+                .SingleOrDefaultAsync(x => x.Code == message.CheckpointTypeName && x.CaseTypeId == caseType.Id);
             if (message.ReplyToCommentId.HasValue) {
                 var exists = await _dbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == message.ReplyToCommentId.Value);
                 if (!exists) {
@@ -74,7 +74,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                 if (!message.PrivateComment.HasValue) {
                     message.PrivateComment = newCheckpointType.Private;
                 }
-                var suffix = $"Case status changed to '{newCheckpointType.Code}'";
+                var suffix = $"Setting case to '{newCheckpointType.Code}'";
                 message.Comment = string.IsNullOrEmpty(message.Comment) ? suffix : $"{message.Comment}. {suffix}";
             }
 

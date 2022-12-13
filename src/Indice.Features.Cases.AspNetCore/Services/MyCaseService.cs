@@ -144,9 +144,16 @@ namespace Indice.Features.Cases.Services
             if (options.Filter?.CompletedTo != null) {
                 dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When <= options.Filter.CompletedTo);
             }
+
             // filter by Checkpoint Code
-            foreach (var checkpoint in options.Filter?.Checkpoints ?? new List<string>()) {
-                dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.PublicCheckpoint.CheckpointType.Code, $"%{checkpoint}%"));
+            if (options.Filter?.Checkpoints != null && options.Filter.Checkpoints.Count() > 0) {
+                var expressions = options.Filter.Checkpoints.Select(checkpoints => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Code == checkpoints));
+                // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code == checkpoint1 OR == checkpoint2 etc
+                var aggregatedExpression = expressions.Aggregate((expression, next) => {
+                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
+                });
+                dbCaseQueryable = dbCaseQueryable.Where(aggregatedExpression);
             }
 
             // filter CaseTypeCodes
