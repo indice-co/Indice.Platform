@@ -16,57 +16,57 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The case type code.
         /// </summary>
-        public string? Code { get; set; }
+        public string Code { get; set; }
 
         /// <summary>
         /// The case type title.
         /// </summary>
-        public string? Title { get; set; }
+        public string Title { get; set; }
 
         /// <summary>
         /// The case type description.
         /// </summary>
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// The case type category.
         /// </summary>
-        public string? Category { get; set; }
+        public string Category { get; set; }
 
         /// <summary>
         /// The case type json schema.
         /// </summary>
-        public string? DataSchema { get; set; }
+        public string DataSchema { get; set; }
 
         /// <summary>
         /// The layout for the data schema.
         /// </summary>
-        public string? Layout { get; set; }
+        public string Layout { get; set; }
 
         /// <summary>
         /// The case type translations.
         /// </summary>
-        public string? Translations { get; set; }
+        public string Translations { get; set; }
 
         /// <summary>
         /// The layout translations.
         /// </summary>
-        public string? LayoutTranslations { get; set; }
+        public string LayoutTranslations { get; set; }
 
         /// <summary>
         /// The case type tags.
         /// </summary>
-        public string? Tags { get; set; }
+        public string Tags { get; set; }
 
         /// <summary>
         /// The case type configuration.
         /// </summary>
-        public string? Config { get; set; }
+        public string Config { get; set; }
 
         /// <summary>
         /// The allowed Roles that can create a new Case.
         /// </summary>
-        public string? CanCreateRoles { get; set; }
+        public string CanCreateRoles { get; set; }
 
         /// <summary>
         /// The checkpoints for this case type.

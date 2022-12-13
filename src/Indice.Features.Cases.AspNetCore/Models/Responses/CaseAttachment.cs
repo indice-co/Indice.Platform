@@ -30,6 +30,6 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The binary data of the attachment.
         /// </summary>
-        public byte[]? Data { get; set; }
+        public byte[] Data { get; set; }
     }
 }

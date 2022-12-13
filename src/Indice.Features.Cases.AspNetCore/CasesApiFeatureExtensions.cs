@@ -35,7 +35,7 @@ namespace Indice.Features.Cases
         /// </summary>
         /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
         /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
-        public static IMvcBuilder AddCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions>? configureAction = null) {
+        public static IMvcBuilder AddCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions> configureAction = null) {
             // Add
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProviderMyCases()));
             var services = mvcBuilder.Services;
@@ -99,7 +99,7 @@ namespace Indice.Features.Cases
         /// </summary>
         /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
         /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
-        public static IMvcBuilder AddAdminCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions>? configureAction = null) {
+        public static IMvcBuilder AddAdminCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions> configureAction = null) {
             // Add
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProviderAdminCases()));
             var services = mvcBuilder.Services;
@@ -196,7 +196,7 @@ namespace Indice.Features.Cases
         /// <param name="services">The <see cref="IServiceCollection"/>.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/>.</param>
         /// <param name="workflowAssembly">The assembly with the workflow activities and definitions to register.</param>
-        public static void AddWorkflow(this IServiceCollection services, IConfiguration configuration, Assembly? workflowAssembly) {
+        public static void AddWorkflow(this IServiceCollection services, IConfiguration configuration, Assembly workflowAssembly) {
             services.AddElsa(elsa => {
                 elsa.UseEntityFrameworkPersistence(ef => ef.UseSqlServer(configuration.GetConnectionString("WorkflowDb")), false)
                     .AddQuartzTemporalActivities()

@@ -83,7 +83,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
             return attachmentId;
         }
 
-        protected Task SendInternal(DbCase @case, ClaimsPrincipal user, Exception exception, string? message) {
+        protected Task SendInternal(DbCase @case, ClaimsPrincipal user, Exception exception, string message) {
             var comment = string.IsNullOrEmpty(message)
                 ? $"Faulted with message: {exception.Message}"
                 : $"Faulted with message: {message} and exception message: {exception.Message}";
@@ -106,7 +106,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
             await _dbContext.Comments.AddAsync(newComment);
         }
 
-        private async Task<CasesAttachmentLink> AddAttachment(ClaimsPrincipal user, DbCase @case, string? comment, IFormFile file) {
+        private async Task<CasesAttachmentLink> AddAttachment(ClaimsPrincipal user, DbCase @case, string comment, IFormFile file) {
             var attachment = new DbAttachment {
                 CaseId = @case.Id
             };

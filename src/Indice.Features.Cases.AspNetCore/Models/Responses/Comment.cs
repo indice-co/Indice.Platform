@@ -30,11 +30,11 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The optional attachment Id of the comment.
         /// </summary>
-        public CasesAttachmentLink? Attachment { get; set; }
+        public CasesAttachmentLink Attachment { get; set; }
 
         /// <summary>
         /// If the comment is a reply to another comment, this object will include the original comment.
         /// </summary>
-        public Comment? ReplyToComment { get; set; }
+        public Comment ReplyToComment { get; set; }
     }
 }

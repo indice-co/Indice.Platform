@@ -169,7 +169,7 @@ namespace Indice.Features.Cases.Services
                 .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId);
 
             if (@case is null) {
-                return null!;
+                return null;
             }
 
             var caseData = await _dbContext.CaseData

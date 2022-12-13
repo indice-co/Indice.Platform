@@ -8,10 +8,10 @@
         /// <summary>
         /// The title of the case type.
         /// </summary>
-        public string? Title { get; set; }
+        public string Title { get; set; }
         /// <summary>
         /// The case type description.
         /// </summary>
-        public string? Description { get; set; }
+        public string Description { get; set; }
     }
 }

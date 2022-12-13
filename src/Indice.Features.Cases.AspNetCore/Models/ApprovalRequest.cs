@@ -15,6 +15,6 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// User comment related to the action.
         /// </summary>
-        public string? Comment { get; set; }
+        public string Comment { get; set; }
     }
 }

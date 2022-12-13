@@ -22,7 +22,7 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The description of the checkpoint.
         /// </summary>
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// The public status of the checkpoint.
@@ -37,6 +37,6 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The related roles for this checkpoint.
         /// </summary>
-        public IEnumerable<string>? Roles { get; set; }
+        public IEnumerable<string> Roles { get; set; }
     }
 }

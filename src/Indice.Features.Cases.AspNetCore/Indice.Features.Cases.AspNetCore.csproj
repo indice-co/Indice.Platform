@@ -4,7 +4,6 @@
     <Description>Indice Case Management System</Description>
     <Copyright>Copyright (c) 2022 Indice</Copyright>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <Nullable>enable</Nullable>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <RootNamespace>Indice.Features.Cases</RootNamespace>
     <LangVersion>Latest</LangVersion>

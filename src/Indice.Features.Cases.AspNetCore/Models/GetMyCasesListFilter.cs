@@ -13,15 +13,15 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The case type tag filter.
         /// </summary>
-        public IEnumerable<string>? CaseTypeTags { get; set; }
+        public IEnumerable<string> CaseTypeTags { get; set; }
         /// <summary>
         /// The case status filter.
         /// </summary>
-        public List<CaseStatus>? Statuses { get; set; }
+        public List<CaseStatus> Statuses { get; set; }
         /// <summary>
         /// The case type code filter.
         /// </summary>
-        public List<string>? CaseTypeCodes { get; set; }
+        public List<string> CaseTypeCodes { get; set; }
         /// <summary>
         /// The CreatedFrom filter.
         /// </summary>
@@ -45,10 +45,10 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// Construct filter clauses based on case data.
         /// </summary>
-        public List<FilterClause>? Data { get; set; }
+        public List<FilterClause> Data { get; set; }
         /// <summary>
         /// Construct filter clauses based on case metadata.
         /// </summary>
-        public List<FilterClause>? Metadata { get; set; }
+        public List<FilterClause> Metadata { get; set; }
     }
 }

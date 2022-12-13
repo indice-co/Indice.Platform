@@ -34,9 +34,9 @@ namespace Indice.Features.Cases.Data.Models
         /// Clear the data of the instance.
         /// </summary>
         public void Clear() {
-            Id = null!;
-            Name = null!;
-            Email = null!;
+            Id = null;
+            Name = null;
+            Email = null;
             When = null;
         }
 
@@ -56,7 +56,7 @@ namespace Indice.Features.Cases.Data.Models
         /// <param name="now">The timestamp</param>
         /// <returns></returns>
         public static AuditMeta Create(ClaimsPrincipal user, DateTimeOffset? now = null) {
-            return Populate(null!, user, now);
+            return Populate(null, user, now);
         }
 
         private static AuditMeta Populate(AuditMeta meta, ClaimsPrincipal user, DateTimeOffset? now = null) {

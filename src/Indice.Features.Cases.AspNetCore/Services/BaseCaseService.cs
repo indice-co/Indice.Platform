@@ -56,7 +56,7 @@ namespace Indice.Features.Cases.Services
         /// <param name="includeAttachmentData">Include the attachment binary data to the response.</param>
         /// <param name="schemaKey">The schemaKey for the case type JSON schema/layout. Can be "frontend", "backoffice" or null</param>
         /// <returns></returns>
-        protected async Task<CaseDetails> GetCaseByIdInternal(DbCase @case, DbCaseData? caseData, bool? includeAttachmentData = null, string? schemaKey = null) {
+        protected async Task<CaseDetails> GetCaseByIdInternal(DbCase @case, DbCaseData caseData, bool? includeAttachmentData = null, string schemaKey = null) {
             // Do the "latestCheckpoint query" here and avoid N triggers when constructing the case details model
             var latestCheckpoint = await _dbContext.Checkpoints
                 .Include(c => c.CheckpointType)
@@ -145,7 +145,7 @@ namespace Indice.Features.Cases.Services
             CustomerMeta customer,
             Dictionary<string, string> metadata,
             string channel,
-            ClaimsPrincipal? assignee = null) {
+            ClaimsPrincipal assignee = null) {
             if (user is null) throw new ArgumentNullException(nameof(user));
             if (caseType == null) throw new ArgumentNullException(nameof(caseType));
             if (string.IsNullOrEmpty(channel)) throw new ArgumentNullException(nameof(channel));
