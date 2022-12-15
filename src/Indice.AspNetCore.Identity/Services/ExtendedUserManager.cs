@@ -62,6 +62,8 @@ namespace Indice.AspNetCore.Identity
                                 configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<int?>(nameof(MaxTrustedDevices));
             TrustActivationDelay = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}:Devices").GetValue<TimeSpan?>(nameof(TrustActivationDelay)) ??
                                    configuration.GetSection($"{nameof(UserOptions)}:Devices").GetValue<TimeSpan?>(nameof(TrustActivationDelay));
+            EnforceMfa = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(EnforceMfa)) == true ||
+                         configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(EnforceMfa)) == true;
         }
 
         /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
@@ -78,6 +80,8 @@ namespace Indice.AspNetCore.Identity
         public int? MaxAllowedRegisteredDevices { get; }
         /// <summary>The default number of devices a user can register.</summary>
         public int? DefaultAllowedRegisteredDevices { get; }
+        /// <summary>Enforces multi factor authentication for all users.</summary>
+        public bool EnforceMfa { get; }
 
         #region Method Overrides
         /// <inheritdoc />
@@ -134,6 +138,10 @@ namespace Indice.AspNetCore.Identity
             var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
             if (result.Succeeded) {
                 await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
+            }
+            var isTwoFactorEnabled = await GetTwoFactorEnabledAsync(user);
+            if (EnforceMfa && !isTwoFactorEnabled) {
+                result = await SetTwoFactorEnabledAsync(user, true);
             }
             return result;
         }

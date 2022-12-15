@@ -44,10 +44,13 @@ namespace Indice.AspNetCore.Identity
             IConfiguration configuration,
             IAuthenticationSchemeProvider authenticationSchemeProvider
         ) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
+            EnforceMfa = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(EnforceMfa)) == true ||
+                         configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(EnforceMfa)) == true;
             RequirePostSignInConfirmedEmail = configuration.GetValue<bool?>($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}:{nameof(RequirePostSignInConfirmedEmail)}") == true ||
                                               configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true;
             RequirePostSignInConfirmedPhoneNumber = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true ||
-                                                    configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
+                                                    configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true ||
+                                                    EnforceMfa;
             ExpireBlacklistedPasswordsOnSignIn = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(ExpireBlacklistedPasswordsOnSignIn)) == true ||
                                                  configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
             ExternalScheme = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<string>(nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
@@ -57,9 +60,12 @@ namespace Indice.AspNetCore.Identity
         /// <summary>Enables the feature post login email confirmation.</summary>
         public bool RequirePostSignInConfirmedEmail { get; }
         /// <summary>Enables the feature post login phone number confirmation.</summary>
+        /// <remarks>Can be also enabled by <seealso cref="EnforceMfa"/> property.</remarks>
         public bool RequirePostSignInConfirmedPhoneNumber { get; }
         /// <summary>If enabled then users with blacklisted passwords will be forced to change their password upon sign-in instead of waiting for the next time they need to change it.</summary>
         public bool ExpireBlacklistedPasswordsOnSignIn { get; }
+        /// <summary>Enforces multi factor authentication for all users.</summary>
+        public bool EnforceMfa { get; }
         /// <summary>The scheme used to identify external authentication cookies.</summary>
         public string ExternalScheme { get; }
         /// <summary>The <see cref="ExtendedUserManager{TUser}"/> used.</summary>
@@ -124,7 +130,7 @@ namespace Indice.AspNetCore.Identity
                 // Store the userId for use after two factor check.
                 var userId = await UserManager.GetUserIdAsync(user);
                 var returnUrl = Context.Request.Query["ReturnUrl"];
-                await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, ExtendedSignInManager<TUser>.StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName), new AuthenticationProperties {
+                await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName), new AuthenticationProperties {
                     RedirectUri = returnUrl,
                     IsPersistent = isPersistent
                 });
@@ -148,7 +154,7 @@ namespace Indice.AspNetCore.Identity
             if (claimsPrincipal is null) {
                 return default;
             }
-            var userId = claimsPrincipal.FindFirstValue(JwtClaimTypes.Name) ??
+            var userId = claimsPrincipal.FindFirstValue(Options.ClaimsIdentity.UserNameClaimType) ??
                          claimsPrincipal.FindFirstValue(ClaimTypes.Name);
             if (string.IsNullOrWhiteSpace(userId)) {
                 return default;
@@ -167,21 +173,6 @@ namespace Indice.AspNetCore.Identity
                 await Context.SignOutAsync(ExternalScheme);
             }
             await base.SignOutAsync();
-        }
-
-        internal static ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName) {
-            var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-            identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
-            identity.AddClaim(new Claim(JwtClaimTypes.EmailVerified, isEmailConfirmed.ToString().ToLower()));
-            identity.AddClaim(new Claim(JwtClaimTypes.PhoneNumberVerified, isPhoneConfirmed.ToString().ToLower()));
-            identity.AddClaim(new Claim(ExtendedIdentityConstants.PasswordExpiredClaimType, isPasswordExpired.ToString().ToLower()));
-            if (!string.IsNullOrWhiteSpace(firstName)) {
-                identity.AddClaim(new Claim(JwtClaimTypes.GivenName, firstName));
-            }
-            if (!string.IsNullOrWhiteSpace(lastName)) {
-                identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, lastName));
-            }
-            return new ClaimsPrincipal(identity);
         }
 
         /// <inheritdoc/>
@@ -208,6 +199,21 @@ namespace Indice.AspNetCore.Identity
                 props.Items.Add("prompt", queryString["prompt"]);
             }
             return props;
+        }
+
+        private static ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName) {
+            var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+            identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
+            identity.AddClaim(new Claim(JwtClaimTypes.EmailVerified, isEmailConfirmed.ToString().ToLower()));
+            identity.AddClaim(new Claim(JwtClaimTypes.PhoneNumberVerified, isPhoneConfirmed.ToString().ToLower()));
+            identity.AddClaim(new Claim(ExtendedIdentityConstants.PasswordExpiredClaimType, isPasswordExpired.ToString().ToLower()));
+            if (!string.IsNullOrWhiteSpace(firstName)) {
+                identity.AddClaim(new Claim(JwtClaimTypes.GivenName, firstName));
+            }
+            if (!string.IsNullOrWhiteSpace(lastName)) {
+                identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, lastName));
+            }
+            return new ClaimsPrincipal(identity);
         }
     }
 

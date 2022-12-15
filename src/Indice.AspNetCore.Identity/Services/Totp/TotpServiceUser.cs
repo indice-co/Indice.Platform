@@ -36,6 +36,8 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
         protected ExtendedUserManager<TUser> UserManager { get; }
+        /// <summary>The token provider used by <see cref="TotpServiceUser{TUser}"/>.</summary>
+        public string TokenProvider => TokenOptions.DefaultPhoneProvider;
 
         /// <summary>Creates a TOTP and sends it as an SMS message.</summary>
         /// <param name="user">The user instance.</param>
@@ -135,7 +137,7 @@ namespace Indice.AspNetCore.Identity
                 return TotpResult.ErrorResult(_localizer["User's phone number does not exist or is not verified."]);
             }
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-            var token = await UserManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose);
+            var token = await UserManager.GenerateUserTokenAsync(user, TokenProvider, purpose);
             message = _localizer[message, token];
             var cacheKey = $"{nameof(TotpServiceUser<TUser>)}:{user.Id}:{channel}:{purpose}";
             if (await CacheKeyExistsAsync(cacheKey)) {
@@ -220,7 +222,7 @@ namespace Indice.AspNetCore.Identity
                 throw new ArgumentNullException(nameof(user), "User is null.");
             }
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-            var verified = await UserManager.VerifyUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose, code);
+            var verified = await UserManager.VerifyUserTokenAsync(user, TokenProvider, purpose, code);
             if (verified) {
                 await UserManager.UpdateSecurityStampAsync(user);
                 return TotpResult.SuccessResult;

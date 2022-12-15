@@ -80,7 +80,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         public bool? IncludeJwtId { get; set; }
         /// <summary>Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed.</summary>
         public bool? AllowAccessTokensViaBrowser { get; set; }
-        /// <summary>When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint.</summary>
+        /// <summary>When requesting both an id token and access token, should the user claims always be added to the id token instead of requiring the client to use the user-info endpoint.</summary>
         public bool? AlwaysIncludeUserClaimsInIdToken { get; set; }
         /// <summary>Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow.</summary>
         public bool? AlwaysSendClientClaims { get; set; }
@@ -94,7 +94,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         public string ClientClaimsPrefix { get; set; }
         /// <summary>Specifies logout URI at client for HTTP back-channel based logout.</summary>
         public string BackChannelLogoutUri { get; set; }
-        /// <summary>If the user's session id should be sent to the <see cref=""/>.</summary>
+        /// <summary>If the user's session id should be sent.</summary>
         public bool BackChannelLogoutSessionRequired { get; set; }
         /// <summary>Gets or sets the type of the device flow user code.</summary>
         public string UserCodeType { get; set; }

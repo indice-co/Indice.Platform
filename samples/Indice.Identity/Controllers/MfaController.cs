@@ -8,7 +8,6 @@ using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -47,14 +46,14 @@ namespace Indice.Identity.Controllers
         [HttpGet("mfa")]
         public async Task<IActionResult> Index([FromQuery] string returnUrl) {
             var viewModel = await _accountService.BuildMfaLoginViewModelAsync(returnUrl);
-            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-            if (user is null) {
-                return NotFound();
+            if (viewModel is null) {
+                throw new ArgumentNullException(nameof(viewModel));
             }
             var totpService = _totpServiceFactory.Create<User>();
             if (viewModel.DeliveryChannel == TotpDeliveryChannel.Sms) {
-                await totpService.SendToSmsAsync(user, _localizer["Your OTP code for login is: {0}"], _localizer["OTP login"], TotpConstants.TokenGenerationPurpose.MultiFactorAuthentication);
+                await totpService.SendToSmsAsync(viewModel.User, _localizer["Your OTP code for login is: {0}"], _localizer["OTP login"], TotpConstants.TokenGenerationPurpose.MultiFactorAuthentication);
             } else if (viewModel.DeliveryChannel == TotpDeliveryChannel.PushNotification) {
+                // TODO: Send push notification.
             }
             return View(viewModel);
         }
@@ -62,10 +61,11 @@ namespace Indice.Identity.Controllers
         [HttpPost("mfa")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index([FromForm] MfaLoginInputModel form) {
-            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             var totpService = _totpServiceFactory.Create<User>();
-            var totpResult = await totpService.VerifyAsync(user, form.OtpCode, TotpConstants.TokenGenerationPurpose.MultiFactorAuthentication);
-            if (!totpResult.Success) {
+            var signInResult = await _signInManager.TwoFactorSignInAsync(totpService.TokenProvider, form.OtpCode, form.RememberMe, form.RememberClient);
+            if (!signInResult.Succeeded) {
+                ModelState.AddModelError(string.Empty, _localizer["The OTP code is not valid."]);
+                return View();
             }
             if (string.IsNullOrEmpty(form.ReturnUrl)) {
                 return Redirect("~/");

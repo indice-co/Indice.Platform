@@ -1,4 +1,5 @@
-﻿using System.Security;
+﻿using System.Linq;
+using System.Security;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Security;
@@ -6,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity
 {
-    /// <summary>Token provider that generates tokens for a user that has the role of a developer. Used to support scenarions for local development or test environments.</summary>
+    /// <summary>Token provider that generates tokens for a user that has the role of a developer. Used to support scenarios for local development or test environments.</summary>
     /// <typeparam name="TUser">The type used to represent a user.</typeparam>
     public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberTokenProvider<TUser> where TUser : User
     {
@@ -15,12 +16,27 @@ namespace Indice.AspNetCore.Identity
         public DeveloperPhoneNumberTokenProvider(Rfc6238AuthenticationService rfc6238AuthenticationService) : base(rfc6238AuthenticationService) { }
 
         /// <inheritdoc />
-        public override async Task<bool> CanGenerateTwoFactorTokenAsync(UserManager<TUser> manager, TUser user) {
-            var isDeveloper = await manager.IsInRoleAsync(user, BasicRoleNames.Developer);
-            if (isDeveloper) {
+        public override async Task<bool> CanGenerateTwoFactorTokenAsync(UserManager<TUser> userManager, TUser user) {
+            var userClaims = await userManager.GetClaimsAsync(user);
+            var developerTotpClaim = userClaims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.DeveloperTotp);
+            var hasDeveloperTotp = developerTotpClaim is not null && await userManager.IsInRoleAsync(user, BasicRoleNames.Developer);
+            if (hasDeveloperTotp) {
                 return true;
             }
-            return await base.CanGenerateTwoFactorTokenAsync(manager, user);
+            return await base.CanGenerateTwoFactorTokenAsync(userManager, user);
+        }
+
+        /// <inheritdoc />
+        public override Task<string> GenerateAsync(string purpose, UserManager<TUser> userManager, TUser user) => Task.FromResult(string.Empty);
+
+        /// <inheritdoc />
+        public override async Task<bool> ValidateAsync(string purpose, string token, UserManager<TUser> userManager, TUser user) {
+            var userClaims = await userManager.GetClaimsAsync(user);
+            var developerTotpClaim = userClaims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.DeveloperTotp);
+            if (developerTotpClaim?.Value == token) {
+                return true;
+            }
+            return await base.ValidateAsync(purpose, token, userManager, user);
         }
     }
 }
