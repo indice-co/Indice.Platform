@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -148,18 +149,36 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc/>
+        public override async Task<SignInResult> TwoFactorSignInAsync(string provider, string code, bool isPersistent, bool rememberClient) {
+            var twoFactorInfo = await RetrieveTwoFactorInfoAsync();
+            if (twoFactorInfo == null || twoFactorInfo.UserId == null) {
+                return SignInResult.Failed;
+            }
+            var user = await UserManager.FindByIdAsync(twoFactorInfo.UserId);
+            if (user == null) {
+                return SignInResult.Failed;
+            }
+            var error = await PreSignInCheck(user);
+            if (error != null) {
+                return error;
+            }
+            if (await UserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
+                await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
+                return SignInResult.Success;
+            }
+            if (UserManager.SupportsUserLockout) {
+                await UserManager.AccessFailedAsync(user);
+            }
+            return SignInResult.Failed;
+        }
+
+        /// <inheritdoc/>
         public override async Task<TUser> GetTwoFactorAuthenticationUserAsync() {
-            var result = await Context.AuthenticateAsync(ExtendedIdentityConstants.TwoFactorUserIdScheme);
-            var claimsPrincipal = result?.Principal;
-            if (claimsPrincipal is null) {
+            var info = await RetrieveTwoFactorInfoAsync();
+            if (string.IsNullOrWhiteSpace(info?.UserId)) {
                 return default;
             }
-            var userId = claimsPrincipal.FindFirstValue(Options.ClaimsIdentity.UserNameClaimType) ??
-                         claimsPrincipal.FindFirstValue(ClaimTypes.Name);
-            if (string.IsNullOrWhiteSpace(userId)) {
-                return default;
-            }
-            return await ExtendedUserManager.FindByIdAsync(userId);
+            return await ExtendedUserManager.FindByIdAsync(info.UserId);
         }
 
         /// <inheritdoc/>
@@ -215,57 +234,77 @@ namespace Indice.AspNetCore.Identity
             }
             return new ClaimsPrincipal(identity);
         }
+
+        private async Task<TwoFactorAuthenticationInfo> RetrieveTwoFactorInfoAsync() {
+            var result = await Context.AuthenticateAsync(ExtendedIdentityConstants.TwoFactorUserIdScheme);
+            var claimsPrincipal = result?.Principal;
+            if (claimsPrincipal is null) {
+                return default;
+            }
+            var userId = claimsPrincipal.FindFirstValue(Options.ClaimsIdentity.UserNameClaimType) ??
+                         claimsPrincipal.FindFirstValue(ClaimTypes.Name);
+            var authenticationMethod = claimsPrincipal.FindFirstValue(JwtClaimTypes.AuthenticationMethod) ??
+                                       claimsPrincipal.FindFirstValue(ClaimTypes.AuthenticationMethod);
+            return new TwoFactorAuthenticationInfo {
+                UserId = userId,
+                LoginProvider = authenticationMethod
+            };
+        }
+
+        private async Task DoTwoFactorSignInAsync(TUser user, TwoFactorAuthenticationInfo twoFactorInfo, bool isPersistent, bool rememberClient) {
+            await ResetLockout(user);
+            var claims = new List<Claim> {
+                new Claim("amr", "mfa")
+            };
+            if (twoFactorInfo.LoginProvider is not null) {
+                claims.Add(new Claim(ClaimTypes.AuthenticationMethod, twoFactorInfo.LoginProvider));
+                await Context.SignOutAsync(IdentityConstants.ExternalScheme);
+            }
+            await Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme);
+            if (rememberClient) {
+                await RememberTwoFactorClientAsync(user);
+            }
+            await SignInWithClaimsAsync(user, isPersistent, claims);
+        }
     }
 
-    /// <summary>
-    /// Extends the <see cref="SignInResult"/> type.
-    /// </summary>
+    /// <summary>Extends the <see cref="SignInResult"/> type.</summary>
     public class ExtendedSigninResult : SignInResult
     {
-        /// <summary>
-        /// Construct an instance of <see cref="ExtendedSigninResult"/>.
-        /// </summary>
+        /// <summary>Construct an instance of <see cref="ExtendedSigninResult"/>.</summary>
         public ExtendedSigninResult(bool requiresEmailValidation, bool requiresPhoneNumberValidation, bool requiresPasswordChange) {
             RequiresEmailValidation = requiresEmailValidation;
             RequiresPhoneNumberValidation = requiresPhoneNumberValidation;
             RequiresPasswordChange = requiresPasswordChange;
         }
 
-        /// <summary>
-        /// Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.
-        /// </summary>
+        /// <summary>Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.</summary>
         /// <value>True if the user attempting to sign-in requires phone number confirmation, otherwise false.</value>
         public bool RequiresPhoneNumberValidation { get; }
-        /// <summary>
-        /// Returns a flag indication whether the user attempting to sign-in requires email confirmation.
-        /// </summary>
+        /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation.</summary>
         /// <value>True if the user attempting to sign-in requires email confirmation, otherwise false.</value>
         public bool RequiresEmailValidation { get; }
-        /// <summary>
-        /// Returns a flag indication whether the user attempting to sign-in requires an immediate password change due to expiration.
-        /// </summary>
+        /// <summary>Returns a flag indication whether the user attempting to sign-in requires an immediate password change due to expiration.</summary>
         /// <value>True if the user attempting to sign-in requires a password change, otherwise false.</value>
         public bool RequiresPasswordChange { get; }
     }
 
-    /// <summary>
-    /// Extensions on <see cref="SignInResult"/> type.
-    /// </summary>
+    /// <summary>Extensions on <see cref="SignInResult"/> type.</summary>
     public static class ExtendedSignInManagerExtensions
     {
-        /// <summary>
-        ///  Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.
-        /// </summary>
+        /// <summary>Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.</summary>
         /// <param name="result"></param>
         /// <returns></returns>
         public static bool RequiresPhoneNumberConfirmation(this SignInResult result) => (result as ExtendedSigninResult)?.RequiresPhoneNumberValidation == true;
-        /// <summary>
-        /// Returns a flag indication whether the user attempting to sign-in requires email confirmation .
-        /// </summary>
+        /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation .</summary>
         public static bool RequiresEmailConfirmation(this SignInResult result) => (result as ExtendedSigninResult)?.RequiresEmailValidation == true;
-        /// <summary>
-        /// Returns a flag indication whether the user attempting to sign-in requires email confirmation .
-        /// </summary>
+        /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation .</summary>
         public static bool RequiresPasswordChange(this SignInResult result) => (result as ExtendedSigninResult)?.RequiresPasswordChange == true;
+    }
+
+    internal sealed class TwoFactorAuthenticationInfo
+    {
+        public string UserId { get; set; }
+        public string LoginProvider { get; set; }
     }
 }

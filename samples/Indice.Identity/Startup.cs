@@ -115,8 +115,14 @@ namespace Indice.Identity
                        .AddConnectSrc("https://dc.services.visualstudio.com")
                        .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com")
                        .AddFrameAncestors("https://localhost:2002");
+            })
+            .AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>()
+            .AddSignalR(options => {
+                options.EnableDetailedErrors = !HostingEnvironment.IsProduction();
+            })
+            .AddAzureSignalR(options => {
+                options.ConnectionString = Configuration.GetConnectionString("SignalRService");
             });
-            services.AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
             //services.AddClientIpRestrinctions();
             //services.AddClientIpRestrinctions(options => {
             //    options.StatusCodeOnAccessDenied = System.Net.HttpStatusCode.NotFound;

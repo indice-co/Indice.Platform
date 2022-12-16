@@ -122,7 +122,7 @@ namespace Indice.Api
             });
             app.UseCampaignsUI(options => {
                 options.PathPrefix = "/messages";
-                options.ClientId = "backoffice-ui";
+                options.ClientId = "backoffice-ui2";
                 options.Scope = "backoffice backoffice:messages";
                 options.DocumentTitle = "Campaigns UI";
                 options.Authority = Settings.Authority;

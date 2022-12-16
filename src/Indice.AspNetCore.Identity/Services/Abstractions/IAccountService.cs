@@ -37,6 +37,17 @@ namespace Indice.AspNetCore.Identity
             return viewModel;
         }
 
+        /// <summary>Builds the <see cref="MfaLoginViewModel"/> from the posted request <see cref="MfaLoginInputModel"/>.</summary>
+        /// <param name="accountService">The <see cref="IAccountService"/> instance.</param>
+        /// <param name="model">The request model.</param>
+        public static async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(this IAccountService accountService, MfaLoginInputModel model) {
+            var viewModel = await accountService.BuildMfaLoginViewModelAsync(model.ReturnUrl);
+            viewModel.OtpCode = null;
+            viewModel.RememberClient = model.RememberClient;
+            viewModel.RememberMe = model.RememberMe;
+            return viewModel;
+        }
+
         /// <summary>Builds the <see cref="RegisterViewModel"/>.</summary>
         /// <param name="accountService">The <see cref="IAccountService"/> instance.</param>
         /// <param name="returnUrl">The return URL to go to after successful login.</param>

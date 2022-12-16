@@ -65,7 +65,8 @@ namespace Indice.Identity.Controllers
             var signInResult = await _signInManager.TwoFactorSignInAsync(totpService.TokenProvider, form.OtpCode, form.RememberMe, form.RememberClient);
             if (!signInResult.Succeeded) {
                 ModelState.AddModelError(string.Empty, _localizer["The OTP code is not valid."]);
-                return View();
+                var viewModel = await _accountService.BuildMfaLoginViewModelAsync(form);
+                return View(viewModel);
             }
             if (string.IsNullOrEmpty(form.ReturnUrl)) {
                 return Redirect("~/");
