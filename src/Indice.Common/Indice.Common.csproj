@@ -3,14 +3,16 @@
     <Description>Indice.Common Class Library</Description>
     <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.Common</AssemblyTitle>
-    <VersionPrefix>6.2.2</VersionPrefix>
-    <!--<VersionSuffix>beta-04</VersionSuffix>-->
+    <VersionPrefix>7.0.0</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
     <Authors>Constantinos Leftheris</Authors>
-    <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net5.0;net6.0;net7.0;</TargetFrameworks>
     <AssemblyName>Indice.Common</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Indice</RootNamespace>
     <LangVersion>Latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <IsPackable>true</IsPackable>
@@ -35,24 +37,33 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="Polly" Version="7.2.3" />
-    <PackageReference Include="System.Text.Json" Version="6.0.6" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="System.Text.Json" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0"></PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0"></PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="System.Text.Json" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0"></PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0"></PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="6.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="6.0.12" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="6.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <PackageReference Include="System.Text.Json" Version="6.0.7" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0"></PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0"></PackageReference>
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="5.0.17" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.30"></PackageReference>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.30"></PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="3.1.30" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.30" />
+    <PackageReference Include="System.Text.Json" Version="7.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.32"></PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.32"></PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="3.1.32" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.32" />
   </ItemGroup>
 </Project>

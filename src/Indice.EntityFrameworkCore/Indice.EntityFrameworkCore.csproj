@@ -3,15 +3,17 @@
     <Description>Indice.EntityFrameworkCore Class Library</Description>
     <Copyright>Copyright (c) 2020 Indice</Copyright>
     <AssemblyTitle>Indice.EntityFrameworkCore</AssemblyTitle>
-    <VersionPrefix>6.2.2</VersionPrefix>
-    <!--<VersionSuffix>beta-04</VersionSuffix>-->
+    <VersionPrefix>7.0.0</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
     <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
-    <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net5.0;net6.0;net7.0;</TargetFrameworks>
     <AssemblyName>Indice.EntityFrameworkCore</AssemblyName>
     <AssemblyTitle>Indice.EntityFrameworkCore</AssemblyTitle>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Indice</RootNamespace>
     <LangVersion>Latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <IsPackable>true</IsPackable>
@@ -34,17 +36,20 @@
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="6.2.2" />
+    <PackageReference Include="Indice.Common" Version="7.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.1" />
+  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.12" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.17" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.28" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.32" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
