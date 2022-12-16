@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Cases.Workflows.Extensions
 {
+    /// <summary>
+    /// Extensions for <see cref="ActivityExecutionContext"/>.
+    /// </summary>
     public static class ActivityExecutionContextExtensions
     {
         /// <summary>
@@ -11,7 +14,7 @@ namespace Indice.Features.Cases.Workflows.Extensions
         /// </summary>
         /// <param name="context">The activity execution context.</param>
         /// <returns></returns>
-        public static ClaimsPrincipal? TryGetUser(this ActivityExecutionContext context) {
+        public static ClaimsPrincipal TryGetUser(this ActivityExecutionContext context) {
             var runAsSystemUser = context.GetVariable<bool>("RunAsSystemUser");
             return runAsSystemUser
                 ? Cases.Extensions.PrincipalExtensions.SystemUser()
@@ -23,7 +26,7 @@ namespace Indice.Features.Cases.Workflows.Extensions
         /// </summary>
         /// <param name="context">The activity execution context.</param>
         /// <returns></returns>
-        public static ClaimsPrincipal? GetHttpContextUser(this ActivityExecutionContext context) {
+        public static ClaimsPrincipal GetHttpContextUser(this ActivityExecutionContext context) {
             var httpContextAccessor = context.GetService<IHttpContextAccessor>();
             return httpContextAccessor.HttpContext?.User;
         }

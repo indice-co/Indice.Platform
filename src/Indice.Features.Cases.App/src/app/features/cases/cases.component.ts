@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ViewAction } from '@indice/ng-components';
 import { SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
-import { CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core/services/cases-api.service';
+import { CasePartial, CasePartialResultSet, CasesApiService, } from 'src/app/core/services/cases-api.service';
+import { QueriesModalComponent } from 'src/app/shared/components/query-modal/query-modal.component';
 
 @Component({
     selector: 'app-cases',
@@ -12,12 +13,16 @@ import { CasePartial, CasePartialResultSet, CasesApiService } from 'src/app/core
 })
 export class CasesComponent extends BaseListComponent<CasePartial> implements OnInit {
     public newItemLink = 'new-case';
-    public formActions: ViewAction[] = [];
+    public formActions: ViewAction[] = [
+        new RouterViewAction(Icons.EntryView, 'queries', 'rightpane', 'Οι αναζητήσεις μου', 'Οι αναζητήσεις μου')
+    ];
+    public queryParamsHasFilter = false;
 
     constructor(
         private _route: ActivatedRoute,
         private _router: Router,
-        private _api: CasesApiService
+        private _api: CasesApiService,
+        private _modalService: ModalService
     ) {
         super(_route, _router);
         this.view = ListViewType.Table;
@@ -30,9 +35,13 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
     }
 
     public ngOnInit(): void {
+        // Are there any filters in queryParams?
+        this._route.queryParams.subscribe((params: Params) => {
+            this.queryParamsHasFilter = params['filter'] ? true : false;
+        });
         forkJoin({
             caseTypes: this._api.getCaseTypes(),
-            checkpointTypes: this._api.getDistinctCheckpointNames()
+            checkpointTypes: this._api.getDistinctCheckpointCodes()
         }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
             const caseTypeSearchOption: SearchOption = {
                 field: 'caseTypeCodes',
@@ -94,12 +103,19 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             .subscribe(
                 (caseTypesForCaseCreation: CasePartialResultSet) => {
                     if (caseTypesForCaseCreation.count !== 0) {
-                        this.formActions = [
-                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'υποβολή νέας αίτησης', 'Νέα Αίτηση')
-                        ];
+                        this.formActions.unshift(
+                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'Υποβολή νέας αίτησης', 'Νέα αίτηση')
+                        );
                     }
                 }
             );
+    }
+
+    openQueryModal(): void {
+        this._modalService.show(QueriesModalComponent, {
+            backdrop: 'static',
+            keyboard: false
+        });
     }
 
     loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
@@ -115,7 +131,6 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(f.value));
         let filterMetadata: string[] = [];
         this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${f.member}::eq::(${f.dataType})${f.value}`)); // this is the form that the server accepts
-
         return this._api
             .getCases(
                 customerId,

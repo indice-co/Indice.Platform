@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
+using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Api.Configuration;
@@ -234,8 +235,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 UserId = UserId
             });
             await _configurationDbContext.SaveChangesAsync();
+            await _eventService.Publish(new ClientCreatedEvent(client.ToModel()));
             var response = ClientInfo.FromClient(client);
-            await _eventService.Publish(new ClientCreatedEvent(response));
             return CreatedAtAction(nameof(GetClient), new { clientId = client.ClientId }, response);
         }
 

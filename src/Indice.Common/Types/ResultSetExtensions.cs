@@ -44,7 +44,7 @@ namespace Indice.Types
         public static ResultSet<T> ToResultSet<T>(this IQueryable<T> source, ListOptions options) {
             options ??= new ListOptions();
             foreach (var sorting in options.GetSortings()) {
-                source = source.OrderBy(sorting.Path, sorting.Direction);
+                source = source.ApplyOrder(sorting.Path, sorting.Direction, append:true);
             }
             return source.ToResultSet(options.Page, options.Size);
         }

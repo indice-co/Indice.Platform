@@ -39,6 +39,8 @@ namespace Indice.Features.Cases.Services
 
             // if client is systemic, then bypass checks
             if ((user.HasClaim(JwtClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
+                // we have to convert from CheckpointTypeNames e.g. "Approved" to CheckpointTypeCodes e.g. "CaseX:Approved"!
+                filter.CheckpointTypeCodes = await ApplyAdminCheckpointTypeFilter(filter.CheckpointTypeCodes);
                 return filter;
             }
 
@@ -84,19 +86,37 @@ namespace Indice.Features.Cases.Services
             return user.FindSubjectId().Equals(caseDetails.CreatedById);
         }
 
-        private List<string>? ApplyCheckpointTypeFilter(List<string>? checkpointTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
+        private async Task<List<string>> ApplyAdminCheckpointTypeFilter(List<string> checkpointTypeCodes) {
+            if (checkpointTypeCodes == null || checkpointTypeCodes.Count() == 0) {
+                return checkpointTypeCodes;
+            }
+            var codes = await _dbContext.CheckpointTypes
+                .AsQueryable()
+                .Select(c => c.Code)
+                .AsAsyncEnumerable()
+                .Distinct() // TODO client-side evaluation, this needs to change
+                .ToListAsync();
+            return codes
+                .Where(c => checkpointTypeCodes.Any(name => c.EndsWith($":{name}")))
+                .ToList();
+        }
+
+        private List<string>? ApplyCheckpointTypeFilter(List<string> checkpointTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
             var allowedCheckpointTypeCodes = roleCaseTypes
                 .Where(c => roleClaims.Contains(c.RoleName!))
                 .Select(x => x.CheckpointType.Code)
                 .ToList();
             // fuzzy match the CheckPointType Code
             var allowedRelativeCheckpointTypeCodes = checkpointTypeCodes != null
-                ? allowedCheckpointTypeCodes.Where(a => checkpointTypeCodes.Any(a.Contains)).ToList()
+                ? allowedCheckpointTypeCodes
+                    .Where(code => checkpointTypeCodes
+                                        .Any(name => code.EndsWith($":{name}")))
+                    .ToList()
                 : Enumerable.Empty<string>();
             return checkpointTypeCodes is null ? allowedCheckpointTypeCodes : allowedCheckpointTypeCodes.Intersect(allowedRelativeCheckpointTypeCodes).ToList();
         }
 
-        private List<string>? ApplyCaseTypeFilter(List<string>? caseTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
+        private List<string> ApplyCaseTypeFilter(List<string> caseTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
             var allowedCaseTypeCodes = roleCaseTypes
                 .Where(c => roleClaims.Contains(c.RoleName!))
                 .Select(x => x.CaseType.Code)

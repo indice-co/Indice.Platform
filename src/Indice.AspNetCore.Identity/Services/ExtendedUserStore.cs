@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +14,7 @@ namespace Indice.AspNetCore.Identity.Data
     /// <inheritdoc/>
     public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, User, Role>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="ExtendedUserStore"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ExtendedUserStore"/>.</summary>
         /// <param name="context">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="describer">Service to enable localization for application facing identity errors.</param>
@@ -27,9 +24,7 @@ namespace Indice.AspNetCore.Identity.Data
     /// <inheritdoc/>
     public class ExtendedUserStore<TContext> : ExtendedUserStore<TContext, User, IdentityRole> where TContext : IdentityDbContext<User, IdentityRole>
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="ExtendedUserStore"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ExtendedUserStore"/>.</summary>
         /// <param name="context">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="describer">Service to enable localization for application facing identity errors.</param>
@@ -42,9 +37,7 @@ namespace Indice.AspNetCore.Identity.Data
         where TUser : User
         where TRole : IdentityRole
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="ExtendedUserStore{TContext, TUser, TRole}"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ExtendedUserStore{TContext, TUser, TRole}"/>.</summary>
         /// <param name="context">The DbContext to use for the Identity framework.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="describer">Service to enable localization for application facing identity errors.</param>
@@ -57,7 +50,9 @@ namespace Indice.AspNetCore.Identity.Data
                               configuration.GetSection(nameof(UserOptions)).GetValue<bool?>(nameof(EmailAsUserName));
         }
 
-        private DbSet<UserDevice> UserDevices => Context.Set<UserDevice>();
+        private DbSet<UserDevice> UserDeviceSet => Context.Set<UserDevice>();
+        /// <inheritdoc/>
+        public IQueryable<UserDevice> UserDevices => UserDeviceSet.AsQueryable();
         /// <inheritdoc/>
         public int? PasswordHistoryLimit { get; protected set; }
         /// <inheritdoc/>
@@ -65,6 +60,7 @@ namespace Indice.AspNetCore.Identity.Data
         /// <inheritdoc/>
         public bool? EmailAsUserName { get; protected set; }
 
+        #region Method Overrides
         /// <inheritdoc/>
         public override async Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default) {
             var changeDate = DateTime.UtcNow;
@@ -74,14 +70,14 @@ namespace Indice.AspNetCore.Identity.Data
                                            .Where(x => x.UserId == user.Id)
                                            .OrderByDescending(x => x.DateCreated)
                                            .Skip(numberOfPasswordsToKeep)
-                                           .ToArrayAsync();
+                                           .ToArrayAsync(cancellationToken);
                 Context.Set<UserPassword>().RemoveRange(toPurge);
                 await Context.Set<UserPassword>()
                              .AddAsync(new UserPassword {
                                  UserId = user.Id,
                                  DateCreated = changeDate,
                                  PasswordHash = passwordHash
-                             });
+                             }, cancellationToken);
             }
             user.LastPasswordChangeDate = changeDate;
             // Calculate expiration date based on policy.
@@ -90,32 +86,9 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (user == null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            // Set the policy.
-            user.PasswordExpirationPolicy = policy;
-            // Calculate expiration date based on policy.
-            user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
-            return Task.CompletedTask;
-        }
-
-        /// <inheritdoc/>
-        public Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            if (user == null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            user.PasswordExpired = changePassword;
-            return Task.CompletedTask;
-        }
-
-        /// <inheritdoc/>
         public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
             // Calculate expiration date based on policy.
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
             // If EmailAsUserName option is enabled and a username is not set, then assign email to username.
@@ -159,116 +132,136 @@ namespace Indice.AspNetCore.Identity.Data
                 await base.SetEmailAsync(user, userName, cancellationToken);
             }
         }
+        #endregion
+
+        /// <inheritdoc/>
+        public Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            // Set the policy.
+            user.PasswordExpirationPolicy = policy;
+            // Calculate expiration date based on policy.
+            user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc/>
+        public Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            user.PasswordExpired = changePassword;
+            return Task.CompletedTask;
+        }
 
         /// <inheritdoc/>
         public Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user == null) {
-                throw new ArgumentNullException(nameof(user));
-            }
             user.LastSignInDate = timestamp ?? DateTimeOffset.UtcNow;
             return Task.CompletedTask;
         }
 
         /// <inheritdoc/>
-        public async Task<IdentityResult> AddDeviceAsync(TUser user, Device device, CancellationToken cancellationToken = default) {
+        public async Task<IdentityResult> CreateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
+            UserDeviceSet.Add(device);
+            try {
+                await SaveChanges(cancellationToken);
+            } catch (DbUpdateConcurrencyException) {
+                return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
             }
-            if (device is null) {
-                throw new ArgumentNullException(nameof(device));
-            }
-            UserDevices.Add(new UserDevice {
-                Data = device.Data,
-                DateCreated = device.DateCreated ?? DateTimeOffset.UtcNow,
-                DeviceId = device.DeviceId,
-                Model = device.Model,
-                Name = device.Name,
-                OsVersion = device.OsVersion,
-                Platform = device.Platform,
-                UserId = user.Id
-            });
-            await SaveChanges(cancellationToken);
             return IdentityResult.Success;
         }
 
         /// <inheritdoc/>
-        public async Task<IList<Device>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
+        public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            return await UserDevices.Where(device => device.UserId == user.Id).Select(device => new Device {
-                Data = device.Data,
-                DateCreated = device.DateCreated,
-                DeviceId = device.DeviceId,
-                IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
-                LastSignInDate = device.LastSignInDate,
-                Model = device.Model,
-                Name = device.Name,
-                OsVersion = device.OsVersion,
-                Platform = device.Platform
-            })
-            .ToListAsync(cancellationToken);
+            return await UserDeviceSet
+                .Include(device => device.User)
+                .Where(device => device.UserId == user.Id)
+                .ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task<Device> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
+        public async Task<IList<UserDevice>> GetTrustedDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            if (string.IsNullOrWhiteSpace(deviceId)) {
-                throw new ArgumentNullException(nameof(deviceId));
-            }
-            var device = await UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
-            if (device is not null) {
-                return new Device {
-                    Data = device.Data,
-                    DateCreated = device.DateCreated,
-                    DeviceId = device.DeviceId,
-                    IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
-                    LastSignInDate = device.LastSignInDate,
-                    Model = device.Model,
-                    Name = device.Name,
-                    OsVersion = device.OsVersion,
-                    Platform = device.Platform
-                };
-            }
-            return default;
+            return await UserDeviceSet
+                .Include(device => device.User)
+                .Where(device => device.UserId == user.Id && device.IsTrusted)
+                .ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task<IdentityResult> UpdateDeviceAsync(TUser user, Device device, CancellationToken cancellationToken) {
+        public async Task<IList<UserDevice>> GetTrustedOrPendingDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            if (user is null) {
-                throw new ArgumentNullException(nameof(user));
-            }
-            var deviceId = device.DeviceId;
-            if (string.IsNullOrWhiteSpace(deviceId)) {
-                return IdentityResult.Failed(new IdentityError {
-                    Code = "MissingDeviceId",
-                    Description = "Device id is missing."
-                });
-            }
-            var foundDevice = await UserDevices.SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
-            if (foundDevice is not null) {
-                foundDevice.Data = device.Data;
-                foundDevice.IsPushNotificationsEnabled = foundDevice.IsPushNotificationsEnabled;
-                foundDevice.Model = device.Model;
-                foundDevice.Name = device.Name;
-                foundDevice.OsVersion = device.OsVersion;
-                foundDevice.Platform = device.Platform;
+            return await UserDeviceSet
+                .Include(device => device.User)
+                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)))
+                .ToListAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<int> GetDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            return await UserDevices.CountAsync(device => device.UserId == user.Id, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<int> GetTrustedOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            return await UserDevices
+                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)))
+                .CountAsync(device => device.UserId == user.Id, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<UserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            return await UserDeviceSet.Include(x => x.User).SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            Context.Update(device);
+            try {
                 await SaveChanges(cancellationToken);
-                return IdentityResult.Success;
+            } catch (DbUpdateConcurrencyException) {
+                return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
             }
-            return await AddDeviceAsync(user, device, cancellationToken);
+            return IdentityResult.Success;
+        }
+
+        /// <inheritdoc/>
+        public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            UserDeviceSet.Remove(device);
+            await SaveChanges(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var devices = await GetDevicesAsync(user, cancellationToken);
+            foreach (var device in devices) {
+                device.RequiresPassword = requiresPassword;
+            }
+            try {
+                await SaveChanges(cancellationToken);
+            } catch (DbUpdateConcurrencyException) {
+                return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+            }
+            return IdentityResult.Success;
         }
     }
 }

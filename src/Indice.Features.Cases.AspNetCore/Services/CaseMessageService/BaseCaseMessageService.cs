@@ -34,11 +34,15 @@ namespace Indice.Features.Cases.Services.CaseMessageService
             if (message.File == null && message.CheckpointTypeName == null && message.Comment == null && message.Data == null) {
                 return attachmentId;
             }
+
             var caseType = await _dbContext.CaseTypes.FindAsync(@case.CaseTypeId);
             if (caseType == null) throw new ArgumentNullException(nameof(caseType));
+
+            await _caseEventService.Publish(new CaseMessageCreatedEvent(caseId, message));
+
             var newCheckpointType = await _dbContext.CheckpointTypes
                 .AsQueryable()
-                .SingleOrDefaultAsync(x => x.Code == $"{caseType.Code}:{message.CheckpointTypeName}");
+                .SingleOrDefaultAsync(x => x.Code == message.CheckpointTypeName && x.CaseTypeId == caseType.Id);
             if (message.ReplyToCommentId.HasValue) {
                 var exists = await _dbContext.Comments.AsQueryable().AnyAsync(x => x.CaseId == caseId && x.Id == message.ReplyToCommentId.Value);
                 if (!exists) {
@@ -70,7 +74,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                 if (!message.PrivateComment.HasValue) {
                     message.PrivateComment = newCheckpointType.Private;
                 }
-                var suffix = $"Case status changed to '{newCheckpointType.Code}'";
+                var suffix = $"Setting case to '{newCheckpointType.Code}'";
                 message.Comment = string.IsNullOrEmpty(message.Comment) ? suffix : $"{message.Comment}. {suffix}";
             }
 
@@ -79,7 +83,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
             return attachmentId;
         }
 
-        protected Task SendInternal(DbCase @case, ClaimsPrincipal user, Exception exception, string? message) {
+        protected Task SendInternal(DbCase @case, ClaimsPrincipal user, Exception exception, string message) {
             var comment = string.IsNullOrEmpty(message)
                 ? $"Faulted with message: {exception.Message}"
                 : $"Faulted with message: {message} and exception message: {exception.Message}";
@@ -102,7 +106,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
             await _dbContext.Comments.AddAsync(newComment);
         }
 
-        private async Task<CasesAttachmentLink> AddAttachment(ClaimsPrincipal user, DbCase @case, string? comment, IFormFile file) {
+        private async Task<CasesAttachmentLink> AddAttachment(ClaimsPrincipal user, DbCase @case, string comment, IFormFile file) {
             var attachment = new DbAttachment {
                 CaseId = @case.Id
             };
@@ -142,7 +146,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
 
             // Else continue to change the checkpoint.
             if (lastCheckpoint != null) {
-                lastCheckpoint.CompletedDate = DateTime.UtcNow;
+                lastCheckpoint.CompletedDate = DateTimeOffset.UtcNow;
             }
 
             var newCheckpoint = new DbCheckpoint {
@@ -155,7 +159,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                 @case.PublicCheckpointId = newCheckpoint.Id;
             }
 
-            if (checkpointType.PublicStatus == CasePublicStatus.Completed) {
+            if (checkpointType.Status == CaseStatus.Completed && @case.CompletedBy is null) {
                 @case.CompletedBy = AuditMeta.Create(user);
             }
 
@@ -167,9 +171,9 @@ namespace Indice.Features.Cases.Services.CaseMessageService
         private async Task AddCaseData(ClaimsPrincipal user, DbCase @case, string data) {
             if (string.IsNullOrEmpty(data)) throw new ArgumentNullException(nameof(data));
 
-            // Validate data against case type json schema
-            if (!_schemaValidator.IsValid(@case.CaseType.DataSchema, data)) {
-                throw new Exception("Data validation error."); // todo proper exception handling (BadRequest)
+            // Validate data against case type json schema, only when schema is present
+            if (!string.IsNullOrEmpty(@case.CaseType.DataSchema) && !_schemaValidator.IsValid(@case.CaseType.DataSchema, data)) {
+                throw new Exception("Data validation error.");
             }
 
             // Update checkpoint data

@@ -14,17 +14,13 @@ namespace Indice.AspNetCore.Identity
     /// <typeparam name="TUser">The type used to represent a user.</typeparam>
     public class ExtendedPhoneNumberTokenProvider<TUser> : PhoneNumberTokenProvider<TUser> where TUser : User
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/>.</summary>
         /// <param name="rfc6238AuthenticationService">Time-Based One-Time Password Algorithm service.</param>
         public ExtendedPhoneNumberTokenProvider(Rfc6238AuthenticationService rfc6238AuthenticationService) {
             Rfc6238AuthenticationService = rfc6238AuthenticationService ?? throw new ArgumentNullException(nameof(rfc6238AuthenticationService));
         }
 
-        /// <summary>
-        /// Time-Based One-Time Password Algorithm service.
-        /// </summary>
+        /// <summary>Time-Based One-Time Password Algorithm service.</summary>
         public Rfc6238AuthenticationService Rfc6238AuthenticationService { get; set; }
 
         /// <inheritdoc />

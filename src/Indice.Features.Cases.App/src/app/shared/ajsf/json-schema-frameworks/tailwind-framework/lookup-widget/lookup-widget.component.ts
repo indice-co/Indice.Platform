@@ -1,5 +1,7 @@
 import { JsonSchemaFormService } from "@ajsf-extended/core";
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { Subject } from "rxjs";
+import { takeUntil, tap } from "rxjs/operators";
 import { LookupItemResultSet } from "src/app/core/services/cases-api.service";
 import { LookupsService } from "src/app/core/services/lookups.service";
 
@@ -22,8 +24,11 @@ export class LookupWidgetComponent implements OnInit {
 
   occupations: LookupItemResultSet | undefined;
   searchTerm: any;
+  separator = '-';
+  private destroy$ = new Subject();
 
   constructor(
+    public changeDetector: ChangeDetectorRef,
     private _lookupsService: LookupsService,
     private jsf: JsonSchemaFormService
   ) { }
@@ -31,25 +36,44 @@ export class LookupWidgetComponent implements OnInit {
   ngOnInit(): void {
     this.options = this.layoutNode.options || {};
     this.jsf.initializeControl(this);
-    this.searchTerm = this.formControl.value;
     this.options.typeahead = {};
     this.options.typeahead.source = [];
     let lookupName = this.options['lookup-name'] ?? this.controlName;
-    this._lookupsService.getLookup(lookupName)
-      .subscribe(
-        (occupations: LookupItemResultSet) => {
-          for (let i = 0; i < occupations?.count! - 1; i++) {
-            this.options.typeahead.source.push(occupations?.items![i].value + ' - ' + occupations?.items![i].name);
-          }
+    this._lookupsService.getLookup(lookupName).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(
+      (lookUpItems: LookupItemResultSet) => {
+        for (let i = 0; i < lookUpItems?.count! - 1; i++) {
+          this.options.typeahead.source.push(`${lookUpItems?.items![i].value} ${this.separator} ${lookUpItems?.items![i].name}`);
         }
-      );
+        // initialize searchTerm
+        if (this.formControl.value) {
+          this.searchTerm = this.options.typeahead.source.find((s: string) => s.startsWith(`${this.formControl.value} ${this.separator}`));
+          this.changeDetector.detectChanges();
+        }
+      }
+    );
+    // subscribe to formControl value Changes in order to inform UI
+    this.formControl.valueChanges.pipe(
+      takeUntil(this.destroy$),
+      tap((value: any) => {
+        this.searchTerm = (value !== undefined && value !== null) ?
+          this.options.typeahead.source.find((s: string) => s.startsWith(`${value} ${this.separator}`)) :
+          value;
+      })
+    ).subscribe();
   }
 
-  updateValue(event: any) {
-    this.jsf.updateValue(this, event.target.value);
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  updateCode() {
+  // updateValue(event: any) {
+  //   this.jsf.updateValue(this, event.target.value);
+  // }
+
+  updateValue() {
     if (!this.options.typeahead.source.includes(this.searchTerm)) {
       this.searchTerm = '';
     }

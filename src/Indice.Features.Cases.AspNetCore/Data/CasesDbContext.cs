@@ -2,7 +2,6 @@
 using System.Reflection;
 using Indice.EntityFrameworkCore;
 using Indice.Features.Cases.Data.Models;
-using Indice.Features.Cases.Data.ValueConverters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases.Data
@@ -16,6 +15,7 @@ namespace Indice.Features.Cases.Data
         }
 
         public DbSet<DbCase> Cases => Set<DbCase>();
+        public DbSet<DbQuery> Queries => Set<DbQuery>();
         public DbSet<DbAttachment> Attachments => Set<DbAttachment>();
         public DbSet<DbCaseType> CaseTypes => Set<DbCaseType>();
         public DbSet<DbCheckpoint> Checkpoints => Set<DbCheckpoint>();
@@ -25,13 +25,13 @@ namespace Indice.Features.Cases.Data
         public DbSet<DbCaseData> CaseData => Set<DbCaseData>();
         public DbSet<DbCaseTypeNotificationSubscription> CaseTypeNotificationSubscription => Set<DbCaseTypeNotificationSubscription>();
         public DbSet<DbCaseApproval> CaseApprovals => Set<DbCaseApproval>();
+        public DbSet<DbCaseTypeCategory> CaseTypeCategories => Set<DbCaseTypeCategory>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.ApplyJsonFunctions();
             base.OnModelCreating(modelBuilder);
             modelBuilder.HasDefaultSchema(CasesApiConstants.DatabaseSchema);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-            modelBuilder.AddDateTimeLocalValueConverter();
         }
     }
 }

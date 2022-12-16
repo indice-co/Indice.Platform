@@ -17,7 +17,7 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The name of the checkpoint the case must proceed.
         /// </summary>
-        public string? CheckpointTypeName { get; set; }
+        public string CheckpointTypeName { get; set; }
         
         /// <summary>
         /// Indicates if the comment should be visible to the customer.
@@ -37,6 +37,6 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The data related with the message.
         /// </summary>
-        public string? Data { get; set; }
+        public string Data { get; set; }
     }
 }

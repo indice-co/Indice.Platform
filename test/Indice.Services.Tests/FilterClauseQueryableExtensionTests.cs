@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace Indice.Services.Tests
@@ -50,7 +51,7 @@ namespace Indice.Services.Tests
         }
 
         [Fact]
-        public async Task ToResultset_Translates_DynamicJsonPaths_Test() {
+        public async Task ToResultset_Translates_DynamicJsonPaths_Sort_Test() {
             var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
             var query = dbContext.Dummies;
             var results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
@@ -60,6 +61,18 @@ namespace Indice.Services.Tests
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(datetime)data.birthDate-" });
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(number)data.Balance-" });
             results = await query.ToResultSetAsync(new ListOptions { Sort = "(boolean)data.enabled-" });
+            Assert.True(true);
+        }
+
+        [Fact]
+        public async Task ToResultset_Translates_DynamicJsonPaths_MultiSort_Test() {
+            var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
+            var query = dbContext.Dummies.AsQueryable();
+            var options = new ListOptions { Sort = "name-,data.displayName" };
+            foreach (var sorting in options.GetSortings()) {
+                query = query.OrderBy(sorting, append:true);
+            }
+            var results = await query.ToResultSetAsync(options.Page, options.Size);
             Assert.True(true);
         }
 

@@ -15,12 +15,16 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Indice.Features.Cases.Services
 {
+    /// <inheritdoc />
     public class CaseTemplateService : ICaseTemplateService
     {
         private readonly IRazorViewEngine _viewEngine;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITempDataProvider _tempDataProvider;
 
+        /// <summary>
+        /// Constructs a new <see cref="CaseTemplateService"/> using <see cref="IRazorViewEngine"/>.
+        /// </summary>
         public CaseTemplateService(
             IRazorViewEngine viewEngine,
             IHttpContextAccessor httpContextAccessor,
@@ -31,11 +35,12 @@ namespace Indice.Features.Cases.Services
             _tempDataProvider = tempDataProvider ?? throw new ArgumentNullException(nameof(tempDataProvider));
         }
 
+        /// <inheritdoc />
         public async Task<string> RenderTemplateAsync(CaseDetails @case) {
             return await RenderTemplateAsync($"Cases/Pdf/{@case.CaseType.Code}", @case);
         }
 
-        public async Task<string> RenderTemplateAsync<T>(string viewName, T viewModel) {
+        private async Task<string> RenderTemplateAsync<T>(string viewName, T viewModel) {
             var httpContext = _httpContextAccessor.HttpContext;
             var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
 

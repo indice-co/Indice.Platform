@@ -18,6 +18,11 @@ namespace Indice.Features.Cases.Events
         /// </summary>
         public string CaseTypeCode { get; set; }
 
+        /// <summary>
+        /// Construct a new <see cref="CaseSubmittedEvent"/>.
+        /// </summary>
+        /// <param name="case">The case that has been submitted.</param>
+        /// <param name="caseTypeCode">The case type code that has been submitted.</param>
         public CaseSubmittedEvent(DbCase @case, string caseTypeCode) {
             Case = @case;
             CaseTypeCode = caseTypeCode;

@@ -17,17 +17,21 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The date the case was created.
         /// </summary>
-        public DateTime? Created { get; set; }
+        public DateTimeOffset? Created { get; set; }
 
         /// <summary>
         /// The current status of the case.
         /// </summary>
-        public CasePublicStatus PublicStatus { get; set; }
+        public CaseStatus Status { get; set; }
 
         /// <summary>
         /// The case type code of the case.
         /// </summary>
         public string CaseTypeCode { get; set; }
+        
+        /// <summary>
+        /// The case type title of the case.
+        /// </summary>
         public string Title { get; set; }
 
         /// <summary>
@@ -42,7 +46,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// Translations.
         /// </summary>
-        public TranslationDictionary<MyCasePartialTranslation>? Translations { get; set; }
+        public TranslationDictionary<MyCasePartialTranslation> Translations { get; set; }
 
         #region Methods
 
@@ -66,6 +70,9 @@ namespace Indice.Features.Cases.Models.Responses
         #endregion
     }
 
+    /// <summary>
+    /// The translation wrapper for <see cref="MyCasePartial"/> model.
+    /// </summary>
     public class MyCasePartialTranslation
     {
         /// <summary>

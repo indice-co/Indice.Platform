@@ -10,6 +10,6 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The case type tag filter.
         /// </summary>
-        public IEnumerable<string>? CaseTypeTags { get; set; }
+        public IEnumerable<string> CaseTypeTags { get; set; }
     }
 }

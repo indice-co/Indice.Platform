@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Elsa;
+using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Events;
@@ -34,7 +35,7 @@ namespace Indice.Features.Cases
         /// </summary>
         /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
         /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
-        public static IMvcBuilder AddCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions>? configureAction = null) {
+        public static IMvcBuilder AddCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions> configureAction = null) {
             // Add
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProviderMyCases()));
             var services = mvcBuilder.Services;
@@ -69,6 +70,7 @@ namespace Indice.Features.Cases
             // Register no op services.
             services.AddTransient<ILookupService, NoOpLookupService>();
             services.AddTransient<ICustomerIntegrationService, NoOpCustomerIntegrationService>();
+            services.AddTransient<ICasePdfService, NoOpCasePdfService>();
 
             // Register custom services.
             services.AddTransient<IMyCaseService, MyCaseService>();
@@ -87,11 +89,7 @@ namespace Indice.Features.Cases
             services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
 
             // Register application DbContext.
-            if (casesApiOptions.ConfigureDbContext != null) {
-                services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext);
-            } else {
-                services.AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-            }
+            services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext ?? (builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))));
 
             return mvcBuilder;
         }
@@ -101,7 +99,7 @@ namespace Indice.Features.Cases
         /// </summary>
         /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
         /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
-        public static IMvcBuilder AddAdminCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions>? configureAction = null) {
+        public static IMvcBuilder AddAdminCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions> configureAction = null) {
             // Add
             mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProviderAdminCases()));
             var services = mvcBuilder.Services;
@@ -135,6 +133,7 @@ namespace Indice.Features.Cases
 
             // Register custom services.
             services.AddTransient<IAdminCaseService, AdminCaseService>();
+            services.AddTransient<IQueryService, QueryService>();
             services.AddTransient<ICaseAuthorizationService, RoleCaseTypeService>();
             services.AddTransient<ICaseActionsService, CaseActionsService>();
             services.AddTransient<IAdminCaseMessageService, AdminCaseMessageService>();
@@ -159,11 +158,7 @@ namespace Indice.Features.Cases
             services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
 
             // Register application DbContext.
-            if (casesApiOptions.ConfigureDbContext != null) {
-                services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext);
-            } else {
-                services.AddDbContext<CasesDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-            }
+            services.AddDbContext<CasesDbContext>(casesApiOptions.ConfigureDbContext ?? (builder => builder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))));
 
             return mvcBuilder;
         }
@@ -201,11 +196,13 @@ namespace Indice.Features.Cases
         /// <param name="services">The <see cref="IServiceCollection"/>.</param>
         /// <param name="configuration">The <see cref="IConfiguration"/>.</param>
         /// <param name="workflowAssembly">The assembly with the workflow activities and definitions to register.</param>
-        public static void AddWorkflow(this IServiceCollection services, IConfiguration configuration, Assembly? workflowAssembly) {
+        public static void AddWorkflow(this IServiceCollection services, IConfiguration configuration, Assembly workflowAssembly) {
             services.AddElsa(elsa => {
                 elsa.UseEntityFrameworkPersistence(ef => ef.UseSqlServer(configuration.GetConnectionString("WorkflowDb")), false)
                     .AddQuartzTemporalActivities()
                     .AddHttpActivities(configuration.GetSection("Elsa").GetSection("Server").Bind)
+                    .AddEmailActivities(configuration.GetSection("Elsa").GetSection("Smtp").Bind)
+                    .AddUserTaskActivities()
                     .AddActivitiesFrom(typeof(BaseCaseActivity).Assembly);
 
                 // Register consumer assembly
@@ -233,6 +230,7 @@ namespace Indice.Features.Cases
             services.AddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
             services.AddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
             services.AddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
+            services.AddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
         }
 
         /// <summary>

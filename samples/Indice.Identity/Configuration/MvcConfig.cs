@@ -5,10 +5,12 @@ using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Data.Models;
+using Indice.AspNetCore.Identity.Events;
 using Indice.Identity;
 using Indice.Identity.Services;
 using Indice.Security;
 using Indice.Serialization;
+using Indice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
@@ -27,17 +29,20 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services, IConfiguration configuration) {
+            services.AddPlatformEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
+            services.AddPlatformEventHandler<EmailConfirmedEvent, UserEmailConfirmedEventHandler>();
             var mvcBuilder = services.AddControllersWithViews()
                                      .AddRazorRuntimeCompilation()
                                      .AddTotp()
-                                     .AddDevices(options => options.UsePushNotificationsServiceAzure())
+                                     .AddDevices(options => {
+                                         options.UsePushNotificationsServiceAzure();
+                                         options.DefaultTotpDeliveryChannel = TotpDeliveryChannel.Viber;
+                                     })
                                      .AddPushNotifications()
                                      .AddIdentityServerApiEndpoints(options => {
                                          options.AddDbContext(context => context.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
                                          options.CanRaiseEvents = true;
                                          options.DisableCache = false;
-                                         options.AddPlatformEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
-                                         options.AddPlatformEventHandler<UserEmailConfirmedEvent, UserEmailConfirmedEventHandler>();
                                          options.Email.SendEmailOnUpdate = true;
                                          options.Email.UpdateEmailTemplate = "Email";
                                          options.Email.ForgotPasswordTemplate = "Email";
@@ -82,7 +87,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                          options.ConfigureClientsideValidation();
                                      })
                                      .AddAvatars(options => {
-                                         options.TileSizes = new [] { 129 };
+                                         options.TileSizes = new[] { 129 };
                                      })
                                      .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, options => {
                                          options.ResourcesPath = "Resources";

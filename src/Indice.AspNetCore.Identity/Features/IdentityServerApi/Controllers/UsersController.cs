@@ -15,8 +15,8 @@ using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -28,9 +28,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Identity.Api.Controllers
 {
-    /// <summary>
-    /// Contains operations for managing applications users.
-    /// </summary>
+    /// <summary>Contains operations for managing applications users.</summary>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     /// <response code="500">Internal Server Error</response>
@@ -50,28 +48,25 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         private readonly IPersistedGrantService _persistedGrantService;
         private readonly IClientStore _clientStore;
         private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
-        private readonly Indice.Services.IPlatformEventService _eventService;
         private readonly GeneralSettings _generalSettings;
         private readonly IStringLocalizer<UsersController> _localizer;
         private readonly ExtendedConfigurationDbContext _configurationDbContext;
-        /// <summary>
-        /// The name of the controller.
-        /// </summary>
+        private readonly IPlatformEventService _eventService;
+
+        /// <summary>The name of the controller.</summary>
         public const string Name = "Users";
 
-        /// <summary>
-        /// Creates an instance of <see cref="UsersController"/>.
-        /// </summary>
+        /// <summary>Creates an instance of <see cref="UsersController"/>.</summary>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
         /// <param name="dbContext">Class for the Entity Framework database context used for identity.</param>
         /// <param name="persistedGrantService">Implements persisted grant logic.</param>
         /// <param name="clientStore">Retrieval of client configuration.</param>
         /// <param name="apiEndpointsOptions">Options for configuring the IdentityServer API feature.</param>
-        /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
         /// <param name="generalSettings">General settings for an ASP.NET Core application.</param>
         /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UsersController"/>.</param>
         /// <param name="configurationDbContext">Extended DbContext for the IdentityServer configuration data.</param>
+        /// <param name="eventService"></param>
         public UsersController(
             ExtendedUserManager<User> userManager,
             RoleManager<Role> roleManager,
@@ -79,10 +74,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             IPersistedGrantService persistedGrantService,
             IClientStore clientStore,
             IdentityServerApiEndpointsOptions apiEndpointsOptions,
-            Indice.Services.IPlatformEventService eventService,
             IOptions<GeneralSettings> generalSettings,
             IStringLocalizer<UsersController> localizer,
-            ExtendedConfigurationDbContext configurationDbContext
+            ExtendedConfigurationDbContext configurationDbContext,
+            IPlatformEventService eventService
         ) {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -90,16 +85,14 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             _persistedGrantService = persistedGrantService ?? throw new ArgumentNullException(nameof(persistedGrantService));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
             _apiEndpointsOptions = apiEndpointsOptions ?? throw new ArgumentNullException(nameof(apiEndpointsOptions));
-            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
             _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
+            _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         }
 
-        /// <summary>
-        /// Returns a list of <see cref="UserInfo"/> objects containing the total number of users in the database and the data filtered according to the provided <see cref="ListOptions"/>.
-        /// </summary>
-        /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+        /// <summary>Returns a list of <see cref="UserInfo"/> objects containing the total number of users in the database and the data filtered according to the provided <see cref="ListOptions"/>.</summary>
+        /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
         /// <response code="200">OK</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
         [HttpGet]
@@ -151,9 +144,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return Ok(await usersQuery.ToResultSetAsync(options));
         }
 
-        /// <summary>
-        /// Gets a user by its unique id.
-        /// </summary>
+        /// <summary>Gets a user by its unique id.</summary>
         /// <param name="userId">The identifier of the user.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
@@ -212,9 +203,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return Ok(foundUser);
         }
 
-        /// <summary>
-        /// Creates a new user.
-        /// </summary>
+        /// <summary>Creates a new user.</summary>
         /// <param name="request">Contains info about the user to be created.</param>
         /// <response code="201">Created</response>
         /// <response code="400">Bad Request</response>
@@ -254,13 +243,10 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 await _userManager.AddClaimsAsync(user, claims);
             }
             var response = SingleUserInfo.FromUser(user);
-            await _eventService.Publish(new UserCreatedEvent(response));
             return CreatedAtAction(nameof(GetUser), Name, new { userId = user.Id }, response);
         }
 
-        /// <summary>
-        /// Updates an existing user.
-        /// </summary>
+        /// <summary>Updates an existing user.</summary>
         /// <param name="userId">The id of the user to update.</param>
         /// <param name="request">Contains info about the user to update.</param>
         /// <response code="200">OK</response>
@@ -325,9 +311,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             });
         }
 
-        /// <summary>
-        /// Resends the confirmation email for a given user.
-        /// </summary>
+        /// <summary>Resends the confirmation email for a given user.</summary>
         /// <response code="200">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
@@ -337,7 +321,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
         public async Task<IActionResult> ResendConfirmationEmail([FromRoute] string userId) {
-            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
+            var user = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
             if (user == null) {
                 return NotFound();
             }
@@ -346,14 +330,11 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var eventInfo = user.ToBasicUserInfo();
-            await _eventService.Publish(new UserEmailConfirmationResendEvent(eventInfo, token));
+            await _eventService.Publish(new UserEmailConfirmationResendEvent(user, token));
             return NoContent();
         }
 
-        /// <summary>
-        /// Permanently deletes a user.
-        /// </summary>
+        /// <summary>Permanently deletes a user.</summary>
         /// <param name="userId">The id of the user to delete.</param>
         /// <response code="204">No Content</response>
         /// <response code="404">Not Found</response>
@@ -371,9 +352,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Adds a new role to the specified user.
-        /// </summary>
+        /// <summary>Adds a new role to the specified user.</summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="roleId">The id of the role.</param>
         /// <response code="204">No Content</response>
@@ -410,9 +389,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Removes an existing role from the specified user.
-        /// </summary>
+        /// <summary>Removes an existing role from the specified user.</summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="roleId">The id of the role.</param>
         /// <response code="204">No Content</response>
@@ -448,9 +425,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Gets a specified claim for a given user.
-        /// </summary>
+        /// <summary>Gets a specified claim for a given user.</summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="claimId">The id of the claim.</param>
         /// <response code="200">OK</response>
@@ -471,9 +446,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             });
         }
 
-        /// <summary>
-        /// Adds a claim for the specified user.
-        /// </summary>
+        /// <summary>Adds a claim for the specified user.</summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="request">The claim to add.</param>
         /// <response code="201">Created</response>
@@ -502,9 +475,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             });
         }
 
-        /// <summary>
-        /// Updates an existing user claim.
-        /// </summary>
+        /// <summary>Updates an existing user claim.</summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="claimId">The id of the user claim.</param>
         /// <param name="request">Contains info about the user claim to update.</param>
@@ -529,9 +500,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             });
         }
 
-        /// <summary>
-        /// Permanently deletes a specified claim from a user.
-        /// </summary>
+        /// <summary>Permanently deletes a specified claim from a user.</summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="claimId">The id of the claim to delete.</param>
         /// <response code="204">No Content</response>
@@ -551,9 +520,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.
-        /// </summary>
+        /// <summary>Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.</summary>
         /// <param name="userId">The id of the user.</param>
         /// <response code="200">OK</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
@@ -583,9 +550,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return Ok(clients.ToResultSet());
         }
 
-        /// <summary>
-        /// Gets a list of the devices of the specified user.
-        /// </summary>
+        /// <summary>Gets a list of the devices of the specified user.</summary>
         /// <param name="userId">The id of the user.</param>
         /// <response code="200">OK</response>
         [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
@@ -599,7 +564,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             var devices = await _userManager.GetDevicesAsync(user);
             var response = devices.Select(device => new DeviceInfo {
                 Data = device.Data,
-                DateCreated = device.DateCreated.Value,
+                DateCreated = device.DateCreated,
                 DeviceId = device.DeviceId,
                 IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
                 LastSignInDate = device.LastSignInDate,
@@ -612,9 +577,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return Ok(response);
         }
 
-        /// <summary>
-        /// Gets a list of the external login providers for the specified user.
-        /// </summary>
+        /// <summary>Gets a list of the external login providers for the specified user.</summary>
         /// <param name="userId">The id of the user.</param>
         /// <response code="200">OK</response>
         /// <response code="404">Not Found</response>
@@ -635,9 +598,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }));
         }
 
-        /// <summary>
-        /// Gets a list of the external login providers for the specified user.
-        /// </summary>
+        /// <summary>Gets a list of the external login providers for the specified user.</summary>
         /// <param name="userId">The id of the user.</param>
         /// <param name="provider">The provider to remove.</param>
         /// <response code="204">No Content</response>
@@ -665,9 +626,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Toggles user block state.
-        /// </summary>
+        /// <summary>Toggles user block state.</summary>
         /// <param name="userId">The id of the user to block.</param>
         /// <param name="request">Contains info about whether to block the user or not.</param>
         /// <response code="204">No Content</response>
@@ -696,9 +655,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Unlocks a user.
-        /// </summary>
+        /// <summary>Unlocks a user.</summary>
         /// <param name="userId">The id of the user to unlock.</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
@@ -725,9 +682,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             return Ok();
         }
 
-        /// <summary>
-        /// Sets the password for a given user.
-        /// </summary>
+        /// <summary>Sets the password for a given user.</summary>
         /// <param name="userId">The identifier of the user.</param>
         /// <param name="request">Contains info about the user password to change.</param>
         /// <response code="204">No Content</response>
@@ -748,8 +703,6 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             if (!result.Succeeded) {
                 return BadRequest(result.Errors.ToValidationProblemDetails());
             }
-            var @event = new PasswordChangedEvent(SingleUserInfo.FromUser(user));
-            await _eventService.Publish(@event);
             if (request.ChangePasswordAfterFirstSignIn == true) {
                 await _userManager.SetPasswordExpiredAsync(user, true);
             }

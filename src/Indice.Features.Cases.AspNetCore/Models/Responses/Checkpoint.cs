@@ -20,15 +20,15 @@ namespace Indice.Features.Cases.Models.Responses
         public string CheckpointTypeCode { get; set; }
         
         /// <summary>
-        /// The public status of the case. This is the external status for the customer.
+        /// The status of the case. This is the external status for the customer.
         /// </summary>
         [Newtonsoft.Json.JsonConverter(typeof(StringEnumConverter))] // Because of Elsa.HttpActivities the default serializer is newtonsoft
-        public CasePublicStatus PublicStatus { get; set; }
+        public CaseStatus Status { get; set; }
         
         /// <summary>
         /// The completed date of the checkpoint.
         /// </summary>
-        public DateTime? CompletedDate { get; set; }
+        public DateTimeOffset? CompletedDate { get; set; }
         
         /// <summary>
         /// Indicates if the checkpoint is private, which means not visible to the customer.
@@ -38,6 +38,6 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The due date of the checkpoint.
         /// </summary>
-        public DateTime? DueDate { get; set; }
+        public DateTimeOffset? DueDate { get; set; }
     }
 }

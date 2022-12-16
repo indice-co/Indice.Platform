@@ -15,7 +15,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The user role that relates with this case type.
         /// </summary>
-        public string? RoleName { get; set; }
+        public string RoleName { get; set; }
 
         /// <summary>
         /// The Id of the case type that relates with this role.

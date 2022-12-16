@@ -10,8 +10,8 @@
     <LangVersion>Latest</LangVersion>
     <Nullable>disable</Nullable>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <VersionPrefix>6.1.4</VersionPrefix>
-    <!--<VersionSuffix>beta01</VersionSuffix>-->
+    <VersionPrefix>6.2.2</VersionPrefix>
+    <!--<VersionSuffix>beta-04</VersionSuffix>-->
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <Company>Indice</Company>
@@ -37,8 +37,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore" Version="6.1.16" />
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.1.5" />
+    <PackageReference Include="Indice.AspNetCore" Version="6.2.2" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.2.2" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />

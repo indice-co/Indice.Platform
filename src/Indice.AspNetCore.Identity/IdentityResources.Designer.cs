@@ -61,6 +61,24 @@ namespace Indice.AspNetCore.Identity {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Device is already trusted..
+        /// </summary>
+        internal static string DeviceAlreadyTrusted {
+            get {
+                return ResourceManager.GetString("DeviceAlreadyTrusted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Device is pending trust activation..
+        /// </summary>
+        internal static string DevicePendingTrustActivation {
+            get {
+                return ResourceManager.GetString("DevicePendingTrustActivation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Registration OTP code for device {0} is {1}..
         /// </summary>
         internal static string DeviceRegistrationOtpCode {
@@ -111,6 +129,42 @@ namespace Indice.AspNetCore.Identity {
         internal static string ForgotPasswordMessageSubject {
             get {
                 return ResourceManager.GetString("ForgotPasswordMessageSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User must have at least 1 device..
+        /// </summary>
+        internal static string InsufficientNumberOfDevices {
+            get {
+                return ResourceManager.GetString("InsufficientNumberOfDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot set max number of devices to {0}. Maximum value can be {1}..
+        /// </summary>
+        internal static string LargeNumberOfDevices {
+            get {
+                return ResourceManager.GetString("LargeNumberOfDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User already has {0} devices. Cannot set max number to {1}..
+        /// </summary>
+        internal static string LargeNumberOfUserDevices {
+            get {
+                return ResourceManager.GetString("LargeNumberOfUserDevices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have reached the maximum number of registered devices..
+        /// </summary>
+        internal static string MaxNumberOfDevices {
+            get {
+                return ResourceManager.GetString("MaxNumberOfDevices", resourceCulture);
             }
         }
         
@@ -291,6 +345,33 @@ namespace Indice.AspNetCore.Identity {
         internal static string PhoneNumberVerificationMessage {
             get {
                 return ResourceManager.GetString("PhoneNumberVerificationMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OTP code is {0}..
+        /// </summary>
+        internal static string RequiresOtpMessage {
+            get {
+                return ResourceManager.GetString("RequiresOtpMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to OTP code is {0}..
+        /// </summary>
+        internal static string TrustedDeviceRequiresOtpMessage {
+            get {
+                return ResourceManager.GetString("TrustedDeviceRequiresOtpMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have reached the maximum number of trusted devices..
+        /// </summary>
+        internal static string TrustedDevicesLimitReached {
+            get {
+                return ResourceManager.GetString("TrustedDevicesLimitReached", resourceCulture);
             }
         }
         

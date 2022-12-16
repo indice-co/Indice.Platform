@@ -172,8 +172,13 @@ namespace Indice.Features.Messages.Core.Manager
             // Create campaign in the store.
             var createdCampaign = await CampaignService.Create(request);
             // Dispatch event that the campaign was created.
-            await EventDispatcher.RaiseEventAsync(CampaignCreatedEvent.FromCampaign(createdCampaign, request.RecipientIds, request.Recipients, isNewDistributionList),
-                builder => builder.WrapInEnvelope().At(request.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.CampaignCreated));
+            await EventDispatcher.RaiseEventAsync(
+                payload: CampaignCreatedEvent.FromCampaign(createdCampaign, request.RecipientIds, request.Recipients, isNewDistributionList),
+                configure: builder => 
+                    builder.WrapInEnvelope()
+                           .At(request.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow)
+                           .WithQueueName(EventNames.CampaignCreated)
+            );
             return CreateCampaignResult.Success(createdCampaign);
         }
 

@@ -29,10 +29,10 @@ namespace Microsoft.Extensions.DependencyInjection
 
         /// <summary>Adds a fugazi implementation of <see cref="IEmailService"/> that does nothing.</summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-        public static EmailServiceBuilder AddEmailServiceNoop(this IServiceCollection services) {
+        public static IServiceCollection AddEmailServiceNoop(this IServiceCollection services) {
             services.TryAddSingleton<IEmailService, EmailServiceNoop>();
             services.AddHtmlRenderingEngineNoop();
-            return new EmailServiceBuilder(services);
+            return services;
         }
 
         /// <summary>Adds a fugazi implementation of <see cref="IHtmlRenderingEngine"/> that does nothing.</summary>
@@ -52,6 +52,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <summary>Adds a fugazi implementation of <see cref="ISmsService"/> that does nothing.</summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public static IServiceCollection AddSmsServiceNoop(this IServiceCollection services) {
+            services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
             services.TryAddSingleton<ISmsService, SmsServiceNoop>();
             return services;
         }

@@ -1,5 +1,10 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Runtime;
+using System;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using System.Collections;
+using System.Collections.Generic;
+using Indice.Features.GovGr;
 
 namespace Indice.AspNetCore.Authentication.GovGr
 {
@@ -8,6 +13,9 @@ namespace Indice.AspNetCore.Authentication.GovGr
     /// </summary>
     public class GovGrOptions
     {
+        private const string FQDN_DEMO = "kycdemo.gsis.gr";
+        private const string FQDN_STAGE = "kyc-stage.gov.gr";
+        private const string FQDN_PROD = "kyc.gov.gr";
         /// <summary>
         /// The client id.
         /// </summary>
@@ -25,5 +33,48 @@ namespace Indice.AspNetCore.Authentication.GovGr
         /// corresponds to a cookie middleware registered in the Startup class. When omitted, <see cref="AuthenticationOptions.DefaultSignInScheme"/> is used as a fallback value.
         /// </summary>
         public string SignInScheme { get; set; }
+
+        /// <summary>
+        /// Represents the environment. Valid options are <em>production</em>, <em>staging</em>, <em>development</em> &amp; <em>mock</em>. Defaults to <b>production</b>. 
+        /// </summary>
+        public string Environment { get; set; }
+
+        /// <summary>
+        /// Default list of scopes needed to access the kyc data. <see cref="GovGrKycScopes"/>
+        /// </summary>
+        public ICollection<string> Scopes { get; } = new List<string>() {
+            GovGrKycScopes.Identity,
+            GovGrKycScopes.Income,
+            GovGrKycScopes.ContactInfo,
+            GovGrKycScopes.ProfessionalActivity
+        };
+
+        /// <summary>
+        /// Check if in production
+        /// </summary>
+        public bool IsProduction => string.IsNullOrWhiteSpace(Environment) || "Production".Equals(Environment, StringComparison.OrdinalIgnoreCase);
+        /// <summary>
+        /// Check if in staging/stage
+        /// </summary>
+        public bool IsStaging => "Staging".Equals(Environment, StringComparison.OrdinalIgnoreCase) || "Stage".Equals(Environment, StringComparison.OrdinalIgnoreCase);
+        /// <summary>
+        /// Check if in development/demo
+        /// </summary>
+        public bool IsDevelopment => "Development".Equals(Environment, StringComparison.OrdinalIgnoreCase) || "Dev".Equals(Environment, StringComparison.OrdinalIgnoreCase) || "demo".Equals(Environment, StringComparison.OrdinalIgnoreCase);
+
+        internal string BaseDomain => IsStaging ? FQDN_STAGE :
+                                      IsDevelopment ? FQDN_DEMO : FQDN_PROD;
+        /// <summary>
+        /// The authority.
+        /// </summary>
+        public string Authority => $"https://{BaseDomain}";
+        /// <summary>
+        /// The default endpoint used to perform gov.gr authentication.
+        /// </summary>
+        public string AuthorizationEndpoint => $"{Authority}/oauth";
+        /// <summary>
+        /// The OAuth endpoint used to exchange access tokens.
+        /// </summary>
+        public string TokenEndpoint => $"{Authority}/oauth/token";
     }
 }

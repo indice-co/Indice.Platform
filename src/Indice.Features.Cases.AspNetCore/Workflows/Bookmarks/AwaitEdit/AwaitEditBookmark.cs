@@ -15,13 +15,13 @@ namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitEdit
         }
 
         /// <summary>
-        /// The user role that can trigger the bookmark. Can be null for all authenticated users
-        /// </summary>
-        public string Role { get; set; }
-
-        /// <summary>
         /// The Id of the case to create the bookmark.
         /// </summary>
         public string CaseId { get; set; }
+
+        /// <summary>
+        /// The user role that can trigger the bookmark. Can be null for all authenticated users
+        /// </summary>
+        public string Role { get; set; }
     }
 }

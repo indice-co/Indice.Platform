@@ -17,17 +17,17 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The name of the checkpoint.
         /// </summary>
-        public string Name { get; set; }
+        public string Code { get; set; }
 
         /// <summary>
         /// The description of the checkpoint.
         /// </summary>
-        public string? Description { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
         /// The public status of the checkpoint.
         /// </summary>
-        public CasePublicStatus PublicStatus { get; set; }
+        public CaseStatus Status { get; set; }
 
         /// <summary>
         /// Boolean for whether the checkpoint is private.
@@ -37,6 +37,6 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The related roles for this checkpoint.
         /// </summary>
-        public IEnumerable<string>? Roles { get; set; }
+        public IEnumerable<string> Roles { get; set; }
     }
 }

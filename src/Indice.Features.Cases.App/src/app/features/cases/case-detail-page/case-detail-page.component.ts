@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import { CaseActions, CaseDetails, CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.service';
+import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-detail-page',
@@ -29,9 +29,13 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   public showCustomDataValidation = false;
   public now: Date = new Date();
   public typeId?: string;
+  public caseTypeConfig: any;
+  public caseStatus = CaseStatus;
+
   /** shows the warning modal conditionally */
   public showWarningModal: boolean = false;
   public warningModalState = { title: 'Έγκριση αίτησης', description: 'Δεν έχετε τυπώσει το PDF της αίτησης, θέλετε να προχωρήσετε στην έγκρισή της;' };
+
   constructor(
     private api: CasesApiService,
     private route: ActivatedRoute,
@@ -52,11 +56,8 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   }
 
   public updateData(event: { draft: boolean }): void {
-    if (event.draft) {
-      this.getCaseActionsAndThenRequestModel();
-    }
-    this.showWarningModal = true;
-    this.getTimeline();
+    this.getCaseActionsAndThenRequestModel();
+    this.showWarningModal = this.caseTypeConfig?.boOptions?.showWarningModal === false ? false : true;
   }
 
   public isValid(event: boolean): void {
@@ -77,7 +78,10 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
             this.getCustomerData$(caseDetails), // draft mode, we need to prefill the form with customer data (if any)
             of(caseDetails))
         }),
-        tap((response: CaseDetails) => this._model.next(response)),
+        tap((response: CaseDetails) => {
+          this.caseTypeConfig = response.caseType?.config ? JSON.parse(response.caseType?.config) : {};
+          this._model.next(response);
+        }),
         takeUntil(this.componentDestroy$)
       ).subscribe();
 
@@ -99,9 +103,10 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   }
 
   onCaseDiscarded() {
-    this.toaster.show(ToastType.Info, 'Ακύρωση αίτησης', 'Η αίτηση έχει ακυρωθεί')
+    this.toaster.show(ToastType.Info, 'Ακύρωση αίτησης', 'Η αίτηση έχει ακυρωθεί');
     this.router.navigate(['/cases']);
   }
+
   /**
    * Event for PDF print action, 
    * registers the state of the PDF print action
@@ -112,8 +117,30 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     if (printed === undefined) {
       return;
     }
-    this.showWarningModal = !printed;
+    this.showWarningModal = this.caseTypeConfig?.boOptions?.showWarningModal === false ? false : !printed;
   }
+
+  /**
+   * Trigger a blocking workflow activity by its Id.
+   * @param event The action Id to trigger the corresponding custom workflow action.
+   */
+  onCustomActionTrigger(event: { redirectToList: boolean | undefined, successMessage: SuccessMessage | undefined, id: string | undefined, value: string | undefined }) {
+    this.api.triggerAction(this.caseId, undefined, new ActionRequest({ id: event?.id, value: event?.value }))
+      .pipe(
+        tap(() => {
+          if (event.redirectToList) {
+            if (event.successMessage) {
+              this.toaster.show(ToastType.Info, event.successMessage.title, event.successMessage.body);
+            }
+            this.router.navigate(['/cases']);
+          } else {
+            this.onActionsChanged();
+          }
+        })
+      )
+      .subscribe();
+  }
+
   private getCaseActions() {
     this.api.getCaseActions(this.caseId)
       .pipe(

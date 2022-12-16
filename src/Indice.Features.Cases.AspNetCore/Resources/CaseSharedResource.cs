@@ -16,7 +16,7 @@ namespace Indice.Features.Cases.Resources
         /// </summary>
         /// <param name="factory">The IStringLocalizerFactory factory</param>
         /// <param name="assemblyName">The assembly name where the .resx files exist.</param>
-        public CaseSharedResourceService(IStringLocalizerFactory factory, string? assemblyName = null) {
+        public CaseSharedResourceService(IStringLocalizerFactory factory, string assemblyName = null) {
             if (assemblyName == null) {
                 var type = typeof(CaseSharedResource);
                 assemblyName = new AssemblyName(type.GetTypeInfo().Assembly.FullName).Name;

@@ -23,7 +23,9 @@ namespace Indice.Features.Messages.Core.Services.Abstractions
         /// <param name="contact">The instance to patch.</param>
         public async static Task<Contact> Patch(this IContactResolver resolver, string recipientId, Contact contact) {
             var resolvedContact = await resolver.Resolve(recipientId);
-            resolvedContact.Id = contact.Id;
+            if (resolvedContact is not null) {
+                resolvedContact.Id = contact.Id;
+            }
             return resolvedContact;
         }
     }
