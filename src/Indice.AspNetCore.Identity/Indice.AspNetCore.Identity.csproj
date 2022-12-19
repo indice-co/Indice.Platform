@@ -2,6 +2,7 @@
   <PropertyGroup>
     <Description>Indice.AspNetCore.Identity Class Library</Description>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
