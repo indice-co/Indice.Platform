@@ -33,7 +33,28 @@
                         </form>
                     </div>
                 }
+                @if (Model.DeliveryChannel == TotpDeliveryChannel.PushNotification)
+                {
+                    <div class="card-header">
+                        <h2>@Localizer["Push Notification"]</h2>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            Please approve your sign-in action.<br />
+                            Do not close this browser window.<br />
+                            <a href="#">Sign in with a different method</a>
+                        </p>
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
+
+@section scripts {
+    @if (Model.DeliveryChannel == TotpDeliveryChannel.PushNotification)
+    {
+        <script type="text/javascript" src="~/lib/@@microsoft/signalr/dist/browser/signalr.min.js"></script>
+        <script type="text/javascript" src="~/js/mfa.js"></script>
+    }
+}

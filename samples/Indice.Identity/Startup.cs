@@ -12,6 +12,7 @@ using Indice.AspNetCore.Identity.Localization;
 using Indice.AspNetCore.Middleware;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
+using Indice.Identity.Hubs;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
@@ -29,43 +30,20 @@ using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Indice.Identity
 {
-    /// <summary>
-    /// Bootstrap class for the application.
-    /// </summary>
     public class Startup
     {
-        /// <summary>
-        /// Creates a new instance of <see cref="Startup"/>.
-        /// </summary>
-        /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
-        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public Startup(IWebHostEnvironment hostingEnvironment, IConfiguration configuration) {
             HostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             Settings = Configuration.GetSection(GeneralSettings.Name).Get<GeneralSettings>();
         }
 
-        /// <summary>
-        /// Provides information about the web hosting environment an application is running in.
-        /// </summary>
         public IWebHostEnvironment HostingEnvironment { get; }
-        /// <summary>
-        /// Represents a set of key/value application configuration properties.
-        /// </summary>
         public IConfiguration Configuration { get; }
-        /// <summary>
-        /// General settings for an ASP.NET Core application.
-        /// </summary>
         public GeneralSettings Settings { get; }
-        /// <summary>
-        /// Represents a type used to perform logging.
-        /// </summary>
         public ILogger<Startup> Logger { get; }
+        public bool HasSignalRConnection { get; private set; }
 
-        /// <summary>
-        /// This method gets called by the runtime. Use this method to add services to the container.
-        /// </summary>
-        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services) {
             // https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core#using-applicationinsightsserviceoptions
             var aiOptions = new ApplicationInsightsServiceOptions();
@@ -114,15 +92,21 @@ namespace Indice.Identity
                        .AddConnectSrc(CSP.Self)
                        .AddConnectSrc("https://dc.services.visualstudio.com")
                        .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com")
+                       .AddConnectSrc("wss://indice-identity.service.signalr.net")
+                       .AddConnectSrc("https://indice-identity.service.signalr.net")
                        .AddFrameAncestors("https://localhost:2002");
             })
-            .AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>()
-            .AddSignalR(options => {
-                options.EnableDetailedErrors = !HostingEnvironment.IsProduction();
-            })
-            .AddAzureSignalR(options => {
-                options.ConnectionString = Configuration.GetConnectionString("SignalRService");
-            });
+            .AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
+            var signalRServiceConnection = Configuration.GetConnectionString("SignalRService");
+            HasSignalRConnection = !string.IsNullOrWhiteSpace(signalRServiceConnection);
+            if (HasSignalRConnection) {
+                services.AddSignalR(options => {
+                    options.EnableDetailedErrors = !HostingEnvironment.IsProduction();
+                })
+                .AddAzureSignalR(options => {
+                    options.ConnectionString = signalRServiceConnection;
+                });
+            }
             //services.AddClientIpRestrinctions();
             //services.AddClientIpRestrinctions(options => {
             //    options.StatusCodeOnAccessDenied = System.Net.HttpStatusCode.NotFound;
@@ -133,10 +117,6 @@ namespace Indice.Identity
             //});
         }
 
-        /// <summary>
-        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        /// </summary>
-        /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         public void Configure(IApplicationBuilder app) {
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
@@ -236,6 +216,9 @@ namespace Indice.Identity
                 endpoints.MapSwagger();
                 endpoints.MapControllers();
                 endpoints.MapDefaultControllerRoute();
+                if (HasSignalRConnection) {
+                    endpoints.MapHub<MultiFactorAuthenticationHub>("/mfa");
+                }
             });
         }
     }

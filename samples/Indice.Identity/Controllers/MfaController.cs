@@ -6,16 +6,16 @@ using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
+using Indice.Identity.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Controllers
 {
     [ApiExplorerSettings(IgnoreApi = true)]
-    [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.TwoFactorUserIdScheme)]
-    [Route("login")]
     [SecurityHeaders]
     public class MfaController : Controller
     {
@@ -25,6 +25,7 @@ namespace Indice.Identity.Controllers
         private readonly IStringLocalizer<MfaController> _localizer;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly ExtendedSignInManager<User> _signInManager;
+        private readonly ILogger<MfaController> _logger;
         public const string Name = "Mfa";
 
         public MfaController(
@@ -33,7 +34,8 @@ namespace Indice.Identity.Controllers
             ExtendedUserManager<User> userManager,
             IStringLocalizer<MfaController> localizer,
             IIdentityServerInteractionService interaction,
-            ExtendedSignInManager<User> signInManager
+            ExtendedSignInManager<User> signInManager,
+            ILogger<MfaController> logger
         ) {
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _totpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
@@ -41,24 +43,31 @@ namespace Indice.Identity.Controllers
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet("mfa")]
+        [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.TwoFactorUserIdScheme)]
+        [HttpGet("login/mfa")]
         public async Task<IActionResult> Index([FromQuery] string returnUrl) {
             var viewModel = await _accountService.BuildMfaLoginViewModelAsync(returnUrl);
             if (viewModel is null) {
-                throw new ArgumentNullException(nameof(viewModel));
+                throw new InvalidOperationException();
             }
             var totpService = _totpServiceFactory.Create<User>();
             if (viewModel.DeliveryChannel == TotpDeliveryChannel.Sms) {
-                await totpService.SendToSmsAsync(viewModel.User, _localizer["Your OTP code for login is: {0}"], _localizer["OTP login"], TotpConstants.TokenGenerationPurpose.MultiFactorAuthentication);
-            } else if (viewModel.DeliveryChannel == TotpDeliveryChannel.PushNotification) {
-                // TODO: Send push notification.
+                await totpService.SendAsync(message =>
+                    message.ToUser(viewModel.User)
+                           .WithMessage(_localizer["Your OTP code for login is: {0}"])
+                           .UsingSms()
+                           .WithSubject(_localizer["OTP login"])
+                           .WithPurpose(TotpConstants.TokenGenerationPurpose.MultiFactorAuthentication)
+                );
             }
             return View(viewModel);
         }
 
-        [HttpPost("mfa")]
+        [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.TwoFactorUserIdScheme)]
+        [HttpPost("login/mfa")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index([FromForm] MfaLoginInputModel form) {
             var totpService = _totpServiceFactory.Create<User>();
@@ -75,6 +84,39 @@ namespace Indice.Identity.Controllers
             } else {
                 throw new Exception("Invalid return URL.");
             }
+        }
+
+        [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.TwoFactorUserIdScheme)]
+        [HttpPost("login/mfa/notify")]
+        // TODO: Configure anti-forgery token.
+        public async Task<IActionResult> SendPushNotification([FromBody] MfaLoginPushNotificationRequest request) {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user is null) {
+                throw new InvalidOperationException();
+            }
+            var totpService = _totpServiceFactory.Create<User>();
+            await totpService.SendAsync(message =>
+                message.ToUser(user)
+                       .WithMessage(_localizer["Your OTP code for login is: {0}"])
+                       .UsingPushNotification()
+                       .WithSubject(_localizer["OTP login"])
+                       .WithData(new { request.ConnectionId })
+                       .WithPurpose(TotpConstants.TokenGenerationPurpose.MultiFactorAuthentication)
+                       .WithClassification("MFA-Approval")
+            );
+            return NoContent();
+        }
+
+        // TODO: Consider authorizing the endpoint.
+        [HttpPost("api/login/approve")]
+        public IActionResult ApproveLogin([FromBody] ApproveLoginRequest request) {
+            return NoContent();
+        }
+
+        // TODO: Consider authorizing the endpoint.
+        [HttpPost("api/login/reject")]
+        public IActionResult RejectLogin([FromBody] RejectLoginRequest request) {
+            return NoContent();
         }
     }
 }

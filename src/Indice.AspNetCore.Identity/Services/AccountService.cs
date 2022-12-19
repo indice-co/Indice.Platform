@@ -11,6 +11,7 @@ using Indice.AspNetCore.Identity.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 
 namespace Indice.AspNetCore.Identity
 {
@@ -30,7 +31,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
         /// <param name="clientStore">Retrieval of client configuration.</param>
         /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-        /// <param name="signInManager"></param>
+        /// <param name="signInManager">Provides the APIs for user sign in.</param>
         public AccountService(
             IIdentityServerInteractionService interaction,
             IHttpContextAccessor httpContextAccessor,
@@ -102,12 +103,13 @@ namespace Indice.AspNetCore.Identity
             if (user is null) {
                 return default;
             }
-            var trustedDevices = await _userManager.GetTrustedDevicesAsync(user);
+            var trustedDevicesCount = await _userManager.GetTrustedDevicesCountAsync(user);
             var deliveryChannel = TotpDeliveryChannel.None;
-            if (trustedDevices.Any()) {
+            if (trustedDevicesCount > 0) {
                 deliveryChannel = TotpDeliveryChannel.PushNotification;
             } else {
-                var phoneNumberConfirmed = await _userManager.IsPhoneNumberConfirmedAsync(user);
+                var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+                var phoneNumberConfirmed = !string.IsNullOrWhiteSpace(phoneNumber) && await _userManager.IsPhoneNumberConfirmedAsync(user);
                 if (phoneNumberConfirmed) {
                     deliveryChannel = TotpDeliveryChannel.Sms;
                 }

@@ -38,6 +38,8 @@ namespace Indice.AspNetCore.Identity.Api.Models
         public bool CanActivateDeviceTrust => TrustActivationDate.HasValue && TrustActivationDate.Value <= DateTimeOffset.UtcNow && !IsTrusted;
         /// <summary>Extra metadata for the device.</summary>
         public dynamic Data { get; set; }
+        /// <summary>Describes the type of a user device.</summary>
+        public UserDeviceType? ClientType { get; set; }
     }
 
     internal static class DeviceInfoExtensions

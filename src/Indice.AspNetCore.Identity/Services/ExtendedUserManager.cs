@@ -373,6 +373,20 @@ namespace Indice.AspNetCore.Identity
             return deviceStore.GetTrustedDevicesAsync(user, cancellationToken);
         }
 
+        /// <summary>Get the number of trusted devices registered by the specified user.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
+        public Task<int> GetTrustedDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
+            ThrowIfDisposed();
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+            var deviceStore = GetDeviceStore();
+            return deviceStore.GetTrustedDevicesCountAsync(user, cancellationToken);
+        }
+
         /// <summary>Sets the maximum number of devices a user can register.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="maxDevicesCount">The number of devices.</param>

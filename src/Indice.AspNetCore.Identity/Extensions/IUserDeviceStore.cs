@@ -39,11 +39,16 @@ namespace Indice.AspNetCore.Identity
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
         Task<int> GetDevicesCountAsync(TUser user, CancellationToken cancellationToken);
-        /// <summary>Gets the devices count registered by the specified user.</summary>
+        /// <summary>Gets the number of devices that are trusted or pending activation.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
         Task<int> GetTrustedOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken);
+        /// <summary>Gets the number of devices that are trusted.</summary>
+        /// <param name="user">The user instance.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
+        Task<int> GetTrustedDevicesCountAsync(TUser user, CancellationToken cancellationToken = default);
         /// <summary>Gets the device registered by the specified user, using it's unique id.</summary>
         /// <param name="user">The user instance.</param>
         /// <param name="deviceId">The id of the device to look for.</param>

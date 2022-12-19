@@ -52,9 +52,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         public bool TwoFactorEnabled { get; set; }
         /// <summary>The date-time where the user was created in the system.</summary>
         public DateTimeOffset CreateDate { get; set; }
-        /// <summary>
-        /// The date-time where the lockout period ends.
-        /// </summary>
+        /// <summary>The date-time where the lockout period ends.</summary>
         public DateTimeOffset? LockoutEnd { get; set; }
         /// <summary>User's email address.</summary>
         public string Email { get; set; }

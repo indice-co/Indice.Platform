@@ -42,7 +42,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                      .AddIdentityServerApiEndpoints(options => {
                                          options.AddDbContext(context => context.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
                                          options.CanRaiseEvents = true;
-                                         options.DisableCache = false;
+                                         options.DisableCache = true;
                                          options.Email.SendEmailOnUpdate = true;
                                          options.Email.UpdateEmailTemplate = "Email";
                                          options.Email.ForgotPasswordTemplate = "Email";

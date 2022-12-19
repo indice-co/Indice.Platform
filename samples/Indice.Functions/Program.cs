@@ -14,8 +14,6 @@ namespace Indice.Functions
 {
     public class Program
     {
-        public const bool MULTITENANCY = false;
-
         public async static Task Main(params string[] args) {
             // Create the host builder instance.
             var hostBuilder = new HostBuilder();
@@ -25,24 +23,20 @@ namespace Indice.Functions
                       .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
             })
             .ConfigureServices((context, services) => {
-                if (MULTITENANCY) {
-                    services.AddDbContext<SaasDbContext>(builder => {
-                        if (context.HostingEnvironment.IsDevelopment()) {
-                            builder.EnableDetailedErrors();
-                            builder.EnableSensitiveDataLogging();
-                        }
-                        builder.UseSqlServer(context.Configuration.GetConnectionString("SaasDb"));
-                    });
-                    services.AddMultiTenancy<ExtendedTenant>()
-                            .FromQueueTriggerPayload()
-                            .WithStore<SaasTenantStore>();
-                }
+                services.AddDbContext<SaasDbContext>(builder => {
+                    if (context.HostingEnvironment.IsDevelopment()) {
+                        builder.EnableDetailedErrors();
+                        builder.EnableSensitiveDataLogging();
+                    }
+                    builder.UseSqlServer(context.Configuration.GetConnectionString("SaasDb"));
+                });
+                services.AddMultiTenancy<ExtendedTenant>()
+                        .FromQueueTriggerPayload()
+                        .WithStore<SaasTenantStore>();
             })
             .ConfigureFunctionsWorkerDefaults((context, builder) => {
-                if (MULTITENANCY) {
-                    builder.UseFunctionContextAccessor();
-                    builder.UseMultiTenancy<ExtendedTenant>();
-                }
+                builder.UseFunctionContextAccessor();
+                builder.UseMultiTenancy<ExtendedTenant>();
             })
             .ConfigureMessageFunctions((configuration, hostingEnvironment, options) => {
                 options.DatabaseSchema = "msg";
@@ -51,26 +45,17 @@ namespace Indice.Functions
                         builder.EnableDetailedErrors();
                         builder.EnableSensitiveDataLogging();
                     }
-                    if (MULTITENANCY) {
-                        var tenant = serviceProvider.GetRequiredService<ITenantAccessor<ExtendedTenant>>().Tenant;
-                        builder.UseSqlServer(tenant?.ConnectionString ?? configuration.GetConnectionString("MessagesDb"));
-                    } else {
-                        builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
-                    }
+                    var tenant = serviceProvider.GetRequiredService<ITenantAccessor<ExtendedTenant>>().Tenant;
+                    builder.UseSqlServer(tenant?.ConnectionString ?? configuration.GetConnectionString("MessagesDb"));
                 };
-                if (MULTITENANCY) {
-                    options.UseEventDispatcherAzure((serviceProvider, eventDispatcherOptions) => {
-                        var tenant = serviceProvider.GetService<ITenantAccessor<ExtendedTenant>>().Tenant;
-                        eventDispatcherOptions.TenantIdSelector = () => tenant?.Identifier;
-                    });
-                    options.UsePushNotificationServiceAzure((serviceProvider, pushNotificationsOptions) => {
-                        var tenant = serviceProvider.GetService<ITenantAccessor<ExtendedTenant>>().Tenant;
-                        pushNotificationsOptions.ConnectionString = tenant?.PushNotificationConnectionString;
-                    });
-                } else {
-                    options.UseEventDispatcherAzure();
-                    options.UsePushNotificationServiceAzure();
-                }
+                options.UseEventDispatcherAzure((serviceProvider, eventDispatcherOptions) => {
+                    var tenant = serviceProvider.GetService<ITenantAccessor<ExtendedTenant>>().Tenant;
+                    eventDispatcherOptions.TenantIdSelector = () => tenant?.Identifier;
+                });
+                options.UsePushNotificationServiceAzure((serviceProvider, pushNotificationsOptions) => {
+                    var tenant = serviceProvider.GetService<ITenantAccessor<ExtendedTenant>>().Tenant;
+                    pushNotificationsOptions.ConnectionString = tenant?.PushNotificationConnectionString;
+                });
                 options.UseFilesAzure();
                 options.UseEmailServiceSparkpost(configuration);
                 options.UseSmsServiceYubotoOmni(configuration);

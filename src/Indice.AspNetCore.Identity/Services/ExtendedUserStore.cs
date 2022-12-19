@@ -228,7 +228,7 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken) {
+        public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             Context.Update(device);
@@ -241,7 +241,7 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken) {
+        public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             UserDeviceSet.Remove(device);
@@ -249,7 +249,7 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken) {
+        public async Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             var devices = await GetDevicesAsync(user, cancellationToken);
@@ -262,6 +262,13 @@ namespace Indice.AspNetCore.Identity.Data
                 return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
             }
             return IdentityResult.Success;
+        }
+
+        /// <inheritdoc/>
+        public async Task<int> GetTrustedDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            return await UserDeviceSet.Where(device => device.UserId == user.Id && device.IsTrusted).CountAsync(cancellationToken);
         }
     }
 }

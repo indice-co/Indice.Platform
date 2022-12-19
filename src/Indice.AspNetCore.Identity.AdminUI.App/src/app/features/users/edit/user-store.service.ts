@@ -4,7 +4,7 @@ import { Observable, AsyncSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateClaimRequest, BasicClaimInfo,
-    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, SetPasswordRequest, SetUserBlockRequest, UserLoginProviderInfo
+    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, SetPasswordRequest, SetUserBlockRequest, UserLoginProviderInfo, DeviceInfo, DeviceInfoResultSet
 } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './details/models/claim-type.model';
 
@@ -14,6 +14,7 @@ export class UserStore {
     private _allRoles: AsyncSubject<RoleInfo[]>;
     private _allClaims: AsyncSubject<ClaimTypeInfo[]>;
     private _userApplications: AsyncSubject<UserClientInfo[]>;
+    private _userDevices: AsyncSubject<DeviceInfo[]>;
     private _userExternalLogins: AsyncSubject<UserLoginProviderInfo[]>;
 
     constructor(private _api: IdentityApiService) { }
@@ -171,6 +172,17 @@ export class UserStore {
             });
         }
         return this._userApplications;
+    }
+
+    public getUserDevices(userId: string): Observable<DeviceInfo[]> {
+        if (!this._userDevices) {
+            this._userDevices = new AsyncSubject<DeviceInfo[]>();
+            this._api.getUserDevices(userId).subscribe((response: DeviceInfoResultSet) => {
+                this._userDevices.next(response.items);
+                this._userDevices.complete();
+            });
+        }
+        return this._userDevices;
     }
 
     public getUserExternalLogins(userId: string): Observable<UserLoginProviderInfo[]> {
