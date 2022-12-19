@@ -1,40 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Indice.Services Class Library</Description>
-    <Copyright>Copyright (c) 2018 Indice</Copyright>
-    <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <VersionPrefix>6.2.2</VersionPrefix>
-    <!--<VersionSuffix>beta-06</VersionSuffix>-->
-    <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
     <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>
-    <AssemblyName>Indice.Services</AssemblyName>
-    <AssemblyTitle>Indice.Services</AssemblyTitle>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
-    <IsPackable>true</IsPackable>
-    <PackageId>Indice.Services</PackageId>
     <PackageTags>Events;Files;Emails;Sms;Push Notifications;Locking</PackageTags>
-    <PackageReleaseNotes>Fix bug on PushNotificationServiceAzure.</PackageReleaseNotes>
-    <PackageIcon>icon-310.png</PackageIcon>
-    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
-    <Company>Indice</Company>
-    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <UserSecretsId>51a622d8-cf04-4fda-a1c9-84342d2cfe41</UserSecretsId>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
-  <ItemGroup>
+    <PackageReference Include="Indice.Common" Version="$(VersionPrefix)" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.11.0" />
-    <PackageReference Include="Indice.Common" Version="6.2.2" />
     <PackageReference Include="MailKit" Version="3.3.0" />
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.1.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.13.0" />

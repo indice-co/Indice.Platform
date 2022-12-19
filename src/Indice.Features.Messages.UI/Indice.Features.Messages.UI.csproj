@@ -1,35 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
-    <Copyright>Copyright (c) 2022 Indice</Copyright>
-    <Description>Indice.Features.Messages.UI Class Library</Description>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.Features.Messages.App\dist\campaigns-app</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <VersionPrefix>6.1.8</VersionPrefix>
-    <!--<VersionSuffix>beta-10</VersionSuffix>-->
-    <LangVersion>Latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Label="Package">
-    <IsPackable>true</IsPackable>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <Company>Indice</Company>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
-    <PackageIcon>icon-310.png</PackageIcon>
-    <PackageId>Indice.Features.Messages.UI</PackageId>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageReleaseNotes>UI bug fixing.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Campaigns;Notifications</PackageTags>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
+  </PropertyGroup> 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
