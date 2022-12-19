@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>Indice.AspNetCore.Identity.AdminUI Class Library</Description>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.AspNetCore.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
     <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
