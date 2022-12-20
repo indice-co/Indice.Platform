@@ -33,8 +33,7 @@ namespace Indice.AspNetCore.Swagger
             }
             IValidator validator;
             using (var scope = _serviceProvider.CreateScope()) {
-                var validatorFactory = scope.ServiceProvider.GetService<IValidatorFactory>();
-                validator = validatorFactory?.GetValidator(context.Type);
+                validator = scope.ServiceProvider.GetService(context.Type) as IValidator;
             }
             if (validator != null && schema.Properties != null) {
                 foreach (var item in schema.Properties) {
