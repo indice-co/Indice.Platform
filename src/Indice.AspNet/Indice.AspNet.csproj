@@ -7,6 +7,8 @@
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Giorgos Manoltzas</Authors>
     <TargetFramework>net47</TargetFramework>
+    <TargetFrameworks></TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>Indice.AspNet</AssemblyName>
     <AssemblyTitle>Indice.AspNet</AssemblyTitle>
     <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
