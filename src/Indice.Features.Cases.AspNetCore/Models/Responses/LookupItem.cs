@@ -15,4 +15,10 @@
         /// </summary>
         public string Value { get; set; }
     }
+
+    public class SearchValues
+    {
+        public string CustomerId { get; set; }
+        public string DependentFieldValue { get; set; }
+    }
 }

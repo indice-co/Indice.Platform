@@ -40,9 +40,9 @@ namespace Indice.Features.Cases.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<LookupItem>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetLookup([FromRoute] string lookupName, [FromQuery] string searchValues = null) {
-            var occupations = await _lookupService.Get(lookupName, searchValues);
-            return Ok(occupations);
+        public async Task<IActionResult> GetLookup([FromRoute] string lookupName, [FromQuery] SearchValues searchValues = null) {
+            var lookupItems = await _lookupService.Get(lookupName, searchValues);
+            return Ok(lookupItems);
         }
     }
 }

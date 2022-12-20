@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage } from 'src/app/core/services/cases-api.service';
 
 @Component({
@@ -11,8 +12,7 @@ import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry
 })
 export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
-  private _model: ReplaySubject<CaseDetails> = new ReplaySubject(1);
-  public model$ = this._model.asObservable();
+  public model$;
 
   private _caseActions: ReplaySubject<CaseActions> = new ReplaySubject(1);
   public caseActions$ = this._caseActions.asObservable();
@@ -38,9 +38,12 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   constructor(
     private api: CasesApiService,
+    private caseDetailsService: CaseDetailsService,
     private route: ActivatedRoute,
     private router: Router,
-    private toaster: ToasterService) { }
+    private toaster: ToasterService) {
+    this.model$ = this.caseDetailsService.caseDetails$;
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe(p => {
@@ -80,7 +83,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
         }),
         tap((response: CaseDetails) => {
           this.caseTypeConfig = response.caseType?.config ? JSON.parse(response.caseType?.config) : {};
-          this._model.next(response);
+          this.caseDetailsService.setCaseDetails(response);
         }),
         takeUntil(this.componentDestroy$)
       ).subscribe();
