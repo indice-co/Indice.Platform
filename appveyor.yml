@@ -9,6 +9,6 @@ install:
 before_build:
  - ps: dotnet restore
 build:
-  verbosity: normal
+  verbosity: minimal
 after_build:
 - pwsh: ./pack.ps1
