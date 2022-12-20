@@ -17,7 +17,7 @@
                         <h2>@Localizer["SMS"]</h2>
                     </div>
                     <div class="card-body">
-                        <form asp-route="Login">
+                        <form asp-controller="@MfaController.Name" asp-action="@nameof(MfaController.Index)">
                             <input type="hidden" asp-for="ReturnUrl" />
                             <div class="form-group">
                                 <label asp-for="OtpCode">@Localizer["OTP Code"]</label>
@@ -29,12 +29,16 @@
                                     <label class="form-check-label" asp-for="RememberClient">@Localizer["Remember this device"]</label>
                                 </div>
                             </div>
-                            <button class="btn btn-primary" name="button" value="login">@Localizer["Login"]</button>
+                            <button type="submit" class="btn btn-primary" name="button" value="login">@Localizer["Login"]</button>
                         </form>
                     </div>
                 }
                 @if (Model.DeliveryChannel == TotpDeliveryChannel.PushNotification)
                 {
+                    <form id="mfa-form" asp-controller="@MfaController.Name" asp-action="@nameof(MfaController.Index)">
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <input type="hidden" asp-for="OtpCode" />
+                    </form>
                     <div class="card-header">
                         <h2>@Localizer["Push Notification"]</h2>
                     </div>

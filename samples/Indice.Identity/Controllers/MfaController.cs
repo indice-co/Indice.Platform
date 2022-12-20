@@ -3,13 +3,16 @@ using System.Threading.Tasks;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity;
+using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
+using Indice.Identity.Hubs;
 using Indice.Identity.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
@@ -26,6 +29,7 @@ namespace Indice.Identity.Controllers
         private readonly IIdentityServerInteractionService _interaction;
         private readonly ExtendedSignInManager<User> _signInManager;
         private readonly ILogger<MfaController> _logger;
+        private readonly IHubContext<MultiFactorAuthenticationHub> _hubContext;
         public const string Name = "Mfa";
 
         public MfaController(
@@ -35,7 +39,8 @@ namespace Indice.Identity.Controllers
             IStringLocalizer<MfaController> localizer,
             IIdentityServerInteractionService interaction,
             ExtendedSignInManager<User> signInManager,
-            ILogger<MfaController> logger
+            ILogger<MfaController> logger,
+            IHubContext<MultiFactorAuthenticationHub> hubContext
         ) {
             _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _totpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
@@ -44,6 +49,7 @@ namespace Indice.Identity.Controllers
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
         }
 
         [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.TwoFactorUserIdScheme)]
@@ -68,7 +74,7 @@ namespace Indice.Identity.Controllers
 
         [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.TwoFactorUserIdScheme)]
         [HttpPost("login/mfa")]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Index([FromForm] MfaLoginInputModel form) {
             var totpService = _totpServiceFactory.Create<User>();
             var signInResult = await _signInManager.TwoFactorSignInAsync(totpService.TokenProvider, form.OtpCode, form.RememberMe, form.RememberClient);
@@ -104,12 +110,15 @@ namespace Indice.Identity.Controllers
                        .WithPurpose(TotpConstants.TokenGenerationPurpose.MultiFactorAuthentication)
                        .WithClassification("MFA-Approval")
             );
+            _logger.LogInformation("Sending push notification to connection: '{ConnectionId}'", request.ConnectionId);
             return NoContent();
         }
 
         // TODO: Consider authorizing the endpoint.
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
         [HttpPost("api/login/approve")]
-        public IActionResult ApproveLogin([FromBody] ApproveLoginRequest request) {
+        public async Task<IActionResult> ApproveLogin([FromBody] ApproveLoginRequest request) {
+            await _hubContext.Clients.Client(request.ConnectionId).SendAsync(nameof(MultiFactorAuthenticationHub.LoginApproved), request.Otp);
             return NoContent();
         }
 

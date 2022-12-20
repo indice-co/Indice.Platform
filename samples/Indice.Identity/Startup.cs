@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -100,6 +101,7 @@ namespace Indice.Identity
             var signalRServiceConnection = Configuration.GetConnectionString("SignalRService");
             HasSignalRConnection = !string.IsNullOrWhiteSpace(signalRServiceConnection);
             if (HasSignalRConnection) {
+                services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
                 services.AddSignalR(options => {
                     options.EnableDetailedErrors = !HostingEnvironment.IsProduction();
                 })

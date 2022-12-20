@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Indice.AspNetCore.Identity;
+using Indice.AspNetCore.Identity.Api.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
@@ -12,12 +14,21 @@ namespace Indice.Identity.Hubs
         private readonly ILogger<MultiFactorAuthenticationHub> _logger;
 
         public MultiFactorAuthenticationHub(ILogger<MultiFactorAuthenticationHub> logger) {
-            _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public override Task OnConnectedAsync() {
-            _logger.LogInformation("Connection established with the {HubName}", nameof(MultiFactorAuthenticationHub));
+            _logger.LogInformation("Connection established with the '{HubName}'", nameof(MultiFactorAuthenticationHub));
             return base.OnConnectedAsync();
+        }
+
+        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
+        public async Task LoginApproved(string connectionId, string otpCode) {
+            var userId = Context.UserIdentifier;
+            if (userId is null) {
+                throw new InvalidOperationException();
+            }
+            await Clients.Client(connectionId).SendAsync("LoginApproved", otpCode);
         }
     }
 }

@@ -21,6 +21,12 @@
         .withUrl('/mfa')
         .build();
 
+    connection.on('LoginApproved', function (otpCode) {
+        console.debug('Login approved by user.');
+        $('#OtpCode').val(otpCode);
+        $('#mfa-form').submit();
+    });
+
     connection.start()
         .then(() => onConnected(connection))
         .catch(error => console.error(error.message));
