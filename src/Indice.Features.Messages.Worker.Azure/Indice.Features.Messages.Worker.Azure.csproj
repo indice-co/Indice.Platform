@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
-  </PropertyGroup>
   <PropertyGroup Label="Package">
+    <TargetFrameworks>net5.0;net6.0;net7.0;</TargetFrameworks>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AzureFunctions;CampaignManagement;Workers;Cloud</PackageTags>
   </PropertyGroup>
@@ -10,12 +8,14 @@
     <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefix)" />
     <PackageReference Include="Indice.Features.Multitenancy.Worker.Azure" Version="$(VersionPrefix)" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefix)" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.6.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Core" Version="1.8.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Queues" Version="5.0.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />

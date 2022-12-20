@@ -1,7 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-  </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageReleaseNotes>Update Indice Packages.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CampaignManagement;Workers</PackageTags>
@@ -14,10 +11,12 @@
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
     <ProjectReference Include="..\Indice.Hosting\Indice.Hosting.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
   </ItemGroup>
 </Project>

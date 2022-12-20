@@ -1,7 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-  </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageTags>AspNetCore;Multitenancy</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
@@ -12,6 +9,10 @@
   <ItemGroup>
     <PackageReference Include="Indice.Features.Multitenancy.Core" Version="$(VersionPrefix)" />
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="7.0.0" />
+  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
@@ -21,8 +22,8 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.22" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.32" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.32" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Multitenancy.Core\Indice.Features.Multitenancy.Core.csproj" />

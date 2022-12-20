@@ -1,12 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
+  <PropertyGroup Label="Package">
     <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     <SpaDistFolder>..\Indice.Features.Cases.App\dist\cases-app</SpaDistFolder>
-    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;</TargetFrameworks>
-    <!--<Version>7.0.0-beta01</Version>-->
-  </PropertyGroup>
-  <PropertyGroup Label="Package">
+    <!--<Version>7.0.0-beta02</Version>-->
     <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
     <PackageTags>AspNetCore;Cases;CaseManagement</PackageTags>
   </PropertyGroup>

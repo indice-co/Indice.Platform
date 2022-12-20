@@ -1,25 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>
-  </PropertyGroup>
   <PropertyGroup Label="Package">
+    <TargetFrameworks>netstandard2.1;net5.0;net6.0;net7.0;</TargetFrameworks>
     <PackageTags>Background Tasks;Hosting;Hosted Services</PackageTags>
-    <PackageReleaseNotes>Update Indice.Services.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Services" Version="$(VersionPrefix)" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.0" />
-    <PackageReference Include="Quartz" Version="3.4.0" />
+    <PackageReference Include="Quartz" Version="3.5.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.1" />
+  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.12" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.28" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.32" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />

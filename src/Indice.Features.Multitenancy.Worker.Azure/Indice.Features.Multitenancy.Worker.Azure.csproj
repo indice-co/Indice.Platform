@@ -1,22 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net5.0;net6.0;</TargetFrameworks>
-  </PropertyGroup>
   <PropertyGroup Label="Package">
+    <TargetFrameworks>net5.0;net6.0;net7.0;</TargetFrameworks>
     <PackageTags>Multitenancy;Functions;Azure;</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Features.Multitenancy.Core" Version="$(VersionPrefix)" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefix)" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.6.0" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.8.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Multitenancy.Core\Indice.Features.Multitenancy.Core.csproj" />

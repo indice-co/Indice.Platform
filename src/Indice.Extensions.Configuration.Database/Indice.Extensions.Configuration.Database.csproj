@@ -1,8 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-  </PropertyGroup>
-  <PropertyGroup>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Configuration;Settings;EntityFrameworkCore</PackageTags>
   </PropertyGroup>
@@ -13,14 +10,17 @@
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefix)" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefix)" />
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.1" />
+  </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.12" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.28" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.32" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
