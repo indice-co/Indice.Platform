@@ -1,4 +1,5 @@
-﻿using Indice.Features.Cases.Interfaces;
+﻿using System.Globalization;
+using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Services;
 using Microsoft.Extensions.Configuration;
 
@@ -62,6 +63,7 @@ public class JsonTranslationServiceTest
     [Fact]
     public void Translate_DateTimeValue_ValueNotChanged() {
         var date = DateTime.UtcNow;
+        CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
         var layout = "[{\"section\":\"test\",\"someDate\":\"" + date + "\"}]";
         var translations = _service.Translate(layout, Translations, "en");
         Assert.Equal("[{\"section\":\"test\",\"someDate\":\"" + date + "\"}]", translations);

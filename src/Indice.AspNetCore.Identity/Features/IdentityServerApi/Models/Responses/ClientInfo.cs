@@ -94,7 +94,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         public string ClientClaimsPrefix { get; set; }
         /// <summary>Specifies logout URI at client for HTTP back-channel based logout.</summary>
         public string BackChannelLogoutUri { get; set; }
-        /// <summary>If the user's session id should be sent.</summary>
+        /// <summary>If the user's session id should be sent to the <see cref="FrontChannelLogoutUri"/>. Defaults to true</summary>
         public bool BackChannelLogoutSessionRequired { get; set; }
         /// <summary>Gets or sets the type of the device flow user code.</summary>
         public string UserCodeType { get; set; }
