@@ -1,5 +1,6 @@
 ﻿namespace Indice.Features.Cases.Data.Models
 {
+#pragma warning disable 1591
     public class DbCaseTypeCategory
     {
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -8,4 +9,5 @@
         public int? Order { get; set; }
         public string? Translations { get; set; }
     }
+#pragma warning restore 1591
 }
