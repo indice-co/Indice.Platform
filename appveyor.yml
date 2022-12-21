@@ -7,11 +7,10 @@ image: Visual Studio 2022
 install:
  - ps: Install-Product node 16.13.0
 before_build:
- - ps: dotnet restore
-build:
-  verbosity: minimal
+- ps: dotnet restore
+build_script:
+- ps: dotnet pack -c Release -o artifacts
+test_script:
+- ps: dotnet test
 artifacts:
-- path: ./artifacts/*
-  name: Nuget
-after_build:
-- pwsh: ./pack.ps1
+- path: artifacts\*.nupkg

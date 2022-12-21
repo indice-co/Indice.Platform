@@ -13,7 +13,6 @@
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefix)" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefix)" />
     <PackageReference Include="Markdig" Version="0.30.4" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta14" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.4.0" />
   </ItemGroup>

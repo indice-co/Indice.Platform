@@ -1,0 +1,11 @@
+<Project>
+    <PropertyGroup Label="Assembly Common">
+      <Copyright>Copyright (c) Indice</Copyright>
+      <LangVersion>Latest</LangVersion>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>disable</Nullable>
+    </PropertyGroup>
+    <PropertyGroup Label="Package Common">
+      <IsPackable>false</IsPackable>
+  </PropertyGroup>
+</Project>
