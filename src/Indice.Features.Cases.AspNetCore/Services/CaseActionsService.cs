@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using Elsa.Models;
 using Elsa.Persistence;
 using Elsa.Persistence.Specifications;
 using Elsa.Services;
-using IdentityModel;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
@@ -48,7 +43,7 @@ namespace Indice.Features.Cases.Services
             var isAssignedToCurrentUser = @case.AssignedTo?.Id == user.FindSubjectId();
 
             var userRoles = user
-                .FindAll(claim => claim.Type == JwtClaimTypes.Role)
+                .FindAll(claim => claim.Type == BasicClaimTypes.Role)
                 .Select(claim => claim.Value)
                 .ToList();
 

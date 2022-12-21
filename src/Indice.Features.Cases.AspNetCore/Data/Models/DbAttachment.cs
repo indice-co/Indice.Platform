@@ -1,10 +1,9 @@
-﻿using System;
-using System.IO;
-using Indice.Extensions;
+﻿using Indice.Extensions;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Cases.Data.Models
 {
+#pragma warning disable 1591
     public class DbAttachment
     {
         public DbAttachment() {
@@ -62,4 +61,5 @@ namespace Indice.Features.Cases.Data.Models
             }
         }
     }
+#pragma warning restore 1591
 }

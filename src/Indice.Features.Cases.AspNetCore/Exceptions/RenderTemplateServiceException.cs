@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Indice.Features.Cases.Exceptions
+﻿namespace Indice.Features.Cases.Exceptions
 {
     /// <summary>
     /// Exception type for invalid template rendering.

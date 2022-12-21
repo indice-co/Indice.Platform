@@ -1,7 +1,5 @@
-﻿using System;
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Interfaces;

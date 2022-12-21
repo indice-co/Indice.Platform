@@ -1,8 +1,8 @@
-﻿@inject IAccessTokenManagementService AccessTokenManagementService
+﻿@inject UserAccessAccessTokenManagementService AccessTokenManagementService
 
 @{
     ViewData["Title"] = "Users Page";
-    var accessToken = await AccessTokenManagementService.GetUserAccessTokenAsync();
+    var accessToken = await AccessTokenManagementService.GetUserAccessTokenAsync(User);
 }
 
 @model SummaryInfo

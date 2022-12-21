@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Mime;
-using System.Threading.Tasks;
+﻿using System.Net.Mime;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;

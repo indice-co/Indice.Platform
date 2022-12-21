@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Reflection;
-using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Hellang.Middleware.ProblemDetails;
 using IdentityModel;
 using Indice.AspNetCore.Identity.Api.Security;
@@ -19,34 +17,37 @@ using Indice.Identity.Services;
 using Indice.Security;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace Indice.Identity
 {
+    /// <summary>Bootstrap class for the application.</summary>
     public class Startup
     {
+        /// <summary>Creates a new instance of <see cref="Startup"/>.</summary>
+        /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public Startup(IWebHostEnvironment hostingEnvironment, IConfiguration configuration) {
             HostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
             Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             Settings = Configuration.GetSection(GeneralSettings.Name).Get<GeneralSettings>();
         }
 
+        /// <summary>Provides information about the web hosting environment an application is running in.</summary>
         public IWebHostEnvironment HostingEnvironment { get; }
+        /// <summary>Represents a set of key/value application configuration properties.</summary>
         public IConfiguration Configuration { get; }
+        /// <summary>General settings for an ASP.NET Core application.</summary>
         public GeneralSettings Settings { get; }
+        /// <summary>Represents a type used to perform logging.</summary>
         public ILogger<Startup> Logger { get; }
         public bool HasSignalRConnection { get; private set; }
 
+        /// <summary>This method gets called by the runtime. Use this method to add services to the container.</summary>
+        /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         public void ConfigureServices(IServiceCollection services) {
             // https://docs.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core#using-applicationinsightsserviceoptions
             var aiOptions = new ApplicationInsightsServiceOptions();
@@ -118,6 +119,10 @@ namespace Indice.Identity
                     options.ConnectionString = signalRServiceConnection;
                 });
             }
+            services.AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
+            services.AddFluentValidationAutoValidation();
+            services.AddValidatorsFromAssemblyContaining<Startup>();
+            services.AddFluentValidationClientsideAdapters();
             //services.AddClientIpRestrinctions();
             //services.AddClientIpRestrinctions(options => {
             //    options.StatusCodeOnAccessDenied = System.Net.HttpStatusCode.NotFound;
@@ -128,6 +133,8 @@ namespace Indice.Identity
             //});
         }
 
+        /// <summary>This method gets called by the runtime. Use this method to configure the HTTP request pipeline.</summary>
+        /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         public void Configure(IApplicationBuilder app) {
             if (HostingEnvironment.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();

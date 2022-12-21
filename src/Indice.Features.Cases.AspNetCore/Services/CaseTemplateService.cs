@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-using Indice.Features.Cases.Exceptions;
+﻿using Indice.Features.Cases.Exceptions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models.Responses;
 using Microsoft.AspNetCore.Http;

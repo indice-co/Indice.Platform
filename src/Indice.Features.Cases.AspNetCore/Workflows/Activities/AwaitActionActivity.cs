@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Elsa;
+﻿using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Design;
@@ -139,6 +137,9 @@ namespace Indice.Features.Cases.Workflows.Activities
         )]
         public bool ShowInput { get; set; }
 
+        /// <summary>
+        /// The output probably
+        /// </summary>
         [ActivityOutput]
         public object Output { get; set; }
 

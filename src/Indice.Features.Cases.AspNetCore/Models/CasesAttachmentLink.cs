@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.Extensions;
+﻿using Indice.Extensions;
 
 namespace Indice.Features.Cases.Models
 {

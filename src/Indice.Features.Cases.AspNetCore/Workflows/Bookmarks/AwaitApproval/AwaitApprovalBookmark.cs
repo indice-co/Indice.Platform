@@ -1,5 +1,4 @@
-﻿using System;
-using Elsa.Attributes;
+﻿using Elsa.Attributes;
 using Elsa.Services;
 using Indice.Features.Cases.Workflows.Activities;
 

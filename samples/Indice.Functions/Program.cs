@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Indice.Features.Multitenancy.Core;
+﻿using Indice.Features.Multitenancy.Core;
 using Indice.Sample.Common.Data;
 using Indice.Sample.Common.Models;
 using Indice.Sample.Common.Services;

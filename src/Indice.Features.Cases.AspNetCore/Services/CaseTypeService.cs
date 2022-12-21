@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using IdentityModel;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Interfaces;
@@ -50,7 +45,7 @@ namespace Indice.Features.Cases.Services
             }
 
             var roleClaims = user.Claims
-                .Where(c => c.Type == JwtClaimTypes.Role)
+                .Where(c => c.Type == BasicClaimTypes.Role)
                 .Select(c => c.Value)
                 .ToList();
 

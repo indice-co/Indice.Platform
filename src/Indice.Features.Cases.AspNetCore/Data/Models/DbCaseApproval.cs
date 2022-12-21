@@ -1,8 +1,8 @@
-﻿using System;
-using Indice.Features.Cases.Models;
+﻿using Indice.Features.Cases.Models;
 
 namespace Indice.Features.Cases.Data.Models
 {
+#pragma warning disable 1591
     public class DbCaseApproval
     {
         public Guid Id { get; set; }
@@ -18,4 +18,5 @@ namespace Indice.Features.Cases.Data.Models
         public virtual DbCase Case { get; set; }
         public virtual DbComment Comment { get; set; }
     }
+#pragma warning restore 1591
 }

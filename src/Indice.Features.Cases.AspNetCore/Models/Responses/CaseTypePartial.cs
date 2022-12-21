@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Indice.Types;
+﻿using Indice.Types;
 
 namespace Indice.Features.Cases.Models.Responses
 {

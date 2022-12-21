@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Indice.Features.Cases.Models
+﻿namespace Indice.Features.Cases.Models
 {
     /// <summary>
     /// The available actions for a user, depending on his role and checkpoint of the case.
