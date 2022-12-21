@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.Features.Cases.Data.Models
+﻿namespace Indice.Features.Cases.Data.Models
 {
     public class DbCaseTypeCategory
     {

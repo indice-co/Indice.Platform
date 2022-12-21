@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Indice.Features.Cases.Models.Responses
+﻿namespace Indice.Features.Cases.Models.Responses
 {
     /// <summary>
     /// The case type details model.

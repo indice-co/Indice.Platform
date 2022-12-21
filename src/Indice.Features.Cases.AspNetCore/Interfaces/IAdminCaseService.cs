@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;

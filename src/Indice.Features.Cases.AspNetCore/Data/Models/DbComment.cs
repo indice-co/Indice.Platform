@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Indice.Features.Cases.Data.Models
+﻿namespace Indice.Features.Cases.Data.Models
 {
     public class DbComment
     {

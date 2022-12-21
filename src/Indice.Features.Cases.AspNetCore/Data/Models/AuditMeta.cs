@@ -1,6 +1,4 @@
-﻿using System;
-using System.Security.Claims;
-using IdentityModel;
+﻿using System.Security.Claims;
 using Indice.Security;
 
 namespace Indice.Features.Cases.Data.Models
@@ -61,8 +59,8 @@ namespace Indice.Features.Cases.Data.Models
 
         private static AuditMeta Populate(AuditMeta meta, ClaimsPrincipal user, DateTimeOffset? now = null) {
             meta = meta ?? new AuditMeta();
-            meta.Id = user.FindFirstValue(JwtClaimTypes.Subject);
-            meta.Email = user.FindFirstValue(JwtClaimTypes.Email);
+            meta.Id = user.FindFirstValue(BasicClaimTypes.Subject);
+            meta.Email = user.FindFirstValue(BasicClaimTypes.Email);
             meta.Name = $"{user.FindFirstValue(BasicClaimTypes.GivenName)} {user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim();
             meta.When = now ?? DateTimeOffset.UtcNow;
             return meta;

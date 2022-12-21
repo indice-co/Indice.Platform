@@ -92,5 +92,7 @@ namespace Indice.Security
             Admin,
             PasswordExpirationDate
         };
+        /// <summary>The scopes.</summary>
+        public const string Scope = "scope";
     }
 }

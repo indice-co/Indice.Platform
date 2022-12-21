@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.Configuration;
+﻿using Indice.Configuration;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Models;
 using Microsoft.EntityFrameworkCore;

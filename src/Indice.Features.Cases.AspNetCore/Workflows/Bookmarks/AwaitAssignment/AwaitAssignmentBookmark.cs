@@ -1,5 +1,4 @@
-﻿using System;
-using Elsa.Services;
+﻿using Elsa.Services;
 using Indice.Features.Cases.Workflows.Activities;
 
 namespace Indice.Features.Cases.Workflows.Bookmarks.AwaitAssignment

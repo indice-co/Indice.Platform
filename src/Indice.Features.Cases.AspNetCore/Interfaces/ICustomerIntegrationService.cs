@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Indice.Features.Cases.Models;
+﻿using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 
 namespace Indice.Features.Cases.Interfaces

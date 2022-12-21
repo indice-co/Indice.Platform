@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Indice.Features.Cases.Models
+﻿namespace Indice.Features.Cases.Models
 {
     /// <summary>
     /// The request that triggers an action.

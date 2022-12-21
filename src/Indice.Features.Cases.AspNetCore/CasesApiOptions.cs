@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.Security;
+﻿using Indice.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases

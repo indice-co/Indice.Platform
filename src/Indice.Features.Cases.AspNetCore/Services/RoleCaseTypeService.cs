@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using IdentityModel;
+﻿using System.Security.Claims;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Exceptions;
 using Indice.Features.Cases.Interfaces;
@@ -38,7 +33,7 @@ namespace Indice.Features.Cases.Services
             }
 
             // if client is systemic, then bypass checks
-            if ((user.HasClaim(JwtClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
+            if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
                 // we have to convert from CheckpointTypeNames e.g. "Approved" to CheckpointTypeCodes e.g. "CaseX:Approved"!
                 filter.CheckpointTypeCodes = await ApplyAdminCheckpointTypeFilter(filter.CheckpointTypeCodes);
                 return filter;
@@ -52,8 +47,8 @@ namespace Indice.Features.Cases.Services
 
             // TODO: admin is not enough, we probably need to get the "get all cases" role from config
             if (!user.IsAdmin()
-               && ((filter.CaseTypeCodes == null || filter.CaseTypeCodes.Count() == 0)
-               || (filter.CheckpointTypeCodes == null || filter.CheckpointTypeCodes.Count() == 0))) {
+               && ((filter.CaseTypeCodes == null || filter.CaseTypeCodes.Count == 0)
+               || (filter.CheckpointTypeCodes == null || filter.CheckpointTypeCodes.Count == 0))) {
                 // if the user is not an Admin, and comes with no available caseTypes or CheckpointTypes to see, 
                 // tough luck!
                 throw new ResourceUnauthorizedException("User has access to no cases");
@@ -67,7 +62,7 @@ namespace Indice.Features.Cases.Services
             if (user is null) throw new ArgumentNullException(nameof(user));
 
             // if client is systemic, then bypass checks
-            if ((user.HasClaim(JwtClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, caseDetails)) {
+            if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, caseDetails)) {
                 return true;
             }
 
@@ -87,7 +82,7 @@ namespace Indice.Features.Cases.Services
         }
 
         private async Task<List<string>> ApplyAdminCheckpointTypeFilter(List<string> checkpointTypeCodes) {
-            if (checkpointTypeCodes == null || checkpointTypeCodes.Count() == 0) {
+            if (checkpointTypeCodes == null || checkpointTypeCodes.Count == 0) {
                 return checkpointTypeCodes;
             }
             var codes = await _dbContext.CheckpointTypes
@@ -109,8 +104,7 @@ namespace Indice.Features.Cases.Services
             // fuzzy match the CheckPointType Code
             var allowedRelativeCheckpointTypeCodes = checkpointTypeCodes != null
                 ? allowedCheckpointTypeCodes
-                    .Where(code => checkpointTypeCodes
-                                        .Any(name => code.EndsWith($":{name}")))
+                    .Where(code => checkpointTypeCodes.Any(name => code == name))
                     .ToList()
                 : Enumerable.Empty<string>();
             return checkpointTypeCodes is null ? allowedCheckpointTypeCodes : allowedCheckpointTypeCodes.Intersect(allowedRelativeCheckpointTypeCodes).ToList();
@@ -154,7 +148,7 @@ namespace Indice.Features.Cases.Services
 
         private List<string> GetRoleClaims(ClaimsPrincipal user) {
             return user.Claims
-                    .Where(c => c.Type == JwtClaimTypes.Role)
+                    .Where(c => c.Type == BasicClaimTypes.Role)
                     .Select(c => c.Value)
                     .ToList();
         }
