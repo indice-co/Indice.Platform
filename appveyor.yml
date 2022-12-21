@@ -10,5 +10,8 @@ before_build:
  - ps: dotnet restore
 build:
   verbosity: minimal
+artifacts:
+- path: ./artifacts/*
+  name: Nuget
 after_build:
 - pwsh: ./pack.ps1
