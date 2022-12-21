@@ -137,6 +137,9 @@ namespace Indice.Features.Cases.Workflows.Activities
         )]
         public bool ShowInput { get; set; }
 
+        /// <summary>
+        /// The output probably
+        /// </summary>
         [ActivityOutput]
         public object Output { get; set; }
 

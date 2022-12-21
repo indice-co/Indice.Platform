@@ -86,7 +86,7 @@ namespace Indice.Features.Cases.Services
             // which we catch and return an empty resultset. 
             try {
                 options.Filter = await _roleCaseTypeProvider.Filter(user, options.Filter);
-            } catch (ResourceUnauthorizedException rue) {
+            } catch (ResourceUnauthorizedException) {
                 return new List<CasePartial>().ToResultSet();
             }
 
