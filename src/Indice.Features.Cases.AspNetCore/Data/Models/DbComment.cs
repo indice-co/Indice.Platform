@@ -1,5 +1,6 @@
 ﻿namespace Indice.Features.Cases.Data.Models
 {
+#pragma warning disable 1591
     public class DbComment
     {
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -13,4 +14,5 @@
         public virtual DbCase Case { get; set; }
         public virtual DbAttachment Attachment { get; set; }
     }
+#pragma warning restore 1591
 }

@@ -1,5 +1,6 @@
 ﻿namespace Indice.Features.Cases.Data.Models
 {
+#pragma warning disable 1591
     public class DbCase
     {
         public Guid Id { get; set; }
@@ -25,4 +26,5 @@
         public virtual List<DbCaseData> CaseData { get; set; } = new List<DbCaseData>();
         public virtual List<DbCaseApproval> Approvals { get; set; } = new List<DbCaseApproval>();
     }
+#pragma warning restore 1591
 }

@@ -1,5 +1,6 @@
 ﻿namespace Indice.Features.Cases.Data.Models
 {
+#pragma warning disable 1591
     public class DbRoleCaseType
     {
         public Guid Id { get; set; }
@@ -9,4 +10,5 @@
         public virtual DbCaseType CaseType { get; set; }
         public virtual DbCheckpointType CheckpointType { get; set; }
     }
+#pragma warning restore 1591
 }
