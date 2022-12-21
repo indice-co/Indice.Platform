@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Hellang.Middleware.ProblemDetails;
+using IdentityModel;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Events;
@@ -15,6 +16,7 @@ using Indice.Identity.Configuration;
 using Indice.Identity.Hubs;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
+using Indice.Security;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.AspNetCore.Builder;
@@ -61,6 +63,13 @@ namespace Indice.Identity
                        .WithExposedHeaders("Content-Disposition");
             }));
             services.AddAuthenticationConfig(Configuration);
+            services.AddAuthorization(options => {
+                options.AddPolicy("BeDeviceAuthenticated", policy => {
+                    policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                          .RequireAuthenticatedUser()
+                          .RequireAssertion(context => context.User.HasScope(IdentityServerApi.Scope) && context.User.HasClaim(JwtClaimTypes.AuthenticationMethod, CustomGrantTypes.DeviceAuthentication));
+                });
+            });
             services.AddIdentityConfig(Configuration);
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
             services.AddProblemDetailsConfig(HostingEnvironment);

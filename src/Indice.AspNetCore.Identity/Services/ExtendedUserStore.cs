@@ -190,7 +190,7 @@ namespace Indice.AspNetCore.Identity.Data
             ThrowIfDisposed();
             return await UserDeviceSet
                 .Include(device => device.User)
-                .Where(device => device.UserId == user.Id && device.IsTrusted)
+                .Where(device => device.UserId == user.Id && device.IsTrusted && !device.Blocked)
                 .ToListAsync(cancellationToken);
         }
 
@@ -200,7 +200,7 @@ namespace Indice.AspNetCore.Identity.Data
             ThrowIfDisposed();
             return await UserDeviceSet
                 .Include(device => device.User)
-                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)))
+                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)) && !device.Blocked)
                 .ToListAsync(cancellationToken);
         }
 
@@ -216,8 +216,15 @@ namespace Indice.AspNetCore.Identity.Data
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             return await UserDevices
-                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)))
+                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)) && !device.Blocked)
                 .CountAsync(device => device.UserId == user.Id, cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<int> GetTrustedDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            return await UserDeviceSet.Where(device => device.UserId == user.Id && device.IsTrusted && !device.Blocked).CountAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -262,13 +269,6 @@ namespace Indice.AspNetCore.Identity.Data
                 return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
             }
             return IdentityResult.Success;
-        }
-
-        /// <inheritdoc/>
-        public async Task<int> GetTrustedDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            return await UserDeviceSet.Where(device => device.UserId == user.Id && device.IsTrusted).CountAsync(cancellationToken);
         }
     }
 }

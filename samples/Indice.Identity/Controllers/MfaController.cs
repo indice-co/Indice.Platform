@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity;
-using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Configuration;
@@ -114,15 +113,14 @@ namespace Indice.Identity.Controllers
             return NoContent();
         }
 
-        // TODO: Consider authorizing the endpoint.
-        [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
+        [Authorize(Policy = "BeDeviceAuthenticated")]
         [HttpPost("api/login/approve")]
         public async Task<IActionResult> ApproveLogin([FromBody] ApproveLoginRequest request) {
             await _hubContext.Clients.Client(request.ConnectionId).SendAsync(nameof(MultiFactorAuthenticationHub.LoginApproved), request.Otp);
             return NoContent();
         }
 
-        // TODO: Consider authorizing the endpoint.
+        [Authorize(Policy = "BeDeviceAuthenticated")]
         [HttpPost("api/login/reject")]
         public IActionResult RejectLogin([FromBody] RejectLoginRequest request) {
             return NoContent();
