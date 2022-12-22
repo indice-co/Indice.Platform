@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Indice.Features.Cases.Models
+﻿namespace Indice.Features.Cases.Models
 {
     /// <summary>
     /// Options used to filter the list of MyCaseTypes.

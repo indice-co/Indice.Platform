@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Elsa.Models;
+﻿using Elsa.Models;
 using Elsa.Persistence;
 using Elsa.Services;
 using Indice.Features.Cases.Data.Models;
@@ -44,8 +42,8 @@ namespace Indice.Features.Cases.Handlers
                 new WorkflowInput(@event.Case.Id),
                 @event.Case.Id.ToString());
 
-            if (instance.WorkflowInstance?.Fault != null) {
-                throw new Exception(instance.WorkflowInstance?.Fault.Message);
+            if (instance.WorkflowInstance?.Faults is { Count: > 0 }) {
+                throw new Exception(instance.WorkflowInstance?.Faults.FirstOrDefault()?.Message);
             }
         }
     }

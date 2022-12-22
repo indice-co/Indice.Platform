@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Elsa.Persistence;
+﻿using Elsa.Persistence;
 using Elsa.Services;
 using Elsa.Services.Models;
-using IdentityModel;
 using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
 using Indice.Features.Cases.Workflows.Interfaces;
+using Indice.Security;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Cases.Workflows.Services
@@ -36,7 +31,7 @@ namespace Indice.Features.Cases.Workflows.Services
             var instance = await GetWorkflowInstanceByCaseId(caseId, cancellationToken);
 
             var userRoles = _httpContextAccessor.HttpContext.User
-                .FindAll(x => x.Type == JwtClaimTypes.Role)
+                .FindAll(x => x.Type == BasicClaimTypes.Role)
                 .Select(claim => claim.Value)
                 .ToList();
 

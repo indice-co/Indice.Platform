@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using Indice.Features.Cases.Data.Models;
 
 namespace Indice.Features.Cases.Interfaces

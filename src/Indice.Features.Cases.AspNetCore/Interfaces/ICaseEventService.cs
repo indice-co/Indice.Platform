@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Indice.Features.Cases.Interfaces
+﻿namespace Indice.Features.Cases.Interfaces
 {
     /// <summary>
     /// Models the event mechanism used to raise events inside the case service.

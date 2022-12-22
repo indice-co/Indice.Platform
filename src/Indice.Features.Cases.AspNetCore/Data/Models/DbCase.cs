@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Indice.Features.Cases.Data.Models
+﻿namespace Indice.Features.Cases.Data.Models
 {
+#pragma warning disable 1591
     public class DbCase
     {
         public Guid Id { get; set; }
@@ -28,4 +26,5 @@ namespace Indice.Features.Cases.Data.Models
         public virtual List<DbCaseData> CaseData { get; set; } = new List<DbCaseData>();
         public virtual List<DbCaseApproval> Approvals { get; set; } = new List<DbCaseApproval>();
     }
+#pragma warning restore 1591
 }

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using IdentityModel;
+﻿using System.Security.Claims;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Interfaces;
+using Indice.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases.Services
@@ -35,7 +31,7 @@ namespace Indice.Features.Cases.Services
             if (string.IsNullOrEmpty(groupId)) {
                 throw new Exception($"No Group found for user: {user.Identity?.Name}");
             }
-            var email = user.FindFirstValue(JwtClaimTypes.Email);
+            var email = user.FindFirstValue(BasicClaimTypes.Email);
             var entitiesToRemove = await _dbContext.CaseTypeNotificationSubscription
                 .AsQueryable()
                 .Where(u => u.Email == email)
@@ -57,7 +53,7 @@ namespace Indice.Features.Cases.Services
             if (string.IsNullOrEmpty(groupId)) {
                 throw new Exception($"No Group found for user: {user?.Identity?.Name}");
             }
-            var email = user.FindFirstValue(JwtClaimTypes.Email);
+            var email = user.FindFirstValue(BasicClaimTypes.Email);
             return await _dbContext.CaseTypeNotificationSubscription
                 .AsQueryable()
                 .AnyAsync(p => p.Email == email && p.GroupId == groupId);
@@ -68,7 +64,7 @@ namespace Indice.Features.Cases.Services
             if (string.IsNullOrEmpty(groupId)) {
                 throw new Exception($"No Group found for user: {user?.Identity?.Name}");
             }
-            var email = user.FindFirstValue(JwtClaimTypes.Email);
+            var email = user.FindFirstValue(BasicClaimTypes.Email);
             var entitiesToRemove = await _dbContext.CaseTypeNotificationSubscription
                 .AsQueryable()
                 .Where(u => u.Email == email)

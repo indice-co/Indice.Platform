@@ -7,8 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Indice.Features.Multitenancy.Core" Version="$(VersionPrefix)" />
     <PackageReference Include="Indice.Services" Version="$(VersionPrefix)" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.8.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.10.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />

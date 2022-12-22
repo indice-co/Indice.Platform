@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Events;
@@ -90,7 +86,7 @@ namespace Indice.Features.Cases.Services
             // which we catch and return an empty resultset. 
             try {
                 options.Filter = await _roleCaseTypeProvider.Filter(user, options.Filter);
-            } catch (ResourceUnauthorizedException rue) {
+            } catch (ResourceUnauthorizedException) {
                 return new List<CasePartial>().ToResultSet();
             }
 

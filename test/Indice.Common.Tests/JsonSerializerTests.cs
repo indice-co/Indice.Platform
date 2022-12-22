@@ -186,7 +186,7 @@ namespace Indice.Common.Tests
             var actualJson = JsonSerializer.Serialize(model, options);
             Assert.Equal(expectedJson, actualJson);
             var modelDictionary = JsonSerializer.Deserialize<Dictionary<string, object>>(actualJson, options);
-            Assert.Equal(((JsonElement)modelDictionary["person"]).GetRawText(), "\"37.9888529,23.7037796\"");
+            Assert.Equal("\"37.9888529,23.7037796\"", ((JsonElement)modelDictionary["person"]).GetRawText());
         }
 
         [Fact]

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Indice.Features.Cases.Models
+﻿namespace Indice.Features.Cases.Models
 {
     /// <summary>
     /// The case type request model.

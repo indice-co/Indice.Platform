@@ -35,8 +35,9 @@ namespace Indice.Features.GovGr.Tests
             var data = await govGR.Kyc(clientId: null, clientSecret: null, redirectUri: null, environment: "Mock").GetDataAsync("123");
             Assert.NotNull(data);
         }
+
         [Fact]
-        public async Task CreateKycClient() {
+        public void CreateKycClient() {
             /// TODO do something meaningful
             var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
             var govGR = ServiceProvider.GetRequiredService<GovGrClient>();

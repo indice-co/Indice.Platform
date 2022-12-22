@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Threading.Tasks;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 

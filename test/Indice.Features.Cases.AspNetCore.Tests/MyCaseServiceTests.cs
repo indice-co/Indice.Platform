@@ -1,23 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
-using Castle.Core.Configuration;
-using IdentityModel;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Resources;
 using Indice.Features.Cases.Services;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
-using Moq;
-using Xunit;
 
 namespace Indice.Features.Cases.Tests
 {
@@ -69,11 +64,11 @@ namespace Indice.Features.Cases.Tests
 
         private static ClaimsPrincipal User() {
             var claims = new List<Claim> {
-                    new Claim(JwtClaimTypes.Scope, CasesApiConstants.Scope),
-                    new Claim(JwtClaimTypes.Subject, "ab9769f1-d532-4b7d-9922-3da003157ebd"),
-                    new Claim(JwtClaimTypes.Email, "Case API"),
-                    new Claim(JwtClaimTypes.GivenName, "Case API"),
-                    new Claim(JwtClaimTypes.FamilyName, "Case API"),
+                    new Claim(BasicClaimTypes.Scope, CasesApiConstants.Scope),
+                    new Claim(BasicClaimTypes.Subject, "ab9769f1-d532-4b7d-9922-3da003157ebd"),
+                    new Claim(BasicClaimTypes.Email, "Case API"),
+                    new Claim(BasicClaimTypes.GivenName, "Case API"),
+                    new Claim(BasicClaimTypes.FamilyName, "Case API"),
                 };
             var identity = new ClaimsIdentity(claims, "Basic"); // By setting "Basic" we are making the identity "Authenticated" so we can user user.IsAuthenticated() property later in our code
             return new ClaimsPrincipal(identity);

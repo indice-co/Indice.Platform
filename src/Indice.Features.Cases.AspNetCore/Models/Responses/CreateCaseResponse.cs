@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Indice.Features.Cases.Models.Responses
+﻿namespace Indice.Features.Cases.Models.Responses
 {
     /// <summary>
     /// The response payload when creating a case.

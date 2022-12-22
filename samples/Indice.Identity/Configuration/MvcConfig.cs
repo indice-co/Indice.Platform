@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Data.Models;
@@ -81,10 +82,6 @@ namespace Microsoft.Extensions.DependencyInjection
                                          options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                                          options.JsonSerializerOptions.Converters.Add(new JsonAnyStringConverter());
                                          options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-                                     })
-                                     .AddFluentValidation(options => {
-                                         options.RegisterValidatorsFromAssemblyContaining<Startup>();
-                                         options.ConfigureClientsideValidation();
                                      })
                                      .AddAvatars(options => {
                                          options.TileSizes = new[] { 129 };

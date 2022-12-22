@@ -3,7 +3,7 @@
     <Description>Indice Case Management System</Description>
     <RootNamespace>Indice.Features.Cases</RootNamespace>
     <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
-    <!--<Version>7.0.0-beta01</Version>-->
+    <Version>6.4.0-beta01</Version>
     <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
   </PropertyGroup>
@@ -19,11 +19,9 @@
     <PackageReference Include="Elsa.Designer.Components.Web" Version="2.9.2" />
     <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.9.2" />
     <PackageReference Include="Elsa.Server.Api" Version="2.9.2" />
-    <PackageReference Include="IdentityModel" Version="6.0.0" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefix)" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefix)" />
     <PackageReference Include="JsonSchema.Net" Version="3.3.2" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.1" />
