@@ -57,10 +57,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                          options.ClientErrorMapping[401].Link = "https://httpstatuses.com/401";
                                          options.ClientErrorMapping[403].Link = "https://httpstatuses.com/403";
                                          options.ClientErrorMapping[404].Link = "https://httpstatuses.com/404";
-                                         options.ClientErrorMapping.Add(405, new ClientErrorData {
-                                             Link = "https://httpstatuses.com/405",
-                                             Title = "Method Not Allowed"
-                                         });
+                                         options.ClientErrorMapping[404].Link = "https://httpstatuses.com/405";
                                          options.ClientErrorMapping[406].Link = "https://httpstatuses.com/406";
                                          options.ClientErrorMapping[409].Link = "https://httpstatuses.com/409";
                                          options.ClientErrorMapping.Add(429, new ClientErrorData {
