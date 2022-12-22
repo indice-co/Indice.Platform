@@ -1,3 +1,10 @@
+#!/usr/bin/env bash
+
+# Clean and build in release
+dotnet restore /nowarn:netsdk1138
+dotnet clean
+dotnet build -c Release
+
 # Create all NuGet packages
 
 dotnet pack src/Indice.AspNetCore/Indice.AspNetCore.csproj --no-build -c Release -o ./artifacts
