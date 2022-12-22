@@ -3,7 +3,6 @@
     <Description>Indice Case Management System</Description>
     <RootNamespace>Indice.Features.Cases</RootNamespace>
     <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
-    <Version>6.4.0-beta01</Version>
     <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
   </PropertyGroup>
