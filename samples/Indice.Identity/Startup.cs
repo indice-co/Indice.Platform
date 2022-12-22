@@ -17,6 +17,7 @@ using Indice.Identity.Services;
 using Indice.Security;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Net.Http.Headers;
@@ -68,7 +69,12 @@ namespace Indice.Identity
                 options.AddPolicy("BeDeviceAuthenticated", policy => {
                     policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
                           .RequireAuthenticatedUser()
-                          .RequireAssertion(context => context.User.HasScope(IdentityServerApi.Scope) && context.User.HasClaim(JwtClaimTypes.AuthenticationMethod, CustomGrantTypes.DeviceAuthentication));
+                          .RequireAssertion(context =>
+                              context.User.HasScope(IdentityServerApi.Scope) && (
+                                  context.User.HasClaim(JwtClaimTypes.AuthenticationMethod, CustomGrantTypes.DeviceAuthentication) ||
+                                 (context.User.IsAdmin() && !HostingEnvironment.IsProduction())
+                              )
+                          );
                 });
             });
             services.AddIdentityConfig(Configuration);
@@ -78,6 +84,9 @@ namespace Indice.Identity
             services.AddSmsServiceYubotoOmni(Configuration);
             services.AddEmailServiceSparkpost(Configuration)
                     .WithMvcRazorRendering();
+            services.Configure<AntiforgeryOptions>(options => {
+                options.HeaderName = "X-XSRF-TOKEN";
+            });
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddFluentValidationSupport();

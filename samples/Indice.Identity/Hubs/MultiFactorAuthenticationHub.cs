@@ -1,10 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
-using Indice.AspNetCore.Identity;
+﻿using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Api.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Hubs
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using IdentityServer4.Services;
+﻿using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data.Models;
@@ -13,7 +11,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Controllers
 {
@@ -73,7 +70,7 @@ namespace Indice.Identity.Controllers
 
         [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.TwoFactorUserIdScheme)]
         [HttpPost("login/mfa")]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index([FromForm] MfaLoginInputModel form) {
             var totpService = _totpServiceFactory.Create<User>();
             var signInResult = await _signInManager.TwoFactorSignInAsync(totpService.TokenProvider, form.OtpCode, form.RememberMe, form.RememberClient);
@@ -93,7 +90,7 @@ namespace Indice.Identity.Controllers
 
         [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.TwoFactorUserIdScheme)]
         [HttpPost("login/mfa/notify")]
-        // TODO: Configure anti-forgery token.
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendPushNotification([FromBody] MfaLoginPushNotificationRequest request) {
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             if (user is null) {
