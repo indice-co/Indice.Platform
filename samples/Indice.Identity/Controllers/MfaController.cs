@@ -106,7 +106,7 @@ namespace Indice.Identity.Controllers
                        .WithPurpose(TotpConstants.TokenGenerationPurpose.MultiFactorAuthentication)
                        .WithClassification("MFA-Approval")
             );
-            _logger.LogInformation("Sending push notification to connection: '{ConnectionId}'", request.ConnectionId);
+            _logger.LogInformation("Sending push notification to connection: '{ConnectionId}'.", request.ConnectionId);
             return NoContent();
         }
 
