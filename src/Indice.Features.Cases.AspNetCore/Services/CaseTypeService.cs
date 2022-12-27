@@ -41,7 +41,7 @@ namespace Indice.Features.Cases.Services
 
         public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool canCreate) {
             if (user.IsAdmin()) {
-                return await GetAdminCases();
+                return await GetAdminCaseTypes();
             }
 
             var roleClaims = user.Claims
@@ -250,7 +250,7 @@ namespace Indice.Features.Cases.Services
             return await _dbContext.CaseTypes.AsQueryable().AnyAsync(c => c.Code == caseTypeCode);
         }
 
-        private async Task<ResultSet<CaseTypePartial>> GetAdminCases() {
+        private async Task<ResultSet<CaseTypePartial>> GetAdminCaseTypes() {
             var caseTypes = await _dbContext.CaseTypes
                 .AsQueryable()
                     .Select(c => new CaseTypePartial {

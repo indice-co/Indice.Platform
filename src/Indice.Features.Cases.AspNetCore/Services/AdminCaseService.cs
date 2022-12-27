@@ -112,6 +112,7 @@ namespace Indice.Features.Cases.Services
                     },
                     Metadata = @case.Metadata,
                     GroupId = @case.GroupId,
+                    CheckpointTypeId = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Id,
                     CheckpointTypeCode = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Code,
                     AssignedToName = @case.AssignedTo.Name
                 });
@@ -131,13 +132,12 @@ namespace Indice.Features.Cases.Services
             }
             // filter CaseTypeCodes
             if (options.Filter.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Count() > 0) {
-                // you can reach this with an empty array only if you are admin
+                // you can reach this with an empty array only if you are admin/systemic user
                 query = query.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
             }
-            // also: filter CheckpointTypeCodes
-            if (options.Filter.CheckpointTypeCodes != null && options.Filter.CheckpointTypeCodes.Count() > 0) {
-                // you can reach this with an empty array only if you are admin
-                query = query.Where(c => options.Filter.CheckpointTypeCodes.Contains(c.CheckpointTypeCode));
+            // also: filter CheckpointTypeIds
+            if (options.Filter.CheckpointTypeIds is not null && options.Filter.CheckpointTypeIds.Count() > 0) {
+                query = query.Where(c => options.Filter.CheckpointTypeIds.Contains(c.CheckpointTypeId.ToString()));
             }
             // filter by group ID, if it is present
             if (options.Filter.GroupIds != null && options.Filter.GroupIds.Count() > 0) {
