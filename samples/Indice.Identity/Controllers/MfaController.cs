@@ -71,18 +71,18 @@ namespace Indice.Identity.Controllers
         [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.TwoFactorUserIdScheme)]
         [HttpPost("login/mfa")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index([FromForm] MfaLoginInputModel form) {
+        public async Task<IActionResult> Index([FromForm] MfaLoginInputModel model) {
             var totpService = _totpServiceFactory.Create<User>();
-            var signInResult = await _signInManager.TwoFactorSignInAsync(totpService.TokenProvider, form.OtpCode, form.RememberMe, form.RememberClient);
+            var signInResult = await _signInManager.TwoFactorSignInAsync(totpService.TokenProvider, model.OtpCode, model.RememberMe, model.RememberClient);
             if (!signInResult.Succeeded) {
                 ModelState.AddModelError(string.Empty, _localizer["The OTP code is not valid."]);
-                var viewModel = await _accountService.BuildMfaLoginViewModelAsync(form);
+                var viewModel = await _accountService.BuildMfaLoginViewModelAsync(model);
                 return View(viewModel);
             }
-            if (string.IsNullOrEmpty(form.ReturnUrl)) {
+            if (string.IsNullOrEmpty(model.ReturnUrl)) {
                 return Redirect("~/");
-            } else if (_interaction.IsValidReturnUrl(form.ReturnUrl) || Url.IsLocalUrl(form.ReturnUrl)) {
-                return Redirect(form.ReturnUrl);
+            } else if (_interaction.IsValidReturnUrl(model.ReturnUrl) || Url.IsLocalUrl(model.ReturnUrl)) {
+                return Redirect(model.ReturnUrl);
             } else {
                 throw new Exception("Invalid return URL.");
             }

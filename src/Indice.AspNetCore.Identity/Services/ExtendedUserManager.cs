@@ -209,7 +209,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="password">The password for the user to hash and store.</param>
         /// <param name="validatePassword">Whether to validate the password.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
-        /// <remarks>This overload is used for admin reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
+        /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
         public async Task<IdentityResult> CreateAsync(TUser user, string password, bool validatePassword) {
             ThrowIfDisposed();
             if (user is null) {
@@ -230,7 +230,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="newPassword">The new password.</param>
         /// <param name="validatePassword">Whether to validate the password.</param>
         /// <returns>Whether the password has was successfully updated.</returns>
-        /// <remarks>This overload is used for admin reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
+        /// <remarks>This overload is used for administrator reset password. Bypasses token requirement of default <see cref="UserManager{TUser}.ResetPasswordAsync(TUser, string, string)"/></remarks>
         public async Task<IdentityResult> ResetPasswordAsync(TUser user, string newPassword, bool validatePassword = true) {
             ThrowIfDisposed();
             if (user is null) {
@@ -245,7 +245,7 @@ namespace Indice.AspNetCore.Identity
             return result;
         }
 
-        /// <summary>Adds the developer-totp claim to the provided user and provides a random 6-digit code. If the user is not a member of the 'Developer' role, it is also added automatically.</summary>
+        /// <summary>Adds the <see cref="BasicClaimTypes.DeveloperTotp"/> claim to the provided user and provides a random 6-digit code. If the user is not a member of the 'Developer' role, it is also added automatically.</summary>
         /// <param name="user">The user.</param>
         public async Task<IdentityResult> SetDeveloperTotpAsync(TUser user) {
             var isDeveloper = await IsInRoleAsync(user, BasicRoleNames.Developer);

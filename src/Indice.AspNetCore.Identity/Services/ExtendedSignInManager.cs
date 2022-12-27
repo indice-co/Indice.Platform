@@ -34,6 +34,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="confirmation">The <see cref="IUserConfirmation{TUser}"/> used check whether a user account is confirmed.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="authenticationSchemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
+        /// <param name="rememberTwoFactorClientProvider">Abstracts the way that a client (browser) is remembered across login operations, using the <see cref="ExtendedSignInManager{TUser}"/>.</param>
         public ExtendedSignInManager(
             UserManager<TUser> userManager,
             IHttpContextAccessor contextAccessor,
@@ -43,7 +44,8 @@ namespace Indice.AspNetCore.Identity
             IAuthenticationSchemeProvider schemes,
             IUserConfirmation<TUser> confirmation,
             IConfiguration configuration,
-            IAuthenticationSchemeProvider authenticationSchemeProvider
+            IAuthenticationSchemeProvider authenticationSchemeProvider,
+            IRememberTwoFactorClientProvider<TUser> rememberTwoFactorClientProvider
         ) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
             EnforceMfa = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(EnforceMfa)) == true ||
                          configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(EnforceMfa)) == true;
@@ -56,6 +58,7 @@ namespace Indice.AspNetCore.Identity
                                                  configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
             ExternalScheme = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<string>(nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
+            RememberTwoFactorClientProvider = rememberTwoFactorClientProvider ?? throw new ArgumentNullException(nameof(rememberTwoFactorClientProvider));
         }
 
         /// <summary>Enables the feature post login email confirmation.</summary>
@@ -71,6 +74,8 @@ namespace Indice.AspNetCore.Identity
         public string ExternalScheme { get; }
         /// <summary>The <see cref="ExtendedUserManager{TUser}"/> used.</summary>
         private ExtendedUserManager<TUser> ExtendedUserManager => (ExtendedUserManager<TUser>)UserManager;
+        /// <summary>Abstracts the way that a client (browser) is remembered across login operations, using the <see cref="ExtendedSignInManager{TUser}"/>.</summary>
+        public IRememberTwoFactorClientProvider<TUser> RememberTwoFactorClientProvider { get; }
 
         /// <inheritdoc/>
         public override async Task<ExternalLoginInfo> GetExternalLoginInfoAsync(string expectedXsrf = null) {
@@ -219,6 +224,9 @@ namespace Indice.AspNetCore.Identity
             }
             return props;
         }
+
+        /// <inheritdoc/>
+        public override async Task RememberTwoFactorClientAsync(TUser user) => await RememberTwoFactorClientProvider.RememberTwoFactorClientAsync(user);
 
         private static ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName) {
             var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);

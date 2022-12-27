@@ -76,6 +76,18 @@
     @if (Model.DeliveryChannel == TotpDeliveryChannel.PushNotification)
     {
         <script type="text/javascript" src="~/lib/@@microsoft/signalr/dist/browser/signalr.min.js"></script>
-        <script type="text/javascript" src="~/js/mfa.js"></script>
     }
+    <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js"></script>
+    <script type="text/javascript" src="~/js/mfa.js"></script>
+    <script type="text/javascript" csp-nonce>
+        $(document).ready(function () {
+            var viewModelParameters = {
+                deliveryChannel: '@Model.DeliveryChannel',
+                $otpCodeField: $('#OtpCode'),
+                $mfaForm: $('#mfa-form')
+            };
+            var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
+            viewModel.init();
+        });
+    </script>
 }
