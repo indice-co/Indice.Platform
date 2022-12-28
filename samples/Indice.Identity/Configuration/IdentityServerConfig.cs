@@ -69,9 +69,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var certificate = new X509Certificate2(Path.Combine(hostingEnvironment.ContentRootPath, "indice-idsrv.pfx"), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
                 identityServerBuilder.AddSigningCredential(certificate);
             }
-            identityServerBuilder.AddClientStore<Indice.Identity.EntityFramework.Stores.ClientStore>();
-            identityServerBuilder.AddResourceStore<Indice.Identity.EntityFramework.Stores.ResourceStore>();
-            identityServerBuilder.Services.AddTransient<IPersistedGrantStore, Indice.Identity.EntityFramework.Stores.PersistedGrantStore>(); 
+            identityServerBuilder.AddDotnet7CompatibleStores();
             return identityServerBuilder;
         }
     }
