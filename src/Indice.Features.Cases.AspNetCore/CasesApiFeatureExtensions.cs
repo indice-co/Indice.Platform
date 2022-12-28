@@ -67,7 +67,7 @@ namespace Indice.Features.Cases
             services.AddHttpContextAccessor();
 
             // Register no op services.
-            services.AddTransient<ILookupService, NoOpLookupService>();
+            services.AddTransient<Func<string, ILookupService>>(serviceProvider => key => new NoOpLookupService());
             services.AddTransient<ICustomerIntegrationService, NoOpCustomerIntegrationService>();
             services.AddTransient<ICasePdfService, NoOpCasePdfService>();
 
