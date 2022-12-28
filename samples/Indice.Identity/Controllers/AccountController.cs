@@ -14,9 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Identity.Controllers
 {
-    /// <summary>
-    /// Contains all methods related to a user's account.
-    /// </summary>
+    /// <summary>Contains all methods related to a user's account.</summary>
     [ApiExplorerSettings(IgnoreApi = true)]
     [SecurityHeaders]
     public class AccountController : Controller
@@ -27,14 +25,10 @@ namespace Indice.Identity.Controllers
         private readonly ExtendedSignInManager<User> _signInManager;
         private readonly IAccountService _accountService;
         private readonly ILogger<AccountController> _logger;
-        /// <summary>
-        /// The name of the controller.
-        /// </summary>
+        /// <summary>The name of the controller.</summary>
         public const string Name = "Account";
 
-        /// <summary>
-        /// Creates a new instance of <see cref="AccountController"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="AccountController"/>.</summary>
         /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
         /// <param name="events">Interface for the event service.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
@@ -60,9 +54,7 @@ namespace Indice.Identity.Controllers
         public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
         public string UserName => User.FindFirstValue(JwtClaimTypes.Name);
 
-        /// <summary>
-        /// Displays the login page.
-        /// </summary>
+        /// <summary>Displays the login page.</summary>
         /// <param name="returnUrl">The URL to navigate after a successful login.</param>
         [HttpGet("login")]
         public async Task<IActionResult> Login(string returnUrl) {
@@ -79,9 +71,7 @@ namespace Indice.Identity.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
-        /// Posts the login form to the server.
-        /// </summary>
+        /// <summary>Posts the login form to the server.</summary>
         /// <param name="model">The model that contains user's login info.</param>
         /// <param name="button">The name of the button pressed by the user.</param>
         [HttpPost("login")]
@@ -151,9 +141,7 @@ namespace Indice.Identity.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
-        /// Renders the logout page.
-        /// </summary>
+        /// <summary>Renders the logout page.</summary>
         /// <param name="logoutId">The logout id.</param>
         [HttpGet("logout")]
         public async Task<IActionResult> Logout(string logoutId) {
@@ -166,9 +154,7 @@ namespace Indice.Identity.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
-        /// Posts logout information to the server.
-        /// </summary>
+        /// <summary>Posts logout information to the server.</summary>
         /// <param name="model">The model that contains user's logout info.</param>
         [HttpPost("logout")]
         [ValidateAntiForgeryToken]
@@ -196,9 +182,7 @@ namespace Indice.Identity.Controllers
             return View("LoggedOut", viewModel);
         }
 
-        /// <summary>
-        /// Displays the access denied page.
-        /// </summary>
+        /// <summary>Displays the access denied page.</summary>
         [HttpGet("access-denied")]
         public IActionResult AccessDenied() => View();
     }

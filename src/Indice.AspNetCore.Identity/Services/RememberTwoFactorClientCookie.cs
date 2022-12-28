@@ -32,6 +32,13 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
+        public async Task<bool> IsTwoFactorClientRememberedAsync(TUser user) {
+            var userId = await _userManager.GetUserIdAsync(user);
+            var result = await _httpContextAccessor.HttpContext.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
+            return result?.Principal is not null && result.Principal.FindFirstValue(ClaimTypes.Name) == userId;
+        }
+
+        /// <inheritdoc />
         public async Task RememberTwoFactorClientAsync(TUser user) {
             var principal = await StoreRememberClient(user);
             await _httpContextAccessor.HttpContext.SignInAsync(IdentityConstants.TwoFactorRememberMeScheme, principal, new AuthenticationProperties { IsPersistent = true });

@@ -23,6 +23,7 @@
                         <div class="alert alert-primary" role="alert">We texted your phone @maskedPhoneNumber. Please enter the code to sign in.</div>
                         <form asp-controller="@MfaController.Name" asp-action="@nameof(MfaController.Index)">
                             <input type="hidden" asp-for="ReturnUrl" />
+                            <input type="hidden" asp-for="DeviceId" />
                             <div class="form-group">
                                 <label asp-for="OtpCode">@Localizer["OTP Code"]</label>
                                 <input class="form-control" placeholder="@Localizer["OTP Code"]" asp-for="OtpCode" autofocus />
@@ -46,6 +47,7 @@
                         <form id="mfa-form" asp-controller="@MfaController.Name" asp-action="@nameof(MfaController.Index)">
                             <input type="hidden" asp-for="ReturnUrl" />
                             <input type="hidden" asp-for="OtpCode" />
+                            <input type="hidden" asp-for="DeviceId" />
                             <p>
                                 <b>@Model.User.UserName</b>
                             </p>
@@ -83,8 +85,10 @@
         $(document).ready(function () {
             var viewModelParameters = {
                 deliveryChannel: '@Model.DeliveryChannel',
-                $otpCodeField: $('#OtpCode'),
-                $mfaForm: $('#mfa-form')
+                $otpCodeInput: $('#OtpCode'),
+                $mfaForm: $('#mfa-form'),
+                $rememberClientCheckbox: $('#RememberClient'),
+                $deviceIdInput: $('#DeviceId')
             };
             var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
             viewModel.init();

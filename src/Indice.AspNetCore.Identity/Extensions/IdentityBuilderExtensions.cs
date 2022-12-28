@@ -40,16 +40,25 @@ namespace Indice.AspNetCore.Identity
             return builder;
         }
 
-        /// <summary>Adds an implementation of <see cref="IRememberTwoFactorClientProvider{TUser}"/> where client is remembered by writing a cookie on user browser.</summary>
+        /// <summary>Adds an implementation of <see cref="IRememberTwoFactorClientProvider{TUser}"/> where client (browser) is remembered by writing a cookie on user browser.</summary>
         /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
         /// <param name="builder">The type of builder for configuring identity services.</param>
         /// <remarks>This is the default when adding <see cref="ExtendedSignInManager{TUser}"/> by using <see cref="AddExtendedSignInManager(IdentityBuilder)"/> extension method.</remarks>
         public static IdentityBuilder AddRememberTwoFactorClientCookie<TUser>(this IdentityBuilder builder) where TUser : User => builder.AddRememberTwoFactorClientProvider<RememberTwoFactorClientCookie<TUser>, TUser>();
 
-        /// <summary>Adds an implementation of <see cref="IRememberTwoFactorClientProvider{TUser}"/> where client is remembered by writing a cookie on user browser.</summary>
+        /// <summary>Adds an implementation of <see cref="IRememberTwoFactorClientProvider{TUser}"/> where client (browser) is remembered by writing a cookie on user browser.</summary>
         /// <param name="builder">The type of builder for configuring identity services.</param>
         /// <remarks>This is the default when adding <see cref="ExtendedSignInManager{TUser}"/> by using <see cref="AddExtendedSignInManager(IdentityBuilder)"/> extension method.</remarks>
         public static IdentityBuilder AddRememberTwoFactorClientCookie(this IdentityBuilder builder) => builder.AddRememberTwoFactorClientCookie<User>();
+
+        /// <summary>Adds an implementation of <see cref="IRememberTwoFactorClientProvider{TUser}"/> where client (browser) is persisted in a database.</summary>
+        /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
+        /// <param name="builder">The type of builder for configuring identity services.</param>
+        public static IdentityBuilder AddRememberTwoFactorClientDatabase<TUser>(this IdentityBuilder builder) where TUser : User => builder.AddRememberTwoFactorClientProvider<RememberTwoFactorClientDatabase<TUser>, TUser>();
+
+        /// <summary>Adds an implementation of <see cref="IRememberTwoFactorClientProvider{TUser}"/> where client (browser) is persisted in a database.</summary>
+        /// <param name="builder">The type of builder for configuring identity services.</param>
+        public static IdentityBuilder AddRememberTwoFactorClientDatabase(this IdentityBuilder builder) => builder.AddRememberTwoFactorClientDatabase<User>();
 
         /// <summary>
         /// Adds the <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/> as the default phone provider. 

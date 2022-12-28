@@ -228,6 +228,9 @@ namespace Indice.AspNetCore.Identity
         /// <inheritdoc/>
         public override async Task RememberTwoFactorClientAsync(TUser user) => await RememberTwoFactorClientProvider.RememberTwoFactorClientAsync(user);
 
+        /// <inheritdoc/>
+        public override Task<bool> IsTwoFactorClientRememberedAsync(TUser user) => RememberTwoFactorClientProvider.IsTwoFactorClientRememberedAsync(user);
+
         private static ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName) {
             var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
             identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
@@ -268,7 +271,7 @@ namespace Indice.AspNetCore.Identity
                 claims.Add(new Claim(ClaimTypes.AuthenticationMethod, twoFactorInfo.LoginProvider));
                 await Context.SignOutAsync(IdentityConstants.ExternalScheme);
             }
-            await Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme);
+            await Context.SignOutAsync(ExtendedIdentityConstants.TwoFactorUserIdScheme);
             if (rememberClient) {
                 await RememberTwoFactorClientAsync(user);
             }
