@@ -58,9 +58,9 @@ namespace Indice.AspNetCore.Identity.Data.Models
         /// <summary>Indicates whether device is blocked for any action.</summary>
         public bool Blocked { get; set; }
         /// <summary>Describes the type of a user device.</summary>
-        public UserDeviceType? ClientType { get; set; }
+        public UserDeviceType? Type { get; set; }
         /// <summary>The date until the client is remembered by the system and MFA is not asked.</summary>
-        public DateTimeOffset? RememberClientExpirationDate { get; set; }
+        public DateTimeOffset? MfaSessionExpirationDate { get; set; }
         /// <summary>The user associated with this device.</summary>
         public virtual User User { get; set; }
     }

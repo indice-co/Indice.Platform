@@ -566,7 +566,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var devices = await _userManager.GetDevicesAsync(user);
             var response = devices.Select(device => new DeviceInfo {
-                ClientType= device.ClientType,
+                ClientType= device.Type,
                 Data = device.Data,
                 DateCreated = device.DateCreated,
                 DeviceId = device.DeviceId,

@@ -31,7 +31,7 @@ namespace Indice.AspNetCore.Identity.DeviceAuthentication.ResponseHandling
 
         public async Task<CompleteRegistrationResponse> Generate(CompleteRegistrationRequestValidationResult validationResult) {
             var device = validationResult.Device ?? new UserDevice(Guid.NewGuid()) {
-                ClientType = UserDeviceType.Native,
+                Type = UserDeviceType.Native,
                 DateCreated = SystemClock.UtcNow,
                 DeviceId = validationResult.DeviceId,
                 IsPushNotificationsEnabled = false,

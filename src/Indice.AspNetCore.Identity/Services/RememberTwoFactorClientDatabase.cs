@@ -35,19 +35,21 @@ namespace Indice.AspNetCore.Identity
                 return false;
             }
             var device = await _userManager.GetDeviceByIdAsync(user, deviceId);
-            return device is not null && device.RememberClientExpirationDate > DateTimeOffset.UtcNow;
+            return device is not null && device.MfaSessionExpirationDate > DateTimeOffset.UtcNow;
         }
 
         /// <inheritdoc />
         public async Task RememberTwoFactorClientAsync(TUser user) {
             var request = _httpContextAccessor.HttpContext.Request;
+            // TODO: Consider adding a resolver so multiple ways of retrieving the device id can be configured.
             var containsDeviceId = request.Form.TryGetValue("DeviceId", out var deviceId);
             if (!containsDeviceId) {
                 return;
             }
             var device = await _userManager.GetDeviceByIdAsync(user, deviceId);
             if (device is not null) {
-                device.RememberClientExpirationDate = DateTimeOffset.UtcNow.AddDays(90);
+                // TODO: 
+                device.MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(90);
                 await _userManager.UpdateDeviceAsync(user, device);
                 return;
             }
@@ -60,14 +62,14 @@ namespace Indice.AspNetCore.Identity
             var osInfo = FormatOsInfo(clientInfo?.OS);
             var name = $"{FormatUserAgentInfo(clientInfo?.UA)} on {osInfo}".Trim();
             device = new UserDevice {
-                ClientType = UserDeviceType.Browser,
+                Type = UserDeviceType.Browser,
                 DateCreated = DateTimeOffset.UtcNow,
                 DeviceId = deviceId,
                 Model = FormatDeviceInfo(clientInfo?.Device),
                 Name = name == string.Empty ? null : name,
                 OsVersion = osInfo,
                 Platform = DevicePlatform.None,
-                RememberClientExpirationDate = DateTimeOffset.UtcNow.AddDays(90),
+                MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(90),
                 User = user,
                 UserId = user.Id
             };

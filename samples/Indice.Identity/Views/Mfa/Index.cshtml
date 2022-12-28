@@ -77,10 +77,10 @@
 @section scripts {
     @if (Model.DeliveryChannel == TotpDeliveryChannel.PushNotification)
     {
-        <script type="text/javascript" src="~/lib/@@microsoft/signalr/dist/browser/signalr.min.js"></script>
+        <script type="text/javascript" src="~/lib/@@microsoft/signalr/dist/browser/signalr.min.js" csp-nonce></script>
     }
-    <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js"></script>
-    <script type="text/javascript" src="~/js/mfa.js"></script>
+    <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/mfa.js" csp-nonce></script>
     <script type="text/javascript" csp-nonce>
         $(document).ready(function () {
             var viewModelParameters = {

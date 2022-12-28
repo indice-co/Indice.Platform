@@ -16,6 +16,18 @@
         /// <summary>
         /// iOS
         /// </summary>
-        iOS = 3
+        iOS = 3,
+        /// <summary>
+        /// Windows
+        /// </summary>
+        Windows,
+        /// <summary>
+        /// Linux
+        /// </summary>
+        Linux,
+        /// <summary>
+        /// MacOS
+        /// </summary>
+        MacOS
     }
 }
