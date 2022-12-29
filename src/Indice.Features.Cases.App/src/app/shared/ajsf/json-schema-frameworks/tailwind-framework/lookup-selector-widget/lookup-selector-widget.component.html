@@ -4,7 +4,7 @@
            [class]="options?.labelHtmlClass || ''"
            [style.display]="options?.notitle ? 'none' : ''"
            [innerHTML]="options?.title"></label>
-    <select *ngIf="selectList && selectList.length > 0"
+    <select *ngIf="selectList && selectList.length > 0 && formControl"
             [formControl]="formControl"
             [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
             [attr.readonly]="options?.readonly ? 'readonly' : null"

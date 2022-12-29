@@ -99,6 +99,10 @@ export class LookupSelectorWidgetComponent implements OnInit {
             (formData: any) => {
               // did independent Field data change?
               if (formData[this.independentFieldName!] != this.independentFieldValue) {
+                // set formControl null - not crazy about that...
+                this.formControl = null;
+                this.jsf.formGroup.value[this.controlName!] = null;
+                this.jsf.formGroup.controls[this.controlName!].value = null;
                 // update current independent Field Value
                 this.independentFieldValue = formData[this.independentFieldName!];
                 // get the new lookups
@@ -115,6 +119,8 @@ export class LookupSelectorWidgetComponent implements OnInit {
                       !!this.options.required,
                       !!this.options.flatList
                     );
+                    // re-initialize Control
+                    this.jsf.initializeControl(this);
                     // enforce change Detection
                     this.changeDetector.detectChanges();
                     // enforce form data Validation
