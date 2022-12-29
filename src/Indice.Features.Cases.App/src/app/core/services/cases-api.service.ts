@@ -214,12 +214,13 @@ export interface ICasesApiService {
     /**
      * Get a lookup by lookupName.
      * @param lookupName The lookup name to retrieve.
-     * @param customerId (optional) 
-     * @param dependentFieldValue (optional) 
+     * @param id (optional) An Id that can optionally used in lookup, e.g. a customerId
+     * @param independentFieldValue (optional) The value of a Independent Field that can optionally used in lookup
+     * @param category (optional) The Category that can optionally used in lookup, e.g. product family
      * @param api_version (optional) 
      * @return Success
      */
-    getLookup(lookupName: string, customerId?: string | undefined, dependentFieldValue?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet>;
+    getLookup(lookupName: string, id?: string | undefined, independentFieldValue?: string | undefined, category?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet>;
     /**
      * Get saved queries.
      * @param api_version (optional) 
@@ -2884,24 +2885,29 @@ export class CasesApiService implements ICasesApiService {
     /**
      * Get a lookup by lookupName.
      * @param lookupName The lookup name to retrieve.
-     * @param customerId (optional) 
-     * @param dependentFieldValue (optional) 
+     * @param id (optional) An Id that can optionally used in lookup, e.g. a customerId
+     * @param independentFieldValue (optional) The value of a Independent Field that can optionally used in lookup
+     * @param category (optional) The Category that can optionally used in lookup, e.g. product family
      * @param api_version (optional) 
      * @return Success
      */
-    getLookup(lookupName: string, customerId?: string | undefined, dependentFieldValue?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet> {
+    getLookup(lookupName: string, id?: string | undefined, independentFieldValue?: string | undefined, category?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet> {
         let url_ = this.baseUrl + "/api/manage/lookups/{lookupName}?";
         if (lookupName === undefined || lookupName === null)
             throw new Error("The parameter 'lookupName' must be defined.");
         url_ = url_.replace("{lookupName}", encodeURIComponent("" + lookupName));
-        if (customerId === null)
-            throw new Error("The parameter 'customerId' cannot be null.");
-        else if (customerId !== undefined)
-            url_ += "CustomerId=" + encodeURIComponent("" + customerId) + "&";
-        if (dependentFieldValue === null)
-            throw new Error("The parameter 'dependentFieldValue' cannot be null.");
-        else if (dependentFieldValue !== undefined)
-            url_ += "DependentFieldValue=" + encodeURIComponent("" + dependentFieldValue) + "&";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        if (independentFieldValue === null)
+            throw new Error("The parameter 'independentFieldValue' cannot be null.");
+        else if (independentFieldValue !== undefined)
+            url_ += "IndependentFieldValue=" + encodeURIComponent("" + independentFieldValue) + "&";
+        if (category === null)
+            throw new Error("The parameter 'category' cannot be null.");
+        else if (category !== undefined)
+            url_ += "Category=" + encodeURIComponent("" + category) + "&";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
         else if (api_version !== undefined)

@@ -23,7 +23,7 @@ import { TextAreaWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-
 import { FileWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
 import { CaseDetailInfoComponent } from './components/case-detail-info/case-detail-info.component';
 import { CaseCustomActionComponent } from './components/case-custom-action/case-custom-action.component';
-import { ProductSelectorWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/product-selector-widget/product-selector-widget.component';
+import { LookupSelectorWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
 
 
 
@@ -48,7 +48,7 @@ import { ProductSelectorWidgetComponent } from './ajsf/json-schema-frameworks/ta
     LookupWidgetComponent,
     InputWidgetComponent,
     TextAreaWidgetComponent,
-    ProductSelectorWidgetComponent,
+    LookupSelectorWidgetComponent,
     // pipes
     BeautifyBooleanPipe
   ],

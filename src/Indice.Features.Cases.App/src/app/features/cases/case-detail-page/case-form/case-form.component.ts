@@ -15,7 +15,7 @@ import { InputWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks
 import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/text-area-widget/text-area-widget.component';
 import { Router } from '@angular/router';
 import { FileWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
-import { ProductSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/product-selector-widget/product-selector-widget.component';
+import { LookupSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
 
 @Component({
   selector: 'app-case-form',
@@ -38,7 +38,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     "submit": SubmitWidgetComponent,
     "select": SelectWidgetComponent,
     "lookup": LookupWidgetComponent,
-    "product-selector": ProductSelectorWidgetComponent,
+    "lookup-selector": LookupSelectorWidgetComponent,
     "date": DateWidgetComponent,
     "currency": CurrencyWidgetComponent,
     "text": InputWidgetComponent,

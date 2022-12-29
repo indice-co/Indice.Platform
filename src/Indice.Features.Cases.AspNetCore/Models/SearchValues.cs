@@ -11,9 +11,9 @@
         public string Id { get; set; }
 
         /// <summary>
-        /// The value of a Dependent Field that can optionally used in lookup
+        /// The value of a Independent Field that can optionally used in lookup
         /// </summary>
-        public string DependentFieldValue { get; set; }
+        public string IndependentFieldValue { get; set; }
 
         /// <summary>
         /// The Category that can optionally used in lookup, e.g. product family
