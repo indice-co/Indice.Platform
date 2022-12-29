@@ -24,8 +24,8 @@ export class LookupSelectorWidgetComponent implements OnInit {
   /**
   * This widget is part of a form.
   * The form is part of a specific case.
-  * These are the details of that case.
-  * customerId
+  * The case has details.
+  * One of those details is customerId.
   */
   customerId: string | undefined;
   controlDisabled: boolean = false;
@@ -89,7 +89,6 @@ export class LookupSelectorWidgetComponent implements OnInit {
           );
         } else {
           this.jsf.initializeControl(this);
-          // this.changeDetector.detectChanges();
         }
         // Additionally: If the widget dependent on another form field, subscribe to form data Changes!
         if (this.independentFieldName) {
