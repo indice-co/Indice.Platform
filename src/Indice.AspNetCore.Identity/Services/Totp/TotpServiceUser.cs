@@ -144,7 +144,7 @@ namespace Indice.AspNetCore.Identity
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
             if (channel == TotpDeliveryChannel.PushNotification) {
-                var trustedDevices = await UserManager.GetTrustedDevicesAsync(user);
+                var trustedDevices = await UserManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
                 var augmentedData = IncludeTokenInPushNotificationData(data, token);
                 foreach (var device in trustedDevices) {
                     await SendToChannelAsync(

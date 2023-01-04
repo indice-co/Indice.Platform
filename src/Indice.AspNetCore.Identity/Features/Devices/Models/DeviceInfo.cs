@@ -45,6 +45,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
     internal static class DeviceInfoExtensions
     {
         public static Expression<Func<UserDevice, DeviceInfo>> ToDeviceInfo = (UserDevice device) => new DeviceInfo {
+            ClientType = device.Type,
             Data = device.Data,
             DateCreated = device.DateCreated,
             DeviceId = device.DeviceId,

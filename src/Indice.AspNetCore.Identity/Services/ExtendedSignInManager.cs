@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using IdentityModel;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Security;
+using Indice.Types;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +15,8 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
+using UAParser;
 
 namespace Indice.AspNetCore.Identity
 {
@@ -20,8 +24,9 @@ namespace Indice.AspNetCore.Identity
     /// <typeparam name="TUser">The type encapsulating a user.</typeparam>
     public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : User
     {
-        private const string LoginProviderKey = "LoginProvider";
-        private const string XsrfKey = "XsrfId";
+        private const int DEFAULT_REMEMBER_DURATION_IN_DAYS = 90;
+        private const string LOGIN_PROVIDER_KEY = "LoginProvider";
+        private const string XSRF_KEY = "XsrfId";
         private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
 
         /// <summary>Creates a new instance of <see cref="SignInManager{TUser}" /></summary>
@@ -34,9 +39,8 @@ namespace Indice.AspNetCore.Identity
         /// <param name="confirmation">The <see cref="IUserConfirmation{TUser}"/> used check whether a user account is confirmed.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="authenticationSchemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
-        /// <param name="rememberTwoFactorClientProvider">Abstracts the way that a client (browser) is remembered across login operations, using the <see cref="ExtendedSignInManager{TUser}"/>.</param>
         public ExtendedSignInManager(
-            UserManager<TUser> userManager,
+            ExtendedUserManager<TUser> userManager,
             IHttpContextAccessor contextAccessor,
             IUserClaimsPrincipalFactory<TUser> claimsFactory,
             IOptionsSnapshot<IdentityOptions> optionsAccessor,
@@ -44,23 +48,20 @@ namespace Indice.AspNetCore.Identity
             IAuthenticationSchemeProvider schemes,
             IUserConfirmation<TUser> confirmation,
             IConfiguration configuration,
-            IAuthenticationSchemeProvider authenticationSchemeProvider,
-            IRememberTwoFactorClientProvider<TUser> rememberTwoFactorClientProvider
+            IAuthenticationSchemeProvider authenticationSchemeProvider
         ) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
-            EnforceMfa = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(EnforceMfa)) == true ||
-                         configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(EnforceMfa)) == true;
-            RequirePostSignInConfirmedEmail = configuration.GetValue<bool?>($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}:{nameof(RequirePostSignInConfirmedEmail)}") == true ||
-                                              configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedEmail)) == true;
-            RequirePostSignInConfirmedPhoneNumber = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true ||
-                                                    configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(RequirePostSignInConfirmedPhoneNumber)) == true ||
-                                                    EnforceMfa;
-            ExpireBlacklistedPasswordsOnSignIn = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<bool?>(nameof(ExpireBlacklistedPasswordsOnSignIn)) == true ||
-                                                 configuration.GetSection(nameof(SignInOptions)).GetValue<bool?>(nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
-            ExternalScheme = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.SignIn)}").GetValue<string>(nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
-            RememberTwoFactorClientProvider = rememberTwoFactorClientProvider ?? throw new ArgumentNullException(nameof(rememberTwoFactorClientProvider));
+            EnforceMfa = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(EnforceMfa)) == true;
+            RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
+            RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true || EnforceMfa;
+            ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
+            ExternalScheme = configuration.GetIdentityOption<string>(nameof(IdentityOptions.SignIn), nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
+            PersistTrustedBrowsers = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(PersistTrustedBrowsers)) == true;
+            RememberDurationInDays = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberDurationInDays)) ?? DEFAULT_REMEMBER_DURATION_IN_DAYS;
+            RememberTrustedBrowserAcrossSessions = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberTrustedBrowserAcrossSessions)) == true;
         }
 
+        private ExtendedUserManager<TUser> ExtendedUserManager => (ExtendedUserManager<TUser>)UserManager;
         /// <summary>Enables the feature post login email confirmation.</summary>
         public bool RequirePostSignInConfirmedEmail { get; }
         /// <summary>Enables the feature post login phone number confirmation.</summary>
@@ -72,29 +73,32 @@ namespace Indice.AspNetCore.Identity
         public bool EnforceMfa { get; }
         /// <summary>The scheme used to identify external authentication cookies.</summary>
         public string ExternalScheme { get; }
-        /// <summary>The <see cref="ExtendedUserManager{TUser}"/> used.</summary>
-        private ExtendedUserManager<TUser> ExtendedUserManager => (ExtendedUserManager<TUser>)UserManager;
-        /// <summary>Abstracts the way that a client (browser) is remembered across login operations, using the <see cref="ExtendedSignInManager{TUser}"/>.</summary>
-        public IRememberTwoFactorClientProvider<TUser> RememberTwoFactorClientProvider { get; }
+        /// <summary>Decides whether a trusted browser should be stored in the <see cref="UserDevice"/> table.</summary>
+        public bool PersistTrustedBrowsers { get; }
+        /// <summary>Defines the number of days that the browser will remember the MFA action and will not require re-authentication.</summary>
+        public int RememberDurationInDays { get; }
+        /// <summary></summary>
+        public bool RememberTrustedBrowserAcrossSessions { get; }
 
+        #region Method Overrides
         /// <inheritdoc/>
         public override async Task<ExternalLoginInfo> GetExternalLoginInfoAsync(string expectedXsrf = null) {
             var auth = await Context.AuthenticateAsync(ExternalScheme);
             var items = auth?.Properties?.Items;
-            if (auth?.Principal == null || items == null || !items.ContainsKey(LoginProviderKey)) {
+            if (auth?.Principal == null || items == null || !items.ContainsKey(LOGIN_PROVIDER_KEY)) {
                 return null;
             }
             if (expectedXsrf != null) {
-                if (!items.ContainsKey(XsrfKey)) {
+                if (!items.ContainsKey(XSRF_KEY)) {
                     return null;
                 }
-                var userId = items[XsrfKey];
+                var userId = items[XSRF_KEY];
                 if (userId != expectedXsrf) {
                     return null;
                 }
             }
             var providerKey = auth.Principal.FindFirstValue(Options.ClaimsIdentity.UserIdClaimType);
-            if (providerKey == null || !(items[LoginProviderKey] is string provider)) {
+            if (providerKey == null || !(items[LOGIN_PROVIDER_KEY] is string provider)) {
                 return null;
             }
             var providerDisplayName = (await GetExternalAuthenticationSchemesAsync()).FirstOrDefault(p => p.Name == provider)?.DisplayName ?? provider;
@@ -226,11 +230,36 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc/>
-        public override async Task RememberTwoFactorClientAsync(TUser user) => await RememberTwoFactorClientProvider.RememberTwoFactorClientAsync(user);
+        public override async Task RememberTwoFactorClientAsync(TUser user) {
+            var principal = await StoreRememberClient(user);
+            await Context.SignInAsync(IdentityConstants.TwoFactorRememberMeScheme, principal, new AuthenticationProperties { IsPersistent = true });
+        }
 
         /// <inheritdoc/>
-        public override Task<bool> IsTwoFactorClientRememberedAsync(TUser user) => RememberTwoFactorClientProvider.IsTwoFactorClientRememberedAsync(user);
+        public override async Task<bool> IsTwoFactorClientRememberedAsync(TUser user) {
+            var userId = await UserManager.GetUserIdAsync(user);
+            var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
+            var isRemembered = result?.Principal is not null && result.Principal.FindFirstValue(JwtClaimTypes.Name) == userId;
+            var containsDeviceId = Context.Request.Form.TryGetValue("DeviceId", out var deviceId);
+            if (containsDeviceId && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
+                var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId);
+                isRemembered = device is not null && device.MfaSessionExpirationDate > DateTimeOffset.UtcNow;
+                return isRemembered;
+            }
+            return isRemembered;
+        }
+        #endregion
 
+        #region Custom Methods
+        public async Task RemoveMfaSessionsAsync(TUser user) {
+            if (user is null) {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+        }
+        #endregion
+
+        #region Helper Methods
         private static ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName) {
             var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
             identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
@@ -244,6 +273,51 @@ namespace Indice.AspNetCore.Identity
                 identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, lastName));
             }
             return new ClaimsPrincipal(identity);
+        }
+
+        private async Task<ClaimsPrincipal> StoreRememberClient(TUser user) {
+            var containsDeviceId = Context.Request.Form.TryGetValue("DeviceId", out var deviceId);
+            if (PersistTrustedBrowsers && containsDeviceId) {
+                var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId);
+                if (device is not null) {
+                    device.IsTrusted = true;
+                    device.TrustActivationDate = DateTimeOffset.UtcNow;
+                    device.MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(RememberDurationInDays);
+                    await ExtendedUserManager.UpdateDeviceAsync(user, device);
+                } else {
+                    var userAgent = Context.Request.Headers[HeaderNames.UserAgent];
+                    ClientInfo clientInfo = null;
+                    if (!string.IsNullOrWhiteSpace(userAgent)) {
+                        var uaParser = Parser.GetDefault();
+                        clientInfo = uaParser.Parse(userAgent);
+                    }
+                    var osInfo = FormatOsInfo(clientInfo?.OS);
+                    var name = $"{FormatUserAgentInfo(clientInfo?.UA)} on {osInfo}".Trim();
+                    device = new UserDevice {
+                        DateCreated = DateTimeOffset.UtcNow,
+                        DeviceId = deviceId,
+                        IsTrusted = true,
+                        MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(90),
+                        Model = FormatDeviceInfo(clientInfo?.Device),
+                        Name = name == string.Empty ? null : name,
+                        OsVersion = osInfo,
+                        Platform = DecideDevicePlatform(osInfo),
+                        TrustActivationDate = DateTimeOffset.UtcNow,
+                        Type = UserDeviceType.Browser,
+                        User = user,
+                        UserId = user.Id
+                    };
+                    await ExtendedUserManager.CreateDeviceAsync(user, device);
+                }
+            }
+            var userId = await UserManager.GetUserIdAsync(user);
+            var rememberBrowserIdentity = new ClaimsIdentity(IdentityConstants.TwoFactorRememberMeScheme);
+            rememberBrowserIdentity.AddClaim(new Claim(JwtClaimTypes.Name, userId));
+            if (UserManager.SupportsUserSecurityStamp) {
+                var stamp = await UserManager.GetSecurityStampAsync(user);
+                rememberBrowserIdentity.AddClaim(new Claim(Options.ClaimsIdentity.SecurityStampClaimType, stamp));
+            }
+            return new ClaimsPrincipal(rememberBrowserIdentity);
         }
 
         private async Task<TwoFactorAuthenticationInfo> RetrieveTwoFactorInfoAsync() {
@@ -277,6 +351,92 @@ namespace Indice.AspNetCore.Identity
             }
             await SignInWithClaimsAsync(user, isPersistent, claims);
         }
+
+        private static string FormatUserAgentInfo(UserAgent userAgent) {
+            if (userAgent is null) {
+                return default;
+            }
+            var stringBuilder = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(userAgent.Family)) {
+                stringBuilder.Append(userAgent.Family);
+            }
+            if (!string.IsNullOrWhiteSpace(userAgent.Major)) {
+                stringBuilder.Append($" {userAgent.Major}");
+            }
+            if (!string.IsNullOrWhiteSpace(userAgent.Minor)) {
+                stringBuilder.Append($".{userAgent.Minor}");
+            }
+            if (!string.IsNullOrWhiteSpace(userAgent.Patch)) {
+                stringBuilder.Append($".{userAgent.Patch}");
+            }
+            var userAgentInfo = stringBuilder.ToString().Trim();
+            return userAgentInfo == string.Empty ? null : userAgentInfo;
+        }
+
+        private static string FormatOsInfo(OS os) {
+            if (os is null) {
+                return default;
+            }
+            var stringBuilder = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(os.Family)) {
+                stringBuilder.Append(os.Family);
+            }
+            if (!string.IsNullOrWhiteSpace(os.Major)) {
+                stringBuilder.Append($" {os.Major}");
+            }
+            if (!string.IsNullOrWhiteSpace(os.Minor)) {
+                stringBuilder.Append($".{os.Minor}");
+            }
+            if (!string.IsNullOrWhiteSpace(os.Patch)) {
+                stringBuilder.Append($".{os.Patch}");
+            }
+            if (!string.IsNullOrWhiteSpace(os.PatchMinor)) {
+                stringBuilder.Append($".{os.PatchMinor}");
+            }
+            var osInfo = stringBuilder.ToString().Trim();
+            return osInfo == string.Empty ? null : osInfo;
+        }
+
+        private static string FormatDeviceInfo(Device device) {
+            if (device is null) {
+                return default;
+            }
+            var stringBuilder = new StringBuilder();
+            if (!string.IsNullOrWhiteSpace(device.Family)) {
+                stringBuilder.Append(device.Family);
+            }
+            if (!string.IsNullOrWhiteSpace(device.Brand)) {
+                stringBuilder.Append($" {device.Brand}");
+            }
+            if (!string.IsNullOrWhiteSpace(device.Model)) {
+                stringBuilder.Append($" {device.Model}");
+            }
+            var deviceInfo = stringBuilder.ToString().Trim();
+            return deviceInfo == string.Empty ? null : deviceInfo;
+        }
+
+        private static DevicePlatform DecideDevicePlatform(string osInfo) {
+            var devicePlatform = DevicePlatform.None;
+            switch (osInfo) {
+                case string x when x.Contains("iPhone", StringComparison.OrdinalIgnoreCase):
+                    devicePlatform = DevicePlatform.iOS;
+                    break;
+                case string x when x.Contains("Android", StringComparison.OrdinalIgnoreCase):
+                    devicePlatform = DevicePlatform.Android;
+                    break;
+                case string x when x.Contains("Windows", StringComparison.OrdinalIgnoreCase):
+                    devicePlatform = DevicePlatform.Windows;
+                    break;
+                case string x when x.Contains("Linux", StringComparison.OrdinalIgnoreCase):
+                    devicePlatform = DevicePlatform.Linux;
+                    break;
+                case string x when x.Contains("Mac", StringComparison.OrdinalIgnoreCase):
+                    devicePlatform = DevicePlatform.MacOS;
+                    break;
+            }
+            return devicePlatform;
+        }
+        #endregion
     }
 
     /// <summary>Extends the <see cref="SignInResult"/> type.</summary>

@@ -119,7 +119,8 @@ namespace Indice.Identity.Controllers
 
         [Authorize(Policy = "BeDeviceAuthenticated")]
         [HttpPost("api/login/reject")]
-        public IActionResult RejectLogin([FromBody] RejectLoginRequest request) {
+        public async Task<IActionResult> RejectLogin([FromBody] RejectLoginRequest request) {
+            await _hubContext.Clients.Client(request.ConnectionId).SendAsync(nameof(MultiFactorAuthenticationHub.LoginApproved));
             return NoContent();
         }
     }

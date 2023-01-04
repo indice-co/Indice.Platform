@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
+using Indice.AspNetCore.Identity.Data.Extensions;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Services;
 using Indice.Types;
@@ -53,20 +54,17 @@ namespace Indice.AspNetCore.Identity.Api
         [HttpGet]
         [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<DeviceInfo>))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-        public async Task<IActionResult> GetDevices([FromQuery] ListOptions<UserDeviceFilter> options = null) {
+        public async Task<IActionResult> GetDevices([FromQuery] ListOptions<UserDeviceListFilter> options = null) {
             var user = await UserManager.GetUserAsync(User);
             if (user is null) {
                 return NotFound();
             }
-            var query = UserManager.UserDevices.Where(device => device.UserId == user.Id);
-            if (options.Filter is not null) {
-                var filter = options.Filter;
-                query = query.Where(device =>
-                    (filter.IsPushNotificationEnabled == null || device.IsPushNotificationsEnabled == filter.IsPushNotificationEnabled) &&
-                    (filter.IsTrusted == null || device.IsTrusted == filter.IsTrusted)
-                );
-            }
-            var devices = await query.Select(DeviceInfoExtensions.ToDeviceInfo).ToResultSetAsync(options);
+            var devices = await UserManager
+                .UserDevices
+                .Where(device => device.UserId == user.Id)
+                .ApplyFilter(options.Filter)
+                .Select(DeviceInfoExtensions.ToDeviceInfo)
+                .ToResultSetAsync(options);
             return Ok(devices);
         }
 

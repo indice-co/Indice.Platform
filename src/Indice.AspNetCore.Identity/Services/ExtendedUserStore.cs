@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Identity.Data.Extensions;
 using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -175,56 +176,24 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
+        public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             return await UserDeviceSet
                 .Include(device => device.User)
                 .Where(device => device.UserId == user.Id)
+                .ApplyFilter(filter)
                 .ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task<IList<UserDevice>> GetTrustedDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            return await UserDeviceSet
-                .Include(device => device.User)
-                .Where(device => device.UserId == user.Id && device.IsTrusted && !device.Blocked)
-                .ToListAsync(cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task<IList<UserDevice>> GetTrustedOrPendingDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            return await UserDeviceSet
-                .Include(device => device.User)
-                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)) && !device.Blocked)
-                .ToListAsync(cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task<int> GetDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            return await UserDevices.CountAsync(device => device.UserId == user.Id, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task<int> GetTrustedOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
+        public async Task<int> GetDevicesCountAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             return await UserDevices
-                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)) && !device.Blocked)
-                .CountAsync(device => device.UserId == user.Id, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task<int> GetTrustedDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            return await UserDeviceSet.Where(device => device.UserId == user.Id && device.IsTrusted && !device.Blocked).CountAsync(cancellationToken);
+                .Where(device => device.UserId == user.Id)
+                .ApplyFilter(filter)
+                .CountAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -259,7 +228,7 @@ namespace Indice.AspNetCore.Identity.Data
         public async Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var devices = await GetDevicesAsync(user, cancellationToken);
+            var devices = await GetDevicesAsync(user, cancellationToken: cancellationToken);
             foreach (var device in devices) {
                 device.RequiresPassword = requiresPassword;
             }

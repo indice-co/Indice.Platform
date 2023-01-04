@@ -2,8 +2,8 @@
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>netcoreapp3.1;net5.0;net6.0;net7.0;</TargetFrameworks>
-      <VersionPrefix>6.4.0</VersionPrefix>
-      <!--<VersionSuffix>beta-01</VersionSuffix>-->
+      <VersionPrefix>6.4.1</VersionPrefix>
+      <VersionSuffix>beta-01</VersionSuffix>
       <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>

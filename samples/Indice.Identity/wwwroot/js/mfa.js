@@ -50,7 +50,7 @@
                 });
                 connection.on('LoginRejected', function () { });
                 connection.start()
-                    .then(() => onConnected(connection))
+                    .then(() => self.onConnected(connection))
                     .catch(error => console.error(error.message));
             }
         }

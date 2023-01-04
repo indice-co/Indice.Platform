@@ -31,7 +31,6 @@ namespace Microsoft.Extensions.DependencyInjection
                            .AddUserManager<ExtendedUserManager<User>>()
                            .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                            .AddExtendedSignInManager()
-                           .AddRememberTwoFactorClientDatabase()
                            .AddDefaultPasswordValidators()
                            .AddPasswordValidator<AllowedCharactersPasswordValidator>()
                            .AddDefaultTokenProviders()

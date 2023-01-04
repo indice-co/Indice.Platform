@@ -20,7 +20,6 @@ namespace Indice.AspNetCore.Identity
         private readonly IClientStore _clientStore;
         private readonly ExtendedUserManager<User> _userManager;
         private readonly ExtendedSignInManager<User> _signInManager;
-        private readonly IRememberTwoFactorClientProvider<User> _rememberTwoFactorClientProvider;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
@@ -32,15 +31,13 @@ namespace Indice.AspNetCore.Identity
         /// <param name="clientStore">Retrieval of client configuration.</param>
         /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
         /// <param name="signInManager">Provides the APIs for user sign in.</param>
-        /// <param name="rememberTwoFactorClientProvider"></param>
         public AccountService(
             IIdentityServerInteractionService interaction,
             IHttpContextAccessor httpContextAccessor,
             IAuthenticationSchemeProvider schemeProvider,
             IClientStore clientStore,
             ExtendedUserManager<User> userManager,
-            ExtendedSignInManager<User> signInManager,
-            IRememberTwoFactorClientProvider<User> rememberTwoFactorClientProvider
+            ExtendedSignInManager<User> signInManager
         ) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -48,7 +45,6 @@ namespace Indice.AspNetCore.Identity
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-            _rememberTwoFactorClientProvider = rememberTwoFactorClientProvider ?? throw new ArgumentNullException(nameof(rememberTwoFactorClientProvider));
         }
 
         /// <inheritdoc />
@@ -94,7 +90,7 @@ namespace Indice.AspNetCore.Identity
                 ClientId = context?.Client?.ClientId,
                 EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
                 ExternalProviders = providers.ToArray(),
-                GenerateDeviceId = _rememberTwoFactorClientProvider.GetType().Equals(typeof(RememberTwoFactorClientDatabase<User>)),
+                GenerateDeviceId = true,
                 Operation = context?.Parameters?.AllKeys?.Contains(ExtraQueryParamNames.Operation) == true ? context?.Parameters[ExtraQueryParamNames.Operation] : null,
                 ReturnUrl = returnUrl,
                 UserName = context?.LoginHint
@@ -107,7 +103,7 @@ namespace Indice.AspNetCore.Identity
             if (user is null) {
                 return default;
             }
-            var trustedDevicesCount = await _userManager.GetTrustedDevicesCountAsync(user);
+            var trustedDevicesCount = await _userManager.GetDevicesCountAsync(user, UserDeviceListFilter.TrustedNativeDevices());
             var deliveryChannel = TotpDeliveryChannel.None;
             if (trustedDevicesCount > 0) {
                 deliveryChannel = TotpDeliveryChannel.PushNotification;
