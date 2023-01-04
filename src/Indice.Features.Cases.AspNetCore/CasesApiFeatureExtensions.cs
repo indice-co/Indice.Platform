@@ -4,6 +4,7 @@ using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Events;
+using Indice.Features.Cases.Factories;
 using Indice.Features.Cases.Handlers;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Mvc.Conventions;
@@ -67,10 +68,12 @@ namespace Indice.Features.Cases
             services.AddHttpContextAccessor();
 
             // Register no op services.
-            services.AddTransient<NoOpLookupService>();
-            services.AddTransient<Func<string, ILookupService>>(serviceProvider => key => serviceProvider.GetService<NoOpLookupService>());
+            services.AddCaseLookupService<NoOpLookupService>();
             services.AddTransient<ICustomerIntegrationService, NoOpCustomerIntegrationService>();
             services.AddTransient<ICasePdfService, NoOpCasePdfService>();
+
+            // Register LookupService Factory
+            services.AddTransient<ILookupServiceFactory, DefaultLookupServiceFactory>();
 
             // Register custom services.
             services.AddTransient<IMyCaseService, MyCaseService>();

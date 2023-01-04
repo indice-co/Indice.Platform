@@ -1,5 +1,5 @@
 ﻿using System.Net.Mime;
-using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Factories;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Types;
@@ -22,11 +22,11 @@ namespace Indice.Features.Cases.Controllers
     [Route("[casesApiPrefix]/manage/lookups")]
     public class LookupController : ControllerBase
     {
-        private Func<string, ILookupService> _getLookupService { get; }
+        private ILookupServiceFactory _lookupServiceFactory { get; }
 
         /// <inheritdoc/>
-        public LookupController(Func<string, ILookupService> getLookupService) {
-            _getLookupService = getLookupService ?? throw new ArgumentNullException(nameof(getLookupService));
+        public LookupController(ILookupServiceFactory lookupServiceFactory) {
+            _lookupServiceFactory = lookupServiceFactory ?? throw new ArgumentNullException(nameof(lookupServiceFactory));
         }
 
         /// <summary>
@@ -40,7 +40,7 @@ namespace Indice.Features.Cases.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<LookupItem>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetLookup([FromRoute] string lookupName, [FromQuery] SearchValues searchValues = null) {
-            var lookupService = _getLookupService(lookupName);
+            var lookupService = _lookupServiceFactory.Create(lookupName);
             var lookupItems = await lookupService.Get(searchValues);
             return Ok(lookupItems);
         }

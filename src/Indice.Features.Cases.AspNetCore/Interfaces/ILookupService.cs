@@ -5,10 +5,15 @@ using Indice.Types;
 namespace Indice.Features.Cases.Interfaces
 {
     /// <summary>
-    /// Lookup service.
+    /// Lookup service Interface.
     /// </summary>
     public interface ILookupService
     {
+        /// <summary>
+        /// The name of the Lookup service.
+        /// </summary>
+        public string Name { get; }
+
         /// <summary>
         /// Get the <see cref="ResultSet{T}"/> of a <see cref="LookupItem"/> for a specific lookup name.
         /// </summary>

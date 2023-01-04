@@ -7,6 +7,8 @@ namespace Indice.Features.Cases.Services.NoOpServices
 {
     internal class NoOpLookupService : ILookupService
     {
+        public string Name => nameof(NoOpLookupService);
+
         public Task<ResultSet<LookupItem>> Get(SearchValues searchValues = null) =>
             throw new NotImplementedException("Implement this interface with your own data sources.");
     }
