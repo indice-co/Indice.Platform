@@ -10,11 +10,6 @@ namespace Indice.Features.Cases.Interfaces
     public interface ILookupService
     {
         /// <summary>
-        /// The name of the Lookup service.
-        /// </summary>
-        public string Name { get; }
-
-        /// <summary>
         /// Get the <see cref="ResultSet{T}"/> of a <see cref="LookupItem"/> for a specific lookup name.
         /// </summary>
         /// <param name="searchValues">Any search values to filter the results.</param>

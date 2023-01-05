@@ -2,25 +2,20 @@
 
 namespace Indice.Features.Cases.Factories
 {
+    /// <summary>Default lookup service factory.</summary>
     public class DefaultLookupServiceFactory : ILookupServiceFactory
     {
         /// <summary>Constructs the factory given all the available implementations of the <see cref="ILookupService"/>.</summary>
-        /// <param name="services">The available implementations</param>
-        public DefaultLookupServiceFactory(IEnumerable<ILookupService> services) {
-            Services = services ?? throw new ArgumentNullException(nameof(services));
+        /// <param name="getLookupService"></param>
+        public DefaultLookupServiceFactory(Func<string, ILookupService> getLookupService) {
+            _getLookupService = getLookupService ?? throw new ArgumentNullException(nameof(getLookupService));
         }
 
-        /// <summary>Available <see cref="ILookupService"/> implementations.</summary>
-        protected IEnumerable<ILookupService> Services { get; }
+        private Func<string, ILookupService> _getLookupService { get; }
 
         /// <inheritdoc />
         public ILookupService Create(string name) {
-            foreach (var service in Services) {
-                if (service.Name.Equals(name)) {
-                    return service;
-                }
-            }
-            throw new NotSupportedException(name);
+            return _getLookupService(name);
         }
     }
 }
