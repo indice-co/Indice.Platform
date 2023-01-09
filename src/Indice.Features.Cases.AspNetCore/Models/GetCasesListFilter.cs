@@ -35,6 +35,11 @@ namespace Indice.Features.Cases.Models
         public List<string> CaseTypeCodes { get; set; }
 
         /// <summary>
+        /// The list of checkpoint type Ids to filter.
+        /// </summary>
+        internal List<string> CheckpointTypeIds { get; set; }
+
+        /// <summary>
         /// The list of checkpoint type codes to filter.
         /// </summary>
         public List<string> CheckpointTypeCodes { get; set; }
