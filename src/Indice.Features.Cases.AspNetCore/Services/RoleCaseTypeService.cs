@@ -49,8 +49,7 @@ namespace Indice.Features.Cases.Services
 
             filter.CheckpointTypeIds = ApplyCheckpointTypeFilter(filter.CheckpointTypeCodes, roleClaims, roleCaseTypes);
             filter.CaseTypeCodes = ApplyCaseTypeFilter(filter.CaseTypeCodes, roleClaims, roleCaseTypes);
-
-            // TODO: admin is not enough, we probably need to get the "get all cases" role from config
+            
             if ((filter.CaseTypeCodes is null || filter.CaseTypeCodes.Count == 0) ||
                 (filter.CheckpointTypeIds is null || filter.CheckpointTypeIds.Count == 0)) {
                 // if the (non-admin) user comes with no available caseTypes or CheckpointTypes to see, tough luck!
@@ -162,9 +161,8 @@ namespace Indice.Features.Cases.Services
             return await _distributedCache.TryGetAndSetAsync(
                 cacheKey: $"{_roleCaseTypesCacheKey}",
                 getSourceAsync: async () => await _dbContext.RoleCaseTypes
-                   .Include(c => c.CaseType)
-                   .Include(c => c.CheckpointType)
-                   .Select(c => new RoleCaseType {
+                    .AsQueryable()
+                    .Select(c => new RoleCaseType {
                        Id = c.Id,
                        RoleName = c.RoleName,
                        CaseTypeId = c.CaseTypeId,
@@ -177,8 +175,8 @@ namespace Indice.Features.Cases.Services
                            Id = c.CheckpointTypeId,
                            Code = c.CheckpointType!.Code
                        }
-                   })
-                   .ToListAsync(),
+                     })
+                    .ToListAsync(),
                 options: new DistributedCacheEntryOptions {
                     AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
                 });

@@ -130,9 +130,8 @@ namespace Indice.Features.Cases.Services
             if (options.Filter.To != null) {
                 query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
             }
-            // filter CaseTypeCodes
+            // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
             if (options.Filter.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Count() > 0) {
-                // you can reach this with an empty array only if you are admin/systemic user
                 query = query.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
             }
             // also: filter CheckpointTypeIds
