@@ -8,8 +8,10 @@ namespace Indice.AspNetCore.Identity.Models
     {
         /// <summary>The delivery channel that should be used to send the TOTP.</summary>
         public TotpDeliveryChannel DeliveryChannel { get; set; }
-        /// <summary></summary>
+        /// <summary>The user entity.</summary>
         public TUser User { get; set; }
+        /// <summary>Allows to choose less secure channel for MFA, if possible.</summary>
+        public bool AllowMfaChannelDowngrade { get; set; }
     }
 
     /// <summary>MFA login view model.</summary>

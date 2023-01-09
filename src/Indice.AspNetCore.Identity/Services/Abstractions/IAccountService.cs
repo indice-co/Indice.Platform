@@ -11,7 +11,8 @@ namespace Indice.AspNetCore.Identity
         Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl);
         /// <summary>Builds the <see cref="MfaLoginViewModel"/>.</summary>
         /// <param name="returnUrl">The return URL to go to after successful login.</param>
-        Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string returnUrl);
+        /// <param name="downgradeMfaChannel">Chooses a less secure channel for MFA, if possible.</param>
+        Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string returnUrl, bool downgradeMfaChannel = false);
         /// <summary>Generic counterpart in case someone extends the basic <see cref="RegisterViewModel"/> with extra properties.</summary>
         /// <typeparam name="TRegisterViewModel">The type of <see cref="RegisterViewModel"/>.</typeparam>
         /// <param name="returnUrl">The return URL.</param>

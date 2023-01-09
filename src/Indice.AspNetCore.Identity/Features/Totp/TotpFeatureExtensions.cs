@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Security;
 using IdentityServer4.Configuration;
-using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Features;
 using Indice.Configuration;
 using Indice.Services;

@@ -11,6 +11,8 @@ using Indice.AspNetCore.Identity.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace Indice.AspNetCore.Identity
 {
@@ -20,6 +22,7 @@ namespace Indice.AspNetCore.Identity
         private readonly IClientStore _clientStore;
         private readonly ExtendedUserManager<User> _userManager;
         private readonly ExtendedSignInManager<User> _signInManager;
+        private readonly IConfiguration _configuration;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
@@ -31,13 +34,15 @@ namespace Indice.AspNetCore.Identity
         /// <param name="clientStore">Retrieval of client configuration.</param>
         /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
         /// <param name="signInManager">Provides the APIs for user sign in.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public AccountService(
             IIdentityServerInteractionService interaction,
             IHttpContextAccessor httpContextAccessor,
             IAuthenticationSchemeProvider schemeProvider,
             IClientStore clientStore,
             ExtendedUserManager<User> userManager,
-            ExtendedSignInManager<User> signInManager
+            ExtendedSignInManager<User> signInManager,
+            IConfiguration configuration
         ) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -45,6 +50,7 @@ namespace Indice.AspNetCore.Identity
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         /// <inheritdoc />
@@ -98,10 +104,19 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string returnUrl) {
+        public async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string returnUrl, bool downgradeMfaChannel = false) {
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             if (user is null) {
                 return default;
+            }
+            var allowMfaChannelDowngrade = _configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowChannelDowngrade") ?? false;
+            if (downgradeMfaChannel && allowMfaChannelDowngrade) {
+                return new MfaLoginViewModel {
+                    DeliveryChannel = TotpDeliveryChannel.Sms,
+                    ReturnUrl = returnUrl,
+                    User = user,
+                    AllowMfaChannelDowngrade = true
+                };
             }
             var trustedDevicesCount = await _userManager.GetDevicesCountAsync(user, UserDeviceListFilter.TrustedNativeDevices());
             var deliveryChannel = TotpDeliveryChannel.None;
@@ -117,7 +132,8 @@ namespace Indice.AspNetCore.Identity
             return new MfaLoginViewModel {
                 DeliveryChannel = deliveryChannel,
                 ReturnUrl = returnUrl,
-                User = user
+                User = user,
+                AllowMfaChannelDowngrade = allowMfaChannelDowngrade
             };
         }
 

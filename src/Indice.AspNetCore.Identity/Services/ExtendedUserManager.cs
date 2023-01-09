@@ -236,7 +236,9 @@ namespace Indice.AspNetCore.Identity
                 return result;
             }
             await _eventService.Publish(new PasswordChangedEvent(user));
-            result = await SetLockoutEndDateAsync(user, null);
+            if (await IsLockedOutAsync(user)) {
+                result = await SetLockoutEndDateAsync(user, null);
+            }
             return result;
         }
 

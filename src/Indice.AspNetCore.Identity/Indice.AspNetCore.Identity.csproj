@@ -5,6 +5,7 @@
   <PropertyGroup Label="Package">
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <Version>6.4.4</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Bogus" Version="34.0.2" />

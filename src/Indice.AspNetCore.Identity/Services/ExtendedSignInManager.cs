@@ -24,7 +24,8 @@ namespace Indice.AspNetCore.Identity
     /// <typeparam name="TUser">The type encapsulating a user.</typeparam>
     public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : User
     {
-        private const int DEFAULT_REMEMBER_DURATION_IN_DAYS = 90;
+        /// <summary>Default duration in days for two-factor remember.</summary>
+        public const int DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS = 90;
         private const string LOGIN_PROVIDER_KEY = "LoginProvider";
         private const string XSRF_KEY = "XsrfId";
         private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
@@ -57,7 +58,7 @@ namespace Indice.AspNetCore.Identity
             ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
             ExternalScheme = configuration.GetIdentityOption<string>(nameof(IdentityOptions.SignIn), nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
             PersistTrustedBrowsers = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(PersistTrustedBrowsers)) == true;
-            RememberDurationInDays = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberDurationInDays)) ?? DEFAULT_REMEMBER_DURATION_IN_DAYS;
+            MfaRememberDurationInDays = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS;
             RememberTrustedBrowserAcrossSessions = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberTrustedBrowserAcrossSessions)) == true;
         }
 
@@ -76,8 +77,8 @@ namespace Indice.AspNetCore.Identity
         /// <summary>Decides whether a trusted browser should be stored in the <see cref="UserDevice"/> table.</summary>
         public bool PersistTrustedBrowsers { get; }
         /// <summary>Defines the number of days that the browser will remember the MFA action and will not require re-authentication.</summary>
-        public int RememberDurationInDays { get; }
-        /// <summary></summary>
+        public int MfaRememberDurationInDays { get; }
+        /// <summary>Defines whether to remember device even if a relevant cookie does not exist.</summary>
         public bool RememberTrustedBrowserAcrossSessions { get; }
 
         #region Method Overrides
@@ -98,7 +99,7 @@ namespace Indice.AspNetCore.Identity
                 }
             }
             var providerKey = auth.Principal.FindFirstValue(Options.ClaimsIdentity.UserIdClaimType);
-            if (providerKey == null || !(items[LOGIN_PROVIDER_KEY] is string provider)) {
+            if (providerKey == null || items[LOGIN_PROVIDER_KEY] is not string provider) {
                 return null;
             }
             var providerDisplayName = (await GetExternalAuthenticationSchemesAsync()).FirstOrDefault(p => p.Name == provider)?.DisplayName ?? provider;
@@ -251,10 +252,15 @@ namespace Indice.AspNetCore.Identity
         #endregion
 
         #region Custom Methods
-        public async Task RemoveMfaSessionsAsync(TUser user) {
+        /// <summary></summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public async Task RevokeMfaSessionsAsync(TUser user) {
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
+            await Task.CompletedTask;
 
         }
         #endregion
@@ -282,7 +288,7 @@ namespace Indice.AspNetCore.Identity
                 if (device is not null) {
                     device.IsTrusted = true;
                     device.TrustActivationDate = DateTimeOffset.UtcNow;
-                    device.MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(RememberDurationInDays);
+                    device.MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(MfaRememberDurationInDays);
                     await ExtendedUserManager.UpdateDeviceAsync(user, device);
                 } else {
                     var userAgent = Context.Request.Headers[HeaderNames.UserAgent];
