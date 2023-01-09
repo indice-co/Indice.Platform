@@ -10,7 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Properly throw exceptions at `StartWorkflowHandler`
 ### Changed 
-- The GetLookup action method: SearchValues parameter is now a model
+- The GetLookup action method: searchValues parameter is now options
+### Removed
+- NoOpLookupService
 
 ## [6.4.0] - 2022-12-22
 Jumped to 6.4.0 to match other Indice Packages

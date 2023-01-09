@@ -214,7 +214,7 @@ export interface ICasesApiService {
     /**
      * Get a lookup result by lookupName and options.
      * @param lookupName The lookup name that determines the used lookup Service.
-     * @param filter_FilterTerms (optional) Key
+     * @param filter_FilterTerms (optional) A list of FilterTerms
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -2887,7 +2887,7 @@ export class CasesApiService implements ICasesApiService {
     /**
      * Get a lookup result by lookupName and options.
      * @param lookupName The lookup name that determines the used lookup Service.
-     * @param filter_FilterTerms (optional) Key
+     * @param filter_FilterTerms (optional) A list of FilterTerms
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
@@ -6619,9 +6619,9 @@ export interface IEditCaseRequest {
 
 /** The Filter Term model. */
 export class FilterTerm implements IFilterTerm {
-    /** Key */
+    /** FilterTerm's Key */
     key?: string | undefined;
-    /** The value of a Independent Field that can optionally used in lookup Value... */
+    /** FilterTerm's Value */
     value?: string | undefined;
 
     constructor(data?: IFilterTerm) {
@@ -6657,9 +6657,9 @@ export class FilterTerm implements IFilterTerm {
 
 /** The Filter Term model. */
 export interface IFilterTerm {
-    /** Key */
+    /** FilterTerm's Key */
     key?: string | undefined;
-    /** The value of a Independent Field that can optionally used in lookup Value... */
+    /** FilterTerm's Value */
     value?: string | undefined;
 }
 
