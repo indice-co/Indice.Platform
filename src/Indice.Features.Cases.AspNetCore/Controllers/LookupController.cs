@@ -30,18 +30,17 @@ namespace Indice.Features.Cases.Controllers
         }
 
         /// <summary>
-        /// Get a lookup by lookupName.
+        /// Get a lookup result by lookupName and options.
         /// </summary>
-        /// <param name="lookupName">The lookup name to retrieve.</param>
-        /// <param name="searchValues">Any search values to filter the lookup results.</param>
-        /// <returns></returns>
+        /// <param name="lookupName">The lookup name that determines the used lookup Service.</param>
+        /// <param name="options">Any options to filter the lookup results.</param>
         [HttpGet("{lookupName}")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<LookupItem>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetLookup([FromRoute] string lookupName, [FromQuery] SearchValues searchValues = null) {
+        public async Task<IActionResult> GetLookup([FromRoute] string lookupName, [FromQuery] ListOptions<LookupFilter> options = null) {
             var lookupService = _lookupServiceFactory.Create(lookupName);
-            var lookupItems = await lookupService.Get(searchValues);
+            var lookupItems = await lookupService.Get(options);
             return Ok(lookupItems);
         }
     }

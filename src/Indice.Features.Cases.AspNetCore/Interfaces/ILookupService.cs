@@ -12,8 +12,8 @@ namespace Indice.Features.Cases.Interfaces
         /// <summary>
         /// Get the <see cref="ResultSet{T}"/> of a <see cref="LookupItem"/> for a specific lookup name.
         /// </summary>
-        /// <param name="searchValues">Any search values to filter the results.</param>
+        /// <param name="options">Any options to filter the lookup results.</param>
         /// <returns></returns>
-        Task<ResultSet<LookupItem>> Get(SearchValues searchValues = null);
+        Task<ResultSet<LookupItem>> Get(ListOptions<LookupFilter> options = null);
     }
 }

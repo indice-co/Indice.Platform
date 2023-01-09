@@ -212,15 +212,17 @@ export interface ICasesApiService {
      */
     getCustomerData(customerId: string, caseTypeCode: string, api_version?: string | undefined): Observable<CustomerData>;
     /**
-     * Get a lookup by lookupName.
-     * @param lookupName The lookup name to retrieve.
-     * @param id (optional) An Id that can optionally used in lookup, e.g. a customerId
-     * @param independentFieldValue (optional) The value of a Independent Field that can optionally used in lookup
-     * @param category (optional) The Category that can optionally used in lookup, e.g. product family
+     * Get a lookup result by lookupName and options.
+     * @param lookupName The lookup name that determines the used lookup Service.
+     * @param filter_FilterTerms (optional) Key
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
      * @param api_version (optional) 
      * @return Success
      */
-    getLookup(lookupName: string, id?: string | undefined, independentFieldValue?: string | undefined, category?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet>;
+    getLookup(lookupName: string, filter_FilterTerms?: FilterTerm[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet>;
     /**
      * Get saved queries.
      * @param api_version (optional) 
@@ -2883,31 +2885,46 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Get a lookup by lookupName.
-     * @param lookupName The lookup name to retrieve.
-     * @param id (optional) An Id that can optionally used in lookup, e.g. a customerId
-     * @param independentFieldValue (optional) The value of a Independent Field that can optionally used in lookup
-     * @param category (optional) The Category that can optionally used in lookup, e.g. product family
+     * Get a lookup result by lookupName and options.
+     * @param lookupName The lookup name that determines the used lookup Service.
+     * @param filter_FilterTerms (optional) Key
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
      * @param api_version (optional) 
      * @return Success
      */
-    getLookup(lookupName: string, id?: string | undefined, independentFieldValue?: string | undefined, category?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet> {
+    getLookup(lookupName: string, filter_FilterTerms?: FilterTerm[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<LookupItemResultSet> {
         let url_ = this.baseUrl + "/api/manage/lookups/{lookupName}?";
         if (lookupName === undefined || lookupName === null)
             throw new Error("The parameter 'lookupName' must be defined.");
         url_ = url_.replace("{lookupName}", encodeURIComponent("" + lookupName));
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "Id=" + encodeURIComponent("" + id) + "&";
-        if (independentFieldValue === null)
-            throw new Error("The parameter 'independentFieldValue' cannot be null.");
-        else if (independentFieldValue !== undefined)
-            url_ += "IndependentFieldValue=" + encodeURIComponent("" + independentFieldValue) + "&";
-        if (category === null)
-            throw new Error("The parameter 'category' cannot be null.");
-        else if (category !== undefined)
-            url_ += "Category=" + encodeURIComponent("" + category) + "&";
+        if (filter_FilterTerms === null)
+            throw new Error("The parameter 'filter_FilterTerms' cannot be null.");
+        else if (filter_FilterTerms !== undefined)
+            filter_FilterTerms && filter_FilterTerms.forEach((item, index) => {
+                for (let attr in item)
+        			if (item.hasOwnProperty(attr)) {
+        				url_ += "Filter.FilterTerms[" + index + "]." + attr + "=" + encodeURIComponent("" + (item as any)[attr]) + "&";
+        			}
+            });
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
         else if (api_version !== undefined)
@@ -6598,6 +6615,52 @@ export class EditCaseRequest implements IEditCaseRequest {
 export interface IEditCaseRequest {
     /** The data in json string. */
     data?: string | undefined;
+}
+
+/** The Filter Term model. */
+export class FilterTerm implements IFilterTerm {
+    /** Key */
+    key?: string | undefined;
+    /** The value of a Independent Field that can optionally used in lookup Value... */
+    value?: string | undefined;
+
+    constructor(data?: IFilterTerm) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.key = _data["key"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): FilterTerm {
+        data = typeof data === 'object' ? data : {};
+        let result = new FilterTerm();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["key"] = this.key;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+/** The Filter Term model. */
+export interface IFilterTerm {
+    /** Key */
+    key?: string | undefined;
+    /** The value of a Independent Field that can optionally used in lookup Value... */
+    value?: string | undefined;
 }
 
 /** The lookup item model. */

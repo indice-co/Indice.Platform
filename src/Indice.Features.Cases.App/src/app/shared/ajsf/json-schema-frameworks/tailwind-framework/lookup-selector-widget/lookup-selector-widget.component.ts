@@ -1,9 +1,10 @@
 import { buildTitleMap, isArray, JsonSchemaFormService } from "@ajsf-extended/core";
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import * as _ from "lodash";
 import { Subject } from "rxjs";
 import { take, takeUntil } from "rxjs/operators";
 import { CaseDetailsService } from "src/app/core/services/case-details.service";
-import { CaseDetails, CasesApiService, LookupItemResultSet } from "src/app/core/services/cases-api.service";
+import { CaseDetails, CasesApiService, FilterTerm, LookupItemResultSet } from "src/app/core/services/cases-api.service";
 
 @Component({
   selector: 'app-lookup-selector-widget',
@@ -14,13 +15,13 @@ export class LookupSelectorWidgetComponent implements OnInit {
   controlName: string | undefined;
   controlValue: string | undefined;
   /**
-  * Holds the name of the field that the widget is dependent on.
+  * Holds the name(s) of the field(s) that the widget is dependent on.
   */
-  independentFieldName: string | undefined;
+  lookupFilterFields: string[] | undefined;
   /**
-  * Holds the current value of the field that the widget is dependent on.
+  * Holds the current value(s) of the field(s) that the widget is dependent on.
   */
-  independentFieldValue: any;
+  lookupFilterFieldValues: any = {};
   /**
   * This widget is part of a form.
   * The form is part of a specific case.
@@ -50,14 +51,16 @@ export class LookupSelectorWidgetComponent implements OnInit {
     this.options = this.layoutNode.options || {};
     // Get lookup's Name
     let lookupName = this.options['lookup-name'] ?? this.controlName;
-    // Get lookup's Category
-    let lookupCategory = this.options['lookup-category'];
-    // Is the widget dependent on another form field?
-    this.independentFieldName = this.options['independentField'];
-    if (this.independentFieldName) {
-      // Widget is dependent: Get the current value of independent Field
-      this.independentFieldValue = this.jsf.data[this.independentFieldName];
+    // Get lookup's Filter Terms
+    let lookupFilterTerms: FilterTerm[] = [];
+    if (this.options['lookup-filter-terms']) {
+      // clone the array
+      lookupFilterTerms = JSON.parse(JSON.stringify(this.options['lookup-filter-terms']))
     }
+    // Is the widget dependent on another form field(s)?
+    this.lookupFilterFields = this.options['lookup-filter-fields'];
+    // is Widget dependent? Get the current value of independent Fields
+    this.lookupFilterFields?.forEach((x) => this.lookupFilterFieldValues[x] = this.jsf.data[x]);
     // now, fetch case's Details to get customer Id
     this._caseDetailsService.caseDetails$.pipe(
       takeUntil(this.destroy$),
@@ -65,10 +68,16 @@ export class LookupSelectorWidgetComponent implements OnInit {
     )
       .subscribe((caseDetails: CaseDetails) => {
         this.customerId = caseDetails.customerId;
-        if (!this.independentFieldName || (this.independentFieldName && this.independentFieldValue)) {
-          // notice that, we always send the customerId.
+        if (!this.lookupFilterFields || (this.lookupFilterFields && !_.isEmpty(this.lookupFilterFieldValues) && this.propertiesHaveValues(this.lookupFilterFieldValues))) {
+          // notice that, we always send a customerId.
           // Not really a problem: it can be ignored server-side if not needed.
-          this._api.getLookup(lookupName, this.customerId, this.independentFieldValue, lookupCategory).pipe(
+          lookupFilterTerms.push(new FilterTerm({ key: 'customerId', value: this.customerId }));
+          if (this.lookupFilterFields) {
+            for (const key in this.lookupFilterFieldValues) {
+              lookupFilterTerms.push(new FilterTerm({ key: key, value: this.lookupFilterFieldValues[key] }));
+            }
+          }
+          this._api.getLookup(lookupName, lookupFilterTerms).pipe(
             takeUntil(this.destroy$)
           ).subscribe(
             // get lookUp Items
@@ -91,22 +100,39 @@ export class LookupSelectorWidgetComponent implements OnInit {
           this.jsf.initializeControl(this);
         }
         // Additionally: If the widget dependent on another form field, subscribe to form data Changes!
-        if (this.independentFieldName) {
+        if (this.lookupFilterFields) {
           this.jsf.dataChanges.pipe(
             takeUntil(this.destroy$)
           ).subscribe(
             // form data changed!
             (formData: any) => {
               // did independent Field data change?
-              if (formData[this.independentFieldName!] != this.independentFieldValue) {
+              let filterFieldValueChanged: boolean = false;
+              for (const key in this.lookupFilterFieldValues) {
+                if (formData[key] && formData[key] != this.lookupFilterFieldValues[key]) {
+                  filterFieldValueChanged = true;
+                  // update current independent Field Value
+                  this.lookupFilterFieldValues[key] = formData[key];
+                }
+              }
+              if (filterFieldValueChanged) {
                 // set formControl null - not crazy about that...
                 this.formControl = null;
                 this.jsf.formGroup.value[this.controlName!] = null;
                 this.jsf.formGroup.controls[this.controlName!].value = null;
-                // update current independent Field Value
-                this.independentFieldValue = formData[this.independentFieldName!];
+                // "re-init" lookupFilterTerms
+                let lookupFilterTerms: FilterTerm[] = [];
+                if (this.options['lookup-filter-terms']) {
+                  lookupFilterTerms = JSON.parse(JSON.stringify(this.options['lookup-filter-terms']))
+                }
                 // get the new lookups
-                this._api.getLookup(lookupName, this.customerId, this.independentFieldValue, lookupCategory).pipe(
+                lookupFilterTerms.push(new FilterTerm({ key: 'customerId', value: this.customerId }));
+                if (this.lookupFilterFields) {
+                  for (const key in this.lookupFilterFieldValues) {
+                    lookupFilterTerms.push(new FilterTerm({ key: key, value: this.lookupFilterFieldValues[key] }));
+                  }
+                }
+                this._api.getLookup(lookupName, lookupFilterTerms).pipe(
                   takeUntil(this.destroy$)
                 ).subscribe(
                   (lookUpItems: LookupItemResultSet) => {
@@ -137,6 +163,15 @@ export class LookupSelectorWidgetComponent implements OnInit {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private propertiesHaveValues(obj: any): boolean {
+    for (const key in obj) {
+      if (obj[key] == null || obj[key] == undefined) {
+        return false;
+      }
+    }
+    return true;
   }
 
 }
