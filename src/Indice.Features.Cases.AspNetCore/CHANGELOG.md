@@ -6,13 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Fixed
+- Properly throw exceptions at `StartWorkflowHandler`
+### Changed 
+- The GetLookup action method: searchValues parameter is now options
+
+## [6.4.0] - 2022-12-22
 Jumped to 6.4.0 to match other Indice Packages
 ### Added
 - Support for net7
-### Fixed
-- Properly throw exceptions at `StartWorkflowHandler`
 
-## [6.2.0] - 2022-12-13 
+## [6.2.0] - 2022-12-13
+
 ### Changed 
 - `CasePublicStatus` changed to `CaseStatus`. We are not using the word `Public` anymore. The checkpoint types have the flag `Public` for this reason.
 ### Removed 
@@ -27,7 +33,8 @@ SET Code = RIGHT(Code, LEN(Code) - CHARINDEX(':', Code))
 sp_rename 'case.CheckpointType.PublicStatus', 'Status', 'column'
 ```
 
-## [6.1.0] - 2022-12-09 
+## [6.1.0] - 2022-12-09
+
 ### Added
 - New entity `DbCaseTypeCategory`
 - New navigation property `CaseType.Category`
