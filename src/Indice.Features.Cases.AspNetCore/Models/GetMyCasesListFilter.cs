@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Indice.Features.Cases.Data.Models;
+﻿using Indice.Features.Cases.Data.Models;
 using Indice.Types;
 
 namespace Indice.Features.Cases.Models

@@ -1,50 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Description>Indice.AspNetCore Class Library</Description>
-    <Copyright>Copyright (c) 2018 Indice</Copyright>
-    <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <VersionPrefix>6.2.2</VersionPrefix>
-    <!--<VersionSuffix>beta-07</VersionSuffix>-->
-    <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
-    <TargetFrameworks>netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
-    <AssemblyName>Indice.AspNetCore</AssemblyName>
-    <AssemblyTitle>Indice.AspNetCore</AssemblyTitle>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>Latest</LangVersion>
-  </PropertyGroup>
   <PropertyGroup Label="Package">
-    <IsPackable>true</IsPackable>
-    <PackageId>Indice.AspNetCore</PackageId>
     <PackageTags>AspNetCore;TagHelpers;Grid;Sorting;Paging</PackageTags>
     <PackageReleaseNotes>Update Indice.Services.</PackageReleaseNotes>
-    <PackageIcon>icon-310.png</PackageIcon>
-    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
-    <Company>Indice</Company>
-    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
-    <!-- including PDB files in NuGet for source link because symbolsource.org does not support portable PDBs -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.1" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="10.4.0" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.2.3" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="6.2.2" />
-    <PackageReference Include="Indice.Services" Version="6.2.2" />
-    <PackageReference Include="Markdig" Version="0.28.1" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Services" Version="$(VersionPrefix)" />
+    <PackageReference Include="Markdig" Version="0.30.4" />
     <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="1.0.0-beta14" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.4.0" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.8" />

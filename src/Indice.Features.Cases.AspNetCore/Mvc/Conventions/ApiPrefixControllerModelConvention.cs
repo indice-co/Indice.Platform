@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
+﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 namespace Indice.Features.Cases.Mvc.Conventions
 {

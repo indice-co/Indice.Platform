@@ -1,15 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>Indice.AspNet Class Library</Description>
-    <Copyright>Copyright (c) 2018 Indice</Copyright>
     <AssemblyTitle>Indice.AspNet</AssemblyTitle>
     <VersionPrefix>1.0.4</VersionPrefix>
     <!--<VersionSuffix>beta1</VersionSuffix>-->
     <Authors>Constantinos Leftheris, Giorgos Manoltzas</Authors>
     <TargetFramework>net47</TargetFramework>
+    <TargetFrameworks></TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
     <AssemblyName>Indice.AspNet</AssemblyName>
     <AssemblyTitle>Indice.AspNet</AssemblyTitle>
-    <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <IsPackable>true</IsPackable>

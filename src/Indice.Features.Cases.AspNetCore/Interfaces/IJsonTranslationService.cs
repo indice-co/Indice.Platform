@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Indice.Features.Cases.Interfaces
+﻿namespace Indice.Features.Cases.Interfaces
 {
     /// <summary>
     /// Json Translation Interface

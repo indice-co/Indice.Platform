@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Indice.Features.Cases.Models.Responses
+﻿namespace Indice.Features.Cases.Models.Responses
 {
     /// <summary>
     /// The translation of the case type category.

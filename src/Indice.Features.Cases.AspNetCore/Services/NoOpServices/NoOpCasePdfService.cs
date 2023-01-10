@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Indice.Features.Cases.Interfaces;
+﻿using Indice.Features.Cases.Interfaces;
 
 namespace Indice.Features.Cases.Services.NoOpServices
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Indice.Types;
+﻿using Indice.Types;
 
 namespace Indice.Features.Cases.Models
 {
@@ -35,6 +33,11 @@ namespace Indice.Features.Cases.Models
         /// The list of case type codes to filter.
         /// </summary>
         public List<string> CaseTypeCodes { get; set; }
+
+        /// <summary>
+        /// The list of checkpoint type Ids to filter.
+        /// </summary>
+        internal List<string> CheckpointTypeIds { get; set; }
 
         /// <summary>
         /// The list of checkpoint type codes to filter.

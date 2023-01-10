@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Threading.Tasks;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 
@@ -19,7 +18,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="filter"></param>
         /// <returns></returns>
         public Task<GetCasesListFilter> ApplyFilterFor(ClaimsPrincipal user, GetCasesListFilter filter);
-        
+
         /// <summary>
         /// When a caseId is requested, it must return true in order to reach the 
         /// caller

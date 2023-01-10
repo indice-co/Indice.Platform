@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.Features.Cases.Interfaces;
+﻿using Indice.Features.Cases.Interfaces;
 
 namespace Indice.Features.Cases.Events
 {

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
 using Elsa.Design;
 using Elsa.Expressions;
 using Elsa.Services.Models;
-using IdentityModel;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Services;
@@ -67,7 +64,7 @@ namespace Indice.Features.Cases.Workflows.Activities
                 context.GetHttpContextUser()!,
                 new Message {
                     Data = caseData,
-                    Comment = _casesMessageDescriber.EditCaseComment(user.FindDisplayName(), user.FindFirstValue(JwtClaimTypes.Email)),
+                    Comment = _casesMessageDescriber.EditCaseComment(user.FindDisplayName(), user.FindFirstValue(BasicClaimTypes.Email)),
                     PrivateComment = true
                 });
             Output = caseData!;

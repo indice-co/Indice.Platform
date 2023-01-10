@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Indice.Features.Cases.Models.Responses
+﻿namespace Indice.Features.Cases.Models.Responses
 {
     /// <summary>
     /// The customer response object that contains information from the integration system. Properties that have no direct mapping to this model

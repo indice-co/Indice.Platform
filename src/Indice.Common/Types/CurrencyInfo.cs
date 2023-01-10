@@ -164,8 +164,8 @@ namespace Indice.Globalization
                 }
             }
             // Format everything else normally.
-            if (arg is IFormattable) {
-                return ((IFormattable)arg).ToString(format, formatProvider);
+            if (arg is IFormattable formattable) {
+                return formattable.ToString(format, formatProvider);
             } else {
                 return arg.ToString();
             }

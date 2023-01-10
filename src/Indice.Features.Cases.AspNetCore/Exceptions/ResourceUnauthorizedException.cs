@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Indice.Features.Cases.Exceptions
+﻿namespace Indice.Features.Cases.Exceptions
 {
     /// <summary>
     /// Exception type for the unauthorized access to a case.

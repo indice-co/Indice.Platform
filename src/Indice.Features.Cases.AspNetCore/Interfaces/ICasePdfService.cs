@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Indice.Features.Cases.Interfaces
+﻿namespace Indice.Features.Cases.Interfaces
 {
     /// <summary>
     /// The pdf service for generating PDF from case data.

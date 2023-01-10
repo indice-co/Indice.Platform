@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Mime;
 using System.Security.Claims;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
@@ -156,7 +157,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
             });
             // Register validators.
-            mvcBuilder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>());
+            services.AddFluentValidationAutoValidation();
+            services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
             // Register framework services.
             services.AddResponseCaching();
             // Register custom services.
@@ -272,7 +274,7 @@ namespace Microsoft.Extensions.DependencyInjection
             });
         }
 
-        private static void UseContactResolverInternal<TContactResolver>(CampaignOptionsBase options) where TContactResolver : IContactResolver => 
+        private static void UseContactResolverInternal<TContactResolver>(CampaignOptionsBase options) where TContactResolver : IContactResolver =>
             options.Services.AddTransient(typeof(IContactResolver), typeof(TContactResolver));
     }
 }

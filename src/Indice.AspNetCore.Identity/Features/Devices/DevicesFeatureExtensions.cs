@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Api;
 using Indice.Services;
@@ -25,7 +26,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddPushNotificationServiceNoop();
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
-            builder.AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<DevicesFeatureProvider>());
+            services.AddFluentValidationAutoValidation();
+            services.AddValidatorsFromAssemblyContaining<DevicesFeatureProvider>();
             return builder;
         }
     }

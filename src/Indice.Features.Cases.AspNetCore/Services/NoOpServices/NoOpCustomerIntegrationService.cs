@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Indice.Features.Cases.Interfaces;
+﻿using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 

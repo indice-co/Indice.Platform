@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Events;
@@ -90,7 +86,7 @@ namespace Indice.Features.Cases.Services
             // which we catch and return an empty resultset. 
             try {
                 options.Filter = await _roleCaseTypeProvider.Filter(user, options.Filter);
-            } catch (ResourceUnauthorizedException rue) {
+            } catch (ResourceUnauthorizedException) {
                 return new List<CasePartial>().ToResultSet();
             }
 
@@ -116,6 +112,7 @@ namespace Indice.Features.Cases.Services
                     },
                     Metadata = @case.Metadata,
                     GroupId = @case.GroupId,
+                    CheckpointTypeId = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Id,
                     CheckpointTypeCode = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Code,
                     AssignedToName = @case.AssignedTo.Name
                 });
@@ -133,15 +130,13 @@ namespace Indice.Features.Cases.Services
             if (options.Filter.To != null) {
                 query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
             }
-            // filter CaseTypeCodes
+            // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
             if (options.Filter.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Count() > 0) {
-                // you can reach this with an empty array only if you are admin
                 query = query.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
             }
-            // also: filter CheckpointTypeCodes
-            if (options.Filter.CheckpointTypeCodes != null && options.Filter.CheckpointTypeCodes.Count() > 0) {
-                // you can reach this with an empty array only if you are admin
-                query = query.Where(c => options.Filter.CheckpointTypeCodes.Contains(c.CheckpointTypeCode));
+            // also: filter CheckpointTypeIds
+            if (options.Filter.CheckpointTypeIds is not null && options.Filter.CheckpointTypeIds.Count() > 0) {
+                query = query.Where(c => options.Filter.CheckpointTypeIds.Contains(c.CheckpointTypeId.ToString()));
             }
             // filter by group ID, if it is present
             if (options.Filter.GroupIds != null && options.Filter.GroupIds.Count() > 0) {

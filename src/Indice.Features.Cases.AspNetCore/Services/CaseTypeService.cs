@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using IdentityModel;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Interfaces;
@@ -46,11 +41,11 @@ namespace Indice.Features.Cases.Services
 
         public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool canCreate) {
             if (user.IsAdmin()) {
-                return await GetAdminCases();
+                return await GetAdminCaseTypes();
             }
 
             var roleClaims = user.Claims
-                .Where(c => c.Type == JwtClaimTypes.Role)
+                .Where(c => c.Type == BasicClaimTypes.Role)
                 .Select(c => c.Value)
                 .ToList();
 
@@ -255,7 +250,7 @@ namespace Indice.Features.Cases.Services
             return await _dbContext.CaseTypes.AsQueryable().AnyAsync(c => c.Code == caseTypeCode);
         }
 
-        private async Task<ResultSet<CaseTypePartial>> GetAdminCases() {
+        private async Task<ResultSet<CaseTypePartial>> GetAdminCaseTypes() {
             var caseTypes = await _dbContext.CaseTypes
                 .AsQueryable()
                     .Select(c => new CaseTypePartial {

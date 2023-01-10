@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Mime;
-using System.Threading.Tasks;
+﻿using System.Net.Mime;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Types;

@@ -1,49 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <Description>Indice.Hosting Class Library</Description>
-    <Copyright>Copyright (c) 2019 Indice</Copyright>
-    <VersionPrefix>6.2.1</VersionPrefix>
-    <!--<VersionSuffix>beta-01</VersionSuffix>-->
-    <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
-    <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>
-    <AssemblyName>Indice.Hosting</AssemblyName>
-    <AssemblyTitle>Indice.Hosting</AssemblyTitle>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>Latest</LangVersion>
-  </PropertyGroup>
   <PropertyGroup Label="Package">
-    <IsPackable>true</IsPackable>
-    <PackageId>Indice.Hosting</PackageId>
+    <TargetFrameworks>netstandard2.1;net5.0;net6.0;net7.0;</TargetFrameworks>
     <PackageTags>Background Tasks;Hosting;Hosted Services</PackageTags>
-    <PackageReleaseNotes>Update Indice.Services.</PackageReleaseNotes>
-    <PackageIcon>icon-310.png</PackageIcon>
-    <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
-    <Company>Indice</Company>
-    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
+    <PackageReference Include="Indice.Services" Version="$(VersionPrefix)" />
+    <PackageReference Include="Quartz" Version="3.5.0" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Indice.Services" Version="6.2.1" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
-    <PackageReference Include="Quartz" Version="3.4.0" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.1" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.12" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.28" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.32" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Services\Indice.Services.csproj" />
