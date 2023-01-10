@@ -12,7 +12,7 @@ import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry
 })
 export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
-  public model$;
+  public model$: Observable<CaseDetails> | undefined;
 
   private _caseActions: ReplaySubject<CaseActions> = new ReplaySubject(1);
   public caseActions$ = this._caseActions.asObservable();
@@ -41,9 +41,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     private caseDetailsService: CaseDetailsService,
     private route: ActivatedRoute,
     private router: Router,
-    private toaster: ToasterService) {
-    this.model$ = this.caseDetailsService.caseDetails$;
-  }
+    private toaster: ToasterService) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(p => {
@@ -84,6 +82,8 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
         tap((response: CaseDetails) => {
           this.caseTypeConfig = response.caseType?.config ? JSON.parse(response.caseType?.config) : {};
           this.caseDetailsService.setCaseDetails(response);
+          // ensure that we have the correct "latest" caseDetails!
+          this.model$ = this.caseDetailsService.caseDetails$;
         }),
         takeUntil(this.componentDestroy$)
       ).subscribe();
