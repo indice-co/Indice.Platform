@@ -24,10 +24,10 @@ export class DateWidgetComponent implements OnInit {
 
   readonly minDateDays = 0;
   readonly minDateMonths = 0;
-  readonly minDateYears = -3;
+  readonly minDateYears = -100;
   readonly maxDateDays = 0;
   readonly maxDateMonths = 0;
-  readonly maxDateYears = 1;
+  readonly maxDateYears = 100;
 
   constructor(
     private jsf: JsonSchemaFormService
@@ -35,16 +35,10 @@ export class DateWidgetComponent implements OnInit {
 
   ngOnInit() {
     this.options = this.layoutNode.options || {};
-    if (this.options.min) {
-      this.min = this.options.min;
-    } else {
-      this.min = this.setMinDate(this.options);
-    }
-    if (this.options.max) {
-      this.max = this.options.max
-    } else {
-      this.max = this.setMaxDate(this.options)
-    }
+
+    this.min = this.setMinDate(this.options);
+    this.max = this.setMaxDate(this.options);
+
     this.jsf.initializeControl(this);
   }
 
@@ -53,26 +47,26 @@ export class DateWidgetComponent implements OnInit {
   }
 
   private setMinDate(options: any): string {
-    var currentDate = moment(new Date());
+    if (this.options.min !== undefined) {
+      return this.options.min;
+    }
+    const currentDate = moment(new Date());
     currentDate.add(options.minDateYears ?? this.minDateYears, 'years').year();
     currentDate.add(options.minDateMonths ?? this.minDateMonths, 'months').month();
     currentDate.add(options.minDateDays ?? this.minDateDays, 'days').date();
 
-    var year = currentDate.year();
-    var month = (currentDate.month() + 1).toLocaleString('en-GR', { minimumIntegerDigits: 2, useGrouping: false });
-    var day = currentDate.date().toLocaleString('en-GR', { minimumIntegerDigits: 2, useGrouping: false });
-    return `${year}-${month}-${day}`;
+    return currentDate.format("YYYY-MM-DD");
   }
 
   private setMaxDate(options: any): string {
-    var currentDate = moment(new Date());
+    if (this.options.max) {
+      return this.options.max
+    }
+    const currentDate = moment(new Date());
     currentDate.add(options.maxDateYears ?? this.maxDateYears, 'years').year();
     currentDate.add(options.maxDateMonths ?? this.maxDateMonths, 'months').month();
     currentDate.add(options.maxDateDays ?? this.maxDateDays, 'days').date();
 
-    var year = currentDate.year();
-    var month = (currentDate.month() + 1).toLocaleString('en-GR', { minimumIntegerDigits: 2, useGrouping: false });
-    var day = currentDate.date().toLocaleString('en-GR', { minimumIntegerDigits: 2, useGrouping: false });
-    return `${year}-${month}-${day}`;
+    return currentDate.format("YYYY-MM-DD");
   }
 }
