@@ -68,6 +68,7 @@ namespace Indice.Features.Cases
             services.AddHttpContextAccessor();
 
             // Register no op services.
+            services.AddLookupService<NoOpLookupService>(nameof(NoOpLookupService)); // needed for factory instantiation
             services.AddTransient<ICustomerIntegrationService, NoOpCustomerIntegrationService>();
             services.AddTransient<ICasePdfService, NoOpCasePdfService>();
 
