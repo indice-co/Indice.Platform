@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- ## [Unreleased] -->
 
-## [6.4.1] - 2023-01-10
+## [6.4.2] - 2023-01-10
 ### Added
 - a lookup-selector widget
 ### Fixed
