@@ -65,6 +65,7 @@ namespace Indice.Features.Cases.Services
                 Status = latestCheckpoint.CheckpointType.Status,
                 CreatedByWhen = @case.CreatedBy.When,
                 CreatedById = @case.CreatedBy.Id,
+                CreatedByEmail = @case.CreatedBy.Email,
                 CaseType = new CaseTypePartial {
                     Code = @case.CaseType.Code,
                     Title = @case.CaseType.Title,

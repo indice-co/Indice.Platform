@@ -20,7 +20,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         private readonly IAdminCaseService _adminCaseService;
 
         public RemoveAssignmentActivity(
-            IAdminCaseMessageService caseMessageService, 
+            IAdminCaseMessageService caseMessageService,
             IAdminCaseService adminCaseService)
             : base(caseMessageService) {
             _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));

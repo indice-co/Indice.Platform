@@ -22,7 +22,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="metadata">The metadata the case might have.</param>
         /// <returns></returns>
         Task<Guid> CreateDraft(ClaimsPrincipal user, string caseTypeCode, string groupId, CustomerMeta customer, Dictionary<string, string> metadata);
-        
+
         /// <summary>
         /// Update the case with the case data and does a json instance-schema validation of the case type's schema (<see cref="DbCaseType.DataSchema"/>).
         /// </summary>
@@ -102,7 +102,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="caseId"></param>
         /// <returns></returns>
         Task<ResultSet<CaseAttachment>> GetAttachments(Guid caseId);
-        
+
         /// <summary>
         /// Get single Case Attachment data
         /// </summary>
@@ -110,5 +110,13 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="attachmentId"></param>
         /// <returns></returns>
         Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId);
+    }
+
+    public static class AdminCaseServiceExtensions
+    {
+        public static Task<AuditMeta> AssignCase(this IAdminCaseService service, AuditMeta user, Guid caseId) {
+
+            return service.AssignCase()
+        }
     }
 }

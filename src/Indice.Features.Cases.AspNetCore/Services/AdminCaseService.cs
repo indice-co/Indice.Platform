@@ -241,12 +241,12 @@ namespace Indice.Features.Cases.Services
         }
 
         public async Task<AuditMeta> AssignCase(ClaimsPrincipal user, Guid caseId) {
-            var assignedTo = AuditMeta.Create(user);
             var @case = await _dbContext.Cases.FindAsync(caseId);
             if (@case == null) {
                 throw new ArgumentNullException(nameof(@case));
             }
 
+            var assignedTo = AuditMeta.Create(user);
             if (@case.AssignedTo != null && @case.AssignedTo.Id != assignedTo.Id) {
                 throw new InvalidOperationException("Case is already assigned to another user.");
             }
