@@ -294,10 +294,10 @@ namespace Indice.AspNetCore.Identity.Tests
         }
 
         [Fact]
-        public async Task Can_Authorize_Existing_Device_Using_Fingerprint() {
+        public async Task Can_Authenticate_Existing_Device_Using_Fingerprint() {
             var registrationResult = await Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin();
             var codeVerifier = GenerateCodeVerifier();
-            var challenge = await InitiateDeviceAuthorizationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
+            var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
             var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
             var x509SigningCredentials = GetX509SigningCredentials();
             var signature = SignMessage(challenge, x509SigningCredentials);
@@ -398,7 +398,7 @@ namespace Indice.AspNetCore.Identity.Tests
 
             async Task<TokenResponse> LoginWithFingerprint(Guid registrationId) {
                 var codeVerifier = GenerateCodeVerifier();
-                var challenge = await InitiateDeviceAuthorizationUsingFingerprint(codeVerifier, registrationId);
+                var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationId);
                 var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
                 var x509SigningCredentials = GetX509SigningCredentials();
                 var signature = SignMessage(challenge, x509SigningCredentials);
@@ -439,7 +439,7 @@ namespace Indice.AspNetCore.Identity.Tests
             return response;
         }
 
-        private async Task<string> InitiateDeviceAuthorizationUsingFingerprint(string codeVerifier, Guid registrationId) {
+        private async Task<string> InitiateDeviceAuthenticationUsingFingerprint(string codeVerifier, Guid registrationId) {
             var codeChallenge = GenerateCodeChallenge(codeVerifier);
             var data = new Dictionary<string, string> {
                 { "client_id", CLIENT_ID },

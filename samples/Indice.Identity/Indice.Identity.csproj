@@ -14,7 +14,7 @@
     <Content Remove="bundleconfig.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.4.0" />
+    <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
     <!--<PackageReference Include="Indice.AspNetCore.Authentication.Apple" Version="5.2.1" />
     <PackageReference Include="Indice.AspNetCore.Identity" Version="5.4.4" />

@@ -12,13 +12,14 @@
             public const string TwoFactorAuthentication = "Two Factor Authentication";
             /// <summary>Session OTP.</summary>
             public const string SessionOtp = "Session OTP";
+            /// <summary>Multi factor authentication.</summary>
+            public const string MultiFactorAuthentication = "mfa";
         }
 
         /// <summary>Grant type.</summary>
         public static class GrantType
         {
             /// <summary>TOTP custom grant type.</summary>
-
             public const string Totp = "totp";
         }
     }

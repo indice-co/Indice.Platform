@@ -1,5 +1,4 @@
 ﻿using System;
-using Indice.AspNetCore.Identity.Authorization;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;

@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
-using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Factories;
+using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -21,26 +22,26 @@ namespace Indice.Features.Cases.Controllers
     [Route("[casesApiPrefix]/manage/lookups")]
     public class LookupController : ControllerBase
     {
-        private readonly ILookupService _lookupService;
+        private ILookupServiceFactory _lookupServiceFactory { get; }
 
         /// <inheritdoc/>
-        public LookupController(ILookupService lookupService) {
-            _lookupService = lookupService ?? throw new ArgumentNullException(nameof(lookupService));
+        public LookupController(ILookupServiceFactory lookupServiceFactory) {
+            _lookupServiceFactory = lookupServiceFactory ?? throw new ArgumentNullException(nameof(lookupServiceFactory));
         }
 
         /// <summary>
-        /// Get a lookup by lookupName.
+        /// Get a lookup result by lookupName and options.
         /// </summary>
-        /// <param name="lookupName">The lookup name to retrieve.</param>
-        /// <param name="searchValues">Any search values to filter the lookup results.</param>
-        /// <returns></returns>
+        /// <param name="lookupName">The lookup name that determines the used lookup Service.</param>
+        /// <param name="options">Any options to filter the lookup results.</param>
         [HttpGet("{lookupName}")]
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<LookupItem>))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> GetLookup([FromRoute] string lookupName, [FromQuery] string searchValues = null) {
-            var occupations = await _lookupService.Get(lookupName, searchValues);
-            return Ok(occupations);
+        public async Task<IActionResult> GetLookup([FromRoute] string lookupName, [FromQuery] ListOptions<LookupFilter> options = null) {
+            var lookupService = _lookupServiceFactory.Create(lookupName);
+            var lookupItems = await lookupService.Get(options);
+            return Ok(lookupItems);
         }
     }
 }

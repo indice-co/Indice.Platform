@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography.Xml;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Data.Models;
@@ -37,6 +36,8 @@ namespace Indice.AspNetCore.Identity
 
         /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
         protected ExtendedUserManager<TUser> UserManager { get; }
+        /// <summary>The token provider used by <see cref="TotpServiceUser{TUser}"/>.</summary>
+        public string TokenProvider => TokenOptions.DefaultPhoneProvider;
 
         /// <summary>Creates a TOTP and sends it as an SMS message.</summary>
         /// <param name="user">The user instance.</param>
@@ -44,7 +45,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
         public Task<TotpResult> SendToSmsAsync(TUser user, string message, string subject, string purpose = null)
-            => SendAsync(user, message, TotpDeliveryChannel.Sms, subject, purpose: purpose);
+            => SendAsync(user, message, TotpDeliveryChannel.Sms, subject, purpose);
 
         /// <summary>Creates a TOTP and sends it as a Viber message.</summary>
         /// <param name="user">The user instance.</param>
@@ -52,7 +53,7 @@ namespace Indice.AspNetCore.Identity
         /// <param name="subject">The subject of message.</param>
         /// <param name="purpose">Optional reason to generate the TOTP.</param>
         public Task<TotpResult> SendToViberAsync(TUser user, string message, string subject, string purpose = null)
-            => SendAsync(user, message, TotpDeliveryChannel.Viber, subject, purpose: purpose);
+            => SendAsync(user, message, TotpDeliveryChannel.Viber, subject, purpose);
 
         /// <summary>Creates a TOTP and sends it as a push notification.</summary>
         /// <param name="user">The user instance.</param>
@@ -136,14 +137,14 @@ namespace Indice.AspNetCore.Identity
                 return TotpResult.ErrorResult(_localizer["User's phone number does not exist or is not verified."]);
             }
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-            var token = await UserManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose);
+            var token = await UserManager.GenerateUserTokenAsync(user, TokenProvider, purpose);
             message = _localizer[message, token];
             var cacheKey = $"{nameof(TotpServiceUser<TUser>)}:{user.Id}:{channel}:{purpose}";
             if (await CacheKeyExistsAsync(cacheKey)) {
                 return TotpResult.ErrorResult(_localizer["Last token has not expired yet. Please wait a few seconds and try again."]);
             }
             if (channel == TotpDeliveryChannel.PushNotification) {
-                var trustedDevices = await UserManager.GetTrustedDevicesAsync(user);
+                var trustedDevices = await UserManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
                 var augmentedData = IncludeTokenInPushNotificationData(data, token);
                 foreach (var device in trustedDevices) {
                     await SendToChannelAsync(
@@ -221,7 +222,7 @@ namespace Indice.AspNetCore.Identity
                 throw new ArgumentNullException(nameof(user), "User is null.");
             }
             purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-            var verified = await UserManager.VerifyUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, purpose, code);
+            var verified = await UserManager.VerifyUserTokenAsync(user, TokenProvider, purpose, code);
             if (verified) {
                 await UserManager.UpdateSecurityStampAsync(user);
                 return TotpResult.SuccessResult;

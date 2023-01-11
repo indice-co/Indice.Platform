@@ -266,13 +266,13 @@ namespace Indice.Identity.Security
                 ClientUri = "http://localhost:4200",
                 PostLogoutRedirectUris = {
                     "http://localhost:4200",
-                    "https://localhost:2001/campaigns"
+                    "https://localhost:2001/messages"
                 },
                 RedirectUris = {
                     "http://localhost:4200/auth-callback",
                     "http://localhost:4200/auth-renew",
-                    "https://localhost:2001/campaigns/auth-callback",
-                    "https://localhost:2001/campaigns/auth-renew"
+                    "https://localhost:2001/messages/auth-callback",
+                    "https://localhost:2001/messages/auth-renew"
                 },
                 RequireClientSecret  = false,
                 RequirePkce = true,

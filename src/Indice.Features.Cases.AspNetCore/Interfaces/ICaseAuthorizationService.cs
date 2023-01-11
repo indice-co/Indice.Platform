@@ -18,7 +18,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="filter"></param>
         /// <returns></returns>
         public Task<GetCasesListFilter> ApplyFilterFor(ClaimsPrincipal user, GetCasesListFilter filter);
-        
+
         /// <summary>
         /// When a caseId is requested, it must return true in order to reach the 
         /// caller

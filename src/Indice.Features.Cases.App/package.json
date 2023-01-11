@@ -29,6 +29,7 @@
     "@tailwindcss/line-clamp": "^0.2.0",
     "@tailwindcss/typography": "^0.4.0",
     "@types/lodash": "^4.14.180",
+    "moment": "~2.29.1",
     "f": "^1.4.0",
     "file-saver": "^2.0.5",
     "lodash": "^4.17.21",
