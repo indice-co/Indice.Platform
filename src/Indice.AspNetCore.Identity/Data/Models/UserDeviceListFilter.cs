@@ -34,5 +34,11 @@
         public static UserDeviceListFilter NativeDevices() => new() {
             UserDeviceType = Models.UserDeviceType.Native
         };
+
+        /// <summary>Filter native devices.</summary>
+        public static UserDeviceListFilter TrustedBrowsers() => new() {
+            IsTrusted = true,
+            UserDeviceType = Models.UserDeviceType.Browser
+        };
     }
 }

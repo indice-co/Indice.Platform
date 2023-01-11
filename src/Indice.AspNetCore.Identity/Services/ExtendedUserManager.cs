@@ -475,13 +475,13 @@ namespace Indice.AspNetCore.Identity
         /// <param name="requiresPassword">Boolean value for <see cref="UserDevice.RequiresPassword"/> field.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
         /// <exception cref="ArgumentNullException"></exception>
-        public Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken = default) {
+        public Task<IdentityResult> SetNativeDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken = default) {
             ThrowIfDisposed();
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
             var deviceStore = GetDeviceStore();
-            return deviceStore.SetAllDevicesRequirePasswordAsync(user, requiresPassword, cancellationToken);
+            return deviceStore.SetNativeDevicesRequirePasswordAsync(user, requiresPassword, cancellationToken);
         }
 
         /// <summary>Begins the process of trusting a user device.</summary>

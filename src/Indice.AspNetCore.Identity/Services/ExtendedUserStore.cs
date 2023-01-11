@@ -225,12 +225,28 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken = default) {
+        public async Task<IdentityResult> SetNativeDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var devices = await GetDevicesAsync(user, cancellationToken: cancellationToken);
+            var devices = await GetDevicesAsync(user, UserDeviceListFilter.NativeDevices(), cancellationToken: cancellationToken);
             foreach (var device in devices) {
                 device.RequiresPassword = requiresPassword;
+            }
+            try {
+                await SaveChanges(cancellationToken);
+            } catch (DbUpdateConcurrencyException) {
+                return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+            }
+            return IdentityResult.Success;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IdentityResult> SetBrowsersMfaSessionExpirationDate(TUser user, DateTimeOffset? expirationDate, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var devices = await GetDevicesAsync(user, UserDeviceListFilter.TrustedBrowsers(), cancellationToken: cancellationToken);
+            foreach (var device in devices) {
+                device.MfaSessionExpirationDate = expirationDate;
             }
             try {
                 await SaveChanges(cancellationToken);

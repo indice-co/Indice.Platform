@@ -29,6 +29,7 @@ namespace Indice.AspNetCore.Identity
         private const string LOGIN_PROVIDER_KEY = "LoginProvider";
         private const string XSRF_KEY = "XsrfId";
         private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
+        private readonly IUserStore<TUser> _userStore;
 
         /// <summary>Creates a new instance of <see cref="SignInManager{TUser}" /></summary>
         /// <param name="userManager">An instance of <see cref="UserManager{TUser}"/> used to retrieve users from and persist users.</param>
@@ -49,9 +50,11 @@ namespace Indice.AspNetCore.Identity
             IAuthenticationSchemeProvider schemes,
             IUserConfirmation<TUser> confirmation,
             IConfiguration configuration,
-            IAuthenticationSchemeProvider authenticationSchemeProvider
+            IAuthenticationSchemeProvider authenticationSchemeProvider,
+            IUserStore<TUser> userStore
         ) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
+            _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
             EnforceMfa = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(EnforceMfa)) == true;
             RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
             RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true || EnforceMfa;
@@ -244,7 +247,7 @@ namespace Indice.AspNetCore.Identity
             var containsDeviceId = Context.Request.Form.TryGetValue("DeviceId", out var deviceId);
             if (containsDeviceId && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
                 var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId);
-                isRemembered = device is not null && device.MfaSessionExpirationDate > DateTimeOffset.UtcNow;
+                isRemembered = device is not null && device.MfaSessionExpirationDate.HasValue && device.MfaSessionExpirationDate.Value > DateTimeOffset.UtcNow;
                 return isRemembered;
             }
             return isRemembered;
@@ -256,12 +259,12 @@ namespace Indice.AspNetCore.Identity
         /// <param name="user"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public async Task RevokeMfaSessionsAsync(TUser user) {
+        public Task<IdentityResult> RevokeMfaSessionsAsync(TUser user) {
             if (user is null) {
                 throw new ArgumentNullException(nameof(user));
             }
-            await Task.CompletedTask;
-
+            var deviceStore = GetDeviceStore();
+            return deviceStore.SetBrowsersMfaSessionExpirationDate(user, null);
         }
         #endregion
 
@@ -441,6 +444,14 @@ namespace Indice.AspNetCore.Identity
                     break;
             }
             return devicePlatform;
+        }
+
+        private IUserDeviceStore<TUser> GetDeviceStore(bool throwOnFail = true) {
+            var cast = _userStore as IUserDeviceStore<TUser>;
+            if (throwOnFail && cast is null) {
+                throw new NotSupportedException($"Store does not implement {nameof(IUserDeviceStore<TUser>)}.");
+            }
+            return cast;
         }
         #endregion
     }
