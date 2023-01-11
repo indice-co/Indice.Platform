@@ -190,14 +190,17 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 }
             )
             .SingleOrDefaultAsync();
-            if (foundUser == null) {
+            if (foundUser is null) {
                 return NotFound();
             }
-            var claimTypes = await _configurationDbContext.ClaimTypes.ToListAsync();
-            foreach (var claim in foundUser.Claims) {
-                var claimType = claimTypes.SingleOrDefault(x => x.Name == claim.Type);
-                if (claimType != null) {
-                    claim.DisplayName = claimType.DisplayName;
+            var userClaimIds = foundUser.Claims.Select(claim => claim.Type).ToList();
+            if (userClaimIds.Any()) {
+                var claimTypes = await _configurationDbContext.ClaimTypes.Where(claim => userClaimIds.Contains(claim.Name)).ToListAsync();
+                foreach (var claim in foundUser.Claims) {
+                    var claimType = claimTypes.SingleOrDefault(x => x.Name == claim.Type);
+                    if (claimType != null) {
+                        claim.DisplayName = claimType.DisplayName;
+                    }
                 }
             }
             return Ok(foundUser);
@@ -563,15 +566,19 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
             }
             var devices = await _userManager.GetDevicesAsync(user);
             var response = devices.Select(device => new DeviceInfo {
+                ClientType= device.Type,
                 Data = device.Data,
                 DateCreated = device.DateCreated,
                 DeviceId = device.DeviceId,
                 IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
+                IsTrusted= device.IsTrusted,
                 LastSignInDate = device.LastSignInDate,
                 Model = device.Model,
                 Name = device.Name,
                 OsVersion = device.OsVersion,
-                Platform = device.Platform
+                Platform = device.Platform,
+                SupportsFingerprintLogin = device.SupportsFingerprintLogin,
+                SupportsPinLogin= device.SupportsPinLogin
             })
             .ToResultSet();
             return Ok(response);

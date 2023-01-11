@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Reflection;
-using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hellang.Middleware.ProblemDetails;
+using IdentityModel;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Events;
@@ -14,18 +11,15 @@ using Indice.AspNetCore.Identity.Localization;
 using Indice.AspNetCore.Middleware;
 using Indice.Configuration;
 using Indice.Identity.Configuration;
+using Indice.Identity.Hubs;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
+using Indice.Security;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Net.Http.Headers;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -51,6 +45,7 @@ namespace Indice.Identity
         public GeneralSettings Settings { get; }
         /// <summary>Represents a type used to perform logging.</summary>
         public ILogger<Startup> Logger { get; }
+        public bool HasSignalRConnection { get; private set; }
 
         /// <summary>This method gets called by the runtime. Use this method to add services to the container.</summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
@@ -70,6 +65,18 @@ namespace Indice.Identity
                        .WithExposedHeaders("Content-Disposition");
             }));
             services.AddAuthenticationConfig(Configuration);
+            services.AddAuthorization(options => {
+                options.AddPolicy("BeDeviceAuthenticated", policy => {
+                    policy.AddAuthenticationSchemes(IdentityServerApi.AuthenticationScheme)
+                          .RequireAuthenticatedUser()
+                          .RequireAssertion(context =>
+                              context.User.HasScope(IdentityServerApi.Scope) && (
+                                  context.User.HasClaim(JwtClaimTypes.AuthenticationMethod, CustomGrantTypes.DeviceAuthentication) ||
+                                 (context.User.IsAdmin() && !HostingEnvironment.IsProduction())
+                              )
+                          );
+                });
+            });
             services.AddIdentityConfig(Configuration);
             services.AddIdentityServerConfig(HostingEnvironment, Configuration, Settings);
             services.AddProblemDetailsConfig(HostingEnvironment);
@@ -77,6 +84,9 @@ namespace Indice.Identity
             services.AddSmsServiceYubotoOmni(Configuration);
             services.AddEmailServiceSparkpost(Configuration)
                     .WithMvcRazorRendering();
+            services.Configure<AntiforgeryOptions>(options => {
+                options.HeaderName = "X-XSRF-TOKEN";
+            });
             services.AddSwaggerGen(options => {
                 options.IndiceDefaults(Settings);
                 options.AddFluentValidationSupport();
@@ -102,8 +112,22 @@ namespace Indice.Identity
                        .AddConnectSrc(CSP.Self)
                        .AddConnectSrc("https://dc.services.visualstudio.com")
                        .AddConnectSrc("https://switzerlandnorth-0.in.applicationinsights.azure.com")
+                       .AddConnectSrc("wss://indice-identity.service.signalr.net")
+                       .AddConnectSrc("https://indice-identity.service.signalr.net")
                        .AddFrameAncestors("https://localhost:2002");
-            });
+            })
+            .AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
+            var signalRServiceConnection = Configuration.GetConnectionString("SignalRService");
+            HasSignalRConnection = !string.IsNullOrWhiteSpace(signalRServiceConnection);
+            if (HasSignalRConnection) {
+                services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
+                services.AddSignalR(options => {
+                    options.EnableDetailedErrors = !HostingEnvironment.IsProduction();
+                })
+                .AddAzureSignalR(options => {
+                    options.ConnectionString = signalRServiceConnection;
+                });
+            }
             services.AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
             services.AddFluentValidationAutoValidation();
             services.AddValidatorsFromAssemblyContaining<Startup>();
@@ -219,6 +243,9 @@ namespace Indice.Identity
                 endpoints.MapSwagger();
                 endpoints.MapControllers();
                 endpoints.MapDefaultControllerRoute();
+                if (HasSignalRConnection) {
+                    endpoints.MapHub<MultiFactorAuthenticationHub>("/mfa");
+                }
             });
         }
     }

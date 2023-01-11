@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Api.Events;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Events;
-using Indice.Identity;
 using Indice.Identity.Services;
 using Indice.Security;
 using Indice.Serialization;
@@ -15,7 +10,6 @@ using Indice.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -43,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
                                      .AddIdentityServerApiEndpoints(options => {
                                          options.AddDbContext(context => context.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb")));
                                          options.CanRaiseEvents = true;
-                                         options.DisableCache = false;
+                                         options.DisableCache = true;
                                          options.Email.SendEmailOnUpdate = true;
                                          options.Email.UpdateEmailTemplate = "Email";
                                          options.Email.ForgotPasswordTemplate = "Email";

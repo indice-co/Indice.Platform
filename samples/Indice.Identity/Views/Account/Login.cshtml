@@ -33,6 +33,7 @@
                     <div class="card-body">
                         <form asp-route="Login">
                             <input type="hidden" asp-for="ReturnUrl" />
+                            <input type="hidden" asp-for="DeviceId" />
                             <div class="form-group">
                                 <label asp-for="UserName">@Localizer["Username"]</label>
                                 <input class="form-control" placeholder="@Localizer["Username"]" asp-for="UserName" autofocus />
@@ -88,3 +89,18 @@
         }
     </div>
 </div>
+
+@section scripts {
+    @if (Model.GenerateDeviceId)
+    {
+        <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js"></script>
+        <script type="text/javascript" csp-nonce>
+            $(document).ready(function () {
+                const fpPromise = FingerprintJS.load();
+                fpPromise.then(fp => fp.get()).then(result => {
+                    $('#DeviceId').val(result.visitorId);
+                });
+            });
+        </script>
+    }
+}

@@ -14,8 +14,8 @@ namespace Indice.AspNetCore.Identity.DeviceAuthentication.Services
             _userManager = extendedUserManager ?? throw new ArgumentNullException(nameof(extendedUserManager));
         }
 
-        public Task Handle(UserNameChangedEvent @event) => _userManager.SetAllDevicesRequirePasswordAsync(@event.User, requiresPassword: true);
+        public Task Handle(UserNameChangedEvent @event) => _userManager.SetNativeDevicesRequirePasswordAsync(@event.User, requiresPassword: true);
 
-        public Task Handle(PasswordChangedEvent @event) => _userManager.SetAllDevicesRequirePasswordAsync(@event.User, requiresPassword: true);
+        public Task Handle(PasswordChangedEvent @event) => _userManager.SetNativeDevicesRequirePasswordAsync(@event.User, requiresPassword: true);
     }
 }

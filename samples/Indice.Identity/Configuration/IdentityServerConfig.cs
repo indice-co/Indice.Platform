@@ -1,33 +1,26 @@
-﻿using System;
-using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
 using Indice.Identity;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    /// <summary>
-    /// Contains methods for configuring IdentityServer instance.
-    /// </summary>
+    /// <summary>Contains methods for configuring IdentityServer instance.</summary>
     public static class IdentityServerConfig
     {
-        /// <summary>
-        /// Configures the IdentityServer instance.
-        /// </summary>
+        /// <summary>Configures the IdentityServer instance.</summary>
         /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
         /// <param name="hostingEnvironment">Provides information about the web hosting environment an application is running in.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="settings">General settings for an ASP.NET Core application.</param>
         /// <returns>The modified <see cref="IServiceCollection"/>.</returns>
         public static IIdentityServerBuilder AddIdentityServerConfig(this IServiceCollection services, IWebHostEnvironment hostingEnvironment, IConfiguration configuration, GeneralSettings settings) {
+            services.AddTransient<IAccountService, AccountService>();
             var migrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
             var identityServerBuilder = services.AddIdentityServer(options => {
                 options.Events.RaiseErrorEvents = true;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Indice.AspNetCore.Identity.Data.Extensions;
 using Indice.AspNetCore.Identity.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -175,49 +176,24 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
+        public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             return await UserDeviceSet
                 .Include(device => device.User)
                 .Where(device => device.UserId == user.Id)
+                .ApplyFilter(filter)
                 .ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task<IList<UserDevice>> GetTrustedDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            return await UserDeviceSet
-                .Include(device => device.User)
-                .Where(device => device.UserId == user.Id && device.IsTrusted)
-                .ToListAsync(cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task<IList<UserDevice>> GetTrustedOrPendingDevicesAsync(TUser user, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            return await UserDeviceSet
-                .Include(device => device.User)
-                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)))
-                .ToListAsync(cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task<int> GetDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
-            cancellationToken.ThrowIfCancellationRequested();
-            ThrowIfDisposed();
-            return await UserDevices.CountAsync(device => device.UserId == user.Id, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task<int> GetTrustedOrPendingDevicesCountAsync(TUser user, CancellationToken cancellationToken = default) {
+        public async Task<int> GetDevicesCountAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             return await UserDevices
-                .Where(device => device.UserId == user.Id && (device.IsTrusted || (device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow)))
-                .CountAsync(device => device.UserId == user.Id, cancellationToken);
+                .Where(device => device.UserId == user.Id)
+                .ApplyFilter(filter)
+                .CountAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -228,7 +204,7 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken) {
+        public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             Context.Update(device);
@@ -241,7 +217,7 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken) {
+        public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
             UserDeviceSet.Remove(device);
@@ -249,12 +225,28 @@ namespace Indice.AspNetCore.Identity.Data
         }
 
         /// <inheritdoc/>
-        public async Task<IdentityResult> SetAllDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken) {
+        public async Task<IdentityResult> SetNativeDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
-            var devices = await GetDevicesAsync(user, cancellationToken);
+            var devices = await GetDevicesAsync(user, UserDeviceListFilter.NativeDevices(), cancellationToken: cancellationToken);
             foreach (var device in devices) {
                 device.RequiresPassword = requiresPassword;
+            }
+            try {
+                await SaveChanges(cancellationToken);
+            } catch (DbUpdateConcurrencyException) {
+                return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+            }
+            return IdentityResult.Success;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IdentityResult> SetBrowsersMfaSessionExpirationDate(TUser user, DateTimeOffset? expirationDate, CancellationToken cancellationToken = default) {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+            var devices = await GetDevicesAsync(user, UserDeviceListFilter.TrustedBrowsers(), cancellationToken: cancellationToken);
+            foreach (var device in devices) {
+                device.MfaSessionExpirationDate = expirationDate;
             }
             try {
                 await SaveChanges(cancellationToken);

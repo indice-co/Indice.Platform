@@ -15,7 +15,11 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
     @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
     private _getDataSubscription: Subscription;
 
-    constructor(private _userStore: UserStore, private _route: ActivatedRoute, private _modalService: NgbModal) { }
+    constructor(
+        private _userStore: UserStore,
+        private _route: ActivatedRoute,
+        private _modalService: NgbModal
+    ) { }
 
     public columns: TableColumn[] = [];
     public rows: UserClientInfo[] = [];
@@ -29,15 +33,11 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
         const userId = this._route.parent.snapshot.params.id;
-        this._getDataSubscription = this._userStore.getUserApplications(userId).subscribe((userApplications: UserClientInfo[]) => {
-            this.rows = userApplications;
-        });
+        this._getDataSubscription = this._userStore.getUserApplications(userId).subscribe((userApplications: UserClientInfo[]) => this.rows = userApplications);
     }
 
     public ngOnDestroy(): void {
-        if (this._getDataSubscription) {
-            this._getDataSubscription.unsubscribe();
-        }
+        this._getDataSubscription?.unsubscribe();
     }
 
     public showDetails(client: UserClientInfo, content: any): void {
