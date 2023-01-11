@@ -25,7 +25,7 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <summary>Device OS version.</summary>
         public string OsVersion { get; set; }
         /// <summary>Describes the type of a user device.</summary>
-        public UserDeviceType? ClientType { get; set; }
+        public DeviceClientType? ClientType { get; set; }
         /// <summary>Extra metadata for the device.</summary>
         public dynamic Data { get; set; }
     }
