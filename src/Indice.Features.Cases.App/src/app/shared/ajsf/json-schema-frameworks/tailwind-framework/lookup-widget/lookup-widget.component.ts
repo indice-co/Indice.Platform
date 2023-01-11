@@ -43,7 +43,7 @@ export class LookupWidgetComponent implements OnInit {
       takeUntil(this.destroy$)
     ).subscribe(
       (lookUpItems: LookupItemResultSet) => {
-        for (let i = 0; i < lookUpItems?.count! - 1; i++) {
+        for (let i = 0; i < lookUpItems?.count!; i++) {
           this.options.typeahead.source.push(`${lookUpItems?.items![i].value} ${this.separator} ${lookUpItems?.items![i].name}`);
         }
         // initialize searchTerm
