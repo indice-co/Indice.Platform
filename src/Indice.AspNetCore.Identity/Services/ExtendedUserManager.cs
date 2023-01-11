@@ -299,7 +299,7 @@ namespace Indice.AspNetCore.Identity
                 throw new ArgumentNullException(nameof(device));
             }
             var deviceStore = GetDeviceStore();
-            if (device.Type.HasValue && device.Type == UserDeviceType.Native) {
+            if (device.ClientType.HasValue && device.ClientType == DeviceClientType.Native) {
                 var userClaims = await GetClaimsAsync(user);
                 var maxDevicesCountClaim = userClaims.FirstOrDefault(x => x.Type == BasicClaimTypes.MaxDevicesCount)?.Value;
                 int? userMaxDevicesCount = null;

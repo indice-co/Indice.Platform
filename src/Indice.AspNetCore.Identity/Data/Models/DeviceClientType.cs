@@ -1,7 +1,7 @@
 ﻿namespace Indice.AspNetCore.Identity.Data.Models
 {
     /// <summary>Describes the possible types of a user device.</summary>
-    public enum UserDeviceType
+    public enum DeviceClientType
     {
         /// <summary>A browser.</summary>
         /// <remarks>Can be both a desktop or mobile browser.</remarks>

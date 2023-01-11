@@ -127,7 +127,7 @@ namespace Indice.AspNetCore.Identity.Api
                 Platform = request.Platform,
                 PnsHandle = request.PnsHandle,
                 Tags = request.Tags?.ToArray(),
-                Type = request.ClientType
+                ClientType = request.ClientType
             };
             var result = await UserManager.CreateDeviceAsync(user, device);
             if (!result.Succeeded) {

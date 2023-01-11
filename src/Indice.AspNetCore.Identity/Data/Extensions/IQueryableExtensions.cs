@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Identity.Data.Extensions
                         (!filter.IsPendingTrustActivation.Value && device.TrustActivationDate.HasValue && device.TrustActivationDate.Value < DateTimeOffset.UtcNow)
                     )) &&
                     (filter.Blocked == null || device.Blocked == filter.Blocked) &&
-                    (filter.UserDeviceType == null || device.Type == filter.UserDeviceType)
+                    (filter.ClientType == null || device.ClientType == filter.ClientType)
                 );
             }
             return query;

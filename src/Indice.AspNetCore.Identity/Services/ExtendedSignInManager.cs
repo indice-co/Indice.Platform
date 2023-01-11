@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using IdentityModel;
+using Indice.AspNetCore.Identity.Configuration;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Security;
 using Indice.Types;
@@ -30,6 +31,7 @@ namespace Indice.AspNetCore.Identity
         private const string XSRF_KEY = "XsrfId";
         private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
         private readonly IUserStore<TUser> _userStore;
+        private readonly IMfaDeviceIdResolver _mfaDeviceIdResolver;
 
         /// <summary>Creates a new instance of <see cref="SignInManager{TUser}" /></summary>
         /// <param name="userManager">An instance of <see cref="UserManager{TUser}"/> used to retrieve users from and persist users.</param>
@@ -41,6 +43,8 @@ namespace Indice.AspNetCore.Identity
         /// <param name="confirmation">The <see cref="IUserConfirmation{TUser}"/> used check whether a user account is confirmed.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="authenticationSchemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
+        /// <param name="userStore">Provides an abstraction for a store which manages user accounts.</param>
+        /// <param name="mfaDeviceIdResolver">An abstraction used to specify the way to resolve the device identifier used for MFA.</param>
         public ExtendedSignInManager(
             ExtendedUserManager<TUser> userManager,
             IHttpContextAccessor contextAccessor,
@@ -51,10 +55,12 @@ namespace Indice.AspNetCore.Identity
             IUserConfirmation<TUser> confirmation,
             IConfiguration configuration,
             IAuthenticationSchemeProvider authenticationSchemeProvider,
-            IUserStore<TUser> userStore
+            IUserStore<TUser> userStore,
+            IMfaDeviceIdResolver mfaDeviceIdResolver
         ) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
             _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
+            _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
             EnforceMfa = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(EnforceMfa)) == true;
             RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
             RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true || EnforceMfa;
@@ -63,6 +69,7 @@ namespace Indice.AspNetCore.Identity
             PersistTrustedBrowsers = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(PersistTrustedBrowsers)) == true;
             MfaRememberDurationInDays = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS;
             RememberTrustedBrowserAcrossSessions = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberTrustedBrowserAcrossSessions)) == true;
+            RememberExpirationType = configuration.GetIdentityOption<MfaExpirationType?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberExpirationType)) ?? default;
         }
 
         private ExtendedUserManager<TUser> ExtendedUserManager => (ExtendedUserManager<TUser>)UserManager;
@@ -83,6 +90,8 @@ namespace Indice.AspNetCore.Identity
         public int MfaRememberDurationInDays { get; }
         /// <summary>Defines whether to remember device even if a relevant cookie does not exist.</summary>
         public bool RememberTrustedBrowserAcrossSessions { get; }
+        /// <summary>Type of expiration for <see cref="IdentityConstants.TwoFactorRememberMeScheme"/> cookie.</summary>
+        public MfaExpirationType RememberExpirationType { get; }
 
         #region Method Overrides
         /// <inheritdoc/>
@@ -157,6 +166,12 @@ namespace Indice.AspNetCore.Identity
             if (signInResult.Succeeded && (user is User)) {
                 user.LastSignInDate = DateTimeOffset.UtcNow;
                 await UserManager.UpdateAsync(user);
+                if (RememberExpirationType == MfaExpirationType.Sliding) {
+                    var authenticateResult = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
+                    if (authenticateResult.Succeeded && authenticateResult.Principal is not null) {
+                        await RememberTwoFactorClientAsync(user);
+                    }
+                }
             }
             return signInResult;
         }
@@ -244,8 +259,8 @@ namespace Indice.AspNetCore.Identity
             var userId = await UserManager.GetUserIdAsync(user);
             var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
             var isRemembered = result?.Principal is not null && result.Principal.FindFirstValue(JwtClaimTypes.Name) == userId;
-            var containsDeviceId = Context.Request.Form.TryGetValue("DeviceId", out var deviceId);
-            if (containsDeviceId && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
+            var deviceId = await _mfaDeviceIdResolver.Resolve();
+            if (!string.IsNullOrWhiteSpace(deviceId) && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
                 var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId);
                 isRemembered = device is not null && device.MfaSessionExpirationDate.HasValue && device.MfaSessionExpirationDate.Value > DateTimeOffset.UtcNow;
                 return isRemembered;
@@ -255,7 +270,7 @@ namespace Indice.AspNetCore.Identity
         #endregion
 
         #region Custom Methods
-        /// <summary></summary>
+        /// <summary>Revokes all sessions for user browsers.</summary>
         /// <param name="user"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
@@ -285,12 +300,12 @@ namespace Indice.AspNetCore.Identity
         }
 
         private async Task<ClaimsPrincipal> StoreRememberClient(TUser user) {
-            var containsDeviceId = Context.Request.Form.TryGetValue("DeviceId", out var deviceId);
-            if (PersistTrustedBrowsers && containsDeviceId) {
+            var deviceId = await _mfaDeviceIdResolver.Resolve();
+            if (PersistTrustedBrowsers && !string.IsNullOrWhiteSpace(deviceId)) {
                 var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId);
                 if (device is not null) {
                     device.IsTrusted = true;
-                    device.TrustActivationDate = DateTimeOffset.UtcNow;
+                    device.TrustActivationDate = device.TrustActivationDate ?? DateTimeOffset.UtcNow;
                     device.MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(MfaRememberDurationInDays);
                     await ExtendedUserManager.UpdateDeviceAsync(user, device);
                 } else {
@@ -312,7 +327,7 @@ namespace Indice.AspNetCore.Identity
                         OsVersion = osInfo,
                         Platform = DecideDevicePlatform(osInfo),
                         TrustActivationDate = DateTimeOffset.UtcNow,
-                        Type = UserDeviceType.Browser,
+                        ClientType = DeviceClientType.Browser,
                         User = user,
                         UserId = user.Id
                     };

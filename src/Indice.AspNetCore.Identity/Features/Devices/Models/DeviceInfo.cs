@@ -39,13 +39,13 @@ namespace Indice.AspNetCore.Identity.Api.Models
         /// <summary>Extra metadata for the device.</summary>
         public dynamic Data { get; set; }
         /// <summary>Describes the type of a user device.</summary>
-        public UserDeviceType? ClientType { get; set; }
+        public DeviceClientType? ClientType { get; set; }
     }
 
     internal static class DeviceInfoExtensions
     {
         public static Expression<Func<UserDevice, DeviceInfo>> ToDeviceInfo = (UserDevice device) => new DeviceInfo {
-            ClientType = device.Type,
+            ClientType = device.ClientType,
             Data = device.Data,
             DateCreated = device.DateCreated,
             DeviceId = device.DeviceId,
