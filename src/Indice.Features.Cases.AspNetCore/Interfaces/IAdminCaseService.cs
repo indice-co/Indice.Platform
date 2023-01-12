@@ -76,10 +76,10 @@ namespace Indice.Features.Cases.Interfaces
         /// <summary>
         /// Assign a case to the actor that initiated this method.
         /// </summary>
-        /// <param name="user">The user that initiated the call, and will be self-assigned to the case.</param>
+        /// <param name="assignedTo">The user that initiated the call, and will be self-assigned to the case.</param>
         /// <param name="caseId">The Id of the case to be assigned.</param>
         /// <returns></returns>
-        Task<AuditMeta> AssignCase(ClaimsPrincipal user, Guid caseId);
+        Task<AuditMeta> AssignCase(AuditMeta assignedTo, Guid caseId);
 
         /// <summary>
         /// Clears the assignment for a case.
@@ -110,13 +110,5 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="attachmentId"></param>
         /// <returns></returns>
         Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId);
-    }
-
-    public static class AdminCaseServiceExtensions
-    {
-        public static Task<AuditMeta> AssignCase(this IAdminCaseService service, AuditMeta user, Guid caseId) {
-
-            return service.AssignCase()
-        }
     }
 }

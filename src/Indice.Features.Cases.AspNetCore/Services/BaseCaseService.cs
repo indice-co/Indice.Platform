@@ -66,6 +66,7 @@ namespace Indice.Features.Cases.Services
                 CreatedByWhen = @case.CreatedBy.When,
                 CreatedById = @case.CreatedBy.Id,
                 CreatedByEmail = @case.CreatedBy.Email,
+                CreatedByName = @case.CreatedBy.Name,
                 CaseType = new CaseTypePartial {
                     Code = @case.CaseType.Code,
                     Title = @case.CaseType.Title,

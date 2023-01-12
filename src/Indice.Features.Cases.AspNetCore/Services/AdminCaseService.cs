@@ -240,13 +240,14 @@ namespace Indice.Features.Cases.Services
             return attachment;
         }
 
-        public async Task<AuditMeta> AssignCase(ClaimsPrincipal user, Guid caseId) {
+        public async Task<AuditMeta> AssignCase(AuditMeta assignedTo, Guid caseId) {
+            if (assignedTo.Id == default || string.IsNullOrEmpty(assignedTo.Email) || string.IsNullOrEmpty(assignedTo.Name)) {
+                throw new ArgumentException(nameof(assignedTo));
+            }
             var @case = await _dbContext.Cases.FindAsync(caseId);
             if (@case == null) {
                 throw new ArgumentNullException(nameof(@case));
             }
-
-            var assignedTo = AuditMeta.Create(user);
             if (@case.AssignedTo != null && @case.AssignedTo.Id != assignedTo.Id) {
                 throw new InvalidOperationException("Case is already assigned to another user.");
             }

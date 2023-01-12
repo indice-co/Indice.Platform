@@ -26,7 +26,7 @@ namespace Indice.Features.Cases.Data.Models
         /// <summary>
         /// The timestamp the audit happened.
         /// </summary>
-        public DateTimeOffset? When { get; set; }
+        public DateTimeOffset? When { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
         /// Clear the data of the instance.

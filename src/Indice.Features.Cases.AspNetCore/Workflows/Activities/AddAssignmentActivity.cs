@@ -1,7 +1,8 @@
-﻿using System.Security.Claims;
-using Elsa;
+﻿using Elsa;
 using Elsa.ActivityResults;
 using Elsa.Attributes;
+using Elsa.Design;
+using Elsa.Expressions;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Interfaces;
@@ -14,8 +15,8 @@ namespace Indice.Features.Cases.Workflows.Activities;
 [Activity(
     Category = "Cases",
     DisplayName = "Add Assignment",
-    Description = "Assign a back-office user a case.",
-    Outcomes = new[] { OutcomeNames.Done }
+    Description = "Assign the case to a back-office user.",
+    Outcomes = new[] { OutcomeNames.Done, CasesApiConstants.WorkflowVariables.OutcomeNames.Failed }
 )]
 internal class AddAssignmentActivity : BaseCaseActivity
 {
@@ -28,15 +29,18 @@ internal class AddAssignmentActivity : BaseCaseActivity
         _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
     }
 
-    public AuditMeta User { get; set; }
+    [ActivityInput(
+        Label = "User to assign",
+        Hint = "The AuditMeta object of the user to assign the case",
+        UIHint = ActivityInputUIHints.MultiLine,
+        DefaultSyntax = SyntaxNames.JavaScript,
+        SupportedSyntaxes = new[] { SyntaxNames.JavaScript }
+    )]
+    public AuditMeta AssignTo { get; set; } = new();
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-
-        var claimsPrincipal = Indice.Features.Cases.Extensions.PrincipalExtensions.FromCase()
-
-        await _adminCaseService.AssignCase(null, CaseId.Value);
-
+        await _adminCaseService.AssignCase(AssignTo, CaseId.Value);
         return Done();
     }
 }
