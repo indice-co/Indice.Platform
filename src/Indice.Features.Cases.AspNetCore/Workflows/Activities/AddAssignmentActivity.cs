@@ -40,7 +40,12 @@ internal class AddAssignmentActivity : BaseCaseActivity
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
-        await _adminCaseService.AssignCase(AssignTo, CaseId.Value);
+        try {
+            await _adminCaseService.AssignCase(AssignTo, CaseId.Value);
+        } catch (Exception ex) {
+            await LogCaseError(context, ex);
+            return Outcome("Failed");
+        }
         return Done();
     }
 }
