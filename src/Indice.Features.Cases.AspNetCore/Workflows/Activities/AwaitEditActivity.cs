@@ -21,7 +21,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         Category = "Cases",
         DisplayName = "Await Edit",
         Description = "Handles the edit of the data for case.",
-        Outcomes = new[] { OutcomeNames.Done, "Save" }
+        Outcomes = new[] { OutcomeNames.Done, CasesApiConstants.WorkflowVariables.OutcomeNames.Save }
     )]
     internal class AwaitEditActivity : BaseCaseActivity
     {

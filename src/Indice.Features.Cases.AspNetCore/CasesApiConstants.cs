@@ -94,6 +94,11 @@ namespace Indice.Features.Cases
                 /// Outcome for "Failed".
                 /// </summary>
                 public const string Failed = nameof(Failed);
+
+                /// <summary>
+                /// Outcome for "Save".
+                /// </summary>
+                public const string Save = nameof(Save);
             }
         }
     }
