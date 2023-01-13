@@ -65,7 +65,7 @@ namespace Indice.Features.GovGr
             var signatureVerified = await VerifySignature(encodedResponse);
 
             if (!signatureVerified) {
-                throw new Exception("signature could not be verified");
+                throw new Exception("Signature could not be verified.");
             }
             var jsonString = encodedResponse.Payload.Base64UrlSafeDecode();
             return JsonSerializer.Deserialize<KycPayload>(jsonString);
