@@ -118,9 +118,9 @@ namespace Indice.AspNetCore.Identity
                     AllowMfaChannelDowngrade = true
                 };
             }
-            var trustedDevicesCount = await _userManager.GetDevicesCountAsync(user, UserDeviceListFilter.TrustedNativeDevices());
+            var trustedDevices = await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
             var deliveryChannel = TotpDeliveryChannel.None;
-            if (trustedDevicesCount > 0) {
+            if (trustedDevices.Count > 0) {
                 deliveryChannel = TotpDeliveryChannel.PushNotification;
             } else {
                 var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
@@ -130,10 +130,11 @@ namespace Indice.AspNetCore.Identity
                 }
             }
             return new MfaLoginViewModel {
+                AllowMfaChannelDowngrade = allowMfaChannelDowngrade,
                 DeliveryChannel = deliveryChannel,
+                DeviceNames = trustedDevices.Select(x => x.Name),
                 ReturnUrl = returnUrl,
-                User = user,
-                AllowMfaChannelDowngrade = allowMfaChannelDowngrade
+                User = user
             };
         }
 
