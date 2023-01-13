@@ -5,7 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-<!-- ## [Unreleased]-->
+## [Unreleased]
+### Added
+- `CurrentCheckpoint` logic for BO users. This is a performance optimization
+### Migrations 
+```sql
+UPDATE c
+SET CurrentCheckpointId = B.Id
+FROM [case].[Case] c
+INNER JOIN (
+	SELECT *
+	FROM (
+		SELECT Id, CaseId, ROW_NUMBER() OVER (PARTITION BY [CaseId] ORDER BY CreatedByWhen DESC) AS Rn
+		FROM [case].[Checkpoint]
+	) A
+	WHERE A.Rn = 1 
+) AS B 
+	ON c.Id = B.CaseId
+```
 
 ## [6.4.1] - 2023-01-10
 ### Fixed
