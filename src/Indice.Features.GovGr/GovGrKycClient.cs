@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
-using System.Linq;
-using System.Net.Http;
+﻿using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using IdentityModel.Client;
 using Indice.Extensions;
-using Indice.Features.GovGr;
 using Indice.Features.GovGr.Configuration;
 using Indice.Features.GovGr.Interfaces;
 using Indice.Features.GovGr.Models;
 using Indice.Features.GovGr.Types;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Indice.Features.GovGr
 {
@@ -68,8 +62,50 @@ namespace Indice.Features.GovGr
                 throw new GovGrServiceException(response);
             }
             var encodedResponse = JsonSerializer.Deserialize<KycHttpResponse>(response);
+            var signatureVerified = await VerifySignature(encodedResponse);
+
+            if (!signatureVerified) {
+                throw new Exception("signature could not be verified");
+            }
             var jsonString = encodedResponse.Payload.Base64UrlSafeDecode();
             return JsonSerializer.Deserialize<KycPayload>(jsonString);
+        }
+
+        /// <summary>
+        /// Verify EGovKyc's Response Signature
+        /// </summary>
+        private async Task<bool> VerifySignature(KycHttpResponse kycHttpResponse) {
+            // Decode Protected
+            var protectedJsonString = kycHttpResponse.Protected.Base64UrlSafeDecode();
+            // Deserialize decoded Protected
+            var @protected = JsonSerializer.Deserialize<Protected>(protectedJsonString);
+
+            // Get Public Certificate
+            var client = new HttpClient();
+            var response2 = await client.GetAsync(@protected.X5u);
+            var certificatePemString = await response2.Content.ReadAsStringAsync();
+
+            // convert certificate string into X509 certificate
+            // https://stackoverflow.com/a/65352811/19162333
+            certificatePemString = certificatePemString.Replace("-----BEGIN CERTIFICATE-----", null).Replace("-----END CERTIFICATE-----", null);
+            var certificateByteArray = Convert.FromBase64String(certificatePemString);
+            var certificate = new X509Certificate2(certificateByteArray);
+            // use X509 certificate to create a signatureProvider
+            var securityKey = new X509SecurityKey(certificate);
+            var cryptoProviderFactory = securityKey.CryptoProviderFactory;
+            var signatureProvider = cryptoProviderFactory.CreateForVerifying(securityKey, "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
+
+            // Signature is BASE64URL Encoded!
+            var signatureByteArray = Base64UrlEncoder.DecodeBytes(kycHttpResponse.Signature);
+            // notice that we "JWT-concat" Protected & Payload!
+            var token = $"{kycHttpResponse.Protected}.{kycHttpResponse.Payload}";
+            var encodedByteArray = Encoding.UTF8.GetBytes(token);
+
+            // Is signature valid?
+            var isValid = signatureProvider.Verify(encodedByteArray, signatureByteArray);
+            // cleanup...
+            cryptoProviderFactory.ReleaseSignatureProvider(signatureProvider);
+            return isValid;
         }
 
         /// <summary>
