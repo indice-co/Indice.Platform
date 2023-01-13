@@ -13,6 +13,7 @@
         public string GroupId { get; set; }
         public Dictionary<string, string> Metadata { get; set; }
         public Guid? PublicCheckpointId { get; set; }
+        public Guid? CurrentCheckpointId { get; set; }
         public AuditMeta CreatedBy { get; set; }
         public AuditMeta CompletedBy { get; set; }
         public AuditMeta AssignedTo { get; set; }
@@ -20,6 +21,7 @@
         public string Channel { get; set; }
         public virtual DbCaseType CaseType { get; set; }
         public virtual DbCheckpoint PublicCheckpoint { get; set; }
+        public virtual DbCheckpoint CurrentCheckpoint { get; set; }
         public virtual List<DbAttachment> Attachments { get; set; } = new List<DbAttachment>();
         public virtual List<DbCheckpoint> Checkpoints { get; set; } = new List<DbCheckpoint>();
         public virtual List<DbComment> Comments { get; set; } = new List<DbComment>();
