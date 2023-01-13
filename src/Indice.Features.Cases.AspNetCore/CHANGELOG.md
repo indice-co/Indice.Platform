@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `CurrentCheckpoint` logic for BO users. This is a performance optimization
+- `Checkpoint` logic for BO users. This is a performance optimization
 ### Migrations 
 ```sql
 UPDATE c
-SET CurrentCheckpointId = B.Id
+SET CheckpointId = B.Id
 FROM [case].[Case] c
 INNER JOIN (
 	SELECT *
