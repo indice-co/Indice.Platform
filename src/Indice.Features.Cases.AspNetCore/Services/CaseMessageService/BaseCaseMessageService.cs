@@ -130,19 +130,19 @@ namespace Indice.Features.Cases.Services.CaseMessageService
         }
 
         private async Task<DbCheckpoint> AddCheckpoint(ClaimsPrincipal user, DbCase @case, DbCheckpointType checkpointType) {
-            var currentCheckpoint = await _dbContext.Checkpoints
+            var checkpoint = await _dbContext.Checkpoints
                 .Include(p => p.CheckpointType)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == @case.CurrentCheckpointId);
+                .FirstOrDefaultAsync(p => p.Id == @case.CheckpointId);
 
             // If the new checkpoint is the same as the last attempt, only add the comment. 
-            if (currentCheckpoint != null && currentCheckpoint.CheckpointType.Code == checkpointType.Code) {
-                return currentCheckpoint;
+            if (checkpoint != null && checkpoint.CheckpointType.Code == checkpointType.Code) {
+                return checkpoint;
             }
 
             // Else continue to change the checkpoint.
-            if (currentCheckpoint != null) {
-                currentCheckpoint.CompletedDate = DateTimeOffset.UtcNow;
+            if (checkpoint != null) {
+                checkpoint.CompletedDate = DateTimeOffset.UtcNow;
             }
 
             var nextCheckpoint = new DbCheckpoint {
@@ -159,7 +159,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                 @case.CompletedBy = AuditMeta.Create(user);
             }
 
-            @case.CurrentCheckpointId = nextCheckpoint.Id;
+            @case.CheckpointId = nextCheckpoint.Id;
             @case.Checkpoints.Add(nextCheckpoint);
             await _dbContext.Checkpoints.AddAsync(nextCheckpoint);
             return nextCheckpoint;
