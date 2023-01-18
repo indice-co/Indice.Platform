@@ -98,6 +98,8 @@ namespace Indice.Features.Cases.Services
 
             var caseData = await GetDbCaseData(caseId, userId, @case);
             var caseDetails = await GetCaseByIdInternal(@case, caseData, true, schemaKey: SchemaSelector);
+            caseDetails.CaseType = TranslateCaseType(caseDetails.CaseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+
             return caseDetails ?? throw new Exception("Case not found."); // todo  proper exception 
         }
 
