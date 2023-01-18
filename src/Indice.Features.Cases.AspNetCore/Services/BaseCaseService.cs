@@ -71,6 +71,7 @@ namespace Indice.Features.Cases.Services
                     Id = @case.CaseType.Id,
                     DataSchema = GetSingleOrMultiple(schemaKey, @case.CaseType.DataSchema),
                     Layout = GetSingleOrMultiple(schemaKey, @case.CaseType.Layout),
+                    LayoutTranslations = @case.CaseType.LayoutTranslations,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(@case.CaseType.Translations),
                     Config = @case.CaseType.Config
                 },
