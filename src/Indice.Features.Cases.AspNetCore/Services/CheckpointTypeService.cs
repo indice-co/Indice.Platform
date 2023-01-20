@@ -24,7 +24,7 @@ namespace Indice.Features.Cases.Services
                .Select(c => c.Value)
                .ToList();
 
-            var checkpointTypeIds = await _dbContext.RoleCaseTypes
+            var checkpointTypeIds = await _dbContext.Members
                 .AsQueryable()
                 .Where(r => roleClaims.Contains(r.RoleName))
                 .Select(c => c.CheckpointTypeId)

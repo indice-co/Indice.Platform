@@ -53,7 +53,7 @@ namespace Indice.Features.Cases.Services
             return entity.Id;
         }
 
-        public async Task UpdateData(ClaimsPrincipal user, Guid caseId, string data) {
+        public async Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data) {
             if (user == null) throw new ArgumentNullException(nameof(user));
             if (caseId == default) throw new ArgumentNullException(nameof(caseId));
             if (data == null) throw new ArgumentNullException(nameof(data));
@@ -151,33 +151,20 @@ namespace Indice.Features.Cases.Services
             return result;
         }
 
-        public async Task<CaseDetails> GetCaseById(ClaimsPrincipal user, Guid caseId, bool? includeAttachmentData) {
-            var @case = await _dbContext.Cases
-                .AsNoTracking()
-                .Include(c => c.CaseType)
-                .Include(c => c.PublicCheckpoint)
-                .Include(c => c.Attachments)
-                .Include(c => c.Approvals)
-                .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId);
+        public async Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId, bool? includeAttachmentData) {
+            var query =
+                from c in GetCasesInternal(user.FindSubjectId(), includeAttachmentData ?? false, SchemaKey)
+                where c.Id == caseId 
+                select c;
 
-            if (@case is null) {
-                return null;
-            }
-
-            var caseData = await _dbContext.CaseData
-                .AsNoTracking()
-                .Where(dbCaseData => dbCaseData.CaseId == caseId)
-                .OrderByDescending(c => c.CreatedBy.When)
-                .FirstOrDefaultAsync();
-
-            var caseDetails = await GetCaseByIdInternal(@case, caseData, includeAttachmentData, SchemaKey);
+            var @case = await query.FirstOrDefaultAsync();
 
             // Check that user role can view this case at this checkpoint.
-            if (!await _roleCaseTypeProvider.IsValid(user, caseDetails)) {
+            if (!await _roleCaseTypeProvider.IsValid(user, @case)) {
                 throw new ResourceUnauthorizedException();
             }
 
-            return caseDetails;
+            return @case;
         }
 
         public async Task DeleteDraft(ClaimsPrincipal user, Guid caseId) {

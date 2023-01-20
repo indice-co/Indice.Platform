@@ -8,6 +8,6 @@
         /// <summary>
         /// The json data as string.
         /// </summary>
-        public string FormData { get; set; }
+        public dynamic FormData { get; set; }
     }
 }

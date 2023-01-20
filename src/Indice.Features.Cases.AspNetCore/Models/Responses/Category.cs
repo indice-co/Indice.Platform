@@ -5,7 +5,7 @@ namespace Indice.Features.Cases.Models.Responses
     /// <summary>
     /// Case Type Category model.
     /// </summary>
-    public class CaseTypeCategory
+    public class Category
     {
         /// <summary>
         /// The Id of the category
@@ -14,11 +14,11 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The Code of the category
         /// </summary>
-        public string? Name { get; set; }
+        public string Name { get; set; }
         /// <summary>
         /// the Description of the category
         /// </summary>
-        public string? Description { get; set; }
+        public string Description { get; set; }
         /// <summary>
         /// The Order of the category
         /// </summary>
@@ -26,7 +26,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The translations for the category properties
         /// </summary>
-        public TranslationDictionary<CaseTypeCategoryTranslation>? Translations { get; set; }
+        public TranslationDictionary<CategoryTranslation> Translations { get; set; }
 
         #region Methods
         /// <summary>
@@ -35,8 +35,8 @@ namespace Indice.Features.Cases.Models.Responses
         /// <param name="culture">either Greek or English</param>
         /// <param name="includeTranslations">boolean for if we want to return the translation with the rest of the model.</param>
         /// <returns></returns>
-        public CaseTypeCategory Translate(string culture, bool includeTranslations) {
-            var type = (CaseTypeCategory)MemberwiseClone();
+        public Category Translate(string culture, bool includeTranslations) {
+            var type = (Category)MemberwiseClone();
             if (!string.IsNullOrEmpty(culture) && Translations != null && Translations.TryGetValue(culture, out var translation)) {
                 type.Name = translation.Name;
                 type.Description = translation.Description;

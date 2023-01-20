@@ -140,7 +140,7 @@ namespace Indice.Features.Cases.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> SubmitAdminCase([FromRoute] Guid caseId, string data) {
+        public async Task<IActionResult> SubmitAdminCase([FromRoute] Guid caseId, [FromBody]dynamic data) {
             await _adminCaseService.UpdateData(User, caseId, data);
             await _adminCaseService.Submit(User, caseId);
             return NoContent();
@@ -167,7 +167,7 @@ namespace Indice.Features.Cases.Controllers
         /// <response code="404">Not Found</response>
         [HttpGet("{caseId:guid}")]
         [Produces(MediaTypeNames.Application.Json)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseDetails))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Case))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetCaseById([FromRoute] Guid caseId) {
             var @case = await _adminCaseService.GetCaseById(User, caseId, false);
@@ -246,7 +246,7 @@ namespace Indice.Features.Cases.Controllers
             return File(file, "application/pdf", fileName);
         }
 
-        private async Task<byte[]> CreatePdf(CaseDetails @case) {
+        private async Task<byte[]> CreatePdf(Case @case) {
             var template = await _caseTemplateService.RenderTemplateAsync(@case);
             return await _casePdfService.HtmlToPdfAsync(template);
         }

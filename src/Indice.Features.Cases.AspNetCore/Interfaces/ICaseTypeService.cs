@@ -35,7 +35,7 @@ namespace Indice.Features.Cases.Interfaces
         /// </summary>
         /// <param name="id">The case type Id.</param>
         /// <returns></returns>
-        Task<CaseTypeDetails> GetCaseTypeDetailsById(Guid id);
+        Task<CaseType> GetCaseTypeDetailsById(Guid id);
 
         /// <summary>
         /// Create a new case type.
@@ -49,7 +49,7 @@ namespace Indice.Features.Cases.Interfaces
         /// </summary>
         /// <param name="caseType">The case type code request.</param>
         /// <returns></returns>
-        Task<CaseTypeDetails> Update(CaseTypeRequest caseType);
+        Task<CaseType> Update(CaseTypeRequest caseType);
 
         /// <summary>
         /// Delete a case type, if there are no case instances created.

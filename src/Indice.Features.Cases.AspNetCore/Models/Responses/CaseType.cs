@@ -3,7 +3,7 @@
     /// <summary>
     /// The case type details model.
     /// </summary>
-    public class CaseTypeDetails
+    public class CaseType
     {
         /// <summary>
         /// The Id of the case type.

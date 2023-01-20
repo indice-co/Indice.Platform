@@ -47,7 +47,7 @@ namespace Indice.Features.Cases.Controllers
         /// <param name="caseTypeId">The case type Id. </param>
         [HttpGet("{caseTypeId:guid}")]
         [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesAdministrator)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseTypeDetails))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseType))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> GetCaseTypeById(Guid caseTypeId) {
             var caseTypeDetails = await _caseTypeService.GetCaseTypeDetailsById(caseTypeId);
@@ -71,7 +71,7 @@ namespace Indice.Features.Cases.Controllers
         /// <param name="request">The new case type model.</param>
         [HttpPut("{caseTypeId:guid}")]
         [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesAdministrator)]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseTypeDetails))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseType))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> UpdateCaseType([FromBody] CaseTypeRequest request) {
             var caseTypeDetails = await _caseTypeService.Update(request);

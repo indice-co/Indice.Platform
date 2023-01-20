@@ -46,7 +46,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         public string AllowedRole { get; set; }
 
         [ActivityOutput]
-        public string Output { get; set; }
+        public object Output { get; set; }
 
         public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
             return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternalAsync(context) : Suspend();
@@ -58,7 +58,7 @@ namespace Indice.Features.Cases.Workflows.Activities
 
         private async Task<IActivityExecutionResult> OnExecuteInternalAsync(ActivityExecutionContext context) {
             CaseId ??= Guid.Parse(context.CorrelationId);
-            var caseData = context.Input as string;
+            var caseData = context.Input; 
             var user = context.TryGetUser();
             await _caseMessageService.Send(CaseId!.Value,
                 context.GetHttpContextUser()!,
@@ -67,7 +67,7 @@ namespace Indice.Features.Cases.Workflows.Activities
                     Comment = _casesMessageDescriber.EditCaseComment(user.FindDisplayName(), user.FindFirstValue(BasicClaimTypes.Email)),
                     PrivateComment = true
                 });
-            Output = caseData!;
+            Output = caseData;
             context.LogOutputProperty(this, "Output", caseData);
             return Outcome("Save", caseData);
         }

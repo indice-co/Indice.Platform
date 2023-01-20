@@ -31,7 +31,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="caseId">The Id of the case.</param>
         /// <param name="data">The case data (as defined by JSON Schema in CaseType).</param>
         /// <returns></returns>
-        Task UpdateData(ClaimsPrincipal user, Guid caseId, string data);
+        Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data);
 
         /// <summary>
         /// Submit the case. Case must be in <see cref="DbCase.Draft"/> mode.
@@ -42,12 +42,12 @@ namespace Indice.Features.Cases.Interfaces
         Task Submit(ClaimsPrincipal user, Guid caseId);
 
         /// <summary>
-        /// Get <see cref="CaseDetails"/> for a user by its Id.
+        /// Get <see cref="Case"/> for a user by its Id.
         /// </summary>
         /// <param name="user">The user that creates the request.</param>
         /// <param name="caseId">The Id of the case.</param>
         /// <returns></returns>
-        Task<CaseDetails> GetCaseById(ClaimsPrincipal user, Guid caseId);
+        Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId);
 
         /// <summary>
         /// Get the cases of the User.

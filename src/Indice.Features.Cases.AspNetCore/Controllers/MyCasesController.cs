@@ -63,7 +63,7 @@ namespace Indice.Features.Cases.Controllers
         /// Get case details by Id.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
-        [ProducesResponseType(typeof(CaseDetails), 200)]
+        [ProducesResponseType(typeof(Case), 200)]
         [Produces(MediaTypeNames.Application.Json)]
         [HttpGet("{caseId:guid}")]
         public async Task<IActionResult> GetMyCaseById(Guid caseId) {
@@ -149,7 +149,7 @@ namespace Indice.Features.Cases.Controllers
             return File(file, "application/pdf", fileName);
         }
 
-        private async Task<byte[]> CreatePdf(CaseDetails @case) {
+        private async Task<byte[]> CreatePdf(Case @case) {
             var isPortrait = true;
             var digitallySigned = false;
             if (@case.CaseType.Config is not null) {

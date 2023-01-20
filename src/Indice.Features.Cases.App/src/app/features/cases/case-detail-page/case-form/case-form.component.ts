@@ -2,12 +2,12 @@ import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChange
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { EMPTY, forkJoin, Observable, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { CaseDetails, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
+import { Case, CasesApiService, CasesAttachmentLink, EditCaseRequest, ProblemDetails } from 'src/app/core/services/cases-api.service';
 import { FileUploadService } from 'src/app/core/services/file-upload.service';
 import { SubmitWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component';
 import { TailwindFrameworkComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component';
 import { SelectWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/select-widget/select-widget.component';
-import { get, isEqual } from 'lodash';
+import { get, isEqual, update } from 'lodash';
 import { CurrencyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/currency-widget/currency-widget.component';
 import { DateWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/date-widget/date-widget.component';
 import { LookupWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-widget/lookup-widget.component';
@@ -27,7 +27,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
   private latestIsValid: boolean = false;
   // form is editable?
   @Input() formEditable: boolean | undefined;
-  @Input() case: CaseDetails | undefined;
+  @Input() case: Case | undefined;
   // inform parent that data should be refreshed
   @Output() updateDataEvent = new EventEmitter<{ draft: boolean }>();
   @Output() formIsValid = new EventEmitter<boolean>();
@@ -58,7 +58,6 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
   private initialData: any;
   public formIsDirty: boolean = false;
   public showForm = true;
-
   public data: any;
   public schema: any;
   public layout: any;
@@ -94,7 +93,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
        * for ajsf (so that onChanges can work as expected - ajsf, at initialization, deletes empty objects and strings)
        */
       if (this.case.data) {
-        this.initialData = this.removeEmptyObjects(this.deleteEmptyStringProperties(JSON.parse(this.case.data!)));
+        this.initialData = this.removeEmptyObjects(this.deleteEmptyStringProperties(this.case.data!));
       }
     }
     // extract layout from case type
@@ -150,15 +149,16 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
           tap(
             // we can match the received attachment guids to the respective fields with the help of the keys/dataPointers!
             (response: { [key: string]: CasesAttachmentLink }) => {
-              let stringifiedData = JSON.stringify(event);
               for (const key in response) {
                 if (response.hasOwnProperty(key) && key !== '') {
-                  // we simply replace the dataPointer with the guid that we received from the server
-                  stringifiedData = stringifiedData.replace(key, response[key].id!);
+                  // transform path to object key (eg. "/home/attachmentId") to a string that lodash update (https://lodash.com/docs/4.17.15#update) 
+                  // can understand (eg "home.attachmentId") and update its value with the response attachment id
+                  update(event, key.slice(1).replace('/', '.'), () => response[key].id!);
                 }
               }
+
               // finally, submit the case
-              this._api.submitAdminCase(this.case?.id!, stringifiedData)
+              this._api.submitAdminCase(this.case?.id!, undefined, event)
                 .pipe(
                   tap(() => {
                     this._fileUploadService.reset();
@@ -179,7 +179,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
           }))
         .subscribe();
     } else {
-      const editCaseRequest = new EditCaseRequest({ data: JSON.stringify(event) });
+      const editCaseRequest = new EditCaseRequest({ data: event });
       this._api.editCase(this.case?.id!, undefined, editCaseRequest)
         .pipe(
           tap(() => {

@@ -6,8 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+Major refactor - a lot of breaking changes!
 ### Added
 - `Checkpoint` logic for BO users. This is a performance optimization
+- `DataId` and `PublicDataId` logic for admin and my-case cases.
+### Changed
+- All `string` caseData request are now `dynamic` and removed the need for json parse/stringify to the clients
+- Entity `RoleCaseType` to `Member`
+- Entity `CaseTypeCategory` to `Category`
+- Entity `CaseTypeNotificationSubscription` to `NotificationSubscription`
+- Naming for DbModels & Dtos (eg `CaseDetails` -> `Case`) 
+
 ### Migrations 
 ```sql
 UPDATE c
@@ -22,6 +31,16 @@ INNER JOIN (
 	WHERE A.Rn = 1 
 ) AS B 
 	ON c.Id = B.CaseId
+```
+
+```sql
+exec sp_rename '[case].RoleCaseType', 'Member'
+exec sp_rename '[case].CaseTypeCategory', 'Category'
+exec sp_rename '[case].CaseTypeNotificationSubscription', 'NotificationSubscription'
+```
+
+```sql
+-- todo migration for dataId and publicDataId
 ```
 
 ## [6.4.1] - 2023-01-10

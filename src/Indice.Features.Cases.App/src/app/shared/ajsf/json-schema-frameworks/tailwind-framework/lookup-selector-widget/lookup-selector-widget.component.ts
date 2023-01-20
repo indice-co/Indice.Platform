@@ -4,7 +4,7 @@ import * as _ from "lodash";
 import { Subject } from "rxjs";
 import { take, takeUntil } from "rxjs/operators";
 import { CaseDetailsService } from "src/app/core/services/case-details.service";
-import { CaseDetails, CasesApiService, FilterTerm, LookupItemResultSet } from "src/app/core/services/cases-api.service";
+import { Case, CasesApiService, FilterTerm, LookupItemResultSet } from "src/app/core/services/cases-api.service";
 
 @Component({
   selector: 'app-lookup-selector-widget',
@@ -63,7 +63,7 @@ export class LookupSelectorWidgetComponent implements OnInit {
     this._caseDetailsService.caseDetails$.pipe(
       takeUntil(this.destroy$),
       take(1) // we really only need the first emitted value of the source Observable to get customerId
-    ).subscribe((caseDetails: CaseDetails) => {
+    ).subscribe((caseDetails: Case) => {
       this.customerId = caseDetails.customerId;
       // create the "constant" part of Filter Terms.
       this.lookupFilterTerms = this.createFilterTerms();
