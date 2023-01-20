@@ -1,12 +1,9 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization
 {
-    /// <summary>
-    /// A custom <see cref="JsonConverter"/> for scenarios that require type inference.
-    /// </summary>
+    /// <summary>A custom <see cref="JsonConverter"/> for scenarios that require type inference.</summary>
     /// <remarks>https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-converters-how-to#deserialize-inferred-types-to-object-properties</remarks>
     public class JsonObjectToInferredTypeConverter : JsonConverter<object>
     {
@@ -36,6 +33,12 @@ namespace Indice.Serialization
         }
 
         /// <inheritdoc/>
-        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) => JsonSerializer.Serialize(writer, value, value.GetType(), options);
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) {
+            if (value?.GetType().Name == "JObject") {
+                var document = JsonDocument.Parse(value.ToString());
+                value = document.RootElement.Clone();
+            }
+            JsonSerializer.Serialize(writer, value, value.GetType(), options);
+        }
     }
 }
