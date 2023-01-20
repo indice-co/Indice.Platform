@@ -29,14 +29,9 @@ namespace Indice.Features.GovGr
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _govGrKycScopeDescriber = govGrKycScopeDescriber ?? throw new ArgumentNullException(nameof(govGrKycScopeDescriber));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-
-            if (_httpClient.BaseAddress is null) {
-                _httpClient.BaseAddress = BaseAddress;
-            }
         }
 
-
-        protected string BaseDomain => _settings.IsStaging ? FQDN_STAGE : 
+        protected string BaseDomain => _settings.IsStaging ? FQDN_STAGE :
                                        _settings.IsDevelopment ? FQDN_DEMO : FQDN_PROD;
         protected Uri BaseAddress => new($"https://{BaseDomain}");
 
@@ -53,9 +48,9 @@ namespace Indice.Features.GovGr
 
             // exchange authorization code with access token, using basic authentication 
             var accessToken = await GetAccessToken(code);
-            
+
             _httpClient.SetBearerToken(accessToken);
-            var httpResponse = await _httpClient.GetAsync("/1/data");
+            var httpResponse = await _httpClient.GetAsync($"{BaseAddress}/1/data");
             var response = await httpResponse.Content.ReadAsStringAsync();
 
             if (!httpResponse.IsSuccessStatusCode) {
@@ -80,10 +75,9 @@ namespace Indice.Features.GovGr
             // Deserialize decoded Protected
             var @protected = JsonSerializer.Deserialize<Protected>(protectedJsonString);
 
-            // Get Public Certificate
-            var client = new HttpClient();
-            var response2 = await client.GetAsync(@protected.X5u);
-            var certificatePemString = await response2.Content.ReadAsStringAsync();
+            // Get the Public Key of the Certificate that was used for signing the response
+            var x5uHttpResponse = await _httpClient.GetAsync(@protected.X5u);
+            var certificatePemString = await x5uHttpResponse.Content.ReadAsStringAsync();
 
             // convert certificate string into X509 certificate
             // https://stackoverflow.com/a/65352811/19162333
@@ -112,11 +106,8 @@ namespace Indice.Features.GovGr
         /// Get Access Token from EGovKyc Identity server
         /// </summary>
         private async Task<string> GetAccessToken(string code) {
-            // https://en.wikipedia.org/wiki/Basic_access_authentication
-            //_httpClient.SetBasicAuthenticationOAuth(_settings.Credentials.ClientId, _settings.Credentials.ClientSecret);
-
             var tokenResponse = await _httpClient.RequestAuthorizationCodeTokenAsync(new AuthorizationCodeTokenRequest {
-                Address = "/oauth/token",
+                Address = $"{BaseAddress}/oauth/token",
                 ClientId = _settings.ClientId,
                 ClientSecret = _settings.ClientSecret,
                 RedirectUri = _settings.RedirectUri,
