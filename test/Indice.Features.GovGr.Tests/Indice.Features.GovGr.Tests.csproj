@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <UserSecretsId>35ee0f85-3152-4d90-9d08-2d08b7f158cf</UserSecretsId>
   </PropertyGroup>
@@ -25,6 +25,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.Features.GovGr\Indice.Features.GovGr.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="kyc-test-response.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

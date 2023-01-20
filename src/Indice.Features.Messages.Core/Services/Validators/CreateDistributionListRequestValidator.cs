@@ -18,7 +18,7 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .WithMessage("Please provide a name for the distribution list.")
                 .MaximumLength(TextSizePresets.M128)
                 .WithMessage($"Maximum length for name is {TextSizePresets.M128} characters.")
-                .MustAsync(async (name, cancellationToken) => string.IsNullOrWhiteSpace(name) || await distributionListService.GetByName(name) is null)
+                .Must(name => string.IsNullOrWhiteSpace(name) || distributionListService.GetByName(name).Result is null)
                 .WithMessage(x => $"There is already a distribution list with name '{x.Name}'.");
         }
     }

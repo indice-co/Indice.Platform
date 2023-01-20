@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="6.0.0" />
     <PackageReference Include="Indice.Common" Version="$(VersionPrefix)" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.25.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
@@ -29,6 +30,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.GovGr.Tests" />
+  </ItemGroup>
 
 </Project>

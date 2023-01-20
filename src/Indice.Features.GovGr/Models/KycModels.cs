@@ -3,11 +3,9 @@
 // and the tools described here: https://stackoverflow.com/questions/21611674/how-to-auto-generate-a-c-sharp-class-file-from-a-json-string
 //----------------------
 
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using IdentityModel;
 using Indice.Features.GovGr.Serialization;
-using static Indice.Features.GovGr.Models.KycPayload;
 
 namespace Indice.Features.GovGr.Models
 {
@@ -17,15 +15,23 @@ namespace Indice.Features.GovGr.Models
     /// </summary>
     internal class KycHttpResponse
     {
-
         [JsonPropertyName("payload")]
         public string Payload { get; set; }
         [JsonPropertyName("protected")]
         public string Protected { get; set; }
         [JsonPropertyName("signature")]
         public string Signature { get; set; }
+    }
 
-
+    /// <summary>
+    /// The decoded protected from EGovKyc resource server's response
+    /// </summary>
+    internal class Protected
+    {
+        [JsonPropertyName("x5u")]
+        public string X5u { get; set; }
+        [JsonPropertyName("alg")]
+        public string Alg { get; set; }
     }
 
     /// <summary>

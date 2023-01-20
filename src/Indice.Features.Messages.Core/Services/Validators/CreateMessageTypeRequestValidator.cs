@@ -17,7 +17,7 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .WithMessage("Please provide a name for the campaign type.")
                 .MaximumLength(TextSizePresets.M128)
                 .WithMessage($"Maximum length for name is {TextSizePresets.M128} characters.")
-                .MustAsync(async (name, cancellationToken) => string.IsNullOrWhiteSpace(name) || await messageTypeService.GetByName(name) is null)
+                .Must(name => string.IsNullOrWhiteSpace(name) || messageTypeService.GetByName(name).Result is null)
                 .WithMessage(x => $"There is already a campaign type with name '{x.Name}'.");
         }
     }

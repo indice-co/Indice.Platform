@@ -13,6 +13,7 @@ namespace Indice.AspNetCore.Identity.Models
         public TUser User { get; set; }
         /// <summary>Allows to choose less secure channel for MFA, if possible.</summary>
         public bool AllowMfaChannelDowngrade { get; set; }
+        /// <summary>The list of name devices that will be notified in case the <see cref="DeliveryChannel"/> is <seealso cref="TotpDeliveryChannel.PushNotification"/>.</summary>
         public IEnumerable<string> DeviceNames { get; set; } = new List<string>();
     }
 
