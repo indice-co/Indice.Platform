@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Identity.Data.Models;
+﻿using System.Collections.Generic;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Services;
 
 namespace Indice.AspNetCore.Identity.Models
@@ -12,6 +13,7 @@ namespace Indice.AspNetCore.Identity.Models
         public TUser User { get; set; }
         /// <summary>Allows to choose less secure channel for MFA, if possible.</summary>
         public bool AllowMfaChannelDowngrade { get; set; }
+        public IEnumerable<string> DeviceNames { get; set; } = new List<string>();
     }
 
     /// <summary>MFA login view model.</summary>

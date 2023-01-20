@@ -68,7 +68,7 @@ namespace Indice.Features.Cases.Services
                 .Include(c => c.CaseType)
                 .FirstOrDefaultAsync(c => c.Id == caseId);
             if (@case == null) {
-                throw new ArgumentNullException(nameof(@case), "Case does not exist.");
+                throw new ArgumentNullException(nameof(@case), @"Case does not exist.");
             }
             if (!@case.Draft) {
                 throw new Exception("Case is submitted."); // todo proper exception (BadRequest)
@@ -89,20 +89,16 @@ namespace Indice.Features.Cases.Services
             } catch (ResourceUnauthorizedException) {
                 return new List<CasePartial>().ToResultSet();
             }
-
-            // TODO: optimize query
+            
             var query = _dbContext.Cases
-                .Include(c => c.CaseType)
-                .Include(c => c.Checkpoints)
-                .ThenInclude(ch => ch.CheckpointType)
                 .AsNoTracking()
-                .Where(c => !c.Draft)       // filter out draft cases
+                .Where(c => !c.Draft) // filter out draft cases
                 .Where(options.Filter.Metadata) // filter Metadata
                 .Select(@case => new CasePartial {
                     Id = @case.Id,
                     CustomerId = @case.Customer.CustomerId,
                     CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
-                    Status = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Status,
+                    Status = @case.Checkpoint.CheckpointType.Status,
                     CreatedByWhen = @case.CreatedBy.When,
                     CaseType = new CaseTypePartial {
                         Id = @case.CaseType.Id,
@@ -112,10 +108,11 @@ namespace Indice.Features.Cases.Services
                     },
                     Metadata = @case.Metadata,
                     GroupId = @case.GroupId,
-                    CheckpointTypeId = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Id,
-                    CheckpointTypeCode = @case.Checkpoints.OrderByDescending(ch => ch.CreatedBy.When).FirstOrDefault().CheckpointType.Code,
+                    CheckpointTypeId = @case.Checkpoint.CheckpointTypeId,
+                    CheckpointTypeCode = @case.Checkpoint.CheckpointType.Code,
                     AssignedToName = @case.AssignedTo.Name
                 });
+
             // filter CustomerId
             if (options.Filter.CustomerId != null) {
                 query = query.Where(c => c.CustomerId.ToLower().Contains(options.Filter.CustomerId.ToLower()));
@@ -131,15 +128,15 @@ namespace Indice.Features.Cases.Services
                 query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
             }
             // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
-            if (options.Filter.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Count() > 0) {
+            if (options.Filter.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Any()) {
                 query = query.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
             }
             // also: filter CheckpointTypeIds
-            if (options.Filter.CheckpointTypeIds is not null && options.Filter.CheckpointTypeIds.Count() > 0) {
+            if (options.Filter.CheckpointTypeIds is not null && options.Filter.CheckpointTypeIds.Any()) {
                 query = query.Where(c => options.Filter.CheckpointTypeIds.Contains(c.CheckpointTypeId.ToString()));
             }
             // filter by group ID, if it is present
-            if (options.Filter.GroupIds != null && options.Filter.GroupIds.Count() > 0) {
+            if (options.Filter.GroupIds != null && options.Filter.GroupIds.Any()) {
                 query = query.Where(c => options.Filter.GroupIds.Contains(c.GroupId));
             }
             // sorting option
@@ -216,7 +213,7 @@ namespace Indice.Features.Cases.Services
             var attachments = await _dbContext.Attachments
                 .AsNoTracking()
                 .Where(x => x.CaseId == caseId)
-                .Select(db => new CaseAttachment() {
+                .Select(db => new CaseAttachment {
                     Id = db.Id,
                     ContentType = db.ContentType,
                     Name = db.Name,
@@ -229,7 +226,7 @@ namespace Indice.Features.Cases.Services
         public async Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId) {
             var attachment = await _dbContext.Attachments
                 .AsNoTracking()
-                .Select(db => new CaseAttachment() {
+                .Select(db => new CaseAttachment {
                     Id = db.Id,
                     ContentType = db.ContentType,
                     Name = db.Name,
@@ -272,18 +269,19 @@ namespace Indice.Features.Cases.Services
             await GetCaseById(user, caseId, false);
 
             var comments = await _dbContext.Comments
-                .AsQueryable()
+                .AsNoTracking()
                 .Where(c => c.CaseId == caseId)
                 .ToListAsync();
 
             var checkpoints = await _dbContext.Checkpoints
+                .AsNoTracking()
                 .Include(c => c.CheckpointType)
                 .Where(c => c.CaseId == caseId)
                 .ToListAsync();
 
             var timeline = comments
                 .Select(c => new TimelineEntry {
-                    Timestamp = c.CreatedBy.When.Value,
+                    Timestamp = c.CreatedBy.When!.Value,
                     CreatedBy = c.CreatedBy,
                     Comment = new Comment {
                         Id = c.Id,
@@ -299,7 +297,7 @@ namespace Indice.Features.Cases.Services
                     }
                 })
                 .Concat(checkpoints.Select(c => new TimelineEntry {
-                    Timestamp = c.CreatedBy.When.Value,
+                    Timestamp = c.CreatedBy.When!.Value,
                     CreatedBy = c.CreatedBy,
                     Checkpoint = new Checkpoint {
                         Id = c.Id,

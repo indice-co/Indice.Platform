@@ -113,6 +113,11 @@ namespace Indice.Features.Cases.Data.Config
                 .HasForeignKey(p => p.PublicCheckpointId)
                 .OnDelete(DeleteBehavior.NoAction);
             builder
+                .HasOne(p => p.Checkpoint)
+                .WithMany()
+                .HasForeignKey(p => p.CheckpointId)
+                .OnDelete(DeleteBehavior.NoAction);
+            builder
                .Property(c => c.Metadata)
                .HasJsonConversion();
             builder

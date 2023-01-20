@@ -130,39 +130,39 @@ namespace Indice.Features.Cases.Services.CaseMessageService
         }
 
         private async Task<DbCheckpoint> AddCheckpoint(ClaimsPrincipal user, DbCase @case, DbCheckpointType checkpointType) {
-            var lastCheckpoint = await _dbContext.Checkpoints
+            var checkpoint = await _dbContext.Checkpoints
                 .Include(p => p.CheckpointType)
-                .Where(x => x.CaseId == @case.Id)
-                .OrderByDescending(x => x.CreatedBy.When)
-                .FirstOrDefaultAsync();
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == @case.CheckpointId);
 
             // If the new checkpoint is the same as the last attempt, only add the comment. 
-            if (lastCheckpoint != null && lastCheckpoint.CheckpointType.Code == checkpointType.Code) {
-                return lastCheckpoint;
+            if (checkpoint != null && checkpoint.CheckpointType.Code == checkpointType.Code) {
+                return checkpoint;
             }
 
             // Else continue to change the checkpoint.
-            if (lastCheckpoint != null) {
-                lastCheckpoint.CompletedDate = DateTimeOffset.UtcNow;
+            if (checkpoint != null) {
+                checkpoint.CompletedDate = DateTimeOffset.UtcNow;
             }
 
-            var newCheckpoint = new DbCheckpoint {
+            var nextCheckpoint = new DbCheckpoint {
                 CaseId = @case.Id,
                 CheckpointTypeId = checkpointType.Id,
                 CreatedBy = AuditMeta.Create(user)
             };
 
             if (!checkpointType.Private) {
-                @case.PublicCheckpointId = newCheckpoint.Id;
+                @case.PublicCheckpointId = nextCheckpoint.Id;
             }
 
             if (checkpointType.Status == CaseStatus.Completed && @case.CompletedBy is null) {
                 @case.CompletedBy = AuditMeta.Create(user);
             }
 
-            @case.Checkpoints.Add(newCheckpoint);
-            await _dbContext.Checkpoints.AddAsync(newCheckpoint);
-            return newCheckpoint;
+            @case.CheckpointId = nextCheckpoint.Id;
+            @case.Checkpoints.Add(nextCheckpoint);
+            await _dbContext.Checkpoints.AddAsync(nextCheckpoint);
+            return nextCheckpoint;
         }
 
         private async Task AddCaseData(ClaimsPrincipal user, DbCase @case, string data) {
