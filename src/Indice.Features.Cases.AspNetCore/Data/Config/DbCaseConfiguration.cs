@@ -14,7 +14,7 @@ namespace Indice.Features.Cases.Data.Config
             builder
                 .HasKey(p => p.Id);
             builder
-                .OwnsOneAudit(p => p.CreatedBy)
+                .OwnsOneAudit(p => p.CreatedBy, required: true)
                 .OwnsOneAudit(p => p.CompletedBy)
                 .OwnsOneAudit(p => p.AssignedTo);
             builder

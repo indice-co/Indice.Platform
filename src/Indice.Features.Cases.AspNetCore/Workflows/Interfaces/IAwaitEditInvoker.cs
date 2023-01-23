@@ -16,7 +16,7 @@ namespace Indice.Features.Cases.Workflows.Interfaces
         /// A background worker will process this queue, and therefore, execute the workflow in the background.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
-        /// <param name="data">The edit request as dynamic json data.</param>
+        /// <param name="request">The edit request as dynamic json data.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, EditCaseRequest request, CancellationToken cancellationToken = default);
 
@@ -24,7 +24,7 @@ namespace Indice.Features.Cases.Workflows.Interfaces
         /// Executing a workflow will execute the workflow directly before returning.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>
-        /// <param name="data">The edit request as dynamic json data.</param>
+        /// <param name="request">The edit request as dynamic json data.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, EditCaseRequest request, CancellationToken cancellationToken = default);
     }

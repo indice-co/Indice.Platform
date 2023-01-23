@@ -63,7 +63,7 @@ namespace Indice.Features.Cases.Services
         /// Determines whether user can see a Case in relation to i) user's role(s) and ii) case's CaseType and CheckpointType
         /// </summary>
         /// <param name="user"></param>
-        /// <param name="casePartialDetails"></param>
+        /// <param name="case"></param>
         public async Task<bool> IsValid(ClaimsPrincipal user, Case @case) {
             if (@case == null) throw new ArgumentNullException(nameof(@case));
             if (user is null) throw new ArgumentNullException(nameof(user));

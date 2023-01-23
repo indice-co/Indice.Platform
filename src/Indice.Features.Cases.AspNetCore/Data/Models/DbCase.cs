@@ -26,11 +26,11 @@
         public virtual DbCheckpoint Checkpoint { get; set; }
         public virtual DbCaseData PublicData { get; set; }
         public virtual DbCaseData Data { get; set; }
-        public virtual List<DbAttachment> Attachments { get; set; } = new List<DbAttachment>();
-        public virtual List<DbCheckpoint> Checkpoints { get; set; } = new List<DbCheckpoint>();
-        public virtual List<DbComment> Comments { get; set; } = new List<DbComment>();
-        public virtual List<DbCaseData> Versions { get; set; } = new List<DbCaseData>();
-        public virtual List<DbCaseApproval> Approvals { get; set; } = new List<DbCaseApproval>();
+        public virtual List<DbAttachment> Attachments { get; set; } = new();
+        public virtual List<DbCheckpoint> Checkpoints { get; set; } = new();
+        public virtual List<DbComment> Comments { get; set; } = new();
+        public virtual List<DbCaseData> Versions { get; set; } = new();
+        public virtual List<DbCaseApproval> Approvals { get; set; } = new();
     }
 #pragma warning restore 1591
 }

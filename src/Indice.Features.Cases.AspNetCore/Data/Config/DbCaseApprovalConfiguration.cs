@@ -22,7 +22,7 @@ namespace Indice.Features.Cases.Data.Config
                     valueRetrieved => (Approval)Enum.Parse(typeof(Approval), valueRetrieved))
                 .IsRequired();
             builder
-                .OwnsOneAudit(p => p.CreatedBy);
+                .OwnsOneAudit(p => p.CreatedBy, required: true);
             builder
                 .Property(p => p.Reason)
                 .HasMaxLength(TextSizePresets.M128);

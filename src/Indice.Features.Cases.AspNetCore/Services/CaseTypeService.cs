@@ -143,7 +143,7 @@ namespace Indice.Features.Cases.Services
         }
 
         public async Task Delete(Guid caseTypeId) {
-            if (caseTypeId == null) {
+            if (caseTypeId == Guid.Empty) {
                 throw new ValidationException("Case Type id not provided.");
             }
             var casesWithCaseType = await _dbContext.Cases.AsQueryable().AnyAsync(x => x.CaseTypeId == caseTypeId);

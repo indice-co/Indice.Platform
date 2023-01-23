@@ -16,10 +16,15 @@ namespace Indice.Features.Cases.Data.Config
                 .HasIndex(p => p.Code);
             builder
                 .Property(p => p.Code)
-                .HasMaxLength(TextSizePresets.S64);
+                .HasMaxLength(TextSizePresets.S64)
+                .IsRequired();
             builder
                 .Property(p => p.Title)
-                .HasMaxLength(TextSizePresets.M128);
+                .HasMaxLength(TextSizePresets.M128)
+                .IsRequired();
+            builder
+                .Property(p => p.DataSchema)
+                .IsRequired();
             builder
                 .Property(p => p.Description)
                 .HasMaxLength(TextSizePresets.M128)

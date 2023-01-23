@@ -16,7 +16,8 @@ namespace Indice.Features.Cases.Data.Config
                 .HasIndex(p => new { p.CaseTypeId, p.Code });
             builder
                 .Property(p => p.Code)
-                .HasMaxLength(TextSizePresets.M256);
+                .HasMaxLength(TextSizePresets.M256)
+                .IsRequired();
             builder
                 .Property(p => p.Description)
                 .HasMaxLength(TextSizePresets.M512);

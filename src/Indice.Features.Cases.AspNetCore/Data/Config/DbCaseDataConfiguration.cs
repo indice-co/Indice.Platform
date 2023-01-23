@@ -17,10 +17,11 @@ namespace Indice.Features.Cases.Data.Config
             builder
                 .HasKey(p => p.Id);
             builder
-                .OwnsOneAudit(p => p.CreatedBy);
+                .OwnsOneAudit(p => p.CreatedBy, required: true);
             builder
                 .Property(c => c.Data)
-                .HasJsonConversion();
+                .HasJsonConversion()
+                .IsRequired();
         }
     }
 }
