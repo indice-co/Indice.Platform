@@ -40,7 +40,29 @@ exec sp_rename '[case].CaseTypeNotificationSubscription', 'NotificationSubscript
 ```
 
 ```sql
--- todo migration for dataId and publicDataId
+UPDATE c
+SET DataId = [Data].Id, -- most recent data version
+	PublicDataId =  [PublicData].Id -- most recet customer data version
+FROM [case].[Case] c
+LEFT JOIN (
+	SELECT *
+	FROM (
+		SELECT Id, CaseId, ROW_NUMBER() OVER (PARTITION BY [CaseId] ORDER BY CreatedByWhen DESC) AS Rn
+		FROM [case].[CaseData]
+	) A
+	WHERE A.Rn = 1 
+) AS [Data] 
+	ON c.Id = [Data].CaseId
+LEFT JOIN (
+	SELECT *
+	FROM (
+		SELECT Id, CaseId, CreatedbyId, ROW_NUMBER() OVER (PARTITION BY [CaseId], [CreatedById] ORDER BY CreatedByWhen DESC) AS Rn
+		FROM [case].[CaseData]		
+	) A	
+) AS [PublicData] 
+	ON c.Id = [PublicData].CaseId 
+		AND [PublicData].CreatedById = c.CustomerUserId 
+		AND [PublicData].Rn = 1
 ```
 
 ## [6.4.1] - 2023-01-10
