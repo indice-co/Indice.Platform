@@ -5,6 +5,7 @@
     <Authors>Christos Asvestopoulos, Constantinos Leftheris</Authors>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;GovGr;HttpClient</PackageTags>
+    <Version>6.4.12</Version>
   </PropertyGroup>
 
   <ItemGroup>
