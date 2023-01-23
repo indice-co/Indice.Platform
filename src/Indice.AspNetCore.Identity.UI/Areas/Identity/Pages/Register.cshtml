@@ -1,0 +1,162 @@
+﻿@page "/register"
+
+@model RegisterModel
+
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Sign up"];
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+
+<section class="sign-up m-auto">
+    <h1>
+        <a class="header-logo" href="/">
+            <img class="w-100" src="~/img/logo@(langSuffix).svg" />
+        </a>
+        <span class="header-text">@ViewData["Title"]</span>
+    </h1>
+    <partial name="_ValidationSummary" />
+    @if (Model.VisibleExternalProviders.Any())
+    {
+        <div class="login-form">
+            <ul class="list-unstyled">
+                @foreach (var provider in Model.VisibleExternalProviders)
+                {
+                    <li class="idp idp-@provider.AuthenticationScheme.ToLower()">
+                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="/external" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.ReturnUrl">
+                            @Localizer[provider.DisplayName]
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="hr-sect">@Localizer["OR"]</div>
+    }
+    <form asp-route-returnUrl="@Model.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Input.FirstName" class="">@Localizer["First name"]</label>
+                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer["First name"]" autofocus />
+                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Input.LastName" class="">@Localizer["Last name"]</label>
+                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer["Last name"]" />
+                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Input.Email" class="">@Localizer["Email"]</label>
+                    <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="Input.PhoneNumber" class="">@Localizer["Phone number"]</label>
+                    <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <hr>
+                    <div>
+                        <p>
+                            @Localizer["Choose a username and a password of your choice. You can periodically change your password or whenever you wish to."]
+                            <br><br>
+                            @Localizer["These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties."]
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label asp-for="Input.UserName" class="">@Localizer["Username"]</label>
+                    <input class="form-control" type="text" asp-for="Input.UserName" placeholder="@Localizer["Username"]" autocomplete="off" />
+                    <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label asp-for="Input.Password" class="">@Localizer["Password"]</label>
+                    <input class="form-control" type="password" asp-for="Input.Password" data-sbind="event: { keyup: passwordChanged }" placeholder="@Localizer["Password"]" autocomplete="new-password" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="password-rules" class="password-rules col-md-12">
+                <ul data-sbind="foreach: passwordRules">
+                    <li class="password-rule" data-sbind="text: $data.requirement, css: { 'rule-valid': $data.isValid }"></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="checkbox">
+                        <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
+                        @Localizer["I have read and accept the <a href=\"/terms\" target=\"_blank\">Terms of service</a> and the <a href=\"/privacy\" target=\"_blank\">privacy policy</a>."]
+                    </label>
+                    <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label class="checkbox">
+                        <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
+                        @Localizer["I consent to the registration and processing of the above personal details for my contact and service as they are defined"]
+                        <a style="font-weight:bold" asp-page="/privacy" target="_blank">@Localizer["here"].</a>.
+                    </label>
+                    <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-md-6 col-12">
+                <div class="form-group">
+                    <a class="btn btn-link btn-block" asp-page="./login" asp-route-returnUrl="@Model.ReturnUrl">@Localizer["Already have an account?"]</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-12">
+                <div class="form-group">
+                    <button class="btn btn-primary btn-block" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer["Join us"]</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+@section scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScripts"); }
+    <script type="text/javascript" src="~/lib/knockout/build/output/knockout-latest.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/utilities.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/password-rules.js" csp-nonce="true"></script>
+    <script csp-nonce="true">
+        document.querySelectorAll('.idp a').forEach(function (el) {
+            el.onclick = function (link) {
+                if (!link.target.classList.contains('disabled')) {
+                    link.target.classList.add('disabled');
+                }
+            };
+        });
+    </script>
+}

@@ -242,6 +242,7 @@ namespace Indice.Identity
             app.UseEndpoints(endpoints => {
                 endpoints.MapSwagger();
                 endpoints.MapControllers();
+                endpoints.MapRazorPages();
                 endpoints.MapDefaultControllerRoute();
                 if (HasSignalRConnection) {
                     endpoints.MapHub<MultiFactorAuthenticationHub>("/mfa");

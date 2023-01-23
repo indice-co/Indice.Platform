@@ -8,7 +8,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>Helper class that allows for extending the register request with custom attributes as needed per application.</summary>
         public class Attribute
         {
-            /// <summary>The equivelant for a claim type.</summary>
+            /// <summary>The equivalent for a claim type.</summary>
             public string Name { get; set; }
             /// <summary>The value.</summary>
             public string Value { get; set; }
@@ -26,9 +26,9 @@ namespace Indice.AspNetCore.Identity.Models
         public string PasswordConfirmation { get; set; }
         /// <summary>The users email.</summary>
         public string Email { get; set; }
-        /// <summary>The users phone number. Usualy used to store the mobile phone in order later on enable 2 factor authentication scenarios through SMS.</summary>
+        /// <summary>The users phone number. Usually used to store the mobile phone in order later on enable 2 factor authentication scenarios through SMS.</summary>
         public string PhoneNumber { get; set; }
-        /// <summary>The return url is used to keep track of the origilal intent of the user when he landed on login and switched over to register.</summary>
+        /// <summary>The return URL is used to keep track of the original intent of the user when he landed on login and switched over to register.</summary>
         public string ReturnUrl { get; set; }
         /// <summary>The privacy policy is read.</summary>
         public bool HasReadPrivacyPolicy { get; set; }

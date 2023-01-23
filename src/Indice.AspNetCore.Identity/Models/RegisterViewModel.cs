@@ -22,7 +22,7 @@ namespace Indice.AspNetCore.Identity.Models
         /// </summary>
         public bool ExternalRegistrationOnly { get; set; }
         /// <summary>
-        /// The authenication scheme of the external registration.
+        /// The authentication scheme of the external registration.
         /// </summary>
         public string ExternalRegistrationScheme => ExternalProviders?.SingleOrDefault()?.AuthenticationScheme;
     }

@@ -26,6 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IMvcBuilder AddMvcConfig(this IServiceCollection services, IConfiguration configuration) {
             services.AddPlatformEventHandler<ClientCreatedEvent, ClientCreatedEventHandler>();
             services.AddPlatformEventHandler<EmailConfirmedEvent, UserEmailConfirmedEventHandler>();
+            services.AddRazorPages();
             var mvcBuilder = services.AddControllersWithViews()
                                      .AddRazorRuntimeCompilation()
                                      .AddTotp()
