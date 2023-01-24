@@ -11,7 +11,7 @@ namespace Indice.Features.Cases.Workflows.Activities
     /// </summary>
     [Activity(
         Category = "Cases",
-        DisplayName = "Remove Assignment",
+        DisplayName = "Remove Assignment from user",
         Description = "Remove the assignment of a case.",
         Outcomes = new[] { OutcomeNames.Done }
     )]

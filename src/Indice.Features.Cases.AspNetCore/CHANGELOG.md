@@ -10,7 +10,7 @@ Major refactor - a lot of breaking changes!
 ### Added
 - `Checkpoint` logic for BO users. This is a performance optimization
 - `DataId` and `PublicDataId` logic for admin and my-case cases.
-- New workflow activity `AddAssignmentActivity`
+- New workflow activity `AssignCaseToUserActivity`
 - Typed predefined workflow outcome names (eg `"Failed"`)
 - Two properties at `CasePartial` model, `CreatedByEmail` and `CreatedByName`
 ### Changed

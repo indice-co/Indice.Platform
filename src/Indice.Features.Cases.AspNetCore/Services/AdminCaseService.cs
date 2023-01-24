@@ -224,22 +224,22 @@ namespace Indice.Features.Cases.Services
             return attachment;
         }
 
-        public async Task<AuditMeta> AssignCase(AuditMeta assignedTo, Guid caseId) {
-            if (assignedTo.Id == default || string.IsNullOrEmpty(assignedTo.Email) || string.IsNullOrEmpty(assignedTo.Name)) {
-                throw new ArgumentException(nameof(assignedTo));
+        public async Task<AuditMeta> AssignCase(AuditMeta user, Guid caseId) {
+            if (user.Id == default || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Name)) {
+                throw new ArgumentException(nameof(user));
             }
             var @case = await _dbContext.Cases.FindAsync(caseId);
             if (@case == null) {
                 throw new ArgumentNullException(nameof(@case));
             }
-            if (@case.AssignedTo != null && @case.AssignedTo.Id != assignedTo.Id) {
+            if (@case.AssignedTo != null && @case.AssignedTo.Id != user.Id) {
                 throw new InvalidOperationException("Case is already assigned to another user.");
             }
 
             // Apply assignment
-            @case.AssignedTo = assignedTo;
+            @case.AssignedTo = user;
             await _dbContext.SaveChangesAsync();
-            return assignedTo;
+            return user;
         }
 
         public async Task RemoveAssignment(Guid caseId) {

@@ -14,15 +14,15 @@ namespace Indice.Features.Cases.Workflows.Activities;
 /// </summary>
 [Activity(
     Category = "Cases",
-    DisplayName = "Add Assignment",
+    DisplayName = "Assign case to user",
     Description = "Assign the case to a back-office user.",
     Outcomes = new[] { OutcomeNames.Done, CasesApiConstants.WorkflowVariables.OutcomeNames.Failed }
 )]
-internal class AddAssignmentActivity : BaseCaseActivity
+internal class AssignCaseToUserActivity : BaseCaseActivity
 {
     private readonly IAdminCaseService _adminCaseService;
 
-    public AddAssignmentActivity(
+    public AssignCaseToUserActivity(
         IAdminCaseMessageService caseMessageService,
         IAdminCaseService adminCaseService)
         : base(caseMessageService) {
@@ -30,18 +30,18 @@ internal class AddAssignmentActivity : BaseCaseActivity
     }
 
     [ActivityInput(
-        Label = "User to assign",
+        Label = "User",
         Hint = "The AuditMeta object of the user to assign the case",
         UIHint = ActivityInputUIHints.MultiLine,
         DefaultSyntax = SyntaxNames.JavaScript,
         SupportedSyntaxes = new[] { SyntaxNames.JavaScript }
     )]
-    public AuditMeta AssignTo { get; set; } = new();
+    public AuditMeta User { get; set; } = new();
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
         try {
-            await _adminCaseService.AssignCase(AssignTo, CaseId.Value);
+            await _adminCaseService.AssignCase(User, CaseId.Value);
         } catch (Exception ex) {
             await LogCaseError(context, ex);
             return Outcome("Failed");

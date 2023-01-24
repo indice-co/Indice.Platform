@@ -76,10 +76,10 @@ namespace Indice.Features.Cases.Interfaces
         /// <summary>
         /// Assign a case to the actor that initiated this method.
         /// </summary>
-        /// <param name="assignedTo">The user that initiated the call, and will be self-assigned to the case.</param>
+        /// <param name="user">The user that initiated the call, and will be self-assigned to the case.</param>
         /// <param name="caseId">The Id of the case to be assigned.</param>
         /// <returns></returns>
-        Task<AuditMeta> AssignCase(AuditMeta assignedTo, Guid caseId);
+        Task<AuditMeta> AssignCase(AuditMeta user, Guid caseId);
 
         /// <summary>
         /// Clears the assignment for a case.
