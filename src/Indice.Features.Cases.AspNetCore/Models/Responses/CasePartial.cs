@@ -48,6 +48,16 @@ namespace Indice.Features.Cases.Models.Responses
         /// The Id of the user that created the case.
         /// </summary>
         public string CreatedById { get; set; }
+        
+        /// <summary>
+        /// The email of the user that created the case.
+        /// </summary>
+        public string CreatedByEmail { get; set; }
+
+        /// <summary>
+        /// The full name of the user that created the case.
+        /// </summary>
+        public string CreatedByName { get; set; }
 
         /// <summary>
         /// The <see cref="CaseType"/> of the case.

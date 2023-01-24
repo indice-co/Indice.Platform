@@ -10,12 +10,16 @@ Major refactor - a lot of breaking changes!
 ### Added
 - `Checkpoint` logic for BO users. This is a performance optimization
 - `DataId` and `PublicDataId` logic for admin and my-case cases.
+- New workflow activity `AssignCaseToUserActivity`
+- Typed predefined workflow outcome names (eg `"Failed"`)
+- Two properties at `CasePartial` model, `CreatedByEmail` and `CreatedByName`
 ### Changed
 - All `string` caseData request are now `dynamic` and removed the need for json parse/stringify to the clients
 - Entity `RoleCaseType` to `Member`
 - Entity `CaseTypeCategory` to `Category`
 - Entity `CaseTypeNotificationSubscription` to `NotificationSubscription`
 - Naming for DbModels & Dtos (eg `CaseDetails` -> `Case`) 
+- Signature for `IAdminCaseService.AssignCase`
 
 ### Migrations 
 Update checkpoint fk with the most recent checkpoint id
