@@ -5,9 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [6.5.0] - 2023-01-10
 Major refactor - a lot of breaking changes!
 ### Added
+- Support for net7
 - `Checkpoint` logic for BO users. This is a performance optimization
 - `DataId` and `PublicDataId` logic for admin and my-case cases.
 - New workflow activity `AssignCaseToUserActivity`
@@ -20,6 +21,8 @@ Major refactor - a lot of breaking changes!
 - Entity `CaseTypeNotificationSubscription` to `NotificationSubscription`
 - Naming for DbModels & Dtos (eg `CaseDetails` -> `Case`) 
 - Signature for `IAdminCaseService.AssignCase`
+## Removed
+- Support for net3.1
 
 ### Migrations 
 Update checkpoint fk with the most recent checkpoint id
