@@ -6,8 +6,8 @@
     public class EditCaseRequest
     {
         /// <summary>
-        /// The data in json string.
+        /// The data as json.
         /// </summary>
-        public string Data { get; set; }
+        public dynamic Data { get; set; }
     }
 }

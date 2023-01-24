@@ -2,6 +2,7 @@
 using Elsa;
 using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
+using Indice.Features.Cases.Converters;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Factories;
@@ -46,6 +47,10 @@ namespace Indice.Features.Cases
 
             // Try add general settings.
             services.AddGeneralSettings(configuration);
+
+            // This lines resolves the CaseData dynamic deserialization from SystemText
+            services.AddMvc()
+                .AddNewtonsoftJson(x => x.SerializerSettings.Converters.Add(new SystemTextConverter()));
 
             // Configure options given by the consumer.
             var casesApiOptions = new CasesApiOptions();
@@ -142,7 +147,7 @@ namespace Indice.Features.Cases
             services.AddTransient<IAdminCaseMessageService, AdminCaseMessageService>();
             services.AddTransient<ISchemaValidator, SchemaValidator>();
             services.AddTransient<ICaseApprovalService, CaseApprovalService>();
-            services.AddTransient<ICaseTypeNotificationSubscriptionService, CaseTypeNotificationSubscriptionService>();
+            services.AddTransient<INotificationSubscriptionService, NotificationSubscriptionService>();
             services.AddSmsServiceYubotoOmni(configuration)
                 .AddViberServiceYubotoOmni(configuration)
                 .AddEmailServiceSparkpost(configuration)

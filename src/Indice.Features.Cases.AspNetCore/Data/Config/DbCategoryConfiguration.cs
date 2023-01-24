@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Cases.Data.Config
 {
-    internal class DbCaseTypeCategoryConfiguration : IEntityTypeConfiguration<DbCaseTypeCategory>
+    internal class DbCategoryConfiguration : IEntityTypeConfiguration<DbCategory>
     {
-        public void Configure(EntityTypeBuilder<DbCaseTypeCategory> builder) {
+        public void Configure(EntityTypeBuilder<DbCategory> builder) {
             builder
-                .ToTable("CaseTypeCategory");
+                .ToTable("Category");
             builder
                 .HasKey(p => p.Id);
             builder

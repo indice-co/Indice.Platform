@@ -39,7 +39,7 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The Checkpoints filter.
         /// </summary>
-        public List<string>? Checkpoints { get; set; }
+        public List<string> Checkpoints { get; set; }
         /// <summary>
         /// Construct filter clauses based on case data.
         /// </summary>

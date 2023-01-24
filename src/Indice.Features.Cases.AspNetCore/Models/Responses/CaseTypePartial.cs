@@ -3,7 +3,7 @@
 namespace Indice.Features.Cases.Models.Responses
 {
     /// <summary>
-    /// The case type partial model.
+    /// The case type model.
     /// </summary>
     public class CaseTypePartial
     {
@@ -65,7 +65,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The case type category.
         /// </summary>
-        public CaseTypeCategory? Category { get; set; }
+        public Category Category { get; set; }
 
         /// <summary>
         /// The translations for the case type metadata (eg title).

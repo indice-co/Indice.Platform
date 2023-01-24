@@ -14,7 +14,7 @@ namespace Indice.Features.Cases
             typeof(AdminCasesController).GetTypeInfo(),
             typeof(AdminWorkflowInvokerController).GetTypeInfo(),
             typeof(AdminAttachmentsController).GetTypeInfo(),
-            typeof(AdminUsersController).GetTypeInfo(),
+            typeof(AdminNotificationsController).GetTypeInfo(),
             typeof(AdminCaseTypesController).GetTypeInfo(),
             typeof(AdminCheckpointTypesController).GetTypeInfo(),
             typeof(AdminIntegrationController).GetTypeInfo(),
