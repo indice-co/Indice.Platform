@@ -5,7 +5,7 @@
     <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
     <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
-    <Version>6.4.1</Version>
+    <!--<Version>6.4.1</Version>-->
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />

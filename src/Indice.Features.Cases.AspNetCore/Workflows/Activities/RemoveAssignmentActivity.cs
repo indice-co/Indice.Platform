@@ -11,7 +11,7 @@ namespace Indice.Features.Cases.Workflows.Activities
     /// </summary>
     [Activity(
         Category = "Cases",
-        DisplayName = "Remove Assignment",
+        DisplayName = "Remove Assignment from user",
         Description = "Remove the assignment of a case.",
         Outcomes = new[] { OutcomeNames.Done }
     )]
@@ -20,7 +20,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         private readonly IAdminCaseService _adminCaseService;
 
         public RemoveAssignmentActivity(
-            IAdminCaseMessageService caseMessageService, 
+            IAdminCaseMessageService caseMessageService,
             IAdminCaseService adminCaseService)
             : base(caseMessageService) {
             _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));

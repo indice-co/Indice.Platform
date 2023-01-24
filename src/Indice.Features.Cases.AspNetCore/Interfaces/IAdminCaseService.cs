@@ -79,7 +79,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="user">The user that initiated the call, and will be self-assigned to the case.</param>
         /// <param name="caseId">The Id of the case to be assigned.</param>
         /// <returns></returns>
-        Task<AuditMeta> AssignCase(ClaimsPrincipal user, Guid caseId);
+        Task<AuditMeta> AssignCase(AuditMeta user, Guid caseId);
 
         /// <summary>
         /// Clears the assignment for a case.
@@ -102,7 +102,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="caseId"></param>
         /// <returns></returns>
         Task<ResultSet<CaseAttachment>> GetAttachments(Guid caseId);
-        
+
         /// <summary>
         /// Get single Case Attachment data
         /// </summary>

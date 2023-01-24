@@ -10,7 +10,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         Category = "Cases",
         DisplayName = "Get Case Details",
         Description = "Get the details of the case.",
-        Outcomes = new[] { OutcomeNames.Done, "Failed" }
+        Outcomes = new[] { OutcomeNames.Done, CasesApiConstants.WorkflowVariables.OutcomeNames.Failed }
     )]
     internal class GetCaseDetailsActivity : BaseCaseActivity
     {
