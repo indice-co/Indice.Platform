@@ -61,8 +61,8 @@ namespace Indice.Features.Cases.Services
                     CheckpointTypeId = isCustomer ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
                     CreatedByWhen = c.CreatedBy.When,
                     CreatedById = c.CreatedBy.Id,
-                    CretedByEmail = c.CreatedBy.Email,
-                    CreatedByName = c.CreatedBy.Name
+                    CreatedByEmail = c.CreatedBy.Email,
+                    CreatedByName = c.CreatedBy.Name,
                     CaseType = new CaseTypePartial {
                         Code = c.CaseType.Code,
                         Title = c.CaseType.Title,
