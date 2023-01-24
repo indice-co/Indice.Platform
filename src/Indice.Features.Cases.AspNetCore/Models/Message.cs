@@ -36,6 +36,6 @@ namespace Indice.Features.Cases.Models
         /// <summary>
         /// The data related with the message.
         /// </summary>
-        public string Data { get; set; }
+        public dynamic Data { get; set; }
     }
 }

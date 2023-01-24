@@ -5,7 +5,7 @@ namespace Indice.Features.Cases.Models.Responses
     /// <summary>
     /// Models case details.
     /// </summary>
-    public class CaseDetails : CasePartial
+    public class Case : CasePartial
     {
         /// <summary>
         /// The attachments of the case.
@@ -15,6 +15,6 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The back-office users that approved the case.
         /// </summary>
-        public List<AuditMeta> Approvers { get; set; }
+        public List<AuditMeta> Approvers { get; set; } = new();
     }
 }

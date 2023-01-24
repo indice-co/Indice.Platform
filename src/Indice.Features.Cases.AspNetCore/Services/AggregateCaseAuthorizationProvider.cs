@@ -20,9 +20,9 @@ namespace Indice.Features.Cases.Services
             return filter;
         }
 
-        public async Task<bool> IsValid(ClaimsPrincipal user, CaseDetails caseDetails) {
+        public async Task<bool> IsValid(ClaimsPrincipal user, Case @case) {
             foreach (var authorizationService in _listOfServices) {
-                if (!await authorizationService.IsValid(user, caseDetails)) {
+                if (!await authorizationService.IsValid(user, @case)) {
                     return false;
                 }
             }

@@ -31,11 +31,11 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .Must(id => id is null)
                 .When(campaign => campaign.IsGlobal) // DistributionListId property must not be provided when campaign is global.
                 .WithMessage("Cannot provide a distribution list id since the campaign global.")
-                .MustAsync(BeExistingDistributionListId)
+                .Must(BeExistingDistributionListId)
                 .When(campaign => campaign.RecipientListId is not null) // Check that DistributionListId is valid, when it is provided.
                 .WithMessage("Specified distribution list id is not valid.");
             RuleFor(campaign => campaign.TypeId)
-                .MustAsync(BeExistingTypeId)
+                .Must(BeExistingTypeId)
                 .When(campaign => campaign.TypeId.HasValue) // Check that TypeId is valid, when it is provided.
                 .WithMessage("Specified type id is not valid.");
             RuleFor(campaign => campaign.ActivePeriod)
@@ -53,8 +53,8 @@ namespace Indice.Features.Messages.Core.Services.Validators
                 .WithMessage($"Campaign action URL is not valid.");
         }
 
-        private async Task<bool> BeExistingTypeId(Guid? id, CancellationToken cancellationToken) => await _messageTypeService.GetById(id.Value) is not null;
+        private bool BeExistingTypeId(Guid? id) => _messageTypeService.GetById(id.Value).Result is not null;
 
-        private async Task<bool> BeExistingDistributionListId(Guid? id, CancellationToken cancellationToken) => await _distributionListService.GetById(id.Value) is not null;
+        private bool BeExistingDistributionListId(Guid? id) => _distributionListService.GetById(id.Value).Result is not null;
     }
 }

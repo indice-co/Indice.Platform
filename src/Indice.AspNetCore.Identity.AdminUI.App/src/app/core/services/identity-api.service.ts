@@ -317,13 +317,19 @@ export interface IIdentityApiService {
      */
     getConsents(filter_ConsentType?: UserConsentType | undefined, filter_ClientId?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<UserConsentInfoResultSet>;
     /**
+     * Updates the max devices count.
+     * @param body (optional) Models the request to update the max devices number for the user.
+     * @return Accepted
+     */
+    updateMaxDevicesCount(body?: UpdateMaxDevicesCountRequest | undefined): Observable<void>;
+    /**
      * Changes the password for the current user, but requires the old password to be present.
      * @param body (optional) Contains info about the user password to change.
      * @return No Content
      */
     updatePassword(body?: ChangePasswordRequest | undefined): Observable<void>;
     /**
-     * Update the password expiration policy.
+     * Updates the password expiration policy.
      * @param body (optional) Contains info about the chosen expiration policy.
      * @return No Content
      */
@@ -349,13 +355,14 @@ export interface IIdentityApiService {
     /**
      * Returns a list of registered user devices.
      * @param filter_IsPushNotificationEnabled (optional) Returns all the devices (value = null), the enabled devices (value = true) or the disabled devices (value = false).
+     * @param filter_IsTrusted (optional) Returns all the devices (value = null), the trusted devices (value = true) or the untrusted devices (value = false).
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
      * @return OK
      */
-    getDevices(filter_IsPushNotificationEnabled?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<DeviceInfoResultSet>;
+    getDevices(filter_IsPushNotificationEnabled?: boolean | undefined, filter_IsTrusted?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<DeviceInfoResultSet>;
     /**
      * Creates a new device and optionally registers for push notifications.
      * @param body (optional) Contains information about the device to register.
@@ -381,6 +388,20 @@ export interface IIdentityApiService {
      * @return No Content
      */
     deleteDevice(deviceId: string): Observable<void>;
+    /**
+     * Starts the process of trusting a device.
+     * @param deviceId The device id.
+     * @param x_TOTP (optional) The TOTP code.
+     * @param body (optional) Trust device parameters payload.
+     * @return No Content
+     */
+    trustDevice(deviceId: string, x_TOTP?: string | undefined, body?: TrustDeviceRequest | undefined): Observable<void>;
+    /**
+     * Sets a device as untrusted.
+     * @param deviceId The device id.
+     * @return No Content
+     */
+    untrustDevice(deviceId: string): Observable<void>;
     /**
      * Returns a list of Indice.AspNetCore.Identity.Api.Models.IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param page (optional) 
@@ -4668,6 +4689,95 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Updates the max devices count.
+     * @param body (optional) Models the request to update the max devices number for the user.
+     * @return Accepted
+     */
+    updateMaxDevicesCount(body?: UpdateMaxDevicesCountRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/my/account/max-devices-count";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateMaxDevicesCount(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateMaxDevicesCount(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateMaxDevicesCount(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 202) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
      * Changes the password for the current user, but requires the old password to be present.
      * @param body (optional) Contains info about the user password to change.
      * @return No Content
@@ -4753,7 +4863,7 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Update the password expiration policy.
+     * Updates the password expiration policy.
      * @param body (optional) Contains info about the chosen expiration policy.
      * @return No Content
      */
@@ -5088,18 +5198,23 @@ export class IdentityApiService implements IIdentityApiService {
     /**
      * Returns a list of registered user devices.
      * @param filter_IsPushNotificationEnabled (optional) Returns all the devices (value = null), the enabled devices (value = true) or the disabled devices (value = false).
+     * @param filter_IsTrusted (optional) Returns all the devices (value = null), the trusted devices (value = true) or the untrusted devices (value = false).
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
      * @return OK
      */
-    getDevices(filter_IsPushNotificationEnabled?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<DeviceInfoResultSet> {
+    getDevices(filter_IsPushNotificationEnabled?: boolean | undefined, filter_IsTrusted?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<DeviceInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/devices?";
         if (filter_IsPushNotificationEnabled === null)
             throw new Error("The parameter 'filter_IsPushNotificationEnabled' cannot be null.");
         else if (filter_IsPushNotificationEnabled !== undefined)
             url_ += "Filter.IsPushNotificationEnabled=" + encodeURIComponent("" + filter_IsPushNotificationEnabled) + "&";
+        if (filter_IsTrusted === null)
+            throw new Error("The parameter 'filter_IsTrusted' cannot be null.");
+        else if (filter_IsTrusted !== undefined)
+            url_ += "Filter.IsTrusted=" + encodeURIComponent("" + filter_IsTrusted) + "&";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -5522,6 +5637,187 @@ export class IdentityApiService implements IIdentityApiService {
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             return _observableOf<void>(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
+     * Starts the process of trusting a device.
+     * @param deviceId The device id.
+     * @param x_TOTP (optional) The TOTP code.
+     * @param body (optional) Trust device parameters payload.
+     * @return No Content
+     */
+    trustDevice(deviceId: string, x_TOTP?: string | undefined, body?: TrustDeviceRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/my/devices/{deviceId}/trust";
+        if (deviceId === undefined || deviceId === null)
+            throw new Error("The parameter 'deviceId' must be defined.");
+        url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "X-TOTP": x_TOTP !== undefined && x_TOTP !== null ? "" + x_TOTP : "",
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTrustDevice(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTrustDevice(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processTrustDevice(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
+     * Sets a device as untrusted.
+     * @param deviceId The device id.
+     * @return No Content
+     */
+    untrustDevice(deviceId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/my/devices/{deviceId}/untrust";
+        if (deviceId === undefined || deviceId === null)
+            throw new Error("The parameter 'deviceId' must be defined.");
+        url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUntrustDevice(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUntrustDevice(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUntrustDevice(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -11017,64 +11313,6 @@ export interface IClientSecretInfo {
 }
 
 /** Identity Server UI configuration for the specified client. */
-export class ClientThemeConfig implements IClientThemeConfig {
-    /** The URL of the background image. */
-    backgroundImage?: string | undefined;
-    /** The background color. */
-    accentColor?: string | undefined;
-    /** A primary color. */
-    primaryColor?: string | undefined;
-    /** A secondary color. */
-    secondaryColor?: string | undefined;
-
-    constructor(data?: IClientThemeConfig) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.backgroundImage = _data["backgroundImage"];
-            this.accentColor = _data["accentColor"];
-            this.primaryColor = _data["primaryColor"];
-            this.secondaryColor = _data["secondaryColor"];
-        }
-    }
-
-    static fromJS(data: any): ClientThemeConfig {
-        data = typeof data === 'object' ? data : {};
-        let result = new ClientThemeConfig();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["backgroundImage"] = this.backgroundImage;
-        data["accentColor"] = this.accentColor;
-        data["primaryColor"] = this.primaryColor;
-        data["secondaryColor"] = this.secondaryColor;
-        return data;
-    }
-}
-
-/** Identity Server UI configuration for the specified client. */
-export interface IClientThemeConfig {
-    /** The URL of the background image. */
-    backgroundImage?: string | undefined;
-    /** The background color. */
-    accentColor?: string | undefined;
-    /** A primary color. */
-    primaryColor?: string | undefined;
-    /** A secondary color. */
-    secondaryColor?: string | undefined;
-}
-
-/** Identity Server UI configuration for the specified client. */
 export class ClientThemeConfigRequest implements IClientThemeConfigRequest {
     /** The URL of the background image. */
     backgroundImage?: string | undefined;
@@ -11136,7 +11374,7 @@ export interface IClientThemeConfigRequest {
 export class ClientThemeConfigResponse implements IClientThemeConfigResponse {
     /** JSON schema describing the properties to configure for the UI. */
     schema?: any | undefined;
-    data?: ClientThemeConfig;
+    data?: DefaultClientThemeConfig;
 
     constructor(data?: IClientThemeConfigResponse) {
         if (data) {
@@ -11150,7 +11388,7 @@ export class ClientThemeConfigResponse implements IClientThemeConfigResponse {
     init(_data?: any) {
         if (_data) {
             this.schema = _data["schema"];
-            this.data = _data["data"] ? ClientThemeConfig.fromJS(_data["data"]) : <any>undefined;
+            this.data = _data["data"] ? DefaultClientThemeConfig.fromJS(_data["data"]) : <any>undefined;
         }
     }
 
@@ -11173,7 +11411,7 @@ export class ClientThemeConfigResponse implements IClientThemeConfigResponse {
 export interface IClientThemeConfigResponse {
     /** JSON schema describing the properties to configure for the UI. */
     schema?: any | undefined;
-    data?: ClientThemeConfig;
+    data?: DefaultClientThemeConfig;
 }
 
 /** Translation object for type Indice.AspNetCore.Identity.Api.Models.SingleClientInfo. */
@@ -12062,25 +12300,96 @@ export interface ICredentialsValidationInfo {
     passwordRules?: PasswordRuleInfo[] | undefined;
 }
 
+/** Identity Server UI configuration for the specified client. */
+export class DefaultClientThemeConfig implements IDefaultClientThemeConfig {
+    /** The URL of the background image. */
+    backgroundImage?: string | undefined;
+    /** The background color. */
+    accentColor?: string | undefined;
+    /** A primary color. */
+    primaryColor?: string | undefined;
+    /** A secondary color. */
+    secondaryColor?: string | undefined;
+
+    constructor(data?: IDefaultClientThemeConfig) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.backgroundImage = _data["backgroundImage"];
+            this.accentColor = _data["accentColor"];
+            this.primaryColor = _data["primaryColor"];
+            this.secondaryColor = _data["secondaryColor"];
+        }
+    }
+
+    static fromJS(data: any): DefaultClientThemeConfig {
+        data = typeof data === 'object' ? data : {};
+        let result = new DefaultClientThemeConfig();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["backgroundImage"] = this.backgroundImage;
+        data["accentColor"] = this.accentColor;
+        data["primaryColor"] = this.primaryColor;
+        data["secondaryColor"] = this.secondaryColor;
+        return data;
+    }
+}
+
+/** Identity Server UI configuration for the specified client. */
+export interface IDefaultClientThemeConfig {
+    /** The URL of the background image. */
+    backgroundImage?: string | undefined;
+    /** The background color. */
+    accentColor?: string | undefined;
+    /** A primary color. */
+    primaryColor?: string | undefined;
+    /** A secondary color. */
+    secondaryColor?: string | undefined;
+}
+
 /** Models a user device. */
 export class DeviceInfo implements IDeviceInfo {
     /** Device id. */
     deviceId?: string | undefined;
+    platform?: DevicePlatform;
     /** Device name. */
     name?: string | undefined;
-    platform?: DevicePlatform;
-    /** Flag that determines if push notifications are enabled for this device. */
-    isPushNotificationsEnabled?: boolean;
-    /** The date this device was created. */
-    dateCreated?: Date;
     /** Device model. */
     model?: string | undefined;
     /** Device OS version. */
     osVersion?: string | undefined;
+    /** The date this device was created. */
+    dateCreated?: Date;
     /** Gets or sets the date and time, in UTC, when the device last signed in. */
     lastSignInDate?: Date | undefined;
+    /** Flag that determines if push notifications are enabled for this device. */
+    isPushNotificationsEnabled?: boolean;
+    /** Flag for pin support. */
+    supportsPinLogin?: boolean;
+    /** Flag for fingerprint support. */
+    supportsFingerprintLogin?: boolean;
+    /** Indicates whether the device is blocked. */
+    requiresPassword?: boolean;
+    /** The date that the device can be activated for trust. */
+    trustActivationDate?: Date | undefined;
+    /** Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios). */
+    isTrusted?: boolean;
+    /** Indicates whether the user can activate device trust after waiting for the specified delay. */
+    readonly canActivateDeviceTrust?: boolean;
     /** Extra metadata for the device. */
     data?: any | undefined;
+    clientType?: UserDeviceType;
 
     constructor(data?: IDeviceInfo) {
         if (data) {
@@ -12094,14 +12403,21 @@ export class DeviceInfo implements IDeviceInfo {
     init(_data?: any) {
         if (_data) {
             this.deviceId = _data["deviceId"];
-            this.name = _data["name"];
             this.platform = _data["platform"];
-            this.isPushNotificationsEnabled = _data["isPushNotificationsEnabled"];
-            this.dateCreated = _data["dateCreated"] ? new Date(_data["dateCreated"].toString()) : <any>undefined;
+            this.name = _data["name"];
             this.model = _data["model"];
             this.osVersion = _data["osVersion"];
+            this.dateCreated = _data["dateCreated"] ? new Date(_data["dateCreated"].toString()) : <any>undefined;
             this.lastSignInDate = _data["lastSignInDate"] ? new Date(_data["lastSignInDate"].toString()) : <any>undefined;
+            this.isPushNotificationsEnabled = _data["isPushNotificationsEnabled"];
+            this.supportsPinLogin = _data["supportsPinLogin"];
+            this.supportsFingerprintLogin = _data["supportsFingerprintLogin"];
+            this.requiresPassword = _data["requiresPassword"];
+            this.trustActivationDate = _data["trustActivationDate"] ? new Date(_data["trustActivationDate"].toString()) : <any>undefined;
+            this.isTrusted = _data["isTrusted"];
+            (<any>this).canActivateDeviceTrust = _data["canActivateDeviceTrust"];
             this.data = _data["data"];
+            this.clientType = _data["clientType"];
         }
     }
 
@@ -12115,14 +12431,21 @@ export class DeviceInfo implements IDeviceInfo {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["deviceId"] = this.deviceId;
-        data["name"] = this.name;
         data["platform"] = this.platform;
-        data["isPushNotificationsEnabled"] = this.isPushNotificationsEnabled;
-        data["dateCreated"] = this.dateCreated ? this.dateCreated.toISOString() : <any>undefined;
+        data["name"] = this.name;
         data["model"] = this.model;
         data["osVersion"] = this.osVersion;
+        data["dateCreated"] = this.dateCreated ? this.dateCreated.toISOString() : <any>undefined;
         data["lastSignInDate"] = this.lastSignInDate ? this.lastSignInDate.toISOString() : <any>undefined;
+        data["isPushNotificationsEnabled"] = this.isPushNotificationsEnabled;
+        data["supportsPinLogin"] = this.supportsPinLogin;
+        data["supportsFingerprintLogin"] = this.supportsFingerprintLogin;
+        data["requiresPassword"] = this.requiresPassword;
+        data["trustActivationDate"] = this.trustActivationDate ? this.trustActivationDate.toISOString() : <any>undefined;
+        data["isTrusted"] = this.isTrusted;
+        data["canActivateDeviceTrust"] = this.canActivateDeviceTrust;
         data["data"] = this.data;
+        data["clientType"] = this.clientType;
         return data;
     }
 }
@@ -12131,21 +12454,34 @@ export class DeviceInfo implements IDeviceInfo {
 export interface IDeviceInfo {
     /** Device id. */
     deviceId?: string | undefined;
+    platform?: DevicePlatform;
     /** Device name. */
     name?: string | undefined;
-    platform?: DevicePlatform;
-    /** Flag that determines if push notifications are enabled for this device. */
-    isPushNotificationsEnabled?: boolean;
-    /** The date this device was created. */
-    dateCreated?: Date;
     /** Device model. */
     model?: string | undefined;
     /** Device OS version. */
     osVersion?: string | undefined;
+    /** The date this device was created. */
+    dateCreated?: Date;
     /** Gets or sets the date and time, in UTC, when the device last signed in. */
     lastSignInDate?: Date | undefined;
+    /** Flag that determines if push notifications are enabled for this device. */
+    isPushNotificationsEnabled?: boolean;
+    /** Flag for pin support. */
+    supportsPinLogin?: boolean;
+    /** Flag for fingerprint support. */
+    supportsFingerprintLogin?: boolean;
+    /** Indicates whether the device is blocked. */
+    requiresPassword?: boolean;
+    /** The date that the device can be activated for trust. */
+    trustActivationDate?: Date | undefined;
+    /** Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios). */
+    isTrusted?: boolean;
+    /** Indicates whether the user can activate device trust after waiting for the specified delay. */
+    canActivateDeviceTrust?: boolean;
     /** Extra metadata for the device. */
     data?: any | undefined;
+    clientType?: UserDeviceType;
 }
 
 export class DeviceInfoResultSet implements IDeviceInfoResultSet {
@@ -12554,7 +12890,7 @@ export interface IIdentityResourceInfoResultSet {
     items?: IdentityResourceInfo[] | undefined;
 }
 
-/** Indice.AspNetCore.Identity.Data.Models.PasswordExpirationPolicy enum defines all available passord expiration presets. The value is measured in days.            If cast to integer will give you a number in days to add to the current <seealso cref="T:System.DateTime" />. */
+/** Indice.AspNetCore.Identity.Data.Models.PasswordExpirationPolicy enum defines all available passord expiration presets. The value is measured in days. If cast to integer will give you a number in days to add to the current <seealso cref="T:System.DateTime" />. */
 export enum PasswordExpirationPolicy {
     Monthly = "Monthly",
     Quarterly = "Quarterly",
@@ -12745,6 +13081,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
     model?: string | undefined;
     /** Device OS version. */
     osVersion?: string | undefined;
+    clientType?: UserDeviceType;
     /** Extra metadata for the device. */
     data?: any | undefined;
 
@@ -12770,6 +13107,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
             }
             this.model = _data["model"];
             this.osVersion = _data["osVersion"];
+            this.clientType = _data["clientType"];
             this.data = _data["data"];
         }
     }
@@ -12794,6 +13132,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
         }
         data["model"] = this.model;
         data["osVersion"] = this.osVersion;
+        data["clientType"] = this.clientType;
         data["data"] = this.data;
         return data;
     }
@@ -12814,6 +13153,7 @@ export interface IRegisterDeviceRequest {
     model?: string | undefined;
     /** Device OS version. */
     osVersion?: string | undefined;
+    clientType?: UserDeviceType;
     /** Extra metadata for the device. */
     data?: any | undefined;
 }
@@ -13281,7 +13621,7 @@ export class SingleClientInfo implements ISingleClientInfo {
     includeJwtId?: boolean | undefined;
     /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
     allowAccessTokensViaBrowser?: boolean | undefined;
-    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
+    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requiring the client to use the user-info endpoint. */
     alwaysIncludeUserClaimsInIdToken?: boolean | undefined;
     /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
     alwaysSendClientClaims?: boolean | undefined;
@@ -13295,7 +13635,7 @@ export class SingleClientInfo implements ISingleClientInfo {
     clientClaimsPrefix?: string | undefined;
     /** Specifies logout URI at client for HTTP back-channel based logout. */
     backChannelLogoutUri?: string | undefined;
-    /** Specifies if the user's session id should be sent to the BackChannelLogoutUri. */
+    /** If the user's session id should be sent. */
     backChannelLogoutSessionRequired?: boolean;
     /** Gets or sets the type of the device flow user code. */
     userCodeType?: string | undefined;
@@ -13309,7 +13649,7 @@ export class SingleClientInfo implements ISingleClientInfo {
     grantTypes?: string[] | undefined;
     /** List of available client secrets. */
     secrets?: ClientSecretInfo[] | undefined;
-    /** Cors origins allowed. */
+    /** CORS origins allowed. */
     allowedCorsOrigins?: string[] | undefined;
     /** Allowed URIs to redirect after logout. */
     postLogoutRedirectUris?: string[] | undefined;
@@ -13576,7 +13916,7 @@ export interface ISingleClientInfo {
     includeJwtId?: boolean | undefined;
     /** Controls whether access tokens are transmitted via the browser for this client. This can prevent accidental leakage of access tokens when multiple response types are allowed. */
     allowAccessTokensViaBrowser?: boolean | undefined;
-    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requring the client to use the userinfo endpoint. */
+    /** When requesting both an id token and access token, should the user claims always be added to the id token instead of requiring the client to use the user-info endpoint. */
     alwaysIncludeUserClaimsInIdToken?: boolean | undefined;
     /** Gets or sets a value indicating whether client claims should be always included in the access tokens - or only for client credentials flow. */
     alwaysSendClientClaims?: boolean | undefined;
@@ -13590,7 +13930,7 @@ export interface ISingleClientInfo {
     clientClaimsPrefix?: string | undefined;
     /** Specifies logout URI at client for HTTP back-channel based logout. */
     backChannelLogoutUri?: string | undefined;
-    /** Specifies if the user's session id should be sent to the BackChannelLogoutUri. */
+    /** If the user's session id should be sent. */
     backChannelLogoutSessionRequired?: boolean;
     /** Gets or sets the type of the device flow user code. */
     userCodeType?: string | undefined;
@@ -13604,7 +13944,7 @@ export interface ISingleClientInfo {
     grantTypes?: string[] | undefined;
     /** List of available client secrets. */
     secrets?: ClientSecretInfo[] | undefined;
-    /** Cors origins allowed. */
+    /** CORS origins allowed. */
     allowedCorsOrigins?: string[] | undefined;
     /** Allowed URIs to redirect after logout. */
     postLogoutRedirectUris?: string[] | undefined;
@@ -13634,9 +13974,9 @@ export class SingleUserInfo implements ISingleUserInfo {
     phoneNumberConfirmed?: boolean;
     /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
-    /** The datetime where the user was created in the system. */
+    /** The date-time where the user was created in the system. */
     createDate?: Date;
-    /** The datetime where the lockout period ends. */
+    /** The date-time where the lockout period ends. */
     lockoutEnd?: Date | undefined;
     /** User's email address. */
     email?: string | undefined;
@@ -13751,9 +14091,9 @@ export interface ISingleUserInfo {
     phoneNumberConfirmed?: boolean;
     /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
-    /** The datetime where the user was created in the system. */
+    /** The date-time where the user was created in the system. */
     createDate?: Date;
-    /** The datetime where the lockout period ends. */
+    /** The date-time where the lockout period ends. */
     lockoutEnd?: Date | undefined;
     /** User's email address. */
     email?: string | undefined;
@@ -13910,12 +14250,6 @@ export enum TotpDeliveryChannel {
     None = "None",
 }
 
-export enum TotpProviderType {
-    Phone = "Phone",
-    EToken = "EToken",
-    StandardOtp = "StandardOtp",
-}
-
 /** Request object used by an authenticated user in order to get a new Time base one time access token via one of the supported MFA mechanisms. */
 export class TotpRequest implements ITotpRequest {
     channel!: TotpDeliveryChannel;
@@ -13924,9 +14258,11 @@ export class TotpRequest implements ITotpRequest {
     /** The message to be sent in the SMS/Viber or PushNotification. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed. */
     message?: string | undefined;
     /** The payload data in JSON string to be sent in the Push Notification. */
-    data?: { [key: string]: any; } | undefined;
+    data?: any | undefined;
     /** The type of the Push Notification. */
     classification?: string | undefined;
+    /** The subject of the message for the Indice.Services.TotpDeliveryChannel.PushNotificationIndice.AspNetCore.Identity.Features.Totp.Models.TotpRequest.Channel. */
+    subject?: string | undefined;
 
     constructor(data?: ITotpRequest) {
         if (data) {
@@ -13942,14 +14278,9 @@ export class TotpRequest implements ITotpRequest {
             this.channel = _data["channel"];
             this.purpose = _data["purpose"];
             this.message = _data["message"];
-            if (_data["data"]) {
-                this.data = {} as any;
-                for (let key in _data["data"]) {
-                    if (_data["data"].hasOwnProperty(key))
-                        (<any>this.data)![key] = _data["data"][key];
-                }
-            }
+            this.data = _data["data"];
             this.classification = _data["classification"];
+            this.subject = _data["subject"];
         }
     }
 
@@ -13965,14 +14296,9 @@ export class TotpRequest implements ITotpRequest {
         data["channel"] = this.channel;
         data["purpose"] = this.purpose;
         data["message"] = this.message;
-        if (this.data) {
-            data["data"] = {};
-            for (let key in this.data) {
-                if (this.data.hasOwnProperty(key))
-                    (<any>data["data"])[key] = (<any>this.data)[key];
-            }
-        }
+        data["data"] = this.data;
         data["classification"] = this.classification;
+        data["subject"] = this.subject;
         return data;
     }
 }
@@ -13985,16 +14311,17 @@ export interface ITotpRequest {
     /** The message to be sent in the SMS/Viber or PushNotification. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed. */
     message?: string | undefined;
     /** The payload data in JSON string to be sent in the Push Notification. */
-    data?: { [key: string]: any; } | undefined;
+    data?: any | undefined;
     /** The type of the Push Notification. */
     classification?: string | undefined;
+    /** The subject of the message for the Indice.Services.TotpDeliveryChannel.PushNotificationIndice.AspNetCore.Identity.Features.Totp.Models.TotpRequest.Channel. */
+    subject?: string | undefined;
 }
 
 /** Verification request object. */
 export class TotpVerificationRequest implements ITotpVerificationRequest {
     /** The TOTP code. */
     code!: string;
-    provider?: TotpProviderType;
     /** Optionally pass the reason used to generate the TOTP. */
     purpose?: string | undefined;
 
@@ -14010,7 +14337,6 @@ export class TotpVerificationRequest implements ITotpVerificationRequest {
     init(_data?: any) {
         if (_data) {
             this.code = _data["code"];
-            this.provider = _data["provider"];
             this.purpose = _data["purpose"];
         }
     }
@@ -14025,7 +14351,6 @@ export class TotpVerificationRequest implements ITotpVerificationRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["code"] = this.code;
-        data["provider"] = this.provider;
         data["purpose"] = this.purpose;
         return data;
     }
@@ -14035,9 +14360,48 @@ export class TotpVerificationRequest implements ITotpVerificationRequest {
 export interface ITotpVerificationRequest {
     /** The TOTP code. */
     code: string;
-    provider?: TotpProviderType;
     /** Optionally pass the reason used to generate the TOTP. */
     purpose?: string | undefined;
+}
+
+/** Trust device parameters payload. */
+export class TrustDeviceRequest implements ITrustDeviceRequest {
+    /** The id of the device to remove before trusting the defined device. */
+    swapDeviceId?: string | undefined;
+
+    constructor(data?: ITrustDeviceRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.swapDeviceId = _data["swapDeviceId"];
+        }
+    }
+
+    static fromJS(data: any): TrustDeviceRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new TrustDeviceRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["swapDeviceId"] = this.swapDeviceId;
+        return data;
+    }
+}
+
+/** Trust device parameters payload. */
+export interface ITrustDeviceRequest {
+    /** The id of the device to remove before trusting the defined device. */
+    swapDeviceId?: string | undefined;
 }
 
 /** Models an API resource that will be updated on the server. */
@@ -14766,6 +15130,46 @@ export interface IUpdateIdentityResourceRequest {
     showInDiscoveryDocument?: boolean;
 }
 
+/** Models the request to update the max devices number for the user. */
+export class UpdateMaxDevicesCountRequest implements IUpdateMaxDevicesCountRequest {
+    /** The number to apply for devices count. */
+    count?: number;
+
+    constructor(data?: IUpdateMaxDevicesCountRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+        }
+    }
+
+    static fromJS(data: any): UpdateMaxDevicesCountRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMaxDevicesCountRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        return data;
+    }
+}
+
+/** Models the request to update the max devices number for the user. */
+export interface IUpdateMaxDevicesCountRequest {
+    /** The number to apply for devices count. */
+    count?: number;
+}
+
 /** Models the request to update the password expiration policy for the user. */
 export class UpdatePasswordExpirationPolicyRequest implements IUpdatePasswordExpirationPolicyRequest {
     policy!: PasswordExpirationPolicy;
@@ -15414,6 +15818,12 @@ export enum UserConsentType {
     UserCode = "UserCode",
 }
 
+/** Describes the possible types of a user device. */
+export enum UserDeviceType {
+    Browser = "Browser",
+    Native = "Native",
+}
+
 /** Models an application user when retrieving a list. */
 export class UserInfo implements IUserInfo {
     /** User's unique identifier. */
@@ -15426,9 +15836,9 @@ export class UserInfo implements IUserInfo {
     phoneNumberConfirmed?: boolean;
     /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
-    /** The datetime where the user was created in the system. */
+    /** The date-time where the user was created in the system. */
     createDate?: Date;
-    /** The datetime where the lockout period ends. */
+    /** The date-time where the lockout period ends. */
     lockoutEnd?: Date | undefined;
     /** User's email address. */
     email?: string | undefined;
@@ -15527,9 +15937,9 @@ export interface IUserInfo {
     phoneNumberConfirmed?: boolean;
     /** Indicates whether two-factor authentication is enabled for the user. */
     twoFactorEnabled?: boolean;
-    /** The datetime where the user was created in the system. */
+    /** The date-time where the user was created in the system. */
     createDate?: Date;
-    /** The datetime where the lockout period ends. */
+    /** The date-time where the lockout period ends. */
     lockoutEnd?: Date | undefined;
     /** User's email address. */
     email?: string | undefined;

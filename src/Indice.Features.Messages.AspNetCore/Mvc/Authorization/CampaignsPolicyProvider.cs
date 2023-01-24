@@ -30,7 +30,7 @@ namespace Indice.Features.Messages.AspNetCore.Mvc.Authorization
                 var policy = new AuthorizationPolicyBuilder();
                 policy.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(context => context.User.HasScopeClaim(_apiOptions.RequiredScope ?? MessagesApi.Scope));
+                      .RequireAssertion(context => context.User.HasScope(_apiOptions.RequiredScope ?? MessagesApi.Scope));
                 return Task.FromResult(policy.Build());
             }
             return FallbackPolicyProvider.GetPolicyAsync(policyName);

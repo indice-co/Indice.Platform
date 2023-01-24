@@ -30,7 +30,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="caseId">The Id of the case.</param>
         /// <param name="data">The case data (as defined by JSON Schema in CaseType).</param>
         /// <returns></returns>
-        Task UpdateData(ClaimsPrincipal user, Guid caseId, string data);
+        Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data);
 
         /// <summary>
         /// Submit the case. Case must be in <see cref="DbCase.Draft"/> mode.
@@ -55,7 +55,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="caseId">The Id of the case.</param>
         /// <param name="includeAttachmentData">Include the attachment data with the response.</param>
         /// <returns></returns>
-        Task<CaseDetails> GetCaseById(ClaimsPrincipal user, Guid caseId, bool? includeAttachmentData = null);
+        Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId, bool? includeAttachmentData = null);
 
         /// <summary>
         /// Performs a physical delete for a draft case.

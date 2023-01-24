@@ -1,7 +1,7 @@
 <swal title="Delete?" text="User will be deleted permanently. This action cannot be reversed." type="warning" [showCancelButton]="true" (confirm)="delete()" #deleteAlert></swal>
 <swal title="Unlock?" text="User will be unlocked permanently. This action cannot be reversed." type="warning" [showCancelButton]="true" (confirm)="unlock()" #unlockAlert></swal>
 <swal [title]="!user?.blocked ? 'Block?' : 'Unblock?'" [text]="!user?.blocked ? 'User will be blocked. You can revert this action later.' : 'User will be unblocked. You can revert this action later.'" type="warning"
-    [showCancelButton]="true" (confirm)="toggleBlock()" #blockAlert>
+      [showCancelButton]="true" (confirm)="toggleBlock()" #blockAlert>
 </swal>
 <ng-template let-modal #content>
     <div class="modal-header">
@@ -21,7 +21,7 @@
             <div class="mb-3">
                 <div class="form-check col-form-label custom-control custom-checkbox">
                     <input class="form-check-input custom-control-input" type="checkbox" id="change-password-after-first-sign-in-check" name="change-password-after-first-sign-in-check" [(ngModel)]="changePasswordAfterFirstSignIn"
-                        #changePasswordAfterFirstSignInCheck="ngModel" />
+                           #changePasswordAfterFirstSignInCheck="ngModel" />
                     <label class="custom-control-label" for="change-password-after-first-sign-in-check">Require this user to change their password when they first sign in</label>
                 </div>
             </div>
@@ -89,6 +89,15 @@
             <div class="form-check col-form-label custom-control custom-checkbox">
                 <input class="form-check-input custom-control-input" type="checkbox" id="user-phone-number-confirmed" name="user-phone-number-confirmed" [(ngModel)]="user.phoneNumberConfirmed" #phoneNumberConfirmed="ngModel" />
                 <label class="custom-control-label" for="user-phone-number-confirmed"></label>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label for="user-tfa-enabled" class="col-sm-2 col-form-label">2FA Enabled</label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input" type="checkbox" id="user-tfa-enabled" name="user-tfa-enabled" [(ngModel)]="user.twoFactorEnabled" #tfaEnabled="ngModel" />
+                <label class="custom-control-label" for="user-tfa-enabled"></label>
             </div>
         </div>
     </div>

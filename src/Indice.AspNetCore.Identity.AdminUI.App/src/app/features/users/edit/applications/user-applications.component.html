@@ -1,14 +1,9 @@
-<ng-template let-modal
-             #content>
+<ng-template let-modal #content>
     <div class="modal-header">
-        <h4 class="modal-title"
-            id="modal-basic-title">
+        <h4 class="modal-title" id="modal-basic-title">
             {{ selectedUserClient?.clientName }}
         </h4>
-        <button type="button"
-                class="close"
-                aria-label="Close"
-                (click)="modal.dismiss()">
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -41,8 +36,7 @@
             </table>
             <hr />
             <p class="text-muted font-14">Resources & scopes accessible by client:</p>
-            <h6 *ngFor="let scope of selectedUserClient?.scopes"
-                class="d-inline-block mt-0">
+            <h6 *ngFor="let scope of selectedUserClient?.scopes" class="d-inline-block mt-0">
                 <span class="badge badge-warning mr-1">{{ scope }}</span>
             </h6>
         </div>
@@ -50,22 +44,9 @@
 </ng-template>
 <div class="row mt-3">
     <div class="col-12">
-        <app-list-view [clientSide]="true"
-                       [rowsPerPage]="10"
-                       [canFilter]="false"
-                       [columns]="columns"
-                       [rows]="rows"
-                       [defaultSortField]="'clientId'"
-                       [defaultSortDirection]="'Asc'"
-                       #userApplicationsList>
-        </app-list-view>
+        <app-list-view [clientSide]="true" [rowsPerPage]="10" [canFilter]="false" [columns]="columns" [rows]="rows" [defaultSortField]="'clientId'" [defaultSortDirection]="'Asc'" #userApplicationsList></app-list-view>
     </div>
 </div>
-<ng-template let-row="row"
-             let-value="value"
-             #actionsTemplate>
-    <button class="btn btn-success"
-            (click)="showDetails(row, content)">
-        Details
-    </button>
+<ng-template let-row="row" let-value="value" #actionsTemplate>
+    <button class="btn btn-success" (click)="showDetails(row, content)">Details</button>
 </ng-template>

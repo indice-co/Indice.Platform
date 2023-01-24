@@ -24,11 +24,11 @@ namespace Indice.Features.Cases.Interfaces
         public Task<GetCasesListFilter> Filter(ClaimsPrincipal user, GetCasesListFilter filter);
 
         /// <summary>
-        /// Validates that a user is authorized against a list of <see cref="ICaseAuthorizationService"/> for a <see cref="CaseDetails"/>.
+        /// Validates that a user is authorized against a list of <see cref="ICaseAuthorizationService"/> for a <see cref="Case"/>.
         /// </summary>
         /// <param name="user">The user.</param>
-        /// <param name="caseDetails">The case details.</param>
+        /// <param name="case">The case.</param>
         /// <returns></returns>
-        public Task<bool> IsValid(ClaimsPrincipal user, CaseDetails caseDetails);
+        public Task<bool> IsValid(ClaimsPrincipal user, Case @case);
     }
 }

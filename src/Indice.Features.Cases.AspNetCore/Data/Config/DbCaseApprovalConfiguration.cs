@@ -1,5 +1,6 @@
 ﻿using Indice.Configuration;
 using Indice.Features.Cases.Data.Models;
+using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -21,26 +22,7 @@ namespace Indice.Features.Cases.Data.Config
                     valueRetrieved => (Approval)Enum.Parse(typeof(Approval), valueRetrieved))
                 .IsRequired();
             builder
-                .OwnsOne(
-                    p => p.CreatedBy,
-                    actionBuilder => {
-                        var prefix = nameof(DbCaseApproval.CreatedBy);
-                        actionBuilder
-                            .Property(p => p.Id)
-                            .HasColumnName($"{prefix}{nameof(DbCaseApproval.CreatedBy.Id)}")
-                            .HasMaxLength(TextSizePresets.S64);
-                        actionBuilder
-                            .Property(p => p.Email)
-                            .HasColumnName($"{prefix}{nameof(DbCaseApproval.CreatedBy.Email)}")
-                            .HasMaxLength(TextSizePresets.M128);
-                        actionBuilder
-                            .Property(p => p.Name)
-                            .HasColumnName($"{prefix}{nameof(DbCaseApproval.CreatedBy.Name)}")
-                            .HasMaxLength(TextSizePresets.M128);
-                        actionBuilder
-                            .Property(p => p.When)
-                            .HasColumnName($"{prefix}{nameof(DbCaseApproval.CreatedBy.When)}");
-                    });
+                .OwnsOneAudit(p => p.CreatedBy, required: true);
             builder
                 .Property(p => p.Reason)
                 .HasMaxLength(TextSizePresets.M128);

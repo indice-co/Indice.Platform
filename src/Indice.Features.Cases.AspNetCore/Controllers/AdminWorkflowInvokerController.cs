@@ -87,7 +87,7 @@ namespace Indice.Features.Cases.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
         public async Task<IActionResult> EditCase(Guid caseId, [FromBody] EditCaseRequest request) {
-            var executedWorkflow = await _awaitEditInvoker.ExecuteWorkflowsAsync(caseId, request.Data);
+            var executedWorkflow = await _awaitEditInvoker.ExecuteWorkflowsAsync(caseId, request);
             if (!executedWorkflow.Any()) {
                 throw new Exception("You cannot edit at this point.");
             }
