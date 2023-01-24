@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using IdentityServer4.Stores;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
