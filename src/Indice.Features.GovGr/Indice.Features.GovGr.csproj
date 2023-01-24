@@ -1,17 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
     <Description>Indice GovGr Feature</Description>
-    <TargetFrameworks>netstandard2.1;net5.0;net6.0;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net6.0;net7.0;</TargetFrameworks>
     <Authors>Christos Asvestopoulos, Constantinos Leftheris</Authors>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;GovGr;HttpClient</PackageTags>
-    <Version>6.4.12</Version>
+    <!--<Version>6.4.12</Version>-->
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="6.0.0" />
     <PackageReference Include="Indice.Common" Version="$(VersionPrefix)" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.25.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.14.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
@@ -23,11 +23,6 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Localization" Version="6.0.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.32" />

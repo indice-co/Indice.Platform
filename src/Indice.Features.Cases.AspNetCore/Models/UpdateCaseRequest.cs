@@ -8,6 +8,6 @@
         /// <summary>
         /// The data in json string.
         /// </summary>
-        public string Data { get; set; }
+        public dynamic Data { get; set; }
     }
 }

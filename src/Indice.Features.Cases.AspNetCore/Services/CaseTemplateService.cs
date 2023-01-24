@@ -33,7 +33,7 @@ namespace Indice.Features.Cases.Services
         }
 
         /// <inheritdoc />
-        public async Task<string> RenderTemplateAsync(CaseDetails @case) {
+        public async Task<string> RenderTemplateAsync(Case @case) {
             return await RenderTemplateAsync($"Cases/Pdf/{@case.CaseType.Code}", @case);
         }
 

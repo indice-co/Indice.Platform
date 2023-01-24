@@ -1,9 +1,9 @@
 ﻿namespace Indice.Features.Cases.Data.Models
 {
 #pragma warning disable 1591
-    public class DbCaseTypeNotificationSubscription
+    public class DbNotificationSubscription
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
         public string Email { get; set; }
         public string GroupId { get; set; }
     }

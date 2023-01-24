@@ -15,7 +15,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         Category = "Cases",
         DisplayName = "Send Message",
         Description = "Send a message to a case in order to change the active checkpoint, update its data, add an attachment or add a comment. The current context user will be responsible for the change.",
-        Outcomes = new[] { OutcomeNames.Done, "Failed" }
+        Outcomes = new[] { OutcomeNames.Done, CasesApiConstants.WorkflowVariables.OutcomeNames.Failed }
     )]
     internal class SendMessageActivity : BaseCaseActivity
     {

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Cases.Data.Config
 {
-    internal class DbRoleCaseTypeConfiguration : IEntityTypeConfiguration<DbRoleCaseType>
+    internal class DbMemberConfiguration : IEntityTypeConfiguration<DbMember>
     {
-        public void Configure(EntityTypeBuilder<DbRoleCaseType> builder) {
+        public void Configure(EntityTypeBuilder<DbMember> builder) {
             builder
-                .ToTable("RoleCaseType");
+                .ToTable("Member");
             builder
                 .HasKey(p => p.Id);
             builder

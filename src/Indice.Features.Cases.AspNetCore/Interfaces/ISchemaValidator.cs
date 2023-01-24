@@ -11,6 +11,6 @@
         /// <remarks>https://github.com/gregsdennis/json-everything</remarks>
         /// <param name="schema">The json schema.</param>
         /// <param name="data">The json data.</param>
-        bool IsValid(string schema, string data);
+        bool IsValid(string schema, dynamic data);
     }
 }

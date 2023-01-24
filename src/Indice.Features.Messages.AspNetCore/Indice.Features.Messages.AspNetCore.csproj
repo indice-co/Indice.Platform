@@ -13,10 +13,6 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-  </ItemGroup>
   <ItemGroup>
     <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
   </ItemGroup>

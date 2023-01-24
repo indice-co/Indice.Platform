@@ -32,16 +32,17 @@ namespace Indice.Features.Cases.Data
         public DbSet<DbCheckpointType> CheckpointTypes => Set<DbCheckpointType>();
         /// <summary>Comments</summary>
         public DbSet<DbComment> Comments => Set<DbComment>();
-        /// <summary>Role case types? This is not very obvious name</summary>
-        public DbSet<DbRoleCaseType> RoleCaseTypes => Set<DbRoleCaseType>();
+        /// <summary>CaseType members</summary>
+        public DbSet<DbMember> Members => Set<DbMember>();
+        /// <summary>Member Notifications Subscriptions</summary>
+        /// <remarks>Per user subscriptions for case modification alerts via e-mail.</remarks>
+        public DbSet<DbNotificationSubscription> NotificationSubscriptions => Set<DbNotificationSubscription>();
         /// <summary>Case data is the actual dynamic dataset that accompanies a <see cref="DbCase"/>. May have multiple versions for one case</summary>
         public DbSet<DbCaseData> CaseData => Set<DbCaseData>();
-        /// <summary>CaseTypeNotificationSubscription! Beats me</summary>
-        public DbSet<DbCaseTypeNotificationSubscription> CaseTypeNotificationSubscription => Set<DbCaseTypeNotificationSubscription>();
         /// <summary>Case approval. This is probably an approval log</summary>
         public DbSet<DbCaseApproval> CaseApprovals => Set<DbCaseApproval>();
         /// <summary>Case type category.</summary>
-        public DbSet<DbCaseTypeCategory> CaseTypeCategories => Set<DbCaseTypeCategory>();
+        public DbSet<DbCategory> Categories => Set<DbCategory>();
 
         /// <inheritdoc />
         protected override void OnModelCreating(ModelBuilder modelBuilder) {

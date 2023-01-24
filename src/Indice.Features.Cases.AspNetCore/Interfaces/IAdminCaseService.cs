@@ -22,7 +22,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="metadata">The metadata the case might have.</param>
         /// <returns></returns>
         Task<Guid> CreateDraft(ClaimsPrincipal user, string caseTypeCode, string groupId, CustomerMeta customer, Dictionary<string, string> metadata);
-        
+
         /// <summary>
         /// Update the case with the case data and does a json instance-schema validation of the case type's schema (<see cref="DbCaseType.DataSchema"/>).
         /// </summary>
@@ -30,7 +30,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="caseId">The Id of the case.</param>
         /// <param name="data">The case data (as defined by JSON Schema in CaseType).</param>
         /// <returns></returns>
-        Task UpdateData(ClaimsPrincipal user, Guid caseId, string data);
+        Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data);
 
         /// <summary>
         /// Submit the case. Case must be in <see cref="DbCase.Draft"/> mode.
@@ -55,7 +55,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="caseId">The Id of the case.</param>
         /// <param name="includeAttachmentData">Include the attachment data with the response.</param>
         /// <returns></returns>
-        Task<CaseDetails> GetCaseById(ClaimsPrincipal user, Guid caseId, bool? includeAttachmentData = null);
+        Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId, bool? includeAttachmentData = null);
 
         /// <summary>
         /// Performs a physical delete for a draft case.
@@ -79,7 +79,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="user">The user that initiated the call, and will be self-assigned to the case.</param>
         /// <param name="caseId">The Id of the case to be assigned.</param>
         /// <returns></returns>
-        Task<AuditMeta> AssignCase(ClaimsPrincipal user, Guid caseId);
+        Task<AuditMeta> AssignCase(AuditMeta user, Guid caseId);
 
         /// <summary>
         /// Clears the assignment for a case.
@@ -102,7 +102,7 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="caseId"></param>
         /// <returns></returns>
         Task<ResultSet<CaseAttachment>> GetAttachments(Guid caseId);
-        
+
         /// <summary>
         /// Get single Case Attachment data
         /// </summary>

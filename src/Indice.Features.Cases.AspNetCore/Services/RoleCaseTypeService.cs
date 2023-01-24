@@ -63,13 +63,13 @@ namespace Indice.Features.Cases.Services
         /// Determines whether user can see a Case in relation to i) user's role(s) and ii) case's CaseType and CheckpointType
         /// </summary>
         /// <param name="user"></param>
-        /// <param name="caseDetails"></param>
-        public async Task<bool> IsValid(ClaimsPrincipal user, CaseDetails caseDetails) {
-            if (caseDetails == null) throw new ArgumentNullException(nameof(caseDetails));
+        /// <param name="case"></param>
+        public async Task<bool> IsValid(ClaimsPrincipal user, Case @case) {
+            if (@case == null) throw new ArgumentNullException(nameof(@case));
             if (user is null) throw new ArgumentNullException(nameof(user));
 
             // if client is systemic, then bypass checks
-            if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, caseDetails)) {
+            if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, @case)) {
                 return true;
             }
 
@@ -81,16 +81,16 @@ namespace Indice.Features.Cases.Services
                 .ToList();
 
             return allowedIdCombinations
-                .Any(x => x.CaseTypeId == caseDetails.CaseType!.Id && x.CheckpointTypeId == caseDetails.CheckpointTypeId);
+                .Any(x => x.CaseTypeId == @case.CaseType!.Id && x.CheckpointTypeId == @case.CheckpointTypeId);
         }
 
         /// <summary>
         /// Determines whether user is Owner of a Case
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="caseDetails"></param>
-        private bool IsOwnerOfCase(ClaimsPrincipal user, CaseDetails caseDetails) {
-            return user.FindSubjectId().Equals(caseDetails.CreatedById);
+        /// <param name="user">The user.</param>
+        /// <param name="case">The case.</param>
+        private bool IsOwnerOfCase(ClaimsPrincipal user, Case @case) {
+            return user.FindSubjectId().Equals(@case.CreatedById);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace Indice.Features.Cases.Services
         private List<string> ApplyCaseTypeFilter(List<string> caseTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
             var allowedCaseTypeCodes = roleCaseTypes
                 .Where(roleCaseType => roleClaims.Contains(roleCaseType.RoleName!))
-                .Select(x => x.CaseType.Code)
+                .Select(x => x.CaseTypePartial.Code)
                 .Distinct()
                 .ToList();
 
@@ -160,14 +160,14 @@ namespace Indice.Features.Cases.Services
         private async Task<List<RoleCaseType>> GetRoleCaseTypes() {
             return await _distributedCache.TryGetAndSetAsync(
                 cacheKey: $"{_roleCaseTypesCacheKey}",
-                getSourceAsync: async () => await _dbContext.RoleCaseTypes
+                getSourceAsync: async () => await _dbContext.Members
                     .AsQueryable()
                     .Select(c => new RoleCaseType {
                        Id = c.Id,
                        RoleName = c.RoleName,
                        CaseTypeId = c.CaseTypeId,
                        CheckpointTypeId = c.CheckpointTypeId,
-                       CaseType = new CaseTypePartial {
+                       CaseTypePartial = new CaseTypePartial {
                            Id = c.CaseTypeId,
                            Code = c.CaseType!.Code
                        },

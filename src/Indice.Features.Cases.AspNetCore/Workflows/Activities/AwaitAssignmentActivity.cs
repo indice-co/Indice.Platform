@@ -18,7 +18,7 @@ namespace Indice.Features.Cases.Workflows.Activities
         Category = "Cases",
         DisplayName = "Await Assignment",
         Description = "When a user triggers this activity, they will assign the current workflow case to themselves.",
-        Outcomes = new[] { OutcomeNames.Done, "Failed" }
+        Outcomes = new[] { OutcomeNames.Done, CasesApiConstants.WorkflowVariables.OutcomeNames.Failed }
     )]
     internal class AwaitAssignmentActivity : BaseCaseActivity
     {
@@ -55,7 +55,7 @@ namespace Indice.Features.Cases.Workflows.Activities
             CaseId ??= Guid.Parse(context.CorrelationId);
             AuditMeta assignedTo;
             try {
-                assignedTo = await _adminCaseService.AssignCase(context.GetHttpContextUser()!, CaseId!.Value);
+                assignedTo = await _adminCaseService.AssignCase(AuditMeta.Create(context.GetHttpContextUser()), CaseId!.Value);
             } catch (Exception ex) {
                 await LogCaseError(context, ex);
                 return Outcome("Failed");

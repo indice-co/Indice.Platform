@@ -4,7 +4,7 @@ import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
-import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage } from 'src/app/core/services/cases-api.service';
+import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-detail-page',
@@ -12,7 +12,7 @@ import { CaseActions, CaseDetails, CasesApiService, ActionRequest, TimelineEntry
 })
 export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
-  public model$: Observable<CaseDetails> | undefined;
+  public model$: Observable<Case> | undefined;
 
   private _caseActions: ReplaySubject<CaseActions> = new ReplaySubject(1);
   public caseActions$ = this._caseActions.asObservable();
@@ -79,7 +79,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
             this.getCustomerData$(caseDetails), // draft mode, we need to prefill the form with customer data (if any)
             of(caseDetails))
         }),
-        tap((response: CaseDetails) => {
+        tap((response: Case) => {
           this.caseTypeConfig = response.caseType?.config ? JSON.parse(response.caseType?.config) : {};
           this.caseDetailsService.setCaseDetails(response);
           // ensure that we have the correct "latest" caseDetails!
@@ -89,7 +89,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
       ).subscribe();
 
   }
-  private getCustomerData$(caseDetails: CaseDetails): Observable<CaseDetails> {
+  private getCustomerData$(caseDetails: Case): Observable<Case> {
     return this.api
       .getCustomerData(caseDetails.customerId ?? "", caseDetails.caseType?.code ?? "")
       .pipe(

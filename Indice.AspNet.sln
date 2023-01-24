@@ -7,11 +7,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNet", "src\Indice
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B8EB253B-A436-4F17-BFFC-C0E975FB0D48}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		appveyor.yml = appveyor.yml
 		src\Directory.Build.props = src\Directory.Build.props
 		src\Directory.Build.targets = src\Directory.Build.targets
 		LICENSE = LICENSE
+		local-feed.ps1 = local-feed.ps1
 		pack.ps1 = pack.ps1
+		NuGet.config = NuGet.config
 		README-DOCKER.md = README-DOCKER.md
 		README.md = README.md
 	EndProjectSection
@@ -23,6 +26,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Common.Tests", "test\Indice.Common.Tests\Indice.Common.Tests.csproj", "{4E141F9C-3F7C-4312-B725-201919849E7D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{613A1373-9A47-42DD-A076-7F310D0440B9}"
+	ProjectSection(SolutionItems) = preProject
+		test\Directory.Build.props = test\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{643960D9-48C5-4EA3-BED5-486CCC694947}"
 EndProject
@@ -31,6 +37,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity", "src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj", "{E2641A2F-CFCF-4BBE-9409-90A136BD35F9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{09C5F009-8096-498D-A578-511456E53E65}"
+	ProjectSection(SolutionItems) = preProject
+		samples\Directory.Build.props = samples\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Identity", "samples\Indice.Identity\Indice.Identity.csproj", "{9EF8EC1B-EA1A-4E74-8D7E-13F90EE6DE3C}"
 EndProject
