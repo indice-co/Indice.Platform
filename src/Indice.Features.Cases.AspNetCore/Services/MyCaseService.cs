@@ -64,7 +64,7 @@ namespace Indice.Features.Cases.Services
             };
         }
 
-        public async Task UpdateData(ClaimsPrincipal user, Guid caseId, string data) {
+        public async Task UpdateData(ClaimsPrincipal user, Guid caseId, dynamic data) {
             if (user == null) throw new ArgumentNullException(nameof(user));
             if (caseId == default) throw new ArgumentNullException(nameof(caseId));
             if (data == null) throw new ArgumentNullException(nameof(data));
@@ -84,10 +84,18 @@ namespace Indice.Features.Cases.Services
             await _caseEventService.Publish(new CaseSubmittedEvent(@case, @case.CaseType.Code));
         }
 
-        public async Task<CaseDetails> GetCaseById(ClaimsPrincipal user, Guid caseId) {
+        public async Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId) {
             var userId = user.FindSubjectId();
-            var @case = await GetDbCaseById(caseId, userId);
-            if (@case is null) {
+            var query =
+                from c in GetCasesInternal(userId, includeAttachmentData: true, SchemaSelector)
+                let isCustomer = userId == c.CustomerId
+                let isCreator = userId == c.CreatedById
+                let isOwner = isCustomer || isCreator
+                where c.Id == caseId && isOwner
+                select c;
+
+            var @case = await query.FirstOrDefaultAsync();
+            if (@case == null) {
                 return null;
             }
 
@@ -96,9 +104,8 @@ namespace Indice.Features.Cases.Services
                 throw new Exception("Case not found.");
             }
 
-            var caseData = await GetDbCaseData(caseId, userId, @case);
-            var caseDetails = await GetCaseByIdInternal(@case, caseData, true, schemaKey: SchemaSelector);
-            return caseDetails ?? throw new Exception("Case not found."); // todo  proper exception 
+            @case.CaseType = TranslateCaseType(@case.CaseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            return @case;
         }
 
         public async Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options) {
@@ -242,12 +249,12 @@ namespace Indice.Features.Cases.Services
                     Id = dbCaseType.Id,
                     Title = dbCaseType.Title,
                     Description = dbCaseType.Description,
-                    Category = dbCaseType.Category == null ? null : new CaseTypeCategory {
+                    Category = dbCaseType.Category == null ? null : new Category {
                         Id = dbCaseType.Category.Id,
                         Name = dbCaseType.Category.Name,
                         Description = dbCaseType.Category.Description,
                         Order = dbCaseType.Category.Order,
-                        Translations = TranslationDictionary<CaseTypeCategoryTranslation>.FromJson(dbCaseType.Category.Translations)
+                        Translations = TranslationDictionary<CategoryTranslation>.FromJson(dbCaseType.Category.Translations)
                     },
                     DataSchema = GetSingleOrMultiple(SchemaSelector, dbCaseType.DataSchema),
                     Layout = GetSingleOrMultiple(SchemaSelector, dbCaseType.Layout),
@@ -276,33 +283,7 @@ namespace Indice.Features.Cases.Services
             return caseType;
         }
 
-        private CaseTypeCategory TranslateCaseTypeCategory(CaseTypeCategory caseTypeCategory, string culture, bool includeTranslations) {
-            var category = caseTypeCategory.Translate(culture, includeTranslations);
-            return category;
-        }
-
-        private async Task<DbCase> GetDbCaseById(Guid caseId, string userId) {
-            return await _dbContext.Cases
-                .AsNoTracking()
-                .Include(c => c.CaseType)
-                .Include(c => c.PublicCheckpoint)
-                .Include(c => c.Attachments)
-                .SingleOrDefaultAsync(dbCase => dbCase.Id == caseId && (dbCase.CreatedBy.Id == userId || dbCase.Customer.UserId == userId));
-        }
-
-        private async Task<DbCaseData> GetDbCaseData(Guid caseId, string userId, DbCase @case) {
-            var caseDataQueryable = _dbContext.CaseData
-                .AsNoTracking()
-                .Where(dbCaseData => dbCaseData.CaseId == caseId)
-                .AsQueryable();
-
-            // If the case is not Completed, return customer's own data (most recent)
-            if (@case?.CompletedBy?.When == null) {
-                caseDataQueryable = caseDataQueryable.Where(dbCaseData => dbCaseData.CreatedBy.Id == userId);
-            }
-
-            caseDataQueryable = caseDataQueryable.OrderByDescending(c => c.CreatedBy.When);
-            return await caseDataQueryable.FirstOrDefaultAsync();
-        }
+        private Category TranslateCaseTypeCategory(Category category, string culture, bool includeTranslations) =>
+            category.Translate(culture, includeTranslations);
     }
 }

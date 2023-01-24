@@ -7,14 +7,10 @@ using System.Security.Claims;
 
 namespace Indice.Security
 {
-    /// <summary>
-    /// Extension methods on <see cref="ClaimsPrincipal"/>.
-    /// </summary>
+    /// <summary>Extension methods on <see cref="ClaimsPrincipal"/>.</summary>
     public static class ClaimsPrincipalExtensions
     {
-        /// <summary>
-        /// Finds a display name for the user based on <see cref="BasicClaimTypes.GivenName"/>, <see cref="BasicClaimTypes.FamilyName"/> and <see cref="BasicClaimTypes.Email"/> claims.
-        /// </summary>
+        /// <summary>Finds a display name for the user based on <see cref="BasicClaimTypes.GivenName"/>, <see cref="BasicClaimTypes.FamilyName"/> and <see cref="BasicClaimTypes.Email"/> claims.</summary>
         /// <param name="principal">The current principal.</param>
         public static string FindDisplayName(this ClaimsPrincipal principal) {
             var displayName = default(string);
@@ -32,9 +28,7 @@ namespace Indice.Security
             return displayName;
         }
 
-        /// <summary>
-        /// Gets the user's unique id.
-        /// </summary>
+        /// <summary>Gets the user's unique id.</summary>
         /// <param name="principal">The current principal.</param>
         public static string FindSubjectId(this ClaimsPrincipal principal) => principal.FindFirst(BasicClaimTypes.Subject)?.Value;
 
@@ -66,9 +60,7 @@ namespace Indice.Security
             return true;
         }
 
-        /// <summary>
-        /// Finds the value of the specified claim.
-        /// </summary>
+        /// <summary>Finds the value of the specified claim.</summary>
         /// <typeparam name="T">The type of the claim's value.</typeparam>
         /// <param name="principal">The current principal.</param>
         /// <param name="claimType">The claim type.</param>
@@ -80,9 +72,7 @@ namespace Indice.Security
             }
         }
 
-        /// <summary>
-        /// Checks if the current principal is a client owned by the system.
-        /// </summary>
+        /// <summary>Checks if the current principal is a client owned by the system.</summary>
         /// <param name="principal">The current principal.</param>
         /// <returns></returns>
         public static bool IsSystemClient(this ClaimsPrincipal principal) {
@@ -90,70 +80,50 @@ namespace Indice.Security
             return isSystem ?? false;
         }
 
-        /// <summary>
-        /// Checks if the current principal is a system admin.
-        /// </summary>
+        /// <summary>Checks if the current principal is a system admin.</summary>
         /// <param name="principal">The current principal.</param>
         public static bool IsAdmin(this ClaimsPrincipal principal) => FindFirstValue<bool>(principal, BasicClaimTypes.Admin) ?? principal.HasClaim("role", "Administrator");
 
-        /// <summary>
-        /// Checks if the current principal has logged in using an external provider.
-        /// </summary>
+        /// <summary>Checks if the current principal has logged in using an external provider.</summary>
         /// <param name="principal">The current principal.</param>
         public static bool IsExternal(this ClaimsPrincipal principal) => principal.FindFirst("idp")?.Value != "local";
 
-        /// <summary>
-        /// Checks if the current principal owns the specified scope claim. 
-        /// </summary>
+        /// <summary>Checks if the current principal owns the specified scope claim. </summary>
         /// <param name="principal">The current principal.</param>
         /// <param name="scope">The scope name.</param>
-        public static bool HasScopeClaim(this ClaimsPrincipal principal, string scope) => principal.HasClaim("scope", scope);
+        public static bool HasScope(this ClaimsPrincipal principal, string scope) => principal.HasClaim("scope", scope);
 
-        /// <summary>
-        /// Checks if the current principal owns the specified role claim. 
-        /// </summary>
+        /// <summary>Checks if the current principal owns the specified role claim. </summary>
         /// <param name="principal">The current principal.</param>
         /// <param name="role">The role name.</param>
         public static bool HasRoleClaim(this ClaimsPrincipal principal, string role) => principal.HasClaim("role", role);
 
-        /// <summary>
-        /// Checks if the current principal can read users data.
-        /// </summary>
+        /// <summary>Checks if the current principal can read users data.</summary>
         /// <param name="principal">The current principal.</param>
         public static bool CanReadUsers(this ClaimsPrincipal principal) =>
             principal.HasRoleClaim(BasicRoleNames.AdminUIUsersReader) || principal.HasRoleClaim(BasicRoleNames.AdminUIUsersWriter) || principal.IsAdmin() || principal.IsSystemClient();
 
-        /// <summary>
-        /// Checks if the current principal can read and write users data.
-        /// </summary>
+        /// <summary>Checks if the current principal can read and write users data.</summary>
         /// <param name="principal">The current principal.</param>
         public static bool CanWriteUsers(this ClaimsPrincipal principal) =>
             principal.HasRoleClaim(BasicRoleNames.AdminUIUsersWriter) || principal.IsAdmin() || principal.IsSystemClient();
 
-        /// <summary>
-        /// Checks if the current principal can read clients data.
-        /// </summary>
+        /// <summary>Checks if the current principal can read clients data.</summary>
         /// <param name="principal">The current principal.</param>
         public static bool CanReadClients(this ClaimsPrincipal principal) =>
             principal.HasRoleClaim(BasicRoleNames.AdminUIClientsReader) || principal.HasRoleClaim(BasicRoleNames.AdminUIClientsWriter) || principal.IsAdmin() || principal.IsSystemClient();
 
-        /// <summary>
-        /// Checks if the current principal can read and write clients data.
-        /// </summary>
+        /// <summary>Checks if the current principal can read and write clients data.</summary>
         /// <param name="principal">The current principal.</param>
         public static bool CanWriteClients(this ClaimsPrincipal principal) =>
             principal.HasRoleClaim(BasicRoleNames.AdminUIClientsWriter) || principal.IsAdmin() || principal.IsSystemClient();
 
-        /// <summary>
-        /// Checks if the current principal can manage campaigns data.
-        /// </summary>
+        /// <summary>Checks if the current principal can manage campaigns data.</summary>
         /// <param name="principal">The current principal.</param>
         public static bool CanManageCampaigns(this ClaimsPrincipal principal) =>
             principal.HasRoleClaim(BasicRoleNames.CampaignManager) || principal.IsAdmin() || principal.IsSystemClient();
 
-        /// <summary>
-        /// Logic for normalizing scope claims to separate claim types.
-        /// </summary>
+        /// <summary>Logic for normalizing scope claims to separate claim types.</summary>
         /// <param name="principal">The current principal.</param>
         /// <param name="separator">The character that separates scopes.</param>
         public static ClaimsPrincipal NormalizeScopeClaims(this ClaimsPrincipal principal, char separator = ' ') {
@@ -179,9 +149,7 @@ namespace Indice.Security
             return new ClaimsPrincipal(identities);
         }
 
-        /// <summary>
-        /// Logic for normalizing claims types coming from external identity providers to the JWT standard ones.
-        /// </summary>
+        /// <summary>Logic for normalizing claims types coming from external identity providers to the JWT standard ones.</summary>
         /// <param name="principal">The current principal.</param>
         /// <param name="typesToIgnore">These claims will be excluded.</param>
         public static ClaimsPrincipal NormalizeExternalProviderClaims(this ClaimsPrincipal principal, params string[] typesToIgnore) {

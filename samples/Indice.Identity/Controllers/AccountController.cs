@@ -1,79 +1,60 @@
-﻿using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
-using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Indice.Identity.Controllers
 {
-    /// <summary>
-    /// Contains all methods related to a user's account.
-    /// </summary>
+    /// <summary>Contains all methods related to a user's account.</summary>
     [ApiExplorerSettings(IgnoreApi = true)]
     [SecurityHeaders]
     public class AccountController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IEventService _events;
-        private readonly IClientStore _clientStore;
         private readonly ExtendedUserManager<User> _userManager;
         private readonly ExtendedSignInManager<User> _signInManager;
-        private readonly AccountService _accountService;
+        private readonly IAccountService _accountService;
         private readonly ILogger<AccountController> _logger;
-        /// <summary>
-        /// The name of the controller.
-        /// </summary>
+        /// <summary>The name of the controller.</summary>
         public const string Name = "Account";
 
-        /// <summary>
-        /// Creates a new instance of <see cref="AccountController"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="AccountController"/>.</summary>
         /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
         /// <param name="events">Interface for the event service.</param>
-        /// <param name="clientStore">Retrieval of client configuration.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         /// <param name="signInManager">Provides the APIs for user sign in.</param>
-        /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
-        /// <param name="httpContextAccessor">Provides access to the current HTTP context.</param>
         /// <param name="logger">Represents a type used to perform logging.</param>
+        /// <param name="accountService">Wraps account controller operations regarding creating and validating view models.</param>
         public AccountController(
-            IIdentityServerInteractionService interaction, 
-            IEventService events, 
-            IClientStore clientStore, 
-            ExtendedUserManager<User> userManager, 
-            ExtendedSignInManager<User> signInManager, 
-            IAuthenticationSchemeProvider schemeProvider,
-            IHttpContextAccessor httpContextAccessor, 
-            ILogger<AccountController> logger
+            IIdentityServerInteractionService interaction,
+            IEventService events,
+            ExtendedUserManager<User> userManager,
+            ExtendedSignInManager<User> signInManager,
+            ILogger<AccountController> logger,
+            IAccountService accountService
         ) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _events = events ?? throw new ArgumentNullException(nameof(events));
-            _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-            _accountService = new AccountService(interaction, httpContextAccessor, schemeProvider, clientStore);
+            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
         public string UserName => User.FindFirstValue(JwtClaimTypes.Name);
 
-        /// <summary>
-        /// Displays the login page.
-        /// </summary>
+        /// <summary>Displays the login page.</summary>
         /// <param name="returnUrl">The URL to navigate after a successful login.</param>
         [HttpGet("login")]
         public async Task<IActionResult> Login(string returnUrl) {
@@ -90,9 +71,7 @@ namespace Indice.Identity.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
-        /// Posts the login form to the server.
-        /// </summary>
+        /// <summary>Posts the login form to the server.</summary>
         /// <param name="model">The model that contains user's login info.</param>
         /// <param name="button">The name of the button pressed by the user.</param>
         [HttpPost("login")]
@@ -144,6 +123,9 @@ namespace Indice.Identity.Controllers
                         throw new Exception("Invalid return URL.");
                     }
                 }
+                if (result.RequiresTwoFactor) {
+                    return RedirectToAction(nameof(MfaController.Index), MfaController.Name, new { model.ReturnUrl });
+                }
                 if (result.IsLockedOut) {
                     _logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsNumber} unsuccessful login attempts.", UserName, user?.AccessFailedCount);
                     await _events.RaiseAsync(new UserLoginFailureEvent(model.UserName, "User locked out."));
@@ -159,9 +141,7 @@ namespace Indice.Identity.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
-        /// Renders the logout page.
-        /// </summary>
+        /// <summary>Renders the logout page.</summary>
         /// <param name="logoutId">The logout id.</param>
         [HttpGet("logout")]
         public async Task<IActionResult> Logout(string logoutId) {
@@ -174,9 +154,7 @@ namespace Indice.Identity.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
-        /// Posts logout information to the server.
-        /// </summary>
+        /// <summary>Posts logout information to the server.</summary>
         /// <param name="model">The model that contains user's logout info.</param>
         [HttpPost("logout")]
         [ValidateAntiForgeryToken]
@@ -204,9 +182,7 @@ namespace Indice.Identity.Controllers
             return View("LoggedOut", viewModel);
         }
 
-        /// <summary>
-        /// Displays the access denied page.
-        /// </summary>
+        /// <summary>Displays the access denied page.</summary>
         [HttpGet("access-denied")]
         public IActionResult AccessDenied() => View();
     }

@@ -6,16 +6,23 @@ using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
+using Indice.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace Indice.AspNetCore.Identity
 {
-    /// <summary>Account service wraps account controllers operations regarding creating and validating view models.</summary>
-    public class AccountService
+    /// <inheritdoc />
+    public class AccountService : IAccountService
     {
         private readonly IClientStore _clientStore;
+        private readonly ExtendedUserManager<User> _userManager;
+        private readonly ExtendedSignInManager<User> _signInManager;
+        private readonly IConfiguration _configuration;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
@@ -25,20 +32,28 @@ namespace Indice.AspNetCore.Identity
         /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>.</param>
         /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
         /// <param name="clientStore">Retrieval of client configuration.</param>
+        /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+        /// <param name="signInManager">Provides the APIs for user sign in.</param>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public AccountService(
             IIdentityServerInteractionService interaction,
             IHttpContextAccessor httpContextAccessor,
             IAuthenticationSchemeProvider schemeProvider,
-            IClientStore clientStore
+            IClientStore clientStore,
+            ExtendedUserManager<User> userManager,
+            ExtendedSignInManager<User> signInManager,
+            IConfiguration configuration
         ) {
             _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
-        /// <summary>Builds the <see cref="LoginViewModel"/>.</summary>
-        /// <param name="returnUrl">The return url to go to after successful login</param>
+        /// <inheritdoc />
         public async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl) {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null) {
@@ -50,7 +65,11 @@ namespace Indice.AspNetCore.Identity
                     UserName = context?.LoginHint
                 };
                 if (!local) {
-                    viewModel.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
+                    viewModel.ExternalProviders = new[] {
+                        new ExternalProvider {
+                            AuthenticationScheme = context.IdP
+                        }
+                    };
                 }
                 return viewModel;
             }
@@ -74,31 +93,52 @@ namespace Indice.AspNetCore.Identity
             }
             return new LoginViewModel {
                 AllowRememberLogin = AccountOptions.AllowRememberLogin,
-                EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
-                ReturnUrl = returnUrl,
-                UserName = context?.LoginHint,
-                ExternalProviders = providers.ToArray(),
                 ClientId = context?.Client?.ClientId,
-                Operation = context?.Parameters?.AllKeys?.Contains(ExtraQueryParamNames.Operation) == true ? context?.Parameters[ExtraQueryParamNames.Operation] : null
+                EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
+                ExternalProviders = providers.ToArray(),
+                GenerateDeviceId = true,
+                Operation = context?.Parameters?.AllKeys?.Contains(ExtraQueryParamNames.Operation) == true ? context?.Parameters[ExtraQueryParamNames.Operation] : null,
+                ReturnUrl = returnUrl,
+                UserName = context?.LoginHint
             };
         }
 
-        /// <summary>Builds the <see cref="LoginViewModel"/> from the posted request <see cref="LoginInputModel"/>.</summary>
-        /// <param name="model">The request model.</param>
-        public async Task<LoginViewModel> BuildLoginViewModelAsync(LoginInputModel model) {
-            var viewModel = await BuildLoginViewModelAsync(model.ReturnUrl);
-            viewModel.UserName = model.UserName;
-            viewModel.RememberLogin = model.RememberLogin;
-            return viewModel;
+        /// <inheritdoc />
+        public async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string returnUrl, bool downgradeMfaChannel = false) {
+            var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user is null) {
+                return default;
+            }
+            var allowMfaChannelDowngrade = _configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowChannelDowngrade") ?? false;
+            if (downgradeMfaChannel && allowMfaChannelDowngrade) {
+                return new MfaLoginViewModel {
+                    DeliveryChannel = TotpDeliveryChannel.Sms,
+                    ReturnUrl = returnUrl,
+                    User = user,
+                    AllowMfaChannelDowngrade = true
+                };
+            }
+            var trustedDevices = await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
+            var deliveryChannel = TotpDeliveryChannel.None;
+            if (trustedDevices.Count > 0) {
+                deliveryChannel = TotpDeliveryChannel.PushNotification;
+            } else {
+                var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+                var phoneNumberConfirmed = !string.IsNullOrWhiteSpace(phoneNumber) && await _userManager.IsPhoneNumberConfirmedAsync(user);
+                if (phoneNumberConfirmed) {
+                    deliveryChannel = TotpDeliveryChannel.Sms;
+                }
+            }
+            return new MfaLoginViewModel {
+                AllowMfaChannelDowngrade = allowMfaChannelDowngrade,
+                DeliveryChannel = deliveryChannel,
+                DeviceNames = trustedDevices.Select(x => x.Name),
+                ReturnUrl = returnUrl,
+                User = user
+            };
         }
 
-        /// <summary>Builds the <see cref="RegisterViewModel"/>.</summary>
-        /// <param name="returnUrl"></param>
-        public async Task<RegisterViewModel> BuildRegisterViewModelAsync(string returnUrl) => await BuildRegisterViewModelAsync<RegisterViewModel>(returnUrl);
-
-        /// <summary>Generic counterpart in case someone extends the basic <see cref="RegisterViewModel"/> with extra properties.</summary>
-        /// <typeparam name="TRegisterViewModel">The type of <see cref="RegisterViewModel"/>.</typeparam>
-        /// <param name="returnUrl">The return URL.</param>
+        /// <inheritdoc />
         public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(string returnUrl) where TRegisterViewModel : RegisterViewModel, new() {
             var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
             if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null) {
@@ -109,7 +149,11 @@ namespace Indice.AspNetCore.Identity
                     UserName = context?.LoginHint,
                 };
                 if (!local) {
-                    viewModel.ExternalProviders = new[] { new ExternalProvider { AuthenticationScheme = context.IdP } };
+                    viewModel.ExternalProviders = new[] {
+                        new ExternalProvider {
+                            AuthenticationScheme = context.IdP
+                        }
+                    };
                 }
                 return viewModel;
             }
@@ -139,28 +183,7 @@ namespace Indice.AspNetCore.Identity
             };
         }
 
-        /// <summary>Builds the <see cref="RegisterViewModel"/> from the posted request <see cref="RegisterRequest"/>.</summary>
-        /// <param name="model"></param>
-        public async Task<RegisterViewModel> BuildRegisterViewModelAsync(RegisterRequest model) => await BuildRegisterViewModelAsync<RegisterViewModel>(model);
-
-        /// <summary>
-        /// Builds the <see cref="RegisterViewModel"/> from the posted request <see cref="RegisterRequest"/>.
-        /// Generic counterpart in case someone extends the basic <see cref="RegisterViewModel"/> with extra properties.
-        /// </summary>
-        /// <typeparam name="TRegisterViewModel"></typeparam>
-        /// <param name="model"></param>
-        public async Task<TRegisterViewModel> BuildRegisterViewModelAsync<TRegisterViewModel>(RegisterRequest model) where TRegisterViewModel : RegisterViewModel, new() {
-            var viewModel = await BuildRegisterViewModelAsync<TRegisterViewModel>(model.ReturnUrl);
-            viewModel.UserName = model.UserName;
-            viewModel.FirstName = model.FirstName;
-            viewModel.LastName = model.LastName;
-            viewModel.PhoneNumber = model.PhoneNumber;
-            viewModel.Password = model.Password;
-            return viewModel;
-        }
-
-        /// <summary>Builds the logout view model.</summary>
-        /// <param name="logoutId">The logout id.</param>
+        /// <inheritdoc />
         public async Task<LogoutViewModel> BuildLogoutViewModelAsync(string logoutId) {
             var viewModel = new LogoutViewModel {
                 LogoutId = logoutId,
@@ -177,8 +200,7 @@ namespace Indice.AspNetCore.Identity
             return viewModel;
         }
 
-        /// <summary>Build the post logout view model. <see cref="LoggedOutViewModel"/>.</summary>
-        /// <param name="logoutId">The logout id.</param>
+        /// <inheritdoc />
         public async Task<LoggedOutViewModel> BuildLoggedOutViewModelAsync(string logoutId) {
             // Get context information (client name, post logout redirect URI and iframe for federated sign out).
             var logout = await _interaction.GetLogoutContextAsync(logoutId);

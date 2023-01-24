@@ -12,8 +12,6 @@ namespace Indice.Functions
 {
     public class Program
     {
-        public const bool MULTITENANCY = false;
-
         public async static Task Main(params string[] args) {
             // Create the host builder instance.
             var hostBuilder = new HostBuilder();

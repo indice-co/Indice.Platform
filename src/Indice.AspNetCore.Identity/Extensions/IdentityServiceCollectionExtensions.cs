@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Security;
 using Indice.AspNetCore.Identity;
-using Indice.AspNetCore.Identity.Authorization;
 using Indice.AspNetCore.Identity.Models;
 using Indice.AspNetCore.Mvc.Localization;
 using Indice.AspNetCore.Mvc.Razor;

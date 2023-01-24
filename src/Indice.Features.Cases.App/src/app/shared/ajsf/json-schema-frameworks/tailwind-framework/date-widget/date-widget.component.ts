@@ -1,5 +1,7 @@
+import { MenuOption } from '@indice/ng-components';
 import { JsonSchemaFormService } from '@ajsf-extended/core';
 import { Component, Input, OnInit } from '@angular/core';
+import * as  moment from 'moment';
 
 @Component({
   selector: 'app-date-widget',
@@ -17,8 +19,15 @@ export class DateWidgetComponent implements OnInit {
   @Input() layoutNode: any;
   @Input() layoutIndex: any[] = [];
   @Input() dataIndex: any[] = [];
-  min: string = ''
-  max: string = ''
+  min: string = '';
+  max: string = '';
+
+  readonly minDateDays = 0;
+  readonly minDateMonths = 0;
+  readonly minDateYears = -100;
+  readonly maxDateDays = 0;
+  readonly maxDateMonths = 0;
+  readonly maxDateYears = 100;
 
   constructor(
     private jsf: JsonSchemaFormService
@@ -26,12 +35,10 @@ export class DateWidgetComponent implements OnInit {
 
   ngOnInit() {
     this.options = this.layoutNode.options || {};
-    if (this.options.min !== undefined) {
-      this.min = this.options.min;
-    }
-    if (this.options.max !== undefined) {
-      this.max = this.options.max;
-    }
+
+    this.min = this.setMinDate(this.options);
+    this.max = this.setMaxDate(this.options);
+
     this.jsf.initializeControl(this);
   }
 
@@ -39,4 +46,27 @@ export class DateWidgetComponent implements OnInit {
     this.jsf.updateValue(this, event.target.value);
   }
 
+  private setMinDate(options: any): string {
+    if (this.options.min !== undefined) {
+      return this.options.min;
+    }
+    const currentDate = moment(new Date());
+    currentDate.add(options.minDateYears ?? this.minDateYears, 'years').year();
+    currentDate.add(options.minDateMonths ?? this.minDateMonths, 'months').month();
+    currentDate.add(options.minDateDays ?? this.minDateDays, 'days').date();
+
+    return currentDate.format("YYYY-MM-DD");
+  }
+
+  private setMaxDate(options: any): string {
+    if (this.options.max) {
+      return this.options.max
+    }
+    const currentDate = moment(new Date());
+    currentDate.add(options.maxDateYears ?? this.maxDateYears, 'years').year();
+    currentDate.add(options.maxDateMonths ?? this.maxDateMonths, 'months').month();
+    currentDate.add(options.maxDateDays ?? this.maxDateDays, 'days').date();
+
+    return currentDate.format("YYYY-MM-DD");
+  }
 }

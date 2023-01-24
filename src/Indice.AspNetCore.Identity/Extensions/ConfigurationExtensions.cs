@@ -1,9 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using IdentityServer4.EntityFramework.DbContexts;
-using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Builder;
+#if NET7_0_OR_GREATER
+using Indice.IdentityServer.EntityFramework.Storage.Mappers;
+#else
+using IdentityServer4.EntityFramework.Mappers;
+#endif
 
 namespace Microsoft.Extensions.DependencyInjection
 {

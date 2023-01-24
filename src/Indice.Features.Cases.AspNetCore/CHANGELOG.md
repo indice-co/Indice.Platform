@@ -5,14 +5,108 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [6.5.0] - 2023-01-24
+Major refactor - a lot of breaking changes!
+### Added
+- Support for net7
+- `Checkpoint` logic for BO users. This is a performance optimization
+- `DataId` and `PublicDataId` logic for admin and my-case cases.
+- New workflow activity `AssignCaseToUserActivity`
+- Typed predefined workflow outcome names (eg `"Failed"`)
+- Two properties at `CasePartial` model, `CreatedByEmail` and `CreatedByName`
+### Changed
+- All `string` caseData request are now `dynamic` and removed the need for json parse/stringify to the clients
+- Entity `RoleCaseType` to `Member`
+- Entity `CaseTypeCategory` to `Category`
+- Entity `CaseTypeNotificationSubscription` to `NotificationSubscription`
+- Naming for DbModels & Dtos (eg `CaseDetails` -> `Case`) 
+- Signature for `IAdminCaseService.AssignCase`
+## Removed
+- Support for net3.1
+
+### Migrations 
+Update checkpoint fk with the most recent checkpoint id
+```sql
+UPDATE c
+SET CheckpointId = B.Id
+FROM [case].[Case] c
+INNER JOIN (
+	SELECT *
+	FROM (
+		SELECT Id, CaseId, ROW_NUMBER() OVER (PARTITION BY [CaseId] ORDER BY CreatedByWhen DESC) AS Rn
+		FROM [case].[Checkpoint]
+	) A
+	WHERE A.Rn = 1 
+) AS B 
+	ON c.Id = B.CaseId
+```
+
+Rename table / IX / PK / FK
+```sql
+-- RoleCaseType to Member
+exec sp_rename N'[case].RoleCaseType', N'Member'
+exec sp_rename N'[case].[Member].IX_RoleCaseType_CaseTypeId', N'IX_Member_CaseTypeId', N'INDEX';  
+exec sp_rename N'[case].[Member].IX_RoleCaseType_CheckpointTypeId', N'IX_Member_CheckpointTypeId', N'INDEX';
+exec sp_rename N'[case].[Member].PK_RoleCaseType', N'PK_Member', N'INDEX';
+exec sp_rename N'[case].FK_RoleCaseType_CaseType_CaseTypeId', N'FK_Member_CaseType_CaseTypeId'
+exec sp_rename N'[case].FK_RoleCaseType_CheckpointType_CheckpointTypeId', N'FK_Member_CheckpointType_CheckpointTypeId';
+
+-- CaseTypeCategory to Category
+exec sp_rename N'[case].CaseTypeCategory', N'Category'
+exec sp_rename N'[case].[Category].PK_CaseTypeCategory', N'PK_Category', N'INDEX';  
+
+-- CaseTypeNotificationSubscription to NotificationSubscription
+exec sp_rename N'[case].CaseTypeNotificationSubscription', N'NotificationSubscription'
+exec sp_rename N'[case].[NotificationSubscription].IX_CaseTypeNotificationSubscription_Email', N'IX_NotificationSubscription_Email', N'INDEX';  
+exec sp_rename N'[case].[NotificationSubscription].PK_CaseTypeNotificationSubscription', N'PK_NotificationSubscription', N'INDEX';  
+```
+
+Update dataId and publicDataId FK with most recent versions, for each case
+```sql
+UPDATE c
+SET DataId = [Data].Id, -- most recent data version
+	PublicDataId =  [PublicData].Id -- most recet customer data version
+FROM [case].[Case] c
+LEFT JOIN (
+	SELECT *
+	FROM (
+		SELECT Id, CaseId, ROW_NUMBER() OVER (PARTITION BY [CaseId] ORDER BY CreatedByWhen DESC) AS Rn
+		FROM [case].[CaseData]
+	) A
+	WHERE A.Rn = 1 
+) AS [Data] 
+	ON c.Id = [Data].CaseId
+LEFT JOIN (
+	SELECT *
+	FROM (
+		SELECT Id, CaseId, CreatedbyId, ROW_NUMBER() OVER (PARTITION BY [CaseId], [CreatedById] ORDER BY CreatedByWhen DESC) AS Rn
+		FROM [case].[CaseData]		
+	) A	
+) AS [PublicData] 
+	ON c.Id = [PublicData].CaseId 
+		AND [PublicData].CreatedById = c.CustomerUserId 
+		AND [PublicData].Rn = 1
+```
+
+Elsa migrations
+```sql
+UPDATE [Elsa].[WorkflowInstances]
+SET [data] = REPLACE([data], N'Indice.Features.Cases.Models.Responses.CaseDetails', N'Indice.Features.Cases.Models.Responses.Case')
+```
+
+## [6.4.1] - 2023-01-10
+### Fixed
+- Properly throw exceptions at `StartWorkflowHandler`
+### Changed 
+- The GetLookup action method: searchValues parameter is now options
+
+## [6.4.0] - 2022-12-22
 Jumped to 6.4.0 to match other Indice Packages
 ### Added
 - Support for net7
-### Fixed
-- Properly throw exceptions at `StartWorkflowHandler`
 
-## [6.2.0] - 2022-12-13 
+## [6.2.0] - 2022-12-13
+
 ### Changed 
 - `CasePublicStatus` changed to `CaseStatus`. We are not using the word `Public` anymore. The checkpoint types have the flag `Public` for this reason.
 ### Removed 
@@ -27,7 +121,8 @@ SET Code = RIGHT(Code, LEN(Code) - CHARINDEX(':', Code))
 sp_rename 'case.CheckpointType.PublicStatus', 'Status', 'column'
 ```
 
-## [6.1.0] - 2022-12-09 
+## [6.1.0] - 2022-12-09
+
 ### Added
 - New entity `DbCaseTypeCategory`
 - New navigation property `CaseType.Category`

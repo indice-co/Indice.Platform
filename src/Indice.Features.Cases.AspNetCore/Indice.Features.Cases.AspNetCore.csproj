@@ -3,9 +3,9 @@
     <Description>Indice Case Management System</Description>
     <RootNamespace>Indice.Features.Cases</RootNamespace>
     <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
-    <Version>6.4.0-beta01</Version>
     <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
+    <!--<Version>6.4.1</Version>-->
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
@@ -28,12 +28,6 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.12" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />

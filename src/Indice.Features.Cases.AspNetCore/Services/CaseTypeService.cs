@@ -41,7 +41,7 @@ namespace Indice.Features.Cases.Services
 
         public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool canCreate) {
             if (user.IsAdmin()) {
-                return await GetAdminCases();
+                return await GetAdminCaseTypes();
             }
 
             var roleClaims = user.Claims
@@ -57,11 +57,11 @@ namespace Indice.Features.Cases.Services
                 .Select(c => new CaseTypePartial {
                     Id = c.Id,
                     Title = c.Title,
-                    Category = c.Category == null ? null : new CaseTypeCategory {
+                    Category = c.Category == null ? null : new Category {
                         Id = c.Category.Id,
                         Name = c.Category.Name,
                         Description = c.Category.Description,
-                        Translations = TranslationDictionary<CaseTypeCategoryTranslation>.FromJson(c.Category.Translations)
+                        Translations = TranslationDictionary<CategoryTranslation>.FromJson(c.Category.Translations)
                     },
                     Description = c.Description,
                     DataSchema = c.DataSchema,
@@ -129,7 +129,7 @@ namespace Indice.Features.Cases.Services
 
                 if (checkpointType.Roles?.Any() ?? false) {
                     foreach (var role in checkpointType.Roles!) {
-                        await _dbContext.RoleCaseTypes.AddAsync(new DbRoleCaseType {
+                        await _dbContext.Members.AddAsync(new DbMember {
                             CaseTypeId = newCaseType.Id,
                             CheckpointTypeId = dbCheckpointType.Id,
                             RoleName = role
@@ -143,16 +143,16 @@ namespace Indice.Features.Cases.Services
         }
 
         public async Task Delete(Guid caseTypeId) {
-            if (caseTypeId == null) {
+            if (caseTypeId == Guid.Empty) {
                 throw new ValidationException("Case Type id not provided.");
             }
             var casesWithCaseType = await _dbContext.Cases.AsQueryable().AnyAsync(x => x.CaseTypeId == caseTypeId);
             if (casesWithCaseType) {
                 throw new ValidationException("Case type cannot be deleted because there are cases with this type.");
             }
-            var roleCaseTypes = await _dbContext.RoleCaseTypes.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
+            var roleCaseTypes = await _dbContext.Members.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
             if (roleCaseTypes.Any()) {
-                roleCaseTypes.ForEach(x => _dbContext.RoleCaseTypes.Remove(x));
+                roleCaseTypes.ForEach(x => _dbContext.Members.Remove(x));
             }
             var checkpointTypes = await _dbContext.CheckpointTypes.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
             if (checkpointTypes.Any()) {
@@ -163,16 +163,16 @@ namespace Indice.Features.Cases.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<CaseTypeDetails> GetCaseTypeDetailsById(Guid id) {
+        public async Task<CaseType> GetCaseTypeDetailsById(Guid id) {
             var dbCaseType = await _dbContext.CaseTypes
                 .Include(p => p.CheckpointTypes)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
-            var caseTypeRoles = await _dbContext.RoleCaseTypes.AsQueryable()
+            var caseTypeRoles = await _dbContext.Members.AsQueryable()
                 .Where(p => p.CaseTypeId == id)
                 .ToListAsync();
 
-            var caseType = new CaseTypeDetails {
+            var caseType = new CaseType {
                 Id = id,
                 Code = dbCaseType.Code,
                 Title = dbCaseType.Title,
@@ -200,7 +200,7 @@ namespace Indice.Features.Cases.Services
             return caseType;
         }
 
-        public async Task<CaseTypeDetails> Update(CaseTypeRequest caseType) {
+        public async Task<CaseType> Update(CaseTypeRequest caseType) {
             if (!caseType.Id.HasValue) {
                 throw new ValidationException("Case type can not be null.");
             }
@@ -224,7 +224,7 @@ namespace Indice.Features.Cases.Services
 
 
             // Update related case type roles
-            var caseTypeRoles = await _dbContext.RoleCaseTypes.AsQueryable()
+            var caseTypeRoles = await _dbContext.Members.AsQueryable()
                 .Where(p => p.CaseTypeId == dbCaseType.Id)
                 .ToListAsync();
 
@@ -234,7 +234,7 @@ namespace Indice.Features.Cases.Services
             // Insert the new roles for each checkpoint type
             foreach (var checkpointType in caseType.CheckpointTypes!) {
                 foreach (var role in (checkpointType.Roles ?? Enumerable.Empty<string>())) {
-                    await _dbContext.RoleCaseTypes.AddAsync(new DbRoleCaseType {
+                    await _dbContext.Members.AddAsync(new DbMember {
                         CaseTypeId = dbCaseType.Id,
                         CheckpointTypeId = checkpointType.Id,
                         RoleName = role
@@ -250,7 +250,7 @@ namespace Indice.Features.Cases.Services
             return await _dbContext.CaseTypes.AsQueryable().AnyAsync(c => c.Code == caseTypeCode);
         }
 
-        private async Task<ResultSet<CaseTypePartial>> GetAdminCases() {
+        private async Task<ResultSet<CaseTypePartial>> GetAdminCaseTypes() {
             var caseTypes = await _dbContext.CaseTypes
                 .AsQueryable()
                     .Select(c => new CaseTypePartial {
@@ -279,7 +279,7 @@ namespace Indice.Features.Cases.Services
         }
 
         private async Task<List<Guid>> GetCaseTypeIds(List<string> roleClaims) {
-            return await _dbContext.RoleCaseTypes
+            return await _dbContext.Members
                     .AsQueryable()
                     .Where(r => roleClaims.Contains(r.RoleName))
                     .Select(c => c.CaseTypeId)

@@ -12,17 +12,17 @@ namespace Indice.Features.Cases
         /// The assembly name.
         /// </summary>
         public static readonly string AssemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
-        
+
         /// <summary>
         /// Authentication scheme name used by Cases API.
         /// </summary>
         public const string AuthenticationScheme = "Bearer";
-        
+
         /// <summary>
         /// Cases API scope.
         /// </summary>
         public const string Scope = "cases-api";
-        
+
         /// <summary>
         /// Default database schema.
         /// </summary>
@@ -47,7 +47,7 @@ namespace Indice.Features.Cases
             /// A user must have the BeCasesManager role to be authorized for AdminCases Feature 
             /// </summary>
             public const string BeCasesManager = nameof(BeCasesManager);
-          
+
             /// <summary>
             /// A user must have the BeCasesUser role to be authorized for MyCases Feature 
             /// </summary>
@@ -84,6 +84,22 @@ namespace Indice.Features.Cases
             /// The reject reasons for an approval workflow.
             /// </summary>
             public const string RejectReasons = nameof(RejectReasons);
+
+            /// <summary>
+            /// The Custom outcome names for the workflow activities.
+            /// </summary>
+            public static class OutcomeNames
+            {
+                /// <summary>
+                /// Outcome for "Failed".
+                /// </summary>
+                public const string Failed = nameof(Failed);
+
+                /// <summary>
+                /// Outcome for "Save".
+                /// </summary>
+                public const string Save = nameof(Save);
+            }
         }
     }
 }

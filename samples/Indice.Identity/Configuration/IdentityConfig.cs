@@ -5,7 +5,6 @@ using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

@@ -1,5 +1,4 @@
 ﻿using System;
-using Indice.AspNetCore.Identity.Authorization;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
@@ -21,6 +20,7 @@ namespace Indice.AspNetCore.Identity
                 options.Cookie.Name = ExtendedIdentityConstants.ExtendedValidationUserIdScheme;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
             });
+            builder.Services.AddTransient<IMfaDeviceIdResolver, DefaultMfaDeviceIdResolver>();
             builder.AddSignInManager<ExtendedSignInManager<TUser>>();
             return builder;
         }
@@ -30,7 +30,7 @@ namespace Indice.AspNetCore.Identity
         public static IdentityBuilder AddExtendedSignInManager(this IdentityBuilder builder) => builder.AddExtendedSignInManager<User>();
 
         /// <summary>
-        /// Adds the <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/> as the default phone provider. 
+        /// Adds the <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/> as the default phone provider.
         /// Make sure you call this method after using <see cref="Microsoft.AspNetCore.Identity.IdentityBuilderExtensions.AddDefaultTokenProviders(IdentityBuilder)"/>.
         /// </summary>
         /// <param name="builder">Helper functions for configuring identity services.</param>

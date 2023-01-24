@@ -23,6 +23,7 @@ import { TextAreaWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-
 import { FileWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
 import { CaseDetailInfoComponent } from './components/case-detail-info/case-detail-info.component';
 import { CaseCustomActionComponent } from './components/case-custom-action/case-custom-action.component';
+import { LookupSelectorWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
 
 
 
@@ -36,6 +37,7 @@ import { CaseCustomActionComponent } from './components/case-custom-action/case-
     SelectCaseTypeComponent,
     SearchCustomerComponent,
     CaseDetailInfoComponent,
+    CaseCustomActionComponent,
     // ajsf
     FileWidgetComponent,
     TailwindFrameworkComponent,
@@ -46,9 +48,9 @@ import { CaseCustomActionComponent } from './components/case-custom-action/case-
     LookupWidgetComponent,
     InputWidgetComponent,
     TextAreaWidgetComponent,
+    LookupSelectorWidgetComponent,
     // pipes
-    BeautifyBooleanPipe,
-    CaseCustomActionComponent
+    BeautifyBooleanPipe
   ],
   imports: [
     CommonModule,

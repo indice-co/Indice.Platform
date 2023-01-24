@@ -2,8 +2,10 @@
 using Elsa;
 using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
+using Indice.Features.Cases.Converters;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Events;
+using Indice.Features.Cases.Factories;
 using Indice.Features.Cases.Handlers;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Mvc.Conventions;
@@ -46,6 +48,10 @@ namespace Indice.Features.Cases
             // Try add general settings.
             services.AddGeneralSettings(configuration);
 
+            // This lines resolves the CaseData dynamic deserialization from SystemText
+            services.AddMvc()
+                .AddNewtonsoftJson(x => x.SerializerSettings.Converters.Add(new SystemTextConverter()));
+
             // Configure options given by the consumer.
             var casesApiOptions = new CasesApiOptions();
             configureAction?.Invoke(casesApiOptions);
@@ -67,9 +73,12 @@ namespace Indice.Features.Cases
             services.AddHttpContextAccessor();
 
             // Register no op services.
-            services.AddTransient<ILookupService, NoOpLookupService>();
+            services.AddLookupService<NoOpLookupService>(nameof(NoOpLookupService)); // needed for factory instantiation
             services.AddTransient<ICustomerIntegrationService, NoOpCustomerIntegrationService>();
             services.AddTransient<ICasePdfService, NoOpCasePdfService>();
+
+            // Register LookupService Factory
+            services.AddTransient<ILookupServiceFactory, DefaultLookupServiceFactory>();
 
             // Register custom services.
             services.AddTransient<IMyCaseService, MyCaseService>();
@@ -138,7 +147,7 @@ namespace Indice.Features.Cases
             services.AddTransient<IAdminCaseMessageService, AdminCaseMessageService>();
             services.AddTransient<ISchemaValidator, SchemaValidator>();
             services.AddTransient<ICaseApprovalService, CaseApprovalService>();
-            services.AddTransient<ICaseTypeNotificationSubscriptionService, CaseTypeNotificationSubscriptionService>();
+            services.AddTransient<INotificationSubscriptionService, NotificationSubscriptionService>();
             services.AddSmsServiceYubotoOmni(configuration)
                 .AddViberServiceYubotoOmni(configuration)
                 .AddEmailServiceSparkpost(configuration)

@@ -23,8 +23,10 @@ namespace Indice.AspNetCore.Identity.Models
         /// <summary>The scheme to use for external login cookie.</summary>
         public string ExternalLoginScheme => IsExternalLoginOnly ? ExternalProviders?.SingleOrDefault()?.AuthenticationScheme : null;
         /// <summary>A direction to display a different screen when a client asks for the authorize endpoint.</summary>
-        /// <remarks>Use the 'operation={operation_name}' query param on the authorize endpoint.</remarks>
+        /// <remarks>Use the 'operation={operation_name}' query parameter on the authorize endpoint.</remarks>
         public string Operation { get; set; }
+        /// <summary>Specifies whether a device (browser) id should be generated.</summary>
+        public bool GenerateDeviceId { get; set; }
     }
 
     /// <summary>Extension methods on <see cref="LoginViewModel"/>.</summary>

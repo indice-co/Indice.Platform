@@ -7,6 +7,17 @@ image: Visual Studio 2022
 install:
 - ps: Install-Product node 16.13.0
 before_build:
+- ps: >-
+    if (!(Test-Path -Path ".\.nuget" ))
+
+    {
+      New-Item -ItemType "directory" -Path ".\.nuget"
+    }
+    if (!(Test-Path -Path ".\.nuget\packages" ))
+
+    {
+      New-Item -ItemType "directory" -Path ".\.nuget\packages"
+    }
 - ps: dotnet restore
 build_script:
 - ps: dotnet pack -c Release -o artifacts

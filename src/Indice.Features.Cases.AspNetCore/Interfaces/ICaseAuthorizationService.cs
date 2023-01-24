@@ -18,14 +18,14 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="filter"></param>
         /// <returns></returns>
         public Task<GetCasesListFilter> ApplyFilterFor(ClaimsPrincipal user, GetCasesListFilter filter);
-        
+
         /// <summary>
         /// When a caseId is requested, it must return true in order to reach the 
         /// caller
         /// </summary>
-        /// <param name="user"></param>
-        /// <param name="caseDetails"></param>
+        /// <param name="user">The user.</param>
+        /// <param name="case">The case.</param>
         /// <returns></returns>
-        public Task<bool> IsValid(ClaimsPrincipal user, CaseDetails caseDetails);
+        public Task<bool> IsValid(ClaimsPrincipal user, Case @case);
     }
 }

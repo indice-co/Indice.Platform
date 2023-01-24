@@ -1,4 +1,6 @@
-﻿using Indice.Features.Cases.Data.Models;
+﻿using System.Text.Json;
+using Indice.Features.Cases.Data.Models;
+using Indice.Serialization;
 
 namespace Indice.Features.Cases.Models.Responses
 {
@@ -46,6 +48,16 @@ namespace Indice.Features.Cases.Models.Responses
         /// The Id of the user that created the case.
         /// </summary>
         public string CreatedById { get; set; }
+        
+        /// <summary>
+        /// The email of the user that created the case.
+        /// </summary>
+        public string CreatedByEmail { get; set; }
+
+        /// <summary>
+        /// The full name of the user that created the case.
+        /// </summary>
+        public string CreatedByName { get; set; }
 
         /// <summary>
         /// The <see cref="CaseType"/> of the case.
@@ -70,7 +82,7 @@ namespace Indice.Features.Cases.Models.Responses
         /// <summary>
         /// The json data of the case.
         /// </summary>
-        public string Data { get; set; }
+        public dynamic Data { get; set; }
 
         /// <summary>
         /// The name of the user that has the case assigned.
@@ -86,5 +98,16 @@ namespace Indice.Features.Cases.Models.Responses
         /// Indicate if the case is in draft mode.
         /// </summary>
         public bool Draft { get; set; }
+
+        /// <summary>
+        /// Convert case data to typed version.
+        /// </summary>
+        public TData DataAs<TData>() {
+            var json = JsonSerializer.Serialize(Data, JsonSerializerOptionDefaults.GetDefaultSettings());
+            if (typeof(TData) == typeof(string)) {
+                return json;
+            }
+            return JsonSerializer.Deserialize<TData>(json, JsonSerializerOptionDefaults.GetDefaultSettings());
+        }
     }
 }
