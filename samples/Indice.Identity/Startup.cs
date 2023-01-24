@@ -123,10 +123,10 @@ namespace Indice.Identity
                 services.AddSingleton<IUserIdProvider, NameUserIdProvider>();
                 services.AddSignalR(options => {
                     options.EnableDetailedErrors = !HostingEnvironment.IsProduction();
-                })
-                .AddAzureSignalR(options => {
-                    options.ConnectionString = signalRServiceConnection;
                 });
+                //.AddAzureSignalR(options => {
+                //    options.ConnectionString = signalRServiceConnection;
+                //});
             }
             services.AddPlatformEventHandler<DeviceDeletedEvent, DeviceDeletedEventHandler>();
             services.AddFluentValidationAutoValidation();

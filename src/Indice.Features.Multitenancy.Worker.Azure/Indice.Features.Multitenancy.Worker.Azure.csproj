@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <TargetFrameworks>net5.0;net6.0;net7.0;</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
     <PackageTags>Multitenancy;Functions;Azure;</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
@@ -14,9 +14,6 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Multitenancy.Core\Indice.Features.Multitenancy.Core.csproj" />

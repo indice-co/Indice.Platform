@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
+using IdentityServer4.Stores;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
@@ -61,6 +62,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 var certificate = new X509Certificate2(Path.Combine(hostingEnvironment.ContentRootPath, "indice-idsrv.pfx"), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
                 identityServerBuilder.AddSigningCredential(certificate);
             }
+            identityServerBuilder.AddDotnet7CompatibleStores();
             return identityServerBuilder;
         }
     }

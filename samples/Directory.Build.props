@@ -4,8 +4,7 @@
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
       <Nullable>disable</Nullable>
-    </PropertyGroup>
-    <PropertyGroup Label="Package Common">
+      <TargetFramework>net7.0</TargetFramework>
       <IsPackable>false</IsPackable>
-  </PropertyGroup>
+    </PropertyGroup>
 </Project>

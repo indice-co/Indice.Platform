@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <TargetFrameworks>net5.0;net6.0;net7.0;</TargetFrameworks>
+    <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AzureFunctions;CampaignManagement;Workers;Cloud</PackageTags>
   </PropertyGroup>
@@ -14,8 +14,6 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />

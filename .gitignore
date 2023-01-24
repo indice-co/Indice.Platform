@@ -292,3 +292,4 @@ App_Data
 **/Properties/ServiceDependencies
 logs
 package-lock.json
+nuget.exe
