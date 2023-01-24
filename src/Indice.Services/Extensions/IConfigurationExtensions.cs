@@ -87,7 +87,7 @@ namespace Microsoft.Extensions.Configuration
         /// <summary>Gets the Application Insights Connection String.</summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <returns>Checks for the <strong>ApplicationInsights:ConnectionString</strong> option in appsettings.json file.</returns>
-        public static string GetApplicationInsightsConnectionString(this IConfiguration configuration) => configuration.GetSection("ApplicationInsights").GetValue<string>("ConnectionString");
+        public static string GetApplicationInsightsConnectionString(this IConfiguration configuration) => configuration.GetSection("ApplicationInsights").GetValue<string>("ConnectionString") ?? configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
 
         /// <summary>A string that represents the default host name binding for this web application <see cref="GeneralSettings.Host"/>.</summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
