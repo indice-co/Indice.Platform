@@ -34,7 +34,7 @@ namespace Indice.Serialization
 
         /// <inheritdoc/>
         public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) {
-            if (value?.GetType().Name == "JObject") {
+            if (value?.GetType().Name is "JObject" or "JArray") {
                 var document = JsonDocument.Parse(value.ToString());
                 value = document.RootElement.Clone();
             }
