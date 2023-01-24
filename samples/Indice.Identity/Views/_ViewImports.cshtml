@@ -1,8 +1,11 @@
-﻿@using IdentityServer4.Extensions
+﻿@using IdentityModel
+@using IdentityServer4.Extensions
 @using IdentityServer4.Hosting
 @using Indice.AspNetCore.Extensions
 @using Indice.AspNetCore.Identity
 @using Indice.AspNetCore.Identity.Api.Models
+@using Indice.AspNetCore.Identity.Data.Models
+@using Indice.AspNetCore.Identity.Extensions
 @using Indice.AspNetCore.Identity.Models
 @using Indice.Configuration
 @using Indice.Extensions
@@ -10,13 +13,18 @@
 @using Indice.Identity.Models
 @using Indice.Services
 @using Microsoft.ApplicationInsights.AspNetCore
+@using Microsoft.ApplicationInsights.AspNetCore.Extensions
 @using Microsoft.AspNetCore.Antiforgery;
+@using Microsoft.AspNetCore.Hosting
 @using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Hosting
 @using Microsoft.Extensions.Options
 @using System.Diagnostics
 @using System.Dynamic
 @using System.Globalization
 @using System.Text.RegularExpressions;
+@using System.Threading
+@using Indice.Security
 
 @addTagHelper *, Indice.AspNetCore
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

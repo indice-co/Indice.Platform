@@ -1,44 +1,153 @@
-﻿.body-container {
-    margin-top: 60px;
-    padding-bottom: 40px;
+﻿@import 'fonts';
+@import 'colors';
+@import 'helpers';
+@import 'mixins';
+@import 'variables';
+
+/* Sticky footer styles. */
+
+.pricing-header {
+    max-width: 700px;
 }
 
-.welcome-page {
-    li {
-        list-style: none;
-        padding: 4px;
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+/* Sticky footer styles. */
+html {
+    position: relative;
+    min-height: 100%;
+    font-size: 14px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    @include phone {
+        &::before {
+            display: none;
+        }
     }
 }
 
-.logged-out-page {
-    iframe {
-        display: none;
-        width: 0;
-        height: 0;
+
+main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    &::before, &::after {
+        flex-grow: 1;
+        content: '';
+        display: block;
+    }
+    &::before {
+        min-height: 100px;
+    }
+    &::after {
+        min-height: 92px;
+    }
+
+    @include phone {
+        &::before, &::after {
+            flex-grow: 0;
+        }
     }
 }
 
-.grants-page {
-    .card {
-        margin-top: 20px;
-        border-bottom: 1px solid lightgray;
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    height: 52px;
 
-        .card-title {
-            img {
-                width: 100px;
-                height: 100px;
+    .links {
+        display: flex;
+        justify-content: space-between;
+
+        .sonftware-verson {
+            display: none;
+        }
+
+        a {
+            pointer-events: all;
+            padding: 0 1rem;
+            border-right: 2px solid $white;
+
+            &:last-of-type {
+                border-right: none;
             }
 
-            font-size: 120%;
-            font-weight: bold;
-        }
+            &:hover {
+                text-decoration: none;
+            }
 
-        label {
-            font-weight: bold;
+            @include phone {
+                border-right: none;
+            }
+        }
+    }
+
+    @include phone {
+        justify-content: center;
+
+        .links a {
+            padding: 0;
+            padding-right: .5rem;
         }
     }
 }
 
-.alert > ul {
-    margin-bottom: 0;
+.cursor-pointer {
+    cursor: pointer;
 }
+
+
+@include phone {
+    .navbar-nav {
+        &.logout-nav-link {
+            padding-right: 0 !important;
+        }
+    }
+
+    .navbar-toggler {
+        &.collapsed {
+            height: auto !important;
+            visibility: visible !important;
+        }
+    }
+}
+
+a{
+    font-weight: bold;
+}
+
+@import 'consent';
+@import 'error40X';
+@import 'forms';
+@import 'grants';
+@import 'grid';
+@import 'home';
+@import 'login';
+@import 'menu';
+@import 'modal';
+@import 'ribbon';
+@import 'spinners';
+@import 'validation';
+@import 'article';
+@import 'diagnostics';
+@import 'deck';
+@import 'passrules';
+@import 'device';
+@import 'bg';
+@import 'typography';
+@import 'dropcard';
+@import 'custom';

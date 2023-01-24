@@ -2,13 +2,20 @@
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "3.3.6",
     "@microsoft/signalr": "6.0.11",
-    "bootstrap": "4.5.0",
-    "jquery": "3.5.1"
+    "bootstrap": "4.6.1",
+    "bootstrap.native": "2.0.27",
+    "font-awesome": "4.7.0",
+    "jquery": "3.6.0",
+    "jquery-validation": "1.19.4",
+    "jquery-validation-unobtrusive": "3.2.12",
+    "knockout": "3.5.1",
+    "knockout-secure-binding": "0.5.5",
+    "popper.js": "1.16.1",
+    "swiper": "6.8.4"
   },
   "devDependencies": {
     "del": "4.1.1",
     "gulp": "4.0.2",
-    "gulp-cli": "2.3.0",
     "gulp-clean-css": "4.3.0",
     "gulp-concat": "2.6.1",
     "gulp-cssbeautify": "3.0.1",
@@ -21,7 +28,7 @@
     "gulp-strip-debug": "4.0.0",
     "gulp-uglify": "3.0.2",
     "postcss-assets": "6.0.0",
-    "sass": "1.52.1"
+    "sass": "1.52.3"
   },
   "name": "indice-idsrv",
   "private": true,
@@ -29,6 +36,6 @@
     "clean": "rimraf wwwroot/dist/*",
     "npm:install": "npm install"
   },
-  "version": "1.0.0",
-  "type": "module"
+  "type": "module",
+  "version": "1.0.0"
 }

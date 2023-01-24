@@ -94,7 +94,7 @@ namespace Indice.Identity.Controllers
                 } else {
                     var loginTempData = new LoginTempData { Errors = autoProvisionResult.Errors };
                     TempData.Put(nameof(loginTempData), loginTempData);
-                    return RedirectToAction(nameof(AccountController.Login), AccountController.Name);
+                    return RedirectToAction("Login", AccountController.Name);
                 }
                 // Save user external login.
                 await _userManager.AddLoginAsync(user, externalLoginInfo);

@@ -1,4 +1,106 @@
-﻿@page
+﻿@page "/login"
+
 @model LoginModel
+
+@inject IViewLocalizer Localizer
+
 @{
+    var displayRegistrationLinks = true;
+    var displayForgotPasswordLinks = true;
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+
+<section class="sign-in m-auto">
+    <h1>
+        <a class="header-logo" href="/">
+            <img class="mb-3 w-100" src="~/img/logo@(langSuffix).svg" />
+        </a>
+        <span class="header-text">@Localizer["Sign in"]</span>
+    </h1>
+    <partial name="_ValidationSummary" />
+    @if (Model.VisibleExternalProviders.Any())
+    {
+        <div class="login-form">
+            <ul class="list-unstyled">
+                @foreach (var provider in Model.VisibleExternalProviders)
+                {
+                    <li class="idp idp-@provider.AuthenticationScheme.ToLower()">
+                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="/external" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                            @Localizer[provider.DisplayName]
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="hr-sect">@Localizer["OR"]</div>
+    }
+    @if (Model.EnableLocalLogin)
+    {
+        <form asp-route-returnUrl="@Model.ReturnUrl" method="POST">
+            <div class="form-group">
+                <label asp-for="Input.UserName" class="">@Localizer["Username"]</label>
+                <input class="form-control" type="text" placeholder="@Localizer["Username"]" asp-for="Input.UserName" />
+                <span asp-validation-for="Input.UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Password" class="">@Localizer["Password"]</label>
+                <input class="form-control" type="password" placeholder="@Localizer["Password"]" asp-for="Input.Password" autocomplete="off" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                @if (Model.AllowRememberLogin)
+                {
+                    <div class="form-check custom-checkbox d-inline-block">
+                        <label class="form-check-label">
+                            <input asp-for="Input.RememberLogin" type="checkbox" class="form-check-input text-info" />
+                            <span class="control"></span>
+                            @Localizer["Remember me"]
+                        </label>
+                    </div>
+                }
+                @if (displayForgotPasswordLinks)
+                {
+                    <a class="btn btn-link p-0 text-md float-right text-blue" asp-page="/forgot-password">@Localizer["Forgot password?"]</a>
+                }
+            </div>
+            <div class="form-group">
+                <div class="form-row m-0 w-100">
+                    @if (displayRegistrationLinks)
+                    {
+                        <div class="col-sm-6 col-12 py-1">
+                            <a class="btn btn-link btn-block" asp-page="/register" asp-route-returnUrl="@Model.ReturnUrl">
+                                @Localizer["Join us"]
+                            </a>
+                        </div>
+                    }
+                    <div class="@(displayRegistrationLinks ? "col-sm-6" : string.Empty) col-12 py-1">
+                        <button class="btn btn-primary btn-block" name="button" value="login" type="submit">@Localizer["Sign in"]</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    }
+    @if (!Model.EnableLocalLogin && !Model.VisibleExternalProviders.Any())
+    {
+        <div class="alert alert-warning">
+            <strong>@Localizer["Invalid login request"]</strong>
+            @Localizer["There are no login schemes configured for this client."]
+        </div>
+    }
+</section>
+
+@section scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScripts");
+    }
+    <script csp-nonce="true">
+        document.querySelectorAll('.idp a').forEach(function (el) {
+            el.onclick = function (link) {
+                if (!link.target.classList.contains('disabled')) {
+                    link.target.classList.add('disabled');
+                }
+            };
+        });
+    </script>
 }

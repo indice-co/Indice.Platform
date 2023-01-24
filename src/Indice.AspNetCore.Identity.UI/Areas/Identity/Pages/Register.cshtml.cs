@@ -14,31 +14,40 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages
 {
+    /// <summary>Page model for the registration screen.</summary>
     [AllowAnonymous]
     [SecurityHeaders]
     [ValidateAntiForgeryToken]
     public sealed class RegisterModel : PageModel
     {
-        private readonly IIdentityServerInteractionService _interaction;
+        private readonly ExtendedUserManager<User> _userManager;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly IClientStore _clientStore;
+        private readonly IIdentityServerInteractionService _interaction;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly ExtendedUserManager<User> _userManager;
 
+        /// <summary></summary>
+        /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+        /// <param name="schemeProvider">Responsible for managing what authentication schemes are supported.</param>
+        /// <param name="clientStore">Retrieval of client configuration.</param>
+        /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
+        /// <param name="logger">A generic interface for logging.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public RegisterModel(
-            IIdentityServerInteractionService interaction,
+            ExtendedUserManager<User> userManager,
             IAuthenticationSchemeProvider schemeProvider,
             IClientStore clientStore,
-            ILogger<RegisterModel> logger,
-            ExtendedUserManager<User> userManager
+            IIdentityServerInteractionService interaction,
+            ILogger<RegisterModel> logger
         ) {
-            _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
             _schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
             _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
+            _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
 
+        /// <summary>Registration input model data.</summary>
         [BindProperty]
         public RegisterInputModel Input { get; set; }
 
@@ -53,6 +62,8 @@ namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages
         /// <summary>The return URL is used to keep track of the original intent of the user when he landed on login and switched over to register.</summary>
         public string ReturnUrl { get; set; }
 
+        /// <summary>Registration page GET handler.</summary>
+        /// <param name="returnUrl">The return URL.</param>
         public async Task<IActionResult> OnGetAsync(string returnUrl = null) {
             await BuildRegisterModelAsync(returnUrl);
             if (ExternalRegistrationOnly) {
@@ -61,6 +72,7 @@ namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages
             return Page();
         }
 
+        /// <summary>Registration page POST handler.</summary>
         public async Task<IActionResult> OnPostAsync() {
             if (!ModelState.IsValid) {
                 return Page();

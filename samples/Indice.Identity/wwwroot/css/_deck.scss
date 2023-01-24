@@ -1,0 +1,70 @@
+﻿body {
+
+    .deck {
+        margin: 20px 0 10px 0;
+        justify-content: space-evenly;
+        padding: 10px 20px;
+
+
+        @include phone {
+            justify-content: space-around;
+        }
+    }
+
+
+    a.deck-item {
+        text-decoration: none;
+        color: $text-color;
+    }
+
+    .deck-item {
+        width: 12.28rem;
+        height: 12.28rem;
+        padding: 10px;
+        border: 2px solid $gray-800;
+        margin: 0 0 10px 0;
+        border-radius: .1875rem;
+        justify-content: flex-start;
+        align-items: center;
+        transition: all .3s;
+        cursor: pointer;
+
+        .deck-title {
+            font-weight: bold;
+            color: $text-color;
+        }
+
+        .deck-icon {
+            display: inline-block;
+            padding: 1.6rem;
+            margin-bottom: 1.53846rem;
+            background-image: url(../img/icons/avatar.svg);
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        &.b2b-e-shop {
+            .deck-icon {
+                background-image: url(../img/icons/shopping-basket.svg);
+            }
+        }
+
+        &.admin {
+            .deck-icon {
+                background-image: url(../img/icons/security-check.svg);
+            }
+        }
+
+        &.developers {
+            .deck-icon {
+                background-image: url(../img/icons/coding.svg);
+            }
+        }
+
+        &:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(0,0,0,.3);
+        }
+    }
+}

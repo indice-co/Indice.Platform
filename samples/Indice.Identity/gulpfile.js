@@ -1,4 +1,5 @@
 ﻿'use strict';
+
 import gulp from "gulp";
 import dartSass from 'sass';
 import gulpSass from 'gulp-sass';
@@ -33,5 +34,5 @@ gulp.task('copy:libs', function () {
     return gulp.src(npmDist(), {
         base: './node_modules'
     })
-        .pipe(gulp.dest(lib));
+    .pipe(gulp.dest(lib));
 });

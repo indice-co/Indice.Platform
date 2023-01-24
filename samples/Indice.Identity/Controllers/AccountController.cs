@@ -2,12 +2,10 @@
 using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
-using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity;
 using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Extensions;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -53,93 +51,6 @@ namespace Indice.Identity.Controllers
 
         public string UserId => User.FindFirstValue(JwtClaimTypes.Subject);
         public string UserName => User.FindFirstValue(JwtClaimTypes.Name);
-
-        /// <summary>Displays the login page.</summary>
-        /// <param name="returnUrl">The URL to navigate after a successful login.</param>
-        [HttpGet("login")]
-        public async Task<IActionResult> Login(string returnUrl) {
-            // Build a model so we know what to show on the login page.
-            var viewModel = await _accountService.BuildLoginViewModelAsync(returnUrl);
-            if (viewModel.IsExternalLoginOnly) {
-                // We only have one option for logging in and it's an external provider.
-                return RedirectToAction(nameof(ExternalController.Challenge), ExternalController.Name, new { provider = viewModel.ExternalLoginScheme, returnUrl });
-            }
-            if (viewModel.PromptRegister()) { }
-#if DEBUG
-            viewModel.UserName = "company@indice.gr";
-#endif
-            return View(viewModel);
-        }
-
-        /// <summary>Posts the login form to the server.</summary>
-        /// <param name="model">The model that contains user's login info.</param>
-        /// <param name="button">The name of the button pressed by the user.</param>
-        [HttpPost("login")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginInputModel model, string button) {
-            // Check if we are in the context of an authorization request.
-            var context = await _interaction.GetAuthorizationContextAsync(model.ReturnUrl);
-            // The user clicked the 'cancel' button.
-            if (button != "login") {
-                if (context != null) {
-                    // If the user cancels, send a result back into IdentityServer as if they denied the consent (even if this client does not require consent).
-                    // This will send back an access denied OIDC error response to the client.
-                    await _interaction.DenyAuthorizationAsync(context, AuthorizationError.AccessDenied);
-                    // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
-                    if (context.IsNativeClient()) {
-                        // The client is native, so this change in how to return the response is for better UX for the end user.
-                        return this.LoadingPage("Redirect", model.ReturnUrl);
-                    }
-                    return Redirect(model.ReturnUrl);
-                } else {
-                    // Since we don't have a valid context, then we just go back to the home page.
-                    return Redirect("~/");
-                }
-            }
-            if (ModelState.IsValid) {
-                // Validate username/password against database.
-                var result = await _signInManager.PasswordSignInAsync(model.UserName, model.Password, AccountOptions.AllowRememberLogin && model.RememberLogin, lockoutOnFailure: true);
-                User user = null;
-                if (result.Succeeded) {
-                    user = await _userManager.FindByNameAsync(model.UserName);
-                    await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
-                    _logger.LogInformation("User '{UserName}' and email {Email} was successfully logged in.", user.UserName, user.Email);
-                    if (context != null) {
-                        if (context.IsNativeClient()) {
-                            // The client is native, so this change in how to return the response is for better UX for the end user.
-                            return this.LoadingPage("Redirect", model.ReturnUrl);
-                        }
-                        // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
-                        return Redirect(model.ReturnUrl);
-                    }
-                    // Request for a local page.
-                    if (_interaction.IsValidReturnUrl(model.ReturnUrl) || Url.IsLocalUrl(model.ReturnUrl)) {
-                        return Redirect(model.ReturnUrl);
-                    } else if (string.IsNullOrEmpty(model.ReturnUrl)) {
-                        return Redirect("~/");
-                    } else {
-                        // User might have clicked on a malicious link - should be logged.
-                        _logger.LogError("User '{UserName}' might have clicked a malicious link during login: {ReturnUrl}.", UserName, model.ReturnUrl);
-                        throw new Exception("Invalid return URL.");
-                    }
-                }
-                if (result.RequiresTwoFactor) {
-                    return RedirectToAction(nameof(MfaController.Index), MfaController.Name, new { model.ReturnUrl });
-                }
-                if (result.IsLockedOut) {
-                    _logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsNumber} unsuccessful login attempts.", UserName, user?.AccessFailedCount);
-                    await _events.RaiseAsync(new UserLoginFailureEvent(model.UserName, "User locked out."));
-                    ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
-                } else {
-                    _logger.LogWarning("User '{UserName}' entered invalid credentials during login.", UserName);
-                    await _events.RaiseAsync(new UserLoginFailureEvent(model.UserName, "Invalid credentials."));
-                    ModelState.AddModelError(string.Empty, "Please check your credentials.");
-                }
-            }
-            // Something went wrong, show form with error.
-            var viewModel = await _accountService.BuildLoginViewModelAsync(model);
-            return View(viewModel);
-        }
 
         /// <summary>Renders the logout page.</summary>
         /// <param name="logoutId">The logout id.</param>

@@ -1,0 +1,22 @@
+﻿body {
+    &.image-bg {
+        background: #111827;
+        background-image: url(../img/flair.svg);
+        background-position: top right;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: auto;
+    }
+
+    &.gradient-bg {
+        background-image: url(../img/noise-white.png);
+        background-repeat: repeat;
+        background: #0F2027; /* fallback for old browsers */
+        background: -webkit-linear-gradient(to right, #2C5364, #203A43, #0F2027); /* Chrome 10-25, Safari 5.1-6 */
+        background: linear-gradient(to right, #2C5364, #203A43, #0F2027); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    }
+
+    @include phone {
+        background: none !important;
+    }
+}

@@ -1,0 +1,109 @@
+﻿html {
+    font-size: 14px;
+
+    @include phone {
+        html {
+            font-size: 1.2rem;
+        }
+
+        .display-4 {
+            font-size: 2rem;
+        }
+    }
+
+    @include tablet {
+        html {
+            font-size: 1.2rem;
+        }
+
+        .display-4 {
+            font-size: 2rem;
+        }
+    }
+
+    @include laptop {
+        html {
+            font-size: 1.4rem;
+        }
+
+        .display-4 {
+            font-size: 2.5rem;
+        }
+    }
+
+    @include desktop {
+        html {
+            font-size: 1.6rem;
+        }
+    }
+}
+
+body {
+    font: 15px/1.6 "Open Sans", "Arial", "Helvetica", sans-serif;
+    font-display: swap;
+    direction: ltr;
+    line-height: 1.4286;
+    color: white;
+
+    @include phone {
+        color: $text-color;
+    }
+}
+
+.footer {
+    font-size: 12px;
+    line-height: 1.4;
+
+    .copyright {
+        text-transform: uppercase;
+    }
+
+    .links {
+        a {
+            font-size: 1em;
+            font-weight: bold;
+        }
+    }
+
+    .anonymous & {
+        .copyright {
+            color: $white;
+        }
+
+        .links a {
+            color: $white;
+
+            &:hover {
+                font-weight: bold;
+            }
+        }
+
+        @include phone {
+            .copyright {
+                color: $text-color;
+            }
+
+            .links a {
+                color: $blue;
+
+                &:hover {
+                    
+                }
+            }
+
+            color: inherit;
+        }
+    }
+
+    .authenticated & {
+        color: $white;
+
+        .links a {
+            color: $white;
+
+            &:hover {
+                color: $text-color;
+            }
+        }
+    }
+}

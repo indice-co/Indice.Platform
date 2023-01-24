@@ -34,18 +34,18 @@
         </div>
         <div class="hr-sect">@Localizer["OR"]</div>
     }
-    <form asp-route-returnUrl="@Model.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate>
+    <form asp-route-returnUrl="@Model.ReturnUrl" data-sbind="event: { change: formChanged }" method="POST" autocomplete="new-password" novalidate>
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label asp-for="Input.FirstName" class="">@Localizer["First name"]</label>
+                    <label asp-for="Input.FirstName">@Localizer["First name"]</label>
                     <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer["First name"]" autofocus />
                     <span asp-validation-for="Input.FirstName" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label asp-for="Input.LastName" class="">@Localizer["Last name"]</label>
+                    <label asp-for="Input.LastName">@Localizer["Last name"]</label>
                     <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer["Last name"]" />
                     <span asp-validation-for="Input.LastName" class="text-danger"></span>
                 </div>
@@ -54,14 +54,14 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    <label asp-for="Input.Email" class="">@Localizer["Email"]</label>
+                    <label asp-for="Input.Email">@Localizer["Email"]</label>
                     <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    <label asp-for="Input.PhoneNumber" class="">@Localizer["Phone number"]</label>
+                    <label asp-for="Input.PhoneNumber">@Localizer["Phone number"]</label>
                     <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
                     <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
                 </div>
@@ -145,7 +145,9 @@
 </section>
 
 @section scripts {
-    @{ await Html.RenderPartialAsync("_ValidationScripts"); }
+    @{
+        await Html.RenderPartialAsync("_ValidationScripts");
+    }
     <script type="text/javascript" src="~/lib/knockout/build/output/knockout-latest.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/utilities.js" csp-nonce="true"></script>
