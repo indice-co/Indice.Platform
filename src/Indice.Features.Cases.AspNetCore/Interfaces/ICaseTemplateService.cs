@@ -12,6 +12,6 @@ namespace Indice.Features.Cases.Interfaces
         /// </summary>
         /// <param name="case">The case to render.</param>
         /// <returns></returns>
-        Task<string> RenderTemplateAsync(CaseDetails @case);
+        Task<string> RenderTemplateAsync(Case @case);
     }
 }

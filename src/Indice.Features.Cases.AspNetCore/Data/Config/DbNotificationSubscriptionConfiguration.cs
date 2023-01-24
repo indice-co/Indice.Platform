@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Cases.Data.Config
 {
-    internal class DbCaseTypeNotificationSubscriptionConfiguration : IEntityTypeConfiguration<DbCaseTypeNotificationSubscription>
+    internal class DbNotificationSubscriptionConfiguration : IEntityTypeConfiguration<DbNotificationSubscription>
     {
-        public void Configure(EntityTypeBuilder<DbCaseTypeNotificationSubscription> builder) {
+        public void Configure(EntityTypeBuilder<DbNotificationSubscription> builder) {
             builder
-                .ToTable("CaseTypeNotificationSubscription");
+                .ToTable("NotificationSubscription");
             builder
                 .HasIndex(p => p.Email);
             builder

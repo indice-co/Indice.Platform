@@ -42,7 +42,7 @@ namespace Indice.Features.Cases.Tests
                 CaseTypeId = caseType.Id,
                 Channel = "web",
                 CreatedBy = AuditMeta.Create(principal),
-                CaseData = new List<DbCaseData> {
+                Versions = new List<DbCaseData> {
                     new DbCaseData {
                         CreatedBy = AuditMeta.Create(principal),
                         Data = "{ \"test\": true }"

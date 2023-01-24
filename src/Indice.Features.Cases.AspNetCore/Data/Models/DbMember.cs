@@ -1,7 +1,7 @@
 ﻿namespace Indice.Features.Cases.Data.Models
 {
 #pragma warning disable 1591
-    public class DbRoleCaseType
+    public class DbMember
     {
         public Guid Id { get; set; }
         public string RoleName { get; set; }

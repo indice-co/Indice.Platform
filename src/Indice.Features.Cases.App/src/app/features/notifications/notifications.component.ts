@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { ToasterService, ToastType } from "@indice/ng-components";
 import { EMPTY } from "rxjs";
 import { tap, catchError } from "rxjs/operators";
-import { CasesApiService, CaseTypeSubscription } from "src/app/core/services/cases-api.service";
+import { CasesApiService, NotificationSubscriptionResult } from "src/app/core/services/cases-api.service";
 
 @Component({
     selector: 'app-notifications',
@@ -19,9 +19,9 @@ export class NotificationsComponent {
         private api: CasesApiService,
         private router: Router,
         private toaster: ToasterService) {
-        this.api.getCaseTypeNotificationSubscription()
+        this.api.getMySubscriptions()
             .pipe(
-                tap((response: CaseTypeSubscription) => {
+                tap((response: NotificationSubscriptionResult) => {
                     this.notificationsAccepted = response.subscribed || false;
                     this._submittedNotificationValue = this.notificationsAccepted;
                 }))
@@ -37,8 +37,8 @@ export class NotificationsComponent {
             return;
         }
         const http$ = this.notificationsAccepted
-            ? this.api.createCaseTypeNotificationSubscription()
-            : this.api.deleteCaseTypeNotificationSubscription();
+            ? this.api.subscribe()
+            : this.api.unsubscribe();
 
         http$.pipe(
             tap(_ => {

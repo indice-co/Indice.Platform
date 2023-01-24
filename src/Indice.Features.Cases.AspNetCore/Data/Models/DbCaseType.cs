@@ -23,7 +23,7 @@
         /// Available checkpoints for this case type
         /// </summary>
         public virtual List<DbCheckpointType> CheckpointTypes { get; set; }
-        public virtual DbCaseTypeCategory? Category { get; set; }
+        public virtual DbCategory Category { get; set; }
     }
 #pragma warning restore 1591
 }

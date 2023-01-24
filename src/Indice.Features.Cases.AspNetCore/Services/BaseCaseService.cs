@@ -45,62 +45,55 @@ namespace Indice.Features.Cases.Services
         }
 
         /// <summary>
-        /// Transform a <see cref="DbCase"/> to <see cref="CaseDetails"/>. 
+        /// Create a IQueryable from a <see cref="DbCase"/> projected to a <see cref="Case"/>.
         /// </summary>
-        /// <param name="case">The <see cref="DbCase"/>.</param>
-        /// <param name="caseData">The <see cref="DbCaseData"/>.</param>
+        /// /// <param name="userId">The Id of the user</param>
         /// <param name="includeAttachmentData">Include the attachment binary data to the response.</param>
         /// <param name="schemaKey">The schemaKey for the case type JSON schema/layout. Can be "frontend", "backoffice" or null</param>
-        /// <returns></returns>
-        protected async Task<CaseDetails> GetCaseByIdInternal(DbCase @case, DbCaseData caseData, bool? includeAttachmentData = null, string schemaKey = null) {
-            // Do the "latestCheckpoint query" here and avoid N triggers when constructing the case details model
-            var latestCheckpoint = await _dbContext.Checkpoints
-                .Include(c => c.CheckpointType)
-                .Where(c => c.CaseId == @case.Id)
-                .OrderByDescending(c => c.CreatedBy.When)
-                .FirstOrDefaultAsync();
-
-            var caseDetails = new CaseDetails {
-                Id = @case.Id,
-                Status = latestCheckpoint.CheckpointType.Status,
-                CreatedByWhen = @case.CreatedBy.When,
-                CreatedById = @case.CreatedBy.Id,
-                CaseType = new CaseTypePartial {
-                    Code = @case.CaseType.Code,
-                    Title = @case.CaseType.Title,
-                    Id = @case.CaseType.Id,
-                    DataSchema = GetSingleOrMultiple(schemaKey, @case.CaseType.DataSchema),
-                    Layout = GetSingleOrMultiple(schemaKey, @case.CaseType.Layout),
-                    LayoutTranslations = @case.CaseType.LayoutTranslations,
-                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(@case.CaseType.Translations),
-                    Config = @case.CaseType.Config
-                },
-                CustomerId = @case.Customer.CustomerId,
-                CustomerName = @case.Customer.FullName,
-                UserId = @case.Customer.UserId,
-                GroupId = @case.GroupId,
-                Metadata = @case.Metadata,
-                CheckpointTypeCode = latestCheckpoint.CheckpointType.Code,
-                CheckpointTypeId = latestCheckpoint.CheckpointType.Id,
-                Attachments = @case.Attachments.Select(attachment => new CaseAttachment {
-                    Id = attachment.Id,
-                    Name = attachment.Name,
-                    ContentType = attachment.ContentType,
-                    Extension = attachment.FileExtension,
-                    Data = includeAttachmentData == true ? attachment.Data : null
-                }).ToList(),
-                Data = caseData?.Data,
-                AssignedToName = @case.AssignedTo?.Name,
-                Channel = @case.Channel,
-                Draft = @case.Draft,
-                Approvers = @case.Approvals
-                    .Where(p => p.Committed && p.Action == Approval.Approve)
-                    .Select(p => p.CreatedBy)
-                    .OrderBy(p => p.When)
-                    .ToList()
-            };
-
-            return caseDetails;
+        protected IQueryable<Case> GetCasesInternal(string userId, bool includeAttachmentData = false, string schemaKey = null) {
+            var query =
+                from c in _dbContext.Cases.AsQueryable().AsNoTracking()
+                let isCustomer = userId == c.Customer.UserId
+                select new Case {
+                    Id = c.Id,
+                    Status = isCustomer ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
+                    CheckpointTypeCode = isCustomer ? c.PublicCheckpoint.CheckpointType.Code : c.Checkpoint.CheckpointType.Code,
+                    CheckpointTypeId = isCustomer ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
+                    CreatedByWhen = c.CreatedBy.When,
+                    CreatedById = c.CreatedBy.Id,
+                    CaseType = new CaseTypePartial {
+                        Code = c.CaseType.Code,
+                        Title = c.CaseType.Title,
+                        Id = c.CaseType.Id,
+                        DataSchema = GetSingleOrMultiple(schemaKey, c.CaseType.DataSchema),
+                        Layout = GetSingleOrMultiple(schemaKey, c.CaseType.Layout),
+                        LayoutTranslations = c.CaseType.LayoutTranslations,
+                        Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.CaseType.Translations),
+                        Config = c.CaseType.Config
+                    },
+                    CustomerId = c.Customer.CustomerId,
+                    CustomerName = c.Customer.FullName,
+                    UserId = c.Customer.UserId,
+                    GroupId = c.GroupId,
+                    Metadata = c.Metadata,
+                    Attachments = c.Attachments.Select(attachment => new CaseAttachment {
+                        Id = attachment.Id,
+                        Name = attachment.Name,
+                        ContentType = attachment.ContentType,
+                        Extension = attachment.FileExtension,
+                        Data = includeAttachmentData == true ? attachment.Data : null
+                    }).ToList(),
+                    Data = isCustomer ? c.PublicData.Data : c.Data.Data,
+                    AssignedToName = c.AssignedTo.Name,
+                    Channel = c.Channel,
+                    Draft = c.Draft,
+                    Approvers = c.Approvals
+                        .Where(p => p.Committed && p.Action == Approval.Approve)
+                        .Select(p => p.CreatedBy)
+                        .OrderBy(p => p.When)
+                        .ToList()
+                };
+            return query;
         }
 
         /// <summary>

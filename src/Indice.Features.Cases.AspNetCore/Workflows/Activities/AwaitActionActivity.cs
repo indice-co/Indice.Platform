@@ -93,7 +93,7 @@ namespace Indice.Features.Cases.Workflows.Activities
             DefaultSyntax = SyntaxNames.Literal,
             SupportedSyntaxes = new[] { SyntaxNames.Literal }
         )]
-        public string? ActionClass { get; set; }
+        public string ActionClass { get; set; }
 
         /// <summary>
         /// Determines whether at the end of the action the user will be redirected to Cases list of Back-office UI.

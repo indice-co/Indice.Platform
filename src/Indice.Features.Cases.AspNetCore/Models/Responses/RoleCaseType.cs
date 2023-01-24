@@ -28,7 +28,7 @@
         /// <summary>
         /// The <see cref="CaseTypePartial"/> model.
         /// </summary>
-        public CaseTypePartial CaseType { get; set; }
+        public CaseTypePartial CaseTypePartial { get; set; }
 
         /// <summary>
         /// The <see cref="CheckpointType"/> model.

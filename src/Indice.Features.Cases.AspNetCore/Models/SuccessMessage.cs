@@ -8,11 +8,11 @@
         /// <summary>
         /// The message's Title.
         /// </summary>
-        public string? Title { get; set; }
+        public string Title { get; set; }
 
         /// <summary>
         /// The message's Body.
         /// </summary>
-        public string? Body { get; set; }
+        public string Body { get; set; }
     }
 }

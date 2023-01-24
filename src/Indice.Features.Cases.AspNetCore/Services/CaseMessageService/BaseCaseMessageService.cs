@@ -1,9 +1,11 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
+using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,7 +59,7 @@ namespace Indice.Features.Cases.Services.CaseMessageService
                     message.PrivateComment ??= newCheckpointType.Private;
                     await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
                 }
-            } else if (!string.IsNullOrEmpty(message.Data)) {
+            } else if (message.Data != null) {
                 await AddCaseData(user, @case, message.Data);
                 if (!string.IsNullOrWhiteSpace(message.Comment)) {
                     await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
@@ -157,6 +159,8 @@ namespace Indice.Features.Cases.Services.CaseMessageService
 
             if (checkpointType.Status == CaseStatus.Completed && @case.CompletedBy is null) {
                 @case.CompletedBy = AuditMeta.Create(user);
+                // fast-forward public data Id
+                @case.PublicDataId = @case.DataId;
             }
 
             @case.CheckpointId = nextCheckpoint.Id;
@@ -165,20 +169,29 @@ namespace Indice.Features.Cases.Services.CaseMessageService
             return nextCheckpoint;
         }
 
-        private async Task AddCaseData(ClaimsPrincipal user, DbCase @case, string data) {
-            if (string.IsNullOrEmpty(data)) throw new ArgumentNullException(nameof(data));
+        private async Task AddCaseData(ClaimsPrincipal user, DbCase @case, dynamic data) {
+            if (data == null) throw new ArgumentNullException(nameof(data));
 
             // Validate data against case type json schema, only when schema is present
             if (!string.IsNullOrEmpty(@case.CaseType.DataSchema) && !_schemaValidator.IsValid(@case.CaseType.DataSchema, data)) {
                 throw new Exception("Data validation error.");
             }
 
-            // Update checkpoint data
-            await _dbContext.CaseData.AddAsync(new DbCaseData {
+            var newDataVersion = new DbCaseData {
                 Case = @case,
                 CreatedBy = AuditMeta.Create(user),
                 Data = data
-            });
+            };
+
+            @case.DataId = newDataVersion.Id;
+
+            // If case is mine, my changes are also publicly visible
+            if (@case.CreatedBy.Id == user.FindSubjectId()) {
+                @case.PublicDataId = newDataVersion.Id;
+            }
+
+            // Update checkpoint data
+            await _dbContext.CaseData.AddAsync(newDataVersion);
         }
     }
 }
