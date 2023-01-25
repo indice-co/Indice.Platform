@@ -70,7 +70,7 @@ namespace Indice.Features.Multitenancy.AspNetCore.Authorization
             var isMember = context.User.IsSystemClient() || await CheckMembershipAsync(memberId, _tenantAccessor.Tenant.Id, requirement.Level);
             // Apparently nothing else worked.
             if (!isMember) {
-                _logger.LogInformation($"Member {memberId} does not have role {requirement.Level}.");
+                _logger.LogInformation("Member {memberId} does not have role {level}.", memberId, requirement.Level);
                 context.Fail();
             } else {
                 context.Succeed(requirement);
@@ -87,6 +87,9 @@ namespace Indice.Features.Multitenancy.AspNetCore.Authorization
             }
             // This is the case that cache is unavailable or this is the first authorization call for this requirement/policy.
             isMember = await _tenantStore.CheckAccessAsync(tenantId, memberId, level);
+            if (isMember) {
+                await _tenantStore.LogActivityAsync(tenantId, memberId);
+            }
             // Add to cache. 
             var cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
             await _cache.SetStringAsync(cacheKey, $"{isMember}", cacheEntryOptions);

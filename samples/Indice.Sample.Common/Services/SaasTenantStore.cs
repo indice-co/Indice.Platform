@@ -35,5 +35,14 @@ namespace Indice.Sample.Common.Services
                 .SingleOrDefaultAsync();
             return tenant;
         }
+
+        public async Task LogActivityAsync(Guid tenantId, string userId) {
+            var member = await _dbContext
+                .SubscriptionMembers
+                .Where(member => member.MemberId == Guid.Parse(userId) && member.SubscriptionId == tenantId)
+                .SingleOrDefaultAsync();
+            member.LastAccessDate = DateTimeOffset.UtcNow;
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

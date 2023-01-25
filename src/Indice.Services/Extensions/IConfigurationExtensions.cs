@@ -84,6 +84,11 @@ namespace Microsoft.Extensions.Configuration
         /// <returns>Checks for the <strong>ApplicationInsights:InstrumentationKey</strong> option in appsettings.json file.</returns>
         public static string GetInstrumentationKey(this IConfiguration configuration) => configuration.GetSection("ApplicationInsights").GetValue<string>("InstrumentationKey");
 
+        /// <summary>Gets the Application Insights Connection String.</summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <returns>Checks for the <strong>ApplicationInsights:ConnectionString</strong> option in appsettings.json file.</returns>
+        public static string GetApplicationInsightsConnectionString(this IConfiguration configuration) => configuration.GetSection("ApplicationInsights").GetValue<string>("ConnectionString") ?? configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"];
+
         /// <summary>A string that represents the default host name binding for this web application <see cref="GeneralSettings.Host"/>.</summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <returns>Example can be https://www.example.com</returns>
