@@ -1,11 +1,7 @@
-﻿using System;
-using Indice.AspNetCore.Identity.Data;
+﻿using Indice.AspNetCore.Identity.Data;
 using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Extensions.Configuration;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 
 namespace Indice.Identity
 {

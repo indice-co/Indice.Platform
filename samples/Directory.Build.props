@@ -1,10 +1,10 @@
 <Project>
-    <PropertyGroup Label="Assembly Common">
-      <Copyright>Copyright (c) Indice</Copyright>
-      <LangVersion>Latest</LangVersion>
-      <ImplicitUsings>enable</ImplicitUsings>
-      <Nullable>disable</Nullable>
-      <TargetFramework>net7.0</TargetFramework>
-      <IsPackable>false</IsPackable>
-    </PropertyGroup>
+  <PropertyGroup Label="Assembly Common">
+    <Copyright>Copyright (c) Indice</Copyright>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <LangVersion>Latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
 </Project>

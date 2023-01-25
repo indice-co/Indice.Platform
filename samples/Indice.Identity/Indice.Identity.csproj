@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <UserSecretsId>11acbe29-88b0-441f-a6e8-5f1c915e712f</UserSecretsId>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <noWarn>1591</noWarn>
+    <UserSecretsId>11acbe29-88b0-441f-a6e8-5f1c915e712f</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="wwwroot\admin\**" />

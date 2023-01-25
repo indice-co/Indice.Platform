@@ -1,6 +1,6 @@
 ﻿namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Models
 {
-    /// <summary>Request view model for the login page.</summary>
+    /// <summary>Input model for the login page.</summary>
     public class LoginInputModelTemp
     {
         /// <summary>The user name.</summary>

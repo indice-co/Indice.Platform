@@ -12,24 +12,32 @@
                 if (viewModelParams.deliveryChannel === 'PushNotification') {
                     self.startSignalRConnection();
                 }
-                viewModelParams.$rememberClientCheckbox.change(function () {
-                    if (!self.browserId && this.checked) {
-                        const fpPromise = FingerprintJS.load();
-                        fpPromise.then(fp => fp.get()).then(result => {
-                            self.browserId = result.visitorId;
-                            viewModelParams.$deviceIdInput.val(self.browserId);
-                        });
-                    }
+                if (viewModelParams.$rememberClientCheckbox) {
+                    viewModelParams.$rememberClientCheckbox.change(function () {
+                        if (!self.browserId && this.checked) {
+                            self.calculateDeviceId();
+                        }
+                    });
+                }
+            },
+            calculateDeviceId: function () {
+                var fpPromise = FingerprintJS.load();
+                fpPromise.then(fp => fp.get()).then(result => {
+                    self.browserId = result.visitorId;
+                    viewModelParams.$deviceIdInput.val(self.browserId + '.' + viewModelParams.browserFamily);
                 });
             },
             onConnected: function (connection) {
+                self.sendPushNotification(connection.connectionId);
+            },
+            sendPushNotification: function (connectionId) {
                 var requestToken = $("[name='__RequestVerificationToken']").val();
                 $.ajax({
                     url: host + '/login/mfa/notify',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify({
-                        connectionId: connection.connectionId
+                        connectionId: connectionId
                     }),
                     headers: {
                         'X-XSRF-TOKEN': requestToken
@@ -40,7 +48,7 @@
                 });
             },
             startSignalRConnection: function () {
-                const connection = new signalR
+                var connection = new signalR
                     .HubConnectionBuilder()
                     .withUrl('/mfa')
                     .build();
@@ -48,7 +56,10 @@
                     viewModelParams.$otpCodeInput.val(otpCode);
                     viewModelParams.$mfaForm.submit();
                 });
-                connection.on('LoginRejected', function () { });
+                connection.on('LoginRejected', function () {
+                    viewModelParams.$mfaForm.addClass('d-none');
+                    viewModelParams.$mfaFormReject.removeClass('d-none');
+                });
                 connection.start()
                     .then(() => self.onConnected(connection))
                     .catch(error => console.error(error.message));

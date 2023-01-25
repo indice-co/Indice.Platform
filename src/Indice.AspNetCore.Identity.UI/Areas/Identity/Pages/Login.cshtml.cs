@@ -21,7 +21,6 @@ namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages
     /// <summary>Page model for the login screen.</summary>
     [AllowAnonymous]
     [SecurityHeaders]
-    [ValidateAntiForgeryToken]
     public class LoginModel : PageModel
     {
         private readonly ExtendedSignInManager<User> _signInManager;
@@ -33,7 +32,7 @@ namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages
         private readonly ILogger<LoginModel> _logger;
         private readonly IStringLocalizer<LoginModel> _localizer;
 
-        /// <summary>Creates a new instance of <see cref="PageModel"/> class.</summary>
+        /// <summary>Creates a new instance of <see cref="LoginModel"/> class.</summary>
         /// <param name="signInManager">Provides the APIs for user sign in.</param>
         /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
         /// <param name="schemeProvider">Responsible for managing what authentication schemes are supported.</param>
@@ -107,6 +106,7 @@ namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages
         /// <summary>Login page POST handler.</summary>
         /// <param name="button"></param>
         /// <exception cref="Exception"></exception>
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync(string button) {
             var context = await _interaction.GetAuthorizationContextAsync(ReturnUrl);
             if (button != "login") {
