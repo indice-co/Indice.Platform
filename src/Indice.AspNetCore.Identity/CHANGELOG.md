@@ -23,4 +23,9 @@ ADD [PnsHandle] nvarchar(512) null
     ,[ClientType] int null
     ,[MfaSessionExpirationDate] datetimeoffset(7) null 
 ```
-For the ClientType enum check the [ClientRequests](./Features/IdentityServerApi/Models/Requests/ClientRequests.cs) class.
+Update the default value of the ClientType column. For the ClientType enum check the [ClientRequests](./Features/IdentityServerApi/Models/Requests/ClientRequests.cs) class.
+
+```sql
+UPDATE [auth].[UserDevice]
+SET [ClientType] = 1
+```
