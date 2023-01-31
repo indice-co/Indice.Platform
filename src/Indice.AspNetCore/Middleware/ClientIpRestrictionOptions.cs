@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Web;
 using Indice.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -167,9 +168,12 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="ipSafeList">The ips to be whitelisted for the current path.</param>
         public bool TryMatch(HttpContext httpContext, out byte[][] ipSafeList) {
             var path = httpContext.Request.Path;
-            var queryString = httpContext.Request.QueryString;
+            var queryString = 
+                httpContext.Request.QueryString.HasValue ?  
+                HttpUtility.UrlDecode(httpContext.Request.QueryString.Value) 
+                : string.Empty;
             var httpMethod = httpContext.Request.Method;
-            var isMatch = TryMatch(path, queryString.ToUriComponent(), httpMethod, out var ipsInner);
+            var isMatch = TryMatch(path, queryString, httpMethod, out var ipsInner);
             ipSafeList = ipsInner;
             return isMatch;
         }
