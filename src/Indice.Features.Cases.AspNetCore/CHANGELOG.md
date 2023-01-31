@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [6.6.1] - 2023-01-31
-## Changed
+### Changed
 - `CaseDetailsActivity` returns data as object instead of json string. You need to change all activities where case data is json parsed, for example
   ```js
   // Change from this
