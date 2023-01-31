@@ -56,7 +56,7 @@ namespace Indice.AspNetCore.Extensions
                 return true;
             }
             // Check if specified path is a subpath of an ignored path.
-            var paths = ignoredPaths.Where(p => path.StartsWith(p.Key));
+            var paths = ignoredPaths.Where(p => path.StartsWith(p.Key, StringComparison.InvariantCultureIgnoreCase));
             if (paths.Any()) {
                 // Order found paths in ascending order, based on size. 
                 var basePath = paths.OrderBy(x => x.Key.Length).First().Key;
