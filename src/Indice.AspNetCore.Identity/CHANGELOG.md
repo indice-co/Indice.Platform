@@ -22,8 +22,5 @@ ADD [PnsHandle] nvarchar(512) null
     ,[Blocked] bit not null default (0)
     ,[ClientType] int null
     ,[MfaSessionExpirationDate] datetimeoffset(7) null 
-
-UPDATE [auth].[UserDevice]
-SET [ClientType] = 1
 ```
 For the ClientType enum check the [ClientRequests](./Features/IdentityServerApi/Models/Requests/ClientRequests.cs) class.
