@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
+﻿using System.Net;
+using System.Web;
 using Indice.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -81,7 +78,7 @@ namespace Indice.AspNetCore.Middleware
                 IpAddressLists.Remove(key);
             }
         }
-        
+
         /// <summary>
         /// Adds a new map entry to the dictionary of mappings. This will be picked up by the <see cref="ClientIpRestrictionMiddleware"/> in order to determine which ips are exempted from the restrictions.
         /// </summary>
@@ -146,16 +143,17 @@ namespace Indice.AspNetCore.Middleware
         /// Tries to find a matching path.
         /// </summary>
         /// <param name="path">The path to match.</param>
+        /// <param name="queryString">The request query string added to the specified path</param>
         /// <param name="httpMethod">The HTTP method of the specified path.</param>
         /// <param name="ipSafeList">The ips to be whitelisted.</param>
-        public bool TryMatch(PathString path, string httpMethod, out byte[][] ipSafeList) {
+        public bool TryMatch(PathString path, string queryString, string httpMethod, out byte[][] ipSafeList) {
             ipSafeList = null;
-            if (Mappings.ContainsKey(path) && !InternalStringExtensions.IsIgnoredPath(IgnoredPaths, path, httpMethod)) {
+            if (Mappings.ContainsKey(path) && !InternalStringExtensions.IsIgnoredPath(IgnoredPaths, path, queryString, httpMethod)) {
                 ipSafeList = IpAddressLists[Mappings[path]];
                 return true;
             }
             var results = Mappings.Where(x => path.StartsWithSegments(x.Key));
-            if (results.Any() && !InternalStringExtensions.IsIgnoredPath(IgnoredPaths, path, httpMethod)) {
+            if (results.Any() && !InternalStringExtensions.IsIgnoredPath(IgnoredPaths, path, queryString, httpMethod)) {
                 var iplistName = results.OrderByDescending(x => x.Key.Length).First().Value;
                 ipSafeList = IpAddressLists[iplistName];
                 return true;
@@ -170,8 +168,12 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="ipSafeList">The ips to be whitelisted for the current path.</param>
         public bool TryMatch(HttpContext httpContext, out byte[][] ipSafeList) {
             var path = httpContext.Request.Path;
+            var queryString = 
+                httpContext.Request.QueryString.HasValue ?  
+                HttpUtility.UrlDecode(httpContext.Request.QueryString.Value) 
+                : string.Empty;
             var httpMethod = httpContext.Request.Method;
-            var isMatch = TryMatch(path, httpMethod, out var ipsInner);
+            var isMatch = TryMatch(path, queryString, httpMethod, out var ipsInner);
             ipSafeList = ipsInner;
             return isMatch;
         }
@@ -202,7 +204,7 @@ namespace Indice.AspNetCore.Middleware
         }
     }
 
-    
+
     internal class ClientIpRestrictionRule
     {
         public string Name { get; set; }

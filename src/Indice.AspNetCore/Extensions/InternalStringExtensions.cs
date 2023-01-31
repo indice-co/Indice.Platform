@@ -45,16 +45,18 @@ namespace Indice.AspNetCore.Extensions
         /// </summary>
         /// <param name="ignoredPaths"></param>
         /// <param name="path"></param>
+        /// <param name="queryString"></param>
         /// <param name="httpMethod"></param>
         /// <returns></returns>
-        public static bool IsIgnoredPath(IDictionary<string, string> ignoredPaths, string path, string httpMethod) {
+        public static bool IsIgnoredPath(IDictionary<string, string> ignoredPaths, string path, string queryString, string httpMethod) {
+            path = path + queryString;
             // Check if specified path matches exactly an ignored path.
             var isExactMatch = ignoredPaths.ContainsKey(path) && (string.IsNullOrWhiteSpace(httpMethod) || ignoredPaths[path].Split('|').Any(method => method.Equals(httpMethod, StringComparison.OrdinalIgnoreCase)));
             if (isExactMatch) {
                 return true;
             }
             // Check if specified path is a subpath of an ignored path.
-            var paths = ignoredPaths.Where(p => path.StartsWith(p.Key));
+            var paths = ignoredPaths.Where(p => path.StartsWith(p.Key, StringComparison.InvariantCultureIgnoreCase));
             if (paths.Any()) {
                 // Order found paths in ascending order, based on size. 
                 var basePath = paths.OrderBy(x => x.Key.Length).First().Key;
