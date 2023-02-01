@@ -1,0 +1,28 @@
+name: "Publish to Nuget"
+
+on:
+  workflow_dispatch:
+  # push:
+  #    branches: [ "master" ]
+  # pull_request:
+  #   branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout
+    - name: Checkout Repository
+    - uses: actions/checkout@v3
+    
+    #Setup .NET Core
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+      
+    # Build and pack
+    - name: Build solution and generate NuGet package
+      run: ./pack.ps1
