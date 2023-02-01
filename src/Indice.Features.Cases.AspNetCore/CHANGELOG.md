@@ -104,6 +104,7 @@ Elsa migrations
 ```sql
 UPDATE [Elsa].[WorkflowInstances]
 SET [data] = REPLACE([data], N'Indice.Features.Cases.Models.Responses.CaseDetails', N'Indice.Features.Cases.Models.Responses.Case')
+WHERE PATINDEX(N'%Indice.Features.Cases.Models.Responses.CaseDetails%', [data]) > 0
 ```
 
 ## [6.4.1] - 2023-01-10
