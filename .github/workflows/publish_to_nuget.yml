@@ -23,6 +23,8 @@ jobs:
       with:
         dotnet-version: 6.0.x
         source-url: https://api.nuget.org/v3/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
       
     # Build and pack
     - name: Build solution and generate NuGet package
