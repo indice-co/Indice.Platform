@@ -14,8 +14,9 @@ using Indice.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Indice.Features.Identity.Core.Models;
+using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 
-namespace Indice.Features.Identity.Core.DeviceAuthentication.Validation
+namespace Indice.Features.Identity.Core.Grants
 {
     internal class DeviceAuthenticationExtensionGrantValidator : RequestChallengeValidator, IExtensionGrantValidator
     {
