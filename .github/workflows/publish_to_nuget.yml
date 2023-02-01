@@ -25,6 +25,19 @@ jobs:
         source-url: https://api.nuget.org/v3/index.json
       env:
         NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
+    
+    #Create .nuget dir
+    - name: Create .nuget dir
+      shell: pwsh
+      run: |
+        if (!(Test-Path -Path ".\.nuget" ))
+        {
+          New-Item -ItemType "directory" -Path ".\.nuget"
+        }
+        if (!(Test-Path -Path ".\.nuget\packages" ))
+        {
+          New-Item -ItemType "directory" -Path ".\.nuget\packages"
+        }
       
     # Build and pack
     - name: Build solution and generate NuGet package
