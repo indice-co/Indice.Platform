@@ -15,7 +15,7 @@ jobs:
     steps:
     # Checkout
     - name: Checkout Repository
-    - uses: actions/checkout@v3
+      uses: actions/checkout@v3
     
     #Setup .NET Core
     - name: Setup .NET
