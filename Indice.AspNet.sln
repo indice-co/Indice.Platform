@@ -53,11 +53,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Services.Tests", "te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Hosting", "src\Indice.Hosting\Indice.Hosting.csproj", "{DF4A58DA-8DD7-4E4C-9137-CA6FBA695F0B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.AdminUI", "src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj", "{6C5B31E5-3CAE-4B07-B7EA-5C08AC46D486}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Identity.AdminUI", "src\Indice.Features.Identity.AdminUI\Indice.Features.Identity.AdminUI.csproj", "{6C5B31E5-3CAE-4B07-B7EA-5C08AC46D486}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Multitenancy.AspNetCore", "src\Indice.Features.Multitenancy.AspNetCore\Indice.Features.Multitenancy.AspNetCore.csproj", "{2385A145-8440-4B25-9029-B01576177D2D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.Tests", "test\Indice.AspNetCore.Identity.Tests\Indice.AspNetCore.Identity.Tests.csproj", "{5522D3E7-2AF3-4C6D-91D5-2BDA2F860F38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Identity.Tests", "test\Indice.Features.Identity.Tests\Indice.Features.Identity.Tests.csproj", "{5522D3E7-2AF3-4C6D-91D5-2BDA2F860F38}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Authentication.Apple", "src\Indice.AspNetCore.Authentication.Apple\Indice.AspNetCore.Authentication.Apple.csproj", "{BFDCA639-03C0-4E7A-AEEA-79C4C016E6C9}"
 EndProject
@@ -111,7 +111,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.GovGr", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.GovGr.Tests", "test\Indice.Features.GovGr.Tests\Indice.Features.GovGr.Tests.csproj", "{B93E28CD-0ECD-4827-B474-9FD64585E850}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.AspNetCore.Identity.UI", "src\Indice.AspNetCore.Identity.UI\Indice.AspNetCore.Identity.UI.csproj", "{06EF655C-5DD7-4415-A8B5-7578FC85F5B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Identity.UI", "src\Indice.Features.Identity.UI\Indice.Features.Identity.UI.csproj", "{06EF655C-5DD7-4415-A8B5-7578FC85F5B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Identity.Core", "src\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj", "{66D58583-A0A9-4666-A250-7E34299A031A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Identity.Endpoints", "src\Indice.Features.Identity.Endpoints\Indice.Features.Identity.Endpoints.csproj", "{D304A4FA-3773-4BB6-A59B-D75B91BA6EF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -287,6 +291,14 @@ Global
 		{06EF655C-5DD7-4415-A8B5-7578FC85F5B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06EF655C-5DD7-4415-A8B5-7578FC85F5B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06EF655C-5DD7-4415-A8B5-7578FC85F5B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66D58583-A0A9-4666-A250-7E34299A031A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66D58583-A0A9-4666-A250-7E34299A031A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66D58583-A0A9-4666-A250-7E34299A031A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66D58583-A0A9-4666-A250-7E34299A031A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D304A4FA-3773-4BB6-A59B-D75B91BA6EF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D304A4FA-3773-4BB6-A59B-D75B91BA6EF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D304A4FA-3773-4BB6-A59B-D75B91BA6EF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D304A4FA-3773-4BB6-A59B-D75B91BA6EF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -334,6 +346,8 @@ Global
 		{BA6B3853-FB1D-4164-8B9C-D1F8F2CB54B9} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{B93E28CD-0ECD-4827-B474-9FD64585E850} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 		{06EF655C-5DD7-4415-A8B5-7578FC85F5B0} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{66D58583-A0A9-4666-A250-7E34299A031A} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{D304A4FA-3773-4BB6-A59B-D75B91BA6EF9} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

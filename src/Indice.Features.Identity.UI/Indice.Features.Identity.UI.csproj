@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup Label="Package">
+    <PackageTags>AspNetCore;IdentityServer;AspNetIdentityUI</PackageTags>
+    <PackageReleaseNotes></PackageReleaseNotes>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <StaticWebAssetBasePath Condition="$(StaticWebAssetBasePath) == ''">/</StaticWebAssetBasePath>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
+  </ItemGroup>
+</Project>

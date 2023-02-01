@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>AspNetCore;IdentityServer;</PackageTags>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bogus" Version="34.0.2" />
+    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefix)" />
+    <PackageReference Include="JsonSchema.Net" Version="3.3.2" />
+    <PackageReference Include="JsonSchema.Net.Generation" Version="3.0.3" />
+    <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.0.0-preview" />
+    <PackageReference Include="UAParser" Version="3.1.47" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
+    <PackageReference Include="AutoMapper" Version="12.0.0">
+      <NoWarn>NU1608</NoWarn>
+    </PackageReference>
+    <PackageReference Include="Indice.IdentityServer4" Version="4.1.5" />
+    <PackageReference Include="Indice.IdentityServer4.EntityFramework.Storage" Version="4.1.5" />
+    <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.1" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="IdentityServer4" Version="4.1.2" />
+    <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.12" />
+    <PackageReference Include="System.ServiceModel.Syndication" Version="7.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
+    <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="IdentityResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>IdentityResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="IdentityResources.resx">
+      <CustomToolNamespace>Indice.Features.Identity.Core</CustomToolNamespace>
+      <LastGenOutput>IdentityResources.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

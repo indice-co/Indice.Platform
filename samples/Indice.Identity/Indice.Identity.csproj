@@ -25,8 +25,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Authentication.Apple\Indice.AspNetCore.Authentication.Apple.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Authentication.GovGr\Indice.AspNetCore.Authentication.GovGr.csproj" />
-    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj" />
-    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity.UI\Indice.AspNetCore.Identity.UI.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Identity.AdminUI\Indice.Features.Identity.AdminUI.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Identity.UI\Indice.Features.Identity.UI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Resources\Services\LocalizedIdentityMessageDescriber.el.resx">

@@ -168,9 +168,9 @@ namespace Indice.AspNetCore.Middleware
         /// <param name="ipSafeList">The ips to be whitelisted for the current path.</param>
         public bool TryMatch(HttpContext httpContext, out byte[][] ipSafeList) {
             var path = httpContext.Request.Path;
-            var queryString = 
-                httpContext.Request.QueryString.HasValue ?  
-                HttpUtility.UrlDecode(httpContext.Request.QueryString.Value) 
+            var queryString =
+                httpContext.Request.QueryString.HasValue ?
+                HttpUtility.UrlDecode(httpContext.Request.QueryString.Value)
                 : string.Empty;
             var httpMethod = httpContext.Request.Method;
             var isMatch = TryMatch(path, queryString, httpMethod, out var ipsInner);

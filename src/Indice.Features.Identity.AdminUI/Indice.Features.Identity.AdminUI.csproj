@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Label="Package">
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    <SpaDistFolder>..\Indice.Features.Identity.AdminUI.App\dist\indice_admin_ui</SpaDistFolder>
+    <!--<Version>7.0.0-beta01</Version>-->
+    <PackageReleaseNotes>Add translate inputs.</PackageReleaseNotes>
+    <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="admin-ui-dist/**/*" />
+  </ItemGroup>
+  <!-- Use Visual Studio npm package if it is installed. -->
+  <PropertyGroup Condition="Exists('$(VsInstallRoot)\Web\External\npm.cmd')">
+    <Path>$(Path)$(VsInstallRoot)\Web\External\;</Path>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="admin-ui-dist\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefix)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <SpaSourceFolder Include="..\Indice.Features.Identity.AdminUI.App" />
+  </ItemGroup>
+  <!-- Run 'npm install' command to download node modules for admin ui. -->
+  <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
+    <Exec Command="npm install --force" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
+  </Target>
+   <!--Run 'npm run build:template' in order to build the admin ui app.--> 
+  <Target Name="SpaBuild" BeforeTargets="DispatchToInnerBuilds" Condition="!Exists('$(SpaDistFolder)')">
+    <Exec Command="npm run build:template" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+  </Target>
+   <!--Copy artifacts from dist folder inside the project, so they can be used as embedded resources.--> 
+  <Target Name="CopyFiles" BeforeTargets="Build">
+    <ItemGroup>
+      <SpaDistFolderGlob Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\index.html" />
+    </ItemGroup>
+    <Copy SourceFiles="@(SpaDistFolderGlob)" DestinationFiles="@(SpaDistFolderGlob->'$(ProjectDir)\admin-ui-dist\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+</Project>
