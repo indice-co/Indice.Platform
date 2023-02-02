@@ -2,7 +2,7 @@
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
-      <VersionPrefix>6.5.0</VersionPrefix>
+      <VersionPrefix>6.7.0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->
       <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>

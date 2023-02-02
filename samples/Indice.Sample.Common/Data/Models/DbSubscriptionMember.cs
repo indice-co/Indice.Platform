@@ -10,6 +10,7 @@ namespace Indice.Sample.Common.Data.Models
         public MembershipStatus Status { get; set; }
         public string Email { get; set; }
         public DateTimeOffset? CreatedAt { get; set; }
+        public DateTimeOffset? LastAccessDate { get; set; }
         public MemberAccessLevel AccessLevel { get; set; }
         public virtual DbSubscription Subscription { get; set; }
     }

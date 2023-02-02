@@ -166,6 +166,7 @@ namespace Indice.AspNetCore.Identity.Data
         public async Task<IdentityResult> CreateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+            device.UserId = user.Id; // TODO: Revisit this. I believe that the navigation property could also play a role but not sure
             UserDeviceSet.Add(device);
             try {
                 await SaveChanges(cancellationToken);

@@ -21,6 +21,11 @@ namespace Indice.Features.Multitenancy.Core
         /// <param name="userId">The id of the user.</param>
         /// <returns>The user access level.</returns>
         Task<int?> GetAccessLevelAsync(Guid tenantId, string userId);
+        /// <summary>Logs activity for the given user/member in the given tenant.</summary>
+        /// <param name="tenantId">The id of the tenant.</param>
+        /// <param name="userId">The id of the user.</param>
+        /// <returns>This will essentialy update the LastAccessDate in the TenantMember store.</returns>
+        Task LogActivityAsync(Guid tenantId, string userId);
     }
 
     /// <summary>Extension methods on the <see cref="ITenantStore{T}"/>.</summary>

@@ -24,5 +24,10 @@ namespace Indice.Features.Multitenancy.Core.Stores
             var tenant = Tenants.SingleOrDefault(tenant => tenant.Identifier == identifier);
             return Task.FromResult(tenant);
         }
+
+        /// <inheritdoc />
+        public Task LogActivityAsync(Guid tenantId, string userId) {
+            return Task.CompletedTask;
+        }
     }
 }

@@ -5,10 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.6.1] - 2023-01-31
+### Changed
+- `CaseDetailsActivity` returns data as object instead of json string. You need to change all activities where case data is json parsed, for example
+  ```js
+  // Change from this
+  var caseData = JSON.parse(activities.GetCaseDetails.Output().Data);
+  // to this
+  var caseData = activities.GetCaseDetails.Output().Data;
+  ```
+
+## [6.6.0] - 2023-01-30
+- Jumped to 6.6.0 to match other Indice Packages
+
 ## [6.5.0] - 2023-01-24
 Major refactor - a lot of breaking changes!
 ### Added
-- Support for net7
 - `Checkpoint` logic for BO users. This is a performance optimization
 - `DataId` and `PublicDataId` logic for admin and my-case cases.
 - New workflow activity `AssignCaseToUserActivity`
@@ -21,7 +33,7 @@ Major refactor - a lot of breaking changes!
 - Entity `CaseTypeNotificationSubscription` to `NotificationSubscription`
 - Naming for DbModels & Dtos (eg `CaseDetails` -> `Case`) 
 - Signature for `IAdminCaseService.AssignCase`
-## Removed
+### Removed
 - Support for net3.1
 
 ### Migrations 
@@ -92,6 +104,7 @@ Elsa migrations
 ```sql
 UPDATE [Elsa].[WorkflowInstances]
 SET [data] = REPLACE([data], N'Indice.Features.Cases.Models.Responses.CaseDetails', N'Indice.Features.Cases.Models.Responses.Case')
+WHERE PATINDEX(N'%Indice.Features.Cases.Models.Responses.CaseDetails%', [data]) > 0
 ```
 
 ## [6.4.1] - 2023-01-10
@@ -106,7 +119,6 @@ Jumped to 6.4.0 to match other Indice Packages
 - Support for net7
 
 ## [6.2.0] - 2022-12-13
-
 ### Changed 
 - `CasePublicStatus` changed to `CaseStatus`. We are not using the word `Public` anymore. The checkpoint types have the flag `Public` for this reason.
 ### Removed 
@@ -122,7 +134,6 @@ sp_rename 'case.CheckpointType.PublicStatus', 'Status', 'column'
 ```
 
 ## [6.1.0] - 2022-12-09
-
 ### Added
 - New entity `DbCaseTypeCategory`
 - New navigation property `CaseType.Category`
