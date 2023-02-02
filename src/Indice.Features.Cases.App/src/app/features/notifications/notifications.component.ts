@@ -1,61 +1,47 @@
-import { Component, ViewChild } from "@angular/core";
-import { NgForm } from "@angular/forms";
-import { Router } from "@angular/router";
+import { Component, OnInit } from "@angular/core";
 import { ToasterService, ToastType } from "@indice/ng-components";
 import { EMPTY } from "rxjs";
 import { tap, catchError } from "rxjs/operators";
-import { CasesApiService, NotificationSubscriptionResult } from "src/app/core/services/cases-api.service";
+import { CasesApiService, NotificationSubscriptionDTO, NotificationSubscriptionSetting } from "src/app/core/services/cases-api.service";
 
 @Component({
     selector: 'app-notifications',
     templateUrl: './notifications.component.html',
     styleUrls: ['./notifications.component.scss']
 })
-export class NotificationsComponent {
-    @ViewChild('notificationsForm', { static: false }) private notificationsForm!: NgForm;
-    public notificationsAccepted: boolean = false;
-    private _submittedNotificationValue: boolean | undefined;
-    constructor(
-        private api: CasesApiService,
-        private router: Router,
-        private toaster: ToasterService) {
-        this.api.getMySubscriptions()
+export class NotificationsComponent implements OnInit {
+    public notificationSubscriptionSettings: NotificationSubscriptionSetting[] | undefined;
+    public formSubmitting: boolean = false;
+    public loading: boolean = false;
+
+    constructor(private _api: CasesApiService,
+        private _toaster: ToasterService) { }
+
+    public ngOnInit(): void {
+        this.loading = true;
+        this._api.getMySubscriptions()
             .pipe(
-                tap((response: NotificationSubscriptionResult) => {
-                    this.notificationsAccepted = response.subscribed || false;
-                    this._submittedNotificationValue = this.notificationsAccepted;
+                tap((response: NotificationSubscriptionDTO) => {
+                    this.notificationSubscriptionSettings = response.notificationSubscriptionSettings;
+                    this.loading = false;
                 }))
             .subscribe();
     }
 
-    public canSubmit(): boolean {
-        return this.notificationsForm?.valid === true;
-    }
-
     public onSubmit(): void {
-        if (!this.canSubmit()) {
-            return;
-        }
-        const http$ = this.notificationsAccepted
-            ? this.api.subscribe()
-            : this.api.unsubscribe();
-
-        http$.pipe(
+        this.formSubmitting = true;
+        this._api.subscribe(undefined, new NotificationSubscriptionDTO({ notificationSubscriptionSettings: this.notificationSubscriptionSettings })).pipe(
             tap(_ => {
-                const message = this.notificationsAccepted ? `Εγγραφήκατε στις ειδοποιήσεις επιτυχώς` : `Διαγραφήκατε από τις ειδοποιήσεις επιτυχώς`;
-                this.toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', message);
-                // set the form status to Pending so the form will be invalid, unless the user interacts with the UI
-                this.notificationsForm.form.markAsPending();
-                this._submittedNotificationValue = this.notificationsAccepted;
+                this.formSubmitting = false;
+                const message = `Οι ρυθμίσεις σας αποθηκεύτηκαν επιτυχώς`;
+                this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', message);
             }),
             catchError(() => {
-                this.toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Η εγγραφή στις ειδοποιήσεις απέτυχε`, 6000);
+                this.formSubmitting = false;
+                this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Η εγγραφή στις ειδοποιήσεις απέτυχε`, 6000);
                 return EMPTY;
             })
         ).subscribe();
     }
 
-    public notificationValueChanged(): boolean {
-        return this._submittedNotificationValue !== this.notificationsAccepted
-    }
 }

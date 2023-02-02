@@ -72,12 +72,7 @@ namespace Indice.Features.Cases.Services
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
                 })
                 .ToListAsync();
-
-            // translate case types
-            for (var i = 0; i < caseTypes.Count; i++) {
-                caseTypes[i] = caseTypes[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
-            }
-
+            TranslateCaseTypes(caseTypes);
             return caseTypes.ToResultSet();
         }
 
@@ -257,10 +252,18 @@ namespace Indice.Features.Cases.Services
                         Id = c.Id,
                         Title = c.Title,
                         Code = c.Code,
-                        Tags = c.Tags
+                        Tags = c.Tags,
+                        Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
                     })
                     .ToListAsync();
+            TranslateCaseTypes(caseTypes);
             return caseTypes.ToResultSet();
+        }
+
+        private void TranslateCaseTypes(List<CaseTypePartial> caseTypes) {
+            for (var i = 0; i < caseTypes.Count; i++) {
+                caseTypes[i] = caseTypes[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            }
         }
 
         private async Task<List<Guid>> GetCaseTypeIdsForCaseCreation(List<string> roleClaims) {

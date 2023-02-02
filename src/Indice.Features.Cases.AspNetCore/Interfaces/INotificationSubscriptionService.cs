@@ -1,40 +1,38 @@
-﻿using Indice.Features.Cases.Models.Responses;
+﻿using System.Security.Claims;
+using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Models.Responses;
 using Indice.Types;
 
 namespace Indice.Features.Cases.Interfaces
 {
     /// <summary>
-    /// Interface for the Case Type Notifications Subscriptions domain.
+    /// Interface for Notification Subscriptions domain.
     /// </summary>
     public interface INotificationSubscriptionService
     {
         /// <summary>
-        /// Get subscribers that have opted-in for notifications for their group.
+        /// Get the notification subscriptions for a user.
         /// </summary>
-        /// <param name="groupId">The Id of the group.</param>
+        /// <param name="user"></param>
+        /// <param name="options"></param>
         /// <returns></returns>
-        Task<IEnumerable<NotificationSubscription>> GetSubscribersByGroupId(string groupId);
+        Task<NotificationSubscriptionDTO> GetSubscriptions(ClaimsPrincipal user, ListOptions<NotificationFilter> options);
 
         /// <summary>
         /// Create a new notification subscription for a user and a groupId.
         /// <remarks>If a subscription already exists, this service will force delete the previous subscription.</remarks>
         /// </summary>
+        /// <param name="settings"></param>
         /// <param name="subscriber"></param>
         /// <returns></returns>
-        Task Subscribe(NotificationSubscription subscriber);
+        Task Subscribe(List<NotificationSubscriptionSetting> settings, NotificationSubscription subscriber);
 
         /// <summary>
-        /// Get the notification subscriptions for a user.
+        /// Get subscribers that have opted-in for notifications for their group.
         /// </summary>
-        /// <param name="options"></param>
+        /// <param name="caseTypeId">The case Type Id.</param>
+        /// <param name="groupId">The Id of the group.</param>
         /// <returns></returns>
-        Task<bool> GetSubscriptions(ListOptions<NotificationFilter> options);
-
-        /// <summary>
-        /// Remove all user subscriptions.
-        /// </summary>
-        /// <param name="criteria"></param>
-        /// <returns></returns>
-        Task Unsubscribe(NotificationFilter criteria);
+        Task<IEnumerable<NotificationSubscription>> GetSubscribers(Guid caseTypeId, string groupId);
     }
 }
