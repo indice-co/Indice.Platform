@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Indice.Serialization
 {
@@ -35,7 +36,12 @@ namespace Indice.Serialization
         /// <inheritdoc/>
         public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) {
             if (value?.GetType().Name is "JObject" or "JArray") {
-                var document = JsonDocument.Parse(value.ToString());
+                var json = value.ToString();
+                var regex = new Regex(@"\:\s?(\d+\.0)\s?(,|}|\n)");
+                json = regex.Replace(json, new MatchEvaluator(match => {
+                    return $":{match.Groups[1].Value.TrimEnd('0').TrimEnd('.')}{match.Groups[2].Value}";
+                }));
+                var document = JsonDocument.Parse(json);
                 value = document.RootElement.Clone();
             }
             JsonSerializer.Serialize(writer, value, value.GetType(), options);
