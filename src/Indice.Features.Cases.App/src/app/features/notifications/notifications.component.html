@@ -15,17 +15,17 @@
 
       <fieldset class="m-4 space-y-5">
         <div class="relative flex items-start"
-             *ngFor="let setting of notificationSubscriptionSettings">
+             *ngFor="let model of notificationSubscriptionViewModels">
           <div class="flex h-5 items-center">
-            <input id="id-{{setting.caseType?.id}}"
-                   name="name-{{setting.caseType?.id}}"
+            <input id="id-{{model.notificationSubscription?.caseTypeId}}"
+                   name="name-{{model.notificationSubscription?.caseTypeId}}"
                    type="checkbox"
                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                   [(ngModel)]="setting.subscribed">
+                   [(ngModel)]="model.subscribed">
           </div>
           <div class="ml-3 text-sm">
-            <label for="id-{{setting.caseType?.id}}"
-                   class="font-medium uppercase text-gray-700">{{setting.caseType?.title}}</label>
+            <label for="id-{{model.notificationSubscription?.caseTypeId}}"
+                   class="font-medium uppercase text-gray-700">{{model.title}}</label>
           </div>
         </div>
       </fieldset>

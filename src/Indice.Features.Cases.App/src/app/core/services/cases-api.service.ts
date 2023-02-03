@@ -228,14 +228,14 @@ export interface ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getMySubscriptions(api_version?: string | undefined): Observable<NotificationSubscriptionDTO>;
+    getMySubscriptions(api_version?: string | undefined): Observable<NotificationSubscriptionResponse>;
     /**
      * Store user's subscription settings.
      * @param api_version (optional) 
      * @param body (optional) 
      * @return No Content
      */
-    subscribe(api_version?: string | undefined, body?: NotificationSubscriptionDTO | undefined): Observable<void>;
+    subscribe(api_version?: string | undefined, body?: NotificationSubscriptionRequest | undefined): Observable<void>;
     /**
      * Get saved queries.
      * @param api_version (optional) 
@@ -342,11 +342,6 @@ export interface ICasesApiService {
      * @return No Content
      */
     submitMyCase(caseId: string, api_version?: string | undefined): Observable<void>;
-    /**
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getEGovKycIdentityCaseImage(caseId: string, api_version?: string | undefined): Observable<CaseImage>;
 }
 
 @Injectable({
@@ -3010,7 +3005,7 @@ export class CasesApiService implements ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getMySubscriptions(api_version?: string | undefined): Observable<NotificationSubscriptionDTO> {
+    getMySubscriptions(api_version?: string | undefined): Observable<NotificationSubscriptionResponse> {
         let url_ = this.baseUrl + "/api/manage/my/notifications?";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
@@ -3033,14 +3028,14 @@ export class CasesApiService implements ICasesApiService {
                 try {
                     return this.processGetMySubscriptions(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<NotificationSubscriptionDTO>;
+                    return _observableThrow(e) as any as Observable<NotificationSubscriptionResponse>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<NotificationSubscriptionDTO>;
+                return _observableThrow(response_) as any as Observable<NotificationSubscriptionResponse>;
         }));
     }
 
-    protected processGetMySubscriptions(response: HttpResponseBase): Observable<NotificationSubscriptionDTO> {
+    protected processGetMySubscriptions(response: HttpResponseBase): Observable<NotificationSubscriptionResponse> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3079,7 +3074,7 @@ export class CasesApiService implements ICasesApiService {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = NotificationSubscriptionDTO.fromJS(resultData200);
+            result200 = NotificationSubscriptionResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3087,7 +3082,7 @@ export class CasesApiService implements ICasesApiService {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<NotificationSubscriptionDTO>(null as any);
+        return _observableOf<NotificationSubscriptionResponse>(null as any);
     }
 
     /**
@@ -3096,7 +3091,7 @@ export class CasesApiService implements ICasesApiService {
      * @param body (optional) 
      * @return No Content
      */
-    subscribe(api_version?: string | undefined, body?: NotificationSubscriptionDTO | undefined): Observable<void> {
+    subscribe(api_version?: string | undefined, body?: NotificationSubscriptionRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/manage/my/notifications?";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
@@ -4389,79 +4384,6 @@ export class CasesApiService implements ICasesApiService {
         }
         return _observableOf<void>(null as any);
     }
-
-    /**
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getEGovKycIdentityCaseImage(caseId: string, api_version?: string | undefined): Observable<CaseImage> {
-        let url_ = this.baseUrl + "/case-details/{caseId}/e-gov-kyc-identity-image?";
-        if (caseId === undefined || caseId === null)
-            throw new Error("The parameter 'caseId' must be defined.");
-        url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
-        if (api_version === null)
-            throw new Error("The parameter 'api_version' cannot be null.");
-        else if (api_version !== undefined)
-            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetEGovKycIdentityCaseImage(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetEGovKycIdentityCaseImage(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<CaseImage>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<CaseImage>;
-        }));
-    }
-
-    protected processGetEGovKycIdentityCaseImage(response: HttpResponseBase): Observable<CaseImage> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CaseImage.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<CaseImage>(null as any);
-    }
 }
 
 /** The request that triggers an action. */
@@ -4984,46 +4906,6 @@ export interface ICaseAttachmentResultSet {
     count?: number;
     /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: CaseAttachment[] | undefined;
-}
-
-export class CaseImage implements ICaseImage {
-    data?: string | undefined;
-    mimeType?: string | undefined;
-
-    constructor(data?: ICaseImage) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.data = _data["data"];
-            this.mimeType = _data["mimeType"];
-        }
-    }
-
-    static fromJS(data: any): CaseImage {
-        data = typeof data === 'object' ? data : {};
-        let result = new CaseImage();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["data"] = this.data;
-        data["mimeType"] = this.mimeType;
-        return data;
-    }
-}
-
-export interface ICaseImage {
-    data?: string | undefined;
-    mimeType?: string | undefined;
 }
 
 /** The partial model of a case. */
@@ -6870,12 +6752,16 @@ export interface IMyCasePartialTranslation {
     title?: string | undefined;
 }
 
-/** The notification subscription DTO. */
-export class NotificationSubscriptionDTO implements INotificationSubscriptionDTO {
-    /** The notification subscription Settings. */
-    notificationSubscriptionSettings?: NotificationSubscriptionSetting[] | undefined;
+/** The notification subscription. */
+export class NotificationSubscription implements INotificationSubscription {
+    /** The notification subscription CaseType Id. */
+    caseTypeId?: string;
+    /** Subscriber email. */
+    email?: string | undefined;
+    /** Subscriber group Id. */
+    groupId?: string | undefined;
 
-    constructor(data?: INotificationSubscriptionDTO) {
+    constructor(data?: INotificationSubscription) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6886,45 +6772,44 @@ export class NotificationSubscriptionDTO implements INotificationSubscriptionDTO
 
     init(_data?: any) {
         if (_data) {
-            if (Array.isArray(_data["notificationSubscriptionSettings"])) {
-                this.notificationSubscriptionSettings = [] as any;
-                for (let item of _data["notificationSubscriptionSettings"])
-                    this.notificationSubscriptionSettings!.push(NotificationSubscriptionSetting.fromJS(item));
-            }
+            this.caseTypeId = _data["caseTypeId"];
+            this.email = _data["email"];
+            this.groupId = _data["groupId"];
         }
     }
 
-    static fromJS(data: any): NotificationSubscriptionDTO {
+    static fromJS(data: any): NotificationSubscription {
         data = typeof data === 'object' ? data : {};
-        let result = new NotificationSubscriptionDTO();
+        let result = new NotificationSubscription();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.notificationSubscriptionSettings)) {
-            data["notificationSubscriptionSettings"] = [];
-            for (let item of this.notificationSubscriptionSettings)
-                data["notificationSubscriptionSettings"].push(item.toJSON());
-        }
+        data["caseTypeId"] = this.caseTypeId;
+        data["email"] = this.email;
+        data["groupId"] = this.groupId;
         return data;
     }
 }
 
-/** The notification subscription DTO. */
-export interface INotificationSubscriptionDTO {
-    /** The notification subscription Settings. */
-    notificationSubscriptionSettings?: NotificationSubscriptionSetting[] | undefined;
+/** The notification subscription. */
+export interface INotificationSubscription {
+    /** The notification subscription CaseType Id. */
+    caseTypeId?: string;
+    /** Subscriber email. */
+    email?: string | undefined;
+    /** Subscriber group Id. */
+    groupId?: string | undefined;
 }
 
-/** The notification subscription setting. */
-export class NotificationSubscriptionSetting implements INotificationSubscriptionSetting {
-    caseType?: CaseTypePartial;
-    /** Indicates whether the user has subscribed to that particular subscription. */
-    subscribed?: boolean;
+/** The notification subscription Request. */
+export class NotificationSubscriptionRequest implements INotificationSubscriptionRequest {
+    /** The Ids of the CaseTypes that the User wants to subscribe to. */
+    caseTypeIds?: string[] | undefined;
 
-    constructor(data?: INotificationSubscriptionSetting) {
+    constructor(data?: INotificationSubscriptionRequest) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6935,31 +6820,84 @@ export class NotificationSubscriptionSetting implements INotificationSubscriptio
 
     init(_data?: any) {
         if (_data) {
-            this.caseType = _data["caseType"] ? CaseTypePartial.fromJS(_data["caseType"]) : <any>undefined;
-            this.subscribed = _data["subscribed"];
+            if (Array.isArray(_data["caseTypeIds"])) {
+                this.caseTypeIds = [] as any;
+                for (let item of _data["caseTypeIds"])
+                    this.caseTypeIds!.push(item);
+            }
         }
     }
 
-    static fromJS(data: any): NotificationSubscriptionSetting {
+    static fromJS(data: any): NotificationSubscriptionRequest {
         data = typeof data === 'object' ? data : {};
-        let result = new NotificationSubscriptionSetting();
+        let result = new NotificationSubscriptionRequest();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["caseType"] = this.caseType ? this.caseType.toJSON() : <any>undefined;
-        data["subscribed"] = this.subscribed;
+        if (Array.isArray(this.caseTypeIds)) {
+            data["caseTypeIds"] = [];
+            for (let item of this.caseTypeIds)
+                data["caseTypeIds"].push(item);
+        }
         return data;
     }
 }
 
-/** The notification subscription setting. */
-export interface INotificationSubscriptionSetting {
-    caseType?: CaseTypePartial;
-    /** Indicates whether the user has subscribed to that particular subscription. */
-    subscribed?: boolean;
+/** The notification subscription Request. */
+export interface INotificationSubscriptionRequest {
+    /** The Ids of the CaseTypes that the User wants to subscribe to. */
+    caseTypeIds?: string[] | undefined;
+}
+
+/** The notification subscription Response. */
+export class NotificationSubscriptionResponse implements INotificationSubscriptionResponse {
+    /** User's notification subscriptions. */
+    notificationSubscriptions?: NotificationSubscription[] | undefined;
+
+    constructor(data?: INotificationSubscriptionResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["notificationSubscriptions"])) {
+                this.notificationSubscriptions = [] as any;
+                for (let item of _data["notificationSubscriptions"])
+                    this.notificationSubscriptions!.push(NotificationSubscription.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): NotificationSubscriptionResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new NotificationSubscriptionResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.notificationSubscriptions)) {
+            data["notificationSubscriptions"] = [];
+            for (let item of this.notificationSubscriptions)
+                data["notificationSubscriptions"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** The notification subscription Response. */
+export interface INotificationSubscriptionResponse {
+    /** User's notification subscriptions. */
+    notificationSubscriptions?: NotificationSubscription[] | undefined;
 }
 
 export class ProblemDetails implements IProblemDetails {

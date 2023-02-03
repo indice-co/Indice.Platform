@@ -1,5 +1,5 @@
 ﻿using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Models.Requests;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -36,23 +36,26 @@ namespace Indice.Features.Cases.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NotificationSubscriptionDTO))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NotificationSubscriptionResponse))]
         public async Task<IActionResult> GetMySubscriptions() {
             var options = new ListOptions<NotificationFilter> {
                 Filter = NotificationFilter.FromUser(User, _casesApiOptions.GroupIdClaimType)
             };
-            var result = await _service.GetSubscriptions(User, options);
-            return Ok(result);
+            var result = await _service.GetSubscriptions(options);
+            return Ok(new NotificationSubscriptionResponse {
+                NotificationSubscriptions = result
+            });
         }
 
         /// <summary>
         /// Store user's subscription settings.
         /// </summary>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> Subscribe(NotificationSubscriptionDTO notificationSubscriptionDTO) {
-            await _service.Subscribe(notificationSubscriptionDTO.NotificationSubscriptionSettings, NotificationSubscription.FromUser(User, _casesApiOptions.GroupIdClaimType));
+        public async Task<IActionResult> Subscribe(NotificationSubscriptionRequest request) {
+            await _service.Subscribe(request.CaseTypeIds, NotificationSubscription.FromUser(User, _casesApiOptions.GroupIdClaimType));
             return NoContent();
         }
     }

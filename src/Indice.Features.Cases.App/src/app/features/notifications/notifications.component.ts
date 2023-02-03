@@ -1,8 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { ToasterService, ToastType } from "@indice/ng-components";
-import { EMPTY } from "rxjs";
+import { EMPTY, forkJoin } from "rxjs";
 import { tap, catchError } from "rxjs/operators";
-import { CasesApiService, NotificationSubscriptionDTO, NotificationSubscriptionSetting } from "src/app/core/services/cases-api.service";
+import { NotificationSubscriptionViewModel } from "src/app/core/models/NotificationSubscriptionsViewModel";
+import { CasesApiService, NotificationSubscription, NotificationSubscriptionRequest } from "src/app/core/services/cases-api.service";
 
 @Component({
     selector: 'app-notifications',
@@ -10,7 +11,7 @@ import { CasesApiService, NotificationSubscriptionDTO, NotificationSubscriptionS
     styleUrls: ['./notifications.component.scss']
 })
 export class NotificationsComponent implements OnInit {
-    public notificationSubscriptionSettings: NotificationSubscriptionSetting[] | undefined;
+    public notificationSubscriptionViewModels: NotificationSubscriptionViewModel[] = [];
     public formSubmitting: boolean = false;
     public loading: boolean = false;
 
@@ -19,18 +20,37 @@ export class NotificationsComponent implements OnInit {
 
     public ngOnInit(): void {
         this.loading = true;
-        this._api.getMySubscriptions()
-            .pipe(
-                tap((response: NotificationSubscriptionDTO) => {
-                    this.notificationSubscriptionSettings = response.notificationSubscriptionSettings;
-                    this.loading = false;
-                }))
-            .subscribe();
+        forkJoin({
+            getMySubscriptions: this._api.getMySubscriptions(),
+            getCaseTypes: this._api.getCaseTypes()
+        })
+            .subscribe(({ getMySubscriptions, getCaseTypes }) => {
+                // add active subscriptions
+                getMySubscriptions.notificationSubscriptions?.forEach(sub => {
+                    this.notificationSubscriptionViewModels?.push(new NotificationSubscriptionViewModel(sub, true));
+                });
+                // add inactive subscriptions
+                getCaseTypes.items?.forEach(caseType => {
+                    let subscription = this.notificationSubscriptionViewModels?.find(x => x.notificationSubscription?.caseTypeId === caseType.id)
+                    if (!subscription) {
+                        subscription = new NotificationSubscriptionViewModel(new NotificationSubscription({ caseTypeId: caseType.id }), false);
+                        this.notificationSubscriptionViewModels?.push(subscription);
+                    }
+                    subscription.title = caseType.title;
+                });
+                this.loading = false;
+            });
     }
 
     public onSubmit(): void {
         this.formSubmitting = true;
-        this._api.subscribe(undefined, new NotificationSubscriptionDTO({ notificationSubscriptionSettings: this.notificationSubscriptionSettings })).pipe(
+        let caseTypeIds: string[] = [];
+        this.notificationSubscriptionViewModels?.forEach(x => {
+            if (x.subscribed) {
+                caseTypeIds.push(x.notificationSubscription?.caseTypeId!);
+            }
+        });
+        this._api.subscribe(undefined, new NotificationSubscriptionRequest({ caseTypeIds: caseTypeIds })).pipe(
             tap(_ => {
                 this.formSubmitting = false;
                 const message = `Οι ρυθμίσεις σας αποθηκεύτηκαν επιτυχώς`;

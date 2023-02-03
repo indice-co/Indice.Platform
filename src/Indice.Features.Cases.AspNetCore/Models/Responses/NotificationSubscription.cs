@@ -9,6 +9,11 @@ namespace Indice.Features.Cases.Models.Responses;
 public class NotificationSubscription
 {
     /// <summary>
+    /// The notification subscription CaseType Id.
+    /// </summary>
+    public Guid CaseTypeId { get; set; }
+
+    /// <summary>
     /// Subscriber email.
     /// </summary>
     public string Email { get; set; }
