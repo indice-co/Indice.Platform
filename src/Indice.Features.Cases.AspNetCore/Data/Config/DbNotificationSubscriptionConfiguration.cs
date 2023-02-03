@@ -11,7 +11,7 @@ namespace Indice.Features.Cases.Data.Config
             builder
                 .ToTable("NotificationSubscription");
             builder
-                .HasIndex(p => new { p.CaseTypeId, p.Email });
+                .HasIndex(p => p.Email);
             builder
                 .Property(p => p.GroupId)
                 .HasMaxLength(TextSizePresets.M128);
