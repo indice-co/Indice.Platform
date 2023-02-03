@@ -18,5 +18,13 @@ namespace Indice.Features.Messages.Worker
         public string DatabaseSchema { get; set; } = MessagesApi.DatabaseSchema;
         /// <summary>Represents a set of key/value application configuration properties.</summary>
         public IConfiguration Configuration { get; internal set; }
+        /// <summary>
+        /// Specifies the time interval between two attempts to dequeue new items. Defaults to 300 milliseconds.
+        /// </summary>
+        public double QueuePollingInterval { get; set; } = 300;
+        /// <summary>
+        /// Specifies the maximum time interval between two attempts to dequeue new items. Used as a back-off strategy threshold. Defaults to 5000 milliseconds.
+        /// </summary>
+        public double QueueMaxPollingInterval { get; set; } = 5000;
     }
 }
