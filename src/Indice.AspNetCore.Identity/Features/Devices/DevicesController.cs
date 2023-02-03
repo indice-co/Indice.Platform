@@ -158,7 +158,7 @@ namespace Indice.AspNetCore.Identity.Api
             }
             var shouldEnablePushNotifications = !string.IsNullOrWhiteSpace(request.PnsHandle);
             var shouldUnRegisterDevice = device.IsPushNotificationsEnabled && !shouldEnablePushNotifications;
-            var shouldRegisterDevice = (!device.IsPushNotificationsEnabled && shouldEnablePushNotifications) || device.PnsHandle != request.PnsHandle;
+            var shouldRegisterDevice = (!device.IsPushNotificationsEnabled && shouldEnablePushNotifications) || (device.PnsHandle != request.PnsHandle && shouldEnablePushNotifications);
             try {
                 if (shouldUnRegisterDevice) {
                     await PushNotificationService.UnRegister(device.Id.ToString());
