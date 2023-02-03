@@ -7,7 +7,6 @@
         public Guid CaseTypeId { get; set; }
         public string Email { get; set; }
         public string GroupId { get; set; }
-        public virtual DbCaseType CaseType { get; set; }
     }
 #pragma warning restore 1591
 }

@@ -53,12 +53,11 @@ export class NotificationsComponent implements OnInit {
         this._api.subscribe(undefined, new NotificationSubscriptionRequest({ caseTypeIds: caseTypeIds })).pipe(
             tap(_ => {
                 this.formSubmitting = false;
-                const message = `Οι ρυθμίσεις σας αποθηκεύτηκαν επιτυχώς`;
-                this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', message);
+                this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Οι ρυθμίσεις σας αποθηκεύτηκαν επιτυχώς.`, 5000);
             }),
             catchError(() => {
                 this.formSubmitting = false;
-                this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Η εγγραφή στις ειδοποιήσεις απέτυχε`, 6000);
+                this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Δεν κατέστη εφικτή η αποθήκευση των ρυθμίσεών σας.`, 5000);
                 return EMPTY;
             })
         ).subscribe();
