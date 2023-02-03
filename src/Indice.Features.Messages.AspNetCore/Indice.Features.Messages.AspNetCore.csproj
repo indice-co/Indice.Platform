@@ -14,9 +14,6 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\icon\icon-310.png" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Features.Multitenancy.AspNetCore\Indice.Features.Multitenancy.AspNetCore.csproj" />

@@ -27,7 +27,7 @@ namespace Indice.Features.Cases.Data.Config
                 .IsRequired();
             builder
                 .Property(p => p.Description)
-                .HasMaxLength(TextSizePresets.M128)
+                .HasMaxLength(TextSizePresets.M256)
                 .IsRequired(false);
             builder
                 .Property(p => p.Translations);

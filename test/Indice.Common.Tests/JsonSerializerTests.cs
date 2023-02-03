@@ -217,6 +217,19 @@ namespace Indice.Common.Tests
             RoundtripSerialize(new PocoValue<TimeSpan?>(), options);
         }
 
+        [Fact]
+        public void Number_MustDeserialize_Int() {
+            var options = new JsonSerializerOptions {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            options.Converters.Add(new JsonFloatToInt32Converter());
+
+            var data = "{ \"year\": 2020.0 }";
+            var obj = JsonSerializer.Deserialize<FloatingIntegerIssue>(data, options);
+
+            Assert.Equal(2020, obj.Year);
+        }
+
         [Fact(Skip = "Not ready")]
         public void DateTime_UTC_JsonSupport() {
             var options = new JsonSerializerOptions {
@@ -317,6 +330,11 @@ namespace Indice.Common.Tests
             public MusicGenre Genre { get; set; }
             public string Artist { get; set; }
             public DateTimeOffset ReleaseDate { get; set; }
+        }
+
+        public class FloatingIntegerIssue
+        {
+            public int Year { get; set; }
         }
 
         public class MusicLibrary
