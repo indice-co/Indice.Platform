@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using IdentityServer4.Extensions;
+﻿using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+using Indice.Extensions;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.DeviceAuthentication.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Services;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
-using Indice.Configuration;
-using Indice.Extensions;
+using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
+using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Indice.Features.Identity.Core.Models;
-using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 
 namespace Indice.Features.Identity.Core.Grants
 {

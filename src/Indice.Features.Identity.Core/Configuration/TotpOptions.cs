@@ -1,6 +1,6 @@
 ﻿using System.Security;
 
-namespace Indice.Configuration
+namespace Indice.Features.Identity.Core.Configuration
 {
     /// <summary>Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</summary>
     public class TotpOptions

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Indice.Features.Identity.Core.Models;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Models

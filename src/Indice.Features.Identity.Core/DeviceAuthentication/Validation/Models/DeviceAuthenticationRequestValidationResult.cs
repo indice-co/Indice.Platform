@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using IdentityServer4.Models;
+﻿using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Indice.Features.Identity.Core.Models;
 

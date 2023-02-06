@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Indice.Features.Identity.Core.Models
+﻿namespace Indice.Features.Identity.Core.Models
 {
     /// <summary>Models an application user when API provides info for a single user.</summary>
     public class SingleUserInfo : BasicUserInfo
@@ -107,9 +103,7 @@ namespace Indice.Features.Identity.Core.Models
             UserName = user.UserName
         };
 
-        /// <summary>
-        /// Converts a type of <see cref="User"/> to <see cref="BasicUserInfo"/>.
-        /// </summary>
+        /// <summary>Converts a type of <see cref="User"/> to <see cref="BasicUserInfo"/>.</summary>
         /// <param name="user">The instance to convert.</param>
         /// <returns>A new instance of <see cref="BasicUserInfo"/>.</returns>
         public static SingleUserInfo ToSingleUserInfo(this User user) => new() {

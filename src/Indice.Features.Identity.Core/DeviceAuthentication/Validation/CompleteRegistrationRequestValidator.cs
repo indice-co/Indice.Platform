@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Specialized;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
-using Indice.Features.Identity.Core.Models;
+using Indice.Extensions;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.DeviceAuthentication.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
-using Indice.Configuration;
-using Indice.Extensions;
+using Indice.Features.Identity.Core.Models;
+using Indice.Features.Identity.Core.Totp;
 using Indice.Security;
-using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
-using Indice.Features.Identity.Core.Totp;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Validation
 {

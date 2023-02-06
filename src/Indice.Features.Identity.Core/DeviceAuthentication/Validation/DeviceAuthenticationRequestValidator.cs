@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Specialized;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
-using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
+using Indice.Features.Identity.Core.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Validation

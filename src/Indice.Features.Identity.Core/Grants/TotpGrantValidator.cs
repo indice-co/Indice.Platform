@@ -1,10 +1,10 @@
 ﻿using System.Security.Claims;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Models;
-using Indice.Configuration;
-using Indice.Security;
 using Indice.Features.Identity.Core.Totp;
+using Indice.Security;
 
 namespace Indice.Features.Identity.Core.Grants
 {

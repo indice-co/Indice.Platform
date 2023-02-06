@@ -1,7 +1,8 @@
-﻿using Indice.Features.Identity.Core.Models;
-using Indice.Extensions.Configuration.Database;
+﻿using Indice.Extensions.Configuration.Database;
 using Indice.Extensions.Configuration.Database.Data;
 using Indice.Extensions.Configuration.Database.Data.Models;
+using Indice.Features.Identity.Core.Data.Mappings;
+using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

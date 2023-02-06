@@ -1,20 +1,14 @@
-﻿using System;
-using System.Linq;
-using IdentityServer4.Services;
+﻿using IdentityServer4.Services;
 using Indice.Features.Identity.Core.Scopes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    /// <summary>
-    /// Dependency Injection Configuration extensions
-    /// </summary>
+    /// <summary>Dependency Injection Configuration extensions</summary>
     public static class ParsedScopeConfiguration
     {
-        /// <summary>
-        /// Adds the scope metadata endpoint that will resolve the scope display name/description. Default configuration.
-        /// </summary>
+        /// <summary>Adds the scope metadata endpoint that will resolve the scope display name/description. Default configuration.</summary>
         /// <typeparam name="TScopeMetadataService">The type of provided implementation of <see cref="IParsedScopeMetadataService"/>.</typeparam>
         /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>
         /// <param name="configureAction">Configures options for <see cref="IParsedScopeMetadataService"/>.</param>
@@ -37,9 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
-        /// <summary>
-        /// Adds the required services in order to notify the consumer about scopes that have been revoked or granted.
-        /// </summary>
+        /// <summary>Adds the required services in order to notify the consumer about scopes that have been revoked or granted.</summary>
         /// <typeparam name="TParsedScopeNotificationService">The type of provided implementation of <see cref="IParsedScopeNotificationService"/>.</typeparam>
         /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>
         /// <param name="configureAction">Configures options for <see cref="IParsedScopeNotificationService"/>.</param>
@@ -64,9 +56,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
-        /// <summary>
-        /// Adds parsed scope notifications support to the current consent service.
-        /// </summary>
+        /// <summary>Adds parsed scope notifications support to the current consent service.</summary>
         /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>
         private static IIdentityServerBuilder AddConsentServiceWithParsedScopeNotifications(this IIdentityServerBuilder builder) {
             var implementation = builder.Services.Where(x => x.ServiceType == typeof(IConsentService)).LastOrDefault()?.ImplementationType;
@@ -78,9 +68,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
-        /// <summary>
-        /// Adds parsed scope notifications support to the current persisted grant service.
-        /// </summary>
+        /// <summary>Adds parsed scope notifications support to the current persisted grant service.</summary>
         /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>
         private static IIdentityServerBuilder AddPersistedGrantServiceWithParsedScopeNotifications(this IIdentityServerBuilder builder) {
             var implementation = builder.Services.Where(x => x.ServiceType == typeof(IPersistedGrantService)).LastOrDefault()?.ImplementationType;

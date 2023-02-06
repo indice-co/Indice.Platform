@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Indice.Features.Identity.Core.Models;
+﻿using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.Features.Identity.Core

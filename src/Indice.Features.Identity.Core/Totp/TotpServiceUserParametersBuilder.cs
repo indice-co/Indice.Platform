@@ -1,5 +1,4 @@
-﻿using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text.Json;
 using Indice.Features.Identity.Core.Models;
 using Indice.Serialization;

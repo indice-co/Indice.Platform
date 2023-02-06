@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.Services;
+﻿using Indice.Services;
 
 namespace Indice.Features.Identity.Core.Totp
 {

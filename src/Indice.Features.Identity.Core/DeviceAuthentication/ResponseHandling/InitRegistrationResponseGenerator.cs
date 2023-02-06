@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using IdentityServer4.Models;
+﻿using IdentityServer4.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;

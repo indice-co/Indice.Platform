@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Indice.Features.Identity.Core.Models;
+﻿using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
@@ -75,9 +70,7 @@ namespace Indice.Features.Identity.Core.PasswordValidation
         Task<bool> ContainsAsync(string password, CancellationToken cancellationToken = default);
     }
 
-    /// <summary>
-    /// A provider for <see cref="NonCommonPasswordValidator"/> that contains a hard-coded list of blacklisted passwords that the user cannot use.
-    /// </summary>
+    /// <summary>A provider for <see cref="NonCommonPasswordValidator"/> that contains a hard-coded list of blacklisted passwords that the user cannot use.</summary>
     public class DefaultPasswordBlacklistProvider : IPasswordBlacklistProvider
     {
         /// <summary>Gets a list containing passwords to blacklist.</summary>
@@ -91,9 +84,7 @@ namespace Indice.Features.Identity.Core.PasswordValidation
         public Task<bool> ContainsAsync(string password, CancellationToken cancellationToken = default) => Task.FromResult(Blacklist.Contains(password));
     }
 
-    /// <summary>
-    /// A provider for <see cref="NonCommonPasswordValidator"/> that gets a list of blacklisted passwords from either 'IdentityOptions:Password:Blacklist' or 'PasswordOptions:Blacklist' option.
-    /// </summary>
+    /// <summary>A provider for <see cref="NonCommonPasswordValidator"/> that gets a list of blacklisted passwords from either 'IdentityOptions:Password:Blacklist' or 'PasswordOptions:Blacklist' option.</summary>
     public class ConfigPasswordBlacklistProvider : IPasswordBlacklistProvider
     {
 

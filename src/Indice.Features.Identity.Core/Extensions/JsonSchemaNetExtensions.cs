@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Json.Schema.Generation;
-using Json.Schema;
-using System.Linq;
+﻿using System.Text.Json;
 using Json.More;
 using Json.Pointer;
+using Json.Schema;
+using Json.Schema.Generation;
 using Json.Schema.Generation.Generators;
-using System.Text.Json;
 
-namespace Indice.Extensions
+namespace Indice.Features.Identity.Core.Extensions
 {
-    /// <summary>
-    /// Extensions related to <see cref="JsonSchema"/>
-    /// </summary>
+    /// <summary>Extensions related to <see cref="JsonSchema"/></summary>
     public static class JsonSchemaNetExtensions
     {
-        /// <summary>
-        /// Generates JSON schema for a given C# class using a new untested library :)
-        /// </summary>
+        /// <summary>Generates JSON schema for a given C# class using a new untested library :)</summary>
         /// <param name="type">Class type</param>
         /// <returns>A string containing JSON schema for a given class type.</returns>
         public static JsonSchema ToJsonSchema(this Type type) {
@@ -31,9 +23,7 @@ namespace Indice.Extensions
             return schema;
         }
 
-        /// <summary>
-        /// Serializes a JSON schema to element.
-        /// </summary>
+        /// <summary>Serializes a JSON schema to element.</summary>
         /// <param name="schema">Class type</param>
         /// <returns>A string containing JSON schema for a given class type.</returns>
         public static JsonElement AsJsonElement(this JsonSchema schema) {

@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Bogus;
+﻿using Bogus;
 using IdentityModel;
 using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.Features.Identity.Core.Data
 {
-    /// <summary>
-    /// Provides functionality to generate test users for development purposes.
-    /// </summary>
+    /// <summary>Provides functionality to generate test users for development purposes.</summary>
     internal class InitialUsers<TUser> where TUser : User
     {
         private const int DefaultNumberOfUsers = 100;
@@ -46,9 +41,7 @@ namespace Indice.Features.Identity.Core.Data
             .RuleFor(x => x.NormalizedEmail, (faker, user) => user.Email.ToUpper())
             .RuleFor(x => x.NormalizedUserName, (faker, user) => user.Email.ToUpper());
 
-        /// <summary>
-        /// Gets a collection of test users.
-        /// </summary>
+        /// <summary>Gets a collection of test users.</summary>
         /// <param name="numberOfUsers">The number of test users to generate. Default is 100.</param>
         public static IReadOnlyCollection<TUser> Get(int? numberOfUsers = null) {
             var random = new Random(1);

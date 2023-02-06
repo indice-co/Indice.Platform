@@ -1,7 +1,7 @@
 ﻿using System.Dynamic;
 using System.Security.Claims;
 using System.Text.Json;
-using Indice.Configuration;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Models;
 using Indice.Serialization;
 using Indice.Services;

@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Indice.Features.Identity.Core.Models
+﻿namespace Indice.Features.Identity.Core.Models
 {
-    /// <summary><see cref="PasswordExpirationPolicy"/> enum defines all available passord expiration presets. The value is measured in days. If cast to integer will give you a number in days to add to the current <seealso cref="DateTime"/>.</summary>
+    /// <summary><see cref="PasswordExpirationPolicy"/> enum defines all available password expiration presets. The value is measured in days. If cast to integer will give you a number in days to add to the current <seealso cref="DateTime"/>.</summary>
     public enum PasswordExpirationPolicy
     {
         /// <summary>The password never expires.</summary>

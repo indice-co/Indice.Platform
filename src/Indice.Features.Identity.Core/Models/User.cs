@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Indice.Security;
+﻿using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.Features.Identity.Core.Models

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling
+﻿namespace Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling
 {
     internal interface IResponseGenerator<TResult, TResponse> 
         where TResult : class

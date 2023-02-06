@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Indice.Features.Identity.Core.Models;
+﻿using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
@@ -15,21 +11,15 @@ namespace Indice.Features.Identity.Core.PasswordValidation
         public UserNameAsPasswordValidator(IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(configuration, messageDescriber) { }
     }
 
-    /// <summary>
-    /// A validator that checks if the username is identical to the password for a given number of characters.
-    /// </summary>
+    /// <summary>A validator that checks if the username is identical to the password for a given number of characters.</summary>
     /// <typeparam name="TUser">The type of user instance.</typeparam>
     public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
         private readonly IdentityMessageDescriber _messageDescriber;
-        /// <summary>
-        /// The code used when describing the <see cref="IdentityError"/>.
-        /// </summary>
+        /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>
         public const string ErrorDescriber = "PasswordContainsUserName";
 
-        /// <summary>
-        /// Creates a new instance of <see cref="UserNameAsPasswordValidator"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="UserNameAsPasswordValidator"/>.</summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
         public UserNameAsPasswordValidator(IConfiguration configuration, IdentityMessageDescriber messageDescriber) {
@@ -38,9 +28,7 @@ namespace Indice.Features.Identity.Core.PasswordValidation
                                        configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(MaxAllowedUserNameSubset));
         }
 
-        /// <summary>
-        /// Τhe maximum number of identical characters that can be simultaneously in the username and password.
-        /// </summary>
+        /// <summary>Τhe maximum number of identical characters that can be simultaneously in the username and password.</summary>
         public int? MaxAllowedUserNameSubset { get; }
 
         /// <inheritdoc/>

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Indice.Extensions;
+﻿using Indice.Extensions;
 using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -15,21 +12,15 @@ namespace Indice.Features.Identity.Core.PasswordValidation
         public UnicodeCharactersPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) : base(messageDescriber, configuration) { }
     }
 
-    /// <summary>
-    /// A validator that checks that the letters contained in the password are only latin English characters.
-    /// </summary>
+    /// <summary>A validator that checks that the letters contained in the password are only latin English characters.</summary>
     /// <typeparam name="TUser">The type of user instance.</typeparam>
     public class UnicodeCharactersPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
     {
         private readonly IdentityMessageDescriber _messageDescriber;
-        /// <summary>
-        /// The code used when describing the <see cref="IdentityError"/>.
-        /// </summary>
+        /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>
         public const string ErrorDescriber = "PasswordContainsNonUnicodeCharacters";
 
-        /// <summary>
-        /// Creates a new instance of <see cref="UnicodeCharactersPasswordValidator"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="UnicodeCharactersPasswordValidator"/>.</summary>
         /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
         public UnicodeCharactersPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) {
@@ -38,9 +29,7 @@ namespace Indice.Features.Identity.Core.PasswordValidation
                                      configuration.GetSection(nameof(PasswordOptions)).GetValue<bool?>(nameof(AllowUnicodeCharacters));
         }
 
-        /// <summary>
-        /// Indicates whether to allow non-latin characters to be included in the password. Defaults to false.
-        /// </summary>
+        /// <summary>Indicates whether to allow non-latin characters to be included in the password. Defaults to false.</summary>
         public bool? AllowUnicodeCharacters { get; }
 
         /// <inheritdoc/>

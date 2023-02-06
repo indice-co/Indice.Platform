@@ -1,9 +1,7 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Security;
 using System.Text;
-using System.Threading.Tasks;
-using Indice.Configuration;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Services;
 using Microsoft.Extensions.Localization;
 

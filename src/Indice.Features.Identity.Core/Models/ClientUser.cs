@@ -2,22 +2,14 @@
 
 namespace Indice.Features.Identity.Core.Models
 {
-    /// <summary>
-    /// Describes the relationship between a client and a user.
-    /// </summary>
+    /// <summary>Describes the relationship between a client and a user.</summary>
     public class ClientUser
     {
-        /// <summary>
-        /// The id of the user.
-        /// </summary>
+        /// <summary>The id of the user.</summary>
         public string UserId { get; set; }
-        /// <summary>
-        /// The id of the client.
-        /// </summary>
+        /// <summary>The id of the client.</summary>
         public int ClientId { get; set; }
-        /// <summary>
-        /// The client object associated with the user.
-        /// </summary>
+        /// <summary>The client object associated with the user.</summary>
         public virtual Client Client { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Indice.Features.Identity.Core.DeviceAuthentication.Models;
+﻿using Indice.Features.Identity.Core.DeviceAuthentication.Models;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Stores
 {

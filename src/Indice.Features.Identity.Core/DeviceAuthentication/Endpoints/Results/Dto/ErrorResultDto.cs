@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Endpoints.Results
 {

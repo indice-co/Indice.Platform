@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using IdentityServer4.Extensions;
+﻿using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;

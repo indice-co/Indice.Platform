@@ -1,34 +1,20 @@
-﻿using System;
-
-namespace Indice.Features.Identity.Core.Models
+﻿namespace Indice.Features.Identity.Core.Models
 {
-    /// <summary>
-    /// A user password hashed stored for password history validation purposes.
-    /// </summary>
+    /// <summary>A user password hashed stored for password history validation purposes.</summary>
     public class UserPassword
     {
-        /// <summary>
-        /// Constructs a new instance of <see cref="UserPassword"/> with a new Guid Id.
-        /// </summary>
+        /// <summary>Constructs a new instance of <see cref="UserPassword"/> with a new Guid Id.</summary>
         public UserPassword() {
             Id = Guid.NewGuid();
         }
 
-        /// <summary>
-        /// The primary key.
-        /// </summary>
+        /// <summary>The primary key.</summary>
         public Guid Id { get; set; }
-        /// <summary>
-        /// The user id related.
-        /// </summary>
+        /// <summary>The user id related.</summary>
         public string UserId { get; set; }
-        /// <summary>
-        /// Password hash.
-        /// </summary>
+        /// <summary>Password hash.</summary>
         public string PasswordHash { get; set; }
-        /// <summary>
-        /// The date this password was created.
-        /// </summary>
+        /// <summary>The date this password was created.</summary>
         public DateTimeOffset DateCreated { get; set; }
     }
 }

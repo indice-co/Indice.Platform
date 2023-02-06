@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using IdentityModel;
+﻿using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core.Models;
@@ -8,18 +6,14 @@ using Indice.Security;
 
 namespace Indice.Features.Identity.Core
 {
-    /// <summary>
-    /// Extends the implementation of <see cref="IProfileService"/> and validates the user based on ASP.NET Identity and custom rules.
-    /// </summary>
+    /// <summary>Extends the implementation of <see cref="IProfileService"/> and validates the user based on ASP.NET Identity and custom rules.</summary>
     /// <typeparam name="TInner">The type is decorated.</typeparam>
     public class ExtendedProfileService<TInner> : IProfileService where TInner : IProfileService
     {
         private readonly IProfileService _inner;
         private readonly ExtendedUserManager<User> _userManager;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="ExtendedProfileService{TUser}"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ExtendedProfileService{TUser}"/>.</summary>
         /// <param name="profileService"> This interface allows IdentityServer to connect to your user and profile store.</param>
         /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
         public ExtendedProfileService(TInner profileService, ExtendedUserManager<User> userManager) {

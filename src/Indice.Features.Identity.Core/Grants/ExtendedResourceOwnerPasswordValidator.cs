@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using IdentityServer4.Models;
+﻿using IdentityServer4.Models;
 using IdentityServer4.Validation;
-using Indice.Configuration;
-using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.Models;
 using Microsoft.Extensions.Logging;

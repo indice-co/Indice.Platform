@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Indice.Features.Identity.Core.Models;
+﻿using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Stores
 {
-    /// <summary>
-    /// An implementation of <see cref="IUserDeviceStore"/> that stores user devices in-memory.
-    /// </summary>
+    /// <summary>An implementation of <see cref="IUserDeviceStore"/> that stores user devices in-memory.</summary>
     public class UserDeviceStoreInMemory : IUserDeviceStore
     {
         private readonly IList<UserDevice> _userDevices = new List<UserDevice>();

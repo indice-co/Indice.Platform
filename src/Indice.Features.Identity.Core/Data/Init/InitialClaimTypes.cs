@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Humanizer;
+﻿using Humanizer;
 using IdentityModel;
 using Indice.Features.Identity.Core.Models;
 using ValueType = Indice.Features.Identity.Core.Models.ValueType;
 
 namespace Indice.Features.Identity.Core.Data
 {
-    /// <summary>
-    /// Provides functionality to generate test claim types for development purposes.
-    /// </summary>
+    /// <summary>Provides functionality to generate test claim types for development purposes.</summary>
     internal class InitialClaimTypes
     {
         private static readonly List<ClaimType> ClaimTypes = new() {
@@ -33,9 +29,7 @@ namespace Indice.Features.Identity.Core.Data
             new ClaimType { Id = $"{Guid.NewGuid()}", Name = JwtClaimTypes.ZoneInfo, DisplayName = nameof(JwtClaimTypes.ZoneInfo).Humanize(), Reserved = true, Required = false, UserEditable = true, ValueType = ValueType.String, Description = "String from the time zone database (http://www.twinsun.com/tz/tz-link.htm) representing the End-User's time zone. For example, Europe/Paris or America/Los_Angeles." }
         };
 
-        /// <summary>
-        /// Gets a collection of test claim types.
-        /// </summary>
+        /// <summary>Gets a collection of test claim types.</summary>
         public static IReadOnlyCollection<ClaimType> Get() => ClaimTypes;
     }
 }

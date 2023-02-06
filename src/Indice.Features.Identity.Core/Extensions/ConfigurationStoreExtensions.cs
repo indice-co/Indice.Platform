@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using IdentityServer4.EntityFramework.DbContexts;
+﻿using IdentityServer4.EntityFramework.DbContexts;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Builder;
 #if NET7_0_OR_GREATER
@@ -11,14 +9,10 @@ using IdentityServer4.EntityFramework.Mappers;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    /// <summary>
-    /// Extensions on type <see cref="IApplicationBuilder"/>.
-    /// </summary>
-    public static class ConfigurationExtensions
+    /// <summary>Extensions on type <see cref="IApplicationBuilder"/>.</summary>
+    public static class ConfigurationStoreExtensions
     {
-        /// <summary>
-        /// Setup the IdentityServer stores for clients as well as API and identity resources.
-        /// </summary>
+        /// <summary>Setup the IdentityServer stores for clients as well as API and identity resources.</summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="clients">The list of predefined clients.</param>
         /// <param name="identityResources">The list of predefined identity resources.</param>
@@ -38,9 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return app;
         }
 
-        /// <summary>
-        /// Setup the IdentityServer stores for clients as well as API and identity resources.
-        /// </summary>
+        /// <summary>Setup the IdentityServer stores for clients as well as API and identity resources.</summary>
         /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="clients">The list of predefined clients.</param>
         /// <param name="identityResources">The list of predefined identity resources.</param>

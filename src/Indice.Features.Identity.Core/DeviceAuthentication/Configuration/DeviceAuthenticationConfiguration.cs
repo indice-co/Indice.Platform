@@ -1,17 +1,16 @@
-﻿using System;
-using Indice.Features.Identity.Core.Grants;
+﻿using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.DeviceAuthentication.Endpoints;
 using Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling;
 using Indice.Features.Identity.Core.DeviceAuthentication.Services;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
+using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Grants;
+using Indice.Features.Identity.Core.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Indice.Features.Identity.Core;
-using Indice.Features.Identity.Core.Events;
-using Indice.Features.Identity.Core.Models;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

@@ -1,4 +1,4 @@
-﻿namespace Indice.Configuration
+﻿namespace Indice.Features.Identity.Core.Configuration
 {
     /// <summary>Constant values for TOTP services.</summary>
     public static class TotpConstants

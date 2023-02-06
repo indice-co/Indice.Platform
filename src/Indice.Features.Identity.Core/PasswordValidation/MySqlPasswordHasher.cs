@@ -13,9 +13,7 @@ namespace Indice.Features.Identity.Core.PasswordValidation
     /// <typeparam name="TUser"></typeparam>
     public class MySqlPasswordHasher<TUser> : PasswordHasher<TUser> where TUser : class
     {
-        /// <summary>
-        /// constructs the PasswordHasher
-        /// </summary>
+        /// <summary>constructs the PasswordHasher</summary>
         /// <param name="optionsAccessor"></param>
         public MySqlPasswordHasher(IOptions<PasswordHasherOptions> optionsAccessor = null) : base(optionsAccessor) {
         }

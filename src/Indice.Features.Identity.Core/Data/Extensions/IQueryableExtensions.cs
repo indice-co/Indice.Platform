@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Indice.Features.Identity.Core.Models;
+﻿using Indice.Features.Identity.Core.Models;
 
 namespace Indice.Features.Identity.Core.Data.Extensions
 {

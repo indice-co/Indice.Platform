@@ -1,7 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Models;
-using Indice.Features.Identity.Core.Events;
 using Indice.Services;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Services

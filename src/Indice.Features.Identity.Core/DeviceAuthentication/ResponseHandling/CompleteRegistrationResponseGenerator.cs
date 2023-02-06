@@ -1,10 +1,7 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Indice.Features.Identity.Core.Models;
-using Indice.Features.Identity.Core.DeviceAuthentication.Services;
+﻿using Indice.Features.Identity.Core.DeviceAuthentication.Services;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
+using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 

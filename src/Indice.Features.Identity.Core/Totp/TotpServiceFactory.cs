@@ -1,5 +1,5 @@
 ﻿using System.Security;
-using Indice.Configuration;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Models;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection;

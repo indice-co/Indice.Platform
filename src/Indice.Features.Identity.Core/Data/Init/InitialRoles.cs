@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Indice.Features.Identity.Core.Models;
+﻿using Indice.Features.Identity.Core.Models;
 using Indice.Security;
 
 namespace Indice.Features.Identity.Core.Data
 {
-    /// <summary>
-    /// Provides functionality to generate test claim types for development purposes.
-    /// </summary>
+    /// <summary>Provides functionality to generate test claim types for development purposes.</summary>
     internal class InitialRoles<TRole> where TRole : Role, new()
     {
         private static readonly List<TRole> Roles = new() {
@@ -55,9 +51,7 @@ namespace Indice.Features.Identity.Core.Data
             }
         };
 
-        /// <summary>
-        /// Gets a collection of test claim types.
-        /// </summary>
+        /// <summary>Gets a collection of test claim types.</summary>
         public static IReadOnlyCollection<TRole> Get() => Roles;
     }
 }

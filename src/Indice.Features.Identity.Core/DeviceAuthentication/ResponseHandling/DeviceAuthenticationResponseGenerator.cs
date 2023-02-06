@@ -1,6 +1,4 @@
-﻿using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Models;

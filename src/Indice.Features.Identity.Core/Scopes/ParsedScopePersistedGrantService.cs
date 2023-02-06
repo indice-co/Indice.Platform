@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using IdentityServer4;
+﻿using IdentityServer4;
 using IdentityServer4.EntityFramework.Interfaces;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
@@ -12,9 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Identity.Core.Scopes
 {
-    /// <summary>
-    /// Parsed scopes notifications decorator for <see cref="IPersistedGrantService"/>.
-    /// </summary>
+    /// <summary>Parsed scopes notifications decorator for <see cref="IPersistedGrantService"/>.</summary>
     /// <typeparam name="TPersistedGrantService">The type of <see cref="IPersistedGrantService"/> to decorate.</typeparam>
     public class ParsedScopePersistedGrantService<TPersistedGrantService> : IPersistedGrantService where TPersistedGrantService : IPersistedGrantService
     {
@@ -24,9 +18,7 @@ namespace Indice.Features.Identity.Core.Scopes
         private readonly IPersistentGrantSerializer _serializer;
         private readonly IScopeParser _scopeParser;
 
-        /// <summary>
-        /// Creates a new instance of <see cref="ParsedScopePersistedGrantService{T}"/>.
-        /// </summary>
+        /// <summary>Creates a new instance of <see cref="ParsedScopePersistedGrantService{T}"/>.</summary>
         /// <param name="inner">Implements persisted grant logic.</param>
         /// <param name="persistedGrantDbContext">Abstraction for the operational data context.</param>
         /// <param name="parsedScopeNotificationService">Contains methods to notify an API when a dynamic consent is altered.</param>

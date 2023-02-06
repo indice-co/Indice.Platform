@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Indice.Features.Identity.Core.Data;
+﻿using Indice.Features.Identity.Core.Data;
+using Indice.Features.Identity.Core.Data.Extensions;
 using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Identity;
-using AspnetEFCore = Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Indice.Features.Identity.Core.Data.Extensions;
+using AspnetEFCore = Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Indice.Features.Identity.Core
 {

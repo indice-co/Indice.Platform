@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using IdentityModel;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Security;

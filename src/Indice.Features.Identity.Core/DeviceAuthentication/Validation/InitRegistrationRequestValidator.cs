@@ -3,9 +3,9 @@ using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
-using Indice.Features.Identity.Core.Models;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
-using Indice.Configuration;
+using Indice.Features.Identity.Core.Models;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
 

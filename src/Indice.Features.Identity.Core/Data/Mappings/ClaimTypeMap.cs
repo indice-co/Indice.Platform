@@ -1,19 +1,15 @@
-﻿using Indice.Features.Identity.Core.Models;
-using Indice.Configuration;
+﻿using Indice.Configuration;
+using Indice.Features.Identity.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Indice.Features.Identity.Core.Data
+namespace Indice.Features.Identity.Core.Data.Mappings
 {
-    /// <summary>
-    /// Entity Framework mapping for type <see cref="ClaimType"/>.
-    /// </summary>
+    /// <summary>Entity Framework mapping for type <see cref="ClaimType"/>.</summary>
     internal class ClaimTypeMap : IEntityTypeConfiguration<ClaimType>
     {
-        /// <summary>
-        /// Configure Entity Framework mapping for type <see cref="ClaimType"/>.
-        /// </summary>
+        /// <summary>Configure Entity Framework mapping for type <see cref="ClaimType"/>.</summary>
         /// <param name="builder">Provides a simple API for configuring an <see cref="EntityType"/>.</param>
         public void Configure(EntityTypeBuilder<ClaimType> builder) {
             // Configure table name and schema.

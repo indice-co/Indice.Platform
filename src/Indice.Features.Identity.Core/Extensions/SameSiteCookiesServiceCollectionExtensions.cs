@@ -3,9 +3,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    /// <summary>
-    /// Extensions on <see cref="IServiceCollection"/> to properly set the SameSite attribute for Cookies.
-    /// </summary>
+    /// <summary>Extensions on <see cref="IServiceCollection"/> to properly set the SameSite attribute for Cookies.</summary>
     public static class SameSiteCookiesServiceCollectionExtensions
     {
         /// <summary>

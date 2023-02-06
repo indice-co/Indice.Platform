@@ -1,10 +1,10 @@
-﻿using Indice.Features.Identity.Core.Models;
-using Indice.Configuration;
+﻿using Indice.Configuration;
+using Indice.Features.Identity.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.Features.Identity.Core.Data
+namespace Indice.Features.Identity.Core.Data.Mappings
 {
     /// <summary>Entity Framework mapping for type <see cref="UserDevice"/>.</summary>
     /// <typeparam name="TUser">The type of user.</typeparam>

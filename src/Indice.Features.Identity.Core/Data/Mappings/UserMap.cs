@@ -2,17 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.Features.Identity.Core.Data
+namespace Indice.Features.Identity.Core.Data.Mappings
 {
-    /// <summary>
-    /// Entity Framework mapping for type <see cref="User"/>.
-    /// </summary>
+    /// <summary>Entity Framework mapping for type <see cref="User"/>.</summary>
     /// <typeparam name="TUser">The type of user.</typeparam>
     internal class UserMap<TUser> : IEntityTypeConfiguration<TUser> where TUser : User
     {
-        /// <summary>
-        /// Configure Entity Framework mapping for type <see cref="User"/>.
-        /// </summary>
+        /// <summary>Configure Entity Framework mapping for type <see cref="User"/>.</summary>
         /// <param name="entityBuilder"></param>
         public void Configure(EntityTypeBuilder<TUser> entityBuilder) {
             // Configure table name and schema.

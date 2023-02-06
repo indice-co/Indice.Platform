@@ -1,10 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Models;
-using Indice.Features.Identity.Core.Data;
 using Indice.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Stores
 {
