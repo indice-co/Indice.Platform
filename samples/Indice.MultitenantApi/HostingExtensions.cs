@@ -178,7 +178,7 @@ namespace Indice.MultitenantApi
                     options.OAuthScopeSeparator(" ");
                 });
             }
-            app.UseCampaignsUI(options => {
+            app.UseMessagesUI(options => {
                 options.PathPrefix = "messages/{tenantId}";
                 options.ClientId = "backoffice-ui";
                 options.Scope = "backoffice backoffice:messages";
