@@ -1,7 +1,6 @@
 ﻿using Elsa.Serialization;
 using Indice.Features.Cases.Converters;
 using Indice.Serialization;
-using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -54,7 +53,6 @@ public class ElsaSerializerTests
         Assert.True(true);
     }
 
-
     [Fact]
     public void DecimalJsonConverterTest3() {
         var settings = new JsonSerializerSettings();
@@ -75,9 +73,7 @@ public class ElsaSerializerTests
 
         Assert.True(true);
     }
-
-
-
+    
     public class TestDynamic
     {
         public int Id { get; set; }

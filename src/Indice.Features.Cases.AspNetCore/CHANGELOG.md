@@ -18,6 +18,16 @@ ALTER TABLE [case].[NotificationSubscription]
 ```
 Every existing record in [case].[NotificationSubscription] should be replaced with x new ones, where x is the number of case types that the record's subscriber can see!
 
+## [6.7.1] - 2023-02-03
+### Changed
+- Entity `CaseType.Description` now has a `256` length 
+
+### Migrations
+```sql
+ALTER TABLE [case].[Casetype] 
+    ALTER COLUMN [Description] NVARCHAR(256) NULL;
+ ```
+
 ## [6.6.1] - 2023-01-31
 ### Changed
 - `CaseDetailsActivity` returns data as object instead of json string. You need to change all activities where case data is json parsed, for example
