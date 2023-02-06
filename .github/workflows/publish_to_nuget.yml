@@ -32,6 +32,13 @@ jobs:
       with:
         node-version: 16.13.0
     
+    # Npm Install and build cases ui
+    - name: NPM Install and Build
+      run: |
+        cd src/Indice.Features.Cases.App
+        npm install --force
+        npm run build:template
+    
     #Create .nuget dir
     - name: Create .nuget dir
       shell: pwsh
