@@ -25,6 +25,12 @@ jobs:
         source-url: https://api.nuget.org/v3/index.json
       env:
         NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
+        
+    # Setup Node.js
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.13.0
     
     #Create .nuget dir
     - name: Create .nuget dir
