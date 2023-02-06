@@ -1,5 +1,5 @@
 {
-  "name": "indice-aspnetcore-identity-adminui",
+  "name": "adminui-app",
   "version": "1.0.0",
   "scripts": {
     "build:template": "ng build --build-optimizer --optimization --output-hashing none --configuration template",

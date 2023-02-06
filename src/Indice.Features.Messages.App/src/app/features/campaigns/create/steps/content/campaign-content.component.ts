@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
-import * as Handlebars from 'handlebars/dist/cjs/handlebars';
+import * as Handlebars from 'handlebars';
 import { LibTabComponent, LibTabGroupComponent } from '@indice/ng-components';
 import { MessageChannelKind, MessageContent } from 'src/app/core/services/messages-api.service';
 import { ValidationService } from 'src/app/core/services/validation.service';

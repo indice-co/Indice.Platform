@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.AspNetCore.EmbeddedUI;
+﻿using Indice.AspNetCore.EmbeddedUI;
 using Indice.Features.Messages.UI;
 
 namespace Microsoft.AspNetCore.Builder
@@ -11,7 +10,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <summary>Registers the Campaigns UI single page application, using the provided options.</summary>
         /// <param name="builder">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
         /// <param name="optionsAction">Options for configuring <see cref="SpaUIMiddleware{TOptions}"/> middleware.</param>
-        public static IApplicationBuilder UseCampaignsUI(this IApplicationBuilder builder, Action<CampaignUIOptions> optionsAction = null) =>
-            builder.UseSpaUI("campaigns-ui-dist", typeof(CampaignsUIMiddlewareExtensions).Assembly, optionsAction);
+        public static IApplicationBuilder UseMessagesUI(this IApplicationBuilder builder, Action<CampaignUIOptions> optionsAction = null) =>
+            builder.UseSpaUI("messages-app", typeof(CampaignsUIMiddlewareExtensions).Assembly, optionsAction);
     }
 }
