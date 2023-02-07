@@ -23,13 +23,5 @@ namespace Indice.Features.Cases.Interfaces
         /// <param name="subscriber"></param>
         /// <returns></returns>
         Task Subscribe(List<Guid> caseTypeIds, NotificationSubscription subscriber);
-
-        /// <summary>
-        /// Get subscribers that have opted-in for notifications for their group.
-        /// </summary>
-        /// <param name="caseTypeId">The case Type Id.</param>
-        /// <param name="groupId">The Id of the group.</param>
-        /// <returns></returns>
-        Task<IEnumerable<NotificationSubscription>> GetSubscribers(Guid caseTypeId, string groupId);
     }
 }

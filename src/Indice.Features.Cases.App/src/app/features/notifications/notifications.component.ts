@@ -24,13 +24,13 @@ export class NotificationsComponent implements OnInit {
             getMySubscriptions: this._api.getMySubscriptions(),
             getCaseTypes: this._api.getCaseTypes()
         })
-            .subscribe(({ getMySubscriptions, getCaseTypes }) => {
+            .subscribe(({ getMySubscriptions: mySubscriptions, getCaseTypes: caseTypes }) => {
                 // add active subscriptions
-                getMySubscriptions.notificationSubscriptions?.forEach(sub => {
+                mySubscriptions.notificationSubscriptions?.forEach(sub => {
                     this.notificationSubscriptionViewModels?.push(new NotificationSubscriptionViewModel(sub, true));
                 });
                 // add inactive subscriptions
-                getCaseTypes.items?.forEach(caseType => {
+                caseTypes.items?.forEach(caseType => {
                     let subscription = this.notificationSubscriptionViewModels?.find(x => x.notificationSubscription?.caseTypeId === caseType.id)
                     if (!subscription) {
                         subscription = new NotificationSubscriptionViewModel(new NotificationSubscription({ caseTypeId: caseType.id }), false);
@@ -44,12 +44,7 @@ export class NotificationsComponent implements OnInit {
 
     public onSubmit(): void {
         this.formSubmitting = true;
-        let caseTypeIds: string[] = [];
-        this.notificationSubscriptionViewModels?.forEach(x => {
-            if (x.subscribed) {
-                caseTypeIds.push(x.notificationSubscription?.caseTypeId!);
-            }
-        });
+        let caseTypeIds: string[] = this.notificationSubscriptionViewModels?.filter(x => x.subscribed).map(x => x.notificationSubscription?.caseTypeId!)
         this._api.subscribe(undefined, new NotificationSubscriptionRequest({ caseTypeIds: caseTypeIds })).pipe(
             tap(_ => {
                 this.formSubmitting = false;
