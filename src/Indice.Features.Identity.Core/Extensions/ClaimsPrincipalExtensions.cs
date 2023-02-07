@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Models;
 
 namespace Indice.Features.Identity.Core.Extensions

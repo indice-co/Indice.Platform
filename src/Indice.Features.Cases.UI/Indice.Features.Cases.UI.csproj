@@ -1,21 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup Label="Package">
-    <Authors>Thanos Panousis, Dimiris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
+    <Authors>Thanos Panousis, Dimitris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
     <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
-    <SpaDistFolder>..\Indice.Features.Cases.App\dist\cases-app</SpaDistFolder>
+    <SpaProjectName>cases-app</SpaProjectName>
+    <SpaSourceFolder>..\Indice.Features.Cases.App</SpaSourceFolder>
+    <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
     <!--<Version>6.5.1</Version>-->
-    <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Cases;CaseManagement</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="cases-ui-dist/**/*" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  <!-- Use Visual Studio npm package if it is installed. -->
-  <PropertyGroup Condition="Exists('$(VsInstallRoot)\Web\External\npm.cmd')">
-    <Path>$(Path)$(VsInstallRoot)\Web\External\;</Path>
-  </PropertyGroup>
   <ItemGroup>
-    <None Remove="cases-ui-dist\index.html" />
+    <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html" />
+    <EmbeddedResource Include="$(SpaProjectName)\index.html" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefix)" />
@@ -23,27 +22,17 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <SpaSourceFolder Include="..\Indice.Features.Cases.App" />
-  </ItemGroup>
-  <!-- Run 'npm install' command to download node modules for cases ui. -->
+  <!-- Run 'npm install' command to download node modules. -->
   <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
-    <Exec Command="npm install --force" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+    <Exec Command="npm install --force" WorkingDirectory="$(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
   </Target>
-  <!-- Run 'npm run build:template' in order to build the cases ui app. -->
+  <!-- Run 'npm run build:template' in order to build the app. -->
   <Target Name="SpaBuild" BeforeTargets="DispatchToInnerBuilds" Condition="!Exists('$(SpaDistFolder)')">
-    <Exec Command="npm run build:template" WorkingDirectory="@(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+    <Exec Command="npm run build:template" WorkingDirectory="$(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
-  </Target>
-  <!-- Copy artifacts from dist folder inside the project, so they can be used as embedded resources. -->
-  <Target Name="CopyFiles" BeforeTargets="Build">
-    <ItemGroup>
-      <SpaDistFolderGlob Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\index.html" />
-    </ItemGroup>
-    <Copy SourceFiles="@(SpaDistFolderGlob)" DestinationFiles="@(SpaDistFolderGlob->'$(ProjectDir)\cases-ui-dist\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 </Project>

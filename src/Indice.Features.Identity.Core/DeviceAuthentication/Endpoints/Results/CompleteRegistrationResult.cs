@@ -1,6 +1,7 @@
 ﻿using IdentityServer4.Extensions;
 using IdentityServer4.Hosting;
 using Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling;
+using Indice.Features.Identity.Core.Extensions;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Endpoints.Results
