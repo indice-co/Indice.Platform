@@ -1,61 +1,61 @@
-import { Component, ViewChild } from "@angular/core";
-import { NgForm } from "@angular/forms";
-import { Router } from "@angular/router";
+import { Component, OnInit } from "@angular/core";
 import { ToasterService, ToastType } from "@indice/ng-components";
-import { EMPTY } from "rxjs";
+import { EMPTY, forkJoin } from "rxjs";
 import { tap, catchError } from "rxjs/operators";
-import { CasesApiService, NotificationSubscriptionResult } from "src/app/core/services/cases-api.service";
+import { NotificationSubscriptionViewModel } from "src/app/core/models/NotificationSubscriptionsViewModel";
+import { CasesApiService, NotificationSubscription, NotificationSubscriptionRequest } from "src/app/core/services/cases-api.service";
 
 @Component({
     selector: 'app-notifications',
     templateUrl: './notifications.component.html',
     styleUrls: ['./notifications.component.scss']
 })
-export class NotificationsComponent {
-    @ViewChild('notificationsForm', { static: false }) private notificationsForm!: NgForm;
-    public notificationsAccepted: boolean = false;
-    private _submittedNotificationValue: boolean | undefined;
-    constructor(
-        private api: CasesApiService,
-        private router: Router,
-        private toaster: ToasterService) {
-        this.api.getMySubscriptions()
-            .pipe(
-                tap((response: NotificationSubscriptionResult) => {
-                    this.notificationsAccepted = response.subscribed || false;
-                    this._submittedNotificationValue = this.notificationsAccepted;
-                }))
-            .subscribe();
-    }
+export class NotificationsComponent implements OnInit {
+    public notificationSubscriptionViewModels: NotificationSubscriptionViewModel[] = [];
+    public formSubmitting: boolean = false;
+    public loading: boolean = false;
 
-    public canSubmit(): boolean {
-        return this.notificationsForm?.valid === true;
+    constructor(private _api: CasesApiService,
+        private _toaster: ToasterService) { }
+
+    public ngOnInit(): void {
+        this.loading = true;
+        forkJoin({
+            getMySubscriptions: this._api.getMySubscriptions(),
+            getCaseTypes: this._api.getCaseTypes()
+        })
+            .subscribe(({ getMySubscriptions: mySubscriptions, getCaseTypes: caseTypes }) => {
+                // add active subscriptions
+                mySubscriptions.notificationSubscriptions?.forEach(sub => {
+                    this.notificationSubscriptionViewModels?.push(new NotificationSubscriptionViewModel(sub, true));
+                });
+                // add inactive subscriptions
+                caseTypes.items?.forEach(caseType => {
+                    let subscription = this.notificationSubscriptionViewModels?.find(x => x.notificationSubscription?.caseTypeId === caseType.id)
+                    if (!subscription) {
+                        subscription = new NotificationSubscriptionViewModel(new NotificationSubscription({ caseTypeId: caseType.id }), false);
+                        this.notificationSubscriptionViewModels?.push(subscription);
+                    }
+                    subscription.title = caseType.title;
+                });
+                this.loading = false;
+            });
     }
 
     public onSubmit(): void {
-        if (!this.canSubmit()) {
-            return;
-        }
-        const http$ = this.notificationsAccepted
-            ? this.api.subscribe()
-            : this.api.unsubscribe();
-
-        http$.pipe(
+        this.formSubmitting = true;
+        let caseTypeIds: string[] = this.notificationSubscriptionViewModels?.filter(x => x.subscribed).map(x => x.notificationSubscription?.caseTypeId!)
+        this._api.subscribe(undefined, new NotificationSubscriptionRequest({ caseTypeIds: caseTypeIds })).pipe(
             tap(_ => {
-                const message = this.notificationsAccepted ? `Εγγραφήκατε στις ειδοποιήσεις επιτυχώς` : `Διαγραφήκατε από τις ειδοποιήσεις επιτυχώς`;
-                this.toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', message);
-                // set the form status to Pending so the form will be invalid, unless the user interacts with the UI
-                this.notificationsForm.form.markAsPending();
-                this._submittedNotificationValue = this.notificationsAccepted;
+                this.formSubmitting = false;
+                this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Οι ρυθμίσεις σας αποθηκεύτηκαν επιτυχώς.`, 5000);
             }),
             catchError(() => {
-                this.toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Η εγγραφή στις ειδοποιήσεις απέτυχε`, 6000);
+                this.formSubmitting = false;
+                this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Δεν κατέστη εφικτή η αποθήκευση των ρυθμίσεών σας.`, 5000);
                 return EMPTY;
             })
         ).subscribe();
     }
 
-    public notificationValueChanged(): boolean {
-        return this._submittedNotificationValue !== this.notificationsAccepted
-    }
 }

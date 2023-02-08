@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Models.Requests;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Indice.Features.Cases.Controllers
 {
     /// <summary>
-    /// Manage user and user options inside the case management.
+    /// Manage Notifications for Back-office users.
     /// </summary>
     [ApiController]
     [ApiExplorerSettings(GroupName = CasesApiConstants.Scope)]
@@ -31,40 +32,30 @@ namespace Indice.Features.Cases.Controllers
         }
 
         /// <summary>
-        /// Get the case type subscriptions of a user.
+        /// Get the notification subscriptions for a user.
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NotificationSubscriptionResult))]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(NotificationSubscriptionResponse))]
         public async Task<IActionResult> GetMySubscriptions() {
             var options = new ListOptions<NotificationFilter> {
                 Filter = NotificationFilter.FromUser(User, _casesApiOptions.GroupIdClaimType)
             };
-            var subscribed = await _service.GetSubscriptions(options);
-            return Ok(new NotificationSubscriptionResult {
-                Subscribed = subscribed
+            var result = await _service.GetSubscriptions(options);
+            return Ok(new NotificationSubscriptionResponse {
+                NotificationSubscriptions = result
             });
         }
 
         /// <summary>
-        /// Create new case type subscription for a user.
+        /// Store user's subscription settings.
         /// </summary>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> Subscribe() {
-            await _service.Subscribe(NotificationSubscription.FromUser(User, _casesApiOptions.GroupIdClaimType));
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Remove a case type subscription for a user.
-        /// </summary>
-        /// <returns></returns>
-        [HttpDelete]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        public async Task<IActionResult> Unsubscribe() {
-            await _service.Unsubscribe(NotificationFilter.FromUser(User, _casesApiOptions.GroupIdClaimType));
+        public async Task<IActionResult> Subscribe(NotificationSubscriptionRequest request) {
+            await _service.Subscribe(request.CaseTypeIds, NotificationSubscription.FromUser(User, _casesApiOptions.GroupIdClaimType));
             return NoContent();
         }
     }

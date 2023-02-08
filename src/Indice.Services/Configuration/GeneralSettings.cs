@@ -20,6 +20,10 @@ namespace Indice.Configuration
         /// </summary>
         public string Authority { get; set; }
         /// <summary>
+        /// The base address URL for the IdentityServer when accessed internally on a private network.
+        /// </summary>
+        public string AuthorityInternal { get; set; }
+        /// <summary>
         /// The name of the app. Usually used for the Layout page Title inside an HTML header. 
         /// </summary>
         public string ApplicationName { get; set; } = "My App name";
