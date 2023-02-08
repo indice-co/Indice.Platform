@@ -97,9 +97,45 @@ namespace Microsoft.Extensions.Configuration
 
         /// <summary>A string that represents the default host name binding for the identity provider (aka authority) for this application <see cref="GeneralSettings.Authority"/>.</summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <param name="tryInternal">Try to retrieve the internal network base address URL for the IdentityServer. Fallsback to Authority if not set. Defaults to false.</param>
         /// <returns>Example can be https://idp.example.com</returns>
-        /// <remarks>Checks for the <strong>General:Authority</strong> option in appsettings.json file.</remarks>
-        public static string GetAuthority(this IConfiguration configuration) => configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority))?.TrimEnd('/');
+        /// <remarks>Checks either the <strong>General:AuthorityInternal</strong> or <strong>General:Authority</strong> option in appsettings.json file. Depends up on the <paramref name="tryInternal"/> parameter.</remarks>
+        public static string GetAuthority(this IConfiguration configuration, bool tryInternal = false) => tryInternal 
+            ? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.AuthorityInternal))?.TrimEnd('/') ?? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority))?.TrimEnd('/')
+            : configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority))?.TrimEnd('/');
+
+        /// <summary>A string that represents the default host name binding for the identity provider (aka authority) for this application <see cref="GeneralSettings.Authority"/>.</summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <param name="tryInternal">Try to retrieve the internal network base address URL for the IdentityServer. Fallsback to Authority if not set. Defaults to false.</param>
+        /// <returns>Example can be https://idp.example.com/.well-known/openid-configuration</returns>
+        /// <remarks>Checks either the <strong>General:AuthorityInternal</strong> or <strong>General:Authority</strong> option in appsettings.json file. Depends up on the <paramref name="tryInternal"/> parameter.</remarks>
+        public static string GetAuthorityMetadata(this IConfiguration configuration, bool tryInternal = false) => $"{GetAuthority(configuration, tryInternal)}/.well-known/openid-configuration";
+
+        /// <summary>Get an object class that represents all the configuration for an Api.</summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <returns><see cref="ApiSettings"/></returns>
+        /// <remarks>Checks for the <strong>General:Api</strong> option in appsettings.json file and binds it to the <see cref="ApiSettings"/> class.</remarks>
+        public static ApiSettings GetApiSettings(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").Get<ApiSettings>();
+        
+        /// <summary>A string that represents the api resource scope.</summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <returns>The api resource name. Or in other words the api base scope</returns>
+        /// <remarks>Checks for the <strong>General:Api:ResourceName</strong> option in appsettings.json file.</remarks>
+        public static string GetApiResourceName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").GetValue<string>(nameof(ApiSettings.ResourceName));
+        
+        /// <summary>A list of symmetric keys/secrets used by the api.</summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <returns>Secrets defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
+        /// <remarks>Checks for the <strong>General:Api:Secrets</strong> option in appsettings.json file.</remarks>
+        public static Dictionary<string, string> GetApiSecrets(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}:{nameof(ApiSettings.Secrets)}").Get<Dictionary<string, string>>();
+        
+        /// <summary>Gets the api secret value using the specified key.</summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <param name="key">The key to search for.</param>
+        /// <returns>The api secret under the specified key. Api Secrets are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
+        /// <remarks>Checks for the <strong>General:Api:Secrets</strong> option in appsettings.json file.</remarks>
+        /// <exception cref="KeyNotFoundException">Throws a <see cref="KeyNotFoundException"/> if the specified key is not found.</exception>
+        public static string GetApiSecret(this IConfiguration configuration, string key) => GetApiSecrets(configuration)[key];
 
     }
 }

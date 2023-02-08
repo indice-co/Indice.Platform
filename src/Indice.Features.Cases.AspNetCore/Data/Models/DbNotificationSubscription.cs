@@ -4,6 +4,7 @@
     public class DbNotificationSubscription
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid CaseTypeId { get; set; }
         public string Email { get; set; }
         public string GroupId { get; set; }
     }
