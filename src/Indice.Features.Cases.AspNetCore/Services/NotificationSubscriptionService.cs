@@ -11,63 +11,49 @@ namespace Indice.Features.Cases.Services
     {
         private readonly CasesDbContext _dbContext;
 
-        public NotificationSubscriptionService(
-            CasesDbContext dbContext) {
+        public NotificationSubscriptionService(CasesDbContext dbContext) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<IEnumerable<NotificationSubscription>> GetSubscribersByGroupId(string groupId) {
-            return await _dbContext.NotificationSubscriptions
+        public async Task<List<NotificationSubscription>> GetSubscriptions(ListOptions<NotificationFilter> options) {
+            var filter = options.Filter ?? new NotificationFilter();
+            var subscriptions = await _dbContext.NotificationSubscriptions
                 .AsQueryable()
-                .Where(x => x.GroupId == groupId)
+                .Where(x => (filter.Email.Length == 0 || filter.Email.Contains(x.Email)) &&
+                            (filter.GroupId.Length == 0 || filter.GroupId.Contains(x.GroupId)) &&
+                            (filter.CaseTypeIds.Length == 0 || filter.CaseTypeIds.Contains(x.CaseTypeId)))
                 .Select(x => new NotificationSubscription {
+                    CaseTypeId = x.CaseTypeId,
                     Email = x.Email,
                     GroupId = x.GroupId
                 })
                 .ToListAsync();
+            return subscriptions;
         }
 
-        public async Task Subscribe(NotificationSubscription subscriber) {
+        public async Task Subscribe(List<Guid> caseTypeIds, NotificationSubscription subscriber) {
             if (string.IsNullOrEmpty(subscriber.GroupId)) throw new ArgumentException($"No Group found for subscriber: \"{subscriber.Email}\".");
             if (string.IsNullOrEmpty(subscriber.Email)) throw new ArgumentNullException(nameof(subscriber.Email));
-
+            // remove existing subscriptions
             var entitiesToRemove = await _dbContext.NotificationSubscriptions
                 .AsQueryable()
                 .Where(u => u.Email == subscriber.Email)
                 .ToListAsync();
-            if (entitiesToRemove != null && entitiesToRemove.Count() > 0) {
+            if (entitiesToRemove.Any()) {
                 _dbContext.RemoveRange(entitiesToRemove);
             }
-            var entity = new DbNotificationSubscription {
+            // add new subscriptions
+            var entitiesToAdd = caseTypeIds.Select(id => new DbNotificationSubscription {
+                CaseTypeId = id,
                 GroupId = subscriber.GroupId,
                 Email = subscriber.Email
-            };
-            await _dbContext.AddAsync(entity);
+            });
+
+            if (entitiesToAdd.Any()) {
+                await _dbContext.AddRangeAsync(entitiesToAdd);
+            }
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<bool> GetSubscriptions(ListOptions<NotificationFilter> options) {
-            var filter = options.Filter ?? new NotificationFilter();
-            return await _dbContext.NotificationSubscriptions
-                .AsQueryable()
-                .Where(x => (filter.Email.Length == 0 || filter.Email.Contains(x.Email)) &&
-                            (filter.GroupId.Length == 0 || filter.GroupId.Contains(x.GroupId)))
-                .AnyAsync();
-        }
-
-        public async Task Unsubscribe(NotificationFilter criteria) {
-            if (criteria is null) {
-                throw new ArgumentNullException(nameof(criteria));
-            }
-            var entitiesToRemove = await _dbContext.NotificationSubscriptions
-                .AsQueryable()
-                .Where(x => (criteria.Email.Length == 0 || criteria.Email.Contains(x.Email)) &&
-                            (criteria.GroupId.Length == 0 || criteria.GroupId.Contains(x.GroupId)))
-                .ToListAsync();
-            if (entitiesToRemove.Any()) {
-                _dbContext.RemoveRange(entitiesToRemove);
-                await _dbContext.SaveChangesAsync();
-            }
-        }
     }
 }
