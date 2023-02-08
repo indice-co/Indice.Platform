@@ -97,12 +97,19 @@ namespace Microsoft.Extensions.Configuration
 
         /// <summary>A string that represents the default host name binding for the identity provider (aka authority) for this application <see cref="GeneralSettings.Authority"/>.</summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-        /// <param name="tryInternal">Try to retrieve the internal network base address URL for the IdentityServer. Fallsback to Authority if not set.</param>
+        /// <param name="tryInternal">Try to retrieve the internal network base address URL for the IdentityServer. Fallsback to Authority if not set. Defaults to false.</param>
         /// <returns>Example can be https://idp.example.com</returns>
         /// <remarks>Checks either the <strong>General:AuthorityInternal</strong> or <strong>General:Authority</strong> option in appsettings.json file. Depends up on the <paramref name="tryInternal"/> parameter.</remarks>
         public static string GetAuthority(this IConfiguration configuration, bool tryInternal = false) => tryInternal 
             ? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.AuthorityInternal))?.TrimEnd('/') ?? configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority))?.TrimEnd('/')
             : configuration.GetSection(GeneralSettings.Name).GetValue<string>(nameof(GeneralSettings.Authority))?.TrimEnd('/');
+
+        /// <summary>A string that represents the default host name binding for the identity provider (aka authority) for this application <see cref="GeneralSettings.Authority"/>.</summary>
+        /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+        /// <param name="tryInternal">Try to retrieve the internal network base address URL for the IdentityServer. Fallsback to Authority if not set. Defaults to false.</param>
+        /// <returns>Example can be https://idp.example.com/.well-known/openid-configuration</returns>
+        /// <remarks>Checks either the <strong>General:AuthorityInternal</strong> or <strong>General:Authority</strong> option in appsettings.json file. Depends up on the <paramref name="tryInternal"/> parameter.</remarks>
+        public static string GetAuthorityMetadata(this IConfiguration configuration, bool tryInternal = false) => $"{GetAuthority(configuration, tryInternal)}/.well-known/openid-configuration";
 
         /// <summary>Get an object class that represents all the configuration for an Api.</summary>
         /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
