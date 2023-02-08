@@ -1,10 +1,14 @@
 <lib-view-layout title="Καλώς ήλθατε, {{ user?.profile?.name }}!"
                  [meta-items]="metaItems">
-    <div class="cards-deck-4">
-        <lib-kpi-tile title="ΑΙΤΗΣΕΙΣ"
-                      [busy]="!cases"
-                      [kpi]="cases?.count"
-                      (tile-action)="navigate('/cases')">
-        </lib-kpi-tile>
+    <div class="grid grid-cols-3 gap-4">
+        <div style="width: 500px;">
+            <canvas id="grouped-by-status"></canvas>
+        </div>
+        <div style="width: 600px;">
+            <canvas id="grouped-by-casetype"></canvas>
+        </div>
+        <div style="width: 600px;">
+            <canvas id="grouped-by-groupid"></canvas>
+        </div>
     </div>
 </lib-view-layout>
