@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Cases.Models;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Interfaces
 {
@@ -12,12 +13,16 @@ namespace Indice.Features.Cases.Interfaces
         /// </summary>
         /// <returns></returns>
         Task<List<GroupByReportResult>> GetCasesGroupedByStatus();
+        Task<List<GroupByReportResult>> GetAgentCasesGroupedByStatus();
+        Task<List<GroupByReportResult>> GetCustomerCasesGroupedByStatus();
 
         /// <summary>
         /// Get cases grouped by casetype
         /// </summary>
         /// <returns></returns>
         Task<List<GroupByReportResult>> GetCasesGroupedByCaseType();
+        Task<List<GroupByReportResult>> GetAgentCasesGroupedByCaseType();
+        Task<List<GroupByReportResult>> GetCustomerCasesGroupedByCaseType();
 
         /// <summary>
         /// Get cases grouped by GroupId
