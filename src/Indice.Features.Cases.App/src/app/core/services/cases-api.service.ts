@@ -257,47 +257,12 @@ export interface ICasesApiService {
      */
     deleteQuery(queryId: string, api_version?: string | undefined): Observable<void>;
     /**
-     * Get cases grouped by casetype
+     * Get case report
+     * @param reportTag (optional) 
      * @param api_version (optional) 
      * @return Success
      */
-    getAgentCasesGroupedByCaseType(api_version?: string | undefined): Observable<GroupByReportResult[]>;
-    /**
-     * Get cases grouped by status
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getAgentCasesGroupedByStatus(api_version?: string | undefined): Observable<GroupByReportResult[]>;
-    /**
-     * Get cases grouped by casetype
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getCustomerCasesGroupedByCaseType(api_version?: string | undefined): Observable<GroupByReportResult[]>;
-    /**
-     * Get cases grouped by status
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getCustomerCasesGroupedByStatus(api_version?: string | undefined): Observable<GroupByReportResult[]>;
-    /**
-     * Get cases grouped by casetype
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getCasesGroupedByCaseType(api_version?: string | undefined): Observable<GroupByReportResult[]>;
-    /**
-     * Get cases grouped by GroupId
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getCasesGroupedByGroupId(api_version?: string | undefined): Observable<GroupByReportResult[]>;
-    /**
-     * Get cases grouped by status
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getCasesGroupedByStatus(api_version?: string | undefined): Observable<GroupByReportResult[]>;
+    getCaseReport(reportTag?: ReportTag | undefined, api_version?: string | undefined): Observable<GroupByReportResult[]>;
     /**
      * Gets case types.
      * @param filter_CaseTypeTags (optional) The case type tag filter.
@@ -3484,12 +3449,17 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Get cases grouped by casetype
+     * Get case report
+     * @param reportTag (optional) 
      * @param api_version (optional) 
      * @return Success
      */
-    getAgentCasesGroupedByCaseType(api_version?: string | undefined): Observable<GroupByReportResult[]> {
-        let url_ = this.baseUrl + "/api/manage/reports/agent-grouped-by-casetype?";
+    getCaseReport(reportTag?: ReportTag | undefined, api_version?: string | undefined): Observable<GroupByReportResult[]> {
+        let url_ = this.baseUrl + "/api/manage/reports?";
+        if (reportTag === null)
+            throw new Error("The parameter 'reportTag' cannot be null.");
+        else if (reportTag !== undefined)
+            url_ += "reportTag=" + encodeURIComponent("" + reportTag) + "&";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
         else if (api_version !== undefined)
@@ -3505,11 +3475,11 @@ export class CasesApiService implements ICasesApiService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAgentCasesGroupedByCaseType(response_);
+            return this.processGetCaseReport(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetAgentCasesGroupedByCaseType(response_ as any);
+                    return this.processGetCaseReport(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<GroupByReportResult[]>;
                 }
@@ -3518,559 +3488,7 @@ export class CasesApiService implements ICasesApiService {
         }));
     }
 
-    protected processGetAgentCasesGroupedByCaseType(response: HttpResponseBase): Observable<GroupByReportResult[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GroupByReportResult.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<GroupByReportResult[]>(null as any);
-    }
-
-    /**
-     * Get cases grouped by status
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getAgentCasesGroupedByStatus(api_version?: string | undefined): Observable<GroupByReportResult[]> {
-        let url_ = this.baseUrl + "/api/manage/reports/agent-grouped-by-status?";
-        if (api_version === null)
-            throw new Error("The parameter 'api_version' cannot be null.");
-        else if (api_version !== undefined)
-            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetAgentCasesGroupedByStatus(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetAgentCasesGroupedByStatus(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<GroupByReportResult[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<GroupByReportResult[]>;
-        }));
-    }
-
-    protected processGetAgentCasesGroupedByStatus(response: HttpResponseBase): Observable<GroupByReportResult[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GroupByReportResult.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<GroupByReportResult[]>(null as any);
-    }
-
-    /**
-     * Get cases grouped by casetype
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getCustomerCasesGroupedByCaseType(api_version?: string | undefined): Observable<GroupByReportResult[]> {
-        let url_ = this.baseUrl + "/api/manage/reports/customer-grouped-by-casetype?";
-        if (api_version === null)
-            throw new Error("The parameter 'api_version' cannot be null.");
-        else if (api_version !== undefined)
-            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetCustomerCasesGroupedByCaseType(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetCustomerCasesGroupedByCaseType(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<GroupByReportResult[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<GroupByReportResult[]>;
-        }));
-    }
-
-    protected processGetCustomerCasesGroupedByCaseType(response: HttpResponseBase): Observable<GroupByReportResult[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GroupByReportResult.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<GroupByReportResult[]>(null as any);
-    }
-
-    /**
-     * Get cases grouped by status
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getCustomerCasesGroupedByStatus(api_version?: string | undefined): Observable<GroupByReportResult[]> {
-        let url_ = this.baseUrl + "/api/manage/reports/customer-grouped-by-status?";
-        if (api_version === null)
-            throw new Error("The parameter 'api_version' cannot be null.");
-        else if (api_version !== undefined)
-            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetCustomerCasesGroupedByStatus(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetCustomerCasesGroupedByStatus(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<GroupByReportResult[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<GroupByReportResult[]>;
-        }));
-    }
-
-    protected processGetCustomerCasesGroupedByStatus(response: HttpResponseBase): Observable<GroupByReportResult[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GroupByReportResult.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<GroupByReportResult[]>(null as any);
-    }
-
-    /**
-     * Get cases grouped by casetype
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getCasesGroupedByCaseType(api_version?: string | undefined): Observable<GroupByReportResult[]> {
-        let url_ = this.baseUrl + "/api/manage/reports/grouped-by-casetype?";
-        if (api_version === null)
-            throw new Error("The parameter 'api_version' cannot be null.");
-        else if (api_version !== undefined)
-            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetCasesGroupedByCaseType(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetCasesGroupedByCaseType(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<GroupByReportResult[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<GroupByReportResult[]>;
-        }));
-    }
-
-    protected processGetCasesGroupedByCaseType(response: HttpResponseBase): Observable<GroupByReportResult[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GroupByReportResult.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<GroupByReportResult[]>(null as any);
-    }
-
-    /**
-     * Get cases grouped by GroupId
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getCasesGroupedByGroupId(api_version?: string | undefined): Observable<GroupByReportResult[]> {
-        let url_ = this.baseUrl + "/api/manage/reports/grouped-by-groupid?";
-        if (api_version === null)
-            throw new Error("The parameter 'api_version' cannot be null.");
-        else if (api_version !== undefined)
-            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetCasesGroupedByGroupId(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetCasesGroupedByGroupId(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<GroupByReportResult[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<GroupByReportResult[]>;
-        }));
-    }
-
-    protected processGetCasesGroupedByGroupId(response: HttpResponseBase): Observable<GroupByReportResult[]> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GroupByReportResult.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf<GroupByReportResult[]>(null as any);
-    }
-
-    /**
-     * Get cases grouped by status
-     * @param api_version (optional) 
-     * @return Success
-     */
-    getCasesGroupedByStatus(api_version?: string | undefined): Observable<GroupByReportResult[]> {
-        let url_ = this.baseUrl + "/api/manage/reports/grouped-by-status?";
-        if (api_version === null)
-            throw new Error("The parameter 'api_version' cannot be null.");
-        else if (api_version !== undefined)
-            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetCasesGroupedByStatus(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetCasesGroupedByStatus(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<GroupByReportResult[]>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<GroupByReportResult[]>;
-        }));
-    }
-
-    protected processGetCasesGroupedByStatus(response: HttpResponseBase): Observable<GroupByReportResult[]> {
+    protected processGetCaseReport(response: HttpResponseBase): Observable<GroupByReportResult[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -7780,6 +7198,16 @@ export interface IRejectReason {
     key?: string | undefined;
     /** The value of the reject reason. This will be translated into request language. */
     value?: string | undefined;
+}
+
+/** Define the status for the customer. It is defined at the Indice.Features.Cases.Data.Models.DbCheckpointType.Status. */
+export enum ReportTag {
+    GroupedByCasetype = "GroupedByCasetype",
+    AgentGroupedByCasetype = "AgentGroupedByCasetype",
+    CustomerGroupedByCasetype = "CustomerGroupedByCasetype",
+    GroupedByStatus = "GroupedByStatus",
+    AgentGroupedByStatus = "AgentGroupedByStatus",
+    CustomerGroupedByStatus = "CustomerGroupedByStatus",
 }
 
 /** The Save Query Request */

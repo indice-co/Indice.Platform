@@ -3,24 +3,24 @@
     <div class="cards-deck-1 mb-4">
         <div class="cards-deck-3">
             <app-canvas-tile [title]="'Συνολικές Αιτήσεις ανά Τύπο Αίτησης'"
-                             [canvasId]="'grouped-by-casetype'"></app-canvas-tile>
+                             [canvasId]="reportTag.GroupedByCasetype"></app-canvas-tile>
             <app-canvas-tile [title]="'Αιτήσεις από Καταστήματα ανά Τύπο Αίτησης'"
-                             [canvasId]="'agent-grouped-by-casetype'"></app-canvas-tile>
+                             [canvasId]="reportTag.AgentGroupedByCasetype"></app-canvas-tile>
             <app-canvas-tile [title]="'Αιτήσεις από Εναλλακτικά Δίκτυα ανά Τύπο Αίτησης'"
-                             [canvasId]="'customer-grouped-by-casetype'"></app-canvas-tile>
+                             [canvasId]="reportTag.CustomerGroupedByCasetype"></app-canvas-tile>
         </div>
         <div class="cards-deck-3">
             <app-canvas-tile [title]="'Συνολικές Αιτήσεις ανά Status'"
-                             [canvasId]="'grouped-by-status'"></app-canvas-tile>
+                             [canvasId]="reportTag.GroupedByStatus"></app-canvas-tile>
             <app-canvas-tile [title]="'Αιτήσεις από Καταστήματα ανά Status'"
-                             [canvasId]="'agent-grouped-by-status'"></app-canvas-tile>
+                             [canvasId]="reportTag.AgentGroupedByStatus"></app-canvas-tile>
             <app-canvas-tile [title]="'Αιτήσεις από Εναλλακτικά Δίκτυα ανά Status'"
-                             [canvasId]="'customer-grouped-by-status'"></app-canvas-tile>
+                             [canvasId]="reportTag.CustomerGroupedByStatus"></app-canvas-tile>
         </div>
     </div>
 
-    <div style="width: 1000px;">
+    <!-- <div style="width: 1000px;">
         <canvas id="grouped-by-groupid"></canvas>
-    </div>
+    </div> -->
 
 </lib-view-layout>
