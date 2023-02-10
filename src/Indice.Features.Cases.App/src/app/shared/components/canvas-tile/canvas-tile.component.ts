@@ -7,8 +7,7 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-canvas-tile',
-  templateUrl: './canvas-tile.component.html',
-  styleUrls: ['./canvas-tile.component.scss']
+  templateUrl: './canvas-tile.component.html'
 })
 export class CanvasTileComponent implements OnInit {
   @Input() canvasId: ReportTag | undefined;
@@ -16,7 +15,7 @@ export class CanvasTileComponent implements OnInit {
 
   public loading = false;
   public sum: number | undefined;
-  public backgroundColors: string[] = ['rgb(22, 77, 85)', 'rgb(27, 135, 116)', 'rgb(64, 151, 162)', 'rgb(181, 206, 209)', 'rgb(3, 41, 46)'];
+  public backgroundColors = ['rgb(22, 77, 85)', 'rgb(27, 135, 116)', 'rgb(64, 151, 162)', 'rgb(181, 206, 209)', 'rgb(207,181,209)', 'rgb(0,181,78)', 'rgb(181,181,0)', 'rgb(181,78,0)', 'rgb(255,147,99)'];
 
   constructor(
     private router: Router,
