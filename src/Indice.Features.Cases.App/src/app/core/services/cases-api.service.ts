@@ -7200,7 +7200,7 @@ export interface IRejectReason {
     value?: string | undefined;
 }
 
-/** Define the status for the customer. It is defined at the Indice.Features.Cases.Data.Models.DbCheckpointType.Status. */
+/** Define the case report tag. */
 export enum ReportTag {
     GroupedByCasetype = "GroupedByCasetype",
     AgentGroupedByCasetype = "AgentGroupedByCasetype",
@@ -7208,6 +7208,7 @@ export enum ReportTag {
     GroupedByStatus = "GroupedByStatus",
     AgentGroupedByStatus = "AgentGroupedByStatus",
     CustomerGroupedByStatus = "CustomerGroupedByStatus",
+    GroupedByGroupId = "GroupedByGroupId",
 }
 
 /** The Save Query Request */

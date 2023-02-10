@@ -30,6 +30,7 @@ namespace Indice.Features.Cases.Controllers
         /// <summary>
         /// Get case report
         /// </summary>
+        /// <param name="reportTag"></param>
         /// <returns></returns>
         [HttpGet]
         [Produces(MediaTypeNames.Application.Json)]
