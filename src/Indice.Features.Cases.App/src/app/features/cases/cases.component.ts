@@ -28,7 +28,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         this.view = ListViewType.Table;
         this.pageSize = 10;
         this.sort = 'createdByWhen';
-        this.sortdir = 'asc';
+        this.sortdir = 'desc';
         this.sortOptions = [
             new MenuOption('Ημ. Υποβολής', 'createdByWhen')
         ];
