@@ -39,34 +39,34 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         private static void AddJobHandlers(this WorkerHostBuilder workerHostBuilder, MessageJobsOptions messageOptions) {
-            var jitterer = new Random();
+            var random = new Random();
             workerHostBuilder.AddJob<CampaignPublishedJobHandler>().WithQueueTrigger<CampaignCreatedEvent>(options => {
                 options.QueueName = EventNames.CampaignCreated;
-                options.PollingInterval = jitterer.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+                options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
                 options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
                 options.InstanceCount = 1;
             })
             .AddJob<ResolveMessageJobHandler>().WithQueueTrigger<ResolveMessageEvent>(options => {
                 options.QueueName = EventNames.ResolveMessage;
-                options.PollingInterval = jitterer.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+                options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
                 options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
                 options.InstanceCount = 1;
             })
             .AddJob<SendPushNotificationJobHandler>().WithQueueTrigger<SendPushNotificationEvent>(options => {
                 options.QueueName = EventNames.SendPushNotification;
-                options.PollingInterval = jitterer.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+                options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
                 options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
                 options.InstanceCount = 1;
             })
             .AddJob<SendEmailJobHandler>().WithQueueTrigger<SendEmailEvent>(options => {
                 options.QueueName = EventNames.SendEmail;
-                options.PollingInterval = jitterer.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+                options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
                 options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
                 options.InstanceCount = 1;
             })
             .AddJob<SendSmsJobHandler>().WithQueueTrigger<SendSmsEvent>(options => {
                 options.QueueName = EventNames.SendSms;
-                options.PollingInterval = jitterer.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
+                options.PollingInterval = random.Next((int)messageOptions.QueuePollingInterval, (int)messageOptions.QueuePollingInterval + 200);
                 options.MaxPollingInterval = options.PollingInterval + messageOptions.QueueMaxPollingInterval;
                 options.InstanceCount = 1;
             });
