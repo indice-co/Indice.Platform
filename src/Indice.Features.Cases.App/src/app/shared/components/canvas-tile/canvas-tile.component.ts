@@ -36,6 +36,10 @@ export class CanvasTileComponent implements OnInit {
   }
 
   private createChart(results: GroupByReportResult[]) {
+    if (!results || results.length === 0) {
+      this.sum = 0;
+      return;
+    }
     var ctx = document.getElementById(this.canvasId!) as ChartItem;
     const labels: string[] = results.map(x => x.label!.toString());
     const counts: number[] = results.map(x => x.count!);
@@ -55,7 +59,7 @@ export class CanvasTileComponent implements OnInit {
         ]
       },
       options: {
-        responsive: true,
+        responsive: false,
         plugins: {
           legend: {
             display: false

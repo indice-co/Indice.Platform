@@ -3,9 +3,9 @@
               [kpi]="sum"
               class="cursor-pointer"
               (tile-action)="navigate('/cases')"
-              [action-text]="''">
+              [hideBtn]="true">
     <div class="kpi-chart-container">
-        <canvas style="height:200px; width:200px;padding-bottom:8px;"
+        <canvas style="height:290px;width:290px;padding-bottom:8px;"
                 [id]="canvasId"></canvas>
     </div>
 </lib-kpi-tile>

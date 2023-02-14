@@ -36,7 +36,7 @@ namespace Indice.Features.Cases.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<GroupByReportResult>))]
         public async Task<IActionResult> GetCaseReport(ReportTag reportTag) {
-            var result = await _adminReportService.GenerateReport(reportTag);
+            var result = await _adminReportService.GenerateReport(User, reportTag);
             return Ok(result);
         }
     }

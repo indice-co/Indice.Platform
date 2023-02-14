@@ -1,10 +1,12 @@
-﻿using System.Linq.Expressions;
+﻿using System.Security.Claims;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
+using Indice.Features.Cases.Exceptions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
+using Indice.Features.Cases.Models.Responses;
+using Indice.Types;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using static Indice.Features.Cases.CasesApiConstants;
 
 namespace Indice.Features.Cases.Services
@@ -12,106 +14,151 @@ namespace Indice.Features.Cases.Services
     internal class AdminReportService : IAdminReportService
     {
         private readonly CasesDbContext _dbContext;
-        private readonly IDistributedCache _distributedCache;
-        private readonly string _caseReportCacheKey = $"{nameof(AdminReportService)}.caseReport";
+        private readonly ICaseAuthorizationProvider _roleCaseTypeProvider;
+        private readonly ICaseTypeService _caseTypeService;
 
         public AdminReportService(
             CasesDbContext dbContext,
-            IDistributedCache distributedCache
+            ICaseAuthorizationProvider roleCaseTypeProvider,
+            ICaseTypeService caseTypeService
             ) {
             _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
+            _roleCaseTypeProvider = roleCaseTypeProvider ?? throw new ArgumentNullException(nameof(roleCaseTypeProvider));
+            _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         }
 
-        public async Task<List<GroupByReportResult>> GenerateReport(ReportTag reportTag) {
+        private async Task<List<GroupByReportResult>> GetCasesGroupedByCaseType(GetCasesListFilter filter) {
+            List<GroupByReportResult> query = await _dbContext.Cases
+            .AsNoTracking()
+                .Where(x => (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                .GroupBy(x => x.CaseType.Code)
+                .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
+                .ToListAsync();
+            return query;
+        }
+
+        private async Task<List<GroupByReportResult>> GetAgentCasesGroupedByCaseType(GetCasesListFilter filter) {
+            List<GroupByReportResult> query = await _dbContext.Cases
+                .AsNoTracking()
+                .Where(x => x.Channel == Channels.Agent &&
+                                (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                .GroupBy(x => x.CaseType.Code)
+                .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
+                .ToListAsync();
+            return query;
+        }
+
+        private async Task<List<GroupByReportResult>> GetCustomerCasesGroupedByCaseType(GetCasesListFilter filter) {
+            List<GroupByReportResult> query = await _dbContext.Cases
+                .AsNoTracking()
+                .Where(x => x.Channel == Channels.Customer &&
+                                (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                .GroupBy(x => x.CaseType.Code)
+                .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
+                .ToListAsync();
+            return query;
+        }
+
+        private async Task<List<GroupByReportResult>> GetCasesGroupedByStatus(GetCasesListFilter filter) {
+            List<GroupByReportResult> query = await _dbContext.Cases
+                .AsNoTracking()
+                .Where(x => (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                .GroupBy(x => x.Checkpoint.CheckpointType.Status)
+                .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
+                .ToListAsync();
+            return query;
+        }
+        private async Task<List<GroupByReportResult>> GetAgentCasesGroupedByStatus(GetCasesListFilter filter) {
+            List<GroupByReportResult> query = await _dbContext.Cases
+                .AsNoTracking()
+                .Where(x => x.Channel == Channels.Agent &&
+                                (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                .GroupBy(x => x.Checkpoint.CheckpointType.Status)
+                .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
+                .ToListAsync();
+            return query;
+        }
+
+        private async Task<List<GroupByReportResult>> GetCustomerCasesGroupedByStatus(GetCasesListFilter filter) {
+            List<GroupByReportResult> query = await _dbContext.Cases
+                .AsNoTracking()
+                .Where(x => x.Channel == Channels.Customer &&
+                                (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                .GroupBy(x => x.Checkpoint.CheckpointType.Status)
+                .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
+                .ToListAsync();
+            return query;
+        }
+
+        private async Task<List<GroupByReportResult>> GetCasesGroupedByGroupId(GetCasesListFilter filter) {
+            List<GroupByReportResult> query = await _dbContext.Cases
+                .AsNoTracking()
+                .Where(x => (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                .GroupBy(x => x.GroupId)
+                .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
+                .ToListAsync();
+            return query;
+        }
+
+        public async Task<List<GroupByReportResult>> GenerateReport(ClaimsPrincipal user, ReportTag reportTag) {
+            var filter = new GetCasesListFilter();
+            // TODO: not crazy about this one
+            // if a CaseAuthorizationService down the line wants to 
+            // not allow a user to see the list of case, it throws a ResourceUnauthorizedException
+            // which we catch and return an empty resultset. 
+            try {
+                filter = await _roleCaseTypeProvider.Filter(user, filter);
+            } catch (ResourceUnauthorizedException) {
+                return new List<GroupByReportResult>();
+            }
+            var groupByReportResult = new List<GroupByReportResult>();
+            var caseTypes = new ResultSet<CaseTypePartial>();
             switch (reportTag) {
                 case ReportTag.GroupedByCasetype:
-                    return await _distributedCache.TryGetAndSetAsync(
-                        cacheKey: $"{_caseReportCacheKey}.{ReportTag.GroupedByCasetype}",
-                        getSourceAsync: async () => await RunQuery(
-                            x => true,
-                            x => x.CaseType.Code,
-                            group => new GroupByReportResult { Label = group.Key, Count = group.Count() }),
-                        options: new DistributedCacheEntryOptions {
-                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-                        });
+                    groupByReportResult = await GetCasesGroupedByCaseType(filter);
+                    caseTypes = await _caseTypeService.Get(user, false);
+                    // translate
+                    groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title);
+                    return groupByReportResult;
                 case ReportTag.AgentGroupedByCasetype:
-                    return await _distributedCache.TryGetAndSetAsync(
-                        cacheKey: $"{_caseReportCacheKey}.{ReportTag.AgentGroupedByCasetype}",
-                        getSourceAsync: async () => await RunQuery(
-                            x => x.Channel == Channels.Agent,
-                            x => x.CaseType.Code,
-                            group => new GroupByReportResult { Label = group.Key, Count = group.Count() }),
-                        options: new DistributedCacheEntryOptions {
-                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-                        });
+                    groupByReportResult = await GetAgentCasesGroupedByCaseType(filter);
+                    caseTypes = await _caseTypeService.Get(user, false);
+                    // translate
+                    groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title);
+                    return groupByReportResult;
                 case ReportTag.CustomerGroupedByCasetype:
-                    return await _distributedCache.TryGetAndSetAsync(
-                        cacheKey: $"{_caseReportCacheKey}.{ReportTag.CustomerGroupedByCasetype}",
-                        getSourceAsync: async () => await RunQuery(
-                            x => x.Channel == Channels.Customer,
-                            x => x.CaseType.Code,
-                            group => new GroupByReportResult { Label = group.Key, Count = group.Count() }),
-                        options: new DistributedCacheEntryOptions {
-                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-                        });
+                    groupByReportResult = await GetCustomerCasesGroupedByCaseType(filter);
+                    caseTypes = await _caseTypeService.Get(user, false);
+                    // translate
+                    groupByReportResult.ForEach(x => x.Label = caseTypes.Items.First(c => c.Code == x.Label).Title);
+                    return groupByReportResult;
                 case ReportTag.GroupedByStatus:
-                    return await _distributedCache.TryGetAndSetAsync(
-                        cacheKey: $"{_caseReportCacheKey}.{ReportTag.GroupedByStatus}",
-                        getSourceAsync: async () => await RunQuery(
-                            x => true,
-                            x => x.Checkpoint.CheckpointType.Status,
-                            group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() }),
-                        options: new DistributedCacheEntryOptions {
-                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-                        });
+                    return await GetCasesGroupedByStatus(filter);
                 case ReportTag.AgentGroupedByStatus:
-                    return await _distributedCache.TryGetAndSetAsync(
-                        cacheKey: $"{_caseReportCacheKey}.{ReportTag.AgentGroupedByStatus}",
-                        getSourceAsync: async () => await RunQuery(
-                            x => x.Channel == Channels.Agent,
-                            x => x.Checkpoint.CheckpointType.Status,
-                            group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() }),
-                        options: new DistributedCacheEntryOptions {
-                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-                        });
+                    return await GetAgentCasesGroupedByStatus(filter);
                 case ReportTag.CustomerGroupedByStatus:
-                    return await _distributedCache.TryGetAndSetAsync(
-                        cacheKey: $"{_caseReportCacheKey}.{ReportTag.CustomerGroupedByStatus}",
-                        getSourceAsync: async () => await RunQuery(
-                            x => x.Channel == Channels.Customer,
-                            x => x.Checkpoint.CheckpointType.Status,
-                            group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() }),
-                        options: new DistributedCacheEntryOptions {
-                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-                        });
+                    return await GetCustomerCasesGroupedByStatus(filter);
                 case ReportTag.GroupedByGroupId:
-                    return await _distributedCache.TryGetAndSetAsync(
-                        cacheKey: $"{_caseReportCacheKey}.{ReportTag.GroupedByGroupId}",
-                        getSourceAsync: async () => await RunQuery(
-                            x => true,
-                            x => x.GroupId,
-                            group => new GroupByReportResult { Label = group.Key, Count = group.Count() }),
-                        options: new DistributedCacheEntryOptions {
-                            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-                        });
+                    return await GetCasesGroupedByGroupId(filter);
                 default:
                     throw new ArgumentException(nameof(reportTag));
             }
         }
 
-        private async Task<List<GroupByReportResult>> RunQuery<Tkey>(
-        Expression<Func<DbCase, bool>> whereClause,
-        Expression<Func<DbCase, Tkey>> groupByClause,
-        Expression<Func<IGrouping<Tkey, DbCase>, GroupByReportResult>> selectClause) {
-            List<GroupByReportResult> query = await _dbContext.Cases
-                .AsNoTracking()
-                .Where(whereClause)
-                .GroupBy(groupByClause)
-                .Select(selectClause)
-                .ToListAsync();
-            return query;
-        }
     }
 
 }

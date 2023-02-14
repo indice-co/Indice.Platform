@@ -1,4 +1,5 @@
-﻿using Indice.Features.Cases.Data.Models;
+﻿using System.Security.Claims;
+using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Models;
 
 namespace Indice.Features.Cases.Interfaces
@@ -11,8 +12,9 @@ namespace Indice.Features.Cases.Interfaces
         /// <summary>
         /// Generates a case report
         /// </summary>
+        /// <param name="user"></param>
         /// <param name="reportTag"></param>
         /// <returns></returns>
-        Task<List<GroupByReportResult>> GenerateReport(ReportTag reportTag);
+        Task<List<GroupByReportResult>> GenerateReport(ClaimsPrincipal user, ReportTag reportTag);
     }
 }

@@ -12,6 +12,7 @@ import { ReportTag } from 'src/app/core/services/cases-api.service';
 export class DashboardComponent implements OnInit {
     public metaItems: HeaderMetaItem[] | null = [];
     public user: User | null = null;
+    public isAdmin: boolean | undefined;
     public userSub$: Subscription | null = null;
     public reportTag = ReportTag;
 
@@ -20,12 +21,14 @@ export class DashboardComponent implements OnInit {
     ngOnInit(): void {
         this.authService.loadUser().subscribe((user) => {
             this.user = user;
+            this.isAdmin = this.authService.isAdmin();
         }, error => {
             console.error(error);
         });
         // Detect user changes and display / or not user info accordingly...
         this.userSub$ = this.authService.user$.subscribe((user: any) => {
             this.user = user;
+            this.isAdmin = this.authService.isAdmin();
         });
         this.metaItems = [];
     }
