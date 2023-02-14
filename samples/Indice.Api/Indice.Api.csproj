@@ -6,7 +6,6 @@
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
     <PackageReference Include="IdentityModel.AspNetCore.OAuth2Introspection" Version="6.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.4.0" />
   </ItemGroup>
