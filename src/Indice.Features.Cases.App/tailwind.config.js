@@ -7,7 +7,7 @@ module.exports = {
     enabled: enablePurge,
     content: [
       './src/**/*.{html,ts,css,scss}',
-      './node_modules/@indice/ng-components/_styles.css'
+      './node_modules/@indice/ng-components/_styles.scss'
     ]
   },
   theme: {

@@ -257,6 +257,13 @@ export interface ICasesApiService {
      */
     deleteQuery(queryId: string, api_version?: string | undefined): Observable<void>;
     /**
+     * Get case report
+     * @param reportTag (optional) 
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCaseReport(reportTag?: ReportTag | undefined, api_version?: string | undefined): Observable<GroupByReportResult[]>;
+    /**
      * Gets case types.
      * @param filter_CaseTypeTags (optional) The case type tag filter.
      * @param page (optional) The current page of the list. Default is 1.
@@ -3442,6 +3449,103 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Get case report
+     * @param reportTag (optional) 
+     * @param api_version (optional) 
+     * @return Success
+     */
+    getCaseReport(reportTag?: ReportTag | undefined, api_version?: string | undefined): Observable<GroupByReportResult[]> {
+        let url_ = this.baseUrl + "/api/manage/reports?";
+        if (reportTag === null)
+            throw new Error("The parameter 'reportTag' cannot be null.");
+        else if (reportTag !== undefined)
+            url_ += "reportTag=" + encodeURIComponent("" + reportTag) + "&";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCaseReport(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCaseReport(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GroupByReportResult[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GroupByReportResult[]>;
+        }));
+    }
+
+    protected processGetCaseReport(response: HttpResponseBase): Observable<GroupByReportResult[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GroupByReportResult.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<GroupByReportResult[]>(null as any);
+    }
+
+    /**
      * Gets case types.
      * @param filter_CaseTypeTags (optional) The case type tag filter.
      * @param page (optional) The current page of the list. Default is 1.
@@ -6466,6 +6570,52 @@ export interface IFilterTerm {
     value?: string | undefined;
 }
 
+/** The GroupByReportResult. */
+export class GroupByReportResult implements IGroupByReportResult {
+    /** Count */
+    count?: number;
+    /** Label */
+    label?: string | undefined;
+
+    constructor(data?: IGroupByReportResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            this.label = _data["label"];
+        }
+    }
+
+    static fromJS(data: any): GroupByReportResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new GroupByReportResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        data["label"] = this.label;
+        return data;
+    }
+}
+
+/** The GroupByReportResult. */
+export interface IGroupByReportResult {
+    /** Count */
+    count?: number;
+    /** Label */
+    label?: string | undefined;
+}
+
 /** The lookup item model. */
 export class LookupItem implements ILookupItem {
     /** The name or the key of the look up item */
@@ -7048,6 +7198,17 @@ export interface IRejectReason {
     key?: string | undefined;
     /** The value of the reject reason. This will be translated into request language. */
     value?: string | undefined;
+}
+
+/** Define the case report tag. */
+export enum ReportTag {
+    GroupedByCasetype = "GroupedByCasetype",
+    AgentGroupedByCasetype = "AgentGroupedByCasetype",
+    CustomerGroupedByCasetype = "CustomerGroupedByCasetype",
+    GroupedByStatus = "GroupedByStatus",
+    AgentGroupedByStatus = "AgentGroupedByStatus",
+    CustomerGroupedByStatus = "CustomerGroupedByStatus",
+    GroupedByGroupId = "GroupedByGroupId",
 }
 
 /** The Save Query Request */
