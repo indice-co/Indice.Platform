@@ -141,6 +141,7 @@ namespace Indice.Features.Cases
 
             // Register custom services.
             services.AddTransient<IAdminCaseService, AdminCaseService>();
+            services.AddTransient<IAdminReportService, AdminReportService>();
             services.AddTransient<IQueryService, QueryService>();
             services.AddTransient<ICaseAuthorizationService, RoleCaseTypeService>();
             services.AddTransient<ICaseActionsService, CaseActionsService>();

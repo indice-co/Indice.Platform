@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Models;
+using Indice.Services;
 
 namespace Indice.AspNetCore.Identity
 {
@@ -12,7 +13,8 @@ namespace Indice.AspNetCore.Identity
         /// <summary>Builds the <see cref="MfaLoginViewModel"/>.</summary>
         /// <param name="returnUrl">The return URL to go to after successful login.</param>
         /// <param name="downgradeMfaChannel">Chooses a less secure channel for MFA, if possible.</param>
-        Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string returnUrl, bool downgradeMfaChannel = false);
+        /// <param name="mfaChannel">The MFA channel to use if <paramref name="downgradeMfaChannel"/> is set to true or no trusted devices exist.</param>
+        Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string returnUrl, bool downgradeMfaChannel = false, TotpDeliveryChannel? mfaChannel = null);
         /// <summary>Generic counterpart in case someone extends the basic <see cref="RegisterViewModel"/> with extra properties.</summary>
         /// <typeparam name="TRegisterViewModel">The type of <see cref="RegisterViewModel"/>.</typeparam>
         /// <param name="returnUrl">The return URL.</param>
