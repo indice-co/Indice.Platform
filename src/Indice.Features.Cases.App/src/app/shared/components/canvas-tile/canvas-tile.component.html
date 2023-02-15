@@ -1,0 +1,11 @@
+<lib-kpi-tile [title]="title"
+              [busy]="loading"
+              [kpi]="sum"
+              class="cursor-pointer"
+              (tile-action)="navigate('/cases')"
+              [hideBtn]="true">
+    <div class="kpi-chart-container">
+        <canvas style="height:290px;width:290px;padding-bottom:8px;"
+                [id]="canvasId"></canvas>
+    </div>
+</lib-kpi-tile>

@@ -1,6 +1,5 @@
 ﻿using Indice.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -13,6 +12,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 hostOptions.UseLockManagerAzure();
             })
             .AddMessageJobs(jobsOptions => {
+                jobsOptions.QueuePollingInterval = 5000;
+                jobsOptions.QueueMaxPollingInterval = 10000;
                 jobsOptions.UseFilesAzure();
                 jobsOptions.UsePushNotificationServiceAzure();
                 jobsOptions.UseEmailServiceSparkpost(jobsOptions.Configuration);

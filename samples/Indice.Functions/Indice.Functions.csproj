@@ -3,6 +3,7 @@
     <_FunctionsSkipCleanOutput>true</_FunctionsSkipCleanOutput>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <OutputType>Exe</OutputType>
+    <UserSecretsId>3c78b8e4-1ee5-4912-90f1-169d39b2aa9f</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.10.0" />

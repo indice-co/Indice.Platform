@@ -104,7 +104,7 @@ namespace Indice.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string returnUrl, bool downgradeMfaChannel = false) {
+        public async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string returnUrl, bool downgradeMfaChannel = false, TotpDeliveryChannel? mfaChannel = null) {
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             if (user is null) {
                 return default;
@@ -112,7 +112,7 @@ namespace Indice.AspNetCore.Identity
             var allowMfaChannelDowngrade = _configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowChannelDowngrade") ?? false;
             if (downgradeMfaChannel && allowMfaChannelDowngrade) {
                 return new MfaLoginViewModel {
-                    DeliveryChannel = TotpDeliveryChannel.Sms,
+                    DeliveryChannel = mfaChannel ?? TotpDeliveryChannel.Sms,
                     ReturnUrl = returnUrl,
                     User = user,
                     AllowMfaChannelDowngrade = true
@@ -126,7 +126,7 @@ namespace Indice.AspNetCore.Identity
                 var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
                 var phoneNumberConfirmed = !string.IsNullOrWhiteSpace(phoneNumber) && await _userManager.IsPhoneNumberConfirmedAsync(user);
                 if (phoneNumberConfirmed) {
-                    deliveryChannel = TotpDeliveryChannel.Sms;
+                    deliveryChannel = mfaChannel ?? TotpDeliveryChannel.Sms;
                 }
             }
             return new MfaLoginViewModel {

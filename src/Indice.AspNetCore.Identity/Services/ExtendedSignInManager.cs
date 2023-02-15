@@ -63,7 +63,7 @@ namespace Indice.AspNetCore.Identity
             _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
             EnforceMfa = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(EnforceMfa)) == true;
             RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
-            RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true || EnforceMfa;
+            RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
             ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
             ExternalScheme = configuration.GetIdentityOption<string>(nameof(IdentityOptions.SignIn), nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
             PersistTrustedBrowsers = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(PersistTrustedBrowsers)) == true;
@@ -76,7 +76,6 @@ namespace Indice.AspNetCore.Identity
         /// <summary>Enables the feature post login email confirmation.</summary>
         public bool RequirePostSignInConfirmedEmail { get; }
         /// <summary>Enables the feature post login phone number confirmation.</summary>
-        /// <remarks>Can be also enabled by <seealso cref="EnforceMfa"/> property.</remarks>
         public bool RequirePostSignInConfirmedPhoneNumber { get; }
         /// <summary>If enabled then users with blacklisted passwords will be forced to change their password upon sign-in instead of waiting for the next time they need to change it.</summary>
         public bool ExpireBlacklistedPasswordsOnSignIn { get; }
