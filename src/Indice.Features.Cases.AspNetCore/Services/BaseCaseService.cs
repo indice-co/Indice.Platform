@@ -98,6 +98,54 @@ namespace Indice.Features.Cases.Services
             return query;
         }
 
+        protected async Task<Case> GetCaseInternal(Guid caseId, string schemaKey = null) {
+            var query =
+                from c in _dbContext.Cases.AsQueryable().AsNoTracking()
+                where c.Id == caseId
+                select new Case {
+                    Id = c.Id,
+                    Status = c.PublicCheckpoint.CheckpointType.Status,
+                    CheckpointTypeCode = c.PublicCheckpoint.CheckpointType.Code,
+                    CheckpointTypeId = c.PublicCheckpoint.CheckpointType.Id,
+                    CreatedByWhen = c.CreatedBy.When,
+                    CreatedById = c.CreatedBy.Id,
+                    CreatedByEmail = c.CreatedBy.Email,
+                    CreatedByName = c.CreatedBy.Name,
+                    CaseType = new CaseTypePartial {
+                        Code = c.CaseType.Code,
+                        Title = c.CaseType.Title,
+                        Id = c.CaseType.Id,
+                        DataSchema = GetSingleOrMultiple(schemaKey, c.CaseType.DataSchema),
+                        Layout = GetSingleOrMultiple(schemaKey, c.CaseType.Layout),
+                        LayoutTranslations = c.CaseType.LayoutTranslations,
+                        Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.CaseType.Translations),
+                        Config = c.CaseType.Config
+                    },
+                    CustomerId = c.Customer.CustomerId,
+                    CustomerName = c.Customer.FullName,
+                    UserId = c.Customer.UserId,
+                    GroupId = c.GroupId,
+                    Metadata = c.Metadata,
+                    Attachments = c.Attachments.Select(attachment => new CaseAttachment {
+                        Id = attachment.Id,
+                        Name = attachment.Name,
+                        ContentType = attachment.ContentType,
+                        Extension = attachment.FileExtension,
+                        Data = attachment.Data
+                    }).ToList(),
+                    Data = c.PublicData.Data,
+                    AssignedToName = c.AssignedTo.Name,
+                    Channel = c.Channel,
+                    Draft = c.Draft,
+                    Approvers = c.Approvals
+                        .Where(p => p.Committed && p.Action == Approval.Approve)
+                        .Select(p => p.CreatedBy)
+                        .OrderBy(p => p.When)
+                        .ToList()
+                };
+            return await query.FirstOrDefaultAsync();
+        }
+
         /// <summary>
         /// Get the case as requested by a Customer. Case must match <see cref="DbCase.CreatedBy"/> with the <see cref="ClaimsPrincipal"/> of the customer.
         /// </summary>

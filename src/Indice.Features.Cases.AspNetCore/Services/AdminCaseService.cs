@@ -89,7 +89,7 @@ namespace Indice.Features.Cases.Services
             } catch (ResourceUnauthorizedException) {
                 return new List<CasePartial>().ToResultSet();
             }
-            
+
             var query = _dbContext.Cases
                 .AsNoTracking()
                 .Where(c => !c.Draft) // filter out draft cases
@@ -154,7 +154,7 @@ namespace Indice.Features.Cases.Services
         public async Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId, bool? includeAttachmentData) {
             var query =
                 from c in GetCasesInternal(user.FindSubjectId(), includeAttachmentData ?? false, SchemaKey)
-                where c.Id == caseId 
+                where c.Id == caseId
                 select c;
 
             var @case = await query.FirstOrDefaultAsync();
@@ -165,6 +165,10 @@ namespace Indice.Features.Cases.Services
             }
 
             return @case;
+        }
+
+        public async Task<Case> GetCaseById(Guid caseId) {
+            return await GetCaseInternal(caseId, SchemaKey);
         }
 
         public async Task DeleteDraft(ClaimsPrincipal user, Guid caseId) {

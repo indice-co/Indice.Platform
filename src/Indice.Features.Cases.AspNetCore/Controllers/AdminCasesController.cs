@@ -140,7 +140,7 @@ namespace Indice.Features.Cases.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> SubmitAdminCase([FromRoute] Guid caseId, [FromBody]dynamic data) {
+        public async Task<IActionResult> SubmitAdminCase([FromRoute] Guid caseId, [FromBody] dynamic data) {
             await _adminCaseService.UpdateData(User, caseId, data);
             await _adminCaseService.Submit(User, caseId);
             return NoContent();
@@ -217,6 +217,26 @@ namespace Indice.Features.Cases.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseActions))]
         public async Task<IActionResult> GetCaseActions([FromRoute] Guid caseId) {
             return Ok(await _caseBookmarkService.GeUserActions(HttpContext.User, caseId));
+        }
+
+        /// <summary>
+        /// Validate Case.
+        /// </summary>
+        /// <param name="caseId">The Id of the case.</param>
+        [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeSystemClient)]
+        [ProducesResponseType(200, Type = typeof(CaseValidationResponse))]
+        [Produces(MediaTypeNames.Application.Json)]
+        [HttpGet("validate-case/{caseId:guid}")]
+        public async Task<IActionResult> ValidateCase(Guid caseId) {
+            var @case = await _adminCaseService.GetCaseById(caseId);
+            if (@case is null) {
+                return NotFound();
+            }
+            return Ok(new CaseValidationResponse {
+                CustomerName = @case.CustomerName,
+                CreatedByWhen = @case.CreatedByWhen,
+                Data = @case.Data
+            });
         }
 
         /// <summary>
