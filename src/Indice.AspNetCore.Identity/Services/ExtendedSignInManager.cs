@@ -61,7 +61,7 @@ namespace Indice.AspNetCore.Identity
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
             _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
             _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
-            EnforceMfa = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(EnforceMfa)) == true;
+            EnforceMfa = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Enforce") == true;
             RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
             RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
             ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
@@ -160,6 +160,10 @@ namespace Indice.AspNetCore.Identity
                 var requiresPhoneNumberValidation = !isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber;
                 var requiresPasswordChange = isPasswordExpired;
                 return new ExtendedSigninResult(requiresEmailValidation, requiresPhoneNumberValidation, requiresPasswordChange);
+            }
+            if (EnforceMfa) {
+                await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(user.Id, loginProvider));
+                return SignInResult.TwoFactorRequired;
             }
             var signInResult = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
             if (signInResult.Succeeded && (user is User)) {
@@ -294,6 +298,15 @@ namespace Indice.AspNetCore.Identity
             }
             if (!string.IsNullOrWhiteSpace(lastName)) {
                 identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, lastName));
+            }
+            return new ClaimsPrincipal(identity);
+        }
+
+        private static ClaimsPrincipal StoreTwoFactorInfo(string userId, string loginProvider) {
+            var identity = new ClaimsIdentity(IdentityConstants.TwoFactorUserIdScheme);
+            identity.AddClaim(new Claim(ClaimTypes.Name, userId));
+            if (loginProvider != null) {
+                identity.AddClaim(new Claim(ClaimTypes.AuthenticationMethod, loginProvider));
             }
             return new ClaimsPrincipal(identity);
         }
