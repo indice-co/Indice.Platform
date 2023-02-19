@@ -1,4 +1,5 @@
-﻿using Indice.Hosting;
+﻿using Indice.Api.JobHandlers;
+using Indice.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -12,12 +13,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 hostOptions.UseLockManagerAzure();
             })
             .AddMessageJobs(jobsOptions => {
-                jobsOptions.QueuePollingInterval = 5000;
-                jobsOptions.QueueMaxPollingInterval = 10000;
-                jobsOptions.UseFilesAzure();
+                jobsOptions.QueuePollingInterval = 300;
+                jobsOptions.QueueMaxPollingInterval = 5000;
+                //jobsOptions.UseFilesAzure();
+                jobsOptions.UseFilesLocal(fileOptions => fileOptions.Path = "uploads");
                 jobsOptions.UsePushNotificationServiceAzure();
                 jobsOptions.UseEmailServiceSparkpost(jobsOptions.Configuration);
                 jobsOptions.UseSmsServiceYubotoOmni(jobsOptions.Configuration);
-            });
+            })
+            .AddJob<ExtractWebsitesJobHandler>().WithQueueTrigger<ExtractWebsitesCommand>(options => options.QueueName = "extract-websites")
+            .AddJob<DownloadWebsiteContentJobHandler>().WithQueueTrigger<DownloadWebsiteCommand>(options => options.QueueName = "download-website-content");
     }
 }
