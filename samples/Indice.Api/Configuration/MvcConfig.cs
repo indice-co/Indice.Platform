@@ -19,8 +19,8 @@ namespace Microsoft.Extensions.DependencyInjection
                     options.RequiredScope = $"backoffice:{MessagesApi.Scope}";
                     options.UserClaimType = JwtClaimTypes.Subject;
                     //options.UseFilesAzure();
-                    options.UseFilesLocal(fileOptions => fileOptions.Path = "uploads");
                     //options.UseEventDispatcherAzure();
+                    options.UseFilesLocal(fileOptions => fileOptions.Path = "uploads");
                     options.UseEventDispatcherHosting();
                     options.UseIdentityContactResolver(resolverOptions => {
                         resolverOptions.BaseAddress = new Uri(configuration["IdentityServer:BaseAddress"]);

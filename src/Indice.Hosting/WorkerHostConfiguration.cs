@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using Indice.Hosting;
 using Indice.Hosting.Data;
 using Indice.Hosting.Services;
@@ -39,6 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
             };
             configureAction?.Invoke(workerHostOptions);
             services.AddSingleton(workerHostOptions.JsonOptions);
+            // https://www.quartz-scheduler.net/documentation/quartz-3.x/configuration/reference.html
             var quartzConfiguration = new NameValueCollection {
                 { "quartz.threadPool.maxConcurrency", "100" },
                 { "quartz.threadPool.threadCount", "100" }

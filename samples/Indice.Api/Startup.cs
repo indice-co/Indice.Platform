@@ -85,7 +85,8 @@ namespace Indice.Api
                 app.UseSwaggerUI(options => {
                     options.RoutePrefix = "docs";
                     options.SwaggerEndpoint($"/swagger/{MessagesApi.Scope}/swagger.json", MessagesApi.Scope);
-                    options.SwaggerEndpoint($"/swagger/lookups/swagger.json", "lookups");
+                    options.SwaggerEndpoint("/swagger/lookups/swagger.json", "lookups");
+                    options.SwaggerEndpoint("/swagger/workers/swagger.json", "workers");
                     options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     options.OAuthClientId("swagger-ui");
                     options.OAuthAppName("Swagger UI");
