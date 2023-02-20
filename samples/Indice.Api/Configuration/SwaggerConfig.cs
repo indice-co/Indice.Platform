@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Features.Messages.Core;
 
@@ -17,6 +16,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.IncludeXmlComments(Assembly.GetAssembly(typeof(MessageEndpointOptions)));
                 options.AddDoc(MessagesApi.Scope, "Campaigns API", "API for managing campaigns in the backoffice tool.");
                 options.AddDoc("lookups", "Lookups API", "API for various lookups.");
+                options.AddDoc("workers", "Workers API", "API for triggering various background jobs.");
             });
             return services;
         }
