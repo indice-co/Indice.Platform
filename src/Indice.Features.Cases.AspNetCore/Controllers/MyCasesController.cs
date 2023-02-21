@@ -31,18 +31,24 @@ namespace Indice.Features.Cases.Controllers
         private readonly ICasePdfService _casePdfService;
         private readonly ICaseEventService _caseEventService;
         private readonly IMyCaseMessageService _caseMessageService;
+        private readonly IPdfSigningService _pdfSigningService;
+        private readonly IQrCodeService _qrCodeService;
 
         public MyCasesController(
             IMyCaseService myCaseService,
             ICaseTemplateService caseTemplateService,
             ICasePdfService casePdfService,
             IMyCaseMessageService caseMessageService,
-            ICaseEventService caseEventService) {
+            ICaseEventService caseEventService,
+            IPdfSigningService pdfSigningService,
+            IQrCodeService qrCodeService) {
             _myCaseService = myCaseService ?? throw new ArgumentNullException(nameof(myCaseService));
             _caseTemplateService = caseTemplateService ?? throw new ArgumentNullException(nameof(caseTemplateService));
             _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
             _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
             _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+            _pdfSigningService = pdfSigningService ?? throw new ArgumentNullException(nameof(pdfSigningService));
+            _qrCodeService = qrCodeService ?? throw new ArgumentNullException(nameof(qrCodeService));
         }
 
         /// <summary>
@@ -166,7 +172,16 @@ namespace Indice.Features.Cases.Controllers
                 }
             }
             var template = await _caseTemplateService.RenderTemplateAsync(@case);
-            return await _casePdfService.HtmlToPdfAsync(template, isPortrait, digitallySigned, requiresQrCode, @case.Id);
+            var byteArray = await _casePdfService.HtmlToPdfAsync(template, isPortrait);
+            if (requiresQrCode) { // some case pdfs need to have a QR Code, but others don't
+                // add QR Code
+                byteArray = _qrCodeService.Add(byteArray, @case.Id);
+            }
+            if (digitallySigned) { // some case pdfs need to be digitally Signed, but others don't
+                // digitally sign the Pdf
+                byteArray = _pdfSigningService.Sign(byteArray);
+            }
+            return byteArray;
         }
     }
 }
