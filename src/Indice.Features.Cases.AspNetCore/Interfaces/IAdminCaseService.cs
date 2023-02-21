@@ -58,13 +58,6 @@ namespace Indice.Features.Cases.Interfaces
         Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId, bool? includeAttachmentData = null);
 
         /// <summary>
-        /// Get a case by its Id
-        /// </summary>
-        /// <param name="caseId">The Id of the case.</param>
-        /// <returns></returns>
-        Task<Case> GetCaseById(Guid caseId);
-
-        /// <summary>
         /// Performs a physical delete for a draft case.
         /// </summary>
         /// <param name="user">The user that created the case.</param>

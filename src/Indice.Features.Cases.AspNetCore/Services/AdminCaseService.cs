@@ -163,12 +163,8 @@ namespace Indice.Features.Cases.Services
             if (!await _roleCaseTypeProvider.IsValid(user, @case)) {
                 throw new ResourceUnauthorizedException();
             }
-
+            @case.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
             return @case;
-        }
-
-        public async Task<Case> GetCaseById(Guid caseId) {
-            return await GetCaseInternal(caseId, SchemaKey);
         }
 
         public async Task DeleteDraft(ClaimsPrincipal user, Guid caseId) {

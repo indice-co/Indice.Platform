@@ -220,26 +220,6 @@ namespace Indice.Features.Cases.Controllers
         }
 
         /// <summary>
-        /// Validate Case.
-        /// </summary>
-        /// <param name="caseId">The Id of the case.</param>
-        [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeSystemClient)]
-        [ProducesResponseType(200, Type = typeof(CaseValidationResponse))]
-        [Produces(MediaTypeNames.Application.Json)]
-        [HttpGet("validate-case/{caseId:guid}")]
-        public async Task<IActionResult> ValidateCase(Guid caseId) {
-            var @case = await _adminCaseService.GetCaseById(caseId);
-            if (@case is null) {
-                return NotFound();
-            }
-            return Ok(new CaseValidationResponse {
-                CustomerName = @case.CustomerName,
-                CreatedByWhen = @case.CreatedByWhen,
-                Data = @case.Data
-            });
-        }
-
-        /// <summary>
         /// Get the reject reasons for a case.
         /// </summary>
         /// <param name="caseId">The Id of the case.</param>

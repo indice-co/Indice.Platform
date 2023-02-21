@@ -57,11 +57,6 @@ namespace Indice.Features.Cases
             /// A user must have the BeCasesAdministrator role to be authorized for AdminCaseTypes Feature 
             /// </summary>
             public const string BeCasesAdministrator = nameof(BeCasesAdministrator);
-
-            /// <summary>
-            /// A client must have the BeSystemClient role to be authorized for AdminCaseTypes Feature 
-            /// </summary>
-            public const string BeSystemClient = nameof(BeSystemClient);
         }
 
         /// <summary>
