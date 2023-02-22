@@ -548,13 +548,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
         public IActionResult GetPasswordOptions() => Ok(_identityOptions.Password);
 
         /// <summary>Checks if a username already exists in the database.</summary>
-        /// <response code="302">Found</response>
+        /// <response code="200">OK</response>
         /// <response code="400">Bad Request</response>
         /// <response code="404">Not Found</response>
         /// <response code="410">Gone</response>
         [AllowAnonymous]
         [HttpPost("account/username-exists")]
-        [ProducesResponseType(statusCode: StatusCodes.Status302Found, type: typeof(void))]
+        [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
         [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(void))]
         [ProducesResponseType(statusCode: StatusCodes.Status410Gone, type: typeof(void))]
@@ -567,7 +567,7 @@ namespace Indice.AspNetCore.Identity.Api.Controllers
                 return BadRequest(new ValidationProblemDetails(ModelState));
             }
             var user = await _userManager.FindByNameAsync(request.UserName);
-            return user == null ? NotFound() : StatusCode(StatusCodes.Status302Found);
+            return user == null ? NotFound() : StatusCode(StatusCodes.Status200OK);
         }
 
         /// <summary>Validates a user's password against one or more configured <see cref="IPasswordValidator{TUser}"/>.</summary>
