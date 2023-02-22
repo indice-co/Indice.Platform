@@ -2,9 +2,10 @@
 
 namespace Indice.Features.Cases.Services.NoOpServices
 {
-    internal class NoOpCasePdfService : ICasePdfService
+    internal class NoOpPdfSigningService : IPdfSigningService
     {
-        public Task<byte[]> HtmlToPdfAsync(string htmlTemplate, bool isPortrait = true) =>
+        public byte[] Sign(byte[] pdf) {
             throw new NotImplementedException("Implement this interface with your own data sources.");
+        }
     }
 }

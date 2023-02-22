@@ -2,9 +2,10 @@
 
 namespace Indice.Features.Cases.Services.NoOpServices
 {
-    internal class NoOpCasePdfService : ICasePdfService
+    internal class NoOpQrCodeService : IQrCodeService
     {
-        public Task<byte[]> HtmlToPdfAsync(string htmlTemplate, bool isPortrait = true) =>
+        public byte[] Add(byte[] pdf, Guid? id) {
             throw new NotImplementedException("Implement this interface with your own data sources.");
+        }
     }
 }

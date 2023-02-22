@@ -140,7 +140,7 @@ namespace Indice.Features.Cases.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> SubmitAdminCase([FromRoute] Guid caseId, [FromBody]dynamic data) {
+        public async Task<IActionResult> SubmitAdminCase([FromRoute] Guid caseId, [FromBody] dynamic data) {
             await _adminCaseService.UpdateData(User, caseId, data);
             await _adminCaseService.Submit(User, caseId);
             return NoContent();

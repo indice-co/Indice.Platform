@@ -10,8 +10,7 @@
         /// </summary>
         /// <param name="htmlTemplate">The html template.</param>
         /// <param name="isPortrait">The pdf print option for defining portrait.</param>
-        /// <param name="digitallySigned">Determines whether the pdf document will be digitally signed.</param>
         /// <returns></returns>
-        Task<byte[]> HtmlToPdfAsync(string htmlTemplate, bool isPortrait = true, bool digitallySigned = false);
+        Task<byte[]> HtmlToPdfAsync(string htmlTemplate, bool isPortrait = true);
     }
 }

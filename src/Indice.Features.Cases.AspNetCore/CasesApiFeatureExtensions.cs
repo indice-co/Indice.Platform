@@ -76,6 +76,8 @@ namespace Indice.Features.Cases
             services.AddLookupService<NoOpLookupService>(nameof(NoOpLookupService)); // needed for factory instantiation
             services.AddTransient<ICustomerIntegrationService, NoOpCustomerIntegrationService>();
             services.AddTransient<ICasePdfService, NoOpCasePdfService>();
+            services.AddTransient<IPdfSigningService, NoOpPdfSigningService>();
+            services.AddTransient<IQrCodeService, NoOpQrCodeService>();
 
             // Register LookupService Factory
             services.AddTransient<ILookupServiceFactory, DefaultLookupServiceFactory>();
