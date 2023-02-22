@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using System.Text.Json;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
@@ -29,6 +30,7 @@ namespace Indice.Features.Cases.Controllers
         private readonly ICaseActionsService _caseBookmarkService;
         private readonly IAdminCaseMessageService _adminCaseMessageService;
         private readonly ICaseApprovalService _caseApprovalService;
+        private readonly IQrCodeService _qrCodeService;
 
         public AdminCasesController(
             IAdminCaseService adminCaseService,
@@ -36,13 +38,15 @@ namespace Indice.Features.Cases.Controllers
             ICaseTemplateService caseTemplateService,
             ICaseActionsService caseBookmarkService,
             IAdminCaseMessageService adminCaseMessageService,
-            ICaseApprovalService caseApprovalService) {
+            ICaseApprovalService caseApprovalService,
+            IQrCodeService qrCodeService) {
             _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
             _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
             _caseTemplateService = caseTemplateService ?? throw new ArgumentNullException(nameof(caseTemplateService));
             _caseBookmarkService = caseBookmarkService ?? throw new ArgumentNullException(nameof(caseBookmarkService));
             _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
             _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
+            _qrCodeService = qrCodeService ?? throw new ArgumentNullException(nameof(qrCodeService));
         }
 
         /// <summary>
@@ -247,8 +251,24 @@ namespace Indice.Features.Cases.Controllers
         }
 
         private async Task<byte[]> CreatePdf(Case @case) {
+            var isPortrait = true;
+            var requiresQrCode = false;
+            if (@case.CaseType.Config is not null) {
+                var caseTypeConfig = JsonSerializer.Deserialize<JsonDocument>(@case.CaseType.Config);
+                if (caseTypeConfig.RootElement.TryGetProperty("IsPortrait", out var isPortraitConfig)) {
+                    isPortrait = isPortraitConfig.GetBoolean();
+                }
+                if (caseTypeConfig.RootElement.TryGetProperty("RequiresQrCode", out var requiresQrCodeConfig)) {
+                    requiresQrCode = requiresQrCodeConfig.GetBoolean();
+                }
+            }
             var template = await _caseTemplateService.RenderTemplateAsync(@case);
-            return await _casePdfService.HtmlToPdfAsync(template);
+            var byteArray = await _casePdfService.HtmlToPdfAsync(template, isPortrait);
+            if (requiresQrCode) { // some case pdfs need to have a QR Code, but others don't
+                // add QR Code
+                byteArray = _qrCodeService.Add(byteArray, @case.Id);
+            }
+            return byteArray;
         }
     }
 }
