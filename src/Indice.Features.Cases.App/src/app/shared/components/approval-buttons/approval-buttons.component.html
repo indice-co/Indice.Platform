@@ -8,8 +8,8 @@
         <lib-toggle-button id="inbox"
                            [value]="true"
                            (valueChange)="onToggleButtonChange()"
-                           [true-label]="'Η αίτηση θα εγκριθεί!'"
-                           [false-label]="'Η αίτηση θα απορριφθεί!'">
+                           [text-true]="'Η αίτηση θα εγκριθεί!'"
+                           [text-false]="'Η αίτηση θα απορριφθεί!'">
         </lib-toggle-button>
     </div>
     <ng-container *ngIf="rejectionOptions$ | async as rejectionOptions">

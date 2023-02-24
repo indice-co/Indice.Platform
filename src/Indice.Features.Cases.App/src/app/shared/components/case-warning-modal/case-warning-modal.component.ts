@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Modal } from '@indice/ng-components';
+import { Modal, ModalOptions } from '@indice/ng-components';
 export class WarningViewModel {
   public title: string | undefined;
   public description: string | undefined;
@@ -13,10 +13,13 @@ export class WarningViewModel {
  * Should be filled with title and description
  */
 export class CaseWarningModalComponent implements OnInit {
-  public warningModalState: WarningViewModel | undefined;
-  constructor(private modal: Modal) { }
+  public warningModalState: any;
+  constructor(
+    private modal: Modal,
+    private options: ModalOptions) { }
 
   ngOnInit(): void {
+    this.warningModalState = this.options?.initialState?.warningModalState;
   }
 
   public closeModal(accept: boolean = false) {
