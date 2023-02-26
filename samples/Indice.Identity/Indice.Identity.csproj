@@ -10,9 +10,6 @@
     <None Remove="wwwroot\admin\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Remove="bundleconfig.json" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
@@ -37,9 +34,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="bundleconfig.json" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 </Project>

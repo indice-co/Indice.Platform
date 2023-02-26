@@ -24,6 +24,7 @@ namespace Indice.AspNetCore.TagHelpers
                 area = $"area-{area}";
             }
             var controller = GetUrlCasing($"{ViewContext.RouteData.Values["controller"]}");
+            var page = GetUrlCasing($"{ViewContext.RouteData.Values["page"]}").Replace("/-", string.Empty);
             var action = GetUrlCasing($"{ViewContext.RouteData.Values["action"]}");
             if (action == "index") {
                 action = string.Empty;
@@ -32,8 +33,8 @@ namespace Indice.AspNetCore.TagHelpers
             if (output.Attributes.TryGetAttribute("class", out var css)) {
                 classList = css.Value.ToString().Split(' ').ToList();
             }
-            var pageSpecificClasses = new List<string> { area, controller, action };
-            classList.AddRange(pageSpecificClasses.Where(x => !string.IsNullOrEmpty(x)).Distinct());
+            var pageSpecificClasses = new List<string> { area, controller, action, page };
+            classList.AddRange(pageSpecificClasses.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct());
             output.Attributes.SetAttribute("class", string.Join(" ", classList));
         }
 

@@ -133,13 +133,13 @@ namespace Indice.Identity
             services.AddValidatorsFromAssemblyContaining<Startup>();
             services.AddFluentValidationClientsideAdapters();
             //services.AddClientIpRestrinctions();
-            services.AddClientIpRestrinctions(options => {
-                options.HttpStatusCode = System.Net.HttpStatusCode.NotFound;
-                options.AddIpAddressList("MyWhiteList", "192.168.1.5");
-                options.MapPath("/admin", "MyWhiteList");
-                options.MapPath("/login", "MyWhiteList");
-                options.IgnorePath("/login?ReturnUrl=", "GET");
-            });
+            //services.AddClientIpRestrinctions(options => {
+            //    options.HttpStatusCode = System.Net.HttpStatusCode.NotFound;
+            //    options.AddIpAddressList("MyWhiteList", "192.168.1.5");
+            //    options.MapPath("/admin", "MyWhiteList");
+            //    options.MapPath("/login", "MyWhiteList");
+            //    options.IgnorePath("/login?ReturnUrl=", "GET");
+            //});
         }
 
         /// <summary>This method gets called by the runtime. Use this method to configure the HTTP request pipeline.</summary>
@@ -152,7 +152,7 @@ namespace Indice.Identity
                 app.UseHsts();
                 app.UseHttpsRedirection();
             }
-            app.UseClientIpRestrictions();
+            //app.UseClientIpRestrictions();
             var staticFileOptions = new StaticFileOptions {
                 OnPrepareResponse = context => {
                     const int durationInSeconds = 60 * 60 * 24;

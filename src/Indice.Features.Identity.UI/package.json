@@ -30,10 +30,11 @@
     "postcss-assets": "6.0.0",
     "sass": "1.52.3"
   },
-  "name": "indice-idsrv",
+  "name": "indice-features-identity-ui",
   "private": true,
   "scripts": {
     "clean": "rimraf wwwroot/dist/*",
+    "gulp": "gulp",
     "npm:install": "npm install"
   },
   "type": "module",

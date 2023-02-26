@@ -2,7 +2,7 @@
 @import '_variables';
 
 body {
-    &.account, &.onboarding, &.manage, &.extended-validation, &.grants, &.consent, &.mfa {
+    &.account, &.onboarding, &.manage, &.extended-validation, &.grants, &.consent, &.mfa, &.area-identity {
         #wrap {
             position: relative;
         }
