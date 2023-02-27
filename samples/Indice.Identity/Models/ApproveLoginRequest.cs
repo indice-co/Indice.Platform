@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Indice.Identity.Models
-{
-    public class ApproveLoginRequest
-    {
-        [Required]
-        public string ConnectionId { get; set; }
+namespace Indice.Identity.Models;
 
-        [Required]
-        public string Otp { get; set; }
-    }
+public class ApproveLoginRequest
+{
+    [Required]
+    public string ConnectionId { get; set; }
+
+    [Required]
+    public string Otp { get; set; }
 }

@@ -1,0 +1,52 @@
+﻿@page "/"
+
+@model HomeModel
+
+@inject GeneralSettings Settings
+@inject IViewLocalizer Localizer
+@inject IWebHostEnvironment Environment
+
+@{
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+
+<h1 class="text-center display-4  p-sm-2 p-md-3 p-lg-4">
+    @Localizer["Welcome to our Digital Services <strong>Portal</strong> of {0}", Settings.Organization]
+</h1>
+<section class="border-0 sign-in">
+    <article class="text-center">
+        <div class="header-logo d-xs-block d-sm-block d-md-none pb-5">
+            <img class="img-fluid" src="~/img/logo@(langSuffix).svg" />
+        </div>
+        @if (!User.IsAuthenticated())
+        {
+            <div class="section text-left" id="welcome-to-identityserver4">
+                <p class="lead">
+                    @Localizer["You are in the {0} Identity Server. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization]
+                </p>
+            </div>
+            @await Html.PartialAsync("_ServiceDeck", Model.Services)
+            <p class="lead" indice-if="@Environment.IsDevelopment()">
+                @Localizer["Please login to the application"] <a asp-page="/login">@Localizer["here"]</a>.
+            </p>
+        }
+        else
+        {
+            <h3 class="py-5">
+                @Localizer["Welcome back"] @User.FindDisplayName().
+            </h3>
+            <div class="section text-left" id="welcome-to-identityserver4">
+                <p class="lead">@Localizer["You are in the {0} Identity Server. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization]</p>
+            </div>
+            @await Html.PartialAsync("_ServiceDeck", Model.Services)
+            <div class="paragraph-block text-left">
+                <h4>@Localizer["Manage your grants"]</h4>
+                <p class="lead">@Localizer["Check and revoke your <a class=\"reference external\" href=\"/grants\">authorized applications</a>."]</p>
+            </div>
+        }
+    </article>
+</section>
+<div id="stars"></div>
+<div id="stars2"></div>
+<div id="stars3"></div>

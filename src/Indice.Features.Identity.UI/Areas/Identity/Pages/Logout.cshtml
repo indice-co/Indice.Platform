@@ -1,8 +1,8 @@
 ﻿@page "/logout"
 
-@model LogoutModel
-
 @inject IViewLocalizer Localizer
+
+@model LogoutModel
 
 @{
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
@@ -18,8 +18,8 @@
             <span class="header-text">@Localizer["Logout"]</span>
         </h1>
         <p>@Localizer["Would you like to logout?"]</p>
-        <form asp-action="Logout">
-            @*<input type="hidden" name="logoutId" value="@Input.LogoutId" />*@
+        <form asp-page="logout">
+            <input type="hidden" name="logoutId" value="@Model.LogoutId" />
             <fieldset>
                 <div class="form-group">
                     <button class="btn btn-primary">@Localizer["Yes"]</button>

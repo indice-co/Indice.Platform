@@ -1,7 +1,6 @@
-﻿namespace Indice.Identity.Models
+﻿namespace Indice.Identity.Models;
+
+public class FooterViewModel
 {
-    public class FooterViewModel
-    {
-        public bool HasFixedPosition { get; set; }
-    }
+    public bool HasFixedPosition { get; set; }
 }

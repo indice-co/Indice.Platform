@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Indice.Identity.Models
+namespace Indice.Identity.Models;
+
+public class LoginTempData
 {
-    public class LoginTempData
-    {
-        public IEnumerable<string> Errors { get; set; }
-    }
+    public IEnumerable<string> Errors { get; set; }
 }

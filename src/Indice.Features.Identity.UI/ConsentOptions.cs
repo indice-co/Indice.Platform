@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.Models;
+﻿namespace Indice.Features.Identity.UI;
 
 /// <summary>Consent options</summary>
 public class ConsentOptions
