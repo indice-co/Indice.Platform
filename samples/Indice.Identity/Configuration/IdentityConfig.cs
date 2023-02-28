@@ -22,13 +22,13 @@ public static class IdentityConfig
         services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
         services.AddScopeTransformation();
         services.AddExternalProviderClaimsTransformation();
-        return services.AddIdentity<DbUser, DbRole>()
+        return services.AddIdentity<User, Role>()
                        .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
                        .AddIdentityMessageDescriber<LocalizedIdentityMessageDescriber>()
                        .AddClaimsPrincipalFactory<MicrosoftGraphUserClaimsPrincipalFactory>()
-                       .AddEntityFrameworkStores<ExtendedIdentityDbContext<DbUser, DbRole>>()
-                       .AddUserManager<ExtendedUserManager<DbUser>>()
-                       .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<DbUser, DbRole>, DbUser, DbRole>>()
+                       .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+                       .AddUserManager<ExtendedUserManager<User>>()
+                       .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                        .AddExtendedSignInManager()
                        .AddDefaultPasswordValidators()
                        .AddPasswordValidator<AllowedCharactersPasswordValidator>()

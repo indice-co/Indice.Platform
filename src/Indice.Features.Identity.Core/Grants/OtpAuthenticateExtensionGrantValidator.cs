@@ -15,7 +15,7 @@ namespace Indice.Features.Identity.Core.Grants;
 public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantValidator
 {
     private readonly ITokenValidator _tokenValidator;
-    private readonly UserManager<DbUser> _userManager;
+    private readonly UserManager<User> _userManager;
     private readonly IdentityMessageDescriber _identityMessageDescriber;
     private readonly TotpServiceFactory _totpServiceFactory;
 
@@ -27,7 +27,7 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
     /// <param name="totpServiceFactory">Used to generate, send and verify time based one time passwords.</param>
     public OtpAuthenticateExtensionGrantValidator(
         ITokenValidator validator,
-        UserManager<DbUser> userManager,
+        UserManager<User> userManager,
         TotpOptions totpOptions,
         IdentityMessageDescriber identityMessageDescriber,
         TotpServiceFactory totpServiceFactory
@@ -76,7 +76,7 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
         }
         .ToArray());
         /* 5.1 If an OTP is not provided, then we must send one to the user's confirmed phone number. */
-        var totpService = _totpServiceFactory.Create<DbUser>();
+        var totpService = _totpServiceFactory.Create<User>();
         if (string.IsNullOrWhiteSpace(otp)) {
             /* 5.1.1 In order to send the OTP we have to decide the delivery channel. Delivery channel can optionally be sent in the request. */
             var providedChannel = rawRequest.Get("channel");

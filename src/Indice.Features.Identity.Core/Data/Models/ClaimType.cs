@@ -1,7 +1,7 @@
 ﻿namespace Indice.Features.Identity.Core.Data.Models;
 
 /// <summary>Models an application claim type.</summary>
-public class DbClaimType
+public class ClaimType
 {
     /// <summary>Determines whether this claim is required to create new users.</summary>
     public bool Required { get; set; }

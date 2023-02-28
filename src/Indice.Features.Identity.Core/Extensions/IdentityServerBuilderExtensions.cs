@@ -36,7 +36,7 @@ public static class IdentityServerBuilderExtensions
     /// <summary>Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.</summary>
     /// <typeparam name="TUser">The type of user.</typeparam>
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
-    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder) where TUser : DbUser {
+    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder) where TUser : User {
         builder.Services.AddTransient<IResourceOwnerPasswordValidationFilter<TUser>, IdentityResourceOwnerPasswordValidator<TUser>>();
         builder.AddResourceOwnerValidator<ExtendedResourceOwnerPasswordValidator<TUser>>();
         var profileServiceImplementation = builder.Services.Where(x => x.ServiceType == typeof(IProfileService)).LastOrDefault()?.ImplementationType;
@@ -50,7 +50,7 @@ public static class IdentityServerBuilderExtensions
 
     /// <summary>Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.</summary>
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
-    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator(this IIdentityServerBuilder builder) => builder.AddExtendedResourceOwnerPasswordValidator<DbUser>();
+    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator(this IIdentityServerBuilder builder) => builder.AddExtendedResourceOwnerPasswordValidator<User>();
 
     /// <summary>Setup configuration store.</summary>
     /// <param name="options">Options for configuring the configuration context.</param>

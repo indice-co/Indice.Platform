@@ -6,7 +6,7 @@ namespace Indice.AspNetCore.Identity.Api.Models;
 public class IdentityApiEmailData
 {
     /// <summary>The user instance.</summary>
-    public DbUser User { get; set; }
+    public User User { get; set; }
     /// <summary>User's name for display purposes.</summary>
     public string DisplayName { get; set; }
     /// <summary>The token created for the user.</summary>

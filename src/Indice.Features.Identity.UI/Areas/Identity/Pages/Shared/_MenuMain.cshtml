@@ -1,7 +1,7 @@
 ﻿@inject IWebHostEnvironment Environment
 @inject IOptions<GeneralSettings> GeneralSettingsWrapper
 @inject IViewLocalizer Localizer
-@inject ExtendedSignInManager<DbUser> SignInManager
+@inject ExtendedSignInManager<User> SignInManager
 
 @{
     var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);

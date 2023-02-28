@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 namespace Indice.Features.Identity.Core.PasswordValidation;
 
 /// <inheritdoc/>
-public class UserNameAsPasswordValidator : UserNameAsPasswordValidator<DbUser>
+public class UserNameAsPasswordValidator : UserNameAsPasswordValidator<User>
 {
     /// <inheritdoc/>
     public UserNameAsPasswordValidator(IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(configuration, messageDescriber) { }
@@ -13,7 +13,7 @@ public class UserNameAsPasswordValidator : UserNameAsPasswordValidator<DbUser>
 
 /// <summary>A validator that checks if the username is identical to the password for a given number of characters.</summary>
 /// <typeparam name="TUser">The type of user instance.</typeparam>
-public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : DbUser
+public class UserNameAsPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
 {
     private readonly IdentityMessageDescriber _messageDescriber;
     /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>

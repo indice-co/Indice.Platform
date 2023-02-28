@@ -109,7 +109,7 @@ internal class ClaimTypesController : ControllerBase
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimTypeInfo))]
     public async Task<IActionResult> CreateClaimType([FromBody] CreateClaimTypeRequest request) {
-        var claimType = new DbClaimType {
+        var claimType = new ClaimType {
             Id = $"{Guid.NewGuid()}",
             Name = request.Name,
             DisplayName = request.DisplayName,

@@ -21,7 +21,7 @@ public class TotpServiceFactory
 
     /// <summary>Creates a new instance of <see cref="TotpServiceUser{TUser}"/>.</summary>
     /// <typeparam name="TUser">The type of user entity.</typeparam>
-    public TotpServiceUser<TUser> Create<TUser>() where TUser : DbUser {
+    public TotpServiceUser<TUser> Create<TUser>() where TUser : User {
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<TUser>>();
         var options = _serviceProvider.GetRequiredService<TotpOptions>();
         if (options.EnableDeveloperTotp) {

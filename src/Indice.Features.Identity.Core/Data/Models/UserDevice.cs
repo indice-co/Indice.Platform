@@ -3,14 +3,14 @@
 namespace Indice.Features.Identity.Core.Data.Models;
 
 /// <summary>User devices representation.</summary>
-public class DbUserDevice
+public class UserDevice
 {
-    /// <summary>Constructs a new instance of <see cref="DbUserDevice"/> with a new <see cref="Guid"/> as Id.</summary>
-    public DbUserDevice() : this(Guid.NewGuid()) { }
+    /// <summary>Constructs a new instance of <see cref="UserDevice"/> with a new <see cref="Guid"/> as Id.</summary>
+    public UserDevice() : this(Guid.NewGuid()) { }
 
-    /// <summary>Constructs a new instance of <see cref="DbUserDevice"/> using the given <see cref="Guid"/> as Id.</summary>
+    /// <summary>Constructs a new instance of <see cref="UserDevice"/> using the given <see cref="Guid"/> as Id.</summary>
     /// <param name="id">The primary key.</param>
-    public DbUserDevice(Guid id) => Id = id;
+    public UserDevice(Guid id) => Id = id;
 
     /// <summary>The primary key.</summary>
     public Guid Id { get; }
@@ -61,7 +61,7 @@ public class DbUserDevice
     /// <summary>The date until the client is remembered by the system and MFA is not asked.</summary>
     public DateTimeOffset? MfaSessionExpirationDate { get; set; }
     /// <summary>The user associated with this device.</summary>
-    public virtual DbUser User { get; set; }
+    public virtual User User { get; set; }
 }
 
 /// <summary>Models the way a device interacts with the identity system for trusted authorization.</summary>

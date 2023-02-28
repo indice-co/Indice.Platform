@@ -4,18 +4,18 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Identity.Core.Data.Mappings;
 
-/// <summary>Entity Framework mapping for type <see cref="DbClientSecretExtended"/>.</summary>
-internal class DbClientSecretExtendedMap : IEntityTypeConfiguration<DbClientSecretExtended>
+/// <summary>Entity Framework mapping for type <see cref="ClientSecretExtended"/>.</summary>
+internal class ClientSecretExtendedMap : IEntityTypeConfiguration<ClientSecretExtended>
 {
-    /// <summary>Configure Entity Framework mapping for type <see cref="DbClientSecretExtended"/>.</summary>
+    /// <summary>Configure Entity Framework mapping for type <see cref="ClientSecretExtended"/>.</summary>
     /// <param name="builder"></param>
-    public void Configure(EntityTypeBuilder<DbClientSecretExtended> builder) {
+    public void Configure(EntityTypeBuilder<ClientSecretExtended> builder) {
         // Configure table name and schema.
-        builder.ToTable(nameof(DbClientSecretExtended), "config");
+        builder.ToTable(nameof(ClientSecretExtended), "config");
         // Configure primary key.
         builder.HasKey(x => x.ClientSecretId);
         // Configure fields.
-        builder.Property(x => x.CustomDataJson).HasColumnName(nameof(DbClientSecretExtended.CustomData)).IsRequired();
+        builder.Property(x => x.CustomDataJson).HasColumnName(nameof(ClientSecretExtended.CustomData)).IsRequired();
         // Ignored properties.
         builder.Ignore(x => x.CustomData);
         // Configure relationships.

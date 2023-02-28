@@ -12,5 +12,5 @@ internal class DeviceAuthenticationRequestValidationResult : ValidationResult
     public InteractionMode InteractionMode { get; set; }
     public string CodeChallenge { get; set; }
     public string UserId { get; set; }
-    public DbUserDevice Device { get; set; }
+    public UserDevice Device { get; set; }
 }

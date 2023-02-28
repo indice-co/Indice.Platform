@@ -19,7 +19,7 @@ public class Program
             .ConfigureWebHostDefaults(webHostBuilder => {
                 webHostBuilder.UseStartup<Startup>();
             })
-            .UseDatabaseConfiguration<ExtendedIdentityDbContext<DbUser, DbRole>>((options, configuration) => {
+            .UseDatabaseConfiguration<ExtendedIdentityDbContext<User, Role>>((options, configuration) => {
                 options.ReloadOnInterval = TimeSpan.FromMinutes(1);
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
             });

@@ -7,7 +7,7 @@ namespace Indice.Features.Identity.Core.Totp;
 
 /// <summary></summary>
 /// <typeparam name="TUser">The type of user entity.</typeparam>
-public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where TUser : DbUser
+public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where TUser : User
 {
     /// <summary>Creates a new instance of <see cref="TotpServiceDeveloper{TUser}"/>.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>

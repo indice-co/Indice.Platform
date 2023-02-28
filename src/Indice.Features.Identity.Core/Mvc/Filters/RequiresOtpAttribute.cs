@@ -59,7 +59,7 @@ public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
         }
         _serviceProvider = httpContext.RequestServices;
         var totpServiceFactory = _serviceProvider.GetRequiredService<TotpServiceFactory>();
-        var totpService = totpServiceFactory.Create<DbUser>();
+        var totpService = totpServiceFactory.Create<User>();
         var totp = httpContext.Request.Headers[HeaderName].ToString();
         var purpose = GetTotpPurpose(subject, phoneNumber);
         // No TOTP is present in the request, so will try to send one using the preferred delivery channel.

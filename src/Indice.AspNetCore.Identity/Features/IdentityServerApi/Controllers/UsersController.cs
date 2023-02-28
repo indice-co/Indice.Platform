@@ -45,9 +45,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers;
 [Route("api/users")]
 internal class UsersController : ControllerBase
 {
-    private readonly ExtendedUserManager<DbUser> _userManager;
-    private readonly RoleManager<DbRole> _roleManager;
-    private readonly ExtendedIdentityDbContext<DbUser, DbRole> _dbContext;
+    private readonly ExtendedUserManager<User> _userManager;
+    private readonly RoleManager<Role> _roleManager;
+    private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
     private readonly IPersistedGrantService _persistedGrantService;
     private readonly IClientStore _clientStore;
     private readonly IdentityServerApiEndpointsOptions _apiEndpointsOptions;
@@ -71,9 +71,9 @@ internal class UsersController : ControllerBase
     /// <param name="configurationDbContext">Extended DbContext for the IdentityServer configuration data.</param>
     /// <param name="eventService"></param>
     public UsersController(
-        ExtendedUserManager<DbUser> userManager,
-        RoleManager<DbRole> roleManager,
-        ExtendedIdentityDbContext<DbUser, DbRole> dbContext,
+        ExtendedUserManager<User> userManager,
+        RoleManager<Role> roleManager,
+        ExtendedIdentityDbContext<User, Role> dbContext,
         IPersistedGrantService persistedGrantService,
         IClientStore clientStore,
         IdentityServerApiEndpointsOptions apiEndpointsOptions,
@@ -218,7 +218,7 @@ internal class UsersController : ControllerBase
     [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(SingleUserInfo))]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request) {
-        var user = new DbUser {
+        var user = new User {
             Id = $"{Guid.NewGuid()}",
             UserName = request.UserName,
             Email = request.Email,

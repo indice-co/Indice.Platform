@@ -8,23 +8,23 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Identity.Core;
 
 /// <summary>Generate the claims for a user. Extends the default principal created by the IdentityServer with custom claims.</summary>
-public class ExtendedUserClaimsPrincipalFactory : ExtendedUserClaimsPrincipalFactory<DbUser, IdentityRole>
+public class ExtendedUserClaimsPrincipalFactory : ExtendedUserClaimsPrincipalFactory<User, IdentityRole>
 {
     /// <summary>Constructor for the extender user claims principal factory.</summary>
     /// <param name="userManager">The <see cref="UserManager{TUser}"/> to retrieve user information from.</param>
     /// <param name="roleManager">The <see cref="RoleManager{TRole}"/> to retrieve a user's roles from.</param>
     /// <param name="optionsAccessor">The configured <see cref="IdentityOptions"/>.</param>
-    public ExtendedUserClaimsPrincipalFactory(UserManager<DbUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<IdentityOptions> optionsAccessor) : base(userManager, roleManager, optionsAccessor) { }
+    public ExtendedUserClaimsPrincipalFactory(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<IdentityOptions> optionsAccessor) : base(userManager, roleManager, optionsAccessor) { }
 
     /// <summary>Generates the claims for a user.</summary>
     /// <param name="user">The user to create a <see cref="ClaimsIdentity"/> from.</param>
     /// <returns>The claim-based identity of the user.</returns>
-    protected override async Task<ClaimsIdentity> GenerateClaimsAsync(DbUser user) => await base.GenerateClaimsAsync(user);
+    protected override async Task<ClaimsIdentity> GenerateClaimsAsync(User user) => await base.GenerateClaimsAsync(user);
 }
 
 /// <summary>Generate the claims for a user. Extends the default principal created by the IdentityServer with custom claims.</summary>
 public class ExtendedUserClaimsPrincipalFactory<TUser, TRole> : UserClaimsPrincipalFactory<TUser, TRole>
-    where TUser : DbUser
+    where TUser : User
     where TRole : IdentityRole
 {
     const string ISOFORMAT = "yyyy-MM-dd\\THH:mm:ss.fffK"; //ISO-8601 used by JavaScript (ALWAYS UTC)

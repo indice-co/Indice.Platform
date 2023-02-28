@@ -61,7 +61,7 @@ public static class IdentityServerApiFeatureExtensions
         services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName);
         services.TryAddScoped<IdentityMessageDescriber>();
         // Try register the extended version of UserManager<User>.
-        services.TryAddScoped<ExtendedUserManager<DbUser>>();
+        services.TryAddScoped<ExtendedUserManager<User>>();
         // Register the authentication handler, using a custom scheme name, for local APIs.
         services.AddAuthentication()
                 .AddLocalApi(IdentityServerApi.AuthenticationScheme, options => {
@@ -77,7 +77,7 @@ public static class IdentityServerApiFeatureExtensions
         var dbContextOptions = new IdentityDbContextOptions();
         configureAction?.Invoke(dbContextOptions);
         options.Services.AddSingleton(dbContextOptions);
-        options.Services.AddDbContext<ExtendedIdentityDbContext<DbUser, DbRole>>(dbContextOptions.ConfigureDbContext);
+        options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ConfigureDbContext);
     }
 
     private static IServiceCollection AddIdentityApiAuthorization(this IServiceCollection services) => services.AddAuthorization(authOptions => {

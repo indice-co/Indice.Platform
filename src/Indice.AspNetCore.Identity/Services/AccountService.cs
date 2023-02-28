@@ -23,8 +23,8 @@ namespace Indice.AspNetCore.Identity;
 public class AccountService : IAccountService
 {
     private readonly IClientStore _clientStore;
-    private readonly ExtendedUserManager<DbUser> _userManager;
-    private readonly ExtendedSignInManager<DbUser> _signInManager;
+    private readonly ExtendedUserManager<User> _userManager;
+    private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IConfiguration _configuration;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -43,8 +43,8 @@ public class AccountService : IAccountService
         IHttpContextAccessor httpContextAccessor,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
-        ExtendedUserManager<DbUser> userManager,
-        ExtendedSignInManager<DbUser> signInManager,
+        ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager,
         IConfiguration configuration
     ) {
         _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));

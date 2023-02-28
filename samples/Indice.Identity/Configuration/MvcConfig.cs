@@ -81,8 +81,8 @@ public static class MvcConfig
         return mvcBuilder;
     }
 
-    private static List<DbUser> GetInitialUsers() => new() {
-        new DbUser {
+    private static List<User> GetInitialUsers() => new() {
+        new User {
             Admin = false,
             CreateDate = DateTime.UtcNow,
             Email = "g.manoltzas@indice.gr",
@@ -101,8 +101,8 @@ public static class MvcConfig
         }
     };
 
-    private static List<DbClaimType> GetCustomClaimTypes() => new() {
-        new DbClaimType {
+    private static List<ClaimType> GetCustomClaimTypes() => new() {
+        new ClaimType {
             Id = $"{Guid.NewGuid()}",
             Name = BasicClaimTypes.DeveloperTotp,
             Reserved = false,

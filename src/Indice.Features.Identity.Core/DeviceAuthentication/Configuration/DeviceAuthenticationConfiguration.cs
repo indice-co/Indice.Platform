@@ -55,7 +55,7 @@ public static class DeviceAuthenticationConfiguration
         options.AddUserDeviceStore<UserDeviceStoreEntityFrameworkCore>();
 
     /// <summary>Adds a custom implementation for <see cref="IUserDeviceStore"/> store.</summary>
-    /// <typeparam name="TUserDeviceStore">The type of <see cref="DbUserDevice"/> store.</typeparam>
+    /// <typeparam name="TUserDeviceStore">The type of <see cref="UserDevice"/> store.</typeparam>
     /// <param name="options">Options for configuring 'Trusted Device Authorization' feature.</param>
     public static void AddUserDeviceStore<TUserDeviceStore>(this DeviceAuthenticationOptions options) where TUserDeviceStore : class, IUserDeviceStore =>
         options.Services.AddTransient<IUserDeviceStore, TUserDeviceStore>();
@@ -64,7 +64,7 @@ public static class DeviceAuthenticationConfiguration
     /// <param name="options">Options for configuring 'Trusted Device Authorization' feature.</param>
     public static void AddDefaultPasswordHasher(this DeviceAuthenticationOptions options) {
         options.Services.TryAddTransient<IDevicePasswordHasher, DefaultDevicePasswordHasher>();
-        options.Services.TryAddScoped<PasswordHasher<DbUser>>();
+        options.Services.TryAddScoped<PasswordHasher<User>>();
     }
 
     /// <summary>Registers an implementation of the mechanism that performs password hashing and validation for devices.</summary>
@@ -81,7 +81,7 @@ public static class DeviceAuthenticationConfiguration
         options.Services.AddTransient<DeviceAuthenticationResponseGenerator>();
         options.Services.AddTransient<InitRegistrationRequestValidator>();
         options.Services.AddTransient<InitRegistrationResponseGenerator>();
-        options.Services.AddTransient<IResourceOwnerPasswordValidationFilter<DbUser>, DeviceResourceOwnerPasswordValidator<DbUser>>();
+        options.Services.AddTransient<IResourceOwnerPasswordValidationFilter<User>, DeviceResourceOwnerPasswordValidator<User>>();
     }
 
     private static void RegisterEndpoints(this IIdentityServerBuilder builder) {

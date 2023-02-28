@@ -49,7 +49,7 @@ internal class TotpController : ControllerBase
             return Forbid();
         }
         var result = default(TotpResult);
-        var totpService = TotpServiceFactory.Create<DbUser>();
+        var totpService = TotpServiceFactory.Create<User>();
         switch (request.Channel) {
             case TotpDeliveryChannel.Sms:
             case TotpDeliveryChannel.Viber:
@@ -96,7 +96,7 @@ internal class TotpController : ControllerBase
         if (string.IsNullOrEmpty(userId)) {
             return Forbid();
         }
-        var result = await TotpServiceFactory.Create<DbUser>().VerifyAsync(User, request.Code, request.Purpose);
+        var result = await TotpServiceFactory.Create<User>().VerifyAsync(User, request.Code, request.Purpose);
         if (!result.Success) {
             ModelState.AddModelError(nameof(request.Code), Localizer["Invalid code"]);
             return BadRequest(new ValidationProblemDetails(ModelState));

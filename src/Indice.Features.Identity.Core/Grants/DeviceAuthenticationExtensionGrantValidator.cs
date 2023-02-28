@@ -20,7 +20,7 @@ internal class DeviceAuthenticationExtensionGrantValidator : RequestChallengeVal
         IDevicePasswordHasher devicePasswordHasher,
         ISystemClock systemClock,
         IUserDeviceStore userDeviceStore,
-        ExtendedUserManager<DbUser> userManager
+        ExtendedUserManager<User> userManager
     ) {
         CodeChallengeStore = codeChallengeStore ?? throw new ArgumentNullException(nameof(codeChallengeStore));
         DevicePasswordHasher = devicePasswordHasher ?? throw new ArgumentNullException(nameof(devicePasswordHasher));
@@ -34,7 +34,7 @@ internal class DeviceAuthenticationExtensionGrantValidator : RequestChallengeVal
     public IDevicePasswordHasher DevicePasswordHasher { get; }
     public ISystemClock SystemClock { get; }
     public IUserDeviceStore UserDeviceStore { get; }
-    public ExtendedUserManager<DbUser> UserManager { get; }
+    public ExtendedUserManager<User> UserManager { get; }
 
     public async Task ValidateAsync(ExtensionGrantValidationContext context) {
         var parameters = context.Request.Raw;

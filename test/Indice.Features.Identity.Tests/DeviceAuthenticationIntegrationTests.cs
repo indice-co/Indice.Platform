@@ -1,22 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using IdentityModel;
 using IdentityModel.Client;
 using IdentityServer4;
 using IdentityServer4.Models;
 using Indice.AspNetCore.Identity;
-using Indice.AspNetCore.Identity.Data;
-using Indice.AspNetCore.Identity.Data.Models;
-using Indice.Configuration;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Tests.Models;
 using Indice.Security;
 using Indice.Serialization;
@@ -34,14 +30,14 @@ using Microsoft.IdentityModel.Tokens;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Indice.Features.Identity.Tests
+namespace Indice.Features.Identity.Tests;
+
+public class DeviceAuthenticationIntegrationTests
 {
-    public class DeviceAuthenticationIntegrationTests
-    {
-        #region Keys
-        // https://www.scottbrady91.com/OpenSSL/Creating-RSA-Keys-using-OpenSSL
-        private const string PRIVATE_KEY =
-            @"-----BEGIN RSA PRIVATE KEY-----
+    #region Keys
+    // https://www.scottbrady91.com/OpenSSL/Creating-RSA-Keys-using-OpenSSL
+    private const string PRIVATE_KEY =
+        @"-----BEGIN RSA PRIVATE KEY-----
             MIIJKQIBAAKCAgEA49JI4i5PBbl02coZnWaojBa5ToQTZEXthKBMmuSXCpDhaNZE
             BnkbmF0J0xOTZ9BOQlen2TVAdC8inK8DqZC5GH+TuIjVnZf92XqIXxjCP4LmNaAQ
             tolmW5VnYUYuJ4XDunand2cney0YiQ3uDpEWOWDzg3NiMgMDcdvdy7lFFQ9ajD1H
@@ -93,8 +89,8 @@ namespace Indice.Features.Identity.Tests
             yd8J2E1ghTxD2w2wC6ZtFpkMwxbtwHCKmxFP9qB8EXjLzifMioBemXZ3E6SN
             -----END RSA PRIVATE KEY-----
             ";
-        private const string CERTIFICATE_PUBLIC_KEY =
-            @"-----BEGIN CERTIFICATE-----
+    private const string CERTIFICATE_PUBLIC_KEY =
+        @"-----BEGIN CERTIFICATE-----
             MIIGKTCCBBGgAwIBAgIUZyswHWk9UYHXjUDuFIlTD0+BGpwwDQYJKoZIhvcNAQEL
             BQAwgaMxCzAJBgNVBAYTAkdSMQ8wDQYDVQQIDAZBdHRpY2ExDzANBgNVBAcMBkF0
             aGVuczEUMBIGA1UECgwLSW5kaWNlIEx0ZC4xJjAkBgNVBAsMHVNvZnR3YXJlIERl
@@ -130,8 +126,8 @@ namespace Indice.Features.Identity.Tests
             7Aj8HTznsehUEIWv/giczL5nbz/iN4R6NJ+S4bJTcFMMfoapYM00pj/fjRc+
             -----END CERTIFICATE-----
             ";
-        private const string RSA_PUBLIC_KEY =
-            @"-----BEGIN PUBLIC KEY-----
+    private const string RSA_PUBLIC_KEY =
+        @"-----BEGIN PUBLIC KEY-----
             MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA49JI4i5PBbl02coZnWao
             jBa5ToQTZEXthKBMmuSXCpDhaNZEBnkbmF0J0xOTZ9BOQlen2TVAdC8inK8DqZC5
             GH+TuIjVnZf92XqIXxjCP4LmNaAQtolmW5VnYUYuJ4XDunand2cney0YiQ3uDpEW
@@ -146,163 +142,264 @@ namespace Indice.Features.Identity.Tests
             RtVSF5JEQj+t+21jPrv0W9cCAwEAAQ==
             -----END PUBLIC KEY-----
             ";
-        #endregion
-        // Constants
-        private const string BASE_URL = "https://server";
-        private const string CLIENT_ID = "ppk-client";
-        private const string CLIENT_SECRET = "JUEKX2XugFv5XrX3";
-        private const string DEVICE_PIN = "4412";
-        private const string DEVICE_REGISTRATION_INITIATION_URL = $"{BASE_URL}/my/devices/register/init";
-        private const string DEVICE_REGISTRATION_COMPLETE_URL = $"{BASE_URL}/my/devices/register/complete";
-        private const string DEVICE_AUTHORIZATION_URL = $"{BASE_URL}/my/devices/connect/authorize";
-        private const string IDENTITY_DATABASE_NAME = "IdentityDb";
-        // Private fields
-        private readonly HttpClient _httpClient;
-        private readonly ITestOutputHelper _output;
-        private IServiceProvider _serviceProvider;
+    #endregion
+    // Constants
+    private const string BASE_URL = "https://server";
+    private const string CLIENT_ID = "ppk-client";
+    private const string CLIENT_SECRET = "JUEKX2XugFv5XrX3";
+    private const string DEVICE_PIN = "4412";
+    private const string DEVICE_REGISTRATION_INITIATION_URL = $"{BASE_URL}/my/devices/register/init";
+    private const string DEVICE_REGISTRATION_COMPLETE_URL = $"{BASE_URL}/my/devices/register/complete";
+    private const string DEVICE_AUTHORIZATION_URL = $"{BASE_URL}/my/devices/connect/authorize";
+    private const string IDENTITY_DATABASE_NAME = "IdentityDb";
+    // Private fields
+    private readonly HttpClient _httpClient;
+    private readonly ITestOutputHelper _output;
+    private IServiceProvider _serviceProvider;
 
-        public DeviceAuthenticationIntegrationTests(ITestOutputHelper output) {
-            _output = output;
-            var builder = new WebHostBuilder();
-            builder.ConfigureAppConfiguration(builder => {
-                builder.AddInMemoryCollection(new List<KeyValuePair<string, string>> {
-                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices", "20"),
-                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:MaxAllowedRegisteredDevices", "40"),
-                    new KeyValuePair<string, string>("IdentityOptions:User:Devices:RequirePasswordAfterUserUpdate", "true"),
-                    new KeyValuePair<string, string>("Totp:EnableDeveloperTotp", "true")
-                });
+    public DeviceAuthenticationIntegrationTests(ITestOutputHelper output) {
+        _output = output;
+        var builder = new WebHostBuilder();
+        builder.ConfigureAppConfiguration(builder => {
+            builder.AddInMemoryCollection(new List<KeyValuePair<string, string>> {
+                new KeyValuePair<string, string>("IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices", "20"),
+                new KeyValuePair<string, string>("IdentityOptions:User:Devices:MaxAllowedRegisteredDevices", "40"),
+                new KeyValuePair<string, string>("IdentityOptions:User:Devices:RequirePasswordAfterUserUpdate", "true"),
+                new KeyValuePair<string, string>("Totp:EnableDeveloperTotp", "true")
             });
-            builder.ConfigureServices(services => {
-                services.AddTotpServiceFactory()
-                        .AddSmsServiceNoop()
-                        .AddPushNotificationServiceNoop()
-                        .AddLocalization()
-                        .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(IDENTITY_DATABASE_NAME));
-                services.AddIdentity<User, Role>()
-                        .AddUserManager<ExtendedUserManager<User>>()
-                        .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
-                        .AddExtendedSignInManager()
-                        .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
-                        .AddExtendedPhoneNumberTokenProvider();
-                services.AddIdentityServer(options => options.EmitStaticAudienceClaim = true)
-                        .AddInMemoryIdentityResources(GetIdentityResources())
-                        .AddInMemoryApiScopes(GetApiScopes())
-                        .AddInMemoryApiResources(GetApiResources())
-                        .AddInMemoryClients(GetClients())
-                        .AddAspNetIdentity<User>()
-                        .AddInMemoryPersistedGrants()
-                        .AddExtendedResourceOwnerPasswordValidator()
-                        .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
-                        .AddDeveloperSigningCredential(persistKey: false);
-                _serviceProvider = services.BuildServiceProvider();
-            });
-            builder.Configure(app => {
-                app.UseIdentityServer();
-            });
-            var server = new TestServer(builder);
-            var handler = server.CreateHandler();
-            _httpClient = new HttpClient(handler) {
-                BaseAddress = new Uri(BASE_URL)
-            };
+        });
+        builder.ConfigureServices(services => {
+            services.AddTotpServiceFactory()
+                    .AddSmsServiceNoop()
+                    .AddPushNotificationServiceNoop()
+                    .AddLocalization()
+                    .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(IDENTITY_DATABASE_NAME));
+            services.AddIdentity<User, Role>()
+                    .AddUserManager<ExtendedUserManager<User>>()
+                    .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                    .AddExtendedSignInManager()
+                    .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
+                    .AddExtendedPhoneNumberTokenProvider();
+            services.AddIdentityServer(options => options.EmitStaticAudienceClaim = true)
+                    .AddInMemoryIdentityResources(GetIdentityResources())
+                    .AddInMemoryApiScopes(GetApiScopes())
+                    .AddInMemoryApiResources(GetApiResources())
+                    .AddInMemoryClients(GetClients())
+                    .AddAspNetIdentity<User>()
+                    .AddInMemoryPersistedGrants()
+                    .AddExtendedResourceOwnerPasswordValidator()
+                    .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
+                    .AddDeveloperSigningCredential(persistKey: false);
+            _serviceProvider = services.BuildServiceProvider();
+        });
+        builder.Configure(app => {
+            app.UseIdentityServer();
+        });
+        var server = new TestServer(builder);
+        var handler = server.CreateHandler();
+        _httpClient = new HttpClient(handler) {
+            BaseAddress = new Uri(BASE_URL)
+        };
+    }
+
+    #region Facts
+    [Fact]
+    public async Task Can_Register_New_Device_Using_Biometric() {
+        var deviceId = Guid.NewGuid().ToString();
+        var response = await Register_Device_Using_Biometric(deviceId);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
         }
+        var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.IsType<Guid>(responseDto.RegistrationId);
+    }
 
-        #region Facts
-        [Fact]
-        public async Task Can_Register_New_Device_Using_Biometric() {
+    [Fact]
+    public async Task<TrustedDeviceCompleteRegistrationResultDto> Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint() {
+        var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var codeVerifier = GenerateCodeVerifier();
+        var deviceId = Guid.NewGuid().ToString();
+        var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
+        }
+        var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.IsType<Guid>(responseDto.RegistrationId);
+        codeVerifier = GenerateCodeVerifier();
+        challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
+        response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
+        responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
+        }
+        responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.IsType<Guid>(responseDto.RegistrationId);
+        responseDto.DeviceId = deviceId;
+        return responseDto;
+    }
+
+    [Fact]
+    public async Task<string> Can_Register_New_Device_Using_Pin() {
+        var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var codeVerifier = GenerateCodeVerifier();
+        var deviceId = Guid.NewGuid().ToString();
+        var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
+        if (!response.IsSuccessStatusCode) {
+            var responseJson = await response.Content.ReadAsStringAsync();
+            _output.WriteLine(responseJson);
+        }
+        Assert.True(response.IsSuccessStatusCode);
+        return deviceId;
+    }
+
+    [Fact]
+    public async Task<TrustedDeviceCompleteRegistrationResultDto> Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin() {
+        var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var codeVerifier = GenerateCodeVerifier();
+        var deviceId = Guid.NewGuid().ToString();
+        var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
+        }
+        var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.IsType<Guid>(responseDto.RegistrationId);
+        var pinRegistrationId = responseDto.RegistrationId;
+        codeVerifier = GenerateCodeVerifier();
+        challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
+        response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
+        responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
+        }
+        responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.IsType<Guid>(responseDto.RegistrationId);
+        var fingerprintRegistrationId = responseDto.RegistrationId;
+        Assert.Equal(pinRegistrationId, fingerprintRegistrationId);
+        responseDto.DeviceId = deviceId;
+        return responseDto;
+    }
+
+    [Fact]
+    public async Task Can_Authenticate_Existing_Device_Using_Fingerprint() {
+        var registrationResult = await Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin();
+        var codeVerifier = GenerateCodeVerifier();
+        var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var x509SigningCredentials = GetX509SigningCredentials();
+        var signature = SignMessage(challenge, x509SigningCredentials);
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "code", challenge },
+                { "code_signature", signature },
+                { "code_verifier", codeVerifier },
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "public_key", CERTIFICATE_PUBLIC_KEY },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+            }
+        });
+        Assert.False(tokenResponse.IsError);
+    }
+
+    [Fact]
+    public async Task Can_Authorize_Existing_Device_Using_Pin() {
+        var registrationResult = await Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+            }
+        });
+        Assert.False(tokenResponse.IsError);
+    }
+
+    [Fact(Skip = "Needs configuration change")]
+    public async Task Register_More_Devices_Than_Allowed_Fails() {
+        var hasAnyError = false;
+        foreach (var item in Enumerable.Range(0, 5)) {
             var deviceId = Guid.NewGuid().ToString();
             var response = await Register_Device_Using_Biometric(deviceId);
-            var responseJson = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode) {
-                _output.WriteLine(responseJson);
-            }
-            var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-            Assert.True(response.IsSuccessStatusCode);
-            Assert.IsType<Guid>(responseDto.RegistrationId);
-        }
-
-        [Fact]
-        public async Task<TrustedDeviceCompleteRegistrationResultDto> Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint() {
-            var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
-            var codeVerifier = GenerateCodeVerifier();
-            var deviceId = Guid.NewGuid().ToString();
-            var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
-            var response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
-            var responseJson = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode) {
-                _output.WriteLine(responseJson);
-            }
-            var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-            Assert.True(response.IsSuccessStatusCode);
-            Assert.IsType<Guid>(responseDto.RegistrationId);
-            codeVerifier = GenerateCodeVerifier();
-            challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
-            response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
-            responseJson = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode) {
-                _output.WriteLine(responseJson);
-            }
-            responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-            Assert.True(response.IsSuccessStatusCode);
-            Assert.IsType<Guid>(responseDto.RegistrationId);
-            responseDto.DeviceId = deviceId;
-            return responseDto;
-        }
-
-        [Fact]
-        public async Task<string> Can_Register_New_Device_Using_Pin() {
-            var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
-            var codeVerifier = GenerateCodeVerifier();
-            var deviceId = Guid.NewGuid().ToString();
-            var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
-            var response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
-            if (!response.IsSuccessStatusCode) {
+                hasAnyError = true;
                 var responseJson = await response.Content.ReadAsStringAsync();
                 _output.WriteLine(responseJson);
+                var validation = JsonSerializer.Deserialize<ValidationProblemDetails>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
+                Assert.Collection(validation.Errors.Keys, errorCode => errorCode.Contains("MaxNumberOfDevices"));
+                break;
             }
-            Assert.True(response.IsSuccessStatusCode);
-            return deviceId;
         }
-
-        [Fact]
-        public async Task<TrustedDeviceCompleteRegistrationResultDto> Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin() {
-            var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
-            var codeVerifier = GenerateCodeVerifier();
-            var deviceId = Guid.NewGuid().ToString();
-            var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
-            var response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
-            var responseJson = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode) {
-                _output.WriteLine(responseJson);
-            }
-            var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-            Assert.True(response.IsSuccessStatusCode);
-            Assert.IsType<Guid>(responseDto.RegistrationId);
-            var pinRegistrationId = responseDto.RegistrationId;
-            codeVerifier = GenerateCodeVerifier();
-            challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
-            response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
-            responseJson = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode) {
-                _output.WriteLine(responseJson);
-            }
-            responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-            Assert.True(response.IsSuccessStatusCode);
-            Assert.IsType<Guid>(responseDto.RegistrationId);
-            var fingerprintRegistrationId = responseDto.RegistrationId;
-            Assert.Equal(pinRegistrationId, fingerprintRegistrationId);
-            responseDto.DeviceId = deviceId;
-            return responseDto;
+        if (!hasAnyError) {
+            Assert.Fail("We should have a validation error by the end of the loop.");
         }
+    }
 
-        [Fact]
-        public async Task Can_Authenticate_Existing_Device_Using_Fingerprint() {
-            var registrationResult = await Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin();
+    [Fact]
+    public async Task Changing_Password_Blocks_Device() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var user = new User {
+            CreateDate = DateTimeOffset.UtcNow,
+            Email = "g.manoltzas@indice.gr",
+            EmailConfirmed = true,
+            Id = Guid.NewGuid().ToString(),
+            PhoneNumber = "69XXXXXXXX",
+            PhoneNumberConfirmed = true,
+            UserName = "g.manoltzas@indice.gr"
+        };
+        // 1. Create a new user.
+        var result = await userManager.CreateAsync(user, password: "123abc!", validatePassword: false);
+        if (!result.Succeeded) {
+            Assert.Fail("User could not be created.");
+        }
+        await userManager.AddToRoleAsync(user, BasicRoleNames.Developer);
+        await userManager.AddClaimAsync(user, new Claim(BasicClaimTypes.DeveloperTotp, "123456"));
+        // 2. Register a new device using biometric login.
+        var deviceId = Guid.NewGuid().ToString();
+        var response = await Register_Device_Using_Biometric(deviceId, userName: "g.manoltzas@indice.gr");
+        if (!response.IsSuccessStatusCode) {
+            Assert.Fail("Device could not be created.");
+        }
+        // 3. Change username. 
+        result = await userManager.SetUserNameAsync(user, "g.manoltzas_new@indice.gr");
+        if (!result.Succeeded) {
+            Assert.Fail("Failed to set new username.");
+        }
+        var device = await userManager.GetDeviceByIdAsync(user, deviceId);
+        if (device is null) {
+            Assert.Fail("User device could not be found.");
+        }
+        // 4. At that point all devices should require username and password in the next login.
+        Assert.True(device.RequiresPassword);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+        Assert.IsType<Guid>(responseDto.RegistrationId);
+
+        async Task<TokenResponse> LoginWithFingerprint(Guid registrationId) {
             var codeVerifier = GenerateCodeVerifier();
-            var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
+            var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationId);
             var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
             var x509SigningCredentials = GetX509SigningCredentials();
             var signature = SignMessage(challenge, x509SigningCredentials);
-            var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            return await _httpClient.RequestTokenAsync(new TokenRequest {
                 Address = discoveryDocument.TokenEndpoint,
                 ClientId = CLIENT_ID,
                 ClientSecret = CLIENT_SECRET,
@@ -311,368 +408,266 @@ namespace Indice.Features.Identity.Tests
                     { "code", challenge },
                     { "code_signature", signature },
                     { "code_verifier", codeVerifier },
-                    { "registration_id", registrationResult.RegistrationId.ToString() },
+                    { "registration_id", registrationId.ToString() },
                     { "public_key", CERTIFICATE_PUBLIC_KEY },
                     { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
                 }
             });
-            Assert.False(tokenResponse.IsError);
         }
 
-        [Fact]
-        public async Task Can_Authorize_Existing_Device_Using_Pin() {
-            var registrationResult = await Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint();
-            var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-            var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
-                Address = discoveryDocument.TokenEndpoint,
-                ClientId = CLIENT_ID,
-                ClientSecret = CLIENT_SECRET,
-                GrantType = CustomGrantTypes.DeviceAuthentication,
-                Parameters = {
-                    { "registration_id", registrationResult.RegistrationId.ToString() },
-                    { "pin", DEVICE_PIN },
-                    { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+        // 5. Login with fingerprint. This is expected to fail.
+        var tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
+        Assert.True(tokenResponse.IsError);
+        Assert.True(tokenResponse.ErrorDescription == "requires_password");
+        // 6. Now we login with username and password using the resource owner password grant. This should make the device usable again.
+        await LoginWithPasswordGrant("g.manoltzas_new@indice.gr", "123abc!", deviceId);
+        // 7. Login again with fingerprint. This is expected to succeed.
+        tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
+        Assert.False(tokenResponse.IsError);
+    }
+    #endregion
+
+    #region Helper Methods
+    private async Task<HttpResponseMessage> Register_Device_Using_Biometric(string deviceId, string userName = "company@indice.gr") {
+        var accessToken = await LoginWithPasswordGrant(userName, password: "123abc!");
+        var codeVerifier = GenerateCodeVerifier();
+        var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
+        return response;
+    }
+
+    private async Task<string> InitiateDeviceAuthenticationUsingFingerprint(string codeVerifier, Guid registrationId) {
+        var codeChallenge = GenerateCodeChallenge(codeVerifier);
+        var data = new Dictionary<string, string> {
+            { "client_id", CLIENT_ID },
+            { "code_challenge", codeChallenge },
+            { "registration_id", registrationId.ToString() },
+            { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
+        };
+        var form = new FormUrlEncodedContent(data);
+        var response = await _httpClient.PostAsync(DEVICE_AUTHORIZATION_URL, form);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
+            throw new HttpRequestException();
+        }
+        var result = JsonSerializer.Deserialize<TrustedDeviceAuthorizationResultDto>(responseJson);
+        return result.Challenge;
+    }
+
+    private async Task<string> LoginWithPasswordGrant(string userName, string password, string deviceId = null) {
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var request = new PasswordTokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            Scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1",
+            UserName = userName,
+            Password = password
+        };
+        if (!string.IsNullOrEmpty(deviceId)) {
+            request.Parameters.Add("device_id", deviceId);
+        }
+        var tokenResponse = await _httpClient.RequestPasswordTokenAsync(request);
+        return tokenResponse.AccessToken;
+    }
+
+    private Task<string> InitiateDeviceRegistrationUsingBiometric(string accessToken, string codeVerifier, string deviceId) => InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "fingerprint");
+
+    private Task<string> InitiateDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId) => InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "pin");
+
+    private async Task<string> InitiateDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string mode) {
+        var codeChallenge = GenerateCodeChallenge(codeVerifier);
+        var data = new Dictionary<string, string> {
+            { "code_challenge", codeChallenge },
+            { "device_id", deviceId },
+            { "mode", mode },
+            { "channel", TotpDeliveryChannel.Viber.ToString() }
+        };
+        var form = new FormUrlEncodedContent(data);
+        _httpClient.SetBearerToken(accessToken);
+        var response = await _httpClient.PostAsync(DEVICE_REGISTRATION_INITIATION_URL, form);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
+            throw new HttpRequestException();
+        }
+        var result = JsonSerializer.Deserialize<TrustedDeviceAuthorizationResultDto>(responseJson);
+        return result.Challenge;
+    }
+
+    private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingBiometric(string accessToken, string codeVerifier, string deviceId, string challenge) => CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "fingerprint");
+
+    private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId, string challenge) => CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "pin");
+
+    private async Task<HttpResponseMessage> CompleteDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string challenge, string mode) {
+        var x509SigningCredentials = GetX509SigningCredentials();
+        var signature = SignMessage(challenge, x509SigningCredentials);
+        var data = new Dictionary<string, string> {
+            { "code", challenge },
+            { "code_signature", signature },
+            { "code_verifier", codeVerifier },
+            { "device_id", deviceId },
+            { "device_name", "George OnePlus 7 Pro" },
+            { "device_platform", $"{DevicePlatform.Android}" },
+            { "otp", "123456" }
+        };
+        if (mode == "fingerprint") {
+            data.Add("public_key", RSA_PUBLIC_KEY);
+        }
+        if (mode == "pin") {
+            data.Add("pin", DEVICE_PIN);
+        }
+        var form = new FormUrlEncodedContent(data);
+        _httpClient.SetBearerToken(accessToken);
+        return await _httpClient.PostAsync(DEVICE_REGISTRATION_COMPLETE_URL, form);
+    }
+
+    private static string GenerateCodeVerifier() => CryptoRandom.CreateUniqueId(32);
+
+    private static string GenerateCodeChallenge(string codeVerifier) {
+        string codeChallenge;
+        using (var sha256 = SHA256.Create()) {
+            var challengeBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
+            codeChallenge = Base64Url.Encode(challengeBytes);
+        }
+        return codeChallenge;
+    }
+
+    private static X509SigningCredentials GetX509SigningCredentials() {
+        var certificate = X509Certificate2.CreateFromPem(CERTIFICATE_PUBLIC_KEY, PRIVATE_KEY);
+        var signingCredentials = new X509SigningCredentials(certificate, SecurityAlgorithms.RsaSha256Signature);
+        return signingCredentials;
+    }
+
+    private static SigningCredentials GetSigningCredentials() {
+        var privateKey = Convert.FromBase64String(PRIVATE_KEY);
+        using (var rsa = RSA.Create()) {
+            rsa.ImportRSAPrivateKey(privateKey, out _);
+            var signingCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256) {
+                CryptoProviderFactory = new CryptoProviderFactory {
+                    CacheSignatureProviders = false
                 }
-            });
-            Assert.False(tokenResponse.IsError);
-        }
-
-        [Fact(Skip = "Needs configuration change")]
-        public async Task Register_More_Devices_Than_Allowed_Fails() {
-            var hasAnyError = false;
-            foreach (var item in Enumerable.Range(0, 5)) {
-                var deviceId = Guid.NewGuid().ToString();
-                var response = await Register_Device_Using_Biometric(deviceId);
-                if (!response.IsSuccessStatusCode) {
-                    hasAnyError = true;
-                    var responseJson = await response.Content.ReadAsStringAsync();
-                    _output.WriteLine(responseJson);
-                    var validation = JsonSerializer.Deserialize<ValidationProblemDetails>(responseJson, JsonSerializerOptionDefaults.GetDefaultSettings());
-                    Assert.Collection(validation.Errors.Keys, errorCode => errorCode.Contains("MaxNumberOfDevices"));
-                    break;
-                }
-            }
-            if (!hasAnyError) {
-                Assert.Fail("We should have a validation error by the end of the loop.");
-            }
-        }
-
-        [Fact]
-        public async Task Changing_Password_Blocks_Device() {
-            var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
-            var user = new User {
-                CreateDate = DateTimeOffset.UtcNow,
-                Email = "g.manoltzas@indice.gr",
-                EmailConfirmed = true,
-                Id = Guid.NewGuid().ToString(),
-                PhoneNumber = "69XXXXXXXX",
-                PhoneNumberConfirmed = true,
-                UserName = "g.manoltzas@indice.gr"
             };
-            // 1. Create a new user.
-            var result = await userManager.CreateAsync(user, password: "123abc!", validatePassword: false);
-            if (!result.Succeeded) {
-                Assert.Fail("User could not be created.");
-            }
-            await userManager.AddToRoleAsync(user, BasicRoleNames.Developer);
-            await userManager.AddClaimAsync(user, new Claim(BasicClaimTypes.DeveloperTotp, "123456"));
-            // 2. Register a new device using biometric login.
-            var deviceId = Guid.NewGuid().ToString();
-            var response = await Register_Device_Using_Biometric(deviceId, userName: "g.manoltzas@indice.gr");
-            if (!response.IsSuccessStatusCode) {
-                Assert.Fail("Device could not be created.");
-            }
-            // 3. Change username. 
-            result = await userManager.SetUserNameAsync(user, "g.manoltzas_new@indice.gr");
-            if (!result.Succeeded) {
-                Assert.Fail("Failed to set new username.");
-            }
-            var device = await userManager.GetDeviceByIdAsync(user, deviceId);
-            if (device is null) {
-                Assert.Fail("User device could not be found.");
-            }
-            // 4. At that point all devices should require username and password in the next login.
-            Assert.True(device.RequiresPassword);
-            var responseJson = await response.Content.ReadAsStringAsync();
-            var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-            Assert.IsType<Guid>(responseDto.RegistrationId);
-
-            async Task<TokenResponse> LoginWithFingerprint(Guid registrationId) {
-                var codeVerifier = GenerateCodeVerifier();
-                var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationId);
-                var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-                var x509SigningCredentials = GetX509SigningCredentials();
-                var signature = SignMessage(challenge, x509SigningCredentials);
-                return await _httpClient.RequestTokenAsync(new TokenRequest {
-                    Address = discoveryDocument.TokenEndpoint,
-                    ClientId = CLIENT_ID,
-                    ClientSecret = CLIENT_SECRET,
-                    GrantType = CustomGrantTypes.DeviceAuthentication,
-                    Parameters = {
-                        { "code", challenge },
-                        { "code_signature", signature },
-                        { "code_verifier", codeVerifier },
-                        { "registration_id", registrationId.ToString() },
-                        { "public_key", CERTIFICATE_PUBLIC_KEY },
-                        { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
-                    }
-                });
-            }
-
-            // 5. Login with fingerprint. This is expected to fail.
-            var tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
-            Assert.True(tokenResponse.IsError);
-            Assert.True(tokenResponse.ErrorDescription == "requires_password");
-            // 6. Now we login with username and password using the resource owner password grant. This should make the device usable again.
-            await LoginWithPasswordGrant("g.manoltzas_new@indice.gr", "123abc!", deviceId);
-            // 7. Login again with fingerprint. This is expected to succeed.
-            tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
-            Assert.False(tokenResponse.IsError);
-        }
-        #endregion
-
-        #region Helper Methods
-        private async Task<HttpResponseMessage> Register_Device_Using_Biometric(string deviceId, string userName = "company@indice.gr") {
-            var accessToken = await LoginWithPasswordGrant(userName, password: "123abc!");
-            var codeVerifier = GenerateCodeVerifier();
-            var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
-            var response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
-            return response;
-        }
-
-        private async Task<string> InitiateDeviceAuthenticationUsingFingerprint(string codeVerifier, Guid registrationId) {
-            var codeChallenge = GenerateCodeChallenge(codeVerifier);
-            var data = new Dictionary<string, string> {
-                { "client_id", CLIENT_ID },
-                { "code_challenge", codeChallenge },
-                { "registration_id", registrationId.ToString() },
-                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" }
-            };
-            var form = new FormUrlEncodedContent(data);
-            var response = await _httpClient.PostAsync(DEVICE_AUTHORIZATION_URL, form);
-            var responseJson = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode) {
-                _output.WriteLine(responseJson);
-                throw new HttpRequestException();
-            }
-            var result = JsonSerializer.Deserialize<TrustedDeviceAuthorizationResultDto>(responseJson);
-            return result.Challenge;
-        }
-
-        private async Task<string> LoginWithPasswordGrant(string userName, string password, string deviceId = null) {
-            var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
-            var request = new PasswordTokenRequest {
-                Address = discoveryDocument.TokenEndpoint,
-                ClientId = CLIENT_ID,
-                ClientSecret = CLIENT_SECRET,
-                Scope = $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1",
-                UserName = userName,
-                Password = password
-            };
-            if (!string.IsNullOrEmpty(deviceId)) {
-                request.Parameters.Add("device_id", deviceId);
-            }
-            var tokenResponse = await _httpClient.RequestPasswordTokenAsync(request);
-            return tokenResponse.AccessToken;
-        }
-
-        private Task<string> InitiateDeviceRegistrationUsingBiometric(string accessToken, string codeVerifier, string deviceId) => InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "fingerprint");
-
-        private Task<string> InitiateDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId) => InitiateDeviceRegistration(accessToken, codeVerifier, deviceId, "pin");
-
-        private async Task<string> InitiateDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string mode) {
-            var codeChallenge = GenerateCodeChallenge(codeVerifier);
-            var data = new Dictionary<string, string> {
-                { "code_challenge", codeChallenge },
-                { "device_id", deviceId },
-                { "mode", mode },
-                { "channel", TotpDeliveryChannel.Viber.ToString() }
-            };
-            var form = new FormUrlEncodedContent(data);
-            _httpClient.SetBearerToken(accessToken);
-            var response = await _httpClient.PostAsync(DEVICE_REGISTRATION_INITIATION_URL, form);
-            var responseJson = await response.Content.ReadAsStringAsync();
-            if (!response.IsSuccessStatusCode) {
-                _output.WriteLine(responseJson);
-                throw new HttpRequestException();
-            }
-            var result = JsonSerializer.Deserialize<TrustedDeviceAuthorizationResultDto>(responseJson);
-            return result.Challenge;
-        }
-
-        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingBiometric(string accessToken, string codeVerifier, string deviceId, string challenge) => CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "fingerprint");
-
-        private Task<HttpResponseMessage> CompleteDeviceRegistrationUsingPin(string accessToken, string codeVerifier, string deviceId, string challenge) => CompleteDeviceRegistration(accessToken, codeVerifier, deviceId, challenge, "pin");
-
-        private async Task<HttpResponseMessage> CompleteDeviceRegistration(string accessToken, string codeVerifier, string deviceId, string challenge, string mode) {
-            var x509SigningCredentials = GetX509SigningCredentials();
-            var signature = SignMessage(challenge, x509SigningCredentials);
-            var data = new Dictionary<string, string> {
-                { "code", challenge },
-                { "code_signature", signature },
-                { "code_verifier", codeVerifier },
-                { "device_id", deviceId },
-                { "device_name", "George OnePlus 7 Pro" },
-                { "device_platform", $"{DevicePlatform.Android}" },
-                { "otp", "123456" }
-            };
-            if (mode == "fingerprint") {
-                data.Add("public_key", RSA_PUBLIC_KEY);
-            }
-            if (mode == "pin") {
-                data.Add("pin", DEVICE_PIN);
-            }
-            var form = new FormUrlEncodedContent(data);
-            _httpClient.SetBearerToken(accessToken);
-            return await _httpClient.PostAsync(DEVICE_REGISTRATION_COMPLETE_URL, form);
-        }
-
-        private static string GenerateCodeVerifier() => CryptoRandom.CreateUniqueId(32);
-
-        private static string GenerateCodeChallenge(string codeVerifier) {
-            string codeChallenge;
-            using (var sha256 = SHA256.Create()) {
-                var challengeBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(codeVerifier));
-                codeChallenge = Base64Url.Encode(challengeBytes);
-            }
-            return codeChallenge;
-        }
-
-        private static X509SigningCredentials GetX509SigningCredentials() {
-            var certificate = X509Certificate2.CreateFromPem(CERTIFICATE_PUBLIC_KEY, PRIVATE_KEY);
-            var signingCredentials = new X509SigningCredentials(certificate, SecurityAlgorithms.RsaSha256Signature);
             return signingCredentials;
         }
-
-        private static SigningCredentials GetSigningCredentials() {
-            var privateKey = Convert.FromBase64String(PRIVATE_KEY);
-            using (var rsa = RSA.Create()) {
-                rsa.ImportRSAPrivateKey(privateKey, out _);
-                var signingCredentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256) {
-                    CryptoProviderFactory = new CryptoProviderFactory {
-                        CacheSignatureProviders = false
-                    }
-                };
-                return signingCredentials;
-            }
-        }
-
-        private static string SignMessage(byte[] message, X509SigningCredentials x509SigningCredentials) {
-            using var key = x509SigningCredentials.Certificate.GetRSAPrivateKey();
-            var signedMessage = Convert.ToBase64String(key?.SignData(message, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1) ?? Array.Empty<byte>());
-            return signedMessage;
-        }
-
-        private static string SignMessage(string message, X509SigningCredentials x509SigningCredentials) {
-            var messageBytes = Encoding.UTF8.GetBytes(message);
-            return SignMessage(messageBytes, x509SigningCredentials);
-        }
-
-        private static string SignMessage(string message) {
-            // Create a UnicodeEncoder to convert between byte array and string.
-            var byteConverter = new ASCIIEncoding();
-            // Create byte arrays to hold original, encrypted, and decrypted data.
-            var originalData = byteConverter.GetBytes(message);
-            byte[] signedData;
-            // Create a new instance of the RSACryptoServiceProvider class and automatically create a new key-pair.
-            using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider()) {
-                rsaCryptoServiceProvider.ImportRSAPrivateKey(Convert.FromBase64String(PRIVATE_KEY.Replace("-----BEGIN RSA PRIVATE KEY-----", string.Empty).Replace("-----END RSA PRIVATE KEY-----", string.Empty)), out _);
-                // Export the key information to an RSAParameters object. You must pass true to export the private key for signing. However, you do not need to export the private key for verification.
-                var rsaParameters = rsaCryptoServiceProvider.ExportParameters(true);
-                // Hash and sign the data.
-                signedData = HashAndSignBytes(originalData, rsaParameters, HashAlgorithmName.SHA256);
-                return Convert.ToBase64String(signedData);
-            }
-        }
-
-        private static byte[] HashAndSignBytes(byte[] dataToSign, RSAParameters rsaParameters, HashAlgorithmName hashAlgorithm) {
-            // Create a new instance of RSACryptoServiceProvider using the key from RSAParameters.  
-            using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider()) {
-                try {
-                    rsaCryptoServiceProvider.ImportParameters(rsaParameters);
-                    // Hash and sign the data. Pass a new instance of SHA1CryptoServiceProvider to specify the use of SHA1 for hashing.
-                    return rsaCryptoServiceProvider.SignData(dataToSign, hashAlgorithm, RSASignaturePadding.Pkcs1);
-                } catch (CryptographicException) {
-                    return null;
-                } finally {
-                    // Set the key container to be cleared when RSA is garbage collected.
-                    rsaCryptoServiceProvider.PersistKeyInCsp = false;
-                }
-            }
-        }
-        #endregion
-
-        #region IdentityServer Configuration
-        private static IEnumerable<Client> GetClients() => new List<Client> {
-            new Client {
-                ClientId = CLIENT_ID,
-                ClientName = "Public/Private key client",
-                AccessTokenType = AccessTokenType.Jwt,
-                AllowAccessTokensViaBrowser = false,
-                AllowedGrantTypes = {
-                    CustomGrantTypes.DeviceAuthentication,
-                    GrantType.ClientCredentials,
-                    GrantType.ResourceOwnerPassword
-                },
-                ClientSecrets = {
-                    new Secret(CLIENT_SECRET.ToSha256())
-                },
-                AllowedScopes = {
-                    IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Phone,
-                    "scope1"
-                },
-                RequireConsent = false,
-                RequirePkce = false,
-                RequireClientSecret = true,
-                AllowOfflineAccess = true,
-                AlwaysSendClientClaims = true,
-                Claims = {
-                    new ClientClaim(BasicClaimTypes.TrustedDevice, "true", ClaimValueTypes.Boolean),
-                    new ClientClaim(BasicClaimTypes.MobileClient, "true", ClaimValueTypes.Boolean)
-                }
-            }
-        };
-
-        private static IEnumerable<IdentityResource> GetIdentityResources() => new List<IdentityResource> {
-            new IdentityResources.OpenId(),
-            new IdentityResources.Phone(),
-            new IdentityResources.Email(),
-            new IdentityResources.Profile(),
-            new IdentityResources.Address()
-        };
-
-        private static IEnumerable<ApiScope> GetApiScopes() => new List<ApiScope> {
-            new ApiScope(name: "scope1", displayName: "Scope No. 1", userClaims: new string[] {
-                JwtClaimTypes.Email,
-                JwtClaimTypes.EmailVerified,
-                JwtClaimTypes.FamilyName,
-                JwtClaimTypes.GivenName,
-                JwtClaimTypes.PhoneNumber,
-                JwtClaimTypes.PhoneNumberVerified,
-                JwtClaimTypes.Subject
-            }),
-            new ApiScope(name: "scope2", displayName: "Scope No. 2", userClaims: new string[] {
-                JwtClaimTypes.Email,
-                JwtClaimTypes.PhoneNumber,
-                JwtClaimTypes.Subject
-            })
-        };
-
-        private static IEnumerable<ApiResource> GetApiResources() => new List<ApiResource> {
-            new ApiResource(name: "api1", displayName: "API No. 1") {
-                Scopes = { "scope1", "scope2" }
-            }
-        };
-        #endregion
-
-        #region Helper Classes
-        public class TrustedDeviceCompleteRegistrationResultDto
-        {
-            public string DeviceId { get; set; }
-            [JsonPropertyName("registrationId")]
-            public Guid RegistrationId { get; set; }
-        }
-        #endregion
     }
+
+    private static string SignMessage(byte[] message, X509SigningCredentials x509SigningCredentials) {
+        using var key = x509SigningCredentials.Certificate.GetRSAPrivateKey();
+        var signedMessage = Convert.ToBase64String(key?.SignData(message, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1) ?? Array.Empty<byte>());
+        return signedMessage;
+    }
+
+    private static string SignMessage(string message, X509SigningCredentials x509SigningCredentials) {
+        var messageBytes = Encoding.UTF8.GetBytes(message);
+        return SignMessage(messageBytes, x509SigningCredentials);
+    }
+
+    private static string SignMessage(string message) {
+        // Create a UnicodeEncoder to convert between byte array and string.
+        var byteConverter = new ASCIIEncoding();
+        // Create byte arrays to hold original, encrypted, and decrypted data.
+        var originalData = byteConverter.GetBytes(message);
+        byte[] signedData;
+        // Create a new instance of the RSACryptoServiceProvider class and automatically create a new key-pair.
+        using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider()) {
+            rsaCryptoServiceProvider.ImportRSAPrivateKey(Convert.FromBase64String(PRIVATE_KEY.Replace("-----BEGIN RSA PRIVATE KEY-----", string.Empty).Replace("-----END RSA PRIVATE KEY-----", string.Empty)), out _);
+            // Export the key information to an RSAParameters object. You must pass true to export the private key for signing. However, you do not need to export the private key for verification.
+            var rsaParameters = rsaCryptoServiceProvider.ExportParameters(true);
+            // Hash and sign the data.
+            signedData = HashAndSignBytes(originalData, rsaParameters, HashAlgorithmName.SHA256);
+            return Convert.ToBase64String(signedData);
+        }
+    }
+
+    private static byte[] HashAndSignBytes(byte[] dataToSign, RSAParameters rsaParameters, HashAlgorithmName hashAlgorithm) {
+        // Create a new instance of RSACryptoServiceProvider using the key from RSAParameters.  
+        using (var rsaCryptoServiceProvider = new RSACryptoServiceProvider()) {
+            try {
+                rsaCryptoServiceProvider.ImportParameters(rsaParameters);
+                // Hash and sign the data. Pass a new instance of SHA1CryptoServiceProvider to specify the use of SHA1 for hashing.
+                return rsaCryptoServiceProvider.SignData(dataToSign, hashAlgorithm, RSASignaturePadding.Pkcs1);
+            } catch (CryptographicException) {
+                return null;
+            } finally {
+                // Set the key container to be cleared when RSA is garbage collected.
+                rsaCryptoServiceProvider.PersistKeyInCsp = false;
+            }
+        }
+    }
+    #endregion
+
+    #region IdentityServer Configuration
+    private static IEnumerable<Client> GetClients() => new List<Client> {
+        new Client {
+            ClientId = CLIENT_ID,
+            ClientName = "Public/Private key client",
+            AccessTokenType = AccessTokenType.Jwt,
+            AllowAccessTokensViaBrowser = false,
+            AllowedGrantTypes = {
+                CustomGrantTypes.DeviceAuthentication,
+                GrantType.ClientCredentials,
+                GrantType.ResourceOwnerPassword
+            },
+            ClientSecrets = {
+                new Secret(CLIENT_SECRET.ToSha256())
+            },
+            AllowedScopes = {
+                IdentityServerConstants.StandardScopes.OpenId,
+                IdentityServerConstants.StandardScopes.Phone,
+                "scope1"
+            },
+            RequireConsent = false,
+            RequirePkce = false,
+            RequireClientSecret = true,
+            AllowOfflineAccess = true,
+            AlwaysSendClientClaims = true,
+            Claims = {
+                new ClientClaim(BasicClaimTypes.TrustedDevice, "true", ClaimValueTypes.Boolean),
+                new ClientClaim(BasicClaimTypes.MobileClient, "true", ClaimValueTypes.Boolean)
+            }
+        }
+    };
+
+    private static IEnumerable<IdentityResource> GetIdentityResources() => new List<IdentityResource> {
+        new IdentityResources.OpenId(),
+        new IdentityResources.Phone(),
+        new IdentityResources.Email(),
+        new IdentityResources.Profile(),
+        new IdentityResources.Address()
+    };
+
+    private static IEnumerable<ApiScope> GetApiScopes() => new List<ApiScope> {
+        new ApiScope(name: "scope1", displayName: "Scope No. 1", userClaims: new string[] {
+            JwtClaimTypes.Email,
+            JwtClaimTypes.EmailVerified,
+            JwtClaimTypes.FamilyName,
+            JwtClaimTypes.GivenName,
+            JwtClaimTypes.PhoneNumber,
+            JwtClaimTypes.PhoneNumberVerified,
+            JwtClaimTypes.Subject
+        }),
+        new ApiScope(name: "scope2", displayName: "Scope No. 2", userClaims: new string[] {
+            JwtClaimTypes.Email,
+            JwtClaimTypes.PhoneNumber,
+            JwtClaimTypes.Subject
+        })
+    };
+
+    private static IEnumerable<ApiResource> GetApiResources() => new List<ApiResource> {
+        new ApiResource(name: "api1", displayName: "API No. 1") {
+            Scopes = { "scope1", "scope2" }
+        }
+    };
+    #endregion
+
+    #region Helper Classes
+    public class TrustedDeviceCompleteRegistrationResultDto
+    {
+        public string DeviceId { get; set; }
+        [JsonPropertyName("registrationId")]
+        public Guid RegistrationId { get; set; }
+    }
+    #endregion
 }

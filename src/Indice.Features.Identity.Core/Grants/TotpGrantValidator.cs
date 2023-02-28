@@ -46,7 +46,7 @@ public class TotpGrantValidator : IExtensionGrantValidator
         // Get user's identity.
         var sub = validationResult.Claims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.Subject).Value;
         var user = new ClaimsPrincipal(new ClaimsIdentity(validationResult.Claims));
-        var totpResult = await _totpServiceFactory.Create<DbUser>().VerifyAsync(user, code, reason);
+        var totpResult = await _totpServiceFactory.Create<User>().VerifyAsync(user, code, reason);
         if (!totpResult.Success) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant);
             return;

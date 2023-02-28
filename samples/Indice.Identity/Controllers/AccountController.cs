@@ -16,8 +16,8 @@ public class AccountController : Controller
 {
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IEventService _events;
-    private readonly ExtendedUserManager<DbUser> _userManager;
-    private readonly ExtendedSignInManager<DbUser> _signInManager;
+    private readonly ExtendedUserManager<User> _userManager;
+    private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IAccountService _accountService;
     private readonly ILogger<AccountController> _logger;
     /// <summary>The name of the controller.</summary>
@@ -33,8 +33,8 @@ public class AccountController : Controller
     public AccountController(
         IIdentityServerInteractionService interaction,
         IEventService events,
-        ExtendedUserManager<DbUser> userManager,
-        ExtendedSignInManager<DbUser> signInManager,
+        ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager,
         ILogger<AccountController> logger,
         IAccountService accountService
     ) {

@@ -4,24 +4,24 @@ using Microsoft.AspNetCore.Identity;
 namespace Indice.Features.Identity.Core.Data.Models;
 
 /// <summary>Represents a user in the Identity system.</summary>
-public class DbUser : IdentityUser
+public class User : IdentityUser
 {
     /// <summary>Initializes a new instance of <see cref="IdentityUser"/>.</summary>
-    public DbUser() : this(string.Empty, Guid.NewGuid()) { }
+    public User() : this(string.Empty, Guid.NewGuid()) { }
 
     /// <summary>Initializes a new instance of <see cref="IdentityUser"/>.</summary>
     /// <remarks>The Id property is initialized to from a new GUID string value.</remarks>
     /// <param name="userName">The user name</param>
-    public DbUser(string userName) : base(userName) { }
+    public User(string userName) : base(userName) { }
 
     /// <summary>Initializes a new instance of <see cref="IdentityUser"/>.</summary>
-    public DbUser(string userName, Guid id) : base(userName) {
+    public User(string userName, Guid id) : base(userName) {
         Id = id.ToString();
         UserName = userName;
     }
 
     /// <summary>Initializes a new instance of <see cref="IdentityUser"/>.</summary>
-    public DbUser(string userName, string id) : base(userName) {
+    public User(string userName, string id) : base(userName) {
         Id = id;
         UserName = userName;
     }
@@ -49,7 +49,7 @@ public class DbUser : IdentityUser
     /// <summary>Navigation property for the user's login accounts.</summary>
     public virtual ICollection<IdentityUserLogin<string>> Logins { get; } = new List<IdentityUserLogin<string>>();
     /// <summary>Navigation property for the user's registered devices.</summary>
-    public virtual ICollection<DbUserDevice> Devices { get; } = new List<DbUserDevice>();
+    public virtual ICollection<UserDevice> Devices { get; } = new List<UserDevice>();
 
     /// <summary>Calculates the next date that the user must change his password.</summary>
     public DateTimeOffset? CalculatePasswordExpirationDate() {

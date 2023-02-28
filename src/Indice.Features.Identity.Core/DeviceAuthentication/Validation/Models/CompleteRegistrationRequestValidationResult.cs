@@ -13,8 +13,8 @@ internal class CompleteRegistrationRequestValidationResult : ValidationResult
     public DevicePlatform DevicePlatform { get; set; }
     public IList<string> RequestedScopes { get; set; }
     public InteractionMode InteractionMode { get; set; }
-    public DbUserDevice Device { get; set; }
-    public DbUser User { get; set; }
+    public UserDevice Device { get; set; }
+    public User User { get; set; }
     public string DeviceId { get; set; }
     public string DeviceName { get; set; }
     public string Pin { get; set; }

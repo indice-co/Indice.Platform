@@ -17,9 +17,9 @@ public class IdentityServerApiEndpointsOptions
     /// <summary>If true, various events (user or client created etc.) are raised from the API. Default is false.</summary>
     public bool CanRaiseEvents { get; set; } = false;
     /// <summary>A list of initial users to be inserted in the database on startup. Works only when environment is 'Development'.</summary>
-    public IEnumerable<DbUser> InitialUsers { get; set; } = new List<DbUser>();
+    public IEnumerable<User> InitialUsers { get; set; } = new List<User>();
     /// <summary>A list of custom claim types to be inserted in the database on startup. Works only when environment is 'Development'.</summary>
-    public IEnumerable<DbClaimType> CustomClaims { get; set; } = new List<DbClaimType>();
+    public IEnumerable<ClaimType> CustomClaims { get; set; } = new List<ClaimType>();
     /// <summary>Disables the cache for all the endpoints in the IdentityServer API. Defaults to false.</summary>
     public bool DisableCache { get; set; } = false;
 }

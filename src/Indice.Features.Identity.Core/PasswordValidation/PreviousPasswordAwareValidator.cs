@@ -18,18 +18,18 @@ public class PreviousPasswordAwareValidator<TContext> : PreviousPasswordAwareVal
 }
 
 /// <summary>An <see cref="IPasswordValidator{TUser}" /> that checks a number of previous passwords for equality.</summary>
-public class PreviousPasswordAwareValidator : PreviousPasswordAwareValidator<DbUser, DbRole>
+public class PreviousPasswordAwareValidator : PreviousPasswordAwareValidator<User, Role>
 {
     /// <summary>Class constructor.</summary>
     /// <param name="dbContext">The DbContext to use for the Identity framework.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="messageDescriber">Provides the various messages used throughout Indice packages.</param>
-    public PreviousPasswordAwareValidator(IdentityDbContext<DbUser, DbRole> dbContext, IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(dbContext, configuration, messageDescriber) { }
+    public PreviousPasswordAwareValidator(IdentityDbContext<User, Role> dbContext, IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(dbContext, configuration, messageDescriber) { }
 }
 
 /// <summary>An <see cref="IPasswordValidator{TUser}" /> that checks a number of previous passwords for equality.</summary>
 public class PreviousPasswordAwareValidator<TUser, TRole> : PreviousPasswordAwareValidator<IdentityDbContext<TUser, TRole>, TUser, TRole>
-    where TUser : DbUser
+    where TUser : User
     where TRole : IdentityRole
 {
     /// <summary>Class constructor.</summary>
@@ -45,7 +45,7 @@ public class PreviousPasswordAwareValidator<TUser, TRole> : PreviousPasswordAwar
 /// <typeparam name="TRole">Type of role.</typeparam>
 public class PreviousPasswordAwareValidator<TContext, TUser, TRole> : IPasswordValidator<TUser>
     where TContext : IdentityDbContext<TUser, TRole>
-    where TUser : DbUser
+    where TUser : User
     where TRole : IdentityRole
 {
     /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>

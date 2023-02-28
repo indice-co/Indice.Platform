@@ -104,7 +104,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
         var otpAuthenticated = !string.IsNullOrWhiteSpace(otpAuthenticatedValue) && bool.Parse(otpAuthenticatedValue);
         if (!otpAuthenticated) {
             // Send OTP code.
-            var totpResult = await TotpServiceFactory.Create<DbUser>().SendAsync(totp => totp
+            var totpResult = await TotpServiceFactory.Create<User>().SendAsync(totp => totp
                 .ToPrincipal(requestValidationResult.Principal)
                 .WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.Name, requestValidationResult.InteractionMode))
                 .UsingDeliveryChannel(requestValidationResult.DeliveryChannel)

@@ -16,9 +16,9 @@ public class SingleUserInfo : BasicUserInfo
     /// <summary>User metadata expressed as claims.</summary>
     public IEnumerable<ClaimInfo> Claims { get; set; } = new List<ClaimInfo>();
 
-    /// <summary>Creates a new instance of <see cref="SingleUserInfo"/> from a <see cref="DbUser"/> object.</summary>
+    /// <summary>Creates a new instance of <see cref="SingleUserInfo"/> from a <see cref="User"/> object.</summary>
     /// <param name="user">The user instance.</param>
-    public static SingleUserInfo FromUser(DbUser user) => new() {
+    public static SingleUserInfo FromUser(User user) => new() {
         Id = user.Id,
         UserName = user.UserName,
         Email = user.Email,
@@ -83,13 +83,13 @@ public class UserInfo : BasicUserInfo
     public string LastName { get; set; }
 }
 
-/// <summary>Extension methods that are used to convert from <see cref="DbUser"/> type to other DTOs.</summary>
+/// <summary>Extension methods that are used to convert from <see cref="User"/> type to other DTOs.</summary>
 public static class UserExtensions
 {
-    /// <summary>Converts a type of <see cref="DbUser"/> to <see cref="BasicUserInfo"/>.</summary>
+    /// <summary>Converts a type of <see cref="User"/> to <see cref="BasicUserInfo"/>.</summary>
     /// <param name="user">The instance to convert.</param>
     /// <returns>A new instance of <see cref="BasicUserInfo"/>.</returns>
-    public static BasicUserInfo ToBasicUserInfo(this DbUser user) => new() {
+    public static BasicUserInfo ToBasicUserInfo(this User user) => new() {
         AccessFailedCount = user.AccessFailedCount,
         Blocked = user.Blocked,
         CreateDate = user.CreateDate,
@@ -108,10 +108,10 @@ public static class UserExtensions
         UserName = user.UserName
     };
 
-    /// <summary>Converts a type of <see cref="DbUser"/> to <see cref="BasicUserInfo"/>.</summary>
+    /// <summary>Converts a type of <see cref="User"/> to <see cref="BasicUserInfo"/>.</summary>
     /// <param name="user">The instance to convert.</param>
     /// <returns>A new instance of <see cref="BasicUserInfo"/>.</returns>
-    public static SingleUserInfo ToSingleUserInfo(this DbUser user) => new() {
+    public static SingleUserInfo ToSingleUserInfo(this User user) => new() {
         AccessFailedCount = user.AccessFailedCount,
         Blocked = user.Blocked,
         Claims = user.Claims.Select(x => new ClaimInfo { 

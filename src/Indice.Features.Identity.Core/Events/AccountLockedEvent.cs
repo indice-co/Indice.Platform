@@ -5,7 +5,7 @@ namespace Indice.Features.Identity.Core.Events;
 
 /// <summary>An event that is raised when an account is locked through <see cref="ExtendedUserManager{TUser}"/>.</summary>
 /// <typeparam name="TUser">The type of user.</typeparam>
-public class AccountLockedEvent<TUser> : IPlatformEvent where TUser : DbUser
+public class AccountLockedEvent<TUser> : IPlatformEvent where TUser : User
 {
     /// <summary>Creates a new instance of <see cref="AccountLockedEvent{TKey}"/>.</summary>
     /// <param name="user">The user entity.</param>
@@ -16,9 +16,9 @@ public class AccountLockedEvent<TUser> : IPlatformEvent where TUser : DbUser
 }
 
 /// <summary>An event that is raised when an account is locked through <see cref="ExtendedUserManager{TUser}"/>.</summary>
-public class AccountLockedEvent : AccountLockedEvent<DbUser>
+public class AccountLockedEvent : AccountLockedEvent<User>
 {
     /// <summary>Creates a new instance of <see cref="AccountLockedEvent"/>.</summary>
     /// <param name="user">The user entity.</param>
-    public AccountLockedEvent(DbUser user) : base(user) { }
+    public AccountLockedEvent(User user) : base(user) { }
 }

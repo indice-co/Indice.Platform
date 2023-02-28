@@ -30,8 +30,8 @@ public class LoginModel : PageModel
     private readonly IStringLocalizer<LoginModel> _localizer;
     private readonly ILogger<LoginModel> _logger;
     private readonly IAuthenticationSchemeProvider _schemeProvider;
-    private readonly ExtendedSignInManager<DbUser> _signInManager;
-    private readonly ExtendedUserManager<DbUser> _userManager;
+    private readonly ExtendedSignInManager<User> _signInManager;
+    private readonly ExtendedUserManager<User> _userManager;
     
     /// <summary>Creates a new instance of <see cref="LoginModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
@@ -44,8 +44,8 @@ public class LoginModel : PageModel
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="LoginModel"/>.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public LoginModel(
-        ExtendedSignInManager<DbUser> signInManager,
-        ExtendedUserManager<DbUser> userManager,
+        ExtendedSignInManager<User> signInManager,
+        ExtendedUserManager<User> userManager,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IEventService events,
@@ -130,7 +130,7 @@ public class LoginModel : PageModel
         if (ModelState.IsValid) {
             // Validate username/password against database.
             var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, AccountOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
-            DbUser user = null;
+            User user = null;
             if (result.Succeeded) {
                 user = await _userManager.FindByNameAsync(Input.UserName);
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));

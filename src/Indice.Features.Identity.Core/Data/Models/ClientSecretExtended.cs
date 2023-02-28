@@ -4,7 +4,7 @@ using IdentityServer4.EntityFramework.Entities;
 namespace Indice.Features.Identity.Core.Data.Models;
 
 /// <summary>Extends the IdentityServer4 <see cref="IdentityServer4.EntityFramework.Entities.ClientSecret"/> table.</summary>
-public class DbClientSecretExtended
+public class ClientSecretExtended
 {
     /// <summary>The id of the client.</summary>
     public int ClientSecretId { get; set; }

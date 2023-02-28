@@ -7,8 +7,8 @@ namespace Indice.Features.Identity.Core.Events;
 /// <typeparam name="TDevice">The type of the device.</typeparam>
 /// <typeparam name="TUser">The type of the user.</typeparam>
 public class DeviceTrustRequestedEvent<TDevice, TUser> : IPlatformEvent
-    where TDevice : DbUserDevice
-    where TUser : DbUser
+    where TDevice : UserDevice
+    where TUser : User
 {
     /// <summary>Creates a new instance of <see cref="DeviceTrustRequestedEvent{TDevice, TUser}"/>.</summary>
     /// <param name="device">The device entity.</param>
@@ -25,10 +25,10 @@ public class DeviceTrustRequestedEvent<TDevice, TUser> : IPlatformEvent
 }
 
 /// <summary>An event that is raised when a device requests trust.</summary>
-public class DeviceTrustRequestedEvent : DeviceTrustRequestedEvent<DbUserDevice, DbUser>
+public class DeviceTrustRequestedEvent : DeviceTrustRequestedEvent<UserDevice, User>
 {
     /// <summary>Creates a new instance of <see cref="DeviceTrustRequestedEvent"/>.</summary>
     /// <param name="device">The device entity.</param>
     /// <param name="user">The user entity.</param>
-    public DeviceTrustRequestedEvent(DbUserDevice device, DbUser user) : base(device, user) { }
+    public DeviceTrustRequestedEvent(UserDevice device, User user) : base(device, user) { }
 }

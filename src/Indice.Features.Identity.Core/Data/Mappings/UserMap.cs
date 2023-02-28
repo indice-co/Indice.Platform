@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Identity.Core.Data.Mappings;
 
-/// <summary>Entity Framework mapping for type <see cref="DbUser"/>.</summary>
+/// <summary>Entity Framework mapping for type <see cref="User"/>.</summary>
 /// <typeparam name="TUser">The type of user.</typeparam>
-internal class DbUserMap<TUser> : IEntityTypeConfiguration<TUser> where TUser : DbUser
+internal class UserMap<TUser> : IEntityTypeConfiguration<TUser> where TUser : User
 {
-    /// <summary>Configure Entity Framework mapping for type <see cref="DbUser"/>.</summary>
+    /// <summary>Configure Entity Framework mapping for type <see cref="User"/>.</summary>
     /// <param name="entityBuilder"></param>
     public void Configure(EntityTypeBuilder<TUser> entityBuilder) {
         // Configure table name and schema.
-        entityBuilder.ToTable(nameof(DbUser), "auth");
+        entityBuilder.ToTable(nameof(User), "auth");
         // Configure indexes.
         entityBuilder.HasIndex(x => x.UserName);
         entityBuilder.HasIndex(x => x.CreateDate);

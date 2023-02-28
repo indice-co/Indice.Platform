@@ -19,7 +19,7 @@ namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages;
 [SecurityHeaders]
 public class LogoutModel : PageModel
 {
-    private readonly ExtendedSignInManager<DbUser> _signInManager;
+    private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IEventService _events;
     private readonly IIdentityServerInteractionService _interaction;
 
@@ -29,7 +29,7 @@ public class LogoutModel : PageModel
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public LogoutModel(
-        ExtendedSignInManager<DbUser> signInManager,
+        ExtendedSignInManager<User> signInManager,
         IEventService events,
         IIdentityServerInteractionService interaction
     ) {

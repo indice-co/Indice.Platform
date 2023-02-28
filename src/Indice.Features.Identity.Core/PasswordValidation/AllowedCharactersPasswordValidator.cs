@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 namespace Indice.Features.Identity.Core.PasswordValidation;
 
 /// <summary>A validator that checks if the characters contained in a given password are within a list of predefined allowed characters.</summary>
-public class AllowedCharactersPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : DbUser
+public class AllowedCharactersPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
 {
     /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>
     public const string ErrorDescriber = "PasswordContainsNotAllowedCharacters";
@@ -43,7 +43,7 @@ public class AllowedCharactersPasswordValidator<TUser> : IPasswordValidator<TUse
 }
 
 /// <inheritdoc/>
-public class AllowedCharactersPasswordValidator : AllowedCharactersPasswordValidator<DbUser>
+public class AllowedCharactersPasswordValidator : AllowedCharactersPasswordValidator<User>
 {
     /// <inheritdoc/>
     public AllowedCharactersPasswordValidator(IConfiguration configuration, IdentityMessageDescriber messageDescriber) : base(configuration, messageDescriber) { }

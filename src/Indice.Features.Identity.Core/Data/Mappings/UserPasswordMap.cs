@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Identity.Core.Data.Mappings;
 
-/// <summary>Entity Framework mapping for type <see cref="DbUserPassword"/>.</summary>
+/// <summary>Entity Framework mapping for type <see cref="UserPassword"/>.</summary>
 /// <typeparam name="TUser">The type of user.</typeparam>
-internal class DbUserPasswordMap<TUser> : IEntityTypeConfiguration<DbUserPassword> where TUser : DbUser
+internal class UserPasswordMap<TUser> : IEntityTypeConfiguration<UserPassword> where TUser : User
 {
-    /// <summary>Configure Entity Framework mapping for type <see cref="DbUserPassword"/>.</summary>
+    /// <summary>Configure Entity Framework mapping for type <see cref="UserPassword"/>.</summary>
     /// <param name="builder"></param>
-    public void Configure(EntityTypeBuilder<DbUserPassword> builder) {
+    public void Configure(EntityTypeBuilder<UserPassword> builder) {
         // Configure table name and schema.
-        builder.ToTable(nameof(DbUserPassword), "auth");
+        builder.ToTable(nameof(UserPassword), "auth");
         // Configure primary key.
         builder.HasKey(x => x.Id);
         // Configure relationships.

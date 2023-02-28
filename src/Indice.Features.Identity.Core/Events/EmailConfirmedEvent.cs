@@ -5,7 +5,7 @@ namespace Indice.Features.Identity.Core.Events;
 
 /// <summary>An event that is raised when a user's email is confirmed through <see cref="ExtendedUserManager{TUser}"/>.</summary>
 /// <typeparam name="TUser">The type of user.</typeparam>
-public class EmailConfirmedEvent<TUser> : IPlatformEvent where TUser : DbUser
+public class EmailConfirmedEvent<TUser> : IPlatformEvent where TUser : User
 {
     /// <summary>Creates a new instance of <see cref="EmailConfirmedEvent{TUser}"/>.</summary>
     /// <param name="user">The user entity.</param>
@@ -16,8 +16,8 @@ public class EmailConfirmedEvent<TUser> : IPlatformEvent where TUser : DbUser
 }
 
 /// <summary>An event that is raised when a user's email is confirmed, through <see cref="ExtendedUserManager{TUser}"/>.</summary>
-public class EmailConfirmedEvent : EmailConfirmedEvent<DbUser>
+public class EmailConfirmedEvent : EmailConfirmedEvent<User>
 {
     /// <summary>Creates a new instance of <see cref="EmailConfirmedEvent{TUser}"/>.</summary>
-    public EmailConfirmedEvent(DbUser user) : base(user) { }
+    public EmailConfirmedEvent(User user) : base(user) { }
 }

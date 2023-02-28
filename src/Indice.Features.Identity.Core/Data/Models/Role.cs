@@ -4,14 +4,14 @@ using Microsoft.AspNetCore.Identity;
 namespace Indice.Features.Identity.Core.Data.Models;
 
 /// <summary>Extended version of the <see cref="IdentityRole"/> class.</summary>
-public class DbRole : IdentityRole
+public class Role : IdentityRole
 {
-    /// <summary>Creates a new instance of <see cref="DbRole"/>.</summary>
-    public DbRole() : this(string.Empty) { }
+    /// <summary>Creates a new instance of <see cref="Role"/>.</summary>
+    public Role() : this(string.Empty) { }
 
-    /// <summary>Creates a new instance of <see cref="DbRole"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="Role"/>.</summary>
     /// <param name="roleName">The name of the role.</param>
-    public DbRole(string roleName) : base(roleName) { }
+    public Role(string roleName) : base(roleName) { }
 
     /// <summary>A description for the role.</summary>
     public string Description { get; set; }

@@ -44,7 +44,7 @@ public class DeviceInfo
 
 internal static class DeviceInfoExtensions
 {
-    public static Expression<Func<DbUserDevice, DeviceInfo>> ToDeviceInfo = (DbUserDevice device) => new DeviceInfo {
+    public static Expression<Func<UserDevice, DeviceInfo>> ToDeviceInfo = (UserDevice device) => new DeviceInfo {
         ClientType = device.ClientType,
         Data = device.Data,
         DateCreated = device.DateCreated,

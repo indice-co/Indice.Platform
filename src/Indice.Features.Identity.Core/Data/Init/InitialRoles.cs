@@ -4,7 +4,7 @@ using Indice.Security;
 namespace Indice.Features.Identity.Core.Data;
 
 /// <summary>Provides functionality to generate test claim types for development purposes.</summary>
-internal class InitialRoles<TRole> where TRole : DbRole, new()
+internal class InitialRoles<TRole> where TRole : Role, new()
 {
     private static readonly List<TRole> Roles = new() {
         new TRole {

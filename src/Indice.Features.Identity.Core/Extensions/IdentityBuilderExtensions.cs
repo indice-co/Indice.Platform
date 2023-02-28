@@ -15,9 +15,9 @@ namespace Indice.AspNetCore.Identity;
 public static class IdentityBuilderExtensions
 {
     /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies.</summary>
-    /// <typeparam name="TUser">The type of <see cref="DbUser"/> used by the identity system.</typeparam>
+    /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
     /// <param name="builder">The type of builder for configuring identity services.</param>
-    public static IdentityBuilder AddExtendedSignInManager<TUser>(this IdentityBuilder builder) where TUser : DbUser {
+    public static IdentityBuilder AddExtendedSignInManager<TUser>(this IdentityBuilder builder) where TUser : User {
         builder.Services.AddAuthentication().AddCookie(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, options => {
             options.Cookie.Name = ExtendedIdentityConstants.ExtendedValidationUserIdScheme;
             options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
@@ -27,9 +27,9 @@ public static class IdentityBuilderExtensions
         return builder;
     }
 
-    /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies, using <see cref="DbUser"/> class as a user type..</summary>
+    /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies, using <see cref="User"/> class as a user type..</summary>
     /// <param name="builder">The type of builder for configuring identity services.</param>
-    public static IdentityBuilder AddExtendedSignInManager(this IdentityBuilder builder) => builder.AddExtendedSignInManager<DbUser>();
+    public static IdentityBuilder AddExtendedSignInManager(this IdentityBuilder builder) => builder.AddExtendedSignInManager<User>();
 
     /// <summary>
     /// Adds the <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/> as the default phone provider.
@@ -59,7 +59,7 @@ public static class IdentityBuilderExtensions
     /// <typeparam name="TUser">The type of the <see cref="IdentityUser"/>.</typeparam>
     /// <param name="builder">Helper functions for configuring identity services.</param>
     /// <returns>The <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddNonCommonPasswordValidator<TUser>(this IdentityBuilder builder) where TUser : DbUser {
+    public static IdentityBuilder AddNonCommonPasswordValidator<TUser>(this IdentityBuilder builder) where TUser : User {
         builder.Services.AddSingleton<IPasswordBlacklistProvider, DefaultPasswordBlacklistProvider>();
         builder.Services.AddSingleton<IPasswordBlacklistProvider, ConfigPasswordBlacklistProvider>();
         builder.AddPasswordValidator<NonCommonPasswordValidator<TUser>>();
@@ -68,11 +68,11 @@ public static class IdentityBuilderExtensions
 
     /// <summary>
     /// Registers <see cref="NonCommonPasswordValidator"/> as a password validator along with two <see cref="IPasswordBlacklistProvider"/>, the <see cref="DefaultPasswordBlacklistProvider"/>
-    /// and <see cref="ConfigPasswordBlacklistProvider"/>, using <see cref="DbUser"/> class as a user type.
+    /// and <see cref="ConfigPasswordBlacklistProvider"/>, using <see cref="User"/> class as a user type.
     /// </summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
     /// <returns>The <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddNonCommonPasswordValidator(this IdentityBuilder builder) => builder.AddNonCommonPasswordValidator<DbUser>();
+    public static IdentityBuilder AddNonCommonPasswordValidator(this IdentityBuilder builder) => builder.AddNonCommonPasswordValidator<User>();
 
     /// <summary>Registers the recommended password validators: <see cref="NonCommonPasswordValidator"/>, <see cref="UnicodeCharactersPasswordValidator"/>, <see cref="PreviousPasswordAwareValidator"/> and <see cref="UserNameAsPasswordValidator"/>.</summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
@@ -80,7 +80,7 @@ public static class IdentityBuilderExtensions
     public static IdentityBuilder AddDefaultPasswordValidators(this IdentityBuilder builder) {
         builder.AddNonCommonPasswordValidator();
         builder.AddPasswordValidator<UnicodeCharactersPasswordValidator>();
-        builder.AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<DbUser, DbRole>, DbUser, DbRole>>();
+        builder.AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>();
         builder.AddPasswordValidator<UserNameAsPasswordValidator>();
         return builder;
     }

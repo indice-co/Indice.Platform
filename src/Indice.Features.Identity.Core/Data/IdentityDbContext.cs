@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Features.Identity.Core.Data;
 
 /// <summary><see cref="DbContext"/> for the Identity Framework.</summary>
-public class IdentityDbContext : IdentityDbContext<DbUser, DbRole>
+public class IdentityDbContext : IdentityDbContext<User, Role>
 {
     /// <summary>Constructs the <see cref="IdentityDbContext"/> passing the options.</summary>
     /// <param name="options">The options to be used by a <see cref="IdentityDbContext"/>.</param>
@@ -21,7 +21,7 @@ public class IdentityDbContext : IdentityDbContext<DbUser, DbRole>
 /// <typeparam name="TUser">The type of the user to use.</typeparam>
 /// <typeparam name="TRole">The type of the role to use.</typeparam>
 public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, string>, IAppSettingsDbContext
-    where TUser : DbUser
+    where TUser : User
     where TRole : IdentityRole
 {
     /// <summary>Constructs the <see cref="DbContext"/> passing the options.</summary>
@@ -29,9 +29,9 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
     public IdentityDbContext(DbContextOptions options) : base(options) { }
 
     /// <summary>Stores all previous passwords of a user for future validation checks.</summary>
-    public DbSet<DbUserPassword> UserPasswordHistory { get; set; }
+    public DbSet<UserPassword> UserPasswordHistory { get; set; }
     /// <summary>Stores user devices in database.</summary>
-    public DbSet<DbUserDevice> UserDevices { get; set; }
+    public DbSet<UserDevice> UserDevices { get; set; }
     /// <summary>Application settings stored in the database.</summary>
     public DbSet<AppSetting> AppSettings { get; set; }
 
@@ -45,9 +45,9 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
         builder.Entity<IdentityUserRole<string>>().ToTable("UserRole", "auth");
         builder.Entity<IdentityUserToken<string>>().ToTable("UserToken", "auth");
         builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogin", "auth");
-        builder.ApplyConfiguration(new DbUserMap<TUser>());
-        builder.ApplyConfiguration(new DbUserPasswordMap<TUser>());
-        builder.ApplyConfiguration(new DbUserDeviceMap<TUser>());
+        builder.ApplyConfiguration(new UserMap<TUser>());
+        builder.ApplyConfiguration(new UserPasswordMap<TUser>());
+        builder.ApplyConfiguration(new UserDeviceMap<TUser>());
         builder.ApplyConfiguration(new AppSettingMap());
     }
 }

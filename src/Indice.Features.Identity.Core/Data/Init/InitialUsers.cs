@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 namespace Indice.Features.Identity.Core.Data;
 
 /// <summary>Provides functionality to generate test users for development purposes.</summary>
-internal class InitialUsers<TUser> where TUser : DbUser
+internal class InitialUsers<TUser> where TUser : User
 {
     private const int DefaultNumberOfUsers = 100;
 

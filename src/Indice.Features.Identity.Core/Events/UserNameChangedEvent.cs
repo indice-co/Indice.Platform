@@ -5,7 +5,7 @@ namespace Indice.Features.Identity.Core.Events;
 
 /// <summary>An event that is raised when a user's username is changed on through <see cref="ExtendedUserManager{TUser}"/>.</summary>
 /// <typeparam name="TUser">The type of user.</typeparam>
-public class UserNameChangedEvent<TUser> : IPlatformEvent where TUser : DbUser
+public class UserNameChangedEvent<TUser> : IPlatformEvent where TUser : User
 {
     /// <summary>Creates a new instance of <see cref="UserNameChangedEvent{TUser}"/>.</summary>
     /// <param name="user">The user entity.</param>
@@ -16,8 +16,8 @@ public class UserNameChangedEvent<TUser> : IPlatformEvent where TUser : DbUser
 }
 
 /// <summary>An event that is raised when a user's username is changed on through <see cref="ExtendedUserManager{TUser}"/>.</summary>
-public class UserNameChangedEvent : UserNameChangedEvent<DbUser>
+public class UserNameChangedEvent : UserNameChangedEvent<User>
 {
     /// <summary>Creates a new instance of <see cref="UserNameChangedEvent"/>.</summary>
-    public UserNameChangedEvent(DbUser user) : base(user) { }
+    public UserNameChangedEvent(User user) : base(user) { }
 }

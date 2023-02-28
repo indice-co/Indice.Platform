@@ -13,7 +13,7 @@ internal class CompleteRegistrationResponseGenerator : IResponseGenerator<Comple
         IDevicePasswordHasher devicePasswordHasher,
         ISystemClock systemClock,
         IUserDeviceStore userDeviceStore,
-        ExtendedUserManager<DbUser> userManager
+        ExtendedUserManager<User> userManager
     ) {
         UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -22,12 +22,12 @@ internal class CompleteRegistrationResponseGenerator : IResponseGenerator<Comple
     }
 
     public IUserDeviceStore UserDeviceStore { get; }
-    public ExtendedUserManager<DbUser> UserManager { get; }
+    public ExtendedUserManager<User> UserManager { get; }
     public IDevicePasswordHasher DevicePasswordHasher { get; }
     public ISystemClock SystemClock { get; }
 
     public async Task<CompleteRegistrationResponse> Generate(CompleteRegistrationRequestValidationResult validationResult) {
-        var device = validationResult.Device ?? new DbUserDevice(Guid.NewGuid()) {
+        var device = validationResult.Device ?? new UserDevice(Guid.NewGuid()) {
             ClientType = DeviceClientType.Native,
             DateCreated = SystemClock.UtcNow,
             DeviceId = validationResult.DeviceId,

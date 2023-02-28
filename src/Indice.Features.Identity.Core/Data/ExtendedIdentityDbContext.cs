@@ -7,8 +7,8 @@ namespace Indice.Features.Identity.Core.Data;
 
 /// <summary>An extended <see cref="DbContext"/> for the Identity framework.</summary>
 public class ExtendedIdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole>
-    where TUser : DbUser, new()
-    where TRole : DbRole, new()
+    where TUser : User, new()
+    where TRole : Role, new()
 {
     /// <summary>Creates a new instance of <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</summary>
     /// <param name="dbContextOptions">The options to be used by a <see cref="DbContext"/>.</param>

@@ -37,7 +37,7 @@ internal class DevicesController : ControllerBase
     public const string Name = "Devices";
 
     public DevicesController(
-        ExtendedUserManager<DbUser> userManager,
+        ExtendedUserManager<User> userManager,
         IPushNotificationService pushNotificationService,
         ILogger<DevicesController> logger
     ) {
@@ -46,7 +46,7 @@ internal class DevicesController : ControllerBase
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public ExtendedUserManager<DbUser> UserManager { get; }
+    public ExtendedUserManager<User> UserManager { get; }
     public IPushNotificationService PushNotificationService { get; }
     public ILogger<DevicesController> Logger { get; }
 
@@ -118,7 +118,7 @@ internal class DevicesController : ControllerBase
                 throw;
             }
         }
-        device = new DbUserDevice(id) {
+        device = new UserDevice(id) {
             Data = request.Data,
             DateCreated = DateTimeOffset.UtcNow,
             DeviceId = request.DeviceId,

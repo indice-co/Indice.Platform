@@ -21,7 +21,7 @@ namespace Indice.Features.Identity.Core;
 
 /// <summary>Provides the APIs for user sign in.</summary>
 /// <typeparam name="TUser">The type encapsulating a user.</typeparam>
-public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : DbUser
+public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : User
 {
     /// <summary>Default duration in days for two-factor remember.</summary>
     public const int DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS = 90;
@@ -81,7 +81,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : D
     public bool EnforceMfa { get; }
     /// <summary>The scheme used to identify external authentication cookies.</summary>
     public string ExternalScheme { get; }
-    /// <summary>Decides whether a trusted browser should be stored in the <see cref="DbUserDevice"/> table.</summary>
+    /// <summary>Decides whether a trusted browser should be stored in the <see cref="UserDevice"/> table.</summary>
     public bool PersistTrustedBrowsers { get; }
     /// <summary>Defines the number of days that the browser will remember the MFA action and will not require re-authentication.</summary>
     public int MfaRememberDurationInDays { get; }
@@ -120,7 +120,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : D
     /// <inheritdoc/>
     public override async Task SignInAsync(TUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null) {
         await base.SignInAsync(user, authenticationProperties, authenticationMethod);
-        if (user is DbUser) {
+        if (user is User) {
             user.LastSignInDate = DateTimeOffset.UtcNow;
             await UserManager.UpdateAsync(user);
         }
@@ -128,7 +128,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : D
 
     /// <inheritdoc/>
     public override async Task<bool> CanSignInAsync(TUser user) {
-        if (user is DbUser && user.Blocked) {
+        if (user is User && user.Blocked) {
             Logger.LogWarning(0, "User {userId} cannot sign in. User is blocked by the administrator.", await UserManager.GetUserIdAsync(user));
             return false;
         }
@@ -164,7 +164,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : D
             return SignInResult.TwoFactorRequired;
         }
         var signInResult = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
-        if (signInResult.Succeeded && (user is DbUser)) {
+        if (signInResult.Succeeded && (user is User)) {
             user.LastSignInDate = DateTimeOffset.UtcNow;
             await UserManager.UpdateAsync(user);
             if (RememberExpirationType == MfaExpirationType.Sliding) {
@@ -327,7 +327,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : D
                 }
                 var osInfo = FormatOsInfo(clientInfo?.OS);
                 var name = $"{FormatUserAgentInfo(clientInfo?.UA)} on {osInfo}".Trim();
-                device = new DbUserDevice {
+                device = new UserDevice {
                     DateCreated = DateTimeOffset.UtcNow,
                     DeviceId = deviceId,
                     IsTrusted = true,

@@ -21,7 +21,7 @@ namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages;
 [ValidateAntiForgeryToken]
 public sealed class RegisterModel : PageModel
 {
-    private readonly ExtendedUserManager<DbUser> _userManager;
+    private readonly ExtendedUserManager<User> _userManager;
     private readonly IAuthenticationSchemeProvider _schemeProvider;
     private readonly IClientStore _clientStore;
     private readonly IIdentityServerInteractionService _interaction;
@@ -35,7 +35,7 @@ public sealed class RegisterModel : PageModel
     /// <param name="logger">A generic interface for logging.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public RegisterModel(
-        ExtendedUserManager<DbUser> userManager,
+        ExtendedUserManager<User> userManager,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
@@ -132,8 +132,8 @@ public sealed class RegisterModel : PageModel
         Input.ClientId = context?.Client?.ClientId;
     }
 
-    private DbUser CreateUserFromInput() {
-        var user = new DbUser {
+    private User CreateUserFromInput() {
+        var user = new User {
             UserName = Input.UserName,
             Email = Input.Email,
             PhoneNumber = Input.PhoneNumber

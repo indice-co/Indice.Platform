@@ -8,7 +8,7 @@ namespace Indice.Features.Identity.Core.Grants;
 
 /// <summary>An extended implementation of <see cref="IResourceOwnerPasswordValidator"/> where multiple filters can be registered and validated.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidator where TUser : DbUser
+public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidator where TUser : User
 {
     private readonly ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> _logger;
     private readonly IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> _filters;
@@ -77,7 +77,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
 
 /// <summary>Class describing the resource owner password validation context.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwnerPasswordValidationContext where TUser : DbUser
+public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwnerPasswordValidationContext where TUser : User
 {
     internal ResourceOwnerPasswordValidationFilterContext(ResourceOwnerPasswordValidationContext context, TUser user) {
         Password = context.Password;
@@ -93,7 +93,7 @@ public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwner
 
 /// <summary>Handles validation of resource owner password credentials.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public interface IResourceOwnerPasswordValidationFilter<TUser> where TUser : DbUser
+public interface IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
 {
     /// <summary>Validates the resource owner password credential.</summary>
     /// <param name="context">Class describing the resource owner password validation context.</param>
@@ -102,7 +102,7 @@ public interface IResourceOwnerPasswordValidationFilter<TUser> where TUser : DbU
 
 /// <summary><see cref="IResourceOwnerPasswordValidator"/> that integrates with ASP.NET Identity and is specific to mobile clients.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidationFilter<TUser> where TUser : DbUser
+public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
 {
     private readonly ExtendedUserManager<TUser> _userManager;
 
@@ -133,7 +133,7 @@ public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwner
 
 /// <summary><see cref="IResourceOwnerPasswordValidator"/> that integrates with ASP.NET Identity.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidationFilter<TUser> where TUser : DbUser
+public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
 {
     private readonly ExtendedUserManager<TUser> _userManager;
     private readonly ExtendedSignInManager<TUser> _signInManager;

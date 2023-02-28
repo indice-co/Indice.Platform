@@ -5,7 +5,7 @@ namespace Indice.Features.Identity.Core.Events;
 
 /// <summary>An event that is raised when a new user is created through <see cref="ExtendedUserManager{TUser}"/>.</summary>
 /// <typeparam name="TUser">The type of user.</typeparam>
-public class UserCreatedEvent<TUser> : IPlatformEvent where TUser : DbUser
+public class UserCreatedEvent<TUser> : IPlatformEvent where TUser : User
 {
     /// <summary>Creates a new instance of <see cref="UserCreatedEvent{TUser}"/>.</summary>
     /// <param name="user">The user entity.</param>
@@ -16,8 +16,8 @@ public class UserCreatedEvent<TUser> : IPlatformEvent where TUser : DbUser
 }
 
 /// <summary>An event that is raised when a new user is created through <see cref="ExtendedUserManager{TUser}"/>.</summary>
-public class UserCreatedEvent : UserCreatedEvent<DbUser>
+public class UserCreatedEvent : UserCreatedEvent<User>
 {
     /// <summary>Creates a new instance of <see cref="UserCreatedEvent"/>.</summary>
-    public UserCreatedEvent(DbUser user) : base(user) { }
+    public UserCreatedEvent(User user) : base(user) { }
 }

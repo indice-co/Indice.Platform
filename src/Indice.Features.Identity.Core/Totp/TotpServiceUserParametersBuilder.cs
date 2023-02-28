@@ -8,7 +8,7 @@ namespace Indice.Features.Identity.Core.Totp;
 
 /// <summary>Builder class for configuring <see cref="TotpServiceUser{TUser}"/> parameters.</summary>
 /// <typeparam name="TUser">The type of user entity.</typeparam>
-public sealed class TotpServiceUserParametersBuilder<TUser> : TotpServiceUserParameters<TUser> where TUser : DbUser
+public sealed class TotpServiceUserParametersBuilder<TUser> : TotpServiceUserParameters<TUser> where TUser : User
 {
     /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.ClaimsPrincipal"/> property.</summary>
     /// <param name="claimsPrincipal">The claims principal.</param>
@@ -17,7 +17,7 @@ public sealed class TotpServiceUserParametersBuilder<TUser> : TotpServiceUserPar
         return new TotpServiceUserMessageBuilder<TUser>(this);
     }
 
-    /// <summary>Sets the <see cref="DbUser"/> property.</summary>
+    /// <summary>Sets the <see cref="User"/> property.</summary>
     /// <param name="user">The user entity.</param>
     public TotpServiceUserMessageBuilder<TUser> ToUser(TUser user) {
         User = user ?? throw new ArgumentNullException($"Parameter {nameof(user)} cannot be null.");
@@ -39,7 +39,7 @@ public sealed class TotpServiceUserParametersBuilder<TUser> : TotpServiceUserPar
 
 /// <summary>Builder class.</summary>
 /// <typeparam name="TUser">The type of user entity.</typeparam>
-public sealed class TotpServiceUserMessageBuilder<TUser> where TUser : DbUser
+public sealed class TotpServiceUserMessageBuilder<TUser> where TUser : User
 {
     private readonly TotpServiceUserParametersBuilder<TUser> _builder;
 
@@ -57,7 +57,7 @@ public sealed class TotpServiceUserMessageBuilder<TUser> where TUser : DbUser
 
 /// <summary>Builder class.</summary>
 /// <typeparam name="TUser">The type of user entity.</typeparam>
-public sealed class TotpServiceUserDeliveryChannelBuilder<TUser> where TUser : DbUser
+public sealed class TotpServiceUserDeliveryChannelBuilder<TUser> where TUser : User
 {
     private readonly TotpServiceUserParametersBuilder<TUser> _builder;
 
@@ -93,7 +93,7 @@ public sealed class TotpServiceUserDeliveryChannelBuilder<TUser> where TUser : D
 
 /// <summary>Builder class.</summary>
 /// <typeparam name="TUser">The type of user entity.</typeparam>
-public sealed class TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser> where TUser : DbUser
+public sealed class TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser> where TUser : User
 {
     private readonly TotpServiceUserParametersBuilder<TUser> _builder;
 
@@ -118,7 +118,7 @@ public sealed class TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser> wh
 
 /// <summary>Builder class.</summary>
 /// <typeparam name="TUser">The type of user entity.</typeparam>
-public sealed class TotpServiceUserOptionalParametersBuilder<TUser> where TUser : DbUser
+public sealed class TotpServiceUserOptionalParametersBuilder<TUser> where TUser : User
 {
     private readonly TotpServiceUserParametersBuilder<TUser> _builder;
 
@@ -164,7 +164,7 @@ public sealed class TotpServiceUserOptionalParametersBuilder<TUser> where TUser 
 
 /// <summary>Data class that contains the parameters required for <see cref="TotpServiceUser{TUser}"/>.</summary>
 /// <typeparam name="TUser">The type of user entity.</typeparam>
-public class TotpServiceUserParameters<TUser> where TUser : DbUser
+public class TotpServiceUserParameters<TUser> where TUser : User
 {
     /// <summary>The claims principal.</summary>
     public ClaimsPrincipal ClaimsPrincipal { get; internal set; }

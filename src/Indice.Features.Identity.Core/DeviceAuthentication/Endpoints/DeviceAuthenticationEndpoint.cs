@@ -18,7 +18,7 @@ internal class DeviceAuthenticationEndpoint : IEndpointHandler
         DeviceAuthenticationRequestValidator requestValidator,
         DeviceAuthenticationResponseGenerator responseGenerator,
         ILogger<DeviceAuthenticationEndpoint> logger,
-        ExtendedUserManager<DbUser> userManager
+        ExtendedUserManager<User> userManager
     ) {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -29,7 +29,7 @@ internal class DeviceAuthenticationEndpoint : IEndpointHandler
     public DeviceAuthenticationRequestValidator Request { get; }
     public DeviceAuthenticationResponseGenerator Response { get; }
     public ILogger<DeviceAuthenticationEndpoint> Logger { get; }
-    public ExtendedUserManager<DbUser> UserManager { get; }
+    public ExtendedUserManager<User> UserManager { get; }
 
     public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
         Logger.LogInformation($"[{nameof(DeviceAuthenticationEndpoint)}] Started processing trusted device authorization endpoint.");

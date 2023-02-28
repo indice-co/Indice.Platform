@@ -6,9 +6,9 @@ namespace Indice.Features.Identity.Core.DeviceAuthentication.Services;
 
 internal class UserNameOrPasswordChangedEventHandler : IPlatformEventHandler<UserNameChangedEvent>, IPlatformEventHandler<PasswordChangedEvent>
 {
-    private readonly ExtendedUserManager<DbUser> _userManager;
+    private readonly ExtendedUserManager<User> _userManager;
 
-    public UserNameOrPasswordChangedEventHandler(ExtendedUserManager<DbUser> extendedUserManager) {
+    public UserNameOrPasswordChangedEventHandler(ExtendedUserManager<User> extendedUserManager) {
         _userManager = extendedUserManager ?? throw new ArgumentNullException(nameof(extendedUserManager));
     }
 

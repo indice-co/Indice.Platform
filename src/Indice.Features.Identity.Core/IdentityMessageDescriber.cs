@@ -70,5 +70,5 @@ public class IdentityMessageDescriber
     /// <summary>Message content when <strong>RequiresOtpAttribute</strong> is used.</summary>
     public virtual string RequiresOtpMessage() => IdentityResources.RequiresOtpMessage;
     /// <summary>Message content when <strong>TrustDeviceRequiresOtpAttribute</strong> is used.</summary>
-    public virtual string TrustedDeviceRequiresOtpMessage(DbUserDevice device) => IdentityResources.TrustedDeviceRequiresOtpMessage;
+    public virtual string TrustedDeviceRequiresOtpMessage(UserDevice device) => IdentityResources.TrustedDeviceRequiresOtpMessage;
 }

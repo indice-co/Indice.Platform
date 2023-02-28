@@ -11,12 +11,12 @@ namespace Indice.Features.Identity.Core;
 public class ExtendedProfileService<TInner> : IProfileService where TInner : IProfileService
 {
     private readonly IProfileService _inner;
-    private readonly ExtendedUserManager<DbUser> _userManager;
+    private readonly ExtendedUserManager<User> _userManager;
 
     /// <summary>Creates a new instance of <see cref="ExtendedProfileService{TUser}"/>.</summary>
     /// <param name="profileService"> This interface allows IdentityServer to connect to your user and profile store.</param>
     /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-    public ExtendedProfileService(TInner profileService, ExtendedUserManager<DbUser> userManager) {
+    public ExtendedProfileService(TInner profileService, ExtendedUserManager<User> userManager) {
         _inner = profileService ?? throw new ArgumentNullException(nameof(profileService));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }

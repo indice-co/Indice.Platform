@@ -12,7 +12,7 @@ namespace Indice.Features.Identity.Core.Totp;
 
 /// <summary></summary>
 /// <typeparam name="TUser">The type of user entity.</typeparam>
-public class TotpServiceUser<TUser> : TotpServiceBase where TUser : DbUser
+public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
 {
     private readonly IStringLocalizer<TotpServiceUser<TUser>> _localizer;
 

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 namespace Indice.Features.Identity.Core.Data.Stores;
 
 /// <inheritdoc/>
-public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, DbUser, DbRole>
+public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, User, Role>
 {
     /// <summary>Creates a new instance of <see cref="ExtendedUserStore"/>.</summary>
     /// <param name="context">The DbContext to use for the Identity framework.</param>
@@ -19,7 +19,7 @@ public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, DbUser, Db
 }
 
 /// <inheritdoc/>
-public class ExtendedUserStore<TContext> : ExtendedUserStore<TContext, DbUser, IdentityRole> where TContext : IdentityDbContext<DbUser, IdentityRole>
+public class ExtendedUserStore<TContext> : ExtendedUserStore<TContext, User, IdentityRole> where TContext : IdentityDbContext<User, IdentityRole>
 {
     /// <summary>Creates a new instance of <see cref="ExtendedUserStore"/>.</summary>
     /// <param name="context">The DbContext to use for the Identity framework.</param>
@@ -31,7 +31,7 @@ public class ExtendedUserStore<TContext> : ExtendedUserStore<TContext, DbUser, I
 /// <inheritdoc/>
 public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>, IExtendedUserStore<TUser>, IUserDeviceStore<TUser>
     where TContext : IdentityDbContext<TUser, TRole>
-    where TUser : DbUser
+    where TUser : User
     where TRole : IdentityRole
 {
     /// <summary>Creates a new instance of <see cref="ExtendedUserStore{TContext, TUser, TRole}"/>.</summary>
@@ -47,9 +47,9 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
                           configuration.GetSection(nameof(UserOptions)).GetValue<bool?>(nameof(EmailAsUserName));
     }
 
-    private DbSet<DbUserDevice> UserDeviceSet => Context.Set<DbUserDevice>();
+    private DbSet<UserDevice> UserDeviceSet => Context.Set<UserDevice>();
     /// <inheritdoc/>
-    public IQueryable<DbUserDevice> UserDevices => UserDeviceSet.AsQueryable();
+    public IQueryable<UserDevice> UserDevices => UserDeviceSet.AsQueryable();
     /// <inheritdoc/>
     public int? PasswordHistoryLimit { get; protected set; }
     /// <inheritdoc/>
@@ -63,14 +63,14 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
         var changeDate = DateTime.UtcNow;
         if (PasswordHistoryLimit.HasValue && !string.IsNullOrWhiteSpace(passwordHash)) {
             var numberOfPasswordsToKeep = Math.Max(PasswordHistoryLimit.Value, 0);
-            var toPurge = await Context.Set<DbUserPassword>()
+            var toPurge = await Context.Set<UserPassword>()
                                        .Where(x => x.UserId == user.Id)
                                        .OrderByDescending(x => x.DateCreated)
                                        .Skip(numberOfPasswordsToKeep)
                                        .ToArrayAsync(cancellationToken);
-            Context.Set<DbUserPassword>().RemoveRange(toPurge);
-            await Context.Set<DbUserPassword>()
-                         .AddAsync(new DbUserPassword {
+            Context.Set<UserPassword>().RemoveRange(toPurge);
+            await Context.Set<UserPassword>()
+                         .AddAsync(new UserPassword {
                              UserId = user.Id,
                              DateCreated = changeDate,
                              PasswordHash = passwordHash
@@ -159,7 +159,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public async Task<IdentityResult> CreateDeviceAsync(TUser user, DbUserDevice device, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> CreateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         UserDeviceSet.Add(device);
@@ -172,7 +172,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public async Task<IList<DbUserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
+    public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         return await UserDeviceSet
@@ -193,14 +193,14 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public async Task<DbUserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task<UserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         return await UserDeviceSet.Include(x => x.User).SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task<IdentityResult> UpdateDeviceAsync(TUser user, DbUserDevice device, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         Context.Update(device);
@@ -213,7 +213,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public async Task RemoveDeviceAsync(TUser user, DbUserDevice device, CancellationToken cancellationToken = default) {
+    public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         UserDeviceSet.Remove(device);

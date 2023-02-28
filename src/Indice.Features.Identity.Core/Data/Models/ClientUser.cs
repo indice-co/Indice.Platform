@@ -3,7 +3,7 @@
 namespace Indice.Features.Identity.Core.Data.Models;
 
 /// <summary>Describes the relationship between a client and a user.</summary>
-public class DbClientUser
+public class ClientUser
 {
     /// <summary>The id of the user.</summary>
     public string UserId { get; set; }

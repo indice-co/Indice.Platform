@@ -16,9 +16,9 @@ public class IdentityDbContextOptions
     /// <summary>Callback to configure the EF DbContext.</summary>
     public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
     /// <summary>The expression used to filter the users list in the API.</summary>
-    public static UserSearchFilterExpression<DbUser, DbRole> UserSearchFilter { get; set; } = DefaultUserSearchFilterExpression;
+    public static UserSearchFilterExpression<User, Role> UserSearchFilter { get; set; } = DefaultUserSearchFilterExpression;
 
-    private static async Task<Expression<Func<UserInfo, bool>>> DefaultUserSearchFilterExpression<TUser, TRole>(IdentityDbContext<TUser, TRole> dbContext, string search) where TUser : DbUser where TRole : DbRole {
+    private static async Task<Expression<Func<UserInfo, bool>>> DefaultUserSearchFilterExpression<TUser, TRole>(IdentityDbContext<TUser, TRole> dbContext, string search) where TUser : User where TRole : Role {
         var searchTerm = search.ToLower();
         var idsFromClaims = await dbContext
             .UserClaims
@@ -38,4 +38,4 @@ public class IdentityDbContextOptions
 /// <typeparam name="TRole">The role type.</typeparam>
 /// <param name="dbContext"><see cref="DbContext"/> for the Identity Framework.</param>
 /// <param name="search">The search term.</param>
-public delegate Task<Expression<Func<UserInfo, bool>>> UserSearchFilterExpression<TUser, TRole>(IdentityDbContext<TUser, TRole> dbContext, string search) where TUser : DbUser where TRole : DbRole;
+public delegate Task<Expression<Func<UserInfo, bool>>> UserSearchFilterExpression<TUser, TRole>(IdentityDbContext<TUser, TRole> dbContext, string search) where TUser : User where TRole : Role;

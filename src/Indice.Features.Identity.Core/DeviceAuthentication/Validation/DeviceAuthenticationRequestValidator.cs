@@ -18,7 +18,7 @@ internal class DeviceAuthenticationRequestValidator : RequestValidatorBase<Devic
         IResourceValidator resourceValidator,
         ITokenValidator tokenValidator,
         IUserDeviceStore userDeviceStore,
-        ExtendedUserManager<DbUser> userManager
+        ExtendedUserManager<User> userManager
     ) : base(clientStore, tokenValidator) {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
@@ -29,7 +29,7 @@ internal class DeviceAuthenticationRequestValidator : RequestValidatorBase<Devic
     public ILogger<DeviceAuthenticationRequestValidator> Logger { get; }
     public IResourceValidator ResourceValidator { get; }
     public IUserDeviceStore UserDeviceStore { get; }
-    public ExtendedUserManager<DbUser> UserManager { get; }
+    public ExtendedUserManager<User> UserManager { get; }
 
     public async override Task<DeviceAuthenticationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
         Logger.LogDebug($"{nameof(DeviceAuthenticationRequestValidator)}: Started trusted device authorization request validation.");

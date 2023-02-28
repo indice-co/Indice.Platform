@@ -15,11 +15,11 @@ namespace Indice.AspNetCore.Identity.Api.Filters;
 /// <summary>Validator for <see cref="CreateRoleRequest"/> model.</summary>
 internal class CreateRoleRequestValidationFilter : IAsyncActionFilter
 {
-    private readonly ExtendedIdentityDbContext<DbUser, DbRole> _dbContext;
+    private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
 
     /// <summary>Creates a new instance of <see cref="CreateClaimTypeRequestValidationFilter"/>.</summary>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
-    public CreateRoleRequestValidationFilter(ExtendedIdentityDbContext<DbUser, DbRole> dbContext) {
+    public CreateRoleRequestValidationFilter(ExtendedIdentityDbContext<User, Role> dbContext) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 

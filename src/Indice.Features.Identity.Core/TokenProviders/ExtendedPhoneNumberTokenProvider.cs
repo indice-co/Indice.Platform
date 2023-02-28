@@ -10,7 +10,7 @@ namespace Indice.Features.Identity.Core.TokenProviders;
 /// configurable duration for the generated one-time password code.
 /// </summary>
 /// <typeparam name="TUser">The type used to represent a user.</typeparam>
-public class ExtendedPhoneNumberTokenProvider<TUser> : PhoneNumberTokenProvider<TUser> where TUser : DbUser
+public class ExtendedPhoneNumberTokenProvider<TUser> : PhoneNumberTokenProvider<TUser> where TUser : User
 {
     /// <summary>Creates a new instance of <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/>.</summary>
     /// <param name="rfc6238AuthenticationService">Time-Based One-Time Password Algorithm service.</param>

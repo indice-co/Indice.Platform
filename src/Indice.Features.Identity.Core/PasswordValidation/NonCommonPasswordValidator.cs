@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 namespace Indice.Features.Identity.Core.PasswordValidation;
 
 /// <inheritdoc/>
-public class NonCommonPasswordValidator : NonCommonPasswordValidator<DbUser>
+public class NonCommonPasswordValidator : NonCommonPasswordValidator<User>
 {
     /// <inheritdoc/>
     public NonCommonPasswordValidator(IEnumerable<IPasswordBlacklistProvider> providers, IdentityMessageDescriber messageDescriber) : base(providers, messageDescriber) { }
@@ -13,7 +13,7 @@ public class NonCommonPasswordValidator : NonCommonPasswordValidator<DbUser>
 
 /// <summary>A validator that checks if the user's password is a very common one and as a result easy to guess.</summary>
 /// <typeparam name="TUser">The type of user instance.</typeparam>
-public class NonCommonPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : DbUser
+public class NonCommonPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
 {
     private readonly IEnumerable<IPasswordBlacklistProvider> _providers;
     private readonly IdentityMessageDescriber _messageDescriber;

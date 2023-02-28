@@ -33,13 +33,13 @@ namespace Indice.AspNetCore.Identity.Api.Controllers;
 [Route("api/roles")]
 internal class RolesController : ControllerBase
 {
-    private readonly RoleManager<DbRole> _roleManager;
+    private readonly RoleManager<Role> _roleManager;
     /// <summary>The name of the controller.</summary>
     public const string Name = "Roles";
 
     /// <summary>Creates an instance of <see cref="RolesController"/>.</summary>
     /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
-    public RolesController(RoleManager<DbRole> roleManager) {
+    public RolesController(RoleManager<Role> roleManager) {
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
     }
 
@@ -93,7 +93,7 @@ internal class RolesController : ControllerBase
     [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(RoleInfo))]
     [ServiceFilter(type: typeof(CreateRoleRequestValidationFilter))]
     public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest request) {
-        var role = new DbRole {
+        var role = new Role {
             Id = $"{Guid.NewGuid()}",
             Name = request.Name,
             Description = request.Description

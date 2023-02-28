@@ -35,9 +35,9 @@ namespace Indice.AspNetCore.Identity.Api.Controllers;
 [Route("api/dashboard")]
 internal class DashboardController : ControllerBase
 {
-    private readonly ExtendedUserManager<DbUser> _userManager;
+    private readonly ExtendedUserManager<User> _userManager;
     private readonly ExtendedConfigurationDbContext _configurationDbContext;
-    private readonly RoleManager<DbRole> _roleManager;
+    private readonly RoleManager<Role> _roleManager;
     private readonly IFeatureManager _featureManager;
     /// <summary>The name of the controller.</summary>
     public const string Name = "Dashboard";
@@ -48,9 +48,9 @@ internal class DashboardController : ControllerBase
     /// <param name="roleManager">Provides the APIs for managing roles in a persistence store.</param>
     /// <param name="featureManager">Used to evaluate whether a feature is enabled or disabled.</param>
     public DashboardController(
-        ExtendedUserManager<DbUser> userManager,
+        ExtendedUserManager<User> userManager,
         ExtendedConfigurationDbContext configurationDbContext,
-        RoleManager<DbRole> roleManager,
+        RoleManager<Role> roleManager,
         IFeatureManager featureManager
     ) {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));

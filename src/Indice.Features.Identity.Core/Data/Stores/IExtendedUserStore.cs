@@ -5,7 +5,7 @@ namespace Indice.Features.Identity.Core.Data.Stores;
 
 /// <summary>Custom <see cref="IUserStore{T}"/> that provides password history features.</summary>
 /// <typeparam name="TUser">The user type.</typeparam>
-public interface IExtendedUserStore<TUser> where TUser : DbUser
+public interface IExtendedUserStore<TUser> where TUser : User
 {
     /// <summary>
     /// The password history limit is an integer indicating the number of passwords to keep track. 
@@ -27,12 +27,12 @@ public interface IExtendedUserStore<TUser> where TUser : DbUser
     /// <param name="policy">The password expiration policy to set.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken);
-    /// <summary>Sets the <see cref="DbUser.PasswordExpired"/> property of the user.</summary>
+    /// <summary>Sets the <see cref="User.PasswordExpired"/> property of the user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="changePassword">The value to use.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken);
-    /// <summary>Sets the <see cref="DbUser.LastSignInDate"/> property of the user.</summary>
+    /// <summary>Sets the <see cref="User.LastSignInDate"/> property of the user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>

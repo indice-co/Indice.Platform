@@ -14,7 +14,7 @@ namespace Indice.Features.Identity.Core;
 
 /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
 /// <typeparam name="TUser">The type encapsulating a user.</typeparam>
-public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUser
+public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 {
     private readonly IPlatformEventService _eventService;
 
@@ -60,7 +60,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
     /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
     public bool SupportsEmailAsUserName => GetUserStore()?.EmailAsUserName == true;
     /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
-    public IQueryable<DbUserDevice> UserDevices => GetDeviceStore()?.UserDevices;
+    public IQueryable<UserDevice> UserDevices => GetDeviceStore()?.UserDevices;
     /// <summary></summary>
     public int? MaxTrustedDevices { get; }
     /// <summary></summary>
@@ -164,7 +164,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
         await UpdateAsync(user);
     }
 
-    /// <summary>Sets the <see cref="DbUser.PasswordExpired"/> property of the user.</summary>
+    /// <summary>Sets the <see cref="User.PasswordExpired"/> property of the user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="changePassword">The value to use.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -179,7 +179,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
         await UpdateAsync(user);
     }
 
-    /// <summary>Sets the <see cref="DbUser.LastSignInDate"/> property of the user.</summary>
+    /// <summary>Sets the <see cref="User.LastSignInDate"/> property of the user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
@@ -287,7 +287,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
-    public async Task<IdentityResult> CreateDeviceAsync(TUser user, DbUserDevice device, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> CreateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -326,7 +326,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the creation operation.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
-    public async Task<IdentityResult> UpdateDeviceAsync(TUser user, DbUserDevice device, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -348,7 +348,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
-    public Task<IList<DbUserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
+    public Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -414,7 +414,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user device, if any.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="deviceId"/> parameters are null.</exception>
-    public Task<DbUserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
+    public Task<UserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -435,7 +435,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task RemoveDeviceAsync(TUser user, DbUserDevice device, CancellationToken cancellationToken = default) {
+    public async Task RemoveDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -451,11 +451,11 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
     /// <summary>Sets the device state to require username/password in the next login.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="device">The device to update.</param>
-    /// <param name="requiresPassword">Boolean value for <see cref="DbUserDevice.RequiresPassword"/> field.</param>
+    /// <param name="requiresPassword">Boolean value for <see cref="UserDevice.RequiresPassword"/> field.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task<IdentityResult> SetDeviceRequiresPasswordAsync(TUser user, DbUserDevice device, bool requiresPassword, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> SetDeviceRequiresPasswordAsync(TUser user, UserDevice device, bool requiresPassword, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -469,7 +469,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
 
     /// <summary>Sets all user devices state to require username/password in the next login.</summary>
     /// <param name="user">The user instance.</param>
-    /// <param name="requiresPassword">Boolean value for <see cref="DbUserDevice.RequiresPassword"/> field.</param>
+    /// <param name="requiresPassword">Boolean value for <see cref="UserDevice.RequiresPassword"/> field.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public Task<IdentityResult> SetNativeDevicesRequirePasswordAsync(TUser user, bool requiresPassword, CancellationToken cancellationToken = default) {
@@ -487,7 +487,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
     /// <param name="swapDeviceId">The id of the device to remove before trusting the defined device.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task<IdentityResult> SetTrustedDevice(TUser user, DbUserDevice device, string swapDeviceId = null, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> SetTrustedDevice(TUser user, UserDevice device, string swapDeviceId = null, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -517,7 +517,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
             var swapDevice = await GetDeviceByIdAsync(user, swapDeviceId, cancellationToken);
             if (swapDevice is null || !swapDevice.IsTrusted) {
                 return IdentityResult.Failed(new IdentityError {
-                    Code = nameof(DbUserDevice),
+                    Code = nameof(UserDevice),
                     Description = "Device specified for swap is not valid."
                 });
             }
@@ -555,7 +555,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
     /// <param name="user">The user instance.</param>
     /// <param name="device">The device to mark as trusted.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-    public async Task<IdentityResult> SetUntrustedDevice(TUser user, DbUserDevice device, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> SetUntrustedDevice(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -565,7 +565,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : DbUse
         }
         if (device.IsPendingTrustActivation) {
             return IdentityResult.Failed(new IdentityError {
-                Code = nameof(DbUserDevice.TrustActivationDate),
+                Code = nameof(UserDevice.TrustActivationDate),
                 Description = MessageDescriber.DevicePendingTrustActivation()
             });
         }

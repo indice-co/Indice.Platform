@@ -14,8 +14,8 @@ internal static class ExtendedIdentityDbContextExtensions
     /// <typeparam name="TRole">The type of role.</typeparam>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
     public static void SeedAdminUser<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
-        where TUser : DbUser, new()
-        where TRole : DbRole, new() {
+        where TUser : User, new()
+        where TRole : Role, new() {
         if (!dbContext.Database.CanConnect()) {
             return;
         }
@@ -72,8 +72,8 @@ internal static class ExtendedIdentityDbContextExtensions
     /// <typeparam name="TRole">The type of role.</typeparam>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
     public static void SeedDummyUsers<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
-        where TUser : DbUser, new()
-        where TRole : DbRole, new() {
+        where TUser : User, new()
+        where TRole : Role, new() {
         dbContext.Users.AddRange(InitialUsers<TUser>.Get(2000));
         dbContext.SaveChanges();
     }
@@ -83,9 +83,9 @@ internal static class ExtendedIdentityDbContextExtensions
     /// <typeparam name="TRole">The type of role.</typeparam>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
     /// <param name="initialUsers">A list of initial users provided by the consumer in order to be inserted in the application startup.</param>
-    public static void SeedCustomUsers<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext, IEnumerable<DbUser> initialUsers = null)
-        where TUser : DbUser, new()
-        where TRole : DbRole, new() {
+    public static void SeedCustomUsers<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext, IEnumerable<User> initialUsers = null)
+        where TUser : User, new()
+        where TRole : Role, new() {
         if (initialUsers.Any()) {
             dbContext.Users.AddRange(initialUsers.Cast<TUser>());
             dbContext.SaveChanges();

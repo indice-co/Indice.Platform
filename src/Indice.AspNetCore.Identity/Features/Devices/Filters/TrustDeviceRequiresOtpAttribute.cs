@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Identity.Api.Filters;
 internal class TrustDeviceRequiresOtpAttribute : RequiresOtpAttribute, IAsyncActionFilter
 {
     private IServiceProvider _serviceProvider;
-    private DbUserDevice _device;
+    private UserDevice _device;
 
     public new async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next) {
         var deviceIdSpecified = context.RouteData.Values.TryGetValue("deviceId", out var deviceId);
@@ -26,7 +26,7 @@ internal class TrustDeviceRequiresOtpAttribute : RequiresOtpAttribute, IAsyncAct
                 throw new BusinessException("Principal is not present or not authenticated.");
             }
             _serviceProvider = httpContext.RequestServices;
-            var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<DbUser>>();
+            var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
             var user = await userManager.GetUserAsync(principal);
             if (user is null) {
                 var problemDetails = new ValidationProblemDetails {

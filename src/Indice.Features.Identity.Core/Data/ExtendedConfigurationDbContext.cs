@@ -26,18 +26,18 @@ public class ExtendedConfigurationDbContext : ConfigurationDbContext<ExtendedCon
     }
 
     /// <summary>A table that contains the association between a client and a user.</summary>
-    public DbSet<DbClientUser> ClientUsers { get; set; }
+    public DbSet<ClientUser> ClientUsers { get; set; }
     /// <summary>A table that contains custom data for a client secret.</summary>
-    public DbSet<DbClientSecretExtended> ClientSecretExtras { get; set; }
+    public DbSet<ClientSecretExtended> ClientSecretExtras { get; set; }
     /// <summary>A table that contains all the available claim types of the application.</summary>
-    public DbSet<DbClaimType> ClaimTypes { get; set; }
+    public DbSet<ClaimType> ClaimTypes { get; set; }
 
     /// <summary>Register extended configuration methods when the database is being created.</summary>
     /// <param name="modelBuilder">Provides a simple API surface for configuring a <see cref="DbContext"/>.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfiguration(new DbClientUserMap());
-        modelBuilder.ApplyConfiguration(new DbClientSecretExtendedMap());
-        modelBuilder.ApplyConfiguration(new DbClaimTypeMap());
+        modelBuilder.ApplyConfiguration(new ClientUserMap());
+        modelBuilder.ApplyConfiguration(new ClientSecretExtendedMap());
+        modelBuilder.ApplyConfiguration(new ClaimTypeMap());
     }
 }

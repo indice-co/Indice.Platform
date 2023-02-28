@@ -49,8 +49,8 @@ namespace Indice.AspNetCore.Identity.Api.Controllers;
 [ProblemDetailsExceptionFilter]
 internal class MyAccountController : ControllerBase
 {
-    private readonly ExtendedIdentityDbContext<DbUser, DbRole> _dbContext;
-    private readonly ExtendedUserManager<DbUser> _userManager;
+    private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
+    private readonly ExtendedUserManager<User> _userManager;
     private readonly GeneralSettings _generalSettings;
     private readonly IConfiguration _configuration;
     private readonly IdentityOptions _identityOptions;
@@ -65,8 +65,8 @@ internal class MyAccountController : ControllerBase
     public const string Name = "MyAccount";
 
     public MyAccountController(
-        ExtendedIdentityDbContext<DbUser, DbRole> dbContext,
-        ExtendedUserManager<DbUser> userManager,
+        ExtendedIdentityDbContext<User, Role> dbContext,
+        ExtendedUserManager<User> userManager,
         IConfiguration configuration,
         IdentityServerApiEndpointsOptions identityServerApiEndpointsOptions,
         IEmailService emailService,
@@ -584,7 +584,7 @@ internal class MyAccountController : ControllerBase
         if (!ModelState.IsValid) {
             return BadRequest(new ValidationProblemDetails(ModelState));
         }
-        DbUser user = null;
+        User user = null;
         if (!string.IsNullOrWhiteSpace(request.Token) && Base64Id.TryParse(request.Token, out var userId)) {
             user = await _userManager.FindByIdAsync(userId.Id.ToString());
         }
@@ -597,7 +597,7 @@ internal class MyAccountController : ControllerBase
             Requirement = rule.Value.Hint
         });
         foreach (var validator in _userManager.PasswordValidators) {
-            var userInstance = user ?? (userNameAvailable ? new DbUser { UserName = request.UserName } : new DbUser());
+            var userInstance = user ?? (userNameAvailable ? new User { UserName = request.UserName } : new User());
             var result = await validator.ValidateAsync(_userManager, userInstance, request.Password ?? string.Empty);
             if (!result.Succeeded) {
                 foreach (var error in result.Errors) {
@@ -649,8 +649,8 @@ internal class MyAccountController : ControllerBase
         return NoContent();
     }
 
-    private static DbUser CreateUserFromRequest(ApiRegisterRequest request) {
-        var user = new DbUser {
+    private static User CreateUserFromRequest(ApiRegisterRequest request) {
+        var user = new User {
             UserName = request.UserName,
             Email = request.Email,
             PhoneNumber = request.PhoneNumber

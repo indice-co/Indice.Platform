@@ -7,8 +7,8 @@ namespace Indice.Features.Identity.Core.Events;
 /// <typeparam name="TDevice">The type of the device.</typeparam>
 /// <typeparam name="TUser">The type of the user.</typeparam>
 public class DeviceDeletedEvent<TDevice, TUser> : IPlatformEvent
-    where TDevice : DbUserDevice
-    where TUser : DbUser
+    where TDevice : UserDevice
+    where TUser : User
 {
     /// <summary>Creates a new instance of <see cref="DeviceDeletedEvent{TDevice, TUser}"/>.</summary>
     /// <param name="device">The device entity.</param>
@@ -25,10 +25,10 @@ public class DeviceDeletedEvent<TDevice, TUser> : IPlatformEvent
 }
 
 /// <summary>An event that is raised when a device is deleted through <see cref="ExtendedUserManager{TUser}"/>.</summary>
-public class DeviceDeletedEvent : DeviceDeletedEvent<DbUserDevice, DbUser>
+public class DeviceDeletedEvent : DeviceDeletedEvent<UserDevice, User>
 {
     /// <summary>Creates a new instance of <see cref="DeviceDeletedEvent{TDevice, TUser}"/>.</summary>
     /// <param name="device">The device entity.</param>
     /// <param name="user">The user entity.</param>
-    public DeviceDeletedEvent(DbUserDevice device, DbUser user) : base(device, user) { }
+    public DeviceDeletedEvent(UserDevice device, User user) : base(device, user) { }
 }

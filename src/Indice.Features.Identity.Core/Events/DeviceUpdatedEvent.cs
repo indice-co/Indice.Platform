@@ -7,8 +7,8 @@ namespace Indice.Features.Identity.Core.Events;
 /// <typeparam name="TDevice">The type of the device.</typeparam>
 /// <typeparam name="TUser">The type of the user.</typeparam>
 public class DeviceUpdatedEvent<TDevice, TUser> : IPlatformEvent
-    where TDevice : DbUserDevice
-    where TUser : DbUser
+    where TDevice : UserDevice
+    where TUser : User
 {
     /// <summary>Creates a new instance of <see cref="DeviceUpdatedEvent{TDevice, TUser}"/>.</summary>
     /// <param name="device">The device entity.</param>
@@ -25,10 +25,10 @@ public class DeviceUpdatedEvent<TDevice, TUser> : IPlatformEvent
 }
 
 /// <summary>An event that is raised when a device is updated through <see cref="ExtendedUserManager{TUser}"/>.</summary>
-public class DeviceUpdatedEvent : DeviceUpdatedEvent<DbUserDevice, DbUser>
+public class DeviceUpdatedEvent : DeviceUpdatedEvent<UserDevice, User>
 {
     /// <summary>Creates a new instance of <see cref="DeviceUpdatedEvent"/>.</summary>
     /// <param name="device">The device entity.</param>
     /// <param name="user">The user entity.</param>
-    public DeviceUpdatedEvent(DbUserDevice device, DbUser user) : base(device, user) { }
+    public DeviceUpdatedEvent(UserDevice device, User user) : base(device, user) { }
 }

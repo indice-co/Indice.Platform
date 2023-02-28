@@ -6,15 +6,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Identity.Core.Data.Mappings;
 
-/// <summary>Entity Framework mapping for type <see cref="DbUserDevice"/>.</summary>
+/// <summary>Entity Framework mapping for type <see cref="UserDevice"/>.</summary>
 /// <typeparam name="TUser">The type of user.</typeparam>
-internal class DbUserDeviceMap<TUser> : IEntityTypeConfiguration<DbUserDevice> where TUser : DbUser
+internal class UserDeviceMap<TUser> : IEntityTypeConfiguration<UserDevice> where TUser : User
 {
-    /// <summary>Configure Entity Framework mapping for type <see cref="DbUserDevice"/>.</summary>
+    /// <summary>Configure Entity Framework mapping for type <see cref="UserDevice"/>.</summary>
     /// <param name="builder">Provides a simple API for configuring an <see cref="IMutableEntityType" />.</param>
-    public void Configure(EntityTypeBuilder<DbUserDevice> builder) {
+    public void Configure(EntityTypeBuilder<UserDevice> builder) {
         // Configure table name and schema.
-        builder.ToTable(nameof(DbUserDevice), "auth");
+        builder.ToTable(nameof(UserDevice), "auth");
         // Configure primary key.
         builder.HasKey(x => x.Id);
         builder.HasAlternateKey(x => new { x.DeviceId, x.UserId });

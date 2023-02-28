@@ -1,10 +1,10 @@
 ﻿namespace Indice.Features.Identity.Core.Data.Models;
 
 /// <summary>A user password hashed stored for password history validation purposes.</summary>
-public class DbUserPassword
+public class UserPassword
 {
-    /// <summary>Constructs a new instance of <see cref="DbUserPassword"/> with a new Guid Id.</summary>
-    public DbUserPassword() {
+    /// <summary>Constructs a new instance of <see cref="UserPassword"/> with a new Guid Id.</summary>
+    public UserPassword() {
         Id = Guid.NewGuid();
     }
 

@@ -7,7 +7,7 @@ namespace Indice.Features.Identity.Core.TokenProviders;
 
 /// <summary>Token provider that generates tokens for a user that has the role of a developer. Used to support scenarios for local development or test environments.</summary>
 /// <typeparam name="TUser">The type used to represent a user.</typeparam>
-public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberTokenProvider<TUser> where TUser : DbUser
+public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberTokenProvider<TUser> where TUser : User
 {
     /// <summary>Creates a new instance of <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/>.</summary>
     /// <param name="rfc6238AuthenticationService">Time-Based One-Time Password Algorithm service.</param>

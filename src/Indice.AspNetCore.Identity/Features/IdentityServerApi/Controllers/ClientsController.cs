@@ -222,7 +222,7 @@ internal class ClientsController : ControllerBase
         }
         var client = CreateForType(request.ClientType, _generalSettings.Authority, request);
         _configurationDbContext.Clients.Add(client);
-        _configurationDbContext.ClientUsers.Add(new DbClientUser {
+        _configurationDbContext.ClientUsers.Add(new ClientUser {
             Client = client,
             UserId = UserId
         });

@@ -26,7 +26,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         ISystemClock systemClock,
         ITokenValidator tokenValidator,
         TotpServiceFactory totpServiceFactory,
-        ExtendedUserManager<DbUser> userManager
+        ExtendedUserManager<User> userManager
     ) : base(clientStore, tokenValidator) {
         CodeChallengeStore = codeChallengeStore;
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -39,7 +39,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
     public ILogger<CompleteRegistrationRequestValidator> Logger { get; }
     public ISystemClock SystemClock { get; }
     public TotpServiceFactory TotpServiceFactory { get; }
-    public ExtendedUserManager<DbUser> UserManager { get; }
+    public ExtendedUserManager<User> UserManager { get; }
 
     public override async Task<CompleteRegistrationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
         Logger.LogDebug($"[{nameof(CompleteRegistrationRequestValidator)}] Started trusted device registration request validation.");
@@ -132,7 +132,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         }
         // Validate OTP code, if needed.
         if (!otpAuthenticated) {
-            var totpResult = await TotpServiceFactory.Create<DbUser>().VerifyAsync(user, parameters.Get(RegistrationRequestParameters.OtpCode), Constants.DeviceAuthenticationOtpPurpose(userId, authorizationCode.DeviceId));
+            var totpResult = await TotpServiceFactory.Create<User>().VerifyAsync(user, parameters.Get(RegistrationRequestParameters.OtpCode), Constants.DeviceAuthenticationOtpPurpose(userId, authorizationCode.DeviceId));
             if (!totpResult.Success) {
                 return Error(totpResult.Error);
             }

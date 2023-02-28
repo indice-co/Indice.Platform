@@ -9,7 +9,7 @@ public static class IQueryableExtensions
     /// <summary>Applies a filter of type <see cref="UserDeviceListFilter"/> on <seealso cref="IQueryable{UserDevice}"/>.</summary>
     /// <param name="query">The query.</param>
     /// <param name="filter">The filter to apply.</param>
-    public static IQueryable<DbUserDevice> ApplyFilter(this IQueryable<DbUserDevice> query, UserDeviceListFilter filter) {
+    public static IQueryable<UserDevice> ApplyFilter(this IQueryable<UserDevice> query, UserDeviceListFilter filter) {
         if (filter is not null) {
             query = query.Where(device =>
                 (filter.IsPushNotificationEnabled == null || device.IsPushNotificationsEnabled == filter.IsPushNotificationEnabled) &&

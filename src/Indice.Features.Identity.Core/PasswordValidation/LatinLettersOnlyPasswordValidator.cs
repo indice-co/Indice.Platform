@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 namespace Indice.Features.Identity.Core.PasswordValidation;
 
 /// <inheritdoc/>
-public class UnicodeCharactersPasswordValidator : UnicodeCharactersPasswordValidator<DbUser>
+public class UnicodeCharactersPasswordValidator : UnicodeCharactersPasswordValidator<User>
 {
     /// <inheritdoc/>
     public UnicodeCharactersPasswordValidator(IdentityMessageDescriber messageDescriber, IConfiguration configuration) : base(messageDescriber, configuration) { }
@@ -14,7 +14,7 @@ public class UnicodeCharactersPasswordValidator : UnicodeCharactersPasswordValid
 
 /// <summary>A validator that checks that the letters contained in the password are only Latin English characters.</summary>
 /// <typeparam name="TUser">The type of user instance.</typeparam>
-public class UnicodeCharactersPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : DbUser
+public class UnicodeCharactersPasswordValidator<TUser> : IPasswordValidator<TUser> where TUser : User
 {
     private readonly IdentityMessageDescriber _messageDescriber;
     /// <summary>The code used when describing the <see cref="IdentityError"/>.</summary>
