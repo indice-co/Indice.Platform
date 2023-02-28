@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.AspNetCore.Identity.Api.Events;
-using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Events;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
 using Indice.Identity.Services;
 using Indice.Security;
 using Indice.Serialization;
@@ -81,8 +81,8 @@ public static class MvcConfig
         return mvcBuilder;
     }
 
-    private static List<User> GetInitialUsers() => new() {
-        new User {
+    private static List<DbUser> GetInitialUsers() => new() {
+        new DbUser {
             Admin = false,
             CreateDate = DateTime.UtcNow,
             Email = "g.manoltzas@indice.gr",
@@ -101,14 +101,14 @@ public static class MvcConfig
         }
     };
 
-    private static List<ClaimType> GetCustomClaimTypes() => new() {
-        new ClaimType {
+    private static List<DbClaimType> GetCustomClaimTypes() => new() {
+        new DbClaimType {
             Id = $"{Guid.NewGuid()}",
             Name = BasicClaimTypes.DeveloperTotp,
             Reserved = false,
             Required = false,
             UserEditable = false,
-            ValueType = Indice.AspNetCore.Identity.Data.Models.ValueType.String
+            ValueType = ClaimValueType.String
         }
     };
 }

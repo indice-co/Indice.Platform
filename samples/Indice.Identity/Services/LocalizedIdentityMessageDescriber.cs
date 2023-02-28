@@ -1,5 +1,4 @@
-﻿using System;
-using Indice.AspNetCore.Identity;
+﻿using Indice.Features.Identity.Core;
 using Microsoft.Extensions.Localization;
 
 namespace Indice.Identity.Services;

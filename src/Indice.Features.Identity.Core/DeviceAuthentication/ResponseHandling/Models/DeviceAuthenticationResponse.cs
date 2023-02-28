@@ -1,7 +1,6 @@
-﻿namespace Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling
+﻿namespace Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling;
+
+internal class DeviceAuthenticationResponse
 {
-    internal class DeviceAuthenticationResponse
-    {
-        public string Challenge { get; set; }
-    }
+    public string Challenge { get; set; }
 }

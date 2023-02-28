@@ -1,10 +1,10 @@
 ﻿@inject IWebHostEnvironment Environment
 @inject IOptions<GeneralSettings> GeneralSettingsWrapper
 @inject IViewLocalizer Localizer
-@inject ExtendedSignInManager<User> SignInManager
+@inject ExtendedSignInManager<DbUser> SignInManager
 
 @{
-    var displayMenu = SignInManager.IsSignedIn(User) && !SignInManager.IsSignedInWithScheme(User, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+    var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
     var generalSettings = GeneralSettingsWrapper.Value;
     var showRibbon = !Environment.IsProduction();
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;

@@ -1,5 +1,5 @@
-﻿using Indice.AspNetCore.Identity;
-using Indice.AspNetCore.Identity.Api.Security;
+﻿using Indice.AspNetCore.Identity.Api.Security;
+using Indice.Features.Identity.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 

@@ -4,7 +4,8 @@ using IdentityServer4.Events;
 using IdentityServer4.Extensions;
 using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -18,7 +19,7 @@ namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages;
 [SecurityHeaders]
 public class LogoutModel : PageModel
 {
-    private readonly ExtendedSignInManager<User> _signInManager;
+    private readonly ExtendedSignInManager<DbUser> _signInManager;
     private readonly IEventService _events;
     private readonly IIdentityServerInteractionService _interaction;
 
@@ -28,7 +29,7 @@ public class LogoutModel : PageModel
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public LogoutModel(
-        ExtendedSignInManager<User> signInManager,
+        ExtendedSignInManager<DbUser> signInManager,
         IEventService events,
         IIdentityServerInteractionService interaction
     ) {

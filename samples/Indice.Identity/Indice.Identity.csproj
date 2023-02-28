@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Authentication.Apple\Indice.AspNetCore.Authentication.Apple.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Authentication.GovGr\Indice.AspNetCore.Authentication.GovGr.csproj" />
+    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Identity.AdminUI\Indice.Features.Identity.AdminUI.csproj" />
     <ProjectReference Include="..\..\src\Indice.Features.Identity.UI\Indice.Features.Identity.UI.csproj" />
   </ItemGroup>

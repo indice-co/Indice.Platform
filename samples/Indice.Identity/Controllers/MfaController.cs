@@ -1,9 +1,10 @@
 ﻿using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity;
-using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.Models;
-using Indice.Configuration;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Totp;
 using Indice.Identity.Hubs;
 using Indice.Identity.Models;
 using Indice.Services;
@@ -20,10 +21,10 @@ public class MfaController : Controller
 {
     private readonly IAccountService _accountService;
     private readonly TotpServiceFactory _totpServiceFactory;
-    private readonly ExtendedUserManager<User> _userManager;
+    private readonly ExtendedUserManager<DbUser> _userManager;
     private readonly IStringLocalizer<MfaController> _localizer;
     private readonly IIdentityServerInteractionService _interaction;
-    private readonly ExtendedSignInManager<User> _signInManager;
+    private readonly ExtendedSignInManager<DbUser> _signInManager;
     private readonly ILogger<MfaController> _logger;
     private readonly IHubContext<MultiFactorAuthenticationHub> _hubContext;
     public const string Name = "Mfa";
@@ -31,10 +32,10 @@ public class MfaController : Controller
     public MfaController(
         IAccountService accountService,
         TotpServiceFactory totpServiceFactory,
-        ExtendedUserManager<User> userManager,
+        ExtendedUserManager<DbUser> userManager,
         IStringLocalizer<MfaController> localizer,
         IIdentityServerInteractionService interaction,
-        ExtendedSignInManager<User> signInManager,
+        ExtendedSignInManager<DbUser> signInManager,
         ILogger<MfaController> logger,
         IHubContext<MultiFactorAuthenticationHub> hubContext
     ) {
@@ -55,7 +56,7 @@ public class MfaController : Controller
         if (viewModel is null) {
             throw new InvalidOperationException();
         }
-        var totpService = _totpServiceFactory.Create<User>();
+        var totpService = _totpServiceFactory.Create<DbUser>();
         if (viewModel.DeliveryChannel == TotpDeliveryChannel.Sms) {
             await totpService.SendAsync(message =>
                 message.ToUser(viewModel.User)
@@ -72,7 +73,7 @@ public class MfaController : Controller
     [HttpPost("login/mfa")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index([FromForm] MfaLoginInputModel model) {
-        var totpService = _totpServiceFactory.Create<User>();
+        var totpService = _totpServiceFactory.Create<DbUser>();
         var signInResult = await _signInManager.TwoFactorSignInAsync(totpService.TokenProvider, model.OtpCode, model.RememberMe, model.RememberClient);
         if (!signInResult.Succeeded) {
             ModelState.AddModelError(string.Empty, _localizer["The OTP code is not valid."]);
@@ -96,7 +97,7 @@ public class MfaController : Controller
         if (user is null) {
             throw new InvalidOperationException();
         }
-        var totpService = _totpServiceFactory.Create<User>();
+        var totpService = _totpServiceFactory.Create<DbUser>();
         await totpService.SendAsync(message =>
             message.ToUser(user)
                    .WithMessage(_localizer["Your OTP code for login is: {0}"])

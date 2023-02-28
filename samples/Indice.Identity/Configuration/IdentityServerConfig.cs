@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using Indice.AspNetCore.Identity;
-using Indice.AspNetCore.Identity.Data;
-using Indice.AspNetCore.Identity.Data.Models;
 using Indice.Configuration;
+using Indice.Features.Identity.Core.Data;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Logging;
@@ -35,7 +35,7 @@ public static class IdentityServerConfig
             // https://leastprivilege.com/2020/06/15/the-jwt-profile-for-oauth-2-0-access-tokens-and-identityserver/
             options.EmitScopesAsSpaceDelimitedStringInJwt = true;
         })
-        .AddAspNetIdentity<User>()
+        .AddAspNetIdentity<DbUser>()
         .AddDeviceAuthentication(options => {
             options.AddUserDeviceStoreEntityFrameworkCore();
         })

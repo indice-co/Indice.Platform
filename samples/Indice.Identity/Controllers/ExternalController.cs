@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4.Events;
 using IdentityServer4.Extensions;
@@ -10,9 +6,8 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Identity;
-using Indice.AspNetCore.Identity.Data.Models;
-using Indice.AspNetCore.Identity.Extensions;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,8 +22,8 @@ public class ExternalController : Controller
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IClientStore _clientStore;
     private readonly IEventService _events;
-    private readonly ExtendedSignInManager<User> _signInManager;
-    private readonly ExtendedUserManager<User> _userManager;
+    private readonly ExtendedSignInManager<DbUser> _signInManager;
+    private readonly ExtendedUserManager<DbUser> _userManager;
     /// <summary>The name of the controller.</summary>
     public const string Name = "External";
 
@@ -36,8 +31,8 @@ public class ExternalController : Controller
         IIdentityServerInteractionService interaction,
         IClientStore clientStore,
         IEventService events,
-        ExtendedSignInManager<User> signInManager,
-        ExtendedUserManager<User> userManager
+        ExtendedSignInManager<DbUser> signInManager,
+        ExtendedUserManager<DbUser> userManager
     ) {
         _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
@@ -102,19 +97,19 @@ public class ExternalController : Controller
         // Check if external login is in the context of an OIDC request.
         var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
         if (context != null) {
-            if (context.IsNativeClient()) {
+            /*if (context.IsNativeClient()) {
                 // The client is native, so this change in how to
                 // return the response is for better UX for the end user.
                 return this.LoadingPage("Redirect", returnUrl);
-            }
+            }*/
         }
         return Redirect(returnUrl);
     }
 
-    private async Task<(User User, bool Succeeded, IEnumerable<string> Errors)> AutoProvisionExternalUser(string userId, List<Claim> claims) {
+    private async Task<(DbUser User, bool Succeeded, IEnumerable<string> Errors)> AutoProvisionExternalUser(string userId, List<Claim> claims) {
         var email = claims.Single(x => x.Type == JwtClaimTypes.Email).Value;
         // New user auto-registration flow.
-        var user = new User(email, userId) {
+        var user = new DbUser(email, userId) {
             Email = email,
             EmailConfirmed = true
         };

@@ -3,8 +3,9 @@ using IdentityServer4;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Identity.Data.Models;
 using Indice.AspNetCore.Identity.UI.Areas.Identity.Models;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +21,7 @@ namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages;
 [ValidateAntiForgeryToken]
 public sealed class RegisterModel : PageModel
 {
-    private readonly ExtendedUserManager<User> _userManager;
+    private readonly ExtendedUserManager<DbUser> _userManager;
     private readonly IAuthenticationSchemeProvider _schemeProvider;
     private readonly IClientStore _clientStore;
     private readonly IIdentityServerInteractionService _interaction;
@@ -34,7 +35,7 @@ public sealed class RegisterModel : PageModel
     /// <param name="logger">A generic interface for logging.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public RegisterModel(
-        ExtendedUserManager<User> userManager,
+        ExtendedUserManager<DbUser> userManager,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
@@ -131,8 +132,8 @@ public sealed class RegisterModel : PageModel
         Input.ClientId = context?.Client?.ClientId;
     }
 
-    private User CreateUserFromInput() {
-        var user = new User {
+    private DbUser CreateUserFromInput() {
+        var user = new DbUser {
             UserName = Input.UserName,
             Email = Input.Email,
             PhoneNumber = Input.PhoneNumber

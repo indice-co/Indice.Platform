@@ -1,6 +1,6 @@
-﻿using Indice.AspNetCore.Identity.Data;
-using Indice.AspNetCore.Identity.Data.Models;
-using Indice.Extensions.Configuration;
+﻿using Indice.Extensions.Configuration;
+using Indice.Features.Identity.Core.Data;
+using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Identity;
@@ -19,7 +19,7 @@ public class Program
             .ConfigureWebHostDefaults(webHostBuilder => {
                 webHostBuilder.UseStartup<Startup>();
             })
-            .UseDatabaseConfiguration<ExtendedIdentityDbContext<User, Role>>((options, configuration) => {
+            .UseDatabaseConfiguration<ExtendedIdentityDbContext<DbUser, DbRole>>((options, configuration) => {
                 options.ReloadOnInterval = TimeSpan.FromMinutes(1);
                 options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
             });

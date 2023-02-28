@@ -8,7 +8,7 @@
     <StaticWebAssetBasePath Condition="$(StaticWebAssetBasePath) == ''">/</StaticWebAssetBasePath>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
+    <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
   </ItemGroup>
   <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
     <Exec Command="npm install" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">

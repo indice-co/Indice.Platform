@@ -1,7 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using Indice.AspNetCore.Identity;
-using Indice.AspNetCore.Identity.Data;
-using Indice.AspNetCore.Identity.Data.Models;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Identity.Security;
 using Indice.Identity.Services;
 using Microsoft.AspNetCore.Identity;
@@ -19,13 +22,13 @@ public static class IdentityConfig
         services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
         services.AddScopeTransformation();
         services.AddExternalProviderClaimsTransformation();
-        return services.AddIdentity<User, Role>()
+        return services.AddIdentity<DbUser, DbRole>()
                        .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
                        .AddIdentityMessageDescriber<LocalizedIdentityMessageDescriber>()
                        .AddClaimsPrincipalFactory<MicrosoftGraphUserClaimsPrincipalFactory>()
-                       .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
-                       .AddUserManager<ExtendedUserManager<User>>()
-                       .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                       .AddEntityFrameworkStores<ExtendedIdentityDbContext<DbUser, DbRole>>()
+                       .AddUserManager<ExtendedUserManager<DbUser>>()
+                       .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<DbUser, DbRole>, DbUser, DbRole>>()
                        .AddExtendedSignInManager()
                        .AddDefaultPasswordValidators()
                        .AddPasswordValidator<AllowedCharactersPasswordValidator>()

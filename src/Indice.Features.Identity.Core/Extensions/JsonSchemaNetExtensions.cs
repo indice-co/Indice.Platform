@@ -5,63 +5,62 @@ using Json.Schema;
 using Json.Schema.Generation;
 using Json.Schema.Generation.Generators;
 
-namespace Indice.Features.Identity.Core.Extensions
+namespace Indice.Features.Identity.Core.Extensions;
+
+/// <summary>Extensions related to <see cref="JsonSchema"/></summary>
+public static class JsonSchemaNetExtensions
 {
-    /// <summary>Extensions related to <see cref="JsonSchema"/></summary>
-    public static class JsonSchemaNetExtensions
-    {
-        /// <summary>Generates JSON schema for a given C# class using a new untested library :)</summary>
-        /// <param name="type">Class type</param>
-        /// <returns>A string containing JSON schema for a given class type.</returns>
-        public static JsonSchema ToJsonSchema(this Type type) {
-            var configuration = new SchemaGeneratorConfiguration {
-                
-                PropertyNamingMethod = PropertyNamingMethods.CamelCase
-            };
-            configuration.Generators.Add(new EnumSchemaGenerator());
-            var schema = new JsonSchemaBuilder().FromType(type, configuration).Build();
-            return schema;
-        }
-
-        /// <summary>Serializes a JSON schema to element.</summary>
-        /// <param name="schema">Class type</param>
-        /// <returns>A string containing JSON schema for a given class type.</returns>
-        public static JsonElement AsJsonElement(this JsonSchema schema) {
-            return JsonSerializer.SerializeToElement(schema);
-        }
+    /// <summary>Generates JSON schema for a given C# class using a new untested library :)</summary>
+    /// <param name="type">Class type</param>
+    /// <returns>A string containing JSON schema for a given class type.</returns>
+    public static JsonSchema ToJsonSchema(this Type type) {
+        var configuration = new SchemaGeneratorConfiguration {
+            
+            PropertyNamingMethod = PropertyNamingMethods.CamelCase
+        };
+        configuration.Generators.Add(new EnumSchemaGenerator());
+        var schema = new JsonSchemaBuilder().FromType(type, configuration).Build();
+        return schema;
     }
 
-    internal class EnumSchemaGenerator : ISchemaGenerator
-    {
-        public void AddConstraints(SchemaGenerationContextBase context) {
-            var values = Enum.GetNames(context.Type).ToList();
-            context.Intents.Add(new ExtendedSchemaKeywordIntent(values));
-        }
+    /// <summary>Serializes a JSON schema to element.</summary>
+    /// <param name="schema">Class type</param>
+    /// <returns>A string containing JSON schema for a given class type.</returns>
+    public static JsonElement AsJsonElement(this JsonSchema schema) {
+        return JsonSerializer.SerializeToElement(schema);
+    }
+}
 
-        public bool Handles(Type type) => type.IsEnum;
+internal class EnumSchemaGenerator : ISchemaGenerator
+{
+    public void AddConstraints(SchemaGenerationContextBase context) {
+        var values = Enum.GetNames(context.Type).ToList();
+        context.Intents.Add(new ExtendedSchemaKeywordIntent(values));
     }
 
-    internal class ExtendedSchemaKeywordIntent : ISchemaKeywordIntent
-    {
-        public ExtendedSchemaKeywordIntent(IEnumerable<string> names) : this(names.ToArray()) { }
+    public bool Handles(Type type) => type.IsEnum;
+}
 
-        public ExtendedSchemaKeywordIntent(params string[] names) => Names = names.ToList();
+internal class ExtendedSchemaKeywordIntent : ISchemaKeywordIntent
+{
+    public ExtendedSchemaKeywordIntent(IEnumerable<string> names) : this(names.ToArray()) { }
 
-        public List<string> Names { get; set; }
+    public ExtendedSchemaKeywordIntent(params string[] names) => Names = names.ToList();
 
-        public void Apply(JsonSchemaBuilder builder) {
-            builder.Type(SchemaValueType.String);
-            builder.Enum(Names.Select(x => x.AsJsonElement().AsNode()));
-        }
+    public List<string> Names { get; set; }
 
-        public override bool Equals(object obj) => obj is not null;
+    public void Apply(JsonSchemaBuilder builder) {
+        builder.Type(SchemaValueType.String);
+        builder.Enum(Names.Select(x => x.AsJsonElement().AsNode()));
+    }
 
-        public override int GetHashCode() {
-            unchecked {
-                var hashCode = GetType().GetHashCode();
-                hashCode = (hashCode * 397) ^ Names.GetCollectionHashCode();
-                return hashCode;
-            }
+    public override bool Equals(object obj) => obj is not null;
+
+    public override int GetHashCode() {
+        unchecked {
+            var hashCode = GetType().GetHashCode();
+            hashCode = (hashCode * 397) ^ Names.GetCollectionHashCode();
+            return hashCode;
         }
     }
 }

@@ -4,13 +4,14 @@
 @using Indice.AspNetCore.Extensions
 @using Indice.AspNetCore.Identity
 @using Indice.AspNetCore.Identity.Api.Models
-@using Indice.AspNetCore.Identity.Data.Models
-@using Indice.AspNetCore.Identity.Extensions
 @using Indice.AspNetCore.Identity.Models
 @using Indice.Configuration
 @using Indice.Extensions
+@using Indice.Features.Identity.Core
+@using Indice.Features.Identity.Core.Data.Models
 @using Indice.Identity.Controllers
 @using Indice.Identity.Models
+@using Indice.Security
 @using Indice.Services
 @using Microsoft.ApplicationInsights.AspNetCore
 @using Microsoft.ApplicationInsights.AspNetCore.Extensions
@@ -22,9 +23,8 @@
 @using System.Diagnostics
 @using System.Dynamic
 @using System.Globalization
-@using System.Text.RegularExpressions;
+@using System.Text.RegularExpressions
 @using System.Threading
-@using Indice.Security
 
 @addTagHelper *, Indice.AspNetCore
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
