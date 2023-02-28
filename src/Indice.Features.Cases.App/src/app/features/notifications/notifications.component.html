@@ -1,4 +1,7 @@
-<lib-view-layout [title]="'Ειδοποιήσεις'">
+<div *ngIf="isAdmin"
+     class="text-white">Δεν μπορείτε να εγγραφείτε σε συνδρομή ειδοποιήσεων</div>
+<lib-view-layout [title]="'Ειδοποιήσεις'"
+                 *ngIf="!isAdmin">
   <div *ngIf="!loading"
        class="bg-white shadow-sm rounded-sm">
     <div class="px-4 py-5 sm:px-6">

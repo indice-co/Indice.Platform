@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { AuthService } from "@indice/ng-auth";
 import { ToasterService, ToastType } from "@indice/ng-components";
 import { EMPTY, forkJoin } from "rxjs";
 import { tap, catchError } from "rxjs/operators";
@@ -14,11 +15,15 @@ export class NotificationsComponent implements OnInit {
     public notificationSubscriptionViewModels: NotificationSubscriptionViewModel[] = [];
     public formSubmitting: boolean = false;
     public loading: boolean = false;
+    public isAdmin: boolean = false;
 
     constructor(private _api: CasesApiService,
+        private authService: AuthService,
         private _toaster: ToasterService) { }
 
     public ngOnInit(): void {
+        // awful hack due to @indice/ng-auth's weird behavior
+        this.isAdmin = this.authService.isAdmin();
         this.loading = true;
         forkJoin({
             getMySubscriptions: this._api.getMySubscriptions(),

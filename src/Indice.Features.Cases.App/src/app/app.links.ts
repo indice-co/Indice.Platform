@@ -1,7 +1,6 @@
 import { map, tap } from 'rxjs/operators';
 import { AuthService } from '@indice/ng-auth';
 import { IAppLinks, NavLink } from '@indice/ng-components';
-
 import { Observable, of, ReplaySubject } from 'rxjs';
 
 export class AppLinks implements IAppLinks {
@@ -13,11 +12,12 @@ export class AppLinks implements IAppLinks {
             map(user => {
                 const headerMenu = [
                     new NavLink('Αρχική', '/dashboard', true),
-                    new NavLink('Αιτήσεις', '/cases', true),
-                    new NavLink('Ειδοποιήσεις', '/notifications', true)
+                    new NavLink('Αιτήσεις', '/cases', true)
                 ]
                 if (this.authService.isAdmin()) {
-                    headerMenu.push(new NavLink('Διαχείριση Αιτήσεων', '/case-types', true))
+                    headerMenu.push(new NavLink('Διαχείριση Αιτήσεων', '/case-types', true));
+                } else {
+                    headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true));
                 }
                 return headerMenu;
             }),
