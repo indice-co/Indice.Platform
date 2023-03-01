@@ -93,45 +93,9 @@ namespace Indice.Features.Cases.Services
                 LayoutTranslations = caseType.LayoutTranslations,
                 Tags = caseType.Tags,
                 Config = caseType.Config,
-                CanCreateRoles = caseType.CanCreateRoles
+                CanCreateRoles = caseType.CanCreateRoles,
+                Order = caseType.Order
             };
-
-            if (caseType.CheckpointTypes is null) {
-                throw new ValidationException("At least one checkpoint type is required.");
-            }
-
-            var checkpointSubmittedExists = caseType.CheckpointTypes.Any(x => x.Code == "Submitted");
-            if (!checkpointSubmittedExists) {
-                throw new ValidationException("At least one checkpoint type with the name 'Submitted' is required.");
-            }
-
-            var checkpointNames = caseType.CheckpointTypes.Select(x => x.Code).ToList();
-            if (checkpointNames.Count != checkpointNames.Distinct().Count()) {
-                throw new ValidationException("You can't have duplicate names in checkpoint types.");
-            }
-
-            foreach (var checkpointType in caseType.CheckpointTypes) {
-                var dbCheckpointType = new DbCheckpointType {
-                    Id = Guid.NewGuid(),
-                    CaseTypeId = newCaseType.Id,
-                    Code = checkpointType.Code,
-                    Description = checkpointType.Description,
-                    Status = checkpointType.Status,
-                    Private = checkpointType.Private
-                };
-
-                await _dbContext.CheckpointTypes.AddAsync(dbCheckpointType);
-
-                if (checkpointType.Roles?.Any() ?? false) {
-                    foreach (var role in checkpointType.Roles!) {
-                        await _dbContext.Members.AddAsync(new DbMember {
-                            CaseTypeId = newCaseType.Id,
-                            CheckpointTypeId = dbCheckpointType.Id,
-                            RoleName = role
-                        });
-                    }
-                }
-            }
 
             await _dbContext.CaseTypes.AddAsync(newCaseType);
             await _dbContext.SaveChangesAsync();
@@ -160,7 +124,7 @@ namespace Indice.Features.Cases.Services
 
         public async Task<CaseType> GetCaseTypeDetailsById(Guid id) {
             var dbCaseType = await _dbContext.CaseTypes
-                .Include(p => p.CheckpointTypes)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             var caseTypeRoles = await _dbContext.Members.AsQueryable()
@@ -171,7 +135,6 @@ namespace Indice.Features.Cases.Services
                 Id = id,
                 Code = dbCaseType.Code,
                 Title = dbCaseType.Title,
-                Category = dbCaseType.Category.Name,
                 Description = dbCaseType.Description,
                 DataSchema = dbCaseType.DataSchema,
                 Layout = dbCaseType.Layout,
@@ -180,7 +143,8 @@ namespace Indice.Features.Cases.Services
                 Tags = dbCaseType.Tags,
                 Config = dbCaseType.Config,
                 CanCreateRoles = dbCaseType.CanCreateRoles,
-                CheckpointTypes = dbCaseType.CheckpointTypes.Select(checkpointType => new CheckpointTypeDetails {
+                Order = dbCaseType.Order,
+                CheckpointTypes = dbCaseType.CheckpointTypes?.Select(checkpointType => new CheckpointTypeDetails {
                     Id = checkpointType.Id,
                     Code = checkpointType.Code,
                     Description = checkpointType.Description,
@@ -214,28 +178,9 @@ namespace Indice.Features.Cases.Services
             dbCaseType.Tags = caseType.Tags;
             dbCaseType.Config = caseType.Config;
             dbCaseType.CanCreateRoles = caseType.CanCreateRoles;
+            dbCaseType.Order = caseType.Order;
 
             _dbContext.CaseTypes.Update(dbCaseType);
-
-
-            // Update related case type roles
-            var caseTypeRoles = await _dbContext.Members.AsQueryable()
-                .Where(p => p.CaseTypeId == dbCaseType.Id)
-                .ToListAsync();
-
-            // Remove completely the existing roles
-            _dbContext.RemoveRange(caseTypeRoles);
-
-            // Insert the new roles for each checkpoint type
-            foreach (var checkpointType in caseType.CheckpointTypes!) {
-                foreach (var role in (checkpointType.Roles ?? Enumerable.Empty<string>())) {
-                    await _dbContext.Members.AddAsync(new DbMember {
-                        CaseTypeId = dbCaseType.Id,
-                        CheckpointTypeId = checkpointType.Id,
-                        RoleName = role
-                    });
-                }
-            }
 
             await _dbContext.SaveChangesAsync();
             return await GetCaseTypeDetailsById(caseType.Id.Value);
@@ -253,6 +198,7 @@ namespace Indice.Features.Cases.Services
                         Title = c.Title,
                         Code = c.Code,
                         Tags = c.Tags,
+                        Order = c.Order,
                         Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
                     })
                     .ToListAsync();
