@@ -248,7 +248,8 @@ namespace Indice.Features.Cases.Controllers
 
         private async Task<byte[]> CreatePdf(Case @case) {
             var template = await _caseTemplateService.RenderTemplateAsync(@case);
-            return await _casePdfService.HtmlToPdfAsync(template);
+            var pdfOptions = new PdfOptions(@case.CaseType.Config);
+            return await _casePdfService.HtmlToPdfAsync(template, pdfOptions, @case);
         }
     }
 }
