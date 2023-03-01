@@ -54,7 +54,19 @@ jobs:
         # Details on CodeQL's query packs refer to : https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
 
-
+    # Create .nuget dir
+    - name: Create .nuget dir
+      shell: pwsh
+      run: |
+        if (!(Test-Path -Path ".\.nuget" ))
+        {
+          New-Item -ItemType "directory" -Path ".\.nuget"
+        }
+        if (!(Test-Path -Path ".\.nuget\packages" ))
+        {
+          New-Item -ItemType "directory" -Path ".\.nuget\packages"
+        }
+      
     # Autobuild attempts to build any compiled languages  (C/C++, C#, Go, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
     - name: Autobuild
