@@ -9,10 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Case type form for create/update is simplified. Only case type entity is being edited.
 
-## [6.10.3] - 2023-03-01
+## [6.10.4] - 2023-03-01
 ### Added
-- `RequiresQrCode` as a case type Config option
-- `IPdfSigningService` & `IQrCodeService` interfaces
+- `PdfOptions` as a case type Config option
 
 ## [6.10.1] - 2023-02-15
 ### Added
