@@ -2,7 +2,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { ToasterService, ToastType } from "@indice/ng-components";
-import { CasesApiService, CaseTypeRequest, CheckpointTypeDetails } from "src/app/core/services/cases-api.service";
+import { CasesApiService, CaseTypeRequest } from "src/app/core/services/cases-api.service";
 import { SubmitWidgetComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/submit-widget/submit-widget.component";
 import { TailwindFrameworkComponent } from "src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component";
 import { EMPTY } from 'rxjs';
@@ -39,8 +39,8 @@ export class CaseTypesService {
             "title": {
                 "type": "string"
             },
-            "category": {
-                "type": "string"
+            "order": {
+                "type": "number"
             },
             "description": {
                 "type": "string"
@@ -65,41 +65,13 @@ export class CaseTypesService {
             },
             "canCreateRoles": {
                 "type": "string"
-            },
-            "checkpointTypes": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "id": { "type": "string" },
-                        "name": { "type": "string" },
-                        "description": { "type": "string" },
-                        "publicStatus": {
-                            "type": "string",
-                            "enum": ["0", "1", "2", "3"],
-                            "enumNames": ["Submitted", "In Progress", "Completed", "Deleted"]
-                        },
-                        "private": { "type": "boolean" },
-                        "roles": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "required": [
-                        "name",
-                        "publicStatus"
-                    ]
-                },
             }
         },
         "additionalProperties": false,
         "required": [
             "code",
             "title",
-            "dataSchema",
-            "checkpointTypes"
+            "dataSchema"
         ]
     }
 
@@ -137,8 +109,8 @@ export class CaseTypesService {
                     "flex-flow": "row wrap",
                     "items": [
                         {
-                            "key": "category",
-                            "title": "Κατηγορία",
+                            "key": "order",
+                            "title": "Σειρά μέσα στην κατηγορία",
                             "htmlClass": "px-2 my-2"
                         },
                         {
@@ -216,81 +188,11 @@ export class CaseTypesService {
                     "items": [
                         {
                             "key": "canCreateRoles",
-                            "title": "Επιτρεπτοί Ρόλοι για Δημιουργία αίτησης",
+                            "title": "Επιτρεπτοί Ρόλοι για Δημιουργία αίτησης (csv χωρίς κενά πχ Role1,Role2)",
                             "htmlClass": "px-2 my-2"
                         }
                     ]
-                },
-                {
-                    "key": "checkpointTypes",
-                    "type": "array",
-                    "listItems": 1,
-                    "items": [{
-                        "type": "div",
-                        "displayFlex": true,
-                        "flex-direction": "column",
-                        "htmlClass": "px-2 my-2",
-                        "items": [
-                            {
-                                "type": "div",
-                                "displayFlex": true,
-                                "flex-direction": "row",
-                                "htmlClass": "px-2",
-                                "items": [{
-                                    "key": "checkpointTypes[].name", " flex": " 2 2 100px",
-                                    "title": "Όνομα",
-                                    "htmlClass": "px-2 my-2",
-                                    "readonly": "true"
-                                },
-                                {
-                                    "key": "checkpointTypes[].description", " flex": " 2 2 100px",
-                                    "title": "Περιγραφή",
-                                    "htmlClass": "px-2 my-2",
-                                    "readonly": "true"
-                                },
-                                {
-                                    "key": "checkpointTypes[].publicStatus", " flex": " 2 2 100px",
-                                    "title": "Κατάσταση",
-                                    "default": "0",
-                                    "htmlClass": "px-2 my-2",
-                                    "readonly": "true"
-                                },
-                                {
-                                    "key": "checkpointTypes[].private", " flex": " 2 2 100px",
-                                    "title": "Private",
-                                    "htmlClass": "px-2 mt-12",
-                                    "readonly": "true"
-                                }
-                                ]
-                            },
-                            {
-                                "type": "div",
-                                "display": "flex",
-                                "flex-direction": "column",
-                                "items": [
-                                    {
-                                        "key": "checkpointTypes[].roles",
-                                        "title": "Ρόλοι",
-                                        "htmlClass": "px-2 my-2 w-64",
-                                        "display": "flex",
-                                        "flex-direction": "row",
-                                        "type": "array",
-                                        "list-items": -1,
-                                        "items": [
-                                            {
-                                                "title": "Ρόλος",
-                                                "display": "flex",
-                                                "key": "checkpointTypes[].roles[]",
-                                                "htmlClass": "px-2 my-2 w-64"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                    ],
-                },
+                }               
             ]
         }
     ]
@@ -335,7 +237,7 @@ export class CaseTypesService {
     public onCreateSubmit(event: any): void {
         const request = new CaseTypeRequest({
             title: event.title,
-            category: event.category,
+            order: event.order,
             description: event.description,
             code: event.code,
             dataSchema: event.dataSchema,
@@ -344,8 +246,7 @@ export class CaseTypesService {
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags,
             config: event?.config,
-            canCreateRoles: event?.canCreateRoles,
-            checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeDetails(item)),
+            canCreateRoles: event?.canCreateRoles
         });
         this._api.createCaseType(undefined, request).pipe(
             tap(_ => {
@@ -363,7 +264,7 @@ export class CaseTypesService {
         const request = new CaseTypeRequest({
             id: caseTypeId,
             title: event.title,
-            category: event.category,
+            order: event.order,
             description: event.description,
             code: event.code,
             dataSchema: event.dataSchema,
@@ -372,8 +273,7 @@ export class CaseTypesService {
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags,
             config: event?.config,
-            canCreateRoles: event?.canCreateRoles,
-            checkpointTypes: (event?.checkpointTypes || []).map((item: any) => new CheckpointTypeDetails(item)),
+            canCreateRoles: event?.canCreateRoles
         })
         this._api.updateCaseType(caseTypeId, undefined, request).pipe(
             tap(_ => {
