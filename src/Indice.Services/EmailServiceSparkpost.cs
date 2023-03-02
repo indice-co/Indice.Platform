@@ -50,7 +50,7 @@ namespace Indice.Services
         public IHtmlRenderingEngine HtmlRenderingEngine { get; }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null) {
+        public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
             var bccRecipients = (Settings.BccRecipients ?? "").Split(';', ',');
             var recipientAddresses = recipients.Select(recipient => new SparkPostRecipient {
                 Address = new SparkPostRecipientEmailAddress {
@@ -66,8 +66,8 @@ namespace Indice.Services
             var request = new SparkPostRequest {
                 Content = new SparkPostContent {
                     From = new SparkPostSenderAddress {
-                        Email = Settings.Sender,
-                        Name = Settings.SenderName
+                        Email = from?.Address ?? Settings.Sender,
+                        Name = from?.DisplayName ?? Settings.SenderName
                     },
                     Subject = subject,
                     Html = body

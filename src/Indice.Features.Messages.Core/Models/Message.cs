@@ -12,6 +12,11 @@ namespace Indice.Features.Messages.Core.Models
         /// </summary>
         public Guid Id { get; set; }
         /// <summary>
+        /// The sender identity. This is optional and will default to the default settings.
+        /// </summary>
+        /// <remarks>when email it is the from account no-reply@domain.com. When sms it is the Sending Name ie. INDICE</remarks>
+        public string Sender { get; set; }
+        /// <summary>
         /// The title of the user message.
         /// </summary>
         public string Title { get; set; }

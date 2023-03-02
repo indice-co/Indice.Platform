@@ -39,7 +39,7 @@ namespace Indice.Services
         protected ILogger<SmsServiceApifon> Logger { get; }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string destination, string subject, string body) {
+        public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
             HttpResponseMessage httpResponse;
             ApifonResponse response;
             var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
@@ -60,7 +60,7 @@ namespace Indice.Services
                     : phoneNumber.StartsWith("0") ? phoneNumber.TrimStart('0') : $"30{phoneNumber}"
             )
             .ToArray();
-            var payload = new ApifonRequest(Settings.Sender ?? Settings.SenderName, recipients, body);
+            var payload = new ApifonRequest(sender?.Id ?? Settings.Sender ?? Settings.SenderName, recipients, body);
             var signature = payload.Sign(Settings.ApiKey, HttpMethod.Post.ToString(), "/services/api/v1/sms/send");
             var request = new HttpRequestMessage {
                 Content = new StringContent(payload.ToJson(), Encoding.UTF8, "application/json"),

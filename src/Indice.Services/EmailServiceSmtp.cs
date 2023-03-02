@@ -32,13 +32,13 @@ namespace Indice.Services
         public IHtmlRenderingEngine HtmlRenderingEngine { get; }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null) {
+        public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
             var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(Settings.SenderName, Settings.Sender));
-            message.To.AddRange(recipients.Select(recipient => InternetAddress.Parse(recipient)));
+            message.From.Add(new MailboxAddress(from?.Address ?? Settings.SenderName, from?.DisplayName ?? Settings.Sender));
+            message.To.AddRange(recipients.Select(InternetAddress.Parse));
             if (!string.IsNullOrWhiteSpace(Settings.BccRecipients)) {
                 var bccRecipients = Settings.BccRecipients.Split(',', ';');
-                message.Bcc.AddRange(bccRecipients.Select(recipient => InternetAddress.Parse(recipient)));
+                message.Bcc.AddRange(bccRecipients.Select(InternetAddress.Parse));
             }
             message.Subject = subject;
             var bodyPart = new TextPart(TextFormat.Html) {

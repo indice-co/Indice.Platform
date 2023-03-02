@@ -3,6 +3,31 @@ using System.Threading.Tasks;
 
 namespace Indice.Services
 {
+
+    /// <summary>
+    /// The representation of a sender id visible in the recipients phone. ie. INDICE. Defaults to the confguration values <strong>Sms:Sender</strong> and <strong>Sms:SenderName</strong>
+    /// </summary>
+    public class SmsSender
+    {
+        /// <summary>
+        /// Construct the Sms sender
+        /// </summary>
+        /// <param name="senderId">sender id</param>
+        /// <param name="displayName">Display name</param>
+        public SmsSender(string senderId, string displayName) {
+            Id = senderId;
+            DisplayName = displayName;
+        }
+        /// <summary>Sender id</summary>
+        public string Id { get; }
+        /// <summary>Sender Name</summary>
+        public string DisplayName { get; }
+        /// <summary>Checks for id existence</summary>
+        public bool IsEmpty => string.IsNullOrWhiteSpace(Id);
+        /// <inheritdoc/>
+        public override string ToString() => IsEmpty ? base.ToString() : $"{DisplayName} <{Id}>";
+    }
+
     /// <summary>Exception for SMS service failure.</summary>
     public class SmsServiceException : Exception
     {
@@ -49,6 +74,7 @@ namespace Indice.Services
         /// <param name="destination">Destination, i.e. the phone number</param>
         /// <param name="subject">Message subject.</param>
         /// <param name="body">Message content.</param>
-        Task SendAsync(string destination, string subject, string body);
+        /// <param name="sender">The sender id visible in the recipients phone. ie. INDICE. Defaults to the confguration value <strong>sender</strong></param>
+        Task SendAsync(string destination, string subject, string body, SmsSender sender = null);
     }
 }

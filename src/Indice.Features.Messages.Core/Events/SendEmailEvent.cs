@@ -11,6 +11,8 @@ namespace Indice.Features.Messages.Core.Events
         public string Title { get; set; }
         /// <summary>The body of the message.</summary>
         public string Body { get; set; }
+        /// <summary>The optional message sender.</summary>
+        public MessageSender Sender { get; set; }
         /// <summary>Optional data for the campaign.</summary>
         public dynamic Data { get; set; }
         /// <summary>Defines if push notification is sent to all registered user devices.</summary>
@@ -28,6 +30,7 @@ namespace Indice.Features.Messages.Core.Events
         /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
         public static SendEmailEvent FromContactResolutionEvent(ResolveMessageEvent messageEvent, Contact contact, bool broadcast) => new() {
             Body = messageEvent.Campaign.Content[nameof(MessageChannelKind.Email)].Body,
+            Sender = messageEvent.Campaign.Content[nameof(MessageChannelKind.Email)].Sender,
             Broadcast = broadcast,
             CampaignId = messageEvent.Campaign.Id,
             Data = messageEvent.Campaign.Data,

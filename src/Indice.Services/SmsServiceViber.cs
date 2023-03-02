@@ -22,7 +22,7 @@ namespace Indice.Services
         public SmsServiceViber(HttpClient httpClient, SmsServiceViberSettings settings, ILogger<SmsServiceViber> logger) { }
 
         /// <inheritdoc/>
-        public Task SendAsync(string destination, string subject, string body) {
+        public Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
             throw new NotImplementedException();
         }
 

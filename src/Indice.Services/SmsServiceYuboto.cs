@@ -36,7 +36,7 @@ namespace Indice.Services
         }
 
         /// <inheritdoc/>
-        public async Task SendAsync(string destination, string subject, string body) {
+        public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
             HttpResponseMessage httpResponse;
             YubotoResponse response;
             var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
@@ -49,7 +49,7 @@ namespace Indice.Services
             if (recipients.Any(telephone => telephone.Any(character => !char.IsNumber(character)))) {
                 throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
             }
-            var request = new YubotoRequestHelper(Settings.ApiKey, Settings.Sender ?? Settings.SenderName, recipients, body) {
+            var request = new YubotoRequestHelper(Settings.ApiKey, sender?.Id ?? Settings.Sender ?? Settings.SenderName, recipients, body) {
                 IsSmsTest = Settings.TestMode
             }
             .CreateRequest();

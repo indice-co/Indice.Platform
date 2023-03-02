@@ -6,7 +6,7 @@ namespace Indice.Services
     public class SmsServiceNoop : ISmsService
     {
         /// <inheritdoc />
-        public Task SendAsync(string destination, string subject, string body) => Task.CompletedTask;
+        public Task SendAsync(string destination, string subject, string body, SmsSender sender = null) => Task.CompletedTask;
 
         /// <inheritdoc />
         public bool Supports(string deliveryChannel) => true;

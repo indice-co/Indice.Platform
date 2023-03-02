@@ -24,6 +24,6 @@ namespace Indice.Features.Messages.Core.Handlers
         /// </summary>
         /// <param name="event">The event model used when sending an email.</param>
         public async Task Process(SendSmsEvent @event) => 
-            await SmsService.SendAsync(@event.RecipientPhoneNumber, @event.Title, @event.Body);
+            await SmsService.SendAsync(@event.RecipientPhoneNumber, @event.Title, @event.Body, sender: @event.Sender?.IsEmpty == false ? new SmsSender(@event.Sender.Id, @event.Sender.DisplayName) : null);
     }
 }

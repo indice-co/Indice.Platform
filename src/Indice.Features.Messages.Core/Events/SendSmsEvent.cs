@@ -21,6 +21,10 @@ namespace Indice.Features.Messages.Core.Events
         /// </summary>
         public string Body { get; set; }
         /// <summary>
+        /// Optioal message sender.
+        /// </summary>
+        public MessageSender Sender { get; set; }
+        /// <summary>
         /// Optional data for the campaign.
         /// </summary>
         public ExpandoObject Data { get; set; }
@@ -49,6 +53,7 @@ namespace Indice.Features.Messages.Core.Events
         /// <param name="broadcast">Defines if push notification is sent to all registered user devices.</param>
         public static SendSmsEvent FromContactResolutionEvent(ResolveMessageEvent messageEvent, Contact contact, bool broadcast) => new() {
             Body = messageEvent.Campaign.Content[nameof(MessageChannelKind.SMS)].Body,
+            Sender = messageEvent.Campaign.Content[nameof(MessageChannelKind.SMS)].Sender,
             Broadcast = broadcast,
             CampaignId = messageEvent.Campaign.Id,
             Data = messageEvent.Campaign.Data,

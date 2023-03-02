@@ -9,6 +9,11 @@ namespace Indice.Services
     {
         /// <summary>The email addresses of the recipients.</summary>
         internal IList<string> Recipients { get; set; } = new List<string>();
+        /// <summary>
+        /// The representation of an email addres in the form field. 
+        /// </summary>
+        /// <remarks>Defaults to the confguration values <strong>Email:Sender</strong> and <strong>Email:SenderName</strong></remarks>
+        internal EmailSender Sender { get; set; }
         /// <summary>The subject of the message.</summary>
         internal string Subject { get; set; }
         /// <summary>The body of the message.</summary>
@@ -24,6 +29,20 @@ namespace Indice.Services
     /// <summary><see cref="EmailMessageBuilder" /> extensions.</summary>
     public static class EmailMessageBuilderExtensions
     {
+        /// <summary>Configures the sender of the message. Overriding the default configuration</summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="address">Sender address</param>
+        /// <param name="displayName">Sender display name</param>
+        /// <returns>The builder.</returns>
+        /// <remarks>Take caution. The value must be valid according to the sending domains configured with the corresponding api Key</remarks>
+        public static EmailMessageBuilder From(this EmailMessageBuilder builder, string address, string displayName = null) {
+            if (string.IsNullOrEmpty(address)) {
+                throw new ArgumentNullException("the email adress must be provided.", nameof(address));
+            }
+            builder.Sender = new EmailSender(address, displayName);
+            return builder;
+        }
+
         /// <summary>Adds one or more recipients to the message.</summary>
         /// <param name="builder">The builder.</param>
         /// <param name="recipients">The email addresses of the recipients.</param>

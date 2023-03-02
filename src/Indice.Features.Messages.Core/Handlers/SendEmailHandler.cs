@@ -30,6 +30,9 @@ namespace Indice.Features.Messages.Core.Handlers
                 if (attachment is not null) {
                     builder.WithAttachments(new EmailAttachment(attachment.Name, attachment.Data));
                 }
+                if (@event.Sender != null && !@event.Sender.IsEmpty) {
+                    builder.From(@event.Sender.Id, @event.Sender.DisplayName);
+                }
             });
         }
 

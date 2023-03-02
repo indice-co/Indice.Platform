@@ -5,6 +5,32 @@ using Indice.Configuration;
 
 namespace Indice.Services
 {
+    /// <summary>
+    /// The representation of an email addres in the form field. 
+    /// </summary>
+    /// <remarks>Defaults to the confguration values <strong>Email:Sender</strong> and <strong>Email:SenderName</strong></remarks>
+    public class EmailSender
+    {
+        /// <summary>
+        /// Construct the email sender
+        /// </summary>
+        /// <param name="address">Email address</param>
+        /// <param name="displayName">Display name</param>
+        public EmailSender(string address, string displayName) {
+            Address = address;
+            DisplayName = displayName;
+        }
+
+        /// <summary>Email address</summary>
+        public string Address { get; }
+        /// <summary>Display name</summary>
+        public string DisplayName { get; }
+        /// <summary>Checks for address existence</summary>
+        public bool IsEmpty => string.IsNullOrWhiteSpace(Address);
+        /// <inheritdoc/>
+        public override string ToString() => IsEmpty ? base.ToString() : $"{DisplayName} <{Address}>";
+    }
+
     /// <summary>Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</summary>
     public interface IEmailService
     {
@@ -15,7 +41,8 @@ namespace Indice.Services
         /// <param name="subject">The subject of the email message.</param>
         /// <param name="body">The body of the email message.</param>
         /// <param name="attachments">The files that will be attached in the email message.</param>
-        Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null);
+        /// <param name="from">Optional email addres in the form field. Defaults to the confguration values <strong>Email:Sender</strong> and <strong>Email:SenderName</strong></param>
+        Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null);
     }
 
     /// <summary>Service extensions for <see cref="IEmailService"/>.</summary>
