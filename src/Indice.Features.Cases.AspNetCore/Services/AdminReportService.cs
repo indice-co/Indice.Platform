@@ -31,7 +31,7 @@ namespace Indice.Features.Cases.Services
             List<GroupByReportResult> query = await _dbContext.Cases
             .AsNoTracking()
                 .Where(x => (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
                                 (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
                 .GroupBy(x => x.CaseType.Code)
                 .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
@@ -44,7 +44,7 @@ namespace Indice.Features.Cases.Services
                 .AsNoTracking()
                 .Where(x => x.Channel == Channels.Agent &&
                                 (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
                                 (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
                 .GroupBy(x => x.CaseType.Code)
                 .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
@@ -57,7 +57,7 @@ namespace Indice.Features.Cases.Services
                 .AsNoTracking()
                 .Where(x => x.Channel == Channels.Customer &&
                                 (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
                                 (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
                 .GroupBy(x => x.CaseType.Code)
                 .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
@@ -69,7 +69,7 @@ namespace Indice.Features.Cases.Services
             List<GroupByReportResult> query = await _dbContext.Cases
                 .AsNoTracking()
                 .Where(x => (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
                                 (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
                 .GroupBy(x => x.Checkpoint.CheckpointType.Status)
                 .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
@@ -81,7 +81,7 @@ namespace Indice.Features.Cases.Services
                 .AsNoTracking()
                 .Where(x => x.Channel == Channels.Agent &&
                                 (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
                                 (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
                 .GroupBy(x => x.Checkpoint.CheckpointType.Status)
                 .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
@@ -94,7 +94,7 @@ namespace Indice.Features.Cases.Services
                 .AsNoTracking()
                 .Where(x => x.Channel == Channels.Customer &&
                                 (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
                                 (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
                 .GroupBy(x => x.Checkpoint.CheckpointType.Status)
                 .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
@@ -106,7 +106,7 @@ namespace Indice.Features.Cases.Services
             List<GroupByReportResult> query = await _dbContext.Cases
                 .AsNoTracking()
                 .Where(x => (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.GroupIds.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
+                                (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
                                 (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
                 .GroupBy(x => x.GroupId)
                 .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
