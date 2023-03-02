@@ -1,6 +1,6 @@
 import { catchError, tap } from 'rxjs/operators';
 import { Component, OnInit } from '@angular/core';
-import { Modal, ToasterService, ToastType } from '@indice/ng-components';
+import { Modal, ModalOptions, ToasterService, ToastType } from '@indice/ng-components';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { EMPTY } from 'rxjs';
 
@@ -10,12 +10,16 @@ import { EMPTY } from 'rxjs';
   styleUrls: ['./case-type-delete-modal.component.scss']
 })
 export class CaseTypeDeleteModalComponent implements OnInit {
-
-  public id: string = '';
+  public id: any = '';
   public name?: string;
-  constructor(private modal: Modal, private _api: CasesApiService, private toaster: ToasterService) { }
+  constructor(
+    private modal: Modal,
+    private _api: CasesApiService,
+    private toaster: ToasterService,
+    private options: ModalOptions) { }
 
   ngOnInit(): void {
+    this.id = this.options?.initialState?.id;
   }
 
   deleteCaseType() {

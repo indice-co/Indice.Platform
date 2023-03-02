@@ -49,7 +49,7 @@ namespace Indice.Hosting
             Scheduler.JobFactory = _jobFactory;
             foreach (var dequeueJobSchedule in _dequeueJobSchedules) {
                 var dequeueJob = JobBuilder.Create(typeof(DequeueJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
-                                           .StoreDurably() // Τhis is needed in case of multiple consumers (triggers).
+                                           .StoreDurably()
                                            .WithIdentity(name: dequeueJobSchedule.Name, group: JobGroups.InternalJobsGroup)
                                            .SetJobData(new JobDataMap(new Dictionary<string, object> {
                                                [JobDataKeys.QueueName] = dequeueJobSchedule.Name,
@@ -68,10 +68,11 @@ namespace Indice.Hosting
                                                    .Build();
                     await Scheduler.ScheduleJob(jobTrigger, cancellationToken);
                 }
-                if (dequeueJobSchedule.CleanupInterval <= 0)
+                if (dequeueJobSchedule.CleanupInterval <= 0) {
                     continue;
+                }
                 var cleanUpJob = JobBuilder.Create(typeof(DequeuedCleanupJob<>).MakeGenericType(dequeueJobSchedule.WorkItemType))
-                                           .StoreDurably() // This is needed in case of multiple consumers (triggers).
+                                           .StoreDurably()
                                            .WithIdentity(name: $"{dequeueJobSchedule.Name}CleanUp", group: JobGroups.InternalJobsGroup)
                                            .SetJobData(new JobDataMap(new Dictionary<string, object> {
                                                [JobDataKeys.QueueName] = dequeueJobSchedule.Name,
@@ -89,7 +90,7 @@ namespace Indice.Hosting
             }
             foreach (var schedule in _scheduledJobSettings) {
                 var jobDetails = JobBuilder.Create(typeof(ScheduledJob<,>).MakeGenericType(schedule.JobHandlerType, schedule.JobStateType))
-                                           .StoreDurably() // This is needed in case of multiple consumers (triggers).
+                                           .StoreDurably()
                                            .WithIdentity(name: schedule.Name, group: schedule.Group ?? JobGroups.InternalJobsGroup)
                                            .WithDescription(schedule.Description)
                                            .SetJobData(new JobDataMap(new Dictionary<string, object> {

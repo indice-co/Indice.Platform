@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ApprovalButtonsComponent } from './components/approval-buttons/approval-buttons.component';
 import { PageIllustrationComponent } from './components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './components/radio-buttons-list/radio-buttons-list.component';
-import { ToggleButtonComponent } from './components/toggle-button/toggle-button.component';
 import { BeautifyBooleanPipe } from './pipes.services';
 import { TailwindFrameworkComponent } from './ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component';
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
@@ -24,6 +23,7 @@ import { FileWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-fram
 import { CaseDetailInfoComponent } from './components/case-detail-info/case-detail-info.component';
 import { CaseCustomActionComponent } from './components/case-custom-action/case-custom-action.component';
 import { LookupSelectorWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
+import { CanvasTileComponent } from './components/canvas-tile/canvas-tile.component';
 
 
 
@@ -33,11 +33,11 @@ import { LookupSelectorWidgetComponent } from './ajsf/json-schema-frameworks/tai
     ApprovalButtonsComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
-    ToggleButtonComponent,
     SelectCaseTypeComponent,
     SearchCustomerComponent,
     CaseDetailInfoComponent,
     CaseCustomActionComponent,
+    CanvasTileComponent,
     // ajsf
     FileWidgetComponent,
     TailwindFrameworkComponent,
@@ -66,15 +66,15 @@ import { LookupSelectorWidgetComponent } from './ajsf/json-schema-frameworks/tai
     ApprovalButtonsComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
-    ToggleButtonComponent,
     SelectCaseTypeComponent,
     SearchCustomerComponent,
     CaseDetailInfoComponent,
+    CaseCustomActionComponent,
+    CanvasTileComponent,
     // ajsf
     TailwindFrameworkComponent,
     // pipes
-    BeautifyBooleanPipe,
-    CaseCustomActionComponent
+    BeautifyBooleanPipe
   ]
 })
 export class SharedModule { }

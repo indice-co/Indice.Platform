@@ -61,9 +61,9 @@ namespace Indice.AspNetCore.Identity
             _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
             _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
             _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
-            EnforceMfa = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(EnforceMfa)) == true;
+            EnforceMfa = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Enforce") == true;
             RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
-            RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true || EnforceMfa;
+            RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
             ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
             ExternalScheme = configuration.GetIdentityOption<string>(nameof(IdentityOptions.SignIn), nameof(ExternalScheme)) ?? IdentityConstants.ExternalScheme;
             PersistTrustedBrowsers = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(PersistTrustedBrowsers)) == true;
@@ -76,7 +76,6 @@ namespace Indice.AspNetCore.Identity
         /// <summary>Enables the feature post login email confirmation.</summary>
         public bool RequirePostSignInConfirmedEmail { get; }
         /// <summary>Enables the feature post login phone number confirmation.</summary>
-        /// <remarks>Can be also enabled by <seealso cref="EnforceMfa"/> property.</remarks>
         public bool RequirePostSignInConfirmedPhoneNumber { get; }
         /// <summary>If enabled then users with blacklisted passwords will be forced to change their password upon sign-in instead of waiting for the next time they need to change it.</summary>
         public bool ExpireBlacklistedPasswordsOnSignIn { get; }
@@ -161,6 +160,10 @@ namespace Indice.AspNetCore.Identity
                 var requiresPhoneNumberValidation = !isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber;
                 var requiresPasswordChange = isPasswordExpired;
                 return new ExtendedSigninResult(requiresEmailValidation, requiresPhoneNumberValidation, requiresPasswordChange);
+            }
+            if (EnforceMfa) {
+                await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(user.Id, loginProvider));
+                return SignInResult.TwoFactorRequired;
             }
             var signInResult = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
             if (signInResult.Succeeded && (user is User)) {
@@ -295,6 +298,15 @@ namespace Indice.AspNetCore.Identity
             }
             if (!string.IsNullOrWhiteSpace(lastName)) {
                 identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, lastName));
+            }
+            return new ClaimsPrincipal(identity);
+        }
+
+        private static ClaimsPrincipal StoreTwoFactorInfo(string userId, string loginProvider) {
+            var identity = new ClaimsIdentity(IdentityConstants.TwoFactorUserIdScheme);
+            identity.AddClaim(new Claim(ClaimTypes.Name, userId));
+            if (loginProvider != null) {
+                identity.AddClaim(new Claim(ClaimTypes.AuthenticationMethod, loginProvider));
             }
             return new ClaimsPrincipal(identity);
         }

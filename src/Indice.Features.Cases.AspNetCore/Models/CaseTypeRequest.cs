@@ -26,11 +26,6 @@
         public string Description { get; set; }
 
         /// <summary>
-        /// The case type category.
-        /// </summary>
-        public string Category { get; set; }
-
-        /// <summary>
         /// The Data Schema of the case type
         /// </summary>
         public string DataSchema { get; set; }
@@ -51,11 +46,6 @@
         public string LayoutTranslations { get; set; }
 
         /// <summary>
-        /// The list of checkpoints for the case type
-        /// </summary>
-        public IEnumerable<CheckpointTypeDetails> CheckpointTypes { get; set; }
-
-        /// <summary>
         /// The case type tags.
         /// </summary>
         public string Tags { get; set; }
@@ -66,8 +56,13 @@
         public string Config { get; set; }
 
         /// <summary>
-        /// The allowed Roles that can create a new Case
+        /// The allowed Roles that can create a new Case.
         /// </summary>
         public string CanCreateRoles { get; set; }
+        
+        /// <summary>
+        /// The order of the case type.
+        /// </summary>
+        public int? Order { get; set; }
     }
 }

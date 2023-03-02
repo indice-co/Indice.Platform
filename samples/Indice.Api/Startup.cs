@@ -1,19 +1,11 @@
-using System;
 using System.Globalization;
-using System.Linq;
 using Hellang.Middleware.ProblemDetails;
 using Indice.Api.Data;
 using Indice.AspNetCore.Middleware;
 using Indice.Configuration;
 using Indice.Features.Messages.Core;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -43,7 +35,7 @@ namespace Indice.Api
                     .AddDbContext<ApiDbContext>(builder => {
                         builder.UseSqlServer(Configuration.GetConnectionString("SettingsDb"));
                     });
-            //services.AddWorkerHostConfig(Configuration);
+            services.AddWorkerHostConfig(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -93,7 +85,8 @@ namespace Indice.Api
                 app.UseSwaggerUI(options => {
                     options.RoutePrefix = "docs";
                     options.SwaggerEndpoint($"/swagger/{MessagesApi.Scope}/swagger.json", MessagesApi.Scope);
-                    options.SwaggerEndpoint($"/swagger/lookups/swagger.json", "lookups");
+                    options.SwaggerEndpoint("/swagger/lookups/swagger.json", "lookups");
+                    options.SwaggerEndpoint("/swagger/workers/swagger.json", "workers");
                     options.OAuth2RedirectUrl($"{Settings.Host}/docs/oauth2-redirect.html");
                     options.OAuthClientId("swagger-ui");
                     options.OAuthAppName("Swagger UI");
