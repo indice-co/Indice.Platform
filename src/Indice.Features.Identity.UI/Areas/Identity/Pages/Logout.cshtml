@@ -1,0 +1,30 @@
+﻿@page "/logout"
+
+@inject IViewLocalizer Localizer
+
+@model LogoutModel
+
+@{
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+
+<section class="identity-panel wide logout-page">
+    <article class="text-center">
+        <h1>
+            <a class="header-logo" href="/">
+                <img class="mb-3 w-100" src="~/img/logo@(langSuffix).svg" />
+            </a>
+            <span class="header-text">@Localizer["Logout"]</span>
+        </h1>
+        <p>@Localizer["Would you like to logout?"]</p>
+        <form asp-page="logout">
+            <input type="hidden" name="logoutId" value="@Model.LogoutId" />
+            <fieldset>
+                <div class="form-group">
+                    <button class="btn btn-primary">@Localizer["Yes"]</button>
+                </div>
+            </fieldset>
+        </form>
+    </article>
+</section>

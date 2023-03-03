@@ -1,0 +1,48 @@
+﻿
+.password-rules {
+    font-size: small;
+
+    ul {
+        list-style-type: none;
+        padding-left: initial;
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
+        column-count: 2;
+        column-gap: 4px;
+        -webkit-column-gap: 4px;
+        -moz-column-gap: 4px;
+
+        @include phone {
+            -webkit-column-count: 1;
+            -moz-column-count: 1;
+            column-count: 1;
+        }
+    }
+}
+
+.password-rule {
+    padding: 2px;
+    text-decoration: line-through;
+
+    &::before {
+        content: " ";
+        display: inline-block;
+        transform: rotate(45deg);
+        height: 10px;
+        width: 5px;
+        border-bottom: 2px solid whitesmoke;
+        border-right: 2px solid whitesmoke;
+        margin-right: 14px;
+    }
+
+    &.rule-valid {
+        text-decoration: none;
+
+        &::before {
+            border-bottom-color: #78b13f;
+            border-right-color: #78b13f;
+        }
+    }
+}
+
+

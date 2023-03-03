@@ -1,16 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Indice.AspNetCore.Identity.Api.Models
+namespace Indice.AspNetCore.Identity.Api.Models;
+
+/// <summary>Models the request of a user for phone number confirmation.</summary>
+public class ConfirmPhoneNumberRequest
 {
-    /// <summary>
-    /// Models the request of a user for phone number confirmation.
-    /// </summary>
-    public class ConfirmPhoneNumberRequest
-    {
-        /// <summary>
-        /// The OTP token. 
-        /// </summary>
-        [Required(AllowEmptyStrings = false)]
-        public string Token { get; set; }
-    }
+    /// <summary>The OTP token. </summary>
+    [Required(AllowEmptyStrings = false)]
+    public string Token { get; set; }
 }

@@ -1,37 +1,26 @@
-﻿using System;
-using Indice.AspNetCore.Identity.Data;
-using Indice.AspNetCore.Identity.Data.Models;
-using Indice.Extensions.Configuration;
-using Microsoft.AspNetCore.Hosting;
+﻿using Indice.Extensions.Configuration;
+using Indice.Features.Identity.Core.Data;
+using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 
-namespace Indice.Identity
+namespace Indice.Identity;
+
+/// <summary>The bootstrap class of the application.</summary>
+public class Program
 {
-    /// <summary>
-    /// The bootstrap class of the application.
-    /// </summary>
-    public class Program
-    {
-        /// <summary>
-        /// The entry point of the web application.
-        /// </summary>
-        /// <param name="args">Optional command line arguments.</param>
-        public static void Main(string[] args) => CreateHostBuilder(args).Build().Run();
+    /// <summary>The entry point of the web application.</summary>
+    /// <param name="args">Optional command line arguments.</param>
+    public static void Main(string[] args) => CreateHostBuilder(args).Build().Run();
 
-        /// <summary>
-        /// Builds the host.
-        /// </summary>
-        /// <param name="args">Optional command line arguments.</param>
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webHostBuilder => {
-                    webHostBuilder.UseStartup<Startup>();
-                })
-                .UseDatabaseConfiguration<ExtendedIdentityDbContext<User, Role>>((options, configuration) => {
-                    options.ReloadOnInterval = TimeSpan.FromMinutes(1);
-                    options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
-                });
-    }
+    /// <summary>Builds the host.</summary>
+    /// <param name="args">Optional command line arguments.</param>
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webHostBuilder => {
+                webHostBuilder.UseStartup<Startup>();
+            })
+            .UseDatabaseConfiguration<ExtendedIdentityDbContext<User, Role>>((options, configuration) => {
+                options.ReloadOnInterval = TimeSpan.FromMinutes(1);
+                options.ConfigureDbContext = builder => builder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
+            });
 }

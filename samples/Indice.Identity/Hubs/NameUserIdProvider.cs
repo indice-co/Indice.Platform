@@ -1,10 +1,9 @@
 ﻿using IdentityModel;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Indice.Identity.Hubs
+namespace Indice.Identity.Hubs;
+
+public class NameUserIdProvider : IUserIdProvider
 {
-    public class NameUserIdProvider : IUserIdProvider
-    {
-        public string GetUserId(HubConnectionContext connection) => connection.User?.FindFirst(JwtClaimTypes.Name)?.Value;
-    }
+    public string GetUserId(HubConnectionContext connection) => connection.User?.FindFirst(JwtClaimTypes.Name)?.Value;
 }

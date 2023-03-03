@@ -29,7 +29,7 @@
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
   </Target>
-  <!--Run 'npm run build:template' in order to build the app.-->
+  <!-- Run 'npm run build:template' in order to build the app. -->
   <Target Name="SpaBuild" BeforeTargets="DispatchToInnerBuilds" Condition="!Exists('$(SpaDistFolder)')">
     <Exec Command="npm run build:template" WorkingDirectory="$(SpaSourceFolder)" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />

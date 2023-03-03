@@ -1,0 +1,44 @@
+﻿@import '_colors';
+
+body {
+    &.error40x {
+
+        main {
+
+            &::before, &::after {
+                flex-grow: 1;
+            }
+        }
+
+        .page-message {
+            font-size: 18em;
+            margin-top: -10px;
+        }
+
+        .page-message-title {
+            font-size: 3em;
+        }
+
+        .page-message-description {
+            font-size: 1.5em;
+        }
+
+        @include phone_tablet {
+            font-size: 10px;
+        }
+    }
+
+    .error-page {
+        padding: 48px 40px 36px;
+        height: auto;
+        transition: .2s;
+        box-shadow: 0 10px 25px rgba(0,0,0,.3);
+        border-radius: 10px;
+        color: $gray-900;
+        background: white;
+
+        @include phone {
+            box-shadow: none;
+        }
+    }
+}

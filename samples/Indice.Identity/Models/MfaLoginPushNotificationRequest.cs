@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Indice.Identity.Models
+namespace Indice.Identity.Models;
+
+public class MfaLoginPushNotificationRequest
 {
-    public class MfaLoginPushNotificationRequest
-    {
-        [Required]
-        public string ConnectionId { get; set; }
-    }
+    [Required]
+    public string ConnectionId { get; set; }
 }

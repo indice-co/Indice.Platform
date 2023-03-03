@@ -1,0 +1,23 @@
+﻿@inject IOptions<GeneralSettings> Settings
+@inject IViewLocalizer Localizer
+@inject IWebHostEnvironment Environment
+
+@model FooterViewModel
+
+@{
+    var settings = Settings.Value;
+    var copyYear = 2021;
+    var version = typeof(IdentityServerMiddleware).Assembly.GetName().Version.ToString();
+}
+
+<footer class="container-fluid @(Model.HasFixedPosition ? "footer" : "ptb-1")">
+    <div class="copyright">
+        &copy; @Localizer[settings.Organization] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
+    </div>
+    <div class="links">
+        <span class="sonftware-verson">v@(version)</span>
+        <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Localizer["Discovery"]</a>
+        @*<a asp-action="@nameof(HomeController.Privacy)" asp-controller="@HomeController.Name" target="_blank">@Localizer["Privacy"]</a>*@
+        @*<a asp-action="@nameof(HomeController.Terms)" asp-controller="@HomeController.Name" target="_blank">@Localizer["Terms"]</a>*@
+    </div>
+</footer>
