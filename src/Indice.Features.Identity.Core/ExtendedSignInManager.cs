@@ -159,7 +159,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             var requiresPasswordChange = isPasswordExpired;
             return new ExtendedSigninResult(requiresEmailValidation, requiresPhoneNumberValidation, requiresPasswordChange);
         }
-        if (EnforceMfa) {
+        if (EnforceMfa && !bypassTwoFactor) {
             await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(user.Id, loginProvider));
             return SignInResult.TwoFactorRequired;
         }

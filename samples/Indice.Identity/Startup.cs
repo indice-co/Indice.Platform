@@ -10,7 +10,7 @@ using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Events;
-using Indice.Features.Identity.Core.Localization;
+using Indice.Features.Identity.Core.Mvc.Localization;
 using Indice.Identity.Configuration;
 using Indice.Identity.Hubs;
 using Indice.Identity.Security;

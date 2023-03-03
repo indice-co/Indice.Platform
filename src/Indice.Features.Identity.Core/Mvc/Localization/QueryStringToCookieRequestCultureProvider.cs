@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace Indice.Features.Identity.Core.Localization;
+namespace Indice.Features.Identity.Core.Mvc.Localization;
 
 /// <summary>Searches for the specified query string parameter inside the URL sets a cookie for localization.</summary>
 public class QueryStringToCookieRequestCultureProvider : RequestCultureProvider
