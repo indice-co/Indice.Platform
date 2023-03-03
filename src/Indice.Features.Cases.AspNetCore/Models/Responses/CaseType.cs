@@ -24,12 +24,7 @@
         /// The case type description.
         /// </summary>
         public string Description { get; set; }
-
-        /// <summary>
-        /// The case type category.
-        /// </summary>
-        public string Category { get; set; }
-
+        
         /// <summary>
         /// The case type json schema.
         /// </summary>
@@ -69,5 +64,10 @@
         /// The checkpoints for this case type.
         /// </summary>
         public IEnumerable<CheckpointTypeDetails> CheckpointTypes { get; set; }
+
+        /// <summary>
+        /// Case type order.
+        /// </summary>
+        public int? Order { get; set; }
     }
 }

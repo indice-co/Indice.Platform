@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ApprovalButtonsComponent } from './components/approval-buttons/approval-buttons.component';
 import { PageIllustrationComponent } from './components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './components/radio-buttons-list/radio-buttons-list.component';
-import { ToggleButtonComponent } from './components/toggle-button/toggle-button.component';
 import { BeautifyBooleanPipe } from './pipes.services';
 import { TailwindFrameworkComponent } from './ajsf/json-schema-frameworks/tailwind-framework/tailwind-framework.component';
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
@@ -34,7 +33,6 @@ import { CanvasTileComponent } from './components/canvas-tile/canvas-tile.compon
     ApprovalButtonsComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
-    ToggleButtonComponent,
     SelectCaseTypeComponent,
     SearchCustomerComponent,
     CaseDetailInfoComponent,
@@ -68,7 +66,6 @@ import { CanvasTileComponent } from './components/canvas-tile/canvas-tile.compon
     ApprovalButtonsComponent,
     PageIllustrationComponent,
     RadioButtonsListComponent,
-    ToggleButtonComponent,
     SelectCaseTypeComponent,
     SearchCustomerComponent,
     CaseDetailInfoComponent,
