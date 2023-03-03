@@ -20,7 +20,7 @@ before_build:
     }
 - ps: dotnet restore
 build_script:
-- ps: dotnet pack -c Release -o artifacts
+- ps: dotnet pack -c Release --property:PublishDir=artifacts
 test_script:
 - ps: dotnet test
 artifacts:
