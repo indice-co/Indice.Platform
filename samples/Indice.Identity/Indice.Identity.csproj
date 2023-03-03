@@ -1,17 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <UserSecretsId>11acbe29-88b0-441f-a6e8-5f1c915e712f</UserSecretsId>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <noWarn>1591</noWarn>
+    <UserSecretsId>11acbe29-88b0-441f-a6e8-5f1c915e712f</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="wwwroot\admin\**" />
     <Content Remove="wwwroot\admin\**" />
     <EmbeddedResource Remove="wwwroot\admin\**" />
     <None Remove="wwwroot\admin\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Remove="bundleconfig.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Hellang.Middleware.ProblemDetails" Version="6.5.1" />
@@ -26,8 +22,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Authentication.Apple\Indice.AspNetCore.Authentication.Apple.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Authentication.GovGr\Indice.AspNetCore.Authentication.GovGr.csproj" />
-    <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity.AdminUI\Indice.AspNetCore.Identity.AdminUI.csproj" />
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Identity.AdminUI\Indice.Features.Identity.AdminUI.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Identity.UI\Indice.Features.Identity.UI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Resources\Services\LocalizedIdentityMessageDescriber.el.resx">
@@ -38,9 +35,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="bundleconfig.json" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="wwwroot\" />
   </ItemGroup>
 </Project>

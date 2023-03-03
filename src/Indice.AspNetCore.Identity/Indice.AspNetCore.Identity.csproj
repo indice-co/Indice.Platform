@@ -34,19 +34,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Update="IdentityResources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>IdentityResources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="IdentityResources.resx">
-      <CustomToolNamespace>Indice.AspNetCore.Identity</CustomToolNamespace>
-      <LastGenOutput>IdentityResources.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
-    </EmbeddedResource>
+    <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
   </ItemGroup>
 </Project>

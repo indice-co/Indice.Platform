@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [6.6.0] - 2023-01-30
 - Jumped to 6.6.0 to match other Indice Packages
 
-## [6.4.13] - 2023-01-24
+## [6.5.0] - 2023-01-24
 ### Added
 - eGov-KYC response Signature Verification
 

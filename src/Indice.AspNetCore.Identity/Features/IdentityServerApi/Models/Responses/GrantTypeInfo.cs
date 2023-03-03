@@ -1,17 +1,10 @@
-﻿namespace Indice.AspNetCore.Identity.Api.Models
+﻿namespace Indice.AspNetCore.Identity.Api.Models;
+
+/// <summary>Describes the grant type of a client in the database.</summary>
+public class GrantTypeInfo
 {
-    /// <summary>
-    /// Describes the grant type of a client in the database.
-    /// </summary>
-    public class GrantTypeInfo
-    {
-        /// <summary>
-        /// The id of the grant type in the system.
-        /// </summary>
-        public int Id { get; set; }
-        /// <summary>
-        /// The name of the grant type.
-        /// </summary>
-        public string Name { get; set; }
-    }
+    /// <summary>The id of the grant type in the system.</summary>
+    public int Id { get; set; }
+    /// <summary>The name of the grant type.</summary>
+    public string Name { get; set; }
 }

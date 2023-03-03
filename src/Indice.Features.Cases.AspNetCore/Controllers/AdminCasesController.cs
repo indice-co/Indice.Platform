@@ -140,7 +140,7 @@ namespace Indice.Features.Cases.Controllers
         [Produces(MediaTypeNames.Application.Json)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-        public async Task<IActionResult> SubmitAdminCase([FromRoute] Guid caseId, [FromBody]dynamic data) {
+        public async Task<IActionResult> SubmitAdminCase([FromRoute] Guid caseId, [FromBody] dynamic data) {
             await _adminCaseService.UpdateData(User, caseId, data);
             await _adminCaseService.Submit(User, caseId);
             return NoContent();
@@ -248,7 +248,8 @@ namespace Indice.Features.Cases.Controllers
 
         private async Task<byte[]> CreatePdf(Case @case) {
             var template = await _caseTemplateService.RenderTemplateAsync(@case);
-            return await _casePdfService.HtmlToPdfAsync(template);
+            var pdfOptions = new PdfOptions(@case.CaseType.Config);
+            return await _casePdfService.HtmlToPdfAsync(template, pdfOptions, @case);
         }
     }
 }

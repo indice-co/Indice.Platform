@@ -5234,8 +5234,6 @@ export class CaseType implements ICaseType {
     title?: string | undefined;
     /** The case type description. */
     description?: string | undefined;
-    /** The case type category. */
-    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
@@ -5252,6 +5250,8 @@ export class CaseType implements ICaseType {
     canCreateRoles?: string | undefined;
     /** The checkpoints for this case type. */
     checkpointTypes?: CheckpointTypeDetails[] | undefined;
+    /** Case type order. */
+    order?: number | undefined;
 
     constructor(data?: ICaseType) {
         if (data) {
@@ -5268,7 +5268,6 @@ export class CaseType implements ICaseType {
             this.code = _data["code"];
             this.title = _data["title"];
             this.description = _data["description"];
-            this.category = _data["category"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
             this.translations = _data["translations"];
@@ -5281,6 +5280,7 @@ export class CaseType implements ICaseType {
                 for (let item of _data["checkpointTypes"])
                     this.checkpointTypes!.push(CheckpointTypeDetails.fromJS(item));
             }
+            this.order = _data["order"];
         }
     }
 
@@ -5297,7 +5297,6 @@ export class CaseType implements ICaseType {
         data["code"] = this.code;
         data["title"] = this.title;
         data["description"] = this.description;
-        data["category"] = this.category;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
         data["translations"] = this.translations;
@@ -5310,6 +5309,7 @@ export class CaseType implements ICaseType {
             for (let item of this.checkpointTypes)
                 data["checkpointTypes"].push(item.toJSON());
         }
+        data["order"] = this.order;
         return data;
     }
 }
@@ -5324,8 +5324,6 @@ export interface ICaseType {
     title?: string | undefined;
     /** The case type description. */
     description?: string | undefined;
-    /** The case type category. */
-    category?: string | undefined;
     /** The case type json schema. */
     dataSchema?: string | undefined;
     /** The layout for the data schema. */
@@ -5342,6 +5340,8 @@ export interface ICaseType {
     canCreateRoles?: string | undefined;
     /** The checkpoints for this case type. */
     checkpointTypes?: CheckpointTypeDetails[] | undefined;
+    /** Case type order. */
+    order?: number | undefined;
 }
 
 /** The case type model. */
@@ -5538,8 +5538,6 @@ export class CaseTypeRequest implements ICaseTypeRequest {
     title?: string | undefined;
     /** The case type description. */
     description?: string | undefined;
-    /** The case type category. */
-    category?: string | undefined;
     /** The Data Schema of the case type */
     dataSchema?: string | undefined;
     /** the Layout of the case type */
@@ -5548,14 +5546,14 @@ export class CaseTypeRequest implements ICaseTypeRequest {
     translations?: string | undefined;
     /** The Translation for the layout */
     layoutTranslations?: string | undefined;
-    /** The list of checkpoints for the case type */
-    checkpointTypes?: CheckpointTypeDetails[] | undefined;
     /** The case type tags. */
     tags?: string | undefined;
     /** The case type configuration. */
     config?: string | undefined;
-    /** The allowed Roles that can create a new Case */
+    /** The allowed Roles that can create a new Case. */
     canCreateRoles?: string | undefined;
+    /** The order of the case type. */
+    order?: number | undefined;
 
     constructor(data?: ICaseTypeRequest) {
         if (data) {
@@ -5572,19 +5570,14 @@ export class CaseTypeRequest implements ICaseTypeRequest {
             this.code = _data["code"];
             this.title = _data["title"];
             this.description = _data["description"];
-            this.category = _data["category"];
             this.dataSchema = _data["dataSchema"];
             this.layout = _data["layout"];
             this.translations = _data["translations"];
             this.layoutTranslations = _data["layoutTranslations"];
-            if (Array.isArray(_data["checkpointTypes"])) {
-                this.checkpointTypes = [] as any;
-                for (let item of _data["checkpointTypes"])
-                    this.checkpointTypes!.push(CheckpointTypeDetails.fromJS(item));
-            }
             this.tags = _data["tags"];
             this.config = _data["config"];
             this.canCreateRoles = _data["canCreateRoles"];
+            this.order = _data["order"];
         }
     }
 
@@ -5601,19 +5594,14 @@ export class CaseTypeRequest implements ICaseTypeRequest {
         data["code"] = this.code;
         data["title"] = this.title;
         data["description"] = this.description;
-        data["category"] = this.category;
         data["dataSchema"] = this.dataSchema;
         data["layout"] = this.layout;
         data["translations"] = this.translations;
         data["layoutTranslations"] = this.layoutTranslations;
-        if (Array.isArray(this.checkpointTypes)) {
-            data["checkpointTypes"] = [];
-            for (let item of this.checkpointTypes)
-                data["checkpointTypes"].push(item.toJSON());
-        }
         data["tags"] = this.tags;
         data["config"] = this.config;
         data["canCreateRoles"] = this.canCreateRoles;
+        data["order"] = this.order;
         return data;
     }
 }
@@ -5628,8 +5616,6 @@ export interface ICaseTypeRequest {
     title?: string | undefined;
     /** The case type description. */
     description?: string | undefined;
-    /** The case type category. */
-    category?: string | undefined;
     /** The Data Schema of the case type */
     dataSchema?: string | undefined;
     /** the Layout of the case type */
@@ -5638,14 +5624,14 @@ export interface ICaseTypeRequest {
     translations?: string | undefined;
     /** The Translation for the layout */
     layoutTranslations?: string | undefined;
-    /** The list of checkpoints for the case type */
-    checkpointTypes?: CheckpointTypeDetails[] | undefined;
     /** The case type tags. */
     tags?: string | undefined;
     /** The case type configuration. */
     config?: string | undefined;
-    /** The allowed Roles that can create a new Case */
+    /** The allowed Roles that can create a new Case. */
     canCreateRoles?: string | undefined;
+    /** The order of the case type. */
+    order?: number | undefined;
 }
 
 /** The Translation of the case type. */

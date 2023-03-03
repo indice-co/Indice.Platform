@@ -73,7 +73,8 @@ namespace Indice.AspNetCore.Tests
                 It.Is<string[]>(recipients => recipients[0] == "g.manoltzas@indice.gr"),
                 It.Is<string>(subject => subject == "Verification"),
                 It.Is<string>(body => body == expectedBody),
-                It.Is<EmailAttachment[]>(attachments => attachments.Count() == 0)
+                It.Is<EmailAttachment[]>(attachments => attachments.Count() == 0),
+                It.Is<EmailSender>(from => from == null)
             ), Times.Once);
         }
 
@@ -90,7 +91,8 @@ namespace Indice.AspNetCore.Tests
                 It.Is<string[]>(recipients => recipients[0] == "g.manoltzas@indice.gr"),
                 It.Is<string>(subject => subject == "Verification"),
                 It.Is<string>(body => body == STATIC_BODY),
-                It.Is<EmailAttachment[]>(attachments => attachments.Count() == 0)
+                It.Is<EmailAttachment[]>(attachments => attachments.Count() == 0),
+                It.Is<EmailSender>(from => from == null)
             ), Times.Once);
         }
     }
