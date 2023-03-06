@@ -5,18 +5,26 @@ public class ConnectionString
 {
     private readonly IDictionary<string, string> _properties;
 
+    /// <summary>Creates a new instance of the <see cref="ConnectionString"/> class, using ';' as property delimiter.</summary>
+    /// <param name="connectionString">The connection string.</param>
+    public ConnectionString(string connectionString) : this(connectionString, ';') { }
+
     /// <summary>Creates a new instance of the <see cref="ConnectionString"/> class.</summary>
     /// <param name="connectionString">The connection string.</param>
+    /// <param name="delimiter">The character used to separate connection string properties.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ConnectionString(string connectionString) {
+    public ConnectionString(string connectionString, char delimiter) {
         if (string.IsNullOrWhiteSpace(connectionString)) {
             throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null, empty or white space.");
         }
         _properties = connectionString
-            .Split(';')
+            .Split(delimiter)
             .Select(pair => pair.Split('='))
             .ToDictionary(keySelector: pair => pair[0], elementSelector: pair => pair.Length < 2 ? default : pair[1]);
     }
+
+    /// <summary>The character used to separate connection string properties.</summary>
+    public char Delimeter { get; }
 
     /// <summary>Gets the property associated with the specified key.</summary>
     /// <param name="key">The key whose value to get.</param>

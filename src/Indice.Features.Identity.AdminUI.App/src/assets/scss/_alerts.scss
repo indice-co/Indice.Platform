@@ -12,45 +12,49 @@
 }
 
 .alert-success {
-  color: $success;
-  background-color: lighten($success,30%);
+  background-color: lighten($success, 30%);
+
   .alert-link {
-    color: darken($success,10%);
+    color: darken($success, 10%);
   }
+
   hr {
-    border-top-color: darken($success,10%);
+    border-top-color: darken($success, 10%);
   }
 }
 
 .alert-info {
-  color: $info;
-  background-color: lighten($info,24%);
+  background-color: lighten($info, 24%);
+
   .alert-link {
-    color: darken($info,10%);
+    color: darken($info, 10%);
   }
+
   hr {
-    border-top-color: darken($info,10%);
+    border-top-color: darken($info, 10%);
   }
 }
 
 .alert-warning {
-  color: $warning;
   background-color: lighten($warning, 28%);
+
   .alert-link {
     color: darken($warning, 10%);
   }
+
   hr {
     border-top-color: darken($warning, 10%);
   }
 }
 
 .alert-danger {
-  color: $danger;
-  background-color: lighten($danger,28%);
+  background-color: lighten($danger, 28%);
+
   .alert-link {
-    color: darken($danger,10%);
+    color: darken($danger, 10%);
   }
+
   hr {
-    border-top-color: darken($danger,10%);
+    border-top-color: darken($danger, 10%);
   }
 }

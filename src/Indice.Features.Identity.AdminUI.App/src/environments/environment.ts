@@ -14,11 +14,11 @@ export const environment = {
     loadUserInfo: true,
     monitorSession: true,
     post_logout_redirect_uri: 'http://localhost:4200/admin',
-    redirect_uri: 'http://localhost:4200/admin/auth-callback',
+    redirect_uri: 'http://localhost:4200/auth-callback',
     response_type: 'code',
     revokeAccessTokenOnSignout: true,
     scope: 'openid profile email role offline_access identity identity:clients identity:users',
-    silent_redirect_uri: 'http://localhost:4200/admin/auth-renew'
+    silent_redirect_uri: 'http://localhost:4200/auth-renew'
   },
   culture: 'en-GB',
   isTemplate: false,

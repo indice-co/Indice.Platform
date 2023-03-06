@@ -20,7 +20,7 @@ internal static class ExtendedIdentityDbContextExtensions
             return;
         }
         const string adminEmail = "company@indice.gr";
-        var hasAdminAccount = dbContext.Users.Any(user => user.Email == adminEmail);
+        var hasAdminAccount = dbContext.Users.Any(user => user.Admin);
         if (hasAdminAccount) {
             return;
         }

@@ -17,11 +17,6 @@ public interface IExtendedUserStore<TUser> where TUser : User
     /// to when their password will need to be changed. This settings is only for new users created any only if no explicit password policy is set.
     /// </summary>
     PasswordExpirationPolicy? PasswordExpirationPolicy { get; }
-    /// <summary>
-    /// Some applications treat email (which is most cases is used only for communication purposes) as username. When this identity option is set to true,
-    /// every operation that is applied to the email is also applied in the username. For example changing the email will also change the username.
-    /// </summary>
-    bool? EmailAsUserName { get; }
     /// <summary>Sets the password expiration policy for the specified user.</summary>
     /// <param name="user">The user whose password expiration policy to set.</param>
     /// <param name="policy">The password expiration policy to set.</param>

@@ -354,15 +354,18 @@ export interface IIdentityApiService {
     updateUserName(body?: UpdateUserNameRequest | undefined): Observable<void>;
     /**
      * Returns a list of registered user devices.
-     * @param filter_IsPushNotificationEnabled (optional) Returns all the devices (value = null), the enabled devices (value = true) or the disabled devices (value = false).
-     * @param filter_IsTrusted (optional) Returns all the devices (value = null), the trusted devices (value = true) or the untrusted devices (value = false).
+     * @param filter_IsPushNotificationEnabled (optional) 
+     * @param filter_IsTrusted (optional) 
+     * @param filter_Blocked (optional) 
+     * @param filter_ClientType (optional) 
+     * @param filter_IsPendingTrustActivation (optional) 
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
      * @return OK
      */
-    getDevices(filter_IsPushNotificationEnabled?: boolean | undefined, filter_IsTrusted?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<DeviceInfoResultSet>;
+    getDevices(filter_IsPushNotificationEnabled?: boolean | undefined, filter_IsTrusted?: boolean | undefined, filter_Blocked?: boolean | undefined, filter_ClientType?: DeviceClientType | undefined, filter_IsPendingTrustActivation?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<DeviceInfoResultSet>;
     /**
      * Creates a new device and optionally registers for push notifications.
      * @param body (optional) Contains information about the device to register.
@@ -5197,15 +5200,18 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Returns a list of registered user devices.
-     * @param filter_IsPushNotificationEnabled (optional) Returns all the devices (value = null), the enabled devices (value = true) or the disabled devices (value = false).
-     * @param filter_IsTrusted (optional) Returns all the devices (value = null), the trusted devices (value = true) or the untrusted devices (value = false).
+     * @param filter_IsPushNotificationEnabled (optional) 
+     * @param filter_IsTrusted (optional) 
+     * @param filter_Blocked (optional) 
+     * @param filter_ClientType (optional) 
+     * @param filter_IsPendingTrustActivation (optional) 
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
      * @return OK
      */
-    getDevices(filter_IsPushNotificationEnabled?: boolean | undefined, filter_IsTrusted?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<DeviceInfoResultSet> {
+    getDevices(filter_IsPushNotificationEnabled?: boolean | undefined, filter_IsTrusted?: boolean | undefined, filter_Blocked?: boolean | undefined, filter_ClientType?: DeviceClientType | undefined, filter_IsPendingTrustActivation?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<DeviceInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/devices?";
         if (filter_IsPushNotificationEnabled === null)
             throw new Error("The parameter 'filter_IsPushNotificationEnabled' cannot be null.");
@@ -5215,6 +5221,18 @@ export class IdentityApiService implements IIdentityApiService {
             throw new Error("The parameter 'filter_IsTrusted' cannot be null.");
         else if (filter_IsTrusted !== undefined)
             url_ += "Filter.IsTrusted=" + encodeURIComponent("" + filter_IsTrusted) + "&";
+        if (filter_Blocked === null)
+            throw new Error("The parameter 'filter_Blocked' cannot be null.");
+        else if (filter_Blocked !== undefined)
+            url_ += "Filter.Blocked=" + encodeURIComponent("" + filter_Blocked) + "&";
+        if (filter_ClientType === null)
+            throw new Error("The parameter 'filter_ClientType' cannot be null.");
+        else if (filter_ClientType !== undefined)
+            url_ += "Filter.ClientType=" + encodeURIComponent("" + filter_ClientType) + "&";
+        if (filter_IsPendingTrustActivation === null)
+            throw new Error("The parameter 'filter_IsPendingTrustActivation' cannot be null.");
+        else if (filter_IsPendingTrustActivation !== undefined)
+            url_ += "Filter.IsPendingTrustActivation=" + encodeURIComponent("" + filter_IsPendingTrustActivation) + "&";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -8588,6 +8606,13 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = SingleUserInfo.fromJS(resultData200);
             return _observableOf(result200);
             }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result404: any = null;
@@ -10990,7 +11015,7 @@ export class ClaimTypeInfo implements IClaimTypeInfo {
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
-    valueType?: ValueType;
+    valueType?: ClaimValueType;
 
     constructor(data?: IClaimTypeInfo) {
         if (data) {
@@ -11055,7 +11080,7 @@ export interface IClaimTypeInfo {
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
-    valueType?: ValueType;
+    valueType?: ClaimValueType;
 }
 
 export class ClaimTypeInfoResultSet implements IClaimTypeInfoResultSet {
@@ -11104,6 +11129,13 @@ export class ClaimTypeInfoResultSet implements IClaimTypeInfoResultSet {
 export interface IClaimTypeInfoResultSet {
     count?: number;
     items?: ClaimTypeInfo[] | undefined;
+}
+
+export enum ClaimValueType {
+    Boolean = "Boolean",
+    DateTime = "DateTime",
+    Int = "Int",
+    String = "String",
 }
 
 /** Models a system client. */
@@ -11758,7 +11790,7 @@ export class CreateClaimTypeRequest implements ICreateClaimTypeRequest {
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
-    valueType?: ValueType;
+    valueType?: ClaimValueType;
 
     constructor(data?: ICreateClaimTypeRequest) {
         if (data) {
@@ -11815,7 +11847,7 @@ export interface ICreateClaimTypeRequest {
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
-    valueType?: ValueType;
+    valueType?: ClaimValueType;
 }
 
 /** Models a client that will be created on the server. */
@@ -12300,15 +12332,10 @@ export interface ICredentialsValidationInfo {
     passwordRules?: PasswordRuleInfo[] | undefined;
 }
 
-/** Identity Server UI configuration for the specified client. */
 export class DefaultClientThemeConfig implements IDefaultClientThemeConfig {
-    /** The URL of the background image. */
     backgroundImage?: string | undefined;
-    /** The background color. */
     accentColor?: string | undefined;
-    /** A primary color. */
     primaryColor?: string | undefined;
-    /** A secondary color. */
     secondaryColor?: string | undefined;
 
     constructor(data?: IDefaultClientThemeConfig) {
@@ -12346,16 +12373,16 @@ export class DefaultClientThemeConfig implements IDefaultClientThemeConfig {
     }
 }
 
-/** Identity Server UI configuration for the specified client. */
 export interface IDefaultClientThemeConfig {
-    /** The URL of the background image. */
     backgroundImage?: string | undefined;
-    /** The background color. */
     accentColor?: string | undefined;
-    /** A primary color. */
     primaryColor?: string | undefined;
-    /** A secondary color. */
     secondaryColor?: string | undefined;
+}
+
+export enum DeviceClientType {
+    Browser = "Browser",
+    Native = "Native",
 }
 
 /** Models a user device. */
@@ -12389,7 +12416,7 @@ export class DeviceInfo implements IDeviceInfo {
     readonly canActivateDeviceTrust?: boolean;
     /** Extra metadata for the device. */
     data?: any | undefined;
-    clientType?: UserDeviceType;
+    clientType?: DeviceClientType;
 
     constructor(data?: IDeviceInfo) {
         if (data) {
@@ -12481,7 +12508,7 @@ export interface IDeviceInfo {
     canActivateDeviceTrust?: boolean;
     /** Extra metadata for the device. */
     data?: any | undefined;
-    clientType?: UserDeviceType;
+    clientType?: DeviceClientType;
 }
 
 export class DeviceInfoResultSet implements IDeviceInfoResultSet {
@@ -12536,6 +12563,9 @@ export enum DevicePlatform {
     None = "None",
     Android = "Android",
     IOS = "iOS",
+    Windows = "Windows",
+    Linux = "Linux",
+    MacOS = "MacOS",
 }
 
 /** Viewmodel for the external provider */
@@ -12587,7 +12617,7 @@ export interface IExternalProvider {
 /** Triggers the initiation for a password reset. */
 export class ForgotPasswordRequest implements IForgotPasswordRequest {
     /** The user's email. */
-    email!: string | undefined;
+    email?: string | undefined;
     /** The url to return to. */
     returnUrl?: string | undefined;
 
@@ -12625,7 +12655,7 @@ export class ForgotPasswordRequest implements IForgotPasswordRequest {
 /** Triggers the initiation for a password reset. */
 export interface IForgotPasswordRequest {
     /** The user's email. */
-    email: string | undefined;
+    email?: string | undefined;
     /** The url to return to. */
     returnUrl?: string | undefined;
 }
@@ -12890,7 +12920,6 @@ export interface IIdentityResourceInfoResultSet {
     items?: IdentityResourceInfo[] | undefined;
 }
 
-/** Indice.AspNetCore.Identity.Data.Models.PasswordExpirationPolicy enum defines all available passord expiration presets. The value is measured in days. If cast to integer will give you a number in days to add to the current <seealso cref="T:System.DateTime" />. */
 export enum PasswordExpirationPolicy {
     Monthly = "Monthly",
     Quarterly = "Quarterly",
@@ -13081,7 +13110,7 @@ export class RegisterDeviceRequest implements IRegisterDeviceRequest {
     model?: string | undefined;
     /** Device OS version. */
     osVersion?: string | undefined;
-    clientType?: UserDeviceType;
+    clientType?: DeviceClientType;
     /** Extra metadata for the device. */
     data?: any | undefined;
 
@@ -13153,7 +13182,7 @@ export interface IRegisterDeviceRequest {
     model?: string | undefined;
     /** Device OS version. */
     osVersion?: string | undefined;
-    clientType?: UserDeviceType;
+    clientType?: DeviceClientType;
     /** Extra metadata for the device. */
     data?: any | undefined;
 }
@@ -13389,13 +13418,13 @@ export interface ISecretInfoBase {
 /** Models a request when sending a push notification. */
 export class SendPushNotificationRequest implements ISendPushNotificationRequest {
     /** The title to send. */
-    title!: string | undefined;
+    title?: string | undefined;
     /** The body to send. */
     body?: string | undefined;
     /** Defines if push notification is sent to all registered user devices. */
     broadcast?: boolean;
     /** The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc. Required when Indice.AspNetCore.Identity.Api.Models.SendPushNotificationRequest.Broadcast has the value <i>false</i>. */
-    userTag!: string | undefined;
+    userTag?: string | undefined;
     /** List of extra tags. */
     tags?: string[] | undefined;
     /** Notification data. */
@@ -13467,13 +13496,13 @@ export class SendPushNotificationRequest implements ISendPushNotificationRequest
 /** Models a request when sending a push notification. */
 export interface ISendPushNotificationRequest {
     /** The title to send. */
-    title: string | undefined;
+    title?: string | undefined;
     /** The body to send. */
     body?: string | undefined;
     /** Defines if push notification is sent to all registered user devices. */
     broadcast?: boolean;
     /** The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc. Required when Indice.AspNetCore.Identity.Api.Models.SendPushNotificationRequest.Broadcast has the value <i>false</i>. */
-    userTag: string | undefined;
+    userTag?: string | undefined;
     /** List of extra tags. */
     tags?: string[] | undefined;
     /** Notification data. */
@@ -13635,7 +13664,7 @@ export class SingleClientInfo implements ISingleClientInfo {
     clientClaimsPrefix?: string | undefined;
     /** Specifies logout URI at client for HTTP back-channel based logout. */
     backChannelLogoutUri?: string | undefined;
-    /** If the user's session id should be sent. */
+    /** If the user's session id should be sent to the Indice.AspNetCore.Identity.Api.Models.SingleClientInfo.FrontChannelLogoutUri. Defaults to true */
     backChannelLogoutSessionRequired?: boolean;
     /** Gets or sets the type of the device flow user code. */
     userCodeType?: string | undefined;
@@ -13930,7 +13959,7 @@ export interface ISingleClientInfo {
     clientClaimsPrefix?: string | undefined;
     /** Specifies logout URI at client for HTTP back-channel based logout. */
     backChannelLogoutUri?: string | undefined;
-    /** If the user's session id should be sent. */
+    /** If the user's session id should be sent to the Indice.AspNetCore.Identity.Api.Models.SingleClientInfo.FrontChannelLogoutUri. Defaults to true */
     backChannelLogoutSessionRequired?: boolean;
     /** Gets or sets the type of the device flow user code. */
     userCodeType?: string | undefined;
@@ -14586,7 +14615,7 @@ export class UpdateClaimTypeRequest implements IUpdateClaimTypeRequest {
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
-    valueType?: ValueType;
+    valueType?: ClaimValueType;
 
     constructor(data?: IUpdateClaimTypeRequest) {
         if (data) {
@@ -14639,7 +14668,7 @@ export interface IUpdateClaimTypeRequest {
     userEditable?: boolean;
     /** A regex rule that constraints the values of the claim. */
     rule?: string | undefined;
-    valueType?: ValueType;
+    valueType?: ClaimValueType;
 }
 
 /** Models a client that will be updated on the server. */
@@ -15437,6 +15466,8 @@ export class UpdateUserRequest implements IUpdateUserRequest {
     emailConfirmed?: boolean;
     /** Indicates whether a user's phone number is confirmed or not. */
     phoneNumberConfirmed?: boolean;
+    /** Flag indicating if we need to bypass email as username policy. */
+    bypassEmailAsUserNamePolicy?: boolean;
 
     constructor(data?: IUpdateUserRequest) {
         if (data) {
@@ -15462,6 +15493,7 @@ export class UpdateUserRequest implements IUpdateUserRequest {
             this.isAdmin = _data["isAdmin"];
             this.emailConfirmed = _data["emailConfirmed"];
             this.phoneNumberConfirmed = _data["phoneNumberConfirmed"];
+            this.bypassEmailAsUserNamePolicy = _data["bypassEmailAsUserNamePolicy"];
         }
     }
 
@@ -15487,6 +15519,7 @@ export class UpdateUserRequest implements IUpdateUserRequest {
         data["isAdmin"] = this.isAdmin;
         data["emailConfirmed"] = this.emailConfirmed;
         data["phoneNumberConfirmed"] = this.phoneNumberConfirmed;
+        data["bypassEmailAsUserNamePolicy"] = this.bypassEmailAsUserNamePolicy;
         return data;
     }
 }
@@ -15510,6 +15543,8 @@ export interface IUpdateUserRequest {
     emailConfirmed?: boolean;
     /** Indicates whether a user's phone number is confirmed or not. */
     phoneNumberConfirmed?: boolean;
+    /** Flag indicating if we need to bypass email as username policy. */
+    bypassEmailAsUserNamePolicy?: boolean;
 }
 
 /** Models a system client that a user has given consent to or currently has IdentityServer side tokens for. */
@@ -15816,12 +15851,6 @@ export enum UserConsentType {
     UserConsent = "UserConsent",
     DeviceCode = "DeviceCode",
     UserCode = "UserCode",
-}
-
-/** Describes the possible types of a user device. */
-export enum UserDeviceType {
-    Browser = "Browser",
-    Native = "Native",
 }
 
 /** Models an application user when retrieving a list. */
@@ -16310,14 +16339,6 @@ export interface IValidationProblemDetails {
     detail?: string | undefined;
     instance?: string | undefined;
     errors?: { [key: string]: string[]; } | undefined;
-}
-
-/** Describes value type names. */
-export enum ValueType {
-    Boolean = "Boolean",
-    DateTime = "DateTime",
-    Int = "Int",
-    String = "String",
 }
 
 export interface FileParameter {

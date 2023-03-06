@@ -1,7 +1,7 @@
 import { Component, Input, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { ValueType } from 'src/app/core/services/identity-api.service';
+import { ClaimValueType } from 'src/app/core/services/identity-api.service';
 
 @Component({
     selector: 'app-dynamic-input',
@@ -17,7 +17,7 @@ export class DynamicInputComponent implements ControlValueAccessor {
 
     @Input() public id: string;
     @Input() public name: string;
-    @Input() public modelType: ValueType;
+    @Input() public modelType: ClaimValueType;
     @Input() public placeholder: string;
     /**
      * Holds the current value of the input.

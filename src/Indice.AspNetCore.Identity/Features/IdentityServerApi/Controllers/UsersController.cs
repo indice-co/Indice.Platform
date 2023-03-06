@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
@@ -55,6 +56,7 @@ internal class UsersController : ControllerBase
     private readonly IStringLocalizer<UsersController> _localizer;
     private readonly ExtendedConfigurationDbContext _configurationDbContext;
     private readonly IPlatformEventService _eventService;
+    private readonly IConfiguration _configuration;
 
     /// <summary>The name of the controller.</summary>
     public const string Name = "Users";
@@ -69,7 +71,8 @@ internal class UsersController : ControllerBase
     /// <param name="generalSettings">General settings for an ASP.NET Core application.</param>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="UsersController"/>.</param>
     /// <param name="configurationDbContext">Extended DbContext for the IdentityServer configuration data.</param>
-    /// <param name="eventService"></param>
+    /// <param name="eventService">Models the event mechanism used to raise events inside the platform.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public UsersController(
         ExtendedUserManager<User> userManager,
         RoleManager<Role> roleManager,
@@ -80,7 +83,8 @@ internal class UsersController : ControllerBase
         IOptions<GeneralSettings> generalSettings,
         IStringLocalizer<UsersController> localizer,
         ExtendedConfigurationDbContext configurationDbContext,
-        IPlatformEventService eventService
+        IPlatformEventService eventService,
+        IConfiguration configuration
     ) {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
@@ -92,6 +96,7 @@ internal class UsersController : ControllerBase
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         _configurationDbContext = configurationDbContext ?? throw new ArgumentNullException(nameof(configurationDbContext));
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
     /// <summary>Returns a list of <see cref="UserInfo"/> objects containing the total number of users in the database and the data filtered according to the provided <see cref="ListOptions"/>.</summary>
@@ -256,20 +261,26 @@ internal class UsersController : ControllerBase
     /// <param name="userId">The id of the user to update.</param>
     /// <param name="request">Contains info about the user to update.</param>
     /// <response code="200">OK</response>
+    /// <response code="404">Bad Request</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
     [CacheResourceFilter]
     [HttpPut("{userId}")]
     [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SingleUserInfo))]
+    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
     public async Task<IActionResult> UpdateUser([FromRoute] string userId, [FromBody] UpdateUserRequest request) {
         var user = await _dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
         if (user == null) {
             return NotFound();
         }
+        if (_userManager.EmailAsUserName && !request.BypassEmailAsUserNamePolicy && request.UserName != request.Email) {
+            ModelState.AddModelError(nameof(request.UserName), "EmailAsUserName policy is applied to the identity system. Email and UserName properties should have the same value. User is not updated.");
+            return BadRequest(new ValidationProblemDetails(ModelState));
+        }
         user.UserName = request.UserName;
-        user.PhoneNumber = request.PhoneNumber;
         user.Email = request.Email;
+        user.PhoneNumber = request.PhoneNumber;
         user.TwoFactorEnabled = request.TwoFactorEnabled;
         user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
         user.Admin = request.IsAdmin;
@@ -287,7 +298,7 @@ internal class UsersController : ControllerBase
                 });
             }
         }
-        await _userManager.UpdateAsync(user);
+        await _userManager.UpdateAsync(user, request.BypassEmailAsUserNamePolicy);
         var roles = await _dbContext.UserRoles.AsNoTracking().Where(x => x.UserId == userId).Join(
             _dbContext.Roles,
             userRole => userRole.RoleId,
@@ -569,19 +580,19 @@ internal class UsersController : ControllerBase
         }
         var devices = await _userManager.GetDevicesAsync(user);
         var response = devices.Select(device => new DeviceInfo {
-            ClientType= device.ClientType,
+            ClientType = device.ClientType,
             Data = device.Data,
             DateCreated = device.DateCreated,
             DeviceId = device.DeviceId,
             IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
-            IsTrusted= device.IsTrusted,
+            IsTrusted = device.IsTrusted,
             LastSignInDate = device.LastSignInDate,
             Model = device.Model,
             Name = device.Name,
             OsVersion = device.OsVersion,
             Platform = device.Platform,
             SupportsFingerprintLogin = device.SupportsFingerprintLogin,
-            SupportsPinLogin= device.SupportsPinLogin
+            SupportsPinLogin = device.SupportsPinLogin
         })
         .ToResultSet();
         return Ok(response);

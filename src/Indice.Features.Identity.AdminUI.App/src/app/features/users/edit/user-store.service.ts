@@ -30,7 +30,7 @@ export class UserStore {
         return this._user;
     }
 
-    public updateUser(user: SingleUserInfo, requiredClaims: ClaimType[]): Observable<void> {
+    public updateUser(user: SingleUserInfo, requiredClaims: ClaimType[], bypassEmailAsUserNamePolicy: boolean = false): Observable<void> {
         const claims = requiredClaims ? requiredClaims.map((claim: ClaimType) => {
             return {
                 type: claim.name,
@@ -46,7 +46,8 @@ export class UserStore {
             isAdmin: user.isAdmin,
             emailConfirmed: user.emailConfirmed,
             phoneNumberConfirmed: user.phoneNumberConfirmed,
-            claims
+            claims,
+            bypassEmailAsUserNamePolicy
         } as UpdateUserRequest).pipe(map((updatedUser: SingleUserInfo) => {
             user.claims = [...updatedUser.claims];
             this._user.next(user);

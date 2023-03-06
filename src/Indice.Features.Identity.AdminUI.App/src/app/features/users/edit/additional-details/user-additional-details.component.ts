@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 import { TableColumn } from '@swimlane/ngx-datatable';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { UserStore } from '../user-store.service';
-import { ClaimTypeInfo, SingleUserInfo, ValueType, ClaimInfo } from 'src/app/core/services/identity-api.service';
+import { ClaimTypeInfo, SingleUserInfo, ClaimValueType, ClaimInfo } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from '../details/models/claim-type.model';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
@@ -38,7 +38,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
     public selectedClaimName = '';
     public selectedClaimValue: any = '';
     public selectedClaimRule = '';
-    public selectedClaimValueType = ValueType.String;
+    public selectedClaimValueType = ClaimValueType.String;
     public columns: TableColumn[] = [];
     public rows: ClaimInfo[] = [];
     public canEditUser: boolean;
@@ -86,7 +86,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
     public addClaim(): void {
         this._userStore.addClaim(this._user.id, {
             type: this.selectedClaimName,
-            value: this.selectedClaimValueType === ValueType.DateTime ? this._dateParser.format(this.selectedClaimValue as NgbDateStruct) : this.selectedClaimValue
+            value: this.selectedClaimValueType === ClaimValueType.DateTime ? this._dateParser.format(this.selectedClaimValue as NgbDateStruct) : this.selectedClaimValue
         } as ClaimInfo).subscribe(_ => {
             this._toast.showSuccess(`Claim '${this.selectedClaimName}' was successfully added to user ${this._user.email}.`);
             this._form.resetForm({

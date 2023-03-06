@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Indice.Services;
+﻿namespace Indice.Services;
 
 /// <summary>Models the event mechanism used to raise events inside the platform.</summary>
 public interface IPlatformEventService
