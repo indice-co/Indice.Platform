@@ -59,7 +59,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
         _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
-        EnforceMfa = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Enforce") == true;
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
         ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
@@ -77,8 +76,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public bool RequirePostSignInConfirmedPhoneNumber { get; }
     /// <summary>If enabled then users with blacklisted passwords will be forced to change their password upon sign-in instead of waiting for the next time they need to change it.</summary>
     public bool ExpireBlacklistedPasswordsOnSignIn { get; }
-    /// <summary>Enforces multi factor authentication for all users.</summary>
-    public bool EnforceMfa { get; }
     /// <summary>The scheme used to identify external authentication cookies.</summary>
     public string ExternalScheme { get; }
     /// <summary>Decides whether a trusted browser should be stored in the <see cref="UserDevice"/> table.</summary>
@@ -158,10 +155,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             var requiresPhoneNumberValidation = !isPhoneConfirmed && RequirePostSignInConfirmedPhoneNumber;
             var requiresPasswordChange = isPasswordExpired;
             return new ExtendedSigninResult(requiresEmailValidation, requiresPhoneNumberValidation, requiresPasswordChange);
-        }
-        if (EnforceMfa && !bypassTwoFactor) {
-            await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(user.Id, loginProvider));
-            return SignInResult.TwoFactorRequired;
         }
         var signInResult = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
         if (signInResult.Succeeded && (user is User)) {

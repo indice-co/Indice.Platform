@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 
-import { UpdateClaimTypeRequest, ValueType, IdentityApiService, ClaimTypeInfo } from 'src/app/core/services/identity-api.service';
+import { UpdateClaimTypeRequest, ClaimValueType, IdentityApiService, ClaimTypeInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 
 @Component({
@@ -27,7 +27,7 @@ export class ClaimTypeEditComponent implements OnInit {
         this.canEditClaimType = this._authService.isAdminUIUsersWriter() || this._authService.isAdminUIClientsWriter();
         this.claimType = this._route.snapshot.data.claimType;
         this.claimValueType = this.claimType.valueType;
-        for (const type in ValueType) {
+        for (const type in ClaimValueType) {
             if (type) {
                 this.valueTypes.push(type);
             }
@@ -42,7 +42,7 @@ export class ClaimTypeEditComponent implements OnInit {
     }
 
     public update(): void {
-        this.claimType.valueType = this.claimValueType as ValueType;
+        this.claimType.valueType = this.claimValueType as ClaimValueType;
         this._api.updateClaimType(this.claimType.id, {
             description: this.claimType.description,
             required: this.claimType.required,

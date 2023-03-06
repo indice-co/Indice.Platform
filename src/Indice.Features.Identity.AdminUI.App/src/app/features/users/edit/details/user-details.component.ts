@@ -5,7 +5,7 @@ import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SwalPortalTargets } from '@sweetalert2/ngx-sweetalert2';
-import { SingleUserInfo, ClaimTypeInfo, ValueType, PasswordExpirationPolicy, ProblemDetails, ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
+import { SingleUserInfo, ClaimTypeInfo, ClaimValueType, PasswordExpirationPolicy, ProblemDetails, ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './models/claim-type.model';
 import { UserStore } from '../user-store.service';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
@@ -40,8 +40,11 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     public newPassword = '';
     public changePasswordAfterFirstSignIn = false;
     public bypassPasswordValidation = false;
-    public problemDetails: ProblemDetails;
+    public bypassEmailAsUserNamePolicy = false;
+    public resetPasswordProblemDetails: ProblemDetails;
+    public updateUserProblemDetails: ProblemDetails;
     public canEditUser: boolean;
+    public showBypassEmailAsUserNamePolicy = false;
 
     public ngOnInit(): void {
         this.canEditUser = this._authService.isAdminUIUsersWriter();
@@ -61,7 +64,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
             requiredClaims.forEach((claim: ClaimType) => {
                 const userClaim = this.user.claims.find(x => x.type === claim.name);
                 if (userClaim) {
-                    claim.value = claim.valueType === ValueType.DateTime ? this._dateParser.parse(userClaim.value) : userClaim.value;
+                    claim.value = claim.valueType === ClaimValueType.DateTime ? this._dateParser.parse(userClaim.value) : userClaim.value;
                 }
             });
             this.requiredClaims = requiredClaims;
@@ -110,26 +113,33 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
     }
 
     public resetPassword() {
-        this._userStore.resetPassword(this.user.id, this.newPassword, this.changePasswordAfterFirstSignIn, this.bypassPasswordValidation).subscribe(_ => {
-            this.userPasswordExpirationPolicy = this.user.passwordExpirationPolicy ? this.user.passwordExpirationPolicy : '';
-            this._toast.showSuccess(`Password for user '${this.user.userName}' was reset successfully.`);
-            this._modalService.dismissAll();
-        }, (problemDetails: ValidationProblemDetails) => {
-            this.problemDetails = problemDetails;
-        });
+        this.resetPasswordProblemDetails = null;
+        this._userStore
+            .resetPassword(this.user.id, this.newPassword, this.changePasswordAfterFirstSignIn, this.bypassPasswordValidation)
+            .subscribe(_ => {
+                this.userPasswordExpirationPolicy = this.user.passwordExpirationPolicy ? this.user.passwordExpirationPolicy : '';
+                this._toast.showSuccess(`Password for user '${this.user.userName}' was reset successfully.`);
+                this._modalService.dismissAll();
+            }, (problemDetails: ValidationProblemDetails) => {
+                this.resetPasswordProblemDetails = problemDetails;
+            });
     }
 
     public update(): void {
+        this.updateUserProblemDetails = null;
         const requiredClaims = this.requiredClaims.map(x => Object.assign({}, x));
         requiredClaims.forEach((claim: ClaimType) => {
-            if (claim.valueType === ValueType.DateTime) {
+            if (claim.valueType === ClaimValueType.DateTime) {
                 const date = claim.value as NgbDateStruct;
                 claim.value = this._dateParser.format(date);
             }
         });
         this.user.passwordExpirationPolicy = this.userPasswordExpirationPolicy === '' ? undefined : this.userPasswordExpirationPolicy as PasswordExpirationPolicy;
-        this._updateUserSubscription = this._userStore.updateUser(this.user, requiredClaims).subscribe(_ => {
+        this._updateUserSubscription = this._userStore.updateUser(this.user, requiredClaims, this.bypassEmailAsUserNamePolicy).subscribe(_ => {
             this._toast.showSuccess(`User '${this.user.email}' was updated successfully.`);
+        }, (problemDetails: ValidationProblemDetails) => {
+            this.updateUserProblemDetails = problemDetails;
+            this.showBypassEmailAsUserNamePolicy = true;
         });
     }
 }

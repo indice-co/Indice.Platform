@@ -25,7 +25,14 @@ public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberToken
     }
 
     /// <inheritdoc />
-    public override Task<string> GenerateAsync(string purpose, UserManager<TUser> userManager, TUser user) => Task.FromResult(string.Empty);
+    public override async Task<string> GenerateAsync(string purpose, UserManager<TUser> userManager, TUser user) {
+        var userClaims = await userManager.GetClaimsAsync(user);
+        var developerTotpClaim = userClaims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.DeveloperTotp);
+        if (!string.IsNullOrWhiteSpace(developerTotpClaim?.Value)) {
+            return developerTotpClaim.Value;
+        }
+        return await base.GenerateAsync(purpose, userManager, user);
+    }
 
     /// <inheritdoc />
     public override async Task<bool> ValidateAsync(string purpose, string token, UserManager<TUser> userManager, TUser user) {
