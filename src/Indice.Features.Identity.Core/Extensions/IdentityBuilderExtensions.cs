@@ -7,6 +7,7 @@ using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace Indice.AspNetCore.Identity;
@@ -24,6 +25,7 @@ public static class IdentityBuilderExtensions
         });
         builder.Services.AddTransient<IMfaDeviceIdResolver, DefaultMfaDeviceIdResolver>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
+        builder.Services.TryAddTransient<UserLoginStateService>();
         return builder;
     }
 

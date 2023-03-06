@@ -18,6 +18,7 @@ namespace Indice.Features.Identity.Core;
 public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 {
     private readonly IPlatformEventService _eventService;
+    private readonly UserLoginStateService _userLoginStateService;
 
     /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
     /// <param name="userStore">The persistence store the manager will operate over.</param>
@@ -32,6 +33,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <param name="logger">The logger used to log messages, warnings and errors.</param>
     /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="userLoginStateService">A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</param>
     public ExtendedUserManager(
         IUserStore<TUser> userStore,
         IOptionsSnapshot<IdentityOptions> optionsAccessor,
@@ -44,9 +46,11 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         ILogger<ExtendedUserManager<TUser>> logger,
         IdentityMessageDescriber identityMessageDescriber,
         IPlatformEventService eventService,
-        IConfiguration configuration
+        IConfiguration configuration,
+        UserLoginStateService userLoginStateService
     ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+        _userLoginStateService = userLoginStateService ?? throw new ArgumentNullException(nameof(userLoginStateService));
         MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
         DefaultAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(DefaultAllowedRegisteredDevices));
         MaxAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(MaxAllowedRegisteredDevices));
@@ -75,6 +79,8 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public bool EmailAsUserName { get; }
     /// <summary>MFA policy applied for new users.</summary>
     public MfaPolicy MfaPolicy { get; set; }
+    /// <summary>Describes the state of the current principal.</summary>
+    public UserLoginState UserLoginState => _userLoginStateService.CurrentState;
 
     #region Method Overrides
     /// <inheritdoc />
@@ -191,16 +197,16 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 
     /// <summary>Sets the <see cref="User.PasswordExpired"/> property of the user.</summary>
     /// <param name="user">The user instance.</param>
-    /// <param name="changePassword">The value to use.</param>
+    /// <param name="expired">The value to use.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-    public async Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
+    public async Task SetPasswordExpiredAsync(TUser user, bool expired, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
         }
         var userStore = GetUserStore();
-        await userStore.SetPasswordExpiredAsync(user, changePassword, cancellationToken);
+        await userStore.SetPasswordExpiredAsync(user, expired, cancellationToken);
         await UpdateAsync(user);
     }
 
@@ -255,6 +261,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         }
         var result = await base.UpdatePasswordHash(user, newPassword, validatePassword);
         if (!result.Succeeded) {
+            _userLoginStateService.TransitionTo(UserLoginAction.ChangedPassword, user);
             return result;
         }
         await _eventService.Publish(new PasswordChangedEvent(user));
