@@ -10,6 +10,8 @@ import { CasesApiService, CustomerDetails } from 'src/app/core/services/cases-ap
 export class SearchCustomerComponent {
   @Input() caseTypeCode: string | undefined;
   @Output() selectedCustomerEvent = new EventEmitter<CustomerDetails>();
+  @Output() sidePanelTitleEvent = new EventEmitter<string>();
+
   public searchValue: string | undefined
   public results$: Observable<Selectable<CustomerDetails>[]> | undefined;
 
@@ -33,6 +35,7 @@ export class SearchCustomerComponent {
     allValues.forEach(e => { e.selected = false });
     value.selected = true;
     this.selectedCustomerEvent.emit(value.item);
+    this.sidePanelTitleEvent.emit('Υποβολή Αίτησης');
   }
 }
 class Selectable<T> {

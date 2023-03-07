@@ -1,3 +1,4 @@
+import { PageIllustrationComponent } from './../page-illustration/page-illustration.component';
 import { CaseTypePartialResultSet } from './../../../core/services/cases-api.service';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -11,8 +12,9 @@ import { map } from 'rxjs/internal/operators';
 })
 export class SelectCaseTypeComponent implements OnInit {
   public caseTypes$: Observable<CaseTypePartial[]>;
-  public caseType = '';
+  public selectedCaseTypeCode = '';
   @Output() selectedCaseTypeEvent = new EventEmitter<string>();
+  @Output() sidePanelTitleEvent = new EventEmitter<string>();
 
 
   constructor(private api: CasesApiService) {
@@ -24,6 +26,17 @@ export class SelectCaseTypeComponent implements OnInit {
   ngOnInit(): void { }
 
   onSelect(value:any) {
-    this.selectedCaseTypeEvent.emit(value);
+    // this.selectedCaseTypeCode !== value ? value : '';
+    if (this.selectedCaseTypeCode == value) {
+      this.selectedCaseTypeCode = '';
+    } else {
+      this.selectedCaseTypeCode = value
+    }
+    this.selectedCaseTypeEvent.emit(this.selectedCaseTypeCode);
+    if (this.selectedCaseTypeCode) {
+      this.sidePanelTitleEvent.emit('Υποβολή Αίτησης - Επιλογή πελάτη')
+    } else {
+      this.sidePanelTitleEvent.emit('')
+    }
   }
 }
