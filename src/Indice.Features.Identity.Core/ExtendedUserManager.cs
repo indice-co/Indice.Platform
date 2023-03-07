@@ -164,6 +164,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
+            _userLoginStateService.ChangeStateTo(UserLoginAction.VerifiedPhoneNumber, user);
         }
         return result;
     }
@@ -261,7 +262,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         }
         var result = await base.UpdatePasswordHash(user, newPassword, validatePassword);
         if (!result.Succeeded) {
-            _userLoginStateService.TransitionTo(UserLoginAction.ChangedPassword, user);
+            _userLoginStateService.ChangeStateTo(UserLoginAction.PasswordChanged, user);
             return result;
         }
         await _eventService.Publish(new PasswordChangedEvent(user));

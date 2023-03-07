@@ -32,7 +32,7 @@ public class UserLoginStateService
     /// <summary>Current user login state value.</summary>
     public UserLoginState CurrentState { get; private set; }
 
-    internal void TransitionTo(UserLoginAction action, User user = null) {
+    internal void ChangeStateTo(UserLoginAction action, User user = null) {
         CurrentState = (CurrentState, action) switch {
             (UserLoginState.LoggedOut, UserLoginAction.Login) when user?.TwoFactorEnabled == true && user?.HasExpiredPassword() == true => UserLoginState.RequiresMfa,
             (UserLoginState.LoggedOut, UserLoginAction.Login) when user?.TwoFactorEnabled == false && user?.HasExpiredPassword() == true => UserLoginState.RequiresPasswordChange,
@@ -41,8 +41,10 @@ public class UserLoginStateService
             (UserLoginState.LoggedOut, UserLoginAction.Login) when user?.TwoFactorEnabled == true => UserLoginState.RequiresMfa,
             (UserLoginState.LoggedOut, UserLoginAction.Login) => UserLoginState.LoggedIn,
             (UserLoginState.RequiresMfa, UserLoginAction.MultiFactorAuthenticated) when user?.HasExpiredPassword() == true => UserLoginState.RequiresPasswordChange,
+            (UserLoginState.RequiresMfa, UserLoginAction.MultiFactorAuthenticated) => UserLoginState.LoggedIn,
+            (UserLoginState.RequiresPasswordChange, UserLoginAction.PasswordChanged) => UserLoginState.LoggedIn,
             (UserLoginState.LoggedIn, UserLoginAction.Logout) => UserLoginState.LoggedOut,
-            _ => CurrentState
+            _ => throw new InvalidOperationException()
         };
         _httpContext.Session.Set(USER_LOGIN_STATE_SESSION_KEY, Encoding.UTF8.GetBytes(CurrentState.ToString()));
     }
@@ -77,7 +79,7 @@ public enum UserLoginAction
     /// <summary>Passed MFA.</summary>
     MultiFactorAuthenticated,
     /// <summary>Changed password.</summary>
-    ChangedPassword,
+    PasswordChanged,
     /// <summary>Logout.</summary>
     Logout
 }
