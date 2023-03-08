@@ -18,7 +18,6 @@ namespace Indice.Features.Identity.Core;
 public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 {
     private readonly IPlatformEventService _eventService;
-    private readonly UserLoginStateService _userLoginStateService;
 
     /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
     /// <param name="userStore">The persistence store the manager will operate over.</param>
@@ -33,7 +32,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <param name="logger">The logger used to log messages, warnings and errors.</param>
     /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="userLoginStateService">A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</param>
+    /// <param name="userStateProvider">A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</param>
     public ExtendedUserManager(
         IUserStore<TUser> userStore,
         IOptionsSnapshot<IdentityOptions> optionsAccessor,
@@ -47,10 +46,10 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         IdentityMessageDescriber identityMessageDescriber,
         IPlatformEventService eventService,
         IConfiguration configuration,
-        UserLoginStateService userLoginStateService
+        UserStateProvider userStateProvider
     ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
-        _userLoginStateService = userLoginStateService ?? throw new ArgumentNullException(nameof(userLoginStateService));
+        StateProvider = userStateProvider ?? throw new ArgumentNullException(nameof(userStateProvider));
         MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
         DefaultAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(DefaultAllowedRegisteredDevices));
         MaxAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(MaxAllowedRegisteredDevices));
@@ -78,9 +77,9 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
     public bool EmailAsUserName { get; }
     /// <summary>MFA policy applied for new users.</summary>
-    public MfaPolicy MfaPolicy { get; set; }
+    public MfaPolicy MfaPolicy { get; }
     /// <summary>Describes the state of the current principal.</summary>
-    public UserLoginState UserLoginState => _userLoginStateService.CurrentState;
+    public UserStateProvider StateProvider { get; }
 
     #region Method Overrides
     /// <inheritdoc />
@@ -164,7 +163,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
-            _userLoginStateService.ChangeStateTo(UserLoginAction.VerifiedPhoneNumber, user);
+            StateProvider.ChangeStateTo(UserAction.VerifiedPhoneNumber, user);
         }
         return result;
     }
@@ -174,6 +173,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var result = await base.ConfirmEmailAsync(user, token);
         if (result.Succeeded) {
             await _eventService.Publish(new EmailConfirmedEvent(user));
+            StateProvider.ChangeStateTo(UserAction.VerifiedEmail, user);
         }
         return result;
     }
@@ -262,9 +262,9 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         }
         var result = await base.UpdatePasswordHash(user, newPassword, validatePassword);
         if (!result.Succeeded) {
-            _userLoginStateService.ChangeStateTo(UserLoginAction.PasswordChanged, user);
             return result;
         }
+        StateProvider.ChangeStateTo(UserAction.PasswordChanged, user);
         await _eventService.Publish(new PasswordChangedEvent(user));
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);

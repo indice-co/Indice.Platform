@@ -30,7 +30,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
     private readonly IUserStore<TUser> _userStore;
     private readonly IMfaDeviceIdResolver _mfaDeviceIdResolver;
-    private readonly UserLoginStateService _userLoginStateService;
+    private readonly UserStateProvider _userLoginStateService;
 
     /// <summary>Creates a new instance of <see cref="SignInManager{TUser}" /></summary>
     /// <param name="userManager">An instance of <see cref="UserManager{TUser}"/> used to retrieve users from and persist users.</param>
@@ -57,7 +57,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         IAuthenticationSchemeProvider authenticationSchemeProvider,
         IUserStore<TUser> userStore,
         IMfaDeviceIdResolver mfaDeviceIdResolver,
-        UserLoginStateService userLoginStateService
+        UserStateProvider userLoginStateService
     ) : base(userManager, httpContextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
         _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
@@ -91,7 +91,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <summary>Type of expiration for <see cref="IdentityConstants.TwoFactorRememberMeScheme"/> cookie.</summary>
     public MfaExpirationType RememberExpirationType { get; }
     /// <summary>Describes the state of the current principal.</summary>
-    public UserLoginState UserLoginState => _userLoginStateService.CurrentState;
+    public UserState UserLoginState => _userLoginStateService.CurrentState;
 
     #region Method Overrides
     /// <inheritdoc/>
@@ -140,7 +140,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
-        _userLoginStateService.ChangeStateTo(UserLoginAction.Login, user);
+        _userLoginStateService.ChangeStateTo(UserAction.Login, user);
         if (ShouldSignInPartially()) {
             return await DoPartialSignInAsync(user, isPersistent);
         }
@@ -174,7 +174,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         if (await UserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
-            _userLoginStateService.ChangeStateTo(UserLoginAction.MultiFactorAuthenticated, user);
+            _userLoginStateService.ChangeStateTo(UserAction.MultiFactorAuthenticated, user);
             if (ShouldSignInPartially()) {
                 return await DoPartialSignInAsync(user, isPersistent);
             }
@@ -206,7 +206,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await Context.SignOutAsync(ExternalScheme);
         }
         await base.SignOutAsync();
-        _userLoginStateService.ChangeStateTo(UserLoginAction.Logout);
+        _userLoginStateService.ChangeStateTo(UserAction.Logout);
     }
 
     /// <inheritdoc/>
@@ -272,9 +272,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     #region Helper Methods
     private bool ShouldSignInPartially() =>
-        UserLoginState == UserLoginState.RequiresEmailVerification ||
-        UserLoginState == UserLoginState.RequiresPhoneNumberVerification ||
-        UserLoginState == UserLoginState.RequiresPasswordChange;
+        UserLoginState == UserState.RequiresEmailVerification ||
+        UserLoginState == UserState.RequiresPhoneNumberVerification ||
+        UserLoginState == UserState.RequiresPasswordChange;
 
     private async Task<ExtendedSignInResult> DoPartialSignInAsync(TUser user, bool isPersistent) {
         var userClaims = await UserManager.GetClaimsAsync(user);
@@ -502,12 +502,12 @@ public class ExtendedSignInResult : SignInResult
         RequiresPasswordChange = requiresPasswordChange;
     }
 
-    /// <summary>Construct an instance of <see cref="ExtendedSignInResult"/> based on <see cref="UserLoginState"/>.</summary>
-    public ExtendedSignInResult(UserLoginState state) : this(
-        state == UserLoginState.RequiresEmailVerification,
-        state == UserLoginState.RequiresPhoneNumberVerification,
-        state == UserLoginState.RequiresPasswordChange) {
-        Succeeded = state == UserLoginState.LoggedIn;
+    /// <summary>Construct an instance of <see cref="ExtendedSignInResult"/> based on <see cref="UserState"/>.</summary>
+    public ExtendedSignInResult(UserState state) : this(
+        state == UserState.RequiresEmailVerification,
+        state == UserState.RequiresPhoneNumberVerification,
+        state == UserState.RequiresPasswordChange) {
+        Succeeded = state == UserState.LoggedIn;
     }
 
     /// <summary>Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.</summary>

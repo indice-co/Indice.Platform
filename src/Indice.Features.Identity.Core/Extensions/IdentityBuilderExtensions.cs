@@ -25,7 +25,7 @@ public static class IdentityBuilderExtensions
         });
         builder.Services.AddTransient<IMfaDeviceIdResolver, DefaultMfaDeviceIdResolver>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
-        builder.Services.TryAddTransient<UserLoginStateService>();
+        builder.Services.TryAddTransient<UserStateProvider>();
         return builder;
     }
 
