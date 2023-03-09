@@ -30,7 +30,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
     private readonly IUserStore<TUser> _userStore;
     private readonly IMfaDeviceIdResolver _mfaDeviceIdResolver;
-    private readonly UserStateProvider _userLoginStateService;
 
     /// <summary>Creates a new instance of <see cref="SignInManager{TUser}" /></summary>
     /// <param name="userManager">An instance of <see cref="UserManager{TUser}"/> used to retrieve users from and persist users.</param>
@@ -44,7 +43,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="authenticationSchemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
     /// <param name="userStore">Provides an abstraction for a store which manages user accounts.</param>
     /// <param name="mfaDeviceIdResolver">An abstraction used to specify the way to resolve the device identifier used for MFA.</param>
-    /// <param name="userLoginStateService">A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</param>
+    /// <param name="userStateProvider">A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</param>
     public ExtendedSignInManager(
         ExtendedUserManager<TUser> userManager,
         IHttpContextAccessor httpContextAccessor,
@@ -57,12 +56,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         IAuthenticationSchemeProvider authenticationSchemeProvider,
         IUserStore<TUser> userStore,
         IMfaDeviceIdResolver mfaDeviceIdResolver,
-        UserStateProvider userLoginStateService
+        UserStateProvider userStateProvider
     ) : base(userManager, httpContextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
         _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
         _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
-        _userLoginStateService = userLoginStateService ?? throw new ArgumentNullException(nameof(userLoginStateService));
+        StateProvider = userStateProvider ?? throw new ArgumentNullException(nameof(userStateProvider));
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
         ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
@@ -91,7 +90,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <summary>Type of expiration for <see cref="IdentityConstants.TwoFactorRememberMeScheme"/> cookie.</summary>
     public MfaExpirationType RememberExpirationType { get; }
     /// <summary>Describes the state of the current principal.</summary>
-    public UserState UserLoginState => _userLoginStateService.CurrentState;
+    public UserStateProvider StateProvider { get; }
 
     #region Method Overrides
     /// <inheritdoc/>
@@ -140,7 +139,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
-        _userLoginStateService.ChangeStateTo(UserAction.Login, user);
+        StateProvider.ChangeStateTo(UserAction.Login, user);
         if (ShouldSignInPartially()) {
             return await DoPartialSignInAsync(user, isPersistent);
         }
@@ -174,11 +173,11 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         if (await UserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
-            _userLoginStateService.ChangeStateTo(UserAction.MultiFactorAuthenticated, user);
+            StateProvider.ChangeStateTo(UserAction.MultiFactorAuthenticated, user);
             if (ShouldSignInPartially()) {
                 return await DoPartialSignInAsync(user, isPersistent);
             }
-            return new ExtendedSignInResult(UserLoginState);
+            return new ExtendedSignInResult(StateProvider.CurrentState);
         }
         if (UserManager.SupportsUserLockout) {
             await UserManager.AccessFailedAsync(user);
@@ -206,7 +205,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await Context.SignOutAsync(ExternalScheme);
         }
         await base.SignOutAsync();
-        _userLoginStateService.ChangeStateTo(UserAction.Logout);
+        StateProvider.ChangeStateTo(UserAction.Logout);
     }
 
     /// <inheritdoc/>
@@ -250,7 +249,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         if (!string.IsNullOrWhiteSpace(deviceId) && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId);
             isRemembered = device is not null && device.MfaSessionExpirationDate.HasValue && device.MfaSessionExpirationDate.Value > DateTimeOffset.UtcNow;
-            return isRemembered;
+        }
+        if (isRemembered) {
+            StateProvider.ChangeStateTo(UserAction.MultiFactorAuthenticated, user);
         }
         return isRemembered;
     }
@@ -272,9 +273,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     #region Helper Methods
     private bool ShouldSignInPartially() =>
-        UserLoginState == UserState.RequiresEmailVerification ||
-        UserLoginState == UserState.RequiresPhoneNumberVerification ||
-        UserLoginState == UserState.RequiresPasswordChange;
+        StateProvider.CurrentState == UserState.RequiresEmailVerification ||
+        StateProvider.CurrentState == UserState.RequiresPhoneNumberVerification ||
+        StateProvider.CurrentState == UserState.RequiresPasswordChange;
 
     private async Task<ExtendedSignInResult> DoPartialSignInAsync(TUser user, bool isPersistent) {
         var userClaims = await UserManager.GetClaimsAsync(user);
@@ -290,7 +291,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             RedirectUri = returnUrl,
             IsPersistent = isPersistent
         });
-        return new ExtendedSignInResult(UserLoginState);
+        return new ExtendedSignInResult(StateProvider.CurrentState);
     }
 
     private async Task<bool> IsTfaEnabled(TUser user)

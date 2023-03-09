@@ -54,6 +54,7 @@ public class UserStateProvider
         (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) when user?.EmailConfirmed == true => UserState.LoggedIn,
         (UserState.RequiresEmailVerification, UserAction.VerifiedEmail) => UserState.LoggedIn,
         (UserState.RequiresPasswordChange, UserAction.PasswordChanged) when user?.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
+        (UserState.RequiresPasswordChange, UserAction.PasswordChanged) when user?.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
         (UserState.RequiresPasswordChange, UserAction.PasswordChanged) => UserState.LoggedIn,
         (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) => UserState.LoggedIn,
         (UserState.LoggedIn, UserAction.Logout) => UserState.LoggedOut,
