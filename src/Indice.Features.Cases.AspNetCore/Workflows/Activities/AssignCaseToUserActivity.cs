@@ -9,9 +9,7 @@ using Indice.Features.Cases.Interfaces;
 
 namespace Indice.Features.Cases.Workflows.Activities;
 
-/// <summary>
-/// Add the assignedTo property for a Case.
-/// </summary>
+/// <summary>Add the assignedTo property for a Case.</summary>
 [Activity(
     Category = "Cases",
     DisplayName = "Assign case to user",

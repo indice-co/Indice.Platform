@@ -2,24 +2,23 @@
 using Indice.Features.Messages.Core.Handlers;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.Features.Messages.Worker.Handlers
+namespace Indice.Features.Messages.Worker.Handlers;
+
+internal class SendEmailJobHandler
 {
-    internal class SendEmailJobHandler
-    {
-        public SendEmailJobHandler(
-            ILogger<SendEmailJobHandler> logger,
-            MessageJobHandlerFactory messageJobHandlerFactory
-        ) {
-            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            MessageJobHandlerFactory = messageJobHandlerFactory ?? throw new ArgumentNullException(nameof(messageJobHandlerFactory));
-        }
+    public SendEmailJobHandler(
+        ILogger<SendEmailJobHandler> logger,
+        MessageJobHandlerFactory messageJobHandlerFactory
+    ) {
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        MessageJobHandlerFactory = messageJobHandlerFactory ?? throw new ArgumentNullException(nameof(messageJobHandlerFactory));
+    }
 
-        public ILogger<SendEmailJobHandler> Logger { get; }
-        public MessageJobHandlerFactory MessageJobHandlerFactory { get; }
+    public ILogger<SendEmailJobHandler> Logger { get; }
+    public MessageJobHandlerFactory MessageJobHandlerFactory { get; }
 
-        public async Task Process(SendEmailEvent email) {
-            var handler = MessageJobHandlerFactory.CreateFor<SendEmailEvent>();
-            await handler.Process(email);
-        }
+    public async Task Process(SendEmailEvent email) {
+        var handler = MessageJobHandlerFactory.CreateFor<SendEmailEvent>();
+        await handler.Process(email);
     }
 }

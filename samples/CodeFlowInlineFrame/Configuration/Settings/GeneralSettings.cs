@@ -1,10 +1,9 @@
-﻿namespace CodeFlowInlineFrame.Settings
-{
-    public class GeneralSettings
-    {
-        public const string Name = "General";
+﻿namespace CodeFlowInlineFrame.Settings;
 
-        public string Authority { get; set; }
-        public string Host { get; set; }
-    }
+public class GeneralSettings
+{
+    public const string Name = "General";
+
+    public string Authority { get; set; }
+    public string Host { get; set; }
 }

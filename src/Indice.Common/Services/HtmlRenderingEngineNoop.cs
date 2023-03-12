@@ -1,11 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿namespace Indice.Services;
 
-namespace Indice.Services;
-
-/// <summary>
-/// A default implementation for <see cref="IHtmlRenderingEngine"/> that does nothing. Passes through the given template to the output as if it was the body of the HTML.
-/// </summary>
+/// <summary>A default implementation for <see cref="IHtmlRenderingEngine"/> that does nothing. Passes through the given template to the output as if it was the body of the HTML.</summary>
 public class HtmlRenderingEngineNoop : IHtmlRenderingEngine
 {
     /// <inheritdoc/>

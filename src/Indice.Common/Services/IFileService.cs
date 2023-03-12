@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace Indice.Services;
+﻿namespace Indice.Services;
 
 /// <summary>File storage abstraction.</summary>
 public interface IFileService

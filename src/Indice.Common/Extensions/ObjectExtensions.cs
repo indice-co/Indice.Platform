@@ -1,12 +1,8 @@
 ﻿#if NET5_0
 using System.Buffers;
 #endif
-using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 namespace Indice.Extensions;

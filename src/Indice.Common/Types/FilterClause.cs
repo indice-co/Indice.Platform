@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -13,13 +12,9 @@ namespace Indice.Types;
 public struct FilterClause
 {
     private const string REGEX_PATTERN = @"^\s*([A-Za-z_][A-Za-z0-9_{3}]+){2}+({0}){2}+(\(({1})\))?(.+)\s*$";
-    /// <summary>
-    /// Used to separate <see cref="Member"/> value and <see cref="Operator"/>.
-    /// </summary>
+    /// <summary>Used to separate <see cref="Member"/> value and <see cref="Operator"/>.</summary>
     public static string WHITE_SPACE_DELIMETER = "::";
-    /// <summary>
-    /// Used to separate <see cref="Member"/> path segments.
-    /// </summary>
+    /// <summary>Used to separate <see cref="Member"/> path segments.</summary>
     public static char MEMBER_PATH_DELIMETER = '.';
 
     private static readonly Regex ParseRegex = new(
@@ -33,9 +28,7 @@ public struct FilterClause
         options: RegexOptions.IgnoreCase
     );
 
-    /// <summary>
-    /// Creates the Json filter by supplying all the required members.
-    /// </summary>
+    /// <summary>Creates the Json filter by supplying all the required members.</summary>
     /// <param name="member">Member path to compare</param>
     /// <param name="value">Value to compare against</param>
     /// <param name="operator">The operator to apply between the <paramref name="member"/> and <paramref name="value"/></param>
@@ -47,32 +40,20 @@ public struct FilterClause
         DataType = dataType;
     }
 
-    /// <summary>
-    /// Member path to compare.
-    /// </summary>
+    /// <summary>Member path to compare.</summary>
     public string Member { get; }
-    /// <summary>
-    /// Value to compare against.
-    /// </summary>
+    /// <summary>Value to compare against.</summary>
     public string Value { get; }
-    /// <summary>
-    /// The operator to apply between the <see cref="Member" /> and <seealso cref="Value"/>.
-    /// </summary>
+    /// <summary>The operator to apply between the <see cref="Member" /> and <seealso cref="Value"/>.</summary>
     public FilterOperator Operator { get; }
-    /// <summary>
-    /// The <see cref="JsonDataType"/> of the data <seealso cref="Member"/>.
-    /// </summary>
+    /// <summary>The <see cref="JsonDataType"/> of the data <seealso cref="Member"/>.</summary>
     public JsonDataType DataType { get; }
 
-    /// <summary>
-    /// Returns a hash code for the value of this instance.
-    /// </summary>
+    /// <summary>Returns a hash code for the value of this instance.</summary>
     /// <returns>An integer representing the hash code for the value of this instance.</returns>
     public override int GetHashCode() => (Member ?? string.Empty).GetHashCode() ^ (Value ?? string.Empty).GetHashCode() ^ Operator.GetHashCode() ^ DataType.GetHashCode();
 
-    /// <summary>
-    /// Indicates whether this instance and a specified object are equal. 
-    /// </summary>
+    /// <summary>Indicates whether this instance and a specified object are equal. </summary>
     /// <param name="obj">The object to compare with the current instance.</param>
     /// <returns></returns>
     public override bool Equals(object obj) {
@@ -83,15 +64,11 @@ public struct FilterClause
         return base.Equals(obj);
     }
 
-    /// <summary>
-    /// The string representation of the <see cref="FilterClause"/>.
-    /// </summary>
+    /// <summary>The string representation of the <see cref="FilterClause"/>.</summary>
     /// <returns></returns>
     public override string ToString() => $"{Member}{WHITE_SPACE_DELIMETER}{Operator}{WHITE_SPACE_DELIMETER}({DataType}){Value}";
 
-    /// <summary>
-    /// Parse the string representation to an instance of <see cref="FilterClause"/>
-    /// </summary>
+    /// <summary>Parse the string representation to an instance of <see cref="FilterClause"/></summary>
     /// <param name="filter">The string representation to parse.</param>
     /// <returns></returns>
     public static FilterClause Parse(string filter) {
@@ -106,41 +83,29 @@ public struct FilterClause
         return new FilterClause();
     }
 
-    /// <summary>
-    /// Implicit cast from <see cref="FilterClause"/> to <seealso cref="string"/>
-    /// </summary>
+    /// <summary>Implicit cast from <see cref="FilterClause"/> to <seealso cref="string"/></summary>
     /// <param name="value">The value to convert</param>
     public static implicit operator string(FilterClause value) => value.ToString();
 
-    /// <summary>
-    /// Explicit cast from <see cref="string"/> to <seealso cref="FilterClause"/>
-    /// </summary>
+    /// <summary>Explicit cast from <see cref="string"/> to <seealso cref="FilterClause"/></summary>
     /// <param name="value">The value to convert</param>
     public static explicit operator FilterClause(string value) => Parse(value);
 
-    /// <summary>
-    /// Checks for equality between two <see cref="FilterClause"/>.
-    /// </summary>
+    /// <summary>Checks for equality between two <see cref="FilterClause"/>.</summary>
     /// <param name="left">First part of equality.</param>
     /// <param name="right">Second part of equality.</param>
     public static bool operator ==(FilterClause left, FilterClause right) => left.Equals(right);
 
-    /// <summary>
-    /// Checks for non-equality between two <see cref="FilterClause"/>.
-    /// </summary>
+    /// <summary>Checks for non-equality between two <see cref="FilterClause"/>.</summary>
     /// <param name="left">First part of equality.</param>
     /// <param name="right">Second part of equality.</param>
     public static bool operator !=(FilterClause left, FilterClause right) => !(left == right);
 }
 
-/// <summary>
-/// <see cref="FilterClause"/> <seealso cref="TypeConverter"/> is used for ASP.NET route binding to work from.
-/// </summary>
+/// <summary><see cref="FilterClause"/> <seealso cref="TypeConverter"/> is used for ASP.NET route binding to work from.</summary>
 public class FilterClauseTypeConverter : TypeConverter
 {
-    /// <summary>
-    /// Overrides can convert to declare support for string conversion.
-    /// </summary>
+    /// <summary>Overrides can convert to declare support for string conversion.</summary>
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
     /// <returns></returns>
@@ -151,9 +116,7 @@ public class FilterClauseTypeConverter : TypeConverter
         return base.CanConvertFrom(context, sourceType);
     }
 
-    /// <summary>
-    /// Supply conversion from <see cref="string"/> to <seealso cref="FilterClause"/> otherwise use default implementation
-    /// </summary>
+    /// <summary>Supply conversion from <see cref="string"/> to <seealso cref="FilterClause"/> otherwise use default implementation</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>
@@ -165,9 +128,7 @@ public class FilterClauseTypeConverter : TypeConverter
         return base.ConvertFrom(context, culture, value);
     }
 
-    /// <summary>
-    /// Supply conversion from <see cref="FilterClause"/> to <seealso cref="string"/> otherwise use default implementation
-    /// </summary>
+    /// <summary>Supply conversion from <see cref="FilterClause"/> to <seealso cref="string"/> otherwise use default implementation</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>

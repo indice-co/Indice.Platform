@@ -194,6 +194,7 @@ public class DeviceAuthenticationIntegrationTests
         });
         builder.Configure(app => {
             app.UseIdentityServer();
+            app.IdentityStoreSetup();
         });
         var server = new TestServer(builder);
         var handler = server.CreateHandler();

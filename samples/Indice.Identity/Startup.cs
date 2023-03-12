@@ -148,6 +148,7 @@ public class Startup
         if (HostingEnvironment.IsDevelopment()) {
             app.UseDeveloperExceptionPage();
             app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
+            app.IdentityStoreSetup();
         } else {
             app.UseHsts();
             app.UseHttpsRedirection();

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Indice.AspNetCore.Filters;
+﻿using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Identity.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;

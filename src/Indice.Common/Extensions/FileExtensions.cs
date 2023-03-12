@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Indice.Extensions;
+﻿namespace Indice.Extensions;
 
 // http://stackoverflow.com/questions/1029740/get-mime-type-from-filename-extension
-/// <summary>
-/// Extensions for file types.
-/// </summary>
+/// <summary>Extensions for file types.</summary>
 public static class FileExtensions
 {
     private static readonly IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase) {
@@ -579,9 +574,7 @@ public static class FileExtensions
         #endregion
     };
 
-    /// <summary>
-    /// Gets the mime type by using a file extension. If not found, defaults to 'application/octet-stream';
-    /// </summary>
+    /// <summary>Gets the mime type by using a file extension. If not found, defaults to 'application/octet-stream';</summary>
     /// <param name="extension">The file extension.</param>
     /// <returns></returns>
     public static string GetMimeType(string extension) {
@@ -594,16 +587,12 @@ public static class FileExtensions
         return _mappings.TryGetValue(extension, out var mime) ? mime : "application/octet-stream";
     }
 
-    /// <summary>
-    /// Returns a string describing the value as a file size.
-    /// </summary>
+    /// <summary>Returns a string describing the value as a file size.</summary>
     /// <param name="byteSize"></param>
     /// <returns></returns>
     public static string ToFileSize(this int byteSize) => FormatByteSize(byteSize);
 
-    /// <summary>
-    /// Returns a string describing the value as a file size.
-    /// </summary>
+    /// <summary>Returns a string describing the value as a file size.</summary>
     /// <param name="byteSize"></param>
     /// <returns></returns>
     public static string ToFileSize(this long byteSize) => FormatByteSize(byteSize);

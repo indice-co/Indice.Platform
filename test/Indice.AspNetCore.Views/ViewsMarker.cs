@@ -1,4 +1,3 @@
-﻿namespace Indice.AspNetCore.Views
-{
-    public class ViewsMarker { }
-}
+﻿namespace Indice.AspNetCore.Views;
+
+public class ViewsMarker { }

@@ -1,7 +1,6 @@
-﻿namespace CodeFlowInlineFrame.Models
+﻿namespace CodeFlowInlineFrame.Models;
+
+public class RedirectViewModel
 {
-    public class RedirectViewModel
-    {
-        public string Url { get; set; }
-    }
+    public string Url { get; set; }
 }

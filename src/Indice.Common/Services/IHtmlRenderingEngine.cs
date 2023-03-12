@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Indice.Services;
+﻿namespace Indice.Services;
 
 /// <summary>
 /// This is an abstraction for the rendering engine. Usually works with <see cref="IEmailService"/> implementation. 

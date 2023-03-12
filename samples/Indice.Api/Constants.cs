@@ -1,7 +1,6 @@
-﻿namespace Indice.Api
+﻿namespace Indice.Api;
+
+public class PolicyNames
 {
-    public class PolicyNames
-    {
-        public const string GovGrPolicy = nameof(GovGrPolicy);
-    }
+    public const string GovGrPolicy = nameof(GovGrPolicy);
 }

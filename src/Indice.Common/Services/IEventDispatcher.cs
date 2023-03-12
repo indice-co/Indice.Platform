@@ -1,6 +1,4 @@
-﻿using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 
 namespace Indice.Services;
 
@@ -34,9 +32,7 @@ public static class IEventDispatcherExtensions
     }
 }
 
-/// <summary>
-/// Options for configuring <see cref="IEventDispatcher.RaiseEventAsync{TEvent}(TEvent, ClaimsPrincipal, TimeSpan?, bool, string, bool)"/> method.
-/// </summary>
+/// <summary>Options for configuring <see cref="IEventDispatcher.RaiseEventAsync{TEvent}(TEvent, ClaimsPrincipal, TimeSpan?, bool, string, bool)"/> method.</summary>
 public class EventDispatcherRaiseOptions
 {
     /// <summary>A <see cref="System.Security.Claims.ClaimsPrincipal"/> instance that contains information about the entity that triggered the event.</summary>

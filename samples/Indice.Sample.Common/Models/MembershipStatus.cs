@@ -1,9 +1,8 @@
-﻿namespace Indice.Sample.Common.Models
+﻿namespace Indice.Sample.Common.Models;
+
+public enum MembershipStatus
 {
-    public enum MembershipStatus
-    {
-        Inactive = -1,
-        Invited = 0,
-        Active = 1
-    }
+    Inactive = -1,
+    Invited = 0,
+    Active = 1
 }

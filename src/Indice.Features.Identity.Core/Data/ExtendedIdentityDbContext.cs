@@ -14,7 +14,7 @@ public class ExtendedIdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, 
     /// <param name="dbContextOptions">The options to be used by a <see cref="DbContext"/>.</param>
     public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions) : base(dbContextOptions) {
 #if DEBUG
-        this.SeedAdminUser();
+        this.SeedInitialData();
 #endif
 
     }
@@ -24,7 +24,7 @@ public class ExtendedIdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, 
     /// <param name="webHostEnvironment">Provides information about the web hosting environment an application is running in.</param>
     public ExtendedIdentityDbContext(DbContextOptions<ExtendedIdentityDbContext<TUser, TRole>> dbContextOptions, IWebHostEnvironment webHostEnvironment) : base(dbContextOptions) {
         if (webHostEnvironment.IsDevelopment() && Database.EnsureCreated()) {
-            this.SeedAdminUser();
+            this.SeedInitialData();
         }
     }
 

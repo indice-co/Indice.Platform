@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Indice.Types;
 
-/// <summary>
-/// Extension methods to manipulate <see cref="ListOptions"/>.
-/// </summary>
+/// <summary>Extension methods to manipulate <see cref="ListOptions"/>.</summary>
 public static class ListOptionsExtensions
 {
     /// <summary>
@@ -39,9 +34,7 @@ public static class ListOptionsExtensions
         return options.ToDictionary().Merge(overrides, null);
     }
 
-    /// <summary>
-    /// Merge a <paramref name="dictionary"/> of route data with the values found inside the <paramref name="instance"/>.
-    /// </summary>
+    /// <summary>Merge a <paramref name="dictionary"/> of route data with the values found inside the <paramref name="instance"/>.</summary>
     public static IDictionary<string, object> Merge(this IDictionary<string, object> dictionary, object instance, Type type = null, string prefix = null) {
         if (instance is IDictionary<string, object> other) {
             foreach (var keyValue in other) {
@@ -85,9 +78,7 @@ public static class ListOptionsExtensions
         return dictionary;
     }
 
-    /// <summary>
-    /// Converts the <paramref name="source"/> <see cref="IEnumerable"/> of <seealso cref="SortByClause"/> to a value switable to use on the <seealso cref="ListOptions.Sort"/> property.
-    /// </summary>
+    /// <summary>Converts the <paramref name="source"/> <see cref="IEnumerable"/> of <seealso cref="SortByClause"/> to a value switable to use on the <seealso cref="ListOptions.Sort"/> property.</summary>
     /// <param name="source"></param>
     /// <returns></returns>
     public static string ToUriString(this IEnumerable<SortByClause> source) => string.Join(",", source.Select(s => s.ToString()));
@@ -121,9 +112,7 @@ public static class ListOptionsExtensions
         return textValue;
     }
 
-    /// <summary>
-    /// Converts an object dictionary of route values to a collection of text keyvalue pairs
-    /// </summary>
+    /// <summary>Converts an object dictionary of route values to a collection of text keyvalue pairs</summary>
     /// <param name="values"></param>
     /// <returns></returns>
     public static IEnumerable<KeyValuePair<string, string>> AsRouteValues(this IDictionary<string, object> values) {
@@ -141,9 +130,7 @@ public static class ListOptionsExtensions
         });
     }
 
-    /// <summary>
-    /// Serialize the dictionary as a url forms encoded payload.
-    /// </summary>
+    /// <summary>Serialize the dictionary as a url forms encoded payload.</summary>
     /// <param name="values"></param>
     /// <returns></returns>
     public static string ToFormUrlEncodedString(this IDictionary<string, object> values) {

@@ -1,10 +1,7 @@
-﻿using System;
+﻿namespace Indice.Functions.Models;
 
-namespace Indice.Functions.Models
+public class WelcomeMessage
 {
-    public class WelcomeMessage
-    {
-        public Guid Id { get; set; }
-        public string Text { get; set; }
-    }
+    public Guid Id { get; set; }
+    public string Text { get; set; }
 }

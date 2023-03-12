@@ -22,9 +22,7 @@ public class ListOptions
     /// <summary>A search term used to limit the results of the list.</summary>
     public string Search { get; set; }
 
-    /// <summary>
-    /// Retrieves the number of pages for a total of <paramref name="count"/> results.
-    /// </summary>
+    /// <summary>Retrieves the number of pages for a total of <paramref name="count"/> results.</summary>
     /// <param name="count">The number of results</param>
     public int GetPagesFor(int count) => Size > 0 ? (int)Math.Ceiling(count / (double)Size) : 0;
 
@@ -110,9 +108,7 @@ public class ListOptions<TFilter> : ListOptions where TFilter : class, new()
     /// </summary>
     public ListOptions() : base() => Filter = new TFilter();
 
-    /// <summary>
-    /// The custom filter options.
-    /// </summary>
+    /// <summary>The custom filter options.</summary>
     public TFilter Filter { get; set; }
 
     /// <summary>

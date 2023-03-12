@@ -1,13 +1,8 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Indice.Types;
+﻿using Indice.Types;
 
 namespace Indice.Services;
 
-/// <summary>
-/// A <see cref="ILockManager"/> implementation that does nothing.
-/// </summary>
+/// <summary>A <see cref="ILockManager"/> implementation that does nothing.</summary>
 public class LockManagerNoop : ILockManager
 {
     /// <inheritdoc/>
