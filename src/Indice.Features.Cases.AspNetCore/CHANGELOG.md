@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Changed
+- Entity `CaseType.Config` now has `MAX` length 
+
+### Migrations
+```sql
+ALTER TABLE [case].[Casetype] 
+    ALTER COLUMN [Config] NVARCHAR(MAX) NULL;
+ ```
+
 ##  [6.10.5] - 2023-03-02
 ### Fixed
 - Admin Report service bug.
