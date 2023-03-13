@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
+﻿namespace CodeFlowInlineFrame.Settings;
 
-namespace CodeFlowInlineFrame.Settings
+public class ClientSettings
 {
-    public class ClientSettings
-    {
-        public const string Name = "Client";
+    public const string Name = "Client";
 
-        public string Id { get; set; }
-        public string Secret { get; set; }
-        public IEnumerable<string> Scopes { get; set; }
-    }
+    public string Id { get; set; }
+    public string Secret { get; set; }
+    public IEnumerable<string> Scopes { get; set; }
 }

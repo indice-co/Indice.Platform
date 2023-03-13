@@ -4,7 +4,6 @@
       <LangVersion>Latest</LangVersion>
       <ImplicitUsings>enable</ImplicitUsings>
       <Nullable>disable</Nullable>
-      <!--<TargetFramework>net6.0</TargetFramework>-->
       <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     </PropertyGroup>
     <PropertyGroup Label="Package Common">

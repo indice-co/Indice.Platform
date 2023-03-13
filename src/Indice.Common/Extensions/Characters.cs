@@ -1,16 +1,10 @@
-﻿using System.Collections.Generic;
+﻿namespace Indice.Extensions;
 
-namespace Indice.Extensions;
-
-/// <summary>
-/// Contains a full character set for converting unicode characters to ASCII.
-/// </summary>
+/// <summary>Contains a full character set for converting unicode characters to ASCII.</summary>
 public static class Unidecoder
 {
     private const string NEWLINE = "\r\n";
-    /// <summary>
-    /// The available characters set.
-    /// </summary>
+    /// <summary>The available characters set.</summary>
     public static readonly Dictionary<int, string[]> Characters;
 
     static Unidecoder() {

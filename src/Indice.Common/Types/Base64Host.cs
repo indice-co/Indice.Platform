@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 
@@ -22,14 +20,10 @@ public struct Base64Host
     private static readonly string UriSchemeHttp = Uri.UriSchemeHttp;
     private static readonly string SchemeDelimiter = Uri.SchemeDelimiter;
 #endif
-    /// <summary>
-    /// The internal <see cref="Host"/> value.
-    /// </summary>
+    /// <summary>The internal <see cref="Host"/> value.</summary>
     public string Host { get; }
 
-    /// <summary>
-    /// Construct the type from a <see cref="Uri" />
-    /// </summary>
+    /// <summary>Construct the type from a <see cref="Uri" /></summary>
     /// <param name="uri"></param>
     public Base64Host(Uri uri) {
 #if NETSTANDARD14
@@ -39,21 +33,15 @@ public struct Base64Host
 #endif
     }
 
-    /// <summary>
-    /// Construct the type from a <see cref="string"/> Url.
-    /// </summary>
+    /// <summary>Construct the type from a <see cref="string"/> Url.</summary>
     /// <param name="uri"></param>
     public Base64Host(string uri) : this(new Uri(uri, UriKind.Absolute)) { }
 
-    /// <summary>
-    /// Returns the hashcode for this instance
-    /// </summary>
+    /// <summary>Returns the hashcode for this instance</summary>
     /// <returns></returns>
     public override int GetHashCode() => Host.GetHashCode();
 
-    /// <summary>
-    /// Compare equality with the giver object. 
-    /// </summary>
+    /// <summary>Compare equality with the giver object. </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
     public override bool Equals(object obj) {
@@ -64,9 +52,7 @@ public struct Base64Host
         return base.Equals(obj);
     }
 
-    /// <summary>
-    /// Gets the inner guid as a url safe base64 string.
-    /// </summary>
+    /// <summary>Gets the inner guid as a url safe base64 string.</summary>
     /// <returns></returns>
     public override string ToString() {
         var host = new Uri(Host, UriKind.Absolute);
@@ -82,9 +68,7 @@ public struct Base64Host
         return base64;
     }
 
-    /// <summary>
-    /// Parse from a string url safe base64 representation. 
-    /// </summary>
+    /// <summary>Parse from a string url safe base64 representation. </summary>
     /// <param name="base64"></param>
     /// <returns></returns>
     public static Base64Host Parse(string base64) {
@@ -117,14 +101,10 @@ public struct Base64Host
     }
 }
 
-/// <summary>
-/// Converter class for the <see cref="Base64Id"/>.
-/// </summary>
+/// <summary>Converter class for the <see cref="Base64Id"/>.</summary>
 public class Base64HostTypeConverter : TypeConverter
 {
-    /// <summary>
-    /// Overrides can convert to declare support for string conversion.
-    /// </summary>
+    /// <summary>Overrides can convert to declare support for string conversion.</summary>
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
     /// <returns></returns>
@@ -135,9 +115,7 @@ public class Base64HostTypeConverter : TypeConverter
         return base.CanConvertFrom(context, sourceType);
     }
 
-    /// <summary>
-    /// Supply conversion from <see cref="string"/> to <seealso cref="Base64Host"/> otherwise use default implementation
-    /// </summary>
+    /// <summary>Supply conversion from <see cref="string"/> to <seealso cref="Base64Host"/> otherwise use default implementation</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>
@@ -149,9 +127,7 @@ public class Base64HostTypeConverter : TypeConverter
         return base.ConvertFrom(context, culture, value);
     }
 
-    /// <summary>
-    /// from <seealso cref="Base64Host"/> to <see cref="string"/> otherwise use default implementation
-    /// </summary>
+    /// <summary>from <seealso cref="Base64Host"/> to <see cref="string"/> otherwise use default implementation</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>

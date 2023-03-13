@@ -1,4 +1,4 @@
-<div *ngIf="validationErrors.length > 0" class="alert alert-danger" role="alert">
+<div *ngIf="validationErrors.length > 0" class="alert" [ngClass]="'alert-' + level" role="alert">
     <ul class="mb-0">
         <li *ngFor="let error of validationErrors">{{ error }}</li>
     </ul>

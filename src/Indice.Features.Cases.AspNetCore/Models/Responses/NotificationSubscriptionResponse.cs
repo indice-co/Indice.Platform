@@ -1,12 +1,8 @@
 ﻿namespace Indice.Features.Cases.Models.Responses;
 
-/// <summary>
-/// The notification subscription Response.
-/// </summary>
+/// <summary>The notification subscription Response.</summary>
 public class NotificationSubscriptionResponse
 {
-    /// <summary>
-    /// User's notification subscriptions.
-    /// </summary>
+    /// <summary>User's notification subscriptions.</summary>
     public List<NotificationSubscription> NotificationSubscriptions { get; set; }
 }

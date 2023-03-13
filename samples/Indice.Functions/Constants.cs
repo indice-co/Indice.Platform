@@ -1,7 +1,6 @@
-﻿namespace Indice.Functions
+﻿namespace Indice.Functions;
+
+public class FunctionNames
 {
-    public class FunctionNames
-    {
-        public const string WelcomeHttpFunction = nameof(WelcomeHttpFunction);
-    }
+    public const string WelcomeHttpFunction = nameof(WelcomeHttpFunction);
 }

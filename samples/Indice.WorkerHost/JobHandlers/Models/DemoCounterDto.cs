@@ -1,7 +1,6 @@
-﻿namespace Indice.WorkerHost.JobHandlers
+﻿namespace Indice.WorkerHost.JobHandlers;
+
+public class DemoCounterDto
 {
-    public class DemoCounterDto
-    {
-        public int DemoCounter { get; set; }
-    }
+    public int DemoCounter { get; set; }
 }

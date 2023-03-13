@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace Indice.Services;
+﻿namespace Indice.Services;
 
 /// <summary>Models the data that are sent in an email message.</summary>
 public class EmailMessage

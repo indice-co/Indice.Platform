@@ -1,13 +1,10 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Indice.Types;
 
-/// <summary>
-/// Object Representation for a sort by clause
-/// </summary>
+/// <summary>Object Representation for a sort by clause</summary>
 [TypeConverter(typeof(SortByClauseTypeConverter))]
 public struct SortByClause
 {
@@ -15,19 +12,13 @@ public struct SortByClause
     static readonly Regex parseRegex = new Regex(string.Format(REGEX_PATTERN,
                                                                string.Join("|", Enum.GetNames(typeof(JsonDataType))).ToLowerInvariant()
                                                  ), RegexOptions.IgnoreCase);
-    /// <summary>
-    /// Sort by ascending reserved constant
-    /// </summary>
+    /// <summary>Sort by ascending reserved constant</summary>
     public const string ASC = nameof(ASC);
 
-    /// <summary>
-    /// Sort by descending reserved constant
-    /// </summary>
+    /// <summary>Sort by descending reserved constant</summary>
     public const string DESC = nameof(DESC);
 
-    /// <summary>
-    /// Creates an instance of a SortByClause
-    /// </summary>
+    /// <summary>Creates an instance of a SortByClause</summary>
     public SortByClause(string path, string direction, JsonDataType? dataType = null) {
         if (direction != ASC && direction != DESC) {
             throw new ArgumentOutOfRangeException(nameof(direction), $"Invalid direction {direction}. Possible values are {ASC} or {DESC}");
@@ -43,19 +34,13 @@ public struct SortByClause
     /// </summary>
     public JsonDataType? DataType { get; }
 
-    /// <summary>
-    /// the property path
-    /// </summary>
+    /// <summary>the property path</summary>
     public string Path { get; }
 
-    /// <summary>
-    /// the sort direction (ASC, DESC)
-    /// </summary>
+    /// <summary>the sort direction (ASC, DESC)</summary>
     public string Direction { get; }
 
-    /// <summary>
-    /// Gets the string representation. ex Name+
-    /// </summary>
+    /// <summary>Gets the string representation. ex Name+</summary>
     /// <returns></returns>
     public override string ToString() {
         var text = Path + (Direction == DESC ? "-" : "+");
@@ -64,17 +49,13 @@ public struct SortByClause
         return text;        
     }
 
-    /// <summary>
-    /// Returns a hash code for the value of this instance.
-    /// </summary>
+    /// <summary>Returns a hash code for the value of this instance.</summary>
     /// <returns>An integer representing the hash code for the value of this instance.</returns>
     public override int GetHashCode() => (Path ?? string.Empty).GetHashCode() ^
                                          (Direction ?? string.Empty).GetHashCode() ^
                                          (DataType ?? 0).GetHashCode();
 
-    /// <summary>
-    /// Indicates whether this instance and a specified object are equal. 
-    /// </summary>
+    /// <summary>Indicates whether this instance and a specified object are equal. </summary>
     /// <param name="obj">The object to compare with the current instance.</param>
     /// <returns></returns>
     public override bool Equals(object obj) {
@@ -104,9 +85,7 @@ public struct SortByClause
         }
     }
 
-    /// <summary>
-    /// Parse the string representation  for a sort path with direction into a <see cref="SortByClause"/>
-    /// </summary>
+    /// <summary>Parse the string representation  for a sort path with direction into a <see cref="SortByClause"/></summary>
     /// <param name="text">a property path (case agnostic) followed by a sing '+' or '-'.</param>
     /// <returns></returns>
     public static SortByClause Parse(string text) {
@@ -128,29 +107,21 @@ public struct SortByClause
                                 dataType);
     }
 
-    /// <summary>
-    /// Implicit cast from <see cref="SortByClause"/> to <see cref="string" />
-    /// </summary>
+    /// <summary>Implicit cast from <see cref="SortByClause"/> to <see cref="string" /></summary>
     /// <param name="value"></param>
     public static implicit operator string(SortByClause value) => value.ToString();
 
-    /// <summary>
-    /// Explicit cast from <see cref="string "/> to <see cref="SortByClause" />
-    /// </summary>
+    /// <summary>Explicit cast from <see cref="string "/> to <see cref="SortByClause" /></summary>
     /// <param name="value"></param>
     public static explicit operator SortByClause(string value) => Parse(value);
     
 }
 
 
-/// <summary>
-/// <see cref="SortByClause"/> <seealso cref="TypeConverter"/> is used for aspnet rout binding to work from.
-/// </summary>
+/// <summary><see cref="SortByClause"/> <seealso cref="TypeConverter"/> is used for aspnet rout binding to work from.</summary>
 public class SortByClauseTypeConverter : TypeConverter
 {
-    /// <summary>
-    /// Overrides the ConvertTo method of TypeConverter.
-    /// </summary>
+    /// <summary>Overrides the ConvertTo method of TypeConverter.</summary>
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
     /// <returns></returns>
@@ -162,9 +133,7 @@ public class SortByClauseTypeConverter : TypeConverter
         return base.CanConvertFrom(context, sourceType);
     }
 
-    /// <summary>
-    /// Overrides the ConvertFrom method of TypeConverter.
-    /// </summary>
+    /// <summary>Overrides the ConvertFrom method of TypeConverter.</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>
@@ -177,9 +146,7 @@ public class SortByClauseTypeConverter : TypeConverter
         return base.ConvertFrom(context, culture, value);
     }
 
-    /// <summary>
-    /// Overrides the ConvertTo method of TypeConverter.
-    /// </summary>
+    /// <summary>Overrides the ConvertTo method of TypeConverter.</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>

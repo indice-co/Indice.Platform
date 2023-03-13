@@ -6,7 +6,7 @@ import { map } from 'rxjs/operators';
 import { SwalComponent } from '@sweetalert2/ngx-sweetalert2';
 import { ClaimType } from '../../details/models/claim-type.model';
 import { UserStore } from '../../user-store.service';
-import { SingleUserInfo, ClaimTypeInfo, ValueType } from 'src/app/core/services/identity-api.service';
+import { SingleUserInfo, ClaimTypeInfo, ClaimValueType } from 'src/app/core/services/identity-api.service';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
@@ -42,7 +42,7 @@ export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
             const claimType = userClaim && result.claims.find(x => x.name === userClaim.type);
             if (claimType) {
                 const claim = claimType as ClaimType;
-                claim.value = claim.valueType === ValueType.DateTime ? this._dateParser.parse(userClaim.value) : userClaim.value;
+                claim.value = claim.valueType === ClaimValueType.DateTime ? this._dateParser.parse(userClaim.value) : userClaim.value;
                 this.claim = claim;
             }
         });
@@ -62,7 +62,7 @@ export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
     }
 
     public update(): void {
-        const claimValue = this.claim.valueType === ValueType.DateTime ? this._dateParser.format(this.claim.value as NgbDateStruct) : this.claim.value;
+        const claimValue = this.claim.valueType === ClaimValueType.DateTime ? this._dateParser.format(this.claim.value as NgbDateStruct) : this.claim.value;
         this._userStore.updateUserClaim(this._userId, this._claimId, claimValue).subscribe(_ => {
             this._toast.showSuccess(`Claim '${this.claim.name}' was successfully updated.`);
         });

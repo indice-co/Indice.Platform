@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
@@ -54,11 +55,10 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         }
         MaxTrustedDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(MaxTrustedDevices));
         TrustActivationDelay = configuration.GetIdentityOption<TimeSpan?>($"{nameof(IdentityOptions.User)}:Devices", nameof(TrustActivationDelay));
-        EnforceMfa = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(EnforceMfa)) == true;
+        EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(EmailAsUserName)) ?? false;
+        MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
     }
 
-    /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
-    public bool SupportsEmailAsUserName => GetUserStore()?.EmailAsUserName == true;
     /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
     public IQueryable<UserDevice> UserDevices => GetDeviceStore()?.UserDevices;
     /// <summary></summary>
@@ -71,17 +71,38 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public int? MaxAllowedRegisteredDevices { get; }
     /// <summary>The default number of devices a user can register.</summary>
     public int? DefaultAllowedRegisteredDevices { get; }
-    /// <summary>Enforces multi factor authentication for all users.</summary>
-    public bool EnforceMfa { get; }
+    /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
+    public bool EmailAsUserName { get; }
+    /// <summary>MFA policy applied for new users.</summary>
+    public MfaPolicy MfaPolicy { get; set; }
 
     #region Method Overrides
     /// <inheritdoc />
     public async override Task<IdentityResult> CreateAsync(TUser user) {
+        if (EmailAsUserName) {
+            user.UserName = user.Email;
+        }
+        if (MfaPolicy == MfaPolicy.Enforced) {
+            user.TwoFactorEnabled = true;
+        }
         var result = await base.CreateAsync(user);
         if (result.Succeeded) {
             await _eventService.Publish(new UserCreatedEvent(user));
         }
         return result;
+    }
+
+    /// <inheritdoc />
+    public override Task<IdentityResult> UpdateAsync(TUser user) => UpdateAsync(user, bypassEmailAsUserNamePolicy: false);
+
+    /// <summary>Updates the specified user in the backing store.</summary>
+    /// <param name="user">The user to update.</param>
+    /// <param name="bypassEmailAsUserNamePolicy">Bypasses the EmailAsUserName policy, if enabled.</param>
+    public Task<IdentityResult> UpdateAsync(TUser user, bool bypassEmailAsUserNamePolicy) {
+        if (EmailAsUserName && !bypassEmailAsUserNamePolicy) {
+            user.UserName = user.Email;
+        }
+        return base.UpdateAsync(user);
     }
 
     /// <inheritdoc />
@@ -117,7 +138,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 
     /// <inheritdoc />
     public async override Task<IdentityResult> SetUserNameAsync(TUser user, string userName) {
-        var result = await base.SetUserNameAsync(user, userName);
+        var result = await base.SetUserNameAsync(user, EmailAsUserName ? user.Email : userName);
         if (result.Succeeded) {
             await _eventService.Publish(new UserNameChangedEvent(user));
         }
@@ -125,14 +146,18 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     }
 
     /// <inheritdoc />
+    public override async Task<IdentityResult> SetEmailAsync(TUser user, string email) {
+        if (EmailAsUserName) {
+            await base.SetUserNameAsync(user, email);
+        }
+        return await base.SetEmailAsync(user, email);
+    }
+
+    /// <inheritdoc />
     public override async Task<IdentityResult> ChangePhoneNumberAsync(TUser user, string phoneNumber, string token) {
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
-        }
-        var isTwoFactorEnabled = await GetTwoFactorEnabledAsync(user);
-        if (EnforceMfa && !isTwoFactorEnabled) {
-            result = await SetTwoFactorEnabledAsync(user, true);
         }
         return result;
     }

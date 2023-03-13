@@ -1,9 +1,8 @@
 ﻿using Indice.Features.Multitenancy.Core;
 
-namespace Indice.Sample.Common.Models
+namespace Indice.Sample.Common.Models;
+
+public class ExtendedTenant : Tenant
 {
-    public class ExtendedTenant : Tenant
-    {
-        public string PushNotificationConnectionString { get; set; }
-    }
+    public string PushNotificationConnectionString { get; set; }
 }

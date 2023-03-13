@@ -1,13 +1,10 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
 
-/// <summary>
-/// A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's <see cref="TimeSpan"/> representation.
-/// </summary>
+/// <summary>A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's <see cref="TimeSpan"/> representation.</summary>
 public class JsonUtcDateTimeConverter : JsonConverter<DateTime>
 {
     /// <inheritdoc/>
@@ -48,9 +45,7 @@ public class JsonUtcDateTimeConverter : JsonConverter<DateTime>
     }
 }
 
-/// <summary>
-/// A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's <see cref="TimeSpan"/> representation.
-/// </summary>
+/// <summary>A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's <see cref="TimeSpan"/> representation.</summary>
 public class JsonNullableUtcDateTimeConverter : JsonConverter<DateTime?>
 {
 #if NET5_0_OR_GREATER

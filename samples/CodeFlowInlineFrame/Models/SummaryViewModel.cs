@@ -1,8 +1,7 @@
-﻿namespace CodeFlowInlineFrame.Models
+﻿namespace CodeFlowInlineFrame.Models;
+
+public class SummaryViewModel
 {
-    public class SummaryViewModel
-    {
-        public int NumberOfUsers { get; set; }
-        public int NumberOfClients { get; set; }
-    }
+    public int NumberOfUsers { get; set; }
+    public int NumberOfClients { get; set; }
 }

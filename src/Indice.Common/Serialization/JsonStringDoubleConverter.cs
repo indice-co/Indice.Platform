@@ -1,12 +1,9 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's double representation.
-/// </summary>
+/// <summary>A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's double representation.</summary>
 public class JsonStringDoubleConverter : JsonConverter<double>
 {
     /// <inheritdoc/>

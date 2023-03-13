@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Indice.Validation;
 
-namespace Indice.Validation
+/// <summary>Validator predefined messages.</summary>
+public class ValidatorMessages
 {
-    /// <summary>
-    /// Validator predefined messages.
-    /// </summary>
-    public class ValidatorMessages
-    {
-        /// <summary>
-        /// Message for Invalid tax code
-        /// </summary>
-        public const string INVALID_TAXCODE = "Invalid Tax Code.";
-    }
+    /// <summary>Message for Invalid tax code</summary>
+    public const string INVALID_TAXCODE = "Invalid Tax Code.";
 }

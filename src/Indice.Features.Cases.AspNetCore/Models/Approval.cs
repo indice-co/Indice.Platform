@@ -1,18 +1,11 @@
-﻿namespace Indice.Features.Cases.Models
-{
-    /// <summary>
-    /// The Approval action for a Case.
-    /// </summary>
-    public enum Approval
-    {
-        /// <summary>
-        /// Approve action.
-        /// </summary>
-        Approve,
+﻿namespace Indice.Features.Cases.Models;
 
-        /// <summary>
-        /// Reject action.
-        /// </summary>
-        Reject
-    }
+/// <summary>The Approval action for a Case.</summary>
+public enum Approval
+{
+    /// <summary>Approve action.</summary>
+    Approve,
+
+    /// <summary>Reject action.</summary>
+    Reject
 }

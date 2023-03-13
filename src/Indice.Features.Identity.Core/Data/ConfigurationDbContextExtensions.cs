@@ -14,27 +14,28 @@ namespace Indice.Features.Identity.Core.Data;
 /// <summary>Extensions on type <see cref="IApplicationBuilder"/>.</summary>
 public static class ConfigurationExtensions
 {
-    /// <summary>Setup the IdentityServer stores for clients as well as API and identity resources.</summary>
+    /// <summary>Sets up the IdentityServer stores for clients as well as API and identity resources.</summary>
     /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
     /// <param name="clients">The list of predefined clients.</param>
     /// <param name="identityResources">The list of predefined identity resources.</param>
     /// <param name="apis">The list of predefined APIs.</param>
     /// <param name="apiScopes">The list of predefined API scopes.</param>
-    public static IApplicationBuilder IdentityServerStoreSetup<TConfigurationDbContext>(this IApplicationBuilder app, IEnumerable<Client> clients = null, IEnumerable<IdentityResource> identityResources = null,
-        IEnumerable<ApiResource> apis = null, IEnumerable<ApiScope> apiScopes = null)
-        where TConfigurationDbContext : ConfigurationDbContext<TConfigurationDbContext> {
+    public static IApplicationBuilder IdentityServerStoreSetup<TConfigurationDbContext>(this IApplicationBuilder app, 
+        IEnumerable<Client> clients = null, 
+        IEnumerable<IdentityResource> identityResources = null,
+        IEnumerable<ApiResource> apis = null, 
+        IEnumerable<ApiScope> apiScopes = null) where TConfigurationDbContext : ConfigurationDbContext<TConfigurationDbContext> {
         using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
-            serviceScope.ServiceProvider.GetService<PersistedGrantDbContext>().Database.EnsureCreated();
-            var config = serviceScope.ServiceProvider.GetService<TConfigurationDbContext>();
-            if (config != null) {
-                config.Database.EnsureCreated();
-                config.SeedData(clients, identityResources, apis, apiScopes);
+            var dbContext = serviceScope.ServiceProvider.GetService<TConfigurationDbContext>();
+            if (dbContext is not null) {
+                dbContext.Database.EnsureCreated();
+                dbContext.SeedData(clients, identityResources, apis, apiScopes);
             }
         }
         return app;
     }
 
-    /// <summary>Setup the IdentityServer stores for clients as well as API and identity resources.</summary>
+    /// <summary>Sets up the IdentityServer stores for clients as well as API and identity resources.</summary>
     /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
     /// <param name="clients">The list of predefined clients.</param>
     /// <param name="identityResources">The list of predefined identity resources.</param>

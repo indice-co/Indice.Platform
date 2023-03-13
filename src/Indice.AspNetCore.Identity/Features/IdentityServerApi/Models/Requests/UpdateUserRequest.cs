@@ -24,4 +24,6 @@ public class UpdateUserRequest
     public bool EmailConfirmed { get; set; }
     /// <summary>Indicates whether a user's phone number is confirmed or not.</summary>
     public bool PhoneNumberConfirmed { get; set; }
+    /// <summary>Flag indicating if we need to bypass email as username policy.</summary>
+    public bool BypassEmailAsUserNamePolicy { get; set; }
 }

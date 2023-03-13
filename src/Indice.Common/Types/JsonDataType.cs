@@ -1,28 +1,16 @@
 ﻿namespace Indice.Types;
 
-/// <summary>
-/// The data type representation. This is used by <see cref="FilterClause"/> &amp; <seealso cref="SortByClause"/> to identify the data type.
-/// </summary>
+/// <summary>The data type representation. This is used by <see cref="FilterClause"/> &amp; <seealso cref="SortByClause"/> to identify the data type.</summary>
 public enum JsonDataType : short
 {
-    /// <summary>
-    /// String.
-    /// </summary>
+    /// <summary>String.</summary>
     String = 0,
-    /// <summary>
-    /// Integer.
-    /// </summary>
+    /// <summary>Integer.</summary>
     Integer,
-    /// <summary>
-    /// Number.
-    /// </summary>
+    /// <summary>Number.</summary>
     Number,
-    /// <summary>
-    /// Boolean.
-    /// </summary>
+    /// <summary>Boolean.</summary>
     Boolean,
-    /// <summary>
-    /// DateTime.
-    /// </summary>
+    /// <summary>DateTime.</summary>
     DateTime
 }

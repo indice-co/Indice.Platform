@@ -8,6 +8,7 @@ import { ValidationProblemDetails } from 'src/app/core/services/identity-api.ser
 })
 export class ValidationSummaryComponent {
     @Input() public problemDetails: ValidationProblemDetails;
+    @Input() public level: 'danger' | 'warning' = 'danger';
 
     public get validationErrors() {
         const messages: string[] = [];

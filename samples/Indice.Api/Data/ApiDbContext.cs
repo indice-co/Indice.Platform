@@ -3,21 +3,20 @@ using Indice.Extensions.Configuration.Database.Data;
 using Indice.Extensions.Configuration.Database.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Api.Data
+namespace Indice.Api.Data;
+
+public class ApiDbContext : DbContext, IAppSettingsDbContext
 {
-    public class ApiDbContext : DbContext, IAppSettingsDbContext
-    {
-        public ApiDbContext(DbContextOptions<ApiDbContext> dbContextOptions) : base(dbContextOptions) {
+    public ApiDbContext(DbContextOptions<ApiDbContext> dbContextOptions) : base(dbContextOptions) {
 #if DEBUG
-            Database.EnsureCreated();
+        Database.EnsureCreated();
 #endif
-        }
+    }
 
-        public DbSet<AppSetting> AppSettings { get; set; }
+    public DbSet<AppSetting> AppSettings { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new AppSettingMap());
-        }
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfiguration(new AppSettingMap());
     }
 }

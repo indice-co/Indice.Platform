@@ -1,8 +1,6 @@
 ﻿namespace Indice.Extensions;
 
-/// <summary>
-/// Extensions methods on <see cref="char"/> struct.
-/// </summary>
+/// <summary>Extensions methods on <see cref="char"/> struct.</summary>
 public static class CharExtensions
 {
     /// <summary>Transliterate unicode character to ASCII string.</summary>
@@ -24,9 +22,7 @@ public static class CharExtensions
         return result;
     }
 
-    /// <summary>
-    /// Checks if the specified character is a digit.
-    /// </summary>
+    /// <summary>Checks if the specified character is a digit.</summary>
     /// <param name="character">The character to check.</param>
     /// <returns>Returns true if character is digit, otherwise false.</returns>
     /// <remarks>https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html</remarks>
@@ -35,9 +31,7 @@ public static class CharExtensions
         return charAsciiDecimal >= 48 && charAsciiDecimal <= 57;
     }
 
-    /// <summary>
-    /// Checks if the specified character is an uppercase English letter.
-    /// </summary>
+    /// <summary>Checks if the specified character is an uppercase English letter.</summary>
     /// <param name="character">The character to check.</param>
     /// <returns>Returns true if character is upper, otherwise false.</returns>
     /// <remarks>https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html</remarks>
@@ -46,9 +40,7 @@ public static class CharExtensions
         return charAsciiDecimal >= 65 && charAsciiDecimal <= 90;
     }
 
-    /// <summary>
-    /// Checks if the specified character is a lowercase English letter.
-    /// </summary>
+    /// <summary>Checks if the specified character is a lowercase English letter.</summary>
     /// <param name="character">The character to check.</param>
     /// <returns>Returns true if character is lower, otherwise false.</returns>
     /// <remarks>https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html</remarks>
@@ -57,9 +49,7 @@ public static class CharExtensions
         return charAsciiDecimal >= 97 && charAsciiDecimal <= 122;
     }
 
-    /// <summary>
-    /// Checks if the specified character is a special character.
-    /// </summary>
+    /// <summary>Checks if the specified character is a special character.</summary>
     /// <param name="character">The character to check.</param>
     /// <returns>Returns true if character is special, otherwise false.</returns>
     /// <remarks>https://www.cs.cmu.edu/~pattis/15-1XX/common/handouts/ascii.html</remarks>
@@ -71,9 +61,7 @@ public static class CharExtensions
                (charAsciiDecimal >= 123 && charAsciiDecimal <= 126);
     }
 
-    /// <summary>
-    /// Checks if the specified character is an English letter (uppercase or lowercase).
-    /// </summary>
+    /// <summary>Checks if the specified character is an English letter (uppercase or lowercase).</summary>
     /// <param name="character">The character to check.</param>
     /// <returns>Returns true if character is letter, otherwise false.</returns>
     public static bool IsLatinLetter(this char character) => character.IsLatinUpper() || character.IsLatinLower();

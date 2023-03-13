@@ -43,8 +43,6 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
                                configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(PasswordHistoryLimit));
         PasswordExpirationPolicy = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy)) ??
                                    configuration.GetSection(nameof(PasswordOptions)).GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy));
-        EmailAsUserName = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.User)}").GetValue<bool?>(nameof(EmailAsUserName)) ??
-                          configuration.GetSection(nameof(UserOptions)).GetValue<bool?>(nameof(EmailAsUserName));
     }
 
     private DbSet<UserDevice> UserDeviceSet => Context.Set<UserDevice>();
@@ -54,8 +52,6 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     public int? PasswordHistoryLimit { get; protected set; }
     /// <inheritdoc/>
     public PasswordExpirationPolicy? PasswordExpirationPolicy { get; protected set; }
-    /// <inheritdoc/>
-    public bool? EmailAsUserName { get; protected set; }
 
     #region Method Overrides
     /// <inheritdoc/>
@@ -83,20 +79,16 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public override Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default) {
+    public override async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         // Calculate expiration date based on policy.
         user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
-        // If EmailAsUserName option is enabled and a username is not set, then assign email to username.
-        if (EmailAsUserName.HasValue && EmailAsUserName.Value) {
-            user.UserName = user.Email;
-        }
-        return base.UpdateAsync(user, cancellationToken);
+        return await base.UpdateAsync(user, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public override Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default) {
+    public override async Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken = default) {
         user.CreateDate = DateTimeOffset.UtcNow;
         var hasPassword = !string.IsNullOrWhiteSpace(user.PasswordHash);
         // If user does not already have a policy assigned use the default policy.
@@ -107,27 +99,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
             }
             user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
         }
-        // If EmailAsUserName option is enabled and a username is not set, then assign email to username.
-        if (EmailAsUserName.HasValue && EmailAsUserName.Value && string.IsNullOrWhiteSpace(user.UserName)) {
-            user.UserName = user.Email;
-        }
-        return base.CreateAsync(user, cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public override async Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken = default) {
-        if (EmailAsUserName.HasValue && EmailAsUserName.Value) {
-            await base.SetUserNameAsync(user, email, cancellationToken);
-        }
-        await base.SetEmailAsync(user, email, cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public override async Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken = default) {
-        await base.SetUserNameAsync(user, userName, cancellationToken);
-        if (EmailAsUserName.HasValue && EmailAsUserName.Value) {
-            await base.SetEmailAsync(user, userName, cancellationToken);
-        }
+        return await base.CreateAsync(user, cancellationToken);
     }
     #endregion
 

@@ -1,13 +1,10 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// A custom <see cref="JsonConverter"/> that tries to convert any JSON value a suitable string representation if possible. If not it takes the json and passes it to the value as a json string.
-/// </summary>
+/// <summary>A custom <see cref="JsonConverter"/> that tries to convert any JSON value a suitable string representation if possible. If not it takes the json and passes it to the value as a json string.</summary>
 public class JsonAnyStringConverter : JsonConverter<string>
 {
     /// <inheritdoc/>

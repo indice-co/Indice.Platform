@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace Microsoft.Extensions.Localization;
 
-/// <summary>
-/// Extensions on the <see cref="IStringLocalizer"/>
-/// </summary>
+/// <summary>Extensions on the <see cref="IStringLocalizer"/></summary>
 public static class IStringLocalizerExtensions
 {
-    /// <summary>
-    /// Gets the list of all resource string translations for the given culture info.
-    /// </summary>
+    /// <summary>Gets the list of all resource string translations for the given culture info.</summary>
     /// <param name="stringLocalizer">The string localizer</param>
     /// <param name="culture">The culture for which to get the strings.</param>
     /// <param name="includeParentCultures">A bool indicating whether to include string from parent cultures.</param>

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Indice.Identity.Models;
+﻿namespace Indice.Identity.Models;
 
 public class LoginTempData
 {

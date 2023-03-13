@@ -12,7 +12,7 @@
     </div>
     <div class="modal-body">
         <form class="needs-validation" *ngIf="user" [ngClass]="{ 'was-validated': userPasswordform.submitted }" (ngSubmit)="userPasswordform.form.valid && resetPassword()" novalidate autocomplete="off" #userPasswordform="ngForm">
-            <app-validation-summary [problemDetails]="problemDetails" #validationSummary></app-validation-summary>
+            <app-validation-summary [problemDetails]="resetPasswordProblemDetails" #validationSummary></app-validation-summary>
             <div class="mb-3">
                 <label for="user-new-password">Password (*)</label>
                 <input type="password" class="form-control" id="user-new-password" name="user-new-password" [(ngModel)]="newPassword" #userNewPassword="ngModel" autocomplete="new-password" required>
@@ -37,9 +37,20 @@
 </ng-template>
 <p *ngIf="!user">Loading user data...</p>
 <form class="needs-validation" *ngIf="user" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && update()" novalidate autocomplete="off" [formReadonly]="!canEditUser" #form="ngForm">
+    <app-validation-summary [problemDetails]="updateUserProblemDetails" [level]="'warning'" #validationSummary></app-validation-summary>
     <div class="alert alert-warning d-flex align-items-center justify-content-between" role="alert" *ngIf="user.lockoutEnd">
         <b class="flex-fill">User is locked until {{ user.lockoutEnd | date: 'medium' }}.</b>
         <button type="button" class="btn btn-secondary" (click)="unlockAlert.fire()">Unlock</button>
+    </div>
+    <div class="mb-3 row" *ngIf="showBypassEmailAsUserNamePolicy">
+        <label for="user-bypass-email-as-username-policy" class="col-sm-2 col-form-label">Bypass EmailAsUserName policy</label>
+        <div class="col-sm-10">
+            <div class="form-check col-form-label custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input" type="checkbox" id="user-bypass-email-as-username-policy" name="user-bypass-email-as-username-policy" [(ngModel)]="bypassEmailAsUserNamePolicy"
+                       #userBypassEmailAsUserNamePolicy="ngModel" />
+                <label class="custom-control-label" for="user-bypass-email-as-username-policy"></label>
+            </div>
+        </div>
     </div>
     <div class="mb-3 row">
         <label for="user-name" class="col-sm-2 col-form-label">Username (*)</label>
@@ -132,16 +143,16 @@
     <div class="mb-3" *ngIf="canEditUser">
         <div>
             <button type="submit" class="btn btn-primary m-r-5">
-                <i class="material-icons align-middle">save</i>Save Changes
+                <i class="material-icons align-middle m-r-5">save</i>Save Changes
             </button>
             <button type="button" class="btn btn-danger m-r-5 float-end" (click)="deleteAlert.fire()" [disabled]="currentUserId === user.id">
-                <i class="material-icons align-middle">delete</i>Delete
+                <i class="material-icons align-middle m-r-5">delete</i>Delete
             </button>
             <button type="button" class="btn btn-secondary m-r-5 float-end" (click)="blockAlert.fire()" [disabled]="currentUserId === user.id">
-                <i class="material-icons align-middle">{{ !user.blocked ? 'lock' : 'lock_open' }}</i>{{ !user.blocked ? 'Block' : 'Unblock' }}
+                <i class="material-icons align-middle m-r-5">{{ !user.blocked ? 'lock' : 'lock_open' }}</i>{{ !user.blocked ? 'Block' : 'Unblock' }}
             </button>
             <button type="button" class="btn btn-secondary m-r-5 float-end" (click)="showResetPassword(content)" [disabled]="currentUserId === user.id">
-                <i class="material-icons align-middle">vpn_key</i>Reset Password
+                <i class="material-icons align-middle m-r-5">vpn_key</i>Reset Password
             </button>
         </div>
     </div>
