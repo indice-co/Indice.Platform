@@ -43,7 +43,6 @@ internal class DbCaseTypeConfiguration : IEntityTypeConfiguration<DbCaseType>
             .IsRequired(false);
         builder
             .Property(p => p.Config)
-            .HasMaxLength(TextSizePresets.M256)
             .IsRequired(false);
         builder
             .Property(p => p.CanCreateRoles)
