@@ -4,7 +4,9 @@
 public class ListOptions
 {
     private readonly Dictionary<string, string> SortRedirects;
-    
+    private int _page;
+    private int _size;
+
     /// <summary>Creates instance with default parameters.</summary>
     public ListOptions() {
         Page = 1;
@@ -14,9 +16,9 @@ public class ListOptions
     }
 
     /// <summary>The current page of the list. Default is 1.</summary>
-    public int Page { get; set; }
+    public int? Page { get => _page; set => _page = value ?? 1; }
     /// <summary>The size of the list. Default is 100.</summary>
-    public int Size { get; set; }
+    public int? Size { get => _size; set => _size = value ?? 100; }
     /// <summary>The property name used to sort the list.</summary>
     public string Sort { get; set; }
     /// <summary>A search term used to limit the results of the list.</summary>

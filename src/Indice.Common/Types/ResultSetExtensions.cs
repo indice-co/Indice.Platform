@@ -46,7 +46,7 @@ public static class ResultSetExtensions
         foreach (var sorting in options.GetSortings()) {
             source = source.ApplyOrder(sorting.Path, sorting.Direction, append:true);
         }
-        return source.ToResultSet(options.Page, options.Size);
+        return source.ToResultSet(options.Page.Value, options.Size.Value);
     }
 
     /// <summary>

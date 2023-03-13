@@ -20,7 +20,7 @@ namespace Indice.Types
             foreach (var sorting in options.GetSortings()) {
                 source = source.OrderBy(sorting, append: true);
             }
-            return await source.ToResultSetAsync(options.Page, options.Size);
+            return await source.ToResultSetAsync(options.Page.Value, options.Size.Value);
         }
 
         /// <summary>
