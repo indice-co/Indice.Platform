@@ -5,7 +5,8 @@
                       [disabled]="!(customer && caseTypeCode)">
     <form class="space-y-8 divide-y divide-gray-200 py-5">
         <app-select-case-type (selectedCaseTypeEvent)="caseTypeCode = $event"
-                              (sidePanelTitleEvent)="title = $event"></app-select-case-type>
+                              (sidePanelTitleEvent)="title = $event"
+                              (selectedCustomerEvent)="customer = $event"></app-select-case-type>
         <app-search-customer (selectedCustomerEvent)="customer = $event"
                              (sidePanelTitleEvent)="title = $event"
                              [caseTypeCode]="caseTypeCode"

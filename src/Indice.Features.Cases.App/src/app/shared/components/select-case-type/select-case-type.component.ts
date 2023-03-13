@@ -1,5 +1,5 @@
 import { PageIllustrationComponent } from './../page-illustration/page-illustration.component';
-import { CaseTypePartialResultSet } from './../../../core/services/cases-api.service';
+import { CaseTypePartialResultSet, CustomerDetails } from './../../../core/services/cases-api.service';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CasesApiService, CaseTypePartial } from 'src/app/core/services/cases-api.service';
@@ -13,8 +13,10 @@ import { map } from 'rxjs/internal/operators';
 export class SelectCaseTypeComponent implements OnInit {
   public caseTypes$: Observable<CaseTypePartial[]>;
   public selectedCaseTypeCode = '';
+  public selectedCaseTypeTitle = '';
   @Output() selectedCaseTypeEvent = new EventEmitter<string>();
   @Output() sidePanelTitleEvent = new EventEmitter<string>();
+  @Output() selectedCustomerEvent = new EventEmitter<CustomerDetails>();
 
 
   constructor(private api: CasesApiService) {
@@ -26,17 +28,19 @@ export class SelectCaseTypeComponent implements OnInit {
   ngOnInit(): void { }
 
   onSelect(value:any) {
-    // this.selectedCaseTypeCode !== value ? value : '';
-    if (this.selectedCaseTypeCode == value) {
+    if (this.selectedCaseTypeCode == value.code) {
       this.selectedCaseTypeCode = '';
+      this.selectedCaseTypeTitle = '';
     } else {
-      this.selectedCaseTypeCode = value
+      this.selectedCaseTypeCode = value.code;
+      this.selectedCaseTypeTitle = value.title;
     }
     this.selectedCaseTypeEvent.emit(this.selectedCaseTypeCode);
     if (this.selectedCaseTypeCode) {
-      this.sidePanelTitleEvent.emit('Υποβολή Αίτησης - Επιλογή πελάτη')
+      this.sidePanelTitleEvent.emit('Υποβολή Αίτησης - Επιλογή πελάτη');
     } else {
-      this.sidePanelTitleEvent.emit('')
+      this.sidePanelTitleEvent.emit('');
+      this.selectedCustomerEvent.emit();
     }
   }
 }
