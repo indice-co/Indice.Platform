@@ -1,6 +1,6 @@
-﻿using Indice.Features.Identity.Core;
-using Indice.Features.Identity.Core.Logging;
+﻿using Indice.Features.Identity.Core.Logging;
 using Indice.Features.Identity.Core.Logging.Abstractions;
+using Indice.Features.Identity.Core.Logging.Enrichers;
 using Indice.Features.Identity.Core.Logging.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -13,29 +13,44 @@ public static class SignInLogFeatureExtensions
     /// <summary>Registers the <see cref="SignInLogEventSink"/> implementation to the IdentityServer infrastructure.</summary>
     /// <param name="builder">IdentityServer builder interface.</param>
     /// <param name="configure">Configure action for the </param>
-    public static IIdentityServerBuilder AddUserSignInLogs(this IIdentityServerBuilder builder, Action<AuditEventSinkOptions> configure) {
+    public static IIdentityServerBuilder AddUserSignInLogs(this IIdentityServerBuilder builder, Action<SignInLogOptions> configure) {
         var services = builder.Services;
-        builder.AddEventSink<SignInLogEventSink>();
-        var options = new AuditEventSinkOptions {
+        var options = new SignInLogOptions {
             Services = builder.Services
         };
         configure(options);
+        builder.AddEventSink<SignInLogEventSink>();
         services.TryAddSingleton<ISignInLogService, SignInLogServiceNoop>();
+        services.AddDefaultEnrichers();
         return builder;
     }
 
     /// <summary>Uses Entity Framework Core as a persistence store.</summary>
     /// <param name="options">Options for configuring the IdentityServer audit mechanism.</param>
-    /// <param name="builder"></param>
-    public static void UseEntityFrameworkCoreStore(this AuditEventSinkOptions options, Action<IServiceProvider, DbContextOptionsBuilder> builder) {
+    /// <param name="configure">Provides a simple API surface for configuring <see cref="DbContextOptions" />.</param>
+    public static void UseEntityFrameworkCoreStore(this SignInLogOptions options, Action<IServiceProvider, DbContextOptionsBuilder> configure) {
         var services = options.Services;
         services.AddTransient<ISignInLogService, SignInLogServiceEntityFrameworkCore>();
-        services.AddDbContext<SignInLogDbContext>(builder);
+        services.AddDbContext<SignInLogDbContext>(configure);
     }
+
+    /// <summary>Uses Entity Framework Core as a persistence store.</summary>
+    /// <param name="options">Options for configuring the IdentityServer audit mechanism.</param>
+    /// <param name="configure">Provides a simple API surface for configuring <see cref="DbContextOptions" />.</param>
+    public static void UseEntityFrameworkCoreStore(this SignInLogOptions options, Action<DbContextOptionsBuilder> configure) =>
+        options.UseEntityFrameworkCoreStore((serviceProvider, builder) => configure(builder));
 
     /// <summary>Uses Azure table storage as a persistence store.</summary>
     /// <param name="options">Options for configuring the IdentityServer audit mechanism.</param>
-    public static void UseAzureTableStorageStore(this AuditEventSinkOptions options) {
+    public static void UseAzureTableStorageStore(this SignInLogOptions options) {
         throw new NotImplementedException();
+    }
+
+    private static IServiceCollection AddDefaultEnrichers(this IServiceCollection services) {
+        services.AddTransient<ISignInLogEntryEnricher, RequestIdEnricher>();
+        services.AddTransient<ISignInLogEntryEnricher, IpAddressEnricher>();
+        services.AddTransient<ISignInLogEntryEnricher, LocationEnricher>();
+        services.AddTransient<ISignInLogEntryEnricher, SessionIdEnricher>();
+        return services;
     }
 }

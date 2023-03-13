@@ -7,68 +7,51 @@ internal class SignInLogEntryFactory
 {
     public static SignInLogEntry CreateFromTokenIssuedSuccessEvent(TokenIssuedSuccessEvent @event) => new(Guid.NewGuid(), DateTimeOffset.UtcNow) {
         ActionName = @event.Name,
+        ApplicationId = @event.ClientId,
+        ApplicationName = @event.ClientName,
         Description = "A token was successfully issued.",
-        ExtraData = new {
-            @event.ActivityId,
-            @event.GrantType,
-            @event.ProcessId,
-            @event.RedirectUri,
-            @event.Scopes,
-            @event.Tokens
-        },
-        ResourceType = "IdentityServer",
+        ExtraData = new { @event.GrantType, @event.ProcessId, @event.RedirectUri, @event.Scopes, @event.Tokens },
         ResourceId = @event.Endpoint,
-        Subject = @event.ClientName,
-        SubjectId = @event.ClientId,
-        SubjectType = "Machine",
+        ResourceType = "IdentityServer",
+        SubjectId = @event.SubjectId,
         Succedded = true
     };
 
     public static SignInLogEntry CreateFromTokenIssuedFailureEvent(TokenIssuedFailureEvent @event) => new(Guid.NewGuid(), DateTimeOffset.UtcNow) {
         ActionName = @event.Name,
+        ApplicationId = @event.ClientId,
+        ApplicationName = @event.ClientName,
         Description = "A token failed to issue.",
-        ExtraData = new {
-            @event.ActivityId,
-            @event.Error,
-            @event.ErrorDescription,
-            @event.ProcessId
-        },
-        ResourceType = "IdentityServer",
+        ExtraData = new { @event.Error, @event.ErrorDescription, @event.GrantType, @event.ProcessId, @event.RedirectUri, @event.Scopes },
         ResourceId = @event.Endpoint,
-        Subject = @event.ClientName,
-        SubjectId = @event.ClientId,
-        SubjectType = "Machine",
+        ResourceType = "IdentityServer",
+        SubjectId = @event.SubjectId,
         Succedded = false
     };
 
     public static SignInLogEntry CreateFromUserLoginSuccessEvent(UserLoginSuccessEvent @event) => new(Guid.NewGuid(), DateTimeOffset.UtcNow) {
         ActionName = @event.Name,
+        ApplicationId = @event.ClientId,
         Description = "A user was successfully authenticated.",
-        ExtraData = new {
-            @event.ActivityId,
-            @event.ProcessId,
-            @event.Provider
-        },
-        ResourceType = "IdentityServer",
+        ExtraData = new { @event.ProcessId, @event.Provider },
         ResourceId = @event.Endpoint,
-        Subject = @event.DisplayName,
+        ResourceType = "IdentityServer",
+        SignInType = SignInType.Interactive,
         SubjectId = @event.SubjectId,
-        SubjectType = "User",
+        SubjectName = @event.DisplayName,
         Succedded = true
     };
 
     public static SignInLogEntry CreateFromUserLoginFailureEvent(UserLoginFailureEvent @event) => new(Guid.NewGuid(), DateTimeOffset.UtcNow) {
         ActionName = @event.Name,
+        ApplicationId = @event.ClientId,
         Description = "A user failed to authenticate.",
-        ExtraData = new {
-            @event.ActivityId,
-            @event.ProcessId
-        },
-        ResourceType = "IdentityServer",
+        ExtraData = new { @event.ProcessId },
         ResourceId = @event.Endpoint,
-        Subject = @event.Username,
+        ResourceType = "IdentityServer",
+        SignInType = SignInType.Interactive,
         SubjectId = @event.Username,
-        SubjectType = "User",
+        SubjectName = @event.Username,
         Succedded = false
     };
 }

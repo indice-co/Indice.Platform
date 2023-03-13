@@ -10,7 +10,7 @@ internal class SignInLogEntryAdapterFactory
     /// <param name="event">Models base class for events raised from IdentityServer.</param>
     public static SignInLogEntry Create(Event @event) {
         if (@event is null) {
-            throw new ArgumentNullException(nameof(@event), "Event cannot be null.");
+            return default;
         }
         return @event switch {
             TokenIssuedSuccessEvent => SignInLogEntryFactory.CreateFromTokenIssuedSuccessEvent((TokenIssuedSuccessEvent)@event),

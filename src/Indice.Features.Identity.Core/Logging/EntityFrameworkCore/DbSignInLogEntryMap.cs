@@ -12,7 +12,7 @@ public class DbSignInLogEntryMap : IEntityTypeConfiguration<DbSignInLogEntry>
     /// <param name="builder">Provides a simple API for configuring an <see cref="IMutableEntityType" />.</param>
     public void Configure(EntityTypeBuilder<DbSignInLogEntry> builder) {
         // Configure table name and schema.
-        builder.ToTable(nameof(SignInLogEntry), "dbo");
+        builder.ToTable("SignInLog", "dbo");
         // Configure primary key.
         builder.HasKey(x => x.Id);
         // Configure indexes.

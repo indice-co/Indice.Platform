@@ -20,10 +20,10 @@ public static class ConfigurationExtensions
     /// <param name="identityResources">The list of predefined identity resources.</param>
     /// <param name="apis">The list of predefined APIs.</param>
     /// <param name="apiScopes">The list of predefined API scopes.</param>
-    public static IApplicationBuilder IdentityServerStoreSetup<TConfigurationDbContext>(this IApplicationBuilder app, 
-        IEnumerable<Client> clients = null, 
+    public static IApplicationBuilder ConfigurationStoreSetup<TConfigurationDbContext>(this IApplicationBuilder app,
+        IEnumerable<Client> clients = null,
         IEnumerable<IdentityResource> identityResources = null,
-        IEnumerable<ApiResource> apis = null, 
+        IEnumerable<ApiResource> apis = null,
         IEnumerable<ApiScope> apiScopes = null) where TConfigurationDbContext : ConfigurationDbContext<TConfigurationDbContext> {
         using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
             var dbContext = serviceScope.ServiceProvider.GetService<TConfigurationDbContext>();
@@ -41,9 +41,21 @@ public static class ConfigurationExtensions
     /// <param name="identityResources">The list of predefined identity resources.</param>
     /// <param name="apis">The list of predefined API resources.</param>
     /// <param name="apiScopes">The list of predefined API scopes.</param>
-    public static IApplicationBuilder IdentityServerStoreSetup(this IApplicationBuilder app, IEnumerable<Client> clients = null, IEnumerable<IdentityResource> identityResources = null, IEnumerable<ApiResource> apis = null,
+    public static IApplicationBuilder ConfigurationStoreSetup(this IApplicationBuilder app, IEnumerable<Client> clients = null, IEnumerable<IdentityResource> identityResources = null, IEnumerable<ApiResource> apis = null,
         IEnumerable<ApiScope> apiScopes = null) =>
-        app.IdentityServerStoreSetup<ConfigurationDbContext>(clients, identityResources, apis, apiScopes);
+        app.ConfigurationStoreSetup<ConfigurationDbContext>(clients, identityResources, apis, apiScopes);
+
+    /// <summary>Sets up the IdentityServer operational store.</summary>
+    /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
+    public static IApplicationBuilder OperationalStoreSetup(this IApplicationBuilder app) {
+        using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
+            var dbContext = serviceScope.ServiceProvider.GetService<PersistedGrantDbContext>();
+            if (dbContext is not null) {
+                dbContext.Database.EnsureCreated();
+            }
+        }
+        return app;
+    }
 
     /// <summary>
     /// Helper that seeds data to the <see cref="ConfigurationDbContext{TConfigurationDbContext}"/> store using configuration as the initial load.
