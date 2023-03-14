@@ -1,4 +1,5 @@
 ﻿using Indice.AspNetCore.Extensions;
+using Indice.Features.Identity.Core.Logging.Abstractions;
 using Indice.Features.Identity.Core.Logging.Models;
 using Microsoft.AspNetCore.Http;
 
@@ -14,7 +15,7 @@ internal class IpAddressEnricher : ISignInLogEntryEnricher
 
     public Task Enrich(SignInLogEntry logEntry) {
         logEntry.IpAddress = _httpContextAccessor.HttpContext.GetClientIpAddress();
-        logEntry.IpAddress = "91.140.91.233";
+        logEntry.IpAddress = "212.205.254.62";
         return Task.CompletedTask;
     }
 }

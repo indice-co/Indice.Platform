@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Indice.Features.Identity.Core.Logging.Abstractions;
 using Indice.Features.Identity.Core.Logging.Models;
 using MaxMind.GeoIP2;
 using Microsoft.AspNetCore.Hosting;
