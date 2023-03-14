@@ -8,7 +8,6 @@
                               (sidePanelTitleEvent)="title = $event"
                               (selectedCustomerEvent)="customer = $event"></app-select-case-type>
         <app-search-customer (selectedCustomerEvent)="customer = $event"
-                             (sidePanelTitleEvent)="title = $event"
                              [caseTypeCode]="caseTypeCode"
                              *ngIf="caseTypeCode"></app-search-customer>
     </form>

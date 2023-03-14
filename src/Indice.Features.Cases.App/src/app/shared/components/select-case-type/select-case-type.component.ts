@@ -13,7 +13,7 @@ import { map } from 'rxjs/internal/operators';
 export class SelectCaseTypeComponent implements OnInit {
   public caseTypes$: Observable<CaseTypePartial[]>;
   public selectedCaseTypeCode = '';
-  public selectedCaseTypeTitle = '';
+  public selectedCaseType: CaseTypePartial = new CaseTypePartial();
   @Output() selectedCaseTypeEvent = new EventEmitter<string>();
   @Output() sidePanelTitleEvent = new EventEmitter<string>();
   @Output() selectedCustomerEvent = new EventEmitter<CustomerDetails>();
@@ -28,13 +28,8 @@ export class SelectCaseTypeComponent implements OnInit {
   ngOnInit(): void { }
 
   onSelect(value:any) {
-    if (this.selectedCaseTypeCode == value.code) {
-      this.selectedCaseTypeCode = '';
-      this.selectedCaseTypeTitle = '';
-    } else {
-      this.selectedCaseTypeCode = value.code;
-      this.selectedCaseTypeTitle = value.title;
-    }
+    this.selectedCaseType = value;
+    this.selectedCaseTypeCode = this.selectedCaseTypeCode === value.code ? '' : value.code
     this.selectedCaseTypeEvent.emit(this.selectedCaseTypeCode);
     if (this.selectedCaseTypeCode) {
       this.sidePanelTitleEvent.emit('Υποβολή Αίτησης - Επιλογή πελάτη');
