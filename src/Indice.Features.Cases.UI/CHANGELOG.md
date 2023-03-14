@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Propety `Lang` at `CasesUIOptions` for handlind the attribute `<html lang='XXX'>` from the options.
+> This change will require from the consumer api to handle the language. Eg:
+
+```cs
+app.UseCasesUI(options => {
+        // ...
+        options.Lang = "el"; 
+    });
+```
 
 ##  [6.10.5] - 2023-03-02
 ### Changed
