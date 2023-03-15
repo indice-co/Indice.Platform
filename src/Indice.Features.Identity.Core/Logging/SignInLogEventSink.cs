@@ -1,7 +1,6 @@
 ﻿using IdentityServer4.Events;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core.Logging.Abstractions;
-using Indice.Features.Identity.Core.Logging.Enrichers;
 
 namespace Indice.Features.Identity.Core.Logging;
 

@@ -11,6 +11,7 @@ import { CasesApiService, CreateDraftCaseRequest, CustomerDetails, CustomerMeta 
 export class CaseCreatePageComponent implements OnInit {
   public customer?: CustomerDetails;
   public caseTypeCode?: string;
+  public title?: string;
 
   constructor(
     private api: CasesApiService,
