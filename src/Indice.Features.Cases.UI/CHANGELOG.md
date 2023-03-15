@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Propety `Lang` at `CasesUIOptions` for handlind the attribute `<html lang='XXX'>` from the options.
+> This change will require from the consumer api to handle the language. Eg:
+
+```cs
+app.UseCasesUI(options => {
+        // ...
+        options.Lang = "el"; 
+    });
+```
+
 ##  [6.10.5] - 2023-03-02
 ### Changed
 - Case type form for create/update is simplified. Only case type entity is being edited.
