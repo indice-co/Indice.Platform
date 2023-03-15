@@ -10,6 +10,7 @@ import { CasesApiService, CustomerDetails } from 'src/app/core/services/cases-ap
 export class SearchCustomerComponent {
   @Input() caseTypeCode: string | undefined;
   @Output() selectedCustomerEvent = new EventEmitter<CustomerDetails>();
+
   public searchValue: string | undefined
   public results$: Observable<Selectable<CustomerDetails>[]> | undefined;
 

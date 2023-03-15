@@ -8,19 +8,31 @@ namespace Indice.Features.Identity.Core.Logging;
 public class SignInLogEventSink : IEventSink
 {
     private readonly ISignInLogService _logService;
+    private readonly IEnumerable<ISignInLogEntryEnricher> _enrichers;
 
     /// <summary>Creates a new instance of <see cref="SignInLogEventSink"/> class.</summary>
     /// <param name="logService">A service that contains operations used to persist the audit data of an event.</param>
+    /// <param name="enrichers"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public SignInLogEventSink(ISignInLogService logService) {
+    public SignInLogEventSink(
+        ISignInLogService logService,
+        IEnumerable<ISignInLogEntryEnricher> enrichers
+    ) {
         _logService = logService ?? throw new ArgumentNullException(nameof(logService));
+        _enrichers = enrichers?.ToArray() ?? throw new ArgumentNullException(nameof(enrichers));
     }
 
     /// <inheritdoc />
     public async Task PersistAsync(Event @event) {
-        var concreteEvent = SignInLogEntryAdapterFactory.Create(@event);
-        if (concreteEvent is not null) {
-            await _logService.CreateAsync(concreteEvent);
+        var signInEvent = SignInLogEntryAdapterFactory.Create(@event);
+        if (signInEvent is null) {
+            return;
+        }
+        foreach (var enricher in _enrichers) {
+            await enricher.Enrich(signInEvent);
+        }
+        if (signInEvent is not null) {
+            await _logService.CreateAsync(signInEvent);
         }
     }
 }

@@ -1,19 +1,36 @@
-<div class="flex gap-6 mb-6"
+<div class="flex gap-6 mb-6 max-h-96 "
+    [ngClass]="!selectedCaseTypeCode? 'overflow-y-scroll scrollbar-hide' : ''"
      *ngIf="(caseTypes$ | async) as model">
     <div>
-        <label class="block tracking-wide text-gray-700 text-xs font-bold mb-2"
-               for="caseType">
-            Είδος Αίτησης
-        </label>
-        <select [(ngModel)]="caseType"
-                (ngModelChange)="onSelect(caseType)"
-                name="caseType"
-                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm
-focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
-dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-            <ng-container *ngFor="let caseType of model">
-                <option [ngValue]="caseType.code">{{ caseType.title }}</option>
-            </ng-container>
-        </select>
+        <div class="mt-2 flow-root">
+            <div *ngIf="!selectedCaseTypeCode">
+                <app-display-case-types [caseTypes]="model"
+                                        (selectedCaseTypeEvent)="onSelect($event)">
+                </app-display-case-types>
+            </div>
+            <div *ngIf="selectedCaseTypeCode">
+                <a (click)="onSelect(selectedCaseType)"
+                   class="block bg-gray-50 hover:bg-gray-100 hover:cursor-pointer">
+                    <div class="flex items-center px-4 py-4 sm:px-6">
+                        <div class="mr-5 flex-shrink-0">
+                            <!-- Heroicon name: mini/chevron-left -->
+                            <svg class="h-5 w-5 text-gray-400 rotate-180"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 20 20"
+                                 fill="currentColor"
+                                 aria-hidden="true">
+                                <path fill-rule="evenodd"
+                                      d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"
+                                      clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div
+                             class="flex text-sm lowercase min-w-0 flex-1 sm:flex sm:items-center justify-between break-all">
+                            <p class="truncate font-medium text-gray-600">{{ selectedCaseType.title }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
     </div>
 </div>

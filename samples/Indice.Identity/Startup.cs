@@ -147,7 +147,8 @@ public class Startup
     public void Configure(IApplicationBuilder app) {
         if (HostingEnvironment.IsDevelopment()) {
             app.UseDeveloperExceptionPage();
-            app.IdentityServerStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
+            app.ConfigurationStoreSetup<ExtendedConfigurationDbContext>(Clients.Get(), Resources.GetIdentityResources(), Resources.GetApis(), Resources.GetApiScopes());
+            app.OperationalStoreSetup();
             app.IdentityStoreSetup();
         } else {
             app.UseHsts();

@@ -7,31 +7,41 @@ internal static class ObjectMapping
 {
     public static Expression<Func<DbSignInLogEntry, SignInLogEntry>> ToSignInLogEntry = (entry) => new() {
         ActionName = entry.ActionName,
+        ApplicationId = entry.ApplicationId,
+        ApplicationName = entry.ApplicationName,
         CreatedAt = entry.CreatedAt,
         Description = entry.Description,
         ExtraData = entry.ExtraData,
         Id = entry.Id,
-        ResourceType = entry.ResourceType,
+        IpAddress = entry.IpAddress,
+        Location = entry.Location,
+        RequestId = entry.RequestId,
         ResourceId = entry.ResourceId,
-        Source = entry.Source,
-        Subject = entry.Subject,
+        ResourceType = entry.ResourceType,
+        SessionId = entry.SessionId,
+        SignInType = entry.SignInType,
         SubjectId = entry.SubjectId,
-        SubjectType = entry.SubjectType,
+        SubjectName = entry.SubjectName,
         Succedded = entry.Succedded
     };
 
     public static DbSignInLogEntry ToDbSignInLogEntry(this SignInLogEntry entry) => new() {
         ActionName = entry.ActionName,
+        ApplicationId = entry.ApplicationId,
+        ApplicationName = entry.ApplicationName,
         CreatedAt = entry.CreatedAt,
         Description = entry.Description,
         ExtraData = entry.ExtraData,
         Id = entry.Id,
-        ResourceType = entry.ResourceType,
+        IpAddress = entry.IpAddress,
+        Location = entry.Location,
+        RequestId = entry.RequestId,
         ResourceId = entry.ResourceId,
-        Source = entry.Source,
-        Subject = entry.Subject,
+        ResourceType = entry.ResourceType,
+        SessionId = entry.SessionId,
+        SignInType = entry.SignInType,
         SubjectId = entry.SubjectId,
-        SubjectType = entry.SubjectType,
+        SubjectName = entry.SubjectName,
         Succedded = entry.Succedded
     };
 }

@@ -15,11 +15,15 @@ public class PaginationTagHelper : TagHelper
     const int MINIMUM_WINDOW = 5;
     const int MINUMUM_PAGES = MINIMUM_WINDOW + 3;
 
-    /// <summary>The virew context.</summary>
+    /// <summary>Creates a new instance of <see cref="PaginationTagHelper"/> class.</summary>
+    /// <param name="generator">Contract for a service supporting <see cref="IHtmlHelper"/> and <see cref="ITagHelper"/> implementations.</param>
+    public PaginationTagHelper(IHtmlGenerator generator) {
+        Generator = generator ?? throw new ArgumentNullException(nameof(generator));
+    }
+
+    /// <summary>The view context.</summary>
     [ViewContext]
     public ViewContext ViewContext { get; set; }
-    /// <summary>the html generator</summary>
-    protected readonly IHtmlGenerator Generator;
 
     /// <summary>All the current <see cref="ListOptions"/>.</summary>
     [HtmlAttributeName("list-options")]
@@ -33,112 +37,85 @@ public class PaginationTagHelper : TagHelper
     [HtmlAttributeName("window")]
     public int Window { get; set; } = MINIMUM_WINDOW;
 
-    /// <summary>The total number of <see cref="Pages"/></summary>
+    /// <summary>The total number of <see cref="Pages"/>.</summary>
     protected int Pages => Options.GetPagesFor(Count);
+    /// <summary>The HTML generator</summary>
+    protected readonly IHtmlGenerator Generator;
 
-    /// <summary>constructor</summary>
-    /// <param name="generator"></param>
-    public PaginationTagHelper(IHtmlGenerator generator) {
-        Generator = generator ?? throw new ArgumentNullException(nameof(generator));
-    }
-
-    /// <summary></summary>
-    /// <param name="context"></param>
-    /// <param name="output"></param>
-    /// <returns></returns>
+    /// <inheritdoc />
     public async override Task ProcessAsync(TagHelperContext context, TagHelperOutput output) {
-        if (Options == null) {
+        if (Options is null) {
             throw new InvalidOperationException($"The list options must be provided.");
         }
+        Options.Page = Options.Page ?? 1;
         output.TagName = "ul";
-
         var childContent = await output.GetChildContentAsync();
         if (childContent.IsEmptyOrWhiteSpace && Pages > 0) {
-
-            output.Content.AppendHtml(PageLink(Options.Page != 1, "«", Options.Page - 1, "previous"));
+            output.Content.AppendHtml(PageLink(Options.Page != 1, "«", Options.Page.Value - 1, "previous"));
             output.Content.AppendHtml(PageLink(Options.Page != 1, $"{1}", 1, "first"));
-
             var window = AdjustWindow(Window, Pages);
             var windowFactor = ((window - 2) / 2);
-
             IEnumerable<int> pages;
-
             var nearStart = Options.Page - windowFactor <= 3;
             var nearEnd = Pages - Options.Page - windowFactor < 3;
-
             if (Pages < MINUMUM_PAGES) {
                 pages = Enumerable.Range(2, Math.Max(Pages - 2, 0)); // this removes the first and last pages because they are included anyway.
-
                 foreach (var page in pages) {
                     output.Content.AppendHtml(PageLink(Options.Page != page, $"{page}", page, $"{page}"));
                 }
             } else {
                 if (nearStart) {
                     pages = Enumerable.Range(2, window - 1);
-
                     foreach (var page in pages) {
                         output.Content.AppendHtml(PageLink(Options.Page != page, $"{page}", page, $"{page}"));
                     }
-
                     if (pages.Any()) {
-                        output.Content.AppendHtml(PageLink(false, $"...", Options.Page, $"more pages"));
+                        output.Content.AppendHtml(PageLink(false, $"...", Options.Page.Value, $"more pages"));
                     }
                 }
-
                 if (nearEnd) {
                     pages = Enumerable.Range(Pages - window + 1, window - 1);
-
                     if (pages.Any()) {
-                        output.Content.AppendHtml(PageLink(false, $"...", Options.Page, $"more pages"));
+                        output.Content.AppendHtml(PageLink(false, $"...", Options.Page.Value, $"more pages"));
                     }
-
                     foreach (var page in pages) {
                         output.Content.AppendHtml(PageLink(Options.Page != page, $"{page}", page, $"{page}"));
                     }
                 }
-
                 if (!nearStart && !nearEnd) {
-                    pages = Enumerable.Range(Options.Page - windowFactor, window - 2);
-                    output.Content.AppendHtml(PageLink(false, $"...", Options.Page, $"more pages"));
-
+                    pages = Enumerable.Range(Options.Page.Value - windowFactor, window - 2);
+                    output.Content.AppendHtml(PageLink(false, $"...", Options.Page.Value, $"more pages"));
                     foreach (var page in pages) {
                         output.Content.AppendHtml(PageLink(Options.Page != page, $"{page}", page, $"{page}"));
                     }
-
-                    output.Content.AppendHtml(PageLink(false, $"...", Options.Page, $"more pages"));
+                    output.Content.AppendHtml(PageLink(false, $"...", Options.Page.Value, $"more pages"));
                 }
             }
-            if (Pages > 1) { 
+            if (Pages > 1) {
                 output.Content.AppendHtml(PageLink(Options.Page != Pages, $"{Pages}", Pages, "last"));
             }
-            output.Content.AppendHtml(PageLink(Options.Page != Pages, "»", Options.Page + 1, "next"));
-
-            // append summary if needed.
-        } 
+            output.Content.AppendHtml(PageLink(Options.Page != Pages, "»", Options.Page.Value + 1, "next"));
+        }
     }
 
     private IHtmlContent PageLink(bool enabled, string content, int page, string cssClass, string title = null) {
         var active = Options.Page == page;
-        //if (!enabled)
-        //    return HtmlString.Empty;
         var routeValues = Options.ToDictionary(new { Page = page }).AsRouteValues();
         var container = new TagBuilder("li");
         container.AddCssClass("page-item");
-        if (null != cssClass)
+        if (null != cssClass) {
             container.AddCssClass(cssClass);
-        if (null != title)
+        }
+        if (null != title) {
             container.MergeAttribute("title", title);
-        
-        var anchorTag = Generator.GenerateActionLink(ViewContext,
-                                                     string.Empty, null, null, null, null, null,
-                                                     routeValues.ToRouteValueDictionary(),
-                                                     null);
+        }
+        var anchorTag = Generator.GenerateActionLink(ViewContext, string.Empty, null, null, null, null, null, routeValues.ToRouteValueDictionary(), null);
         anchorTag.AddCssClass("page-link");
         if (active) {
             container.AddCssClass("active");
             anchorTag.MergeAttribute("href", "", true);
         }
-        if (!enabled) { 
+        if (!enabled) {
             container.AddCssClass("disabled");
             anchorTag.MergeAttribute("href", "", true);
         }
@@ -154,7 +131,7 @@ public class PaginationTagHelper : TagHelper
             return MINIMUM_WINDOW;
         }
         if (window % 2 == 0) {
-            window = window - 1;
+            window--;
         }
         return window;
     }
