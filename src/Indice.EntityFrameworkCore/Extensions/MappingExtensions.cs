@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// <summary>Extension methods on <see cref="PropertyBuilder{TProperty}"/>.</summary>
 public static class MappingExtensions
 {
-    /// <summary>Static map of Dynamic Json Columns.</summary>
+    /// <summary>Static map of Dynamic JSON Columns.</summary>
     internal static readonly ConcurrentDictionary<Type, HashSet<string>> JsonColumns = new();
 
     /// <summary>Configures the property so that the property value is converted to and from the database using the <see cref="JsonStringValueConverter{T}"/>.</summary>
@@ -18,7 +18,9 @@ public static class MappingExtensions
     public static PropertyBuilder HasJsonConversion<TProperty>(this PropertyBuilder<TProperty> builder) where TProperty : class {
         // https://docs.microsoft.com/en-us/ef/core/modeling/value-comparers
         var valueComparer = new ValueComparer<TProperty>(
-            equalsExpression: (obj1, obj2) => (obj1 != default(TProperty) ? JsonSerializer.Serialize(obj1, JsonStringValueConverter<TProperty>.SerializerOptions) : null) == (obj2 != default(TProperty) ? JsonSerializer.Serialize(obj2, JsonStringValueConverter<TProperty>.SerializerOptions) : null),
+            equalsExpression: (obj1, obj2) => 
+                (obj1 != default(TProperty) ? JsonSerializer.Serialize(obj1, JsonStringValueConverter<TProperty>.SerializerOptions) : null) == 
+                (obj2 != default(TProperty) ? JsonSerializer.Serialize(obj2, JsonStringValueConverter<TProperty>.SerializerOptions) : null),
             hashCodeExpression: obj => obj.GetHashCode(),
             snapshotExpression: obj => JsonSerializer.Deserialize<TProperty>(JsonSerializer.Serialize(obj, JsonStringValueConverter<TProperty>.SerializerOptions), JsonStringValueConverter<TProperty>.SerializerOptions)
         );

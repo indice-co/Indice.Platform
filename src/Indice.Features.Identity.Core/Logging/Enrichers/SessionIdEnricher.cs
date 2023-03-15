@@ -1,4 +1,5 @@
 ﻿using IdentityServer4.Services;
+using Indice.Features.Identity.Core.Logging.Abstractions;
 using Indice.Features.Identity.Core.Logging.Models;
 
 namespace Indice.Features.Identity.Core.Logging.Enrichers;

@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Logging.Models;
+﻿using Indice.Features.Identity.Core.Logging.Abstractions;
+using Indice.Features.Identity.Core.Logging.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Core.Logging.Enrichers;

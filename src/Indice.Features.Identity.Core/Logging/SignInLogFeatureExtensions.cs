@@ -1,6 +1,6 @@
-﻿using Indice.Features.Identity.Core.Logging;
+﻿using System.Reflection;
+using Indice.Features.Identity.Core.Logging;
 using Indice.Features.Identity.Core.Logging.Abstractions;
-using Indice.Features.Identity.Core.Logging.Enrichers;
 using Indice.Features.Identity.Core.Logging.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -47,10 +47,10 @@ public static class SignInLogFeatureExtensions
     }
 
     private static IServiceCollection AddDefaultEnrichers(this IServiceCollection services) {
-        services.AddTransient<ISignInLogEntryEnricher, RequestIdEnricher>();
-        services.AddTransient<ISignInLogEntryEnricher, IpAddressEnricher>();
-        services.AddTransient<ISignInLogEntryEnricher, LocationEnricher>();
-        services.AddTransient<ISignInLogEntryEnricher, SessionIdEnricher>();
+        var enrichers = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsClass && typeof(ISignInLogEntryEnricher).IsAssignableFrom(type));
+        foreach (var enricher in enrichers) {
+            services.AddTransient(typeof(ISignInLogEntryEnricher), enricher);
+        }
         return services;
     }
 }

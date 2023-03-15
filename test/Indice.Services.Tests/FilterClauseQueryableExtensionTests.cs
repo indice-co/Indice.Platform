@@ -65,7 +65,7 @@ public class FilterClauseQueryableExtensionTests : IDisposable
         foreach (var sorting in options.GetSortings()) {
             query = query.OrderBy(sorting, append:true);
         }
-        var results = await query.ToResultSetAsync(options.Page, options.Size);
+        var results = await query.ToResultSetAsync(options.Page ?? 1, options.Size ?? 100);
         Assert.True(true);
     }
 
