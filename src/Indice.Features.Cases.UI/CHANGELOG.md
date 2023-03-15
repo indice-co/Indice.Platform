@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Create new case side pane redesign
 - Propety `Lang` at `CasesUIOptions` for handlind the attribute `<html lang='XXX'>` from the options.
 > This change will require from the consumer api to handle the language. Eg:
 
@@ -15,6 +16,19 @@ app.UseCasesUI(options => {
         // ...
         options.Lang = "el"; 
     });
+```
+
+- onInit layout callback, now can return and set the entity to the ajsf form
+- onInit layout callback, now it can access the `case.metadata` property
+> example layout that sets the data.isLegal property 
+```js
+{ 
+	"backoffice": [
+		{
+			"onInit": "function(mv,f,md) {mv = mv || {}; if(md.LegalEntity === '1' || md.LegalEntity.toLowerCase() === 'true') {mv.isLegal = true;} return mv; }",
+		...
+	]
+}
 ```
 
 ##  [6.10.5] - 2023-03-02
