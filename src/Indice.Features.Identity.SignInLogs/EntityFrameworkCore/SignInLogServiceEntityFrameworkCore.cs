@@ -1,8 +1,9 @@
-﻿using Indice.Features.Identity.Core.Logging.Abstractions;
-using Indice.Features.Identity.Core.Logging.Models;
+﻿using Indice.Features.Identity.SignInLogs.Abstractions;
+using Indice.Features.Identity.SignInLogs.Models;
 using Indice.Types;
+using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Features.Identity.Core.Logging.EntityFrameworkCore;
+namespace Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 
 /// <summary>An implementation of <see cref="ISignInLogService"/>, using Entity Framework Core as a persistence mechanism.</summary>
 public class SignInLogServiceEntityFrameworkCore : ISignInLogService
@@ -22,10 +23,14 @@ public class SignInLogServiceEntityFrameworkCore : ISignInLogService
     }
 
     /// <inheritdoc />
-    public async Task<ResultSet<SignInLogEntry>> ListAsync(ListOptions<SignInLogEntryFilter> options) {
+    public async Task<ResultSet<SignInLogEntry>> ListAsync(ListOptions options) {
         var query = _dbContext.SignInLogs;
-        if (options.Filter is not null) {
-        }
         return await query.Select(ObjectMapping.ToSignInLogEntry).ToResultSetAsync(options);
     }
+
+    /// <inheritdoc />
+    public Task<int> UpdateAsync(Guid id, SignInLogEntryRequest model) => _dbContext
+        .SignInLogs
+        .Where(x => x.Id == id)
+        .ExecuteUpdateAsync(updates => updates.SetProperty(x => x.MarkForReview, model.MarkForReview));
 }

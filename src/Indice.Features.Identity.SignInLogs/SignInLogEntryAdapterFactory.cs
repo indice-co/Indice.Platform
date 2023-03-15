@@ -1,7 +1,7 @@
 ﻿using IdentityServer4.Events;
-using Indice.Features.Identity.Core.Logging.Models;
+using Indice.Features.Identity.SignInLogs.Models;
 
-namespace Indice.Features.Identity.Core.Logging;
+namespace Indice.Features.Identity.SignInLogs;
 
 /// <summary>A factory class in order to create <see cref="SignInLogEntry"/> instances.</summary>
 internal class SignInLogEntryAdapterFactory

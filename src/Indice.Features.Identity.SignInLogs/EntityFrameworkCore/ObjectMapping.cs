@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
-using Indice.Features.Identity.Core.Logging.Models;
+using Indice.Features.Identity.SignInLogs.Models;
 
-namespace Indice.Features.Identity.Core.Logging.EntityFrameworkCore;
+namespace Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 
 internal static class ObjectMapping
 {
@@ -15,6 +15,7 @@ internal static class ObjectMapping
         Id = entry.Id,
         IpAddress = entry.IpAddress,
         Location = entry.Location,
+        MarkForReview = entry.MarkForReview,
         RequestId = entry.RequestId,
         ResourceId = entry.ResourceId,
         ResourceType = entry.ResourceType,
@@ -35,6 +36,7 @@ internal static class ObjectMapping
         Id = entry.Id,
         IpAddress = entry.IpAddress,
         Location = entry.Location,
+        MarkForReview = entry.MarkForReview,
         RequestId = entry.RequestId,
         ResourceId = entry.ResourceId,
         ResourceType = entry.ResourceType,

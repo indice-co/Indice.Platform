@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Indice.Features.Identity.Core.Logging.EntityFrameworkCore;
+namespace Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 
 /// <summary>Entity Framework Core mapping for type <see cref="DbSignInLogEntry"/>.</summary>
 public class DbSignInLogEntryMap : IEntityTypeConfiguration<DbSignInLogEntry>

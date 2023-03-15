@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Indice.Features.Identity.Core.Logging;
+namespace Indice.Features.Identity.SignInLogs;
 
 /// <summary>Options for configuring the IdentityServer sign in logs mechanism.</summary>
 public class SignInLogOptions

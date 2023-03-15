@@ -1,6 +1,6 @@
-﻿using Indice.Features.Identity.Core.Logging.Models;
+﻿using Indice.Features.Identity.SignInLogs.Models;
 
-namespace Indice.Features.Identity.Core.Logging.EntityFrameworkCore;
+namespace Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 
 /// <summary>A database entity representing a user's sign in log entry.</summary>
 public class DbSignInLogEntry
@@ -37,6 +37,8 @@ public class DbSignInLogEntry
     public string SessionId { get; set; }
     /// <summary>Describes the user sign in type in terms of user presence.</summary>
     public SignInType? SignInType { get; set; }
+    /// <summary>Indicates whether the specified log entry is marked for review.</summary>
+    public bool MarkForReview { get; set; }
     /// <summary>Additional information about the user's sign in log entry.</summary>
     public dynamic ExtraData { get; set; }
 }

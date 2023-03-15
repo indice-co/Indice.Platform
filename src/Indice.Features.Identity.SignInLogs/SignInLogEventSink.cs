@@ -1,8 +1,8 @@
 ﻿using IdentityServer4.Events;
 using IdentityServer4.Services;
-using Indice.Features.Identity.Core.Logging.Abstractions;
+using Indice.Features.Identity.SignInLogs.Abstractions;
 
-namespace Indice.Features.Identity.Core.Logging;
+namespace Indice.Features.Identity.SignInLogs;
 
 /// <summary>IdentityServer event sink in order to persist data for a sign in event.</summary>
 public class SignInLogEventSink : IEventSink

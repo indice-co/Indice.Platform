@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Indice.Features.Identity.Core.Logging.EntityFrameworkCore;
+namespace Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 
 /// <summary><see cref="DbContext"/> for the Entity Framework Core that stores all user sign in log data.</summary>
 public class SignInLogDbContext : DbContext

@@ -1,10 +1,10 @@
 ﻿using System.Text;
-using Indice.Features.Identity.Core.Logging.Abstractions;
-using Indice.Features.Identity.Core.Logging.Models;
+using Indice.Features.Identity.SignInLogs.Abstractions;
+using Indice.Features.Identity.SignInLogs.Models;
 using MaxMind.GeoIP2;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Indice.Features.Identity.Core.Logging.Enrichers;
+namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
 internal class LocationEnricher : ISignInLogEntryEnricher
 {
@@ -20,7 +20,7 @@ internal class LocationEnricher : ISignInLogEntryEnricher
         }
         var assembly = typeof(LocationEnricher).Assembly;
         var @namespace = assembly.GetName().Name;
-        var citiesFileStream = assembly.GetManifestResourceStream($"{@namespace}.Logging.GeoLite2.{SignInLogOptions.GEO_LITE2_CITY_FILE_NAME}");
+        var citiesFileStream = assembly.GetManifestResourceStream($"{@namespace}.GeoLite2.{SignInLogOptions.GEO_LITE2_CITY_FILE_NAME}");
         var location = new StringBuilder();
         var shouldAddSeparator = false;
         const string separator = ", ";
@@ -42,7 +42,7 @@ internal class LocationEnricher : ISignInLogEntryEnricher
                 }
             }
         }
-        var countriesFileStream = assembly.GetManifestResourceStream($"{@namespace}.Logging.GeoLite2.{SignInLogOptions.GEO_LITE2_COUNTRY_FILE_NAME}");
+        var countriesFileStream = assembly.GetManifestResourceStream($"{@namespace}.GeoLite2.{SignInLogOptions.GEO_LITE2_COUNTRY_FILE_NAME}");
         using (var reader = new DatabaseReader(countriesFileStream)) {
             if (reader.TryCountry(logEntry.IpAddress, out var response)) {
                 if (!string.IsNullOrWhiteSpace(response?.Country?.Name)) {

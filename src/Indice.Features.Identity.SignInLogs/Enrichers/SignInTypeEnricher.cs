@@ -1,9 +1,10 @@
 ﻿using System.Reflection;
 using IdentityServer4.Models;
-using Indice.Features.Identity.Core.Logging.Abstractions;
-using Indice.Features.Identity.Core.Logging.Models;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.SignInLogs.Abstractions;
+using Indice.Features.Identity.SignInLogs.Models;
 
-namespace Indice.Features.Identity.Core.Logging.Enrichers;
+namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
 internal class SignInTypeEnricher : ISignInLogEntryEnricher
 {

@@ -1,6 +1,6 @@
-﻿using Indice.Features.Identity.Core.Logging.Models;
+﻿using Indice.Features.Identity.SignInLogs.Models;
 
-namespace Indice.Features.Identity.Core.Logging.Abstractions;
+namespace Indice.Features.Identity.SignInLogs.Abstractions;
 
 /// <summary>An abstraction used to describe the implementation of a service that enriches the <see cref="SignInLogEntry"/> class.</summary>
 public interface ISignInLogEntryEnricher

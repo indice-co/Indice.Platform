@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Identity.Core.Logging.Models;
+﻿namespace Indice.Features.Identity.SignInLogs.Models;
 
 /// <summary>Describes the user sign in type in terms of user presence.</summary>
 public enum SignInType

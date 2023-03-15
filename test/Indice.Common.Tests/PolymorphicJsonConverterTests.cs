@@ -42,8 +42,7 @@ public class PolymorphicJsonConverterTests
 
     [Fact]
     public void DeserializePolymorphicObjectListTest() {
-        var json = @"[{""firstName"": ""Kate"", ""lastName"": ""Leftheris"", ""sex"": ""Female""}, {""firstName"": ""Κωνσταντίνος"", ""lastName"": ""Λευθέρης"", ""sex"": ""Male""}]";
-
+        var json = @"[{""firstName"": ""Kate"", ""lastName"": ""Leftheris"", ""sex"": ""Female"",""isPregnant"":true}, {""firstName"": ""Κωνσταντίνος"", ""lastName"": ""Λευθέρης"", ""sex"": ""Male""}]";
         var people = JsonSerializer.Deserialize<Parent[]>(json, Options);
         Assert.IsType<Mother>(people[0]);
         Assert.IsType<Father>(people[1]);
@@ -63,10 +62,10 @@ public class PolymorphicJsonConverterTests
 
     [Fact]
     public void SerializePolymorphicObjectListEnumTest() {
-        var json = @"[{""sex"":""Male"",""firstName"":""John"",""lastName"":""Doe""},{""sex"":""Female"",""firstName"":""Jane"",""lastName"":""Mary""}]";
+        var json = @"[{""sex"":""Male"",""firstName"":""John"",""lastName"":""Doe""},{""isPregnant"":true,""sex"":""Female"",""firstName"":""Jane"",""lastName"":""Mary""}]";
         var people = new Parent[] {
             new Father { FirstName = "John", LastName = "Doe" },
-            new Mother { FirstName = "Jane", LastName = "Mary" },
+            new Mother { FirstName = "Jane", LastName = "Mary", IsPregnant = true },
         };
         var jsonResult = JsonSerializer.Serialize(people, Options);
         Assert.Equal(json, jsonResult);
@@ -102,6 +101,8 @@ public class PolymorphicJsonConverterTests
         public Mother() {
             Sex = SexType.Female;
         }
+
+        public bool IsPregnant { get; set; }
     }
 
     public enum SexType

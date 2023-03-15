@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using Indice.Features.Identity.Core.Logging;
-using Indice.Features.Identity.Core.Logging.Abstractions;
-using Indice.Features.Identity.Core.Logging.EntityFrameworkCore;
+using Indice.Features.Identity.SignInLogs;
+using Indice.Features.Identity.SignInLogs.Abstractions;
+using Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

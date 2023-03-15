@@ -1,6 +1,6 @@
 ﻿using Indice.Types;
 
-namespace Indice.Features.Identity.Core.Logging.Models;
+namespace Indice.Features.Identity.SignInLogs.Models;
 
 /// <summary>Represents a filter for an <see cref="SignInLogEntry"/> query.</summary>
 public class SignInLogEntryFilter
