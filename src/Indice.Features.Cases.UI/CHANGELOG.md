@@ -25,7 +25,8 @@ app.UseCasesUI(options => {
 { 
 	"backoffice": [
 		{
-			"onInit": "function(mv,f,md) {mv = mv || {}; if(md.LegalEntity === '1' || md.LegalEntity.toLowerCase() === 'true') {mv.isLegal = true;} return mv; }",
+			// mv: modelValue, f: form (entity), md: case metadata
+			"onInit": "function(mv,f,md) {f = f || {}; if(md.LegalEntity === '1' || md.LegalEntity.toLowerCase() === 'true') {f.isLegal = true;} return f; }",
 		...
 	]
 }
