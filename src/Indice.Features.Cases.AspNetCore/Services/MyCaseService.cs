@@ -165,19 +165,19 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
 
-        var myCasePartialQueryable = from p in dbCaseQueryable
-                                     let reason = p.Approvals.OrderByDescending(p => p.CreatedBy.When).FirstOrDefault()
+        var myCasePartialQueryable = from c in dbCaseQueryable
+                                     let reason = c.Approvals.OrderByDescending(a => a.CreatedBy.When).FirstOrDefault()
                                      let reasonMessage = reason != null && reason.Committed && reason.Action == Approval.Reject
                                      ? _caseSharedResourceService.GetLocalizedHtmlString(reason.Reason)
                                      : string.Empty
                                      select new MyCasePartial {
-                                         Id = p.Id,
-                                         Created = p.CreatedBy.When,
-                                         CaseTypeCode = p.CaseType.Code,
-                                         Status = p.PublicCheckpoint.CheckpointType.Status,
-                                         Checkpoint = p.PublicCheckpoint.CheckpointType.Code,
+                                         Id = c.Id,
+                                         Created = c.CreatedBy.When,
+                                         CaseTypeCode = c.CaseType.Code,
+                                         Status = c.PublicCheckpoint.CheckpointType.Status,
+                                         Checkpoint = c.PublicCheckpoint.CheckpointType.Code,
                                          Message = reasonMessage,
-                                         Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(p.CaseType.Translations)
+                                         Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(c.CaseType.Translations)
                                      };
         // sorting option
         if (string.IsNullOrEmpty(options.Sort)) {
