@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Identity.SignInLogs;
 
@@ -7,5 +8,12 @@ public class SignInLogOptions
 {
     internal static string GEO_LITE2_CITY_FILE_NAME = "GeoLite2-City.mmdb";
     internal static string GEO_LITE2_COUNTRY_FILE_NAME = "GeoLite2-Country.mmdb";
-    internal IServiceCollection Services;
+
+    internal SignInLogOptions(IServiceCollection services, IConfiguration configuration) {
+        Services = services;
+        Configuration = configuration;
+    }
+
+    internal IServiceCollection Services { get; }
+    internal IConfiguration Configuration { get; }
 }

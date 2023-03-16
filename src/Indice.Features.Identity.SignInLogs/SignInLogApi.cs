@@ -1,11 +1,13 @@
 ﻿using System.Net.Mime;
-using Indice.Features.Identity.Core;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
+using Indice.Security;
 using Indice.Types;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.FeatureManagement;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -16,15 +18,24 @@ public static class SignInLogApi
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static IEndpointRouteBuilder MapSignInLogs(this IEndpointRouteBuilder builder) {
         var group = builder.MapGroup("/api/")
-                           .RequireAuthorization(BasicPolicyNames.BeAdmin)
+                           .RequireAuthorization(policyBuilder =>
+                                policyBuilder.AddAuthenticationSchemes("IdentityServerApiAccessToken")
+                                             .RequireAdmin()
+                                             .RequireClaim(BasicClaimTypes.Scope, "identity")
+                           )
                            .WithTags("SignInLogs");
         group.AddOpenApiSecurityRequirement("oauth2", "identity");
         // GET: /api/sign-in-logs
         group.MapGet("/sign-in-logs", async (
             [FromServices] ISignInLogService signInLogService,
-            [AsParameters] ListOptions options
+            [FromServices] IFeatureManager featureManager,
+            [AsParameters] ListOptions options,
+            [AsParameters] SignInLogEntryFilter filter
         ) => {
-            var signInLogs = await signInLogService.ListAsync(options);
+            if (!await featureManager.IsEnabledAsync("SignInLogs")) {
+                return Results.NotFound();
+            }
+            var signInLogs = await signInLogService.ListAsync(ListOptions.Create(options, filter));
             return TypedResults.Ok(signInLogs);
         })
         .Produces<ResultSet<SignInLogEntry>>(StatusCodes.Status200OK, MediaTypeNames.Application.Json)
@@ -37,9 +48,13 @@ public static class SignInLogApi
         // PATCH: /api/sign-in-logs/{rowId}
         group.MapPatch("/sign-in-logs/{rowId}", async (
             [FromServices] ISignInLogService signInLogService,
+            [FromServices] IFeatureManager featureManager,
             [FromRoute] Guid rowId,
             [FromBody] SignInLogEntryRequest model
         ) => {
+            if (!await featureManager.IsEnabledAsync("SignInLogs")) {
+                return Results.NotFound();
+            }
             var rowsAffected = await signInLogService.UpdateAsync(rowId, model);
             return rowsAffected == 0 ? Results.NotFound() : Results.NoContent();
         })

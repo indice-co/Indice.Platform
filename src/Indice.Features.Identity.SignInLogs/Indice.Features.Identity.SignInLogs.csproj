@@ -12,7 +12,6 @@
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="MinimalApis.Extensions" Version="0.10.1" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />

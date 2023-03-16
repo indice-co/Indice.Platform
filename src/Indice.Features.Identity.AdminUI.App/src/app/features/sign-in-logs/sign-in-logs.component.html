@@ -1,0 +1,102 @@
+<ng-template let-modal #content>
+    <div class="modal-header">
+        <h4 class="modal-title" id="modal-basic-title">Log Entry</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <tbody>
+                    <tr>
+                        <th scope="row">Id</th>
+                        <td>{{ selectedLogEntry?.id }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Created At</th>
+                        <td>{{ selectedLogEntry?.createdAt | date:'medium' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Action</th>
+                        <td>{{ selectedLogEntry?.actionName || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Application Id</th>
+                        <td>{{ selectedLogEntry?.applicationId || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Application Name</th>
+                        <td>{{ selectedLogEntry?.applicationName || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Subject Id</th>
+                        <td>{{ selectedLogEntry?.subjectId || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Subject Name</th>
+                        <td>{{ selectedLogEntry?.subjectName || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Endpoint</th>
+                        <td>{{ selectedLogEntry?.resourceId || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Resource Type</th>
+                        <td>{{ selectedLogEntry?.resourceType || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Description</th>
+                        <td>{{ selectedLogEntry?.description || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">IP Address</th>
+                        <td>{{ selectedLogEntry?.ipAddress || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Request Id</th>
+                        <td>{{ selectedLogEntry?.requestId || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Sign In Type</th>
+                        <td>{{ selectedLogEntry?.signInType || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Marked for review</th>
+                        <td>{{ selectedLogEntry?.markForReview }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Metadata</th>
+                        <td>
+                            <textarea class="code-editor" cols="100" rows="25">{{ selectedLogEntry?.extraData | json }}</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</ng-template>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="page-title-box">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h4 class="page-title m-0">Sign in logs ({{ count }})</h4>
+                    <p class="text-muted font-14">Gets a list of all the sign in logs.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'createdAt'" [defaultSortDirection]="'Desc'" (search)="getLogs($event)" #signInLogsList></app-list-view>
+    </div>
+</div>
+<ng-template let-row="row" let-value="value" #optionalTemplate>
+    <span *ngIf="value" [title]="value">{{ value }}</span>
+    <span *ngIf="!value"> - </span>
+</ng-template>
+<ng-template let-row="row" let-value="value" #actionsTemplate>
+    <button class="btn btn-success" (click)="showLogDetails(row, content)">Details</button>
+</ng-template>

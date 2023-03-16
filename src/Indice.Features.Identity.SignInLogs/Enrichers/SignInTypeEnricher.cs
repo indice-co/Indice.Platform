@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using IdentityServer4;
 using IdentityServer4.Models;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.SignInLogs.Abstractions;
@@ -13,14 +14,15 @@ internal class SignInTypeEnricher : ISignInLogEntryEnricher
         GrantType.AuthorizationCode,
         GrantType.DeviceFlow,
         GrantType.Hybrid,
-        GrantType.Implicit
+        GrantType.Implicit,
+        GrantType.ResourceOwnerPassword
     };
 
     private static readonly IReadOnlyList<string> NON_INTERACTIVE_GRANT_TYPES = new List<string> {
         CustomGrantTypes.Delegation,
         CustomGrantTypes.OtpAuthenticate,
         GrantType.ClientCredentials,
-        GrantType.ResourceOwnerPassword,
+        IdentityServerConstants.PersistedGrantTypes.RefreshToken,
         TotpConstants.GrantType.Totp
     };
 

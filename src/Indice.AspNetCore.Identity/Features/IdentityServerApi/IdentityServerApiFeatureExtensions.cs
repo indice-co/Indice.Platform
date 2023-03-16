@@ -44,7 +44,7 @@ public static class IdentityServerApiFeatureExtensions
             settingsApiOptions.ConfigureDbContext = dbContextOptions.ConfigureDbContext;
         });
         services.AddDistributedMemoryCache();
-        services.AddFeatureManagement(configuration.GetSection("IdentityServerApiFeatureManagement"));
+        services.AddFeatureManagement(configuration.GetSection("IdentityServer:Features"));
         // Configure options for CacheResourceFilter.
         services.Configure<CacheResourceFilterOptions>(options => options.DisableCache = apiEndpointsOptions.DisableCache);
         // Invoke action provided by developer to override default options.

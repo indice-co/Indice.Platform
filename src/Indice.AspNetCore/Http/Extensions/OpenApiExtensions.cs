@@ -1,15 +1,15 @@
-﻿using Microsoft.OpenApi.Models;
+﻿#if NET7_0_OR_GREATER
+using Microsoft.OpenApi.Models;
 
 namespace Microsoft.AspNetCore.Builder;
 
-#if NET7_0_OR_GREATER
 /// <summary>Endpoint conventions regarding Open API.</summary>
 public static class OpenApiExtensions
 {
     /// <summary>Adds the JWT security scheme to the Open API description.</summary>
-    /// <param name="builder"></param>
-    /// <param name="securityScheme"></param>
-    /// <param name="requiredScopes"></param>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
+    /// <param name="securityScheme">The security scheme to use.</param>
+    /// <param name="requiredScopes">The array of required scopes.</param>
     /// <returns>The <see cref="IEndpointConventionBuilder"/>.</returns>
     public static IEndpointConventionBuilder AddOpenApiSecurityRequirement(this IEndpointConventionBuilder builder, string securityScheme = "oauth2", params string[] requiredScopes) {
         var scheme = new OpenApiSecurityScheme() {

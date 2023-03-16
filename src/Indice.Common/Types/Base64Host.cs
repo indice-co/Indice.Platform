@@ -6,7 +6,7 @@ namespace Indice.Types;
 
 /// <summary>
 /// Converts a base uri host back and forth to a url safe base64 string.
-/// Use this class to wrap a Guid into a representiation that is shortened and obfuscated for querystring use. 
+/// Use this class to wrap a Guid into a representation that is shortened and obfuscated for querystring use. 
 /// </summary>
 [TypeConverter(typeof(Base64HostTypeConverter))]
 public struct Base64Host
@@ -68,7 +68,7 @@ public struct Base64Host
         return base64;
     }
 
-    /// <summary>Parse from a string url safe base64 representation. </summary>
+    /// <summary>Parse from a string url safe base64 representation.</summary>
     /// <param name="base64"></param>
     /// <returns></returns>
     public static Base64Host Parse(string base64) {
@@ -91,8 +91,22 @@ public struct Base64Host
         }
     }
 
+    /// <summary>Tries to convert the specified <paramref name="base64"/> to a <see cref="Base64Host"/>.</summary>
+    /// <param name="base64">The base64 string to convert.</param>
+    /// <param name="host">The converted <see cref="Base64Host"/>.</param>
+    /// <returns>True if conversion is successful, otherwise false.</returns>
+    public static bool TryParse(string base64, out Base64Host host) {
+        host = default;
+        try {
+            host = Parse(base64);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     private static ushort ToShort(byte byte1, byte byte2) {   // using Int32 because that is what all the operations return anyway...
-        return (ushort)((((int)byte1) << 8) | (int)byte2);
+        return (ushort)((byte1 << 8) | (int)byte2);
     }
 
     private static void FromShort(ushort number, out byte byte1, out byte byte2) {

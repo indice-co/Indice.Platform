@@ -44,7 +44,8 @@ export class MenuService {
             new MenuItem('App Settings', undefined, isAdmin, 'settings_system_daydream', this.isActiveMenuItem('/app/settings'), [
                 new MenuItem('App Settings List', '/app/settings', isAdmin),
                 new MenuItem('Add App Setting', '/app/settings/add', isAdmin)
-            ])
+            ]),
+            //new MenuItem('Sign in Logs', '/app/sign-in-logs', isAdmin, 'book'),
         ]);
     }
 

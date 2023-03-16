@@ -83,6 +83,20 @@ public struct FilterClause
         return new FilterClause();
     }
 
+    /// <summary>Tries to parse the given <paramref name="filter"/> into a <paramref name="clause"/>. In case of exception it handles it and returns false.</summary>
+    /// <param name="filter">The filter as string.</param>
+    /// <param name="clause">The clause.</param>
+    /// <returns>True in case of success.</returns>
+    public static bool TryParse(string filter, out FilterClause clause) {
+        clause = default;
+        try {
+            clause = Parse(filter);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     /// <summary>Implicit cast from <see cref="FilterClause"/> to <seealso cref="string"/></summary>
     /// <param name="value">The value to convert</param>
     public static implicit operator string(FilterClause value) => value.ToString();

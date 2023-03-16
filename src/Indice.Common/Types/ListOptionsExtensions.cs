@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Globalization;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Indice.Types;
@@ -15,7 +14,6 @@ public static class ListOptionsExtensions
     /// <typeparam name="TReplacements"></typeparam>
     /// <param name="options"></param>
     /// <param name="replacements"></param>
-    /// <returns></returns>
     public static IDictionary<string, object> ToDictionary<TReplacements>(this ListOptions options, TReplacements replacements) where TReplacements : class {
         if (null == replacements) {
             throw new ArgumentNullException(nameof(replacements));
@@ -48,7 +46,7 @@ public static class ListOptionsExtensions
         } else if (instance is ListOptions options) {
             return dictionary.Merge(options.ToDictionary());
         }
-        type = type ?? instance?.GetType();
+        type ??= instance?.GetType();
         foreach (var property in type.GetRuntimeProperties()) {
             var value = property.GetValue(instance);
             if (value is ListOptions options) {
@@ -78,9 +76,8 @@ public static class ListOptionsExtensions
         return dictionary;
     }
 
-    /// <summary>Converts the <paramref name="source"/> <see cref="IEnumerable"/> of <seealso cref="SortByClause"/> to a value switable to use on the <seealso cref="ListOptions.Sort"/> property.</summary>
+    /// <summary>Converts the <paramref name="source"/> <see cref="IEnumerable"/> of <seealso cref="SortByClause"/> to a value suitable to use on the <seealso cref="ListOptions.Sort"/> property.</summary>
     /// <param name="source"></param>
-    /// <returns></returns>
     public static string ToUriString(this IEnumerable<SortByClause> source) => string.Join(",", source.Select(s => s.ToString()));
 
     private static string GetStructValue(Type type, object value) {
@@ -101,20 +98,15 @@ public static class ListOptionsExtensions
          || type == typeof(double?)
          || type == typeof(Guid)
          || type == typeof(Guid?)
-         ||
-#if NETSTANDARD14
-            type.GetTypeInfo().IsEnum || Nullable.GetUnderlyingType(type)?.GetTypeInfo().IsEnum == true) {
-#else
-            type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true) {
-#endif
+         || type.IsEnum || Nullable.GetUnderlyingType(type)?.IsEnum == true
+        ) {
             textValue = string.Format(CultureInfo.InvariantCulture, "{0}", value);
         }
         return textValue;
     }
 
-    /// <summary>Converts an object dictionary of route values to a collection of text keyvalue pairs</summary>
+    /// <summary>Converts an object dictionary of route values to a collection of text key value pairs.</summary>
     /// <param name="values"></param>
-    /// <returns></returns>
     public static IEnumerable<KeyValuePair<string, string>> AsRouteValues(this IDictionary<string, object> values) {
         return values.SelectMany(kv => {
             if (kv.Value == null) {
@@ -136,29 +128,5 @@ public static class ListOptionsExtensions
     public static string ToFormUrlEncodedString(this IDictionary<string, object> values) {
         var parameters = values.AsRouteValues();
         return string.Join("&", parameters.Select(kv => $"{kv.Key}={kv.Value}"));
-    }
-
-    /// <summary>
-    /// Redirects an incoming property/field path to the one corresponding to the underlying storage provider model. 
-    /// Usually if the undelying storage provider is EF or dapper it will map to to DataBase model property path or column name respectfully. 
-    /// </summary>
-    /// <typeparam name="TSource"></typeparam>
-    /// <typeparam name="TDestination"></typeparam>
-    /// <param name="options"></param>
-    /// <param name="from"></param>
-    /// <param name="to"></param>
-    public static void AddSortRedirect<TSource, TDestination>(this ListOptions options, Expression<Func<TSource, object>> from, Expression<Func<TDestination, object>> to) {
-        string GetExpressionMemberName(Expression expression, string parentPropertyName = null) {
-            var isProperty = expression.NodeType == ExpressionType.MemberAccess && expression is MemberExpression;
-            if (isProperty) {
-                var memberExpression = (MemberExpression)expression;
-                parentPropertyName = $"{memberExpression.Member.Name}{(parentPropertyName != null ? $".{parentPropertyName}" : string.Empty)}";
-                return GetExpressionMemberName(memberExpression.Expression, parentPropertyName);
-            }
-            return parentPropertyName;
-        }
-        var fromExpressionName = GetExpressionMemberName(from.Body);
-        var toExpressionName = GetExpressionMemberName(to.Body);
-        options.AddSortRedirect(fromExpressionName, toExpressionName);
     }
 }

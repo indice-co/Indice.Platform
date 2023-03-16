@@ -3,7 +3,9 @@ using Indice.Features.Identity.SignInLogs;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.FeatureManagement;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -15,13 +17,14 @@ public static class SignInLogFeatureExtensions
     /// <param name="configure">Configure action for the </param>
     public static IIdentityServerBuilder AddUserSignInLogs(this IIdentityServerBuilder builder, Action<SignInLogOptions> configure) {
         var services = builder.Services;
-        var options = new SignInLogOptions {
-            Services = builder.Services
-        };
+        var serviceProvider = services.BuildServiceProvider();
+        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        var options = new SignInLogOptions(builder.Services, configuration);
         configure(options);
         builder.AddEventSink<SignInLogEventSink>();
-        services.TryAddSingleton<ISignInLogService, SignInLogServiceNoop>();
         services.AddDefaultEnrichers();
+        services.AddFeatureManagement(configuration.GetSection("IdentityServer:Features"));
+        services.TryAddSingleton<ISignInLogService, SignInLogServiceNoop>();
         return builder;
     }
 
@@ -47,7 +50,10 @@ public static class SignInLogFeatureExtensions
     }
 
     private static IServiceCollection AddDefaultEnrichers(this IServiceCollection services) {
-        var enrichers = Assembly.GetExecutingAssembly().GetTypes().Where(type => type.IsClass && typeof(ISignInLogEntryEnricher).IsAssignableFrom(type));
+        var enrichers = Assembly
+            .GetExecutingAssembly()
+            .GetTypes()
+            .Where(type => type.IsClass && typeof(ISignInLogEntryEnricher).IsAssignableFrom(type));
         foreach (var enricher in enrichers) {
             services.AddTransient(typeof(ISignInLogEntryEnricher), enricher);
         }
