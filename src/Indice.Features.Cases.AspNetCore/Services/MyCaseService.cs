@@ -165,20 +165,20 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
 
-        var myCasePartialQueryable =
-                dbCaseQueryable.Select(p => new MyCasePartial {
-                    Id = p.Id,
-                    Created = p.CreatedBy.When,
-                    CaseTypeCode = p.CaseType.Code,
-                    Status = p.PublicCheckpoint.CheckpointType.Status,
-                    Checkpoint = p.PublicCheckpoint.CheckpointType.Code,
-                    Message = _caseSharedResourceService.GetLocalizedHtmlString(p.Comments // get the translated version of the comment (if exist)
-                        .OrderByDescending(p => p.CreatedBy.When)
-                        .FirstOrDefault(c => !c.Private)
-                        .Text ?? string.Empty),
-                    Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(p.CaseType.Translations)
-                });
-
+        var myCasePartialQueryable = from p in dbCaseQueryable
+                                     let reason = p.Approvals.OrderByDescending(p => p.CreatedBy.When).FirstOrDefault()
+                                     let reasonMessage = reason != null && reason.Committed && reason.Action == Approval.Reject
+                                     ? _caseSharedResourceService.GetLocalizedHtmlString(reason.Reason)
+                                     : string.Empty
+                                     select new MyCasePartial {
+                                         Id = p.Id,
+                                         Created = p.CreatedBy.When,
+                                         CaseTypeCode = p.CaseType.Code,
+                                         Status = p.PublicCheckpoint.CheckpointType.Status,
+                                         Checkpoint = p.PublicCheckpoint.CheckpointType.Code,
+                                         Message = reasonMessage,
+                                         Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(p.CaseType.Translations)
+                                     };
         // sorting option
         if (string.IsNullOrEmpty(options.Sort)) {
             options.Sort = $"{nameof(MyCasePartial.Created)}-";
