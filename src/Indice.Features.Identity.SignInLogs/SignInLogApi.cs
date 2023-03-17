@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.SignInLogs;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
 using Indice.Security;
@@ -18,14 +19,15 @@ public static class SignInLogApi
     /// <summary>Maps the sign in logs endpoints.</summary>
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static IEndpointRouteBuilder MapSignInLogs(this IEndpointRouteBuilder builder) {
-        var group = builder.MapGroup("/api/")
+        var options = builder.GetRequiredOptions<SignInLogOptions>();
+        var group = builder.MapGroup($"{options.ApiPrefix}/")
                            .RequireAuthorization(policyBuilder =>
                                 policyBuilder.AddAuthenticationSchemes("IdentityServerApiAccessToken")
                                              .RequireAdmin()
-                                             .RequireClaim(BasicClaimTypes.Scope, "identity")
+                                             .RequireClaim(BasicClaimTypes.Scope, options.ApiScope)
                            )
                            .WithTags("SignInLogs");
-        group.AddOpenApiSecurityRequirement("oauth2", "identity");
+        group.AddOpenApiSecurityRequirement("oauth2", options.ApiScope);
         // GET: /api/sign-in-logs
         group.MapGet("/sign-in-logs", async (
             [FromServices] ISignInLogService signInLogService,

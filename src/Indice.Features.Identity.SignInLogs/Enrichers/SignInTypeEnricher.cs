@@ -26,6 +26,8 @@ internal class SignInTypeEnricher : ISignInLogEntryEnricher
         TotpConstants.GrantType.Totp
     };
 
+    public int Order => 2;
+
     public Task Enrich(SignInLogEntry logEntry) {
         if (logEntry?.SignInType is not null) {
             return Task.CompletedTask;

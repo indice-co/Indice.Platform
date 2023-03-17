@@ -308,7 +308,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId);
             if (device is not null) {
                 device.IsTrusted = true;
-                device.TrustActivationDate = device.TrustActivationDate ?? DateTimeOffset.UtcNow;
+                device.TrustActivationDate ??= DateTimeOffset.UtcNow;
                 device.MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(MfaRememberDurationInDays);
                 await ExtendedUserManager.UpdateDeviceAsync(user, device);
             } else {

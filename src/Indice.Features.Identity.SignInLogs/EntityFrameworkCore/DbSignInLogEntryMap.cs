@@ -1,4 +1,5 @@
 ﻿using Indice.Configuration;
+using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -24,6 +25,7 @@ public class DbSignInLogEntryMap : IEntityTypeConfiguration<DbSignInLogEntry>
         builder.Property(x => x.ActionName).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.ApplicationId).HasMaxLength(TextSizePresets.M128);
         builder.Property(x => x.ApplicationName).HasMaxLength(TextSizePresets.M512);
+        builder.Property(x => x.Coordinates).HasConversion(x => x.ToDbGeographyString(), x => GeoPoint.Parse(x));
         builder.Property(x => x.Description).HasMaxLength(TextSizePresets.L2048);
         builder.Property(x => x.ExtraData).HasJsonConversion();
         builder.Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);

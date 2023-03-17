@@ -15,16 +15,22 @@ public static class SignInLogFeatureExtensions
 {
     /// <summary>Registers the <see cref="SignInLogEventSink"/> implementation to the IdentityServer infrastructure.</summary>
     /// <param name="builder">IdentityServer builder interface.</param>
-    /// <param name="configure">Configure action for the </param>
+    /// <param name="configure">Configure action for the sign in log feature.</param>
     public static IIdentityServerBuilder AddUserSignInLogs(this IIdentityServerBuilder builder, Action<SignInLogOptions> configure) {
         var services = builder.Services;
         var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-        var options = new SignInLogOptions(builder.Services, configuration);
-        configure(options);
+        var resolvedOptions = new SignInLogOptions(builder.Services, configuration);
+        configure?.Invoke(resolvedOptions);
+        // Configure options.
+        services.Configure<SignInLogOptions>(options => options = resolvedOptions.Clone());
+        // Add IdentityServer sink that captures required sign in events.
         builder.AddEventSink<SignInLogEventSink>();
+        // Add built-in enrichers for the log entry model.
         services.AddDefaultEnrichers();
+        // Enable feature management for this module.
         services.AddFeatureManagement(configuration.GetSection(IdentityServerFeatures.Section));
+        // Add a default implementation in case one is not specified. Avoids DI errors.
         services.TryAddSingleton<ISignInLogService, SignInLogServiceNoop>();
         return builder;
     }

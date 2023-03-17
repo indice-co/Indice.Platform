@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Identity.SignInLogs.Models;
+using Indice.Types;
 
 namespace Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 
@@ -39,6 +40,10 @@ public class DbSignInLogEntry
     public SignInType? SignInType { get; set; }
     /// <summary>Indicates whether the specified log entry is marked for review.</summary>
     public bool MarkForReview { get; set; }
+    /// <summary>Two letter ISO code for the country.</summary>
+    public string CountryIsoCode { get; set; }
+    /// <summary>The approximate location of the operation.</summary>
+    public GeoPoint Coordinates { get; set; }
     /// <summary>Additional information about the user's sign in log entry.</summary>
     public dynamic ExtraData { get; set; }
 }
