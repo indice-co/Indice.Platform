@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
 using Indice.Security;
@@ -32,7 +33,7 @@ public static class SignInLogApi
             [AsParameters] ListOptions options,
             [AsParameters] SignInLogEntryFilter filter
         ) => {
-            if (!await featureManager.IsEnabledAsync("SignInLogs")) {
+            if (!await featureManager.IsEnabledAsync(IdentityServerFeatures.SignInLogs)) {
                 return Results.NotFound();
             }
             var signInLogs = await signInLogService.ListAsync(ListOptions.Create(options, filter));
@@ -52,7 +53,7 @@ public static class SignInLogApi
             [FromRoute] Guid rowId,
             [FromBody] SignInLogEntryRequest model
         ) => {
-            if (!await featureManager.IsEnabledAsync("SignInLogs")) {
+            if (!await featureManager.IsEnabledAsync(IdentityServerFeatures.SignInLogs)) {
                 return Results.NotFound();
             }
             var rowsAffected = await signInLogService.UpdateAsync(rowId, model);

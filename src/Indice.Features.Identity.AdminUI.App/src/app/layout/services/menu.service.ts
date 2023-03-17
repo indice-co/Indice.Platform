@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { MenuItem } from './models/menu-item';
 import { AuthService } from 'src/app/core/services/auth.service';
+import { IdentityApiService, UiFeaturesInfo } from 'src/app/core/services/identity-api.service';
 
 @Injectable()
 export class MenuService {
@@ -11,13 +12,17 @@ export class MenuService {
     private _menuItems: MenuItem[] = [];
     private _menuToggled = new Subject();
 
-    constructor(private _router: Router, private _authService: AuthService) {
-        this._currentUrl = this._router.url;
-        const isAdmin = this._authService.isAdmin();
-        const canReadUsers = this._authService.isAdminUIUsersReader();
-        const canWriteUsers = this._authService.isAdminUIUsersWriter();
-        const canReadClients = this._authService.isAdminUIClientsReader();
-        const canWriteClients = this._authService.isAdminUIClientsWriter();
+    constructor(
+        private router: Router,
+        private authService: AuthService,
+        private identityService: IdentityApiService
+    ) {
+        this._currentUrl = this.router.url;
+        const isAdmin = this.authService.isAdmin();
+        const canReadUsers = this.authService.isAdminUIUsersReader();
+        const canWriteUsers = this.authService.isAdminUIUsersWriter();
+        const canReadClients = this.authService.isAdminUIClientsReader();
+        const canWriteClients = this.authService.isAdminUIClientsWriter();
         this._menuItems.push(...[
             new MenuItem('Dashboard', '/app/dashboard', canReadUsers || canReadClients, 'home'),
             new MenuItem('Users', undefined, canReadUsers, 'group', this.isActiveMenuItem('/app/users'), [
@@ -45,8 +50,12 @@ export class MenuService {
                 new MenuItem('App Settings List', '/app/settings', isAdmin),
                 new MenuItem('Add App Setting', '/app/settings/add', isAdmin)
             ]),
-            //new MenuItem('Sign in Logs', '/app/sign-in-logs', isAdmin, 'book'),
         ]);
+        this.identityService.getUiFeatures().subscribe((response: UiFeaturesInfo) => {
+            if (response.signInLogsEnabled) {
+                this._menuItems.push(new MenuItem('Sign in Logs', '/app/sign-in-logs', isAdmin, 'book'));
+            }
+        });
     }
 
     public menuToggled = this._menuToggled.asObservable();

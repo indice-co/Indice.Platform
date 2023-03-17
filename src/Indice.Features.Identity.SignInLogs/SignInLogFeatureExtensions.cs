@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.SignInLogs;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
@@ -23,7 +24,7 @@ public static class SignInLogFeatureExtensions
         configure(options);
         builder.AddEventSink<SignInLogEventSink>();
         services.AddDefaultEnrichers();
-        services.AddFeatureManagement(configuration.GetSection("IdentityServer:Features"));
+        services.AddFeatureManagement(configuration.GetSection(IdentityServerFeatures.Section));
         services.TryAddSingleton<ISignInLogService, SignInLogServiceNoop>();
         return builder;
     }

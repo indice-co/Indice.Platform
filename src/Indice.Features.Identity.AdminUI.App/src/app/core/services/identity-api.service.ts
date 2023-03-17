@@ -242,6 +242,11 @@ export interface IIdentityApiService {
      */
     getSystemSummary(): Observable<SummaryInfo>;
     /**
+     * Gets the ui features status.
+     * @return OK
+     */
+    getUiFeatures(): Observable<UiFeaturesInfo>;
+    /**
      * Sends a push notification.
      * @param body (optional) Contains information about the push notification to send.
      * @return No Content
@@ -3680,13 +3685,6 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = SummaryInfo.fromJS(resultData200);
             return _observableOf(result200);
             }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result401: any = null;
@@ -3711,6 +3709,76 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<SummaryInfo>(null as any);
+    }
+
+    /**
+     * Gets the ui features status.
+     * @return OK
+     */
+    getUiFeatures(): Observable<UiFeaturesInfo> {
+        let url_ = this.baseUrl + "/api/dashboard/ui";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetUiFeatures(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetUiFeatures(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UiFeaturesInfo>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UiFeaturesInfo>;
+        }));
+    }
+
+    protected processGetUiFeatures(response: HttpResponseBase): Observable<UiFeaturesInfo> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UiFeaturesInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<UiFeaturesInfo>(null as any);
     }
 
     /**
@@ -15158,6 +15226,50 @@ export class TrustDeviceRequest implements ITrustDeviceRequest {
 export interface ITrustDeviceRequest {
     /** The id of the device to remove before trusting the defined device. */
     swapDeviceId?: string | undefined;
+}
+
+export class UiFeaturesInfo implements IUiFeaturesInfo {
+    /** Determines whether dashboard metrics should be visible. */
+    metricsEnabled?: boolean;
+    /** Determines whether sign in logs should be visible. */
+    signInLogsEnabled?: boolean;
+
+    constructor(data?: IUiFeaturesInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.metricsEnabled = _data["metricsEnabled"];
+            this.signInLogsEnabled = _data["signInLogsEnabled"];
+        }
+    }
+
+    static fromJS(data: any): UiFeaturesInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new UiFeaturesInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["metricsEnabled"] = this.metricsEnabled;
+        data["signInLogsEnabled"] = this.signInLogsEnabled;
+        return data;
+    }
+}
+
+export interface IUiFeaturesInfo {
+    /** Determines whether dashboard metrics should be visible. */
+    metricsEnabled?: boolean;
+    /** Determines whether sign in logs should be visible. */
+    signInLogsEnabled?: boolean;
 }
 
 /** Models an API resource that will be updated on the server. */

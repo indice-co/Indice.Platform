@@ -84,14 +84,12 @@ internal class DashboardController : ControllerBase
 
     /// <summary>Gets some useful information as a summary of the system.</summary>
     /// <response code="200">OK</response>
-    /// <response code="400">Bad Request</response>
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersOrClientsReader)]
     [CacheResourceFilter(Expiration = 5, VaryByClaimType = new string[] { JwtClaimTypes.Subject })]
     [HttpGet("summary")]
     [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SummaryInfo))]
-    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
     public async Task<IActionResult> GetSystemSummary() {
@@ -128,4 +126,19 @@ internal class DashboardController : ControllerBase
         };
         return Ok(metrics);
     }
+
+    /// <summary>Gets the UI features status.</summary>
+    /// <response code="200">OK</response>
+    /// <response code="401">Unauthorized</response>
+    /// <response code="403">Forbidden</response>
+    [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme)]
+    [CacheResourceFilter(Expiration = 120)]
+    [HttpGet("ui")]
+    [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(UiFeaturesInfo))]
+    [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status403Forbidden, type: typeof(ProblemDetails))]
+    public async Task<IActionResult> GetUiFeatures() => Ok(new UiFeaturesInfo {
+        MetricsEnabled = await _featureManager.IsEnabledAsync(IdentityServerFeatures.DashboardMetrics),
+        SignInLogsEnabled = await _featureManager.IsEnabledAsync(IdentityServerFeatures.SignInLogs)
+    });
 }
