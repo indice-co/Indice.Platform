@@ -1,15 +1,11 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// A factory used to create various <see cref="TypeConverterJsonAdapter{T}"/> instances.
-/// </summary>
+/// <summary>A factory used to create various <see cref="TypeConverterJsonAdapter{T}"/> instances.</summary>
 public class TypeConverterJsonAdapterFactory : JsonConverterFactory
 {
     /// <inheritdoc />

@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// Single parameter ValueTupleJsonConverter
-/// </summary>
+/// <summary>Single parameter ValueTupleJsonConverter</summary>
 /// <typeparam name="T1"></typeparam>
 public class ValueTupleJsonConverter<T1> : JsonConverter<ValueTuple<T1>>
 {
@@ -41,9 +34,7 @@ public class ValueTupleJsonConverter<T1> : JsonConverter<ValueTuple<T1>>
         writer.WriteEndObject();
     }
 }
-/// <summary>
-/// 2 parameter ValueTupleJsonConverter
-/// </summary>
+/// <summary>2 parameter ValueTupleJsonConverter</summary>
 /// <typeparam name="T1"></typeparam>
 /// <typeparam name="T2"></typeparam>
 public class ValueTupleJsonConverter<T1, T2> : JsonConverter<ValueTuple<T1, T2>>
@@ -79,9 +70,7 @@ public class ValueTupleJsonConverter<T1, T2> : JsonConverter<ValueTuple<T1, T2>>
         writer.WriteEndObject();
     }
 }
-/// <summary>
-/// 3 parameter ValueTupleJsonConverter
-/// </summary>
+/// <summary>3 parameter ValueTupleJsonConverter</summary>
 /// <typeparam name="T1"></typeparam>
 /// <typeparam name="T2"></typeparam>
 /// <typeparam name="T3"></typeparam>
@@ -123,9 +112,7 @@ public class ValueTupleJsonConverter<T1, T2, T3> : JsonConverter<ValueTuple<T1, 
     }
 }
 
-/// <summary>
-/// 4 parameter ValueTupleJsonConverter
-/// </summary>
+/// <summary>4 parameter ValueTupleJsonConverter</summary>
 /// <typeparam name="T1"></typeparam>
 /// <typeparam name="T2"></typeparam>
 /// <typeparam name="T3"></typeparam>
@@ -170,9 +157,7 @@ public class ValueTupleJsonConverter<T1, T2, T3, T4> : JsonConverter<ValueTuple<
     }
 }
 
-/// <summary>
-/// 5 parameter ValueTupleJsonConverter
-/// </summary>
+/// <summary>5 parameter ValueTupleJsonConverter</summary>
 /// <typeparam name="T1"></typeparam>
 /// <typeparam name="T2"></typeparam>
 /// <typeparam name="T3"></typeparam>

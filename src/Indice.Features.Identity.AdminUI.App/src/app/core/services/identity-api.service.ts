@@ -242,11 +242,30 @@ export interface IIdentityApiService {
      */
     getSystemSummary(): Observable<SummaryInfo>;
     /**
+     * Gets the ui features status.
+     * @return OK
+     */
+    getUiFeatures(): Observable<UiFeaturesInfo>;
+    /**
      * Sends a push notification.
      * @param body (optional) Contains information about the push notification to send.
      * @return No Content
      */
     sendPushNotification(body?: SendPushNotificationRequest | undefined): Observable<void>;
+    /**
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param body (optional) 
+     * @return OK
+     */
+    employees(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<void>;
+    /**
+     * Bulk update users.
+     * @return No Content
+     */
+    bulkUpdateUsers(body: Blob): Observable<void>;
     /**
      * Gets the list of available external providers.
      * @return OK
@@ -596,6 +615,29 @@ export interface IIdentityApiService {
      * @return No Content
      */
     deleteRole(id: string): Observable<void>;
+    /**
+     * Gets the list of sign in logs produced by the Identity system.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param from (optional) 
+     * @param to (optional) 
+     * @param applicationId (optional) 
+     * @param subjectId (optional) 
+     * @param sessionId (optional) 
+     * @param signInType (optional) 
+     * @param markForReview (optional) 
+     * @param body (optional) 
+     * @return OK
+     */
+    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, signInType?: string | undefined, markForReview?: boolean | undefined, body?: any | undefined): Observable<SignInLogEntryResultSet>;
+    /**
+     * Patches the specified log entry by updating the properties given in the request.
+     * @param body (optional) 
+     * @return No Content
+     */
+    patchSignInLog(rowId: string, body?: SignInLogEntryRequest | undefined): Observable<void>;
     /**
      * Returns a list of Indice.AspNetCore.Identity.Api.Models.UserInfo objects containing the total number of users in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param filter_Claim_Type (optional) The type of the claim.
@@ -3643,13 +3685,6 @@ export class IdentityApiService implements IIdentityApiService {
             result200 = SummaryInfo.fromJS(resultData200);
             return _observableOf(result200);
             }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = ValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
         } else if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
             let result401: any = null;
@@ -3674,6 +3709,76 @@ export class IdentityApiService implements IIdentityApiService {
             }));
         }
         return _observableOf<SummaryInfo>(null as any);
+    }
+
+    /**
+     * Gets the ui features status.
+     * @return OK
+     */
+    getUiFeatures(): Observable<UiFeaturesInfo> {
+        let url_ = this.baseUrl + "/api/dashboard/ui";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetUiFeatures(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetUiFeatures(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UiFeaturesInfo>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UiFeaturesInfo>;
+        }));
+    }
+
+    protected processGetUiFeatures(response: HttpResponseBase): Observable<UiFeaturesInfo> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UiFeaturesInfo.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Internal Server Error", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<UiFeaturesInfo>(null as any);
     }
 
     /**
@@ -3741,6 +3846,151 @@ export class IdentityApiService implements IIdentityApiService {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param body (optional) 
+     * @return OK
+     */
+    employees(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/employees?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEmployees(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEmployees(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processEmployees(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
+     * Bulk update users.
+     * @return No Content
+     */
+    bulkUpdateUsers(body: Blob): Observable<void> {
+        let url_ = this.baseUrl + "/api/employees/builk-update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = body;
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "multipart/form-data",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processBulkUpdateUsers(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processBulkUpdateUsers(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processBulkUpdateUsers(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
@@ -8272,6 +8522,209 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Gets the list of sign in logs produced by the Identity system.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param from (optional) 
+     * @param to (optional) 
+     * @param applicationId (optional) 
+     * @param subjectId (optional) 
+     * @param sessionId (optional) 
+     * @param signInType (optional) 
+     * @param markForReview (optional) 
+     * @param body (optional) 
+     * @return OK
+     */
+    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, signInType?: string | undefined, markForReview?: boolean | undefined, body?: any | undefined): Observable<SignInLogEntryResultSet> {
+        let url_ = this.baseUrl + "/api/sign-in-logs?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (from === null)
+            throw new Error("The parameter 'from' cannot be null.");
+        else if (from !== undefined)
+            url_ += "From=" + encodeURIComponent("" + from) + "&";
+        if (to === null)
+            throw new Error("The parameter 'to' cannot be null.");
+        else if (to !== undefined)
+            url_ += "To=" + encodeURIComponent("" + to) + "&";
+        if (applicationId === null)
+            throw new Error("The parameter 'applicationId' cannot be null.");
+        else if (applicationId !== undefined)
+            url_ += "ApplicationId=" + encodeURIComponent("" + applicationId) + "&";
+        if (subjectId === null)
+            throw new Error("The parameter 'subjectId' cannot be null.");
+        else if (subjectId !== undefined)
+            url_ += "SubjectId=" + encodeURIComponent("" + subjectId) + "&";
+        if (sessionId === null)
+            throw new Error("The parameter 'sessionId' cannot be null.");
+        else if (sessionId !== undefined)
+            url_ += "SessionId=" + encodeURIComponent("" + sessionId) + "&";
+        if (signInType === null)
+            throw new Error("The parameter 'signInType' cannot be null.");
+        else if (signInType !== undefined)
+            url_ += "SignInType=" + encodeURIComponent("" + signInType) + "&";
+        if (markForReview === null)
+            throw new Error("The parameter 'markForReview' cannot be null.");
+        else if (markForReview !== undefined)
+            url_ += "MarkForReview=" + encodeURIComponent("" + markForReview) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSignInLogs(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSignInLogs(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SignInLogEntryResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SignInLogEntryResultSet>;
+        }));
+    }
+
+    protected processGetSignInLogs(response: HttpResponseBase): Observable<SignInLogEntryResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SignInLogEntryResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<SignInLogEntryResultSet>(null as any);
+    }
+
+    /**
+     * Patches the specified log entry by updating the properties given in the request.
+     * @param body (optional) 
+     * @return No Content
+     */
+    patchSignInLog(rowId: string, body?: SignInLogEntryRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/sign-in-logs/{rowId}";
+        if (rowId === undefined || rowId === null)
+            throw new Error("The parameter 'rowId' must be defined.");
+        url_ = url_.replace("{rowId}", encodeURIComponent("" + rowId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPatchSignInLog(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPatchSignInLog(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processPatchSignInLog(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
      * Returns a list of Indice.AspNetCore.Identity.Api.Models.UserInfo objects containing the total number of users in the database and the data filtered according to the provided Indice.Types.ListOptions.
      * @param filter_Claim_Type (optional) The type of the claim.
      * @param filter_Claim_Value (optional) The value of the claim.
@@ -10839,6 +11292,46 @@ export interface IBlogItemInfoResultSet {
     items?: BlogItemInfo[] | undefined;
 }
 
+export class BulkUpdateUsersCommand implements IBulkUpdateUsersCommand {
+    file!: string;
+    companyName?: string | undefined;
+
+    constructor(data?: IBulkUpdateUsersCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.file = _data["file"];
+            this.companyName = _data["companyName"];
+        }
+    }
+
+    static fromJS(data: any): BulkUpdateUsersCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new BulkUpdateUsersCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["file"] = this.file;
+        data["companyName"] = this.companyName;
+        return data;
+    }
+}
+
+export interface IBulkUpdateUsersCommand {
+    file: string;
+    companyName?: string | undefined;
+}
+
 /** Models a password change request by the user. */
 export class ChangePasswordRequest implements IChangePasswordRequest {
     /** The current password of the user. */
@@ -12770,6 +13263,74 @@ export interface IGrantTypeInfo {
     name?: string | undefined;
 }
 
+export class HttpValidationProblemDetails implements IHttpValidationProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    readonly errors?: { [key: string]: string[]; } | undefined;
+
+    constructor(data?: IHttpValidationProblemDetails) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.type = _data["type"];
+            this.title = _data["title"];
+            this.status = _data["status"];
+            this.detail = _data["detail"];
+            this.instance = _data["instance"];
+            if (_data["errors"]) {
+                (<any>this).errors = {} as any;
+                for (let key in _data["errors"]) {
+                    if (_data["errors"].hasOwnProperty(key))
+                        (<any>(<any>this).errors)![key] = _data["errors"][key] !== undefined ? _data["errors"][key] : [];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): HttpValidationProblemDetails {
+        data = typeof data === 'object' ? data : {};
+        let result = new HttpValidationProblemDetails();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["type"] = this.type;
+        data["title"] = this.title;
+        data["status"] = this.status;
+        data["detail"] = this.detail;
+        data["instance"] = this.instance;
+        if (this.errors) {
+            data["errors"] = {};
+            for (let key in this.errors) {
+                if (this.errors.hasOwnProperty(key))
+                    (<any>data["errors"])[key] = (<any>this.errors)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IHttpValidationProblemDetails {
+    type?: string | undefined;
+    title?: string | undefined;
+    status?: number | undefined;
+    detail?: string | undefined;
+    instance?: string | undefined;
+    errors?: { [key: string]: string[]; } | undefined;
+}
+
 /** Models an identity resource for the application. */
 export class IdentityResourceInfo implements IIdentityResourceInfo {
     /** Unique identifier for the identity resource. */
@@ -13603,6 +14164,240 @@ export interface ISetUserBlockRequest {
     blocked?: boolean;
 }
 
+/** A model representing a user's sign in log entry. */
+export class SignInLogEntry implements ISignInLogEntry {
+    /** The unique id of the user's sign in log entry. */
+    id?: string;
+    /** A timestamp that indicates when the user's sign in log entry occurred. */
+    createdAt?: Date;
+    /** The name of the action. */
+    actionName?: string | undefined;
+    /** The unique identifier of the application. */
+    applicationId?: string | undefined;
+    /** The display name of the application. */
+    applicationName?: string | undefined;
+    /** The unique identifier of the subject. */
+    subjectId?: string | undefined;
+    /** The display name of the subject. */
+    subjectName?: string | undefined;
+    /** The unique identifier of the resource. */
+    resourceId?: string | undefined;
+    /** The name of the resource. */
+    resourceType?: string | undefined;
+    /** A friendly text describing the log entry. */
+    description?: string | undefined;
+    /** Indicates whether the operation that caused the user's sign in log entry was successful or not. */
+    succedded?: boolean;
+    /** The IP address of the client. */
+    ipAddress?: string | undefined;
+    /** The unique identifier of the current request. */
+    requestId?: string | undefined;
+    /** The estimated client location based on the Indice.Features.Identity.SignInLogs.Models.SignInLogEntry.IpAddress. */
+    location?: string | undefined;
+    /** User's session id. */
+    sessionId?: string | undefined;
+    signInType?: SignInType;
+    /** Indicates whether the specified log entry is marked for review. */
+    markForReview?: boolean;
+    /** Additional information about the user's sign in log entry. */
+    extraData?: any | undefined;
+
+    constructor(data?: ISignInLogEntry) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.actionName = _data["actionName"];
+            this.applicationId = _data["applicationId"];
+            this.applicationName = _data["applicationName"];
+            this.subjectId = _data["subjectId"];
+            this.subjectName = _data["subjectName"];
+            this.resourceId = _data["resourceId"];
+            this.resourceType = _data["resourceType"];
+            this.description = _data["description"];
+            this.succedded = _data["succedded"];
+            this.ipAddress = _data["ipAddress"];
+            this.requestId = _data["requestId"];
+            this.location = _data["location"];
+            this.sessionId = _data["sessionId"];
+            this.signInType = _data["signInType"];
+            this.markForReview = _data["markForReview"];
+            this.extraData = _data["extraData"];
+        }
+    }
+
+    static fromJS(data: any): SignInLogEntry {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInLogEntry();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["actionName"] = this.actionName;
+        data["applicationId"] = this.applicationId;
+        data["applicationName"] = this.applicationName;
+        data["subjectId"] = this.subjectId;
+        data["subjectName"] = this.subjectName;
+        data["resourceId"] = this.resourceId;
+        data["resourceType"] = this.resourceType;
+        data["description"] = this.description;
+        data["succedded"] = this.succedded;
+        data["ipAddress"] = this.ipAddress;
+        data["requestId"] = this.requestId;
+        data["location"] = this.location;
+        data["sessionId"] = this.sessionId;
+        data["signInType"] = this.signInType;
+        data["markForReview"] = this.markForReview;
+        data["extraData"] = this.extraData;
+        return data;
+    }
+}
+
+/** A model representing a user's sign in log entry. */
+export interface ISignInLogEntry {
+    /** The unique id of the user's sign in log entry. */
+    id?: string;
+    /** A timestamp that indicates when the user's sign in log entry occurred. */
+    createdAt?: Date;
+    /** The name of the action. */
+    actionName?: string | undefined;
+    /** The unique identifier of the application. */
+    applicationId?: string | undefined;
+    /** The display name of the application. */
+    applicationName?: string | undefined;
+    /** The unique identifier of the subject. */
+    subjectId?: string | undefined;
+    /** The display name of the subject. */
+    subjectName?: string | undefined;
+    /** The unique identifier of the resource. */
+    resourceId?: string | undefined;
+    /** The name of the resource. */
+    resourceType?: string | undefined;
+    /** A friendly text describing the log entry. */
+    description?: string | undefined;
+    /** Indicates whether the operation that caused the user's sign in log entry was successful or not. */
+    succedded?: boolean;
+    /** The IP address of the client. */
+    ipAddress?: string | undefined;
+    /** The unique identifier of the current request. */
+    requestId?: string | undefined;
+    /** The estimated client location based on the Indice.Features.Identity.SignInLogs.Models.SignInLogEntry.IpAddress. */
+    location?: string | undefined;
+    /** User's session id. */
+    sessionId?: string | undefined;
+    signInType?: SignInType;
+    /** Indicates whether the specified log entry is marked for review. */
+    markForReview?: boolean;
+    /** Additional information about the user's sign in log entry. */
+    extraData?: any | undefined;
+}
+
+/** Request model for updating a Indice.Features.Identity.SignInLogs.Models.SignInLogEntry instance. */
+export class SignInLogEntryRequest implements ISignInLogEntryRequest {
+    /** Indicates whether we need to mark the specified log entry for review. */
+    markForReview?: boolean;
+
+    constructor(data?: ISignInLogEntryRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.markForReview = _data["markForReview"];
+        }
+    }
+
+    static fromJS(data: any): SignInLogEntryRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInLogEntryRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["markForReview"] = this.markForReview;
+        return data;
+    }
+}
+
+/** Request model for updating a Indice.Features.Identity.SignInLogs.Models.SignInLogEntry instance. */
+export interface ISignInLogEntryRequest {
+    /** Indicates whether we need to mark the specified log entry for review. */
+    markForReview?: boolean;
+}
+
+export class SignInLogEntryResultSet implements ISignInLogEntryResultSet {
+    count?: number;
+    items?: SignInLogEntry[] | undefined;
+
+    constructor(data?: ISignInLogEntryResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(SignInLogEntry.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): SignInLogEntryResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInLogEntryResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface ISignInLogEntryResultSet {
+    count?: number;
+    items?: SignInLogEntry[] | undefined;
+}
+
+/** Describes the user sign in type in terms of user presence. */
+export enum SignInType {
+    Interactive = "Interactive",
+    NonInteractive = "NonInteractive",
+}
+
 /** Models a system client when API provides info for a single client. */
 export class SingleClientInfo implements ISingleClientInfo {
     /** The unique identifier for this application. */
@@ -14431,6 +15226,50 @@ export class TrustDeviceRequest implements ITrustDeviceRequest {
 export interface ITrustDeviceRequest {
     /** The id of the device to remove before trusting the defined device. */
     swapDeviceId?: string | undefined;
+}
+
+export class UiFeaturesInfo implements IUiFeaturesInfo {
+    /** Determines whether dashboard metrics should be visible. */
+    metricsEnabled?: boolean;
+    /** Determines whether sign in logs should be visible. */
+    signInLogsEnabled?: boolean;
+
+    constructor(data?: IUiFeaturesInfo) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.metricsEnabled = _data["metricsEnabled"];
+            this.signInLogsEnabled = _data["signInLogsEnabled"];
+        }
+    }
+
+    static fromJS(data: any): UiFeaturesInfo {
+        data = typeof data === 'object' ? data : {};
+        let result = new UiFeaturesInfo();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["metricsEnabled"] = this.metricsEnabled;
+        data["signInLogsEnabled"] = this.signInLogsEnabled;
+        return data;
+    }
+}
+
+export interface IUiFeaturesInfo {
+    /** Determines whether dashboard metrics should be visible. */
+    metricsEnabled?: boolean;
+    /** Determines whether sign in logs should be visible. */
+    signInLogsEnabled?: boolean;
 }
 
 /** Models an API resource that will be updated on the server. */

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Indice.Security;
+﻿namespace Indice.Security;
 
 /// <summary>Represent a tenant construct for multi-tenant applications.</summary>
 public interface ITenant

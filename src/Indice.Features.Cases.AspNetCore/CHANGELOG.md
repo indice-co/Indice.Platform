@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.3] - 2023-03-17
+### Fixed
+- The MyGetCases function correctly returns the translated rejection reason instead of the text
+
+## [6.11.2] - 2023-03-15
+### Changed
+- Entity `CaseType.Config` now has `MAX` length 
+
+### Migrations
+```sql
+ALTER TABLE [case].[Casetype] 
+    ALTER COLUMN [Config] NVARCHAR(MAX) NULL;
+ ```
 ##  [6.10.6] - 2023-03-17
 ### Fixed
 - The GetCases function correctly returns the translated rejection reason instead of the text.

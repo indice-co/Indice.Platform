@@ -6,14 +6,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Cases.Extensions;
 
-/// <summary>
-/// Entity builder extensions.
-/// </summary>
+/// <summary>Entity builder extensions.</summary>
 public static class EntityTypeBuilderExtensions
 {
-    /// <summary>
-    /// Map the <see cref="AuditMeta"/> property.
-    /// </summary>
+    /// <summary>Map the <see cref="AuditMeta"/> property.</summary>
     /// <typeparam name="TEntity"></typeparam>
     /// <param name="builder">The EntityTypeBuilder.</param>
     /// <param name="navigationExpression">The navigation expression.</param>

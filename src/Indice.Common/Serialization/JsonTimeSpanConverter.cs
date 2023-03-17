@@ -1,12 +1,9 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's <see cref="TimeSpan"/> representation.
-/// </summary>
+/// <summary>A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's <see cref="TimeSpan"/> representation.</summary>
 public class JsonTimeSpanConverter : JsonConverter<TimeSpan>
 {
 #if NET5_0_OR_GREATER
@@ -35,9 +32,7 @@ public class JsonTimeSpanConverter : JsonConverter<TimeSpan>
     public override void Write(Utf8JsonWriter writer, TimeSpan value, JsonSerializerOptions options) => writer.WriteStringValue(value.ToString());
 }
 
-/// <summary>
-/// A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's <see cref="TimeSpan"/> representation.
-/// </summary>
+/// <summary>A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's <see cref="TimeSpan"/> representation.</summary>
 public class JsonNullableTimeSpanConverter : JsonConverter<TimeSpan?>
 {
 #if NET5_0_OR_GREATER

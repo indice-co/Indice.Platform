@@ -1,25 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Indice.Types;
 
-/// <summary>
-/// By Marc Gravell of the ASP.NET Team 2008 http://stackoverflow.com/questions/41244/dynamic-linq-orderby
-/// </summary>
+/// <summary>By Marc Gravell of the ASP.NET Team 2008 http://stackoverflow.com/questions/41244/dynamic-linq-orderby</summary>
 public static class OrderByExtensions
 {
-    /// <summary>
-    /// can identify if the Queryable is indeed <see cref="IOrderedQueryable"/>
-    /// </summary>
+    /// <summary>can identify if the Queryable is indeed <see cref="IOrderedQueryable"/></summary>
     /// <param name="source">The input queryable</param>
     /// <returns>True if it has already been sorted at least once</returns>
     public static bool IsOrdered(IQueryable source) => source.Expression.Type.IsGenericType && typeof(IOrderedQueryable<>).IsAssignableFrom(source.Expression.Type.GetGenericTypeDefinition()); 
     
-    /// <summary>
-    /// Order an <see cref="IQueryable{T}"/> by string member path (<paramref name="property"/>) and <paramref name="direction"/> ASC, DESC.
-    /// </summary>
+    /// <summary>Order an <see cref="IQueryable{T}"/> by string member path (<paramref name="property"/>) and <paramref name="direction"/> ASC, DESC.</summary>
     /// <typeparam name="T">The type of data that the <see cref="IQueryable{T}"/> contains.</typeparam>
     /// <param name="collection">The data source.</param>
     /// <param name="property">The property name to use.</param>
@@ -32,33 +24,25 @@ public static class OrderByExtensions
         return ApplyOrder(collection, property, methodName);
     }
 
-    /// <summary>
-    /// Order an <see cref="IQueryable{T}"/> by string member path (<paramref name="property"/>) in ascending order.
-    /// </summary>
+    /// <summary>Order an <see cref="IQueryable{T}"/> by string member path (<paramref name="property"/>) in ascending order.</summary>
     /// <typeparam name="T">The type of data that the <see cref="IQueryable{T}"/> contains.</typeparam>
     /// <param name="source">The data source.</param>
     /// <param name="property">The property name to use.</param>
     public static IOrderedQueryable<T> OrderBy<T>(this IQueryable<T> source, string property) => ApplyOrder(source, property, "OrderBy");
 
-    /// <summary>
-    /// Order an <see cref="IQueryable{T}"/> by string member path (<paramref name="property"/>) in descending order.
-    /// </summary>
+    /// <summary>Order an <see cref="IQueryable{T}"/> by string member path (<paramref name="property"/>) in descending order.</summary>
     /// <typeparam name="T">The type of data that the <see cref="IQueryable{T}"/> contains.</typeparam>
     /// <param name="source">The data source.</param>
     /// <param name="property">The property name to use.</param>
     public static IOrderedQueryable<T> OrderByDescending<T>(this IQueryable<T> source, string property) => ApplyOrder(source, property, "OrderByDescending");
 
-    /// <summary>
-    /// Order an <see cref="IOrderedQueryable{T}"/> by string member path (<paramref name="property"/>) in ascending order.
-    /// </summary>
+    /// <summary>Order an <see cref="IOrderedQueryable{T}"/> by string member path (<paramref name="property"/>) in ascending order.</summary>
     /// <typeparam name="T">The type of data that the <see cref="IOrderedQueryable{T}"/> contains.</typeparam>
     /// <param name="source">The data source.</param>
     /// <param name="property">The property name to use.</param>
     public static IOrderedQueryable<T> ThenBy<T>(this IOrderedQueryable<T> source, string property) => ApplyOrder(source, property, "ThenBy");
 
-    /// <summary>
-    /// Order an <see cref="IOrderedQueryable{T}"/> by string member path (<paramref name="property"/>) in descending order.
-    /// </summary>
+    /// <summary>Order an <see cref="IOrderedQueryable{T}"/> by string member path (<paramref name="property"/>) in descending order.</summary>
     /// <typeparam name="T">The type of data that the <see cref="IOrderedQueryable{T}"/> contains.</typeparam>
     /// <param name="source">The data source.</param>
     /// <param name="property">The property name to use.</param>

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using Indice.Extensions;
 
@@ -12,24 +11,16 @@ namespace Indice.Types;
 [TypeConverter(typeof(Base64IdTypeConverter))]
 public struct Base64Id
 {
-    /// <summary>
-    /// The internal <see cref="Id"/> value.
-    /// </summary>
+    /// <summary>The internal <see cref="Id"/> value.</summary>
     public Guid Id { get; }
-    /// <summary>
-    /// Construct the type from a <see cref="Guid" />.
-    /// </summary>
+    /// <summary>Construct the type from a <see cref="Guid" />.</summary>
     /// <param name="id"></param>
     public Base64Id(Guid id) => Id = id;
 
-    /// <summary>
-    /// Returns the hashcode for this instance
-    /// </summary>
+    /// <summary>Returns the hashcode for this instance</summary>
     public override int GetHashCode() => Id.GetHashCode();
 
-    /// <summary>
-    /// Compare equality with the giver object. 
-    /// </summary>
+    /// <summary>Compare equality with the giver object. </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
     public override bool Equals(object obj) {
@@ -40,15 +31,11 @@ public struct Base64Id
         return base.Equals(obj);
     }
 
-    /// <summary>
-    /// Gets the inner guid as a url safe base64 string.
-    /// </summary>
+    /// <summary>Gets the inner guid as a url safe base64 string.</summary>
     /// <returns></returns>
     public override string ToString() => Id.ToByteArray().ToBase64UrlSafe();
 
-    /// <summary>
-    /// Parse from a string url safe base64 representation. 
-    /// </summary>
+    /// <summary>Parse from a string url safe base64 representation. </summary>
     /// <param name="base64">The base64 string to convert.</param>
     public static Base64Id Parse(string base64) {
         if (base64 != null) {
@@ -62,9 +49,7 @@ public struct Base64Id
         }
     }
 
-    /// <summary>
-    /// Tries to convert the specified <paramref name="base64"/> to a <see cref="Base64Id"/>.
-    /// </summary>
+    /// <summary>Tries to convert the specified <paramref name="base64"/> to a <see cref="Base64Id"/>.</summary>
     /// <param name="base64">The base64 string to convert.</param>
     /// <param name="base64Id">The converted <see cref="Base64Id"/>.</param>
     /// <returns>True if conversion is successful, otherwise false.</returns>
@@ -78,36 +63,24 @@ public struct Base64Id
         }
     }
 
-    /// <summary>
-    /// Implicit cast from <see cref="Base64Id"/> to <seealso cref="string"/>.
-    /// </summary>
+    /// <summary>Implicit cast from <see cref="Base64Id"/> to <seealso cref="string"/>.</summary>
     /// <param name="value">The value to convert.</param>
     public static implicit operator string(Base64Id value) => value.ToString();
-    /// <summary>
-    /// Implicit cast from <see cref="Base64Id"/> to <seealso cref="Guid"/>
-    /// </summary>
+    /// <summary>Implicit cast from <see cref="Base64Id"/> to <seealso cref="Guid"/></summary>
     /// <param name="value">The value to convert.</param>
     public static implicit operator Guid(Base64Id value) => value.Id;
-    /// <summary>
-    /// Explicit cast from <see cref="string"/> to <seealso cref="Base64Id"/>
-    /// </summary>
+    /// <summary>Explicit cast from <see cref="string"/> to <seealso cref="Base64Id"/></summary>
     /// <param name="value">The value to convert.</param>
     public static explicit operator Base64Id(string value) => Parse(value);
-    /// <summary>
-    /// Explicit cast from <see cref="Guid"/> to <seealso cref="Base64Id"/>
-    /// </summary>
+    /// <summary>Explicit cast from <see cref="Guid"/> to <seealso cref="Base64Id"/></summary>
     /// <param name="value">The value to convert.</param>
     public static explicit operator Base64Id(Guid value) => new Base64Id(value);
 }
 
-/// <summary>
-/// Converter class for the <see cref="Base64Id"/>.
-/// </summary>
+/// <summary>Converter class for the <see cref="Base64Id"/>.</summary>
 public class Base64IdTypeConverter : TypeConverter
 {
-    /// <summary>
-    /// Overrides can convert to declare support for string conversion.
-    /// </summary>
+    /// <summary>Overrides can convert to declare support for string conversion.</summary>
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
     public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
@@ -117,9 +90,7 @@ public class Base64IdTypeConverter : TypeConverter
         return base.CanConvertFrom(context, sourceType);
     }
 
-    /// <summary>
-    /// Supply conversion from <see cref="string"/> to <seealso cref="Base64Id"/> otherwise use default implementation.
-    /// </summary>
+    /// <summary>Supply conversion from <see cref="string"/> to <seealso cref="Base64Id"/> otherwise use default implementation.</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>
@@ -130,9 +101,7 @@ public class Base64IdTypeConverter : TypeConverter
         return base.ConvertFrom(context, culture, value);
     }
 
-    /// <summary>
-    /// from <seealso cref="Base64Id"/> to <see cref="string"/> otherwise use default implementation.
-    /// </summary>
+    /// <summary>from <seealso cref="Base64Id"/> to <see cref="string"/> otherwise use default implementation.</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>

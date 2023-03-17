@@ -1,7 +1,6 @@
-﻿namespace Indice.Features.Multitenancy.Worker.Azure
+﻿namespace Indice.Features.Multitenancy.Worker.Azure;
+
+internal class Constants
 {
-    internal class Constants
-    {
-        public const string FunctionContextTenantKey = "TENANT_KEY";
-    }
+    public const string FunctionContextTenantKey = "TENANT_KEY";
 }

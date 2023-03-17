@@ -1,7 +1,6 @@
-﻿namespace CodeFlowInlineFrame.Models
+﻿namespace CodeFlowInlineFrame.Models;
+
+public class LogoutViewModel
 {
-    public class LogoutViewModel
-    {
-        public string Url { get; set; }
-    }
+    public string Url { get; set; }
 }

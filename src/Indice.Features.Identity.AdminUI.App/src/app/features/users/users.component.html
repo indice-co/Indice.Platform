@@ -4,9 +4,7 @@
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h4 class="page-title m-0">Users List ({{ count }})</h4>
-                    <p class="text-muted font-14">
-                        Get a list of all system users.
-                    </p>
+                    <p class="text-muted font-14">Get a list of all system users.</p>
                 </div>
             </div>
         </div>
@@ -14,33 +12,16 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false"
-                       [columns]="columns"
-                       [rows]="rows"
-                       [count]="count"
-                       [rowsPerPage]="15"
-                       [defaultSortField]="'createDate'"
-                       [defaultSortDirection]="'Desc'"
-                       (search)="getUsers($event)"
-                       [canFilter]="true"
-                       #usersList>
+        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'createDate'" [defaultSortDirection]="'Desc'" (search)="getUsers($event)" [canFilter]="true" #usersList>
         </app-list-view>
     </div>
 </div>
-<ng-template let-row="row"
-             let-value="value"
-             #actionsTemplate>
-    <a class="btn btn-success"
-       href="#"
-       role="button"
-       *ngIf="value"
-       [routerLink]="value + '/details'">
+<ng-template let-row="row" let-value="value" #actionsTemplate>
+    <a class="btn btn-success" href="#" role="button" *ngIf="value" [routerLink]="value + '/details'">
         {{ canEditUser ? 'Edit' : 'View' }}
     </a>
 </ng-template>
-<ng-template let-row="row"
-             let-value="value"
-             #optionalTemplate>
+<ng-template let-row="row" let-value="value" #optionalTemplate>
     <span *ngIf="value">{{ value }}</span>
     <span *ngIf="!value"> - </span>
 </ng-template>

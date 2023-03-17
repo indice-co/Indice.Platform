@@ -1,13 +1,8 @@
-﻿using System.Text.Json;
-using System.Threading.Tasks;
-using Indice.Features.GovGr.Interfaces;
-using Indice.Features.GovGr.Models;
+﻿namespace Indice.Features.GovGr;
 
-namespace Indice.Features.GovGr
+internal static class GovGrConstants
 {
-    internal static class GovGrConstants
-    {
-        public static readonly string KycMockJsonString = @"
+    public static readonly string KycMockJsonString = @"
                 {
                    ""response"":{
                       ""principal"":""068933130"",
@@ -301,5 +296,4 @@ namespace Indice.Features.GovGr
                    ""sub"":""068933130"",
                    ""version"":""1.1""
                 }";
-    }
 }

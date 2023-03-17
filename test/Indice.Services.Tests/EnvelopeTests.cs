@@ -1,29 +1,26 @@
-﻿using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using System.Text.Json;
 using Indice.Types;
 using Xunit;
 
-namespace Indice.Services.Tests
-{
-    public class EnvelopeTests
-    {
-        [Fact]
-        public void EnvelopeShouldBe_Serializable_Test() {
-            var payload = new DummyPayload {
-                MyText = "This is a test"
-            };
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("sub", Guid.NewGuid().ToString()) }, "DummyAuth"));
-            var message = Envelope.Create(user, payload);
-            var json = JsonSerializer.Serialize(message);
-            var messageResult = JsonSerializer.Deserialize<Envelope>(json);
-            var data = messageResult.ReadAs<DummyPayload>();
-        }
+namespace Indice.Services.Tests;
 
-        public class DummyPayload
-        {
-            public string MyText { get; set; }
-        }
+public class EnvelopeTests
+{
+    [Fact]
+    public void EnvelopeShouldBe_Serializable_Test() {
+        var payload = new DummyPayload {
+            MyText = "This is a test"
+        };
+        var user = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim("sub", Guid.NewGuid().ToString()) }, "DummyAuth"));
+        var message = Envelope.Create(user, payload);
+        var json = JsonSerializer.Serialize(message);
+        var messageResult = JsonSerializer.Deserialize<Envelope>(json);
+        var data = messageResult.ReadAs<DummyPayload>();
     }
 
+    public class DummyPayload
+    {
+        public string MyText { get; set; }
+    }
 }

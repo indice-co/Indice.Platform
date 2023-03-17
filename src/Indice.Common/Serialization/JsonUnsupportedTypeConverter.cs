@@ -1,12 +1,9 @@
-﻿using System;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// This converter is a NO Op conveter for the type <typeparamref name="TIgnore"/>.
-/// </summary>
+/// <summary>This converter is a NO Op conveter for the type <typeparamref name="TIgnore"/>.</summary>
 /// <typeparam name="TIgnore">The type to ignore when serializing.</typeparam>
 /// <remarks>
 /// A <see cref="JsonConverter"/> that skips serialization for a given type instead of throwing the unsupported exception. Very handy when exposing WCF proxy entities to the web directly 

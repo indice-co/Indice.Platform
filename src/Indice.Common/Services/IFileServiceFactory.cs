@@ -1,10 +1,6 @@
-﻿using System;
+﻿namespace Indice.Services;
 
-namespace Indice.Services;
-
-/// <summary>
-/// Factory for <see cref="IFileService"/>.
-/// </summary>
+/// <summary>Factory for <see cref="IFileService"/>.</summary>
 public interface IFileServiceFactory
 {
     /// <summary>
@@ -18,9 +14,7 @@ public interface IFileServiceFactory
     IFileService Create(string name);
 }
 
-/// <summary>
-/// Extension methods on the <see cref="IFileServiceFactory"/>.
-/// </summary>
+/// <summary>Extension methods on the <see cref="IFileServiceFactory"/>.</summary>
 public static class IFileServiceFactoryExtensions
 {
     /// <summary>

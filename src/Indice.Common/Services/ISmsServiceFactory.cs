@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Indice.Services;
+﻿namespace Indice.Services;
 
 /// <summary>Factory for <see cref="ISmsService"/>.</summary>
 public interface ISmsServiceFactory

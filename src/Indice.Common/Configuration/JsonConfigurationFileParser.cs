@@ -1,17 +1,11 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
 
 namespace Microsoft.Extensions.Configuration.Json;
 
-/// <summary>
-/// Parser/Helper for appsettings json.
-/// </summary>
+/// <summary>Parser/Helper for appsettings json.</summary>
 public class JsonConfigurationFileParser
 {
     private JsonConfigurationFileParser() { }
@@ -20,9 +14,7 @@ public class JsonConfigurationFileParser
     private readonly Stack<string> _context = new();
     private string _currentPath;
 
-    /// <summary>
-    /// 
-    /// </summary>
+    /// <summary></summary>
     /// <param name="input"></param>
     /// <returns></returns>
     public static IDictionary<string, string> Parse(Stream input) => new JsonConfigurationFileParser().ParseStream(input);

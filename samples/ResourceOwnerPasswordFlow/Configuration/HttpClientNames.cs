@@ -1,7 +1,6 @@
-﻿namespace ResourceOwnerPasswordFlow.Configuration
+﻿namespace ResourceOwnerPasswordFlow.Configuration;
+
+public static class HttpClientNames
 {
-    public static class HttpClientNames
-    {
-        public const string IdentityServer = "idsrv";
-    }
+    public const string IdentityServer = "idsrv";
 }

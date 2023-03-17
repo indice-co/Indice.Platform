@@ -1,7 +1,6 @@
-﻿namespace CodeFlowInlineFrame.Configuration
+﻿namespace CodeFlowInlineFrame.Configuration;
+
+public static class HttpClientNames
 {
-    public static class HttpClientNames
-    {
-        public const string IdentityServer = "idsrv";
-    }
+    public const string IdentityServer = "idsrv";
 }

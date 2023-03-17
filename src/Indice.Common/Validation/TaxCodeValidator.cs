@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace Indice.Validation;
@@ -60,9 +57,7 @@ public static class TaxCodeValidator
            { "SE", new [] { "^(SE)?(\\d{10}01)$" } }                     //** Sweden
     };
 
-    /// <summary>
-    /// Check the tax id against format and check sum where available.
-    /// </summary>
+    /// <summary>Check the tax id against format and check sum where available.</summary>
     /// <param name="taxIdentificationNumber">The number to check</param>
     /// <param name="countryISO">Optionaly pass the country iso in order to cover tax numbers not providing their country prefix.</param>
     /// <returns></returns>

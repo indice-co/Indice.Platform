@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text.RegularExpressions;
 using Indice.Extensions;
 
 namespace Indice.Types;
 
-/// <summary>
-/// Creates and validates creditor reference (RF) payment codes based on ISO 11649, RF Creditor Reference.
-/// </summary>
+/// <summary>Creates and validates creditor reference (RF) payment codes based on ISO 11649, RF Creditor Reference.</summary>
 public class CreditorReference
 {
     #region Characters to number mapping

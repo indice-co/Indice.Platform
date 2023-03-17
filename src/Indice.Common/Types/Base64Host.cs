@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using System.Text;
 
@@ -8,7 +6,7 @@ namespace Indice.Types;
 
 /// <summary>
 /// Converts a base uri host back and forth to a url safe base64 string.
-/// Use this class to wrap a Guid into a representiation that is shortened and obfuscated for querystring use. 
+/// Use this class to wrap a Guid into a representation that is shortened and obfuscated for querystring use. 
 /// </summary>
 [TypeConverter(typeof(Base64HostTypeConverter))]
 public struct Base64Host
@@ -22,14 +20,10 @@ public struct Base64Host
     private static readonly string UriSchemeHttp = Uri.UriSchemeHttp;
     private static readonly string SchemeDelimiter = Uri.SchemeDelimiter;
 #endif
-    /// <summary>
-    /// The internal <see cref="Host"/> value.
-    /// </summary>
+    /// <summary>The internal <see cref="Host"/> value.</summary>
     public string Host { get; }
 
-    /// <summary>
-    /// Construct the type from a <see cref="Uri" />
-    /// </summary>
+    /// <summary>Construct the type from a <see cref="Uri" /></summary>
     /// <param name="uri"></param>
     public Base64Host(Uri uri) {
 #if NETSTANDARD14
@@ -39,21 +33,15 @@ public struct Base64Host
 #endif
     }
 
-    /// <summary>
-    /// Construct the type from a <see cref="string"/> Url.
-    /// </summary>
+    /// <summary>Construct the type from a <see cref="string"/> Url.</summary>
     /// <param name="uri"></param>
     public Base64Host(string uri) : this(new Uri(uri, UriKind.Absolute)) { }
 
-    /// <summary>
-    /// Returns the hashcode for this instance
-    /// </summary>
+    /// <summary>Returns the hashcode for this instance</summary>
     /// <returns></returns>
     public override int GetHashCode() => Host.GetHashCode();
 
-    /// <summary>
-    /// Compare equality with the giver object. 
-    /// </summary>
+    /// <summary>Compare equality with the giver object. </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
     public override bool Equals(object obj) {
@@ -64,9 +52,7 @@ public struct Base64Host
         return base.Equals(obj);
     }
 
-    /// <summary>
-    /// Gets the inner guid as a url safe base64 string.
-    /// </summary>
+    /// <summary>Gets the inner guid as a url safe base64 string.</summary>
     /// <returns></returns>
     public override string ToString() {
         var host = new Uri(Host, UriKind.Absolute);
@@ -82,9 +68,7 @@ public struct Base64Host
         return base64;
     }
 
-    /// <summary>
-    /// Parse from a string url safe base64 representation. 
-    /// </summary>
+    /// <summary>Parse from a string url safe base64 representation.</summary>
     /// <param name="base64"></param>
     /// <returns></returns>
     public static Base64Host Parse(string base64) {
@@ -107,8 +91,22 @@ public struct Base64Host
         }
     }
 
+    /// <summary>Tries to convert the specified <paramref name="base64"/> to a <see cref="Base64Host"/>.</summary>
+    /// <param name="base64">The base64 string to convert.</param>
+    /// <param name="host">The converted <see cref="Base64Host"/>.</param>
+    /// <returns>True if conversion is successful, otherwise false.</returns>
+    public static bool TryParse(string base64, out Base64Host host) {
+        host = default;
+        try {
+            host = Parse(base64);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
     private static ushort ToShort(byte byte1, byte byte2) {   // using Int32 because that is what all the operations return anyway...
-        return (ushort)((((int)byte1) << 8) | (int)byte2);
+        return (ushort)((byte1 << 8) | (int)byte2);
     }
 
     private static void FromShort(ushort number, out byte byte1, out byte byte2) {
@@ -117,14 +115,10 @@ public struct Base64Host
     }
 }
 
-/// <summary>
-/// Converter class for the <see cref="Base64Id"/>.
-/// </summary>
+/// <summary>Converter class for the <see cref="Base64Id"/>.</summary>
 public class Base64HostTypeConverter : TypeConverter
 {
-    /// <summary>
-    /// Overrides can convert to declare support for string conversion.
-    /// </summary>
+    /// <summary>Overrides can convert to declare support for string conversion.</summary>
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
     /// <returns></returns>
@@ -135,9 +129,7 @@ public class Base64HostTypeConverter : TypeConverter
         return base.CanConvertFrom(context, sourceType);
     }
 
-    /// <summary>
-    /// Supply conversion from <see cref="string"/> to <seealso cref="Base64Host"/> otherwise use default implementation
-    /// </summary>
+    /// <summary>Supply conversion from <see cref="string"/> to <seealso cref="Base64Host"/> otherwise use default implementation</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>
@@ -149,9 +141,7 @@ public class Base64HostTypeConverter : TypeConverter
         return base.ConvertFrom(context, culture, value);
     }
 
-    /// <summary>
-    /// from <seealso cref="Base64Host"/> to <see cref="string"/> otherwise use default implementation
-    /// </summary>
+    /// <summary>from <seealso cref="Base64Host"/> to <see cref="string"/> otherwise use default implementation</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>

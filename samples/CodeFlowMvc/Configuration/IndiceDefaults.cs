@@ -1,7 +1,6 @@
-﻿namespace CodeFlowMvc.Configuration
+﻿namespace CodeFlowMvc.Configuration;
+
+public class IndiceDefaults
 {
-    public class IndiceDefaults
-    {
-        public const string AuthenticationScheme = "Indice";
-    }
+    public const string AuthenticationScheme = "Indice";
 }

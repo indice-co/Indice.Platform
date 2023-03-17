@@ -3,9 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// A custom <see cref="JsonConverter"/> that tries to convert a float JSON value to it's int representation.
-/// </summary>
+/// <summary>A custom <see cref="JsonConverter"/> that tries to convert a float JSON value to it's int representation.</summary>
 public class JsonFloatToInt32Converter : JsonConverter<int>
 {
     /// <inheritdoc/>

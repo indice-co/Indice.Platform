@@ -1,7 +1,6 @@
-﻿namespace CodeFlowInlineFrame.Models
+﻿namespace CodeFlowInlineFrame.Models;
+
+public class LoginViewModel
 {
-    public class LoginViewModel
-    {
-        public string AuthorizeUrl { get; set; }
-    }
+    public string AuthorizeUrl { get; set; }
 }

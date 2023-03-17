@@ -22,6 +22,7 @@
               mask="separator.2"
               (input)="updateValue($event)"
               [(ngModel)]="displayValue"
+              [allowNegativeNumbers]="true"
               [thousandSeparator]="thousandSeparator">
        <datalist *ngIf="options?.typeahead?.source"
                  [id]="'control' + layoutNode?._id + 'Autocomplete'">

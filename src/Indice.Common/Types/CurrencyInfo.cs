@@ -1,21 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Linq;
 
 namespace Indice.Globalization;
 
-/// <summary>
-/// Represents a currency (ie Dollar $).
-/// </summary>
+/// <summary>Represents a currency (ie Dollar $).</summary>
 public class CurrencyInfo : IFormatProvider, ICustomFormatter
 {
     private static readonly HashSet<string> CurrencySymbols;
     private static readonly HashSet<string> commonIsoSymbols = new HashSet<string> { "EUR", "USD", "GBP", "CAD", "CHF", "AUD", "INR", "TND", "AED", "JPY" };
-    /// <summary>
-    /// Collection of available currencies
-    /// </summary>
+    /// <summary>Collection of available currencies</summary>
     public static readonly IReadOnlyCollection<CurrencyInfo> Currencies;
 
     static CurrencyInfo() {
@@ -52,64 +45,40 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
         CurrencySymbols = new HashSet<string>(symbols.Distinct());
     }
 
-    /// <summary>
-    /// The display name.
-    /// </summary>
+    /// <summary>The display name.</summary>
     public string Name { get; protected set; }
-    /// <summary>
-    /// The native name.
-    /// </summary>
+    /// <summary>The native name.</summary>
     public string NativeName { get; protected set; }
-    /// <summary>
-    /// The symbol.
-    /// </summary>
+    /// <summary>The symbol.</summary>
     public string Symbol { get; protected set; }
-    /// <summary>
-    /// The position beside the number.
-    /// </summary>
+    /// <summary>The position beside the number.</summary>
     public bool AlignRight { get; protected set; }
-    /// <summary>
-    /// This is a common currency among countries or not.
-    /// </summary>
+    /// <summary>This is a common currency among countries or not.</summary>
     public bool IsCommon => commonIsoSymbols.Contains(ISOSymbol);
-    /// <summary>
-    /// Three letter ISO symbol.
-    /// </summary>
+    /// <summary>Three letter ISO symbol.</summary>
     public string ISOSymbol { get; protected set; }
-    /// <summary>
-    /// The fraction information.
-    /// </summary>
+    /// <summary>The fraction information.</summary>
     public FractionInfo Fraction { get; protected set; }
 
-    /// <summary>
-    /// Utility that checks for existance of a symbol (ie $) in the list.
-    /// </summary>
+    /// <summary>Utility that checks for existance of a symbol (ie $) in the list.</summary>
     /// <param name="symbol"></param>
     public static bool ContainsSymbol(string symbol) => CurrencySymbols.Contains(symbol);
 
-    /// <summary>
-    /// Utility that checks for existance of an ISO symbol (ie USD) in the list.
-    /// </summary>
+    /// <summary>Utility that checks for existance of an ISO symbol (ie USD) in the list.</summary>
     /// <param name="isoSymbol"></param>
     /// <returns></returns>
     public static bool ContainsISOSymbol(string isoSymbol) => Currencies.Where(c => c.ISOSymbol == isoSymbol).Any();
 
-    /// <summary>
-    /// Utility the searches the currency list by ISO symbol (ie USD).
-    /// </summary>
+    /// <summary>Utility the searches the currency list by ISO symbol (ie USD).</summary>
     /// <param name="iso"></param>
     public static CurrencyInfo GetByISOSymbol(string iso) => Currencies.Where(c => c.ISOSymbol == iso).SingleOrDefault() ?? throw new ArgumentOutOfRangeException(nameof(iso));
 
-    /// <summary>
-    ///  Utility the searches the currency list by symbol (ie $).
-    /// </summary>
+    /// <summary>Utility the searches the currency list by symbol (ie $).</summary>
     /// <param name="symbol"></param>
     /// <returns></returns>
     public static CurrencyInfo GetBySymbol(string symbol) => Currencies.Where(c => c.Symbol == symbol || c.Fraction.Symbol == symbol).FirstOrDefault() ?? throw new ArgumentOutOfRangeException(nameof(symbol));
 
-    /// <summary>
-    /// Tries to get the <see cref="CurrencyInfo"/> by symbol (ie $).
-    /// </summary>
+    /// <summary>Tries to get the <see cref="CurrencyInfo"/> by symbol (ie $).</summary>
     /// <param name="symbol"></param>
     /// <param name="currencyInfo"></param>
     /// <returns></returns>
@@ -123,9 +92,7 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
         return success;
     }
 
-    /// <summary>
-    /// Tries to get the <see cref="CurrencyInfo"/> by ISO symbol (ie USD).
-    /// </summary>
+    /// <summary>Tries to get the <see cref="CurrencyInfo"/> by ISO symbol (ie USD).</summary>
     /// <param name="isoSymbol"></param>
     /// <param name="currencyInfo"></param>
     public static bool TryGetByIsoSymbol(string isoSymbol, out CurrencyInfo currencyInfo) {
@@ -134,21 +101,15 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
         return success;
     }
 
-    /// <summary>
-    /// String representation.
-    /// </summary>
+    /// <summary>String representation.</summary>
     /// <returns></returns>
     public override string ToString() => $"{ISOSymbol} - {Name} ({Symbol}), {Fraction}";
 
-    /// <summary>
-    /// Short vertion of the string representation
-    /// </summary>
+    /// <summary>Short vertion of the string representation</summary>
     /// <returns></returns>
     public string ToShortString() => $"{ISOSymbol} - {Name} ({Symbol})";
 
-    /// <summary>
-    /// Format
-    /// </summary>
+    /// <summary>Format</summary>
     /// <param name="format"></param>
     /// <param name="arg"></param>
     /// <param name="formatProvider"></param>
@@ -171,9 +132,7 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
         }
     }
 
-    /// <summary>
-    /// Get the format according to the formatType.
-    /// </summary>
+    /// <summary>Get the format according to the formatType.</summary>
     /// <param name="formatType"></param>
     public object GetFormat(Type formatType) {
         if (formatType == typeof(ICustomFormatter)) {
@@ -193,9 +152,7 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
         return null;
     }
 
-    /// <summary>
-    /// Rounds a given decimal number.
-    /// </summary>
+    /// <summary>Rounds a given decimal number.</summary>
     /// <param name="money"></param>
     /// <param name="truncate"></param>
     public decimal Round(decimal money, bool truncate = false) {
@@ -206,22 +163,16 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
         return Math.Round(money, Fraction?.DecimalPlaces ?? 2);
     }
 
-    /// <summary>
-    /// Rounds a given decimal number.
-    /// </summary>
+    /// <summary>Rounds a given decimal number.</summary>
     /// <param name="money"></param>
     /// <param name="midpointRounding"></param>
     public decimal Round(decimal money, MidpointRounding midpointRounding) => Math.Round(money, Fraction?.DecimalPlaces ?? 2, midpointRounding);
 }
 
-/// <summary>
-/// Represents a fraction of a currency (ie cent c).
-/// </summary>
+/// <summary>Represents a fraction of a currency (ie cent c).</summary>
 public class FractionInfo
 {
-    /// <summary>
-    /// Contructs a <see cref="FractionInfo" />
-    /// </summary>
+    /// <summary>Contructs a <see cref="FractionInfo" /></summary>
     /// <param name="name"></param>
     /// <param name="symbol"></param>
     /// <param name="denominator"></param>
@@ -231,25 +182,15 @@ public class FractionInfo
         Denominator = denominator;
     }
 
-    /// <summary>
-    /// The display name.
-    /// </summary>
+    /// <summary>The display name.</summary>
     public string Name { get; protected set; }
-    /// <summary>
-    /// The symbol.
-    /// </summary>
+    /// <summary>The symbol.</summary>
     public string Symbol { get; protected set; }
-    /// <summary>
-    /// The denominator.
-    /// </summary>
+    /// <summary>The denominator.</summary>
     public int Denominator { get; protected set; }
-    /// <summary>
-    /// Number of decimal places.
-    /// </summary>
+    /// <summary>Number of decimal places.</summary>
     public int DecimalPlaces => (int)Math.Log10(Denominator);
-    /// <summary>
-    /// String representation.
-    /// </summary>
+    /// <summary>String representation.</summary>
     /// <returns></returns>
     public override string ToString() => string.Format("{0} ({1})", Name, Symbol, Denominator);
 }

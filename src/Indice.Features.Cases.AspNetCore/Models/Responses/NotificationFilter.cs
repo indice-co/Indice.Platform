@@ -3,29 +3,19 @@ using Indice.Security;
 
 namespace Indice.Features.Cases.Models.Responses;
 
-/// <summary>
-/// The notification subscription filter options.
-/// </summary>
+/// <summary>The notification subscription filter options.</summary>
 public class NotificationFilter
 {
-    /// <summary>
-    /// Subscriber email.
-    /// </summary>
+    /// <summary>Subscriber email.</summary>
     public string[] Email { get; set; } = Array.Empty<string>();
 
-    /// <summary>
-    /// Subscriber group Id.
-    /// </summary>
+    /// <summary>Subscriber group Id.</summary>
     public string[] GroupId { get; set; } = Array.Empty<string>();
 
-    /// <summary>
-    /// Subscriber casetype Ids.
-    /// </summary>
+    /// <summary>Subscriber casetype Ids.</summary>
     public Guid[] CaseTypeIds { get; set; } = Array.Empty<Guid>();
 
-    /// <summary>
-    /// Construct an instance from ClaimsPrincipal
-    /// </summary>
+    /// <summary>Construct an instance from ClaimsPrincipal</summary>
     internal static NotificationFilter FromUser(ClaimsPrincipal user, string groupIdClaimType) {
         var groupIds = user.FindAll(groupIdClaimType)
             .Select(x => x.Value).Where(x => !string.IsNullOrEmpty(x)).ToArray();
