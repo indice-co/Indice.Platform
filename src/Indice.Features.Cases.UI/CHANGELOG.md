@@ -35,6 +35,9 @@ app.UseCasesUI(options => {
 	]
 }
 ```
+## [6.10.6] - 2023-03-13
+### Changed
+- Redesigned the create case side panel. Removed the drop down for picking a case type. Now it displays all the available case types. Made the title dynamically change based on the wizard step. Minor design changes for picking customer number. Created a new component for displaying all the available case types.
 
 ##  [6.10.5] - 2023-03-02
 ### Changed

@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ALTER TABLE [case].[Casetype] 
     ALTER COLUMN [Config] NVARCHAR(MAX) NULL;
  ```
+##  [6.10.6] - 2023-03-17
+### Fixed
+- The GetCases function correctly returns the translated rejection reason instead of the text.
 
 ##  [6.10.5] - 2023-03-02
 ### Fixed
