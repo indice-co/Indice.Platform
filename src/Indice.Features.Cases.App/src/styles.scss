@@ -4,7 +4,6 @@
 @import "../node_modules/@indice/ng-components/_styles.scss";
 
 @layer components {
-  
   .kpi-chart-container {
     @apply h-full w-full;
   }
@@ -170,16 +169,15 @@ div.form-container.disableCheckbox {
 }
 
 .close {
-    padding-right: 1rem;
-    padding-left: 1rem;
-    margin: 0.5rem;
-    background: #f44336;
-    color:white;
-    border-radius:3px;
-    border-style: solid;
-    border-width: 1px;
-    float:right;
-    
+  padding-right: 1rem;
+  padding-left: 1rem;
+  margin: 0.5rem;
+  background: #f44336;
+  color: white;
+  border-radius: 3px;
+  border-style: solid;
+  border-width: 1px;
+  float: right;
 }
 
 .list-group {
@@ -188,4 +186,15 @@ div.form-container.disableCheckbox {
       display: none;
     }
   }
+}
+
+.list-view-th {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.list-view-td {
+  white-space: normal;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
 }

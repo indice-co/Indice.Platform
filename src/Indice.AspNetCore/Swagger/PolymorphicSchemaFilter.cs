@@ -9,10 +9,10 @@ namespace Indice.AspNetCore.Swagger;
 /// <typeparam name="TBaseType"></typeparam>
 public class PolymorphicSchemaFilter<TBaseType> : PolymorphicSchemaFilter
 {
-    /// <summary>Construcs the schema filter.</summary>
+    /// <summary>Constructs the schema filter.</summary>
     public PolymorphicSchemaFilter() : this(null, null) { }
 
-    /// <summary>Construcs the schema filter.</summary>
+    /// <summary>Constructs the schema filter.</summary>
     /// <param name="discriminator">The property that will be used or added to the schema as the Type discriminator</param>
     /// <param name="map">A dictionary that provides the value to Type name</param>
     public PolymorphicSchemaFilter(string discriminator, Dictionary<string, Type> map) : base(typeof(TBaseType), discriminator, map) { }

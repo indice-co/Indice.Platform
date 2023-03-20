@@ -1,21 +1,11 @@
-﻿using Indice.Types;
+﻿using Indice.Features.Identity.SignInLogs.Models;
+using NetTopologySuite.Geometries;
 
-namespace Indice.Features.Identity.SignInLogs.Models;
+namespace Indice.Features.Identity.SignInLogs.Data;
 
-/// <summary>A model representing a user's sign in log entry.</summary>
-public class SignInLogEntry
+/// <summary>A database entity representing a user's sign in log entry.</summary>
+internal class DbSignInLogEntry
 {
-    /// <summary>Creates a new instance of <see cref="SignInLogEntry"/> class, given the <paramref name="id"/> and <paramref name="createdAt"/> values.</summary>
-    /// <param name="id">The unique id of the user sign in log entry.</param>
-    /// <param name="createdAt">A timestamp that indicates when the user sign in log entry occurred.</param>
-    public SignInLogEntry(Guid id, DateTimeOffset createdAt) {
-        Id = id;
-        CreatedAt = createdAt;
-    }
-
-    /// <summary>Creates a new instance of <see cref="SignInLogEntry"/> class.</summary>
-    public SignInLogEntry() : this(Guid.NewGuid(), DateTimeOffset.UtcNow) { }
-
     /// <summary>The unique id of the user's sign in log entry.</summary>
     public Guid Id { get; set; }
     /// <summary>A timestamp that indicates when the user's sign in log entry occurred.</summary>
@@ -54,10 +44,10 @@ public class SignInLogEntry
     public string CountryIsoCode { get; set; }
     /// <summary>The device id.</summary>
     public string DeviceId { get; set; }
+    /// <summary>The approximate location of the operation.</summary>
+    public Point Coordinates { get; set; }
     /// <summary>The grant type used for the login.</summary>
     public string GrantType { get; set; }
-    /// <summary>The approximate location of the operation.</summary>
-    public GeoPoint Coordinates { get; set; }
     /// <summary>Additional information about the user's sign in log entry.</summary>
     public dynamic ExtraData { get; set; }
 }

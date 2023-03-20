@@ -16,8 +16,8 @@ public class DefaultMfaDeviceIdResolver : IMfaDeviceIdResolver
 
     /// <inheritdoc />
     public Task<string> Resolve() {
-        var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext.Request.Form.TryGetValue("DeviceId", out var deviceId)) {
+        var request = _httpContextAccessor.HttpContext.Request;
+        if (request.HasFormContentType && request.Form.TryGetValue("DeviceId", out var deviceId)) {
             return Task.FromResult((string)deviceId);
         }
         return Task.FromResult(default(string));

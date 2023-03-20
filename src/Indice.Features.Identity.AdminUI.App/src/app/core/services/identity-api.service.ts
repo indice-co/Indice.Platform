@@ -242,7 +242,7 @@ export interface IIdentityApiService {
      */
     getSystemSummary(): Observable<SummaryInfo>;
     /**
-     * Gets the ui features status.
+     * Gets the UI features status.
      * @return OK
      */
     getUiFeatures(): Observable<UiFeaturesInfo>;
@@ -3712,7 +3712,7 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Gets the ui features status.
+     * Gets the UI features status.
      * @return OK
      */
     getUiFeatures(): Observable<UiFeaturesInfo> {
@@ -14187,7 +14187,7 @@ export class SignInLogEntry implements ISignInLogEntry {
     /** A friendly text describing the log entry. */
     description?: string | undefined;
     /** Indicates whether the operation that caused the user's sign in log entry was successful or not. */
-    succedded?: boolean;
+    succeeded?: boolean;
     /** The IP address of the client. */
     ipAddress?: string | undefined;
     /** The unique identifier of the current request. */
@@ -14198,7 +14198,15 @@ export class SignInLogEntry implements ISignInLogEntry {
     sessionId?: string | undefined;
     signInType?: SignInType;
     /** Indicates whether the specified log entry is marked for review. */
-    markForReview?: boolean;
+    review?: boolean;
+    /** Two letter ISO code for the country. */
+    countryIsoCode?: string | undefined;
+    /** The device id. */
+    deviceId?: string | undefined;
+    /** The grant type used for the login. */
+    grantType?: string | undefined;
+    /** The approximate location of the operation. */
+    coordinates?: string | undefined;
     /** Additional information about the user's sign in log entry. */
     extraData?: any | undefined;
 
@@ -14223,13 +14231,17 @@ export class SignInLogEntry implements ISignInLogEntry {
             this.resourceId = _data["resourceId"];
             this.resourceType = _data["resourceType"];
             this.description = _data["description"];
-            this.succedded = _data["succedded"];
+            this.succeeded = _data["succeeded"];
             this.ipAddress = _data["ipAddress"];
             this.requestId = _data["requestId"];
             this.location = _data["location"];
             this.sessionId = _data["sessionId"];
             this.signInType = _data["signInType"];
-            this.markForReview = _data["markForReview"];
+            this.review = _data["review"];
+            this.countryIsoCode = _data["countryIsoCode"];
+            this.deviceId = _data["deviceId"];
+            this.grantType = _data["grantType"];
+            this.coordinates = _data["coordinates"];
             this.extraData = _data["extraData"];
         }
     }
@@ -14253,13 +14265,17 @@ export class SignInLogEntry implements ISignInLogEntry {
         data["resourceId"] = this.resourceId;
         data["resourceType"] = this.resourceType;
         data["description"] = this.description;
-        data["succedded"] = this.succedded;
+        data["succeeded"] = this.succeeded;
         data["ipAddress"] = this.ipAddress;
         data["requestId"] = this.requestId;
         data["location"] = this.location;
         data["sessionId"] = this.sessionId;
         data["signInType"] = this.signInType;
-        data["markForReview"] = this.markForReview;
+        data["review"] = this.review;
+        data["countryIsoCode"] = this.countryIsoCode;
+        data["deviceId"] = this.deviceId;
+        data["grantType"] = this.grantType;
+        data["coordinates"] = this.coordinates;
         data["extraData"] = this.extraData;
         return data;
     }
@@ -14288,7 +14304,7 @@ export interface ISignInLogEntry {
     /** A friendly text describing the log entry. */
     description?: string | undefined;
     /** Indicates whether the operation that caused the user's sign in log entry was successful or not. */
-    succedded?: boolean;
+    succeeded?: boolean;
     /** The IP address of the client. */
     ipAddress?: string | undefined;
     /** The unique identifier of the current request. */
@@ -14299,7 +14315,15 @@ export interface ISignInLogEntry {
     sessionId?: string | undefined;
     signInType?: SignInType;
     /** Indicates whether the specified log entry is marked for review. */
-    markForReview?: boolean;
+    review?: boolean;
+    /** Two letter ISO code for the country. */
+    countryIsoCode?: string | undefined;
+    /** The device id. */
+    deviceId?: string | undefined;
+    /** The grant type used for the login. */
+    grantType?: string | undefined;
+    /** The approximate location of the operation. */
+    coordinates?: string | undefined;
     /** Additional information about the user's sign in log entry. */
     extraData?: any | undefined;
 }
@@ -14307,7 +14331,9 @@ export interface ISignInLogEntry {
 /** Request model for updating a Indice.Features.Identity.SignInLogs.Models.SignInLogEntry instance. */
 export class SignInLogEntryRequest implements ISignInLogEntryRequest {
     /** Indicates whether we need to mark the specified log entry for review. */
-    markForReview?: boolean;
+    review?: boolean;
+    /** An optional comment when a log entry is marked for review. */
+    reviewComment?: string | undefined;
 
     constructor(data?: ISignInLogEntryRequest) {
         if (data) {
@@ -14320,7 +14346,8 @@ export class SignInLogEntryRequest implements ISignInLogEntryRequest {
 
     init(_data?: any) {
         if (_data) {
-            this.markForReview = _data["markForReview"];
+            this.review = _data["review"];
+            this.reviewComment = _data["reviewComment"];
         }
     }
 
@@ -14333,7 +14360,8 @@ export class SignInLogEntryRequest implements ISignInLogEntryRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["markForReview"] = this.markForReview;
+        data["review"] = this.review;
+        data["reviewComment"] = this.reviewComment;
         return data;
     }
 }
@@ -14341,7 +14369,9 @@ export class SignInLogEntryRequest implements ISignInLogEntryRequest {
 /** Request model for updating a Indice.Features.Identity.SignInLogs.Models.SignInLogEntry instance. */
 export interface ISignInLogEntryRequest {
     /** Indicates whether we need to mark the specified log entry for review. */
-    markForReview?: boolean;
+    review?: boolean;
+    /** An optional comment when a log entry is marked for review. */
+    reviewComment?: string | undefined;
 }
 
 export class SignInLogEntryResultSet implements ISignInLogEntryResultSet {

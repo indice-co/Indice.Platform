@@ -18,6 +18,10 @@
                         <td>{{ selectedLogEntry?.createdAt | date:'medium' }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Succeeded</th>
+                        <td>{{ selectedLogEntry?.succeeded ? 'true' : 'false' }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Action</th>
                         <td>{{ selectedLogEntry?.actionName || '-' }}</td>
                     </tr>
@@ -42,6 +46,10 @@
                         <td>{{ selectedLogEntry?.resourceId || '-' }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Grant Type</th>
+                        <td>{{ selectedLogEntry?.grantType || '-' }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">Resource Type</th>
                         <td>{{ selectedLogEntry?.resourceType || '-' }}</td>
                     </tr>
@@ -54,8 +62,31 @@
                         <td>{{ selectedLogEntry?.ipAddress || '-' }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">Location</th>
+                        <td>{{ selectedLogEntry?.location || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Country Code</th>
+                        <td>{{ selectedLogEntry?.countryIsoCode || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Coordinates</th>
+                        <td>
+                            <a *ngIf="!selectedLogEntry?.coordinates">-</a>
+                            <a *ngIf="selectedLogEntry?.coordinates" target="_blank" [href]="'https://www.google.com/maps/search/?api=1&query=' + selectedLogEntry.coordinates">{{ selectedLogEntry.coordinates }}</a>
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row">Request Id</th>
                         <td>{{ selectedLogEntry?.requestId || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Session Id</th>
+                        <td>{{ selectedLogEntry?.sessionId || '-' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Device Id</th>
+                        <td>{{ selectedLogEntry?.deviceId || '-' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Sign In Type</th>
@@ -63,7 +94,7 @@
                     </tr>
                     <tr>
                         <th scope="row">Marked for review</th>
-                        <td>{{ selectedLogEntry?.markForReview }}</td>
+                        <td>{{ selectedLogEntry?.review ? 'true' : 'false' }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Metadata</th>

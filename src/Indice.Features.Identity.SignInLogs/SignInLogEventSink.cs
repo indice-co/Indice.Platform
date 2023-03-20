@@ -1,38 +1,26 @@
 ﻿using IdentityServer4.Events;
 using IdentityServer4.Services;
-using Indice.Features.Identity.SignInLogs.Abstractions;
 
 namespace Indice.Features.Identity.SignInLogs;
 
 /// <summary>IdentityServer event sink in order to persist data for a sign in event.</summary>
-public class SignInLogEventSink : IEventSink
+internal class SignInLogEventSink : IEventSink
 {
-    private readonly ISignInLogService _logService;
-    private readonly IEnumerable<ISignInLogEntryEnricher> _enrichers;
+    private readonly SignInLogManager _signInLogManager;
 
     /// <summary>Creates a new instance of <see cref="SignInLogEventSink"/> class.</summary>
-    /// <param name="logService">A service that contains operations used to persist the audit data of an event.</param>
-    /// <param name="enrichers"></param>
+    /// <param name="signInLogManager"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public SignInLogEventSink(
-        ISignInLogService logService,
-        IEnumerable<ISignInLogEntryEnricher> enrichers
-    ) {
-        _logService = logService ?? throw new ArgumentNullException(nameof(logService));
-        _enrichers = enrichers?.ToArray() ?? throw new ArgumentNullException(nameof(enrichers));
+    public SignInLogEventSink(SignInLogManager signInLogManager) {
+        _signInLogManager = signInLogManager ?? throw new ArgumentNullException(nameof(signInLogManager));
     }
 
     /// <inheritdoc />
-    public async Task PersistAsync(Event @event) {
-        var signInEvent = SignInLogEntryAdapterFactory.Create(@event);
-        if (signInEvent is null) {
-            return;
+    public Task PersistAsync(Event @event) {
+        var logEntry = SignInLogEntryAdapterFactory.Create(@event);
+        if (logEntry is null) {
+            return Task.CompletedTask;
         }
-        foreach (var enricher in _enrichers) {
-            await enricher.Enrich(signInEvent);
-        }
-        if (signInEvent is not null) {
-            await _logService.CreateAsync(signInEvent);
-        }
+        return _signInLogManager.CreateAsync(logEntry);
     }
 }
