@@ -13,6 +13,7 @@
     <PackageReference Include="JsonSchema.Net" Version="3.3.2" />
     <PackageReference Include="JsonSchema.Net.Generation" Version="3.0.3" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.0.0-preview" />
+    <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="IdentityServer4" Version="4.1.2" />

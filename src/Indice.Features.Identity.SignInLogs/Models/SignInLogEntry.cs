@@ -37,7 +37,7 @@ public class SignInLogEntry
     /// <summary>A friendly text describing the log entry.</summary>
     public string Description { get; set; }
     /// <summary>Indicates whether the operation that caused the user's sign in log entry was successful or not.</summary>
-    public bool Succedded { get; set; }
+    public bool Succeeded { get; set; }
     /// <summary>The IP address of the client.</summary>
     public string IpAddress { get; set; }
     /// <summary>The unique identifier of the current request.</summary>
@@ -49,9 +49,13 @@ public class SignInLogEntry
     /// <summary>Describes the user sign in type in terms of user presence.</summary>
     public SignInType? SignInType { get; set; }
     /// <summary>Indicates whether the specified log entry is marked for review.</summary>
-    public bool MarkForReview { get; set; }
+    public bool Review { get; set; }
     /// <summary>Two letter ISO code for the country.</summary>
     public string CountryIsoCode { get; set; }
+    /// <summary>The device id.</summary>
+    public string DeviceId { get; set; }
+    /// <summary>The grant type used for the login.</summary>
+    public string GrantType { get; set; }
     /// <summary>The approximate location of the operation.</summary>
     public GeoPoint Coordinates { get; set; }
     /// <summary>Additional information about the user's sign in log entry.</summary>

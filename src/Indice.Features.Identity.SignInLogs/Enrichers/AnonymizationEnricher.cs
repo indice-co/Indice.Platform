@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.SignInLogs.Abstractions;
+﻿using System.Net;
+using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
 using Microsoft.Extensions.Options;
 
@@ -6,19 +7,19 @@ namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
 internal class AnonymizationEnricher : ISignInLogEntryEnricher
 {
-    private readonly SignInLogOptions _options;
+    private readonly SignInLogOptions _signInLogOptions;
 
-    public AnonymizationEnricher(IOptions<SignInLogOptions> options) {
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    public AnonymizationEnricher(IOptions<SignInLogOptions> signInLogOptions) {
+        _signInLogOptions = signInLogOptions?.Value ?? throw new ArgumentNullException(nameof(signInLogOptions));
     }
 
-    public int Order => 6;
+    public int Priority => int.MaxValue;
 
     public Task Enrich(SignInLogEntry logEntry) {
-        if (!_options.AnonymizePersonalData) {
+        if (!_signInLogOptions.AnonymizePersonalData) {
             return Task.CompletedTask;
         }
-        logEntry.IpAddress = "0.0.0.0";
+        logEntry.IpAddress = IPAddress.Any.ToString();
         return Task.CompletedTask;
     }
 }

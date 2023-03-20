@@ -13,7 +13,7 @@ internal class SubjectNameEnricher : ISignInLogEntryEnricher
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
-    public int Order => 1;
+    public int Priority => 1;
 
     public async Task Enrich(SignInLogEntry logEntry) {
         if (string.IsNullOrWhiteSpace(logEntry?.SubjectId) || !string.IsNullOrWhiteSpace(logEntry?.SubjectName)) {

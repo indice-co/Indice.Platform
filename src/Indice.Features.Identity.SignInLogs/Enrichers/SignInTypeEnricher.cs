@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using IdentityServer4;
+﻿using IdentityServer4;
 using IdentityServer4.Models;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.SignInLogs.Abstractions;
@@ -26,22 +25,16 @@ internal class SignInTypeEnricher : ISignInLogEntryEnricher
         TotpConstants.GrantType.Totp
     };
 
-    public int Order => 2;
+    public int Priority => 2;
 
     public Task Enrich(SignInLogEntry logEntry) {
-        if (logEntry?.SignInType is not null) {
+        if (logEntry?.SignInType is not null || string.IsNullOrWhiteSpace(logEntry?.GrantType)) {
             return Task.CompletedTask;
         }
-        var extraData = logEntry?.ExtraData;
-        var containsGrantTypeProperty = extraData is not null && ((IEnumerable<PropertyInfo>)extraData.GetType().DeclaredProperties).Where(x => x.Name == "GrantType").Any();
-        if (!containsGrantTypeProperty) {
-            return Task.CompletedTask;
-        }
-        var grantType = (string)extraData?.GrantType;
-        if (INTERACTIVE_GRANT_TYPES.Contains(grantType)) {
+        if (INTERACTIVE_GRANT_TYPES.Contains(logEntry.GrantType)) {
             logEntry.SignInType = SignInType.Interactive;
         }
-        if (NON_INTERACTIVE_GRANT_TYPES.Contains(grantType)) {
+        if (NON_INTERACTIVE_GRANT_TYPES.Contains(logEntry.GrantType)) {
             logEntry.SignInType = SignInType.NonInteractive;
         }
         return Task.CompletedTask;

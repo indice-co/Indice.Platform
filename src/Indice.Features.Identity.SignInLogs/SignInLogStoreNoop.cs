@@ -4,9 +4,12 @@ using Indice.Types;
 
 namespace Indice.Features.Identity.SignInLogs;
 
-/// <summary>Default implementation of <see cref="ISignInLogService"/> that has no functionality.</summary>
-public class SignInLogServiceNoop : ISignInLogService
+/// <summary>Default implementation of <see cref="ISignInLogStore"/> that has no functionality.</summary>
+public class SignInLogStoreNoop : ISignInLogStore
 {
+    /// <inheritdoc />
+    public Task<int> Cleanup(CancellationToken cancellationToken = default) => Task.FromResult(0);
+
     /// <inheritdoc />
     public Task CreateAsync(SignInLogEntry auditEntry) => Task.CompletedTask;
 

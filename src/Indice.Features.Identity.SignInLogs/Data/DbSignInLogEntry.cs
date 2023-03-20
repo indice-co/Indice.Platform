@@ -1,10 +1,10 @@
 ﻿using Indice.Features.Identity.SignInLogs.Models;
-using Indice.Types;
+using NetTopologySuite.Geometries;
 
-namespace Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
+namespace Indice.Features.Identity.SignInLogs.Data;
 
 /// <summary>A database entity representing a user's sign in log entry.</summary>
-public class DbSignInLogEntry
+internal class DbSignInLogEntry
 {
     /// <summary>The unique id of the user's sign in log entry.</summary>
     public Guid Id { get; set; }
@@ -27,7 +27,7 @@ public class DbSignInLogEntry
     /// <summary>A friendly text describing the log entry.</summary>
     public string Description { get; set; }
     /// <summary>Indicates whether the operation that caused the user's sign in log entry was successful or not.</summary>
-    public bool Succedded { get; set; }
+    public bool Succeeded { get; set; }
     /// <summary>The IP address of the client.</summary>
     public string IpAddress { get; set; }
     /// <summary>The unique identifier of the current request.</summary>
@@ -39,11 +39,15 @@ public class DbSignInLogEntry
     /// <summary>Describes the user sign in type in terms of user presence.</summary>
     public SignInType? SignInType { get; set; }
     /// <summary>Indicates whether the specified log entry is marked for review.</summary>
-    public bool MarkForReview { get; set; }
+    public bool Review { get; set; }
     /// <summary>Two letter ISO code for the country.</summary>
     public string CountryIsoCode { get; set; }
+    /// <summary>The device id.</summary>
+    public string DeviceId { get; set; }
     /// <summary>The approximate location of the operation.</summary>
-    public GeoPoint Coordinates { get; set; }
+    public Point Coordinates { get; set; }
+    /// <summary>The grant type used for the login.</summary>
+    public string GrantType { get; set; }
     /// <summary>Additional information about the user's sign in log entry.</summary>
     public dynamic ExtraData { get; set; }
 }

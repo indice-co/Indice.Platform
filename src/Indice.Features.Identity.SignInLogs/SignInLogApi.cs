@@ -30,7 +30,7 @@ public static class SignInLogApi
         group.AddOpenApiSecurityRequirement("oauth2", options.ApiScope);
         // GET: /api/sign-in-logs
         group.MapGet("/sign-in-logs", async (
-            [FromServices] ISignInLogService signInLogService,
+            [FromServices] ISignInLogStore signInLogStore,
             [FromServices] IFeatureManager featureManager,
             [AsParameters] ListOptions options,
             [AsParameters] SignInLogEntryFilter filter
@@ -38,7 +38,7 @@ public static class SignInLogApi
             if (!await featureManager.IsEnabledAsync(IdentityServerFeatures.SignInLogs)) {
                 return Results.NotFound();
             }
-            var signInLogs = await signInLogService.ListAsync(ListOptions.Create(options, filter));
+            var signInLogs = await signInLogStore.ListAsync(ListOptions.Create(options, filter));
             return TypedResults.Ok(signInLogs);
         })
         .Produces<ResultSet<SignInLogEntry>>(StatusCodes.Status200OK, MediaTypeNames.Application.Json)
@@ -50,7 +50,7 @@ public static class SignInLogApi
         .WithSummary("Gets the list of sign in logs produced by the Identity system.");
         // PATCH: /api/sign-in-logs/{rowId}
         group.MapPatch("/sign-in-logs/{rowId}", async (
-            [FromServices] ISignInLogService signInLogService,
+            [FromServices] ISignInLogStore signInLogStore,
             [FromServices] IFeatureManager featureManager,
             [FromRoute] Guid rowId,
             [FromBody] SignInLogEntryRequest model
@@ -58,7 +58,7 @@ public static class SignInLogApi
             if (!await featureManager.IsEnabledAsync(IdentityServerFeatures.SignInLogs)) {
                 return Results.NotFound();
             }
-            var rowsAffected = await signInLogService.UpdateAsync(rowId, model);
+            var rowsAffected = await signInLogStore.UpdateAsync(rowId, model);
             return rowsAffected == 0 ? Results.NotFound() : Results.NoContent();
         })
         .Produces(StatusCodes.Status204NoContent)

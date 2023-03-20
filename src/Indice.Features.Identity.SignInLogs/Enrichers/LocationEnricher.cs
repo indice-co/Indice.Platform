@@ -8,7 +8,7 @@ namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
 internal class LocationEnricher : ISignInLogEntryEnricher
 {
-    public int Order => 5;
+    public int Priority => 5;
 
     public Task Enrich(SignInLogEntry logEntry) {
         if (string.IsNullOrWhiteSpace(logEntry?.IpAddress)) {
@@ -50,10 +50,16 @@ internal class LocationEnricher : ISignInLogEntryEnricher
                         location.Append(separator);
                     }
                     location.Append(response.Country.Name);
-                    if (!string.IsNullOrWhiteSpace(response?.Country?.IsoCode)) {
-                        countryCode = response.Country?.IsoCode;
-                        location.AppendFormat(" ({0})", countryCode);
+                    shouldAddSeparator = true;
+                }
+                if (!string.IsNullOrWhiteSpace(response?.Country?.IsoCode)) {
+                    countryCode = response.Country?.IsoCode;
+                }
+                if (!string.IsNullOrWhiteSpace(response?.Continent?.Name)) {
+                    if (shouldAddSeparator) {
+                        location.Append(separator);
                     }
+                    location.Append(response.Continent.Name);
                 }
             }
         }

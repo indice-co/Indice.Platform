@@ -12,7 +12,7 @@ internal class SessionIdEnricher : ISignInLogEntryEnricher
         _userSession = userSession ?? throw new ArgumentNullException(nameof(userSession));
     }
 
-    public int Order => 3;
+    public int Priority => 3;
 
     public async Task Enrich(SignInLogEntry logEntry) {
         logEntry.SessionId = await _userSession.GetSessionIdAsync();
