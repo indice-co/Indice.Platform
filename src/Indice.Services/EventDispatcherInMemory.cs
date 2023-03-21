@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 
-namespace Indice.Services
+namespace Indice.Services;
+
+/// <inheritdoc/>
+public class EventDispatcherInMemory : IEventDispatcher
 {
-    /// <inheritdoc/>
-    public class EventDispatcherInMemory : IEventDispatcher
-    {
-        private readonly Queue<object> _queue = new();
+    private readonly Queue<object> _queue = new();
 
-        /// <inheritdoc/>
-        public Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? initialVisibilityDelay = null, bool wrap = true, string queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class {
-            _queue.Enqueue(payload);
-            return Task.CompletedTask;
-        }
+    /// <inheritdoc/>
+    public Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? initialVisibilityDelay = null, bool wrap = true, string queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class {
+        _queue.Enqueue(payload);
+        return Task.CompletedTask;
     }
 }

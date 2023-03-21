@@ -1,13 +1,10 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's decimal representation.
-/// </summary>
+/// <summary>A custom <see cref="JsonConverter"/> that tries to convert a string JSON value to it's decimal representation.</summary>
 public class JsonStringDecimalConverter : JsonConverter<decimal>
 {
     /// <inheritdoc/>

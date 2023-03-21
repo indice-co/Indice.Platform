@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.11.3] - 2023-03-15
+### Changed
+- allow negative numbers to `currency-widget`
+
+## [6.11.2] - 2023-03-15
+### Added
+- Create new case side pane redesign
+- Propety `Lang` at `CasesUIOptions` for handlind the attribute `<html lang='XXX'>` from the options.
+> This change will require from the consumer api to handle the language. Eg:
+
+```cs
+app.UseCasesUI(options => {
+        // ...
+        options.Lang = "el"; 
+    });
+```
+
+- onInit layout callback, now can return and set the entity to the ajsf form
+- onInit layout callback, now it can access the `case.metadata` property
+> example layout that sets the data.isLegal property 
+```js
+{ 
+	"backoffice": [
+		{
+			// mv: modelValue, f: form (entity), md: case metadata
+			"onInit": "function(mv,f,md) {f = f || {}; if(md.LegalEntity === '1' || md.LegalEntity.toLowerCase() === 'true') {f.isLegal = true;} return f; }",
+		...
+	]
+}
+```
+## [6.10.6] - 2023-03-13
+### Changed
+- Redesigned the create case side panel. Removed the drop down for picking a case type. Now it displays all the available case types. Made the title dynamically change based on the wizard step. Minor design changes for picking customer number. Created a new component for displaying all the available case types.
+
 ##  [6.10.5] - 2023-03-02
 ### Changed
 - Case type form for create/update is simplified. Only case type entity is being edited.

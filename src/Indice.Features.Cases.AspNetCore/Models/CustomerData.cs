@@ -1,13 +1,8 @@
-﻿namespace Indice.Features.Cases.Models
+﻿namespace Indice.Features.Cases.Models;
+
+/// <summary>Customer Data as Json string</summary>
+public class CustomerData
 {
-    /// <summary>
-    /// Customer Data as Json string
-    /// </summary>
-    public class CustomerData
-    {
-        /// <summary>
-        /// The json data as string.
-        /// </summary>
-        public dynamic FormData { get; set; }
-    }
+    /// <summary>The json data as string.</summary>
+    public dynamic FormData { get; set; }
 }

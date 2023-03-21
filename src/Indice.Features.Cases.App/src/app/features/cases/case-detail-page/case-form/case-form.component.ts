@@ -355,7 +355,10 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
 
     for (const [key, onInit] of Object.entries(onInitCallbackDictionary)) {
       if (typeof onInit === 'function') {
-        onInit(get(entity, key), entity);
+        const initEntity = onInit(get(entity, key), entity, this.case?.metadata);
+        if (initEntity) {
+          this.data = Object.assign({}, this.data, initEntity);
+        }
       }
     }
   }

@@ -1,29 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// A JSON converter that helps serialize and deserialize types that make use of inheritance.
-/// </summary>
+/// <summary>A JSON converter that helps serialize and deserialize types that make use of inheritance.</summary>
 public class JsonPolymorphicConverter<T> : JsonConverter<T>
 {
     private readonly IDictionary<string, Type> _nameToTypeMap;
     private readonly IDictionary<Type, string> _typeToNameMap;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="JsonPolymorphicUtils"/> class.
-    /// </summary>
+    /// <summary>Initializes a new instance of the <see cref="JsonPolymorphicUtils"/> class.</summary>
     /// <param name="typeMapping">The type names to use when serializing types.</param>
     public JsonPolymorphicConverter(IDictionary<string, Type> typeMapping) : this(JsonPolymorphicUtils.DEFAULT_DISCRIMINATOR_PROPERTY_NAME, typeMapping) { }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="JsonPolymorphicUtils"/> class.
-    /// </summary>
+    /// <summary>Initializes a new instance of the <see cref="JsonPolymorphicUtils"/> class.</summary>
     /// <param name="typePropertyName">The name of the property in which to serialize the type name.</param>
     /// <param name="typeMapping">The type names to use when serializing types.</param>
     public JsonPolymorphicConverter(string typePropertyName, IDictionary<string, Type> typeMapping) {
@@ -35,15 +26,11 @@ public class JsonPolymorphicConverter<T> : JsonConverter<T>
         }
     }
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="JsonPolymorphicConverter{T}"/> class.
-    /// </summary>
+    /// <summary>Initializes a new instance of the <see cref="JsonPolymorphicConverter{T}"/> class.</summary>
     /// <param name="typePropertName">The name of the property in which to serialize the type name.</param>
     public JsonPolymorphicConverter(string typePropertName) : this(typePropertName, JsonPolymorphicUtils.GetTypeMapping(typeof(T), typePropertName)) { }
 
-    /// <summary>
-    /// Gets the name of the property in which to serialize the type name.
-    /// </summary>
+    /// <summary>Gets the name of the property in which to serialize the type name.</summary>
     public string TypePropertyName { get; private set; }
 
     /// <inheritdoc />
@@ -134,19 +121,13 @@ public class JsonPolymorphicConverter<T> : JsonConverter<T>
     }
 }
 
-/// <summary>
-/// Helper methods for <see cref="JsonPolymorphicConverter{T}"/>.
-/// </summary>
+/// <summary>Helper methods for <see cref="JsonPolymorphicConverter{T}"/>.</summary>
 public class JsonPolymorphicUtils
 {
-    /// <summary>
-    /// Default property name used as discriminator.
-    /// </summary>
+    /// <summary>Default property name used as discriminator.</summary>
     public const string DEFAULT_DISCRIMINATOR_PROPERTY_NAME = "discriminator";
 
-    /// <summary>
-    /// Gets all type name mappings in a type hierarchy.
-    /// </summary>
+    /// <summary>Gets all type name mappings in a type hierarchy.</summary>
     /// <returns>All type name mappings in the type hierarchy.</returns>
     public static IDictionary<string, Type> GetTypeMapping(Type baseType, string typePropertyName) {
         IDictionary<string, Type> typeMapping = new Dictionary<string, Type>();
@@ -165,9 +146,7 @@ public class JsonPolymorphicUtils
         return typeMapping;
     }
 
-    /// <summary>
-    /// Get the types in this hierarchy.
-    /// </summary>
+    /// <summary>Get the types in this hierarchy.</summary>
     private static IEnumerable<Type> GetTypesInHierarchy(Type baseType) {
         var baseTypeInfo = baseType.GetTypeInfo();
         var derivedTypes = baseTypeInfo.Assembly.DefinedTypes.Where(type => !type.IsAbstract && type != baseType && baseTypeInfo.IsAssignableFrom(type)).Select(typeInfo => typeInfo.AsType());
@@ -194,15 +173,11 @@ public class JsonPolymorphicUtils
     }
 }
 
-/// <summary>
-/// A factory class that creates instances of <see cref="JsonPolymorphicConverter{T}"/>.
-/// </summary>
+/// <summary>A factory class that creates instances of <see cref="JsonPolymorphicConverter{T}"/>.</summary>
 /// <typeparam name="T">The type of the base class in the inheritance hierarchy.</typeparam>
 public class JsonPolymorphicConverterFactory<T> : JsonConverterFactory, IJsonPolymorphicConverterFactory where T : class, new()
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="JsonPolymorphicConverterFactory{T}"/> class.
-    /// </summary>
+    /// <summary>Initializes a new instance of the <see cref="JsonPolymorphicConverterFactory{T}"/> class.</summary>
     /// <param name="typePropertyName">The name of the property in which to serialize the type name.</param>
     public JsonPolymorphicConverterFactory(string typePropertyName) {
         TypePropertyName = typePropertyName ?? "discriminator";
@@ -227,17 +202,11 @@ public class JsonPolymorphicConverterFactory<T> : JsonConverterFactory, IJsonPol
     }
 }
 
-/// <summary>
-/// Marker interface for unifying the generic <see cref="JsonPolymorphicConverterFactory{T}"/>.
-/// </summary>
+/// <summary>Marker interface for unifying the generic <see cref="JsonPolymorphicConverterFactory{T}"/>.</summary>
 public interface IJsonPolymorphicConverterFactory
 {
-    /// <summary>
-    /// Gets the name of the property in which to serialize the type name or discriminator value.
-    /// </summary>
+    /// <summary>Gets the name of the property in which to serialize the type name or discriminator value.</summary>
     string TypePropertyName { get; }
-    /// <summary>
-    /// The type of the base class.
-    /// </summary>
+    /// <summary>The type of the base class.</summary>
     Type BaseType { get; }
 }

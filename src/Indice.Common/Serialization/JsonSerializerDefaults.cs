@@ -3,20 +3,17 @@ using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// Carries default JSON serializer settings for the most common scenarios. 
-/// </summary>
+/// <summary>Carries default JSON serializer settings for the most common scenarios. </summary>
 public static class JsonSerializerOptionDefaults
 {
-    /// <summary>
-    /// JSON options defaults.
-    /// </summary>
+    /// <summary>JSON options defaults.</summary>
     public static JsonSerializerOptions GetDefaultSettings() {
         var options = new JsonSerializerOptions {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             PropertyNameCaseInsensitive = true,
             WriteIndented = false,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
         };
         options.Converters.Add(new JsonStringEnumConverter());
 #if NET6_0_OR_GREATER

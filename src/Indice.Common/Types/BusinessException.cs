@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Indice.Types;
+﻿namespace Indice.Types;
 
 /// <summary>Used to propagate business information upwards through the application layers.</summary>
 public class BusinessException : Exception

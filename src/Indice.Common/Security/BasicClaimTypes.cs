@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Indice.Security;
+﻿namespace Indice.Security;
 
 /// <summary>Common claim types used in all Indice applications.</summary>
 public static class BasicClaimTypes

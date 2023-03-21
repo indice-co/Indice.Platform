@@ -8,42 +8,41 @@ using Indice.Features.Cases.Workflows.Interfaces;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 
-namespace Indice.Features.Cases.Workflows.Services
+namespace Indice.Features.Cases.Workflows.Services;
+
+internal class AwaitAssignmentInvoker : BaseActivityInvoker, IAwaitAssignmentInvoker
 {
-    internal class AwaitAssignmentInvoker : BaseActivityInvoker, IAwaitAssignmentInvoker
-    {
-        private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AwaitAssignmentInvoker(
-            IWorkflowLaunchpad workflowLaunchpad,
-            IHttpContextAccessor httpContextAccessor,
-            IWorkflowInstanceStore workflowInstanceStore)
-            : base(workflowLaunchpad, workflowInstanceStore) {
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        }
+    public AwaitAssignmentInvoker(
+        IWorkflowLaunchpad workflowLaunchpad,
+        IHttpContextAccessor httpContextAccessor,
+        IWorkflowInstanceStore workflowInstanceStore)
+        : base(workflowLaunchpad, workflowInstanceStore) {
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+    }
 
-        public Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, AwaitAssignmentInvokerInput input, CancellationToken cancellationToken = default) =>
-            base.DispatchWorkflowsAsync(caseId, input, cancellationToken);
+    public Task<IEnumerable<CollectedWorkflow>> DispatchWorkflowsAsync(Guid caseId, AwaitAssignmentInvokerInput input, CancellationToken cancellationToken = default) =>
+        base.DispatchWorkflowsAsync(caseId, input, cancellationToken);
 
-        public Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, AwaitAssignmentInvokerInput input, CancellationToken cancellationToken = default) =>
-            base.ExecuteWorkflowsAsync(caseId, input, cancellationToken);
+    public Task<IEnumerable<CollectedWorkflow>> ExecuteWorkflowsAsync(Guid caseId, AwaitAssignmentInvokerInput input, CancellationToken cancellationToken = default) =>
+        base.ExecuteWorkflowsAsync(caseId, input, cancellationToken);
 
-        protected override async Task<IEnumerable<WorkflowsQuery>> CreateWorkflowsQueries(Guid caseId, CancellationToken cancellationToken = default) {
-            var instance = await GetWorkflowInstanceByCaseId(caseId, cancellationToken);
+    protected override async Task<IEnumerable<WorkflowsQuery>> CreateWorkflowsQueries(Guid caseId, CancellationToken cancellationToken = default) {
+        var instance = await GetWorkflowInstanceByCaseId(caseId, cancellationToken);
 
-            var userRoles = _httpContextAccessor.HttpContext.User
-                .FindAll(x => x.Type == BasicClaimTypes.Role)
-                .Select(claim => claim.Value)
-                .ToList();
+        var userRoles = _httpContextAccessor.HttpContext.User
+            .FindAll(x => x.Type == BasicClaimTypes.Role)
+            .Select(claim => claim.Value)
+            .ToList();
 
-            // Always provide an empty string as a role in order to handle "null" allowed Roles of activity input.
-            userRoles.Add(string.Empty);
+        // Always provide an empty string as a role in order to handle "null" allowed Roles of activity input.
+        userRoles.Add(string.Empty);
 
-            return userRoles.Select(role => new WorkflowsQuery(
-                nameof(AwaitAssignmentActivity),
-                new AwaitAssignmentBookmark(caseId.ToString(), role),
-                caseId.ToString(),
-                instance.Id));
-        }
+        return userRoles.Select(role => new WorkflowsQuery(
+            nameof(AwaitAssignmentActivity),
+            new AwaitAssignmentBookmark(caseId.ToString(), role),
+            caseId.ToString(),
+            instance.Id));
     }
 }

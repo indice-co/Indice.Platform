@@ -1,31 +1,22 @@
 ﻿using System.Text;
-using System.Threading.Tasks;
 
 namespace System.IO.Compression;
 
-/// <summary>
-/// Utility methods for compression and decompression.
-/// </summary>
+/// <summary>Utility methods for compression and decompression.</summary>
 /// <remarks>https://khalidabuhakmeh.com/compress-strings-with-dotnet-and-csharp</remarks>
 public class CompressionUtils
 {
-    /// <summary>
-    /// Compresses the given payload.
-    /// </summary>
+    /// <summary>Compresses the given payload.</summary>
     /// <param name="payload">The payload to compress.</param>
     /// <returns>The payload compressed as a byte array.</returns>
     public static async Task<byte[]> CompressFromString(string payload) => await Compress(Encoding.Unicode.GetBytes(payload));
 
-    /// <summary>
-    /// Decompresses the given byte array.
-    /// </summary>
+    /// <summary>Decompresses the given byte array.</summary>
     /// <param name="compressedBytes">The compressed bytes.</param>
     /// <returns>The payload decompressed as a byte array.</returns>
     public static async Task<string> DecompressToString(byte[] compressedBytes) => Encoding.Unicode.GetString(await Decompress(compressedBytes));
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
-    /// <summary>
-    /// Compresses the given payload.
-    /// </summary>
+    /// <summary>Compresses the given payload.</summary>
     /// <param name="payload">The payload to compress.</param>
     /// <returns>The payload compressed as a byte array.</returns>
     public static async Task<byte[]> Compress(byte[] payload) {
@@ -37,9 +28,7 @@ public class CompressionUtils
         return output.ToArray();
     }
 
-    /// <summary>
-    /// Decompresses the given byte array.
-    /// </summary>
+    /// <summary>Decompresses the given byte array.</summary>
     /// <param name="compressedBytes">The compressed bytes.</param>
     /// <returns>The payload decompressed as a byte array.</returns>
     public static async Task<byte[]> Decompress(byte[] compressedBytes) {
@@ -50,9 +39,7 @@ public class CompressionUtils
         return output.ToArray();
     }
 #else
-    /// <summary>
-    /// Compresses the given payload.
-    /// </summary>
+    /// <summary>Compresses the given payload.</summary>
     /// <param name="payload">The payload to compress.</param>
     /// <returns>The payload compressed as a byte array.</returns>
     public static async Task<byte[]> Compress(byte[] payload) {
@@ -64,9 +51,7 @@ public class CompressionUtils
         return output.ToArray();
     }
 
-    /// <summary>
-    /// Decompresses the given byte array.
-    /// </summary>
+    /// <summary>Decompresses the given byte array.</summary>
     /// <param name="compressedBytes">The compressed bytes.</param>
     /// <returns>The payload decompressed as a byte array.</returns>
     public static async Task<byte[]> Decompress(byte[] compressedBytes) {

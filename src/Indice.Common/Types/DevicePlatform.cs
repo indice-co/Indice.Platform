@@ -1,32 +1,18 @@
 ﻿namespace Indice.Types;
 
-/// <summary>
-/// Defines all supported mobile device platforms.
-/// </summary>
+/// <summary>Defines all supported mobile device platforms.</summary>
 public enum DevicePlatform
 {
-    /// <summary>
-    /// Unrecognized platform.
-    /// </summary>
+    /// <summary>Unrecognized platform.</summary>
     None = 0,
-    /// <summary>
-    /// Android
-    /// </summary>
+    /// <summary>Android</summary>
     Android = 2,
-    /// <summary>
-    /// iOS
-    /// </summary>
+    /// <summary>iOS</summary>
     iOS = 3,
-    /// <summary>
-    /// Windows
-    /// </summary>
+    /// <summary>Windows</summary>
     Windows,
-    /// <summary>
-    /// Linux
-    /// </summary>
+    /// <summary>Linux</summary>
     Linux,
-    /// <summary>
-    /// MacOS
-    /// </summary>
+    /// <summary>MacOS</summary>
     MacOS
 }

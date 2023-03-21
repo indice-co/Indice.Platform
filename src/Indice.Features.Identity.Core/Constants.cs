@@ -69,3 +69,16 @@ public static class TotpConstants
         public const string Totp = "totp";
     }
 }
+
+/// <summary>Constant values for IdentityServer features.</summary>
+public class IdentityServerFeatures 
+{
+    /// <summary></summary>
+    public const string Section = "IdentityServer:Features";
+    /// <summary>Dashboard metrics.</summary>
+    public const string DashboardMetrics = nameof(DashboardMetrics);
+    /// <summary>Public registration.</summary>
+    public const string PublicRegistration = nameof(PublicRegistration);
+    /// <summary>Sign in logs.</summary>
+    public const string SignInLogs = nameof(SignInLogs);
+}

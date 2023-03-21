@@ -1,27 +1,43 @@
 ﻿using IdentityModel;
+using IdentityServer4.EntityFramework.DbContexts;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Security;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Identity.Core.Data;
 
 /// <summary>Extensions on type <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</summary>
-internal static class ExtendedIdentityDbContextExtensions
+public static class ExtendedIdentityDbContextExtensions
 {
+    /// <summary>Sets up the ASP.NET Identity store and adds some required initial data.</summary>
+    /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
+    public static IApplicationBuilder IdentityStoreSetup(this IApplicationBuilder app) {
+        using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
+            var dbContext = serviceScope.ServiceProvider.GetService<ExtendedIdentityDbContext<User, Role>>();
+            if (dbContext is not null) {
+                dbContext.Database.EnsureCreated();
+                dbContext.SeedInitialData();
+            }
+        }
+        return app;
+    }
+
     /// <summary>A method that seeds the database with an administrator account.</summary>
     /// <typeparam name="TUser">The type of user.</typeparam>
     /// <typeparam name="TRole">The type of role.</typeparam>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
-    public static void SeedAdminUser<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
+    public static void SeedInitialData<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
         where TUser : User, new()
         where TRole : Role, new() {
         if (!dbContext.Database.CanConnect()) {
             return;
         }
         const string adminEmail = "company@indice.gr";
-        var hasAdminAccount = dbContext.Users.Any(user => user.Admin);
-        if (hasAdminAccount) {
+        var adminAccount = dbContext.Users.SingleOrDefault(user => user.Email == adminEmail);
+        if (adminAccount is not null) {
             return;
         }
         var admin = new TUser {
@@ -65,30 +81,5 @@ internal static class ExtendedIdentityDbContextExtensions
             });
         }
         dbContext.SaveChanges();
-    }
-
-    /// <summary>A method that seeds the database with initial realistic data.</summary>
-    /// <typeparam name="TUser">The type of user.</typeparam>
-    /// <typeparam name="TRole">The type of role.</typeparam>
-    /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
-    public static void SeedDummyUsers<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
-        where TUser : User, new()
-        where TRole : Role, new() {
-        dbContext.Users.AddRange(InitialUsers<TUser>.Get(2000));
-        dbContext.SaveChanges();
-    }
-
-    /// <summary>A method that seeds the database with initial realistic data.</summary>
-    /// <typeparam name="TUser">The type of user.</typeparam>
-    /// <typeparam name="TRole">The type of role.</typeparam>
-    /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
-    /// <param name="initialUsers">A list of initial users provided by the consumer in order to be inserted in the application startup.</param>
-    public static void SeedCustomUsers<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext, IEnumerable<User> initialUsers = null)
-        where TUser : User, new()
-        where TRole : Role, new() {
-        if (initialUsers.Any()) {
-            dbContext.Users.AddRange(initialUsers.Cast<TUser>());
-            dbContext.SaveChanges();
-        }
     }
 }

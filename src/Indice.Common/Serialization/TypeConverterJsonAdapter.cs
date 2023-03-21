@@ -1,15 +1,11 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// Adapter between <see cref="TypeConverter"/> and <see cref="JsonConverter"/>.
-/// </summary>
+/// <summary>Adapter between <see cref="TypeConverter"/> and <see cref="JsonConverter"/>.</summary>
 public class TypeConverterJsonAdapter<T> : JsonConverter<T>
 {
     /// <inheritdoc/>

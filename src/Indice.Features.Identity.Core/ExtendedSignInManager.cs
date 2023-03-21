@@ -1,12 +1,11 @@
 ﻿using System.Security.Claims;
-using System.Text;
 using IdentityModel;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.PasswordValidation;
+using Indice.Features.Identity.Core.Types;
 using Indice.Security;
-using Indice.Types;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -15,7 +14,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using UAParser;
 
 namespace Indice.Features.Identity.Core;
 
@@ -331,23 +329,17 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 device.MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(MfaRememberDurationInDays);
                 await ExtendedUserManager.UpdateDeviceAsync(user, device);
             } else {
-                var userAgent = Context.Request.Headers[HeaderNames.UserAgent];
-                ClientInfo clientInfo = null;
-                if (!string.IsNullOrWhiteSpace(userAgent)) {
-                    var uaParser = Parser.GetDefault();
-                    clientInfo = uaParser.Parse(userAgent);
-                }
-                var osInfo = FormatOsInfo(clientInfo?.OS);
-                var name = $"{FormatUserAgentInfo(clientInfo?.UA)} on {osInfo}".Trim();
+                var userAgentHeader = Context.Request.Headers[HeaderNames.UserAgent];
+                var userAgent = new UserAgent(userAgentHeader);
                 device = new UserDevice {
                     DateCreated = DateTimeOffset.UtcNow,
                     DeviceId = deviceId,
                     IsTrusted = true,
                     MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(90),
-                    Model = FormatDeviceInfo(clientInfo?.Device),
-                    Name = name == string.Empty ? null : name,
-                    OsVersion = osInfo,
-                    Platform = DecideDevicePlatform(osInfo),
+                    Model = userAgent.DeviceModel,
+                    Name = userAgent.DisplayName,
+                    OsVersion = userAgent.Os,
+                    Platform = userAgent.DevicePlatform,
                     TrustActivationDate = DateTimeOffset.UtcNow,
                     ClientType = DeviceClientType.Browser,
                     User = user,
@@ -396,91 +388,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await RememberTwoFactorClientAsync(user);
         }
         await SignInWithClaimsAsync(user, isPersistent, claims);
-    }
-
-    private static string FormatUserAgentInfo(UserAgent userAgent) {
-        if (userAgent is null) {
-            return default;
-        }
-        var stringBuilder = new StringBuilder();
-        if (!string.IsNullOrWhiteSpace(userAgent.Family)) {
-            stringBuilder.Append(userAgent.Family);
-        }
-        if (!string.IsNullOrWhiteSpace(userAgent.Major)) {
-            stringBuilder.Append($" {userAgent.Major}");
-        }
-        if (!string.IsNullOrWhiteSpace(userAgent.Minor)) {
-            stringBuilder.Append($".{userAgent.Minor}");
-        }
-        if (!string.IsNullOrWhiteSpace(userAgent.Patch)) {
-            stringBuilder.Append($".{userAgent.Patch}");
-        }
-        var userAgentInfo = stringBuilder.ToString().Trim();
-        return userAgentInfo == string.Empty ? null : userAgentInfo;
-    }
-
-    private static string FormatOsInfo(OS os) {
-        if (os is null) {
-            return default;
-        }
-        var stringBuilder = new StringBuilder();
-        if (!string.IsNullOrWhiteSpace(os.Family)) {
-            stringBuilder.Append(os.Family);
-        }
-        if (!string.IsNullOrWhiteSpace(os.Major)) {
-            stringBuilder.Append($" {os.Major}");
-        }
-        if (!string.IsNullOrWhiteSpace(os.Minor)) {
-            stringBuilder.Append($".{os.Minor}");
-        }
-        if (!string.IsNullOrWhiteSpace(os.Patch)) {
-            stringBuilder.Append($".{os.Patch}");
-        }
-        if (!string.IsNullOrWhiteSpace(os.PatchMinor)) {
-            stringBuilder.Append($".{os.PatchMinor}");
-        }
-        var osInfo = stringBuilder.ToString().Trim();
-        return osInfo == string.Empty ? null : osInfo;
-    }
-
-    private static string FormatDeviceInfo(Device device) {
-        if (device is null) {
-            return default;
-        }
-        var stringBuilder = new StringBuilder();
-        if (!string.IsNullOrWhiteSpace(device.Family)) {
-            stringBuilder.Append(device.Family);
-        }
-        if (!string.IsNullOrWhiteSpace(device.Brand)) {
-            stringBuilder.Append($" {device.Brand}");
-        }
-        if (!string.IsNullOrWhiteSpace(device.Model)) {
-            stringBuilder.Append($" {device.Model}");
-        }
-        var deviceInfo = stringBuilder.ToString().Trim();
-        return deviceInfo == string.Empty ? null : deviceInfo;
-    }
-
-    private static DevicePlatform DecideDevicePlatform(string osInfo) {
-        var devicePlatform = DevicePlatform.None;
-        switch (osInfo) {
-            case string x when x.Contains("iPhone", StringComparison.OrdinalIgnoreCase):
-                devicePlatform = DevicePlatform.iOS;
-                break;
-            case string x when x.Contains("Android", StringComparison.OrdinalIgnoreCase):
-                devicePlatform = DevicePlatform.Android;
-                break;
-            case string x when x.Contains("Windows", StringComparison.OrdinalIgnoreCase):
-                devicePlatform = DevicePlatform.Windows;
-                break;
-            case string x when x.Contains("Linux", StringComparison.OrdinalIgnoreCase):
-                devicePlatform = DevicePlatform.Linux;
-                break;
-            case string x when x.Contains("Mac", StringComparison.OrdinalIgnoreCase):
-                devicePlatform = DevicePlatform.MacOS;
-                break;
-        }
-        return devicePlatform;
     }
 
     private IUserDeviceStore<TUser> GetDeviceStore(bool throwOnFail = true) {

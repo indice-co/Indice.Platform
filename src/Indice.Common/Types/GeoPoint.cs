@@ -1,53 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Indice.Types;
 
-/// <summary>
-/// Geographic location
-/// </summary>
+/// <summary>Geographic location</summary>
 [TypeConverter(typeof(GeoPointTypeConverter))]
 public class GeoPoint
 {
-    /// <summary>
-    /// The latitude
-    /// </summary>
-    public double Latitude { get; set; }
+    /// <summary>Creates a geographic location DTO.</summary>
+    public GeoPoint() { }
 
-    /// <summary>
-    /// The logitude
-    /// </summary>
-    public double Longitude { get; set; }
-
-    /// <summary>
-    /// The elevation
-    /// </summary>
-    public double? Elevation { get; set; }
-
-    /// <summary>
-    /// Creates a geographic location DTO.
-    /// </summary>
-    public GeoPoint() {
-
-    }
-
-    /// <summary>
-    /// Creates a geographic location DTO.
-    /// </summary>
+    /// <summary>Creates a geographic location DTO.</summary>
     public GeoPoint(double latitude, double longitude, double? elevation = null) {
         Latitude = latitude;
         Longitude = longitude;
         Elevation = elevation;
     }
 
-    /// <summary>
-    /// Default string representation. <strong>37.9908697,23.7208298</strong>.
-    /// </summary>
+    /// <summary>The latitude</summary>
+    public double Latitude { get; set; }
+    /// <summary>The longitude</summary>
+    public double Longitude { get; set; }
+    /// <summary>The elevation</summary>
+    public double? Elevation { get; set; }
+
+    /// <summary>Default string representation. <strong>37.9908697,23.7208298</strong>.</summary>
     /// <returns></returns>
     /// <remarks>Web standard latitude followed by longitude invariant separated by comma.</remarks>
     public override string ToString() {
@@ -55,9 +32,7 @@ public class GeoPoint
         return string.Format(CultureInfo.InvariantCulture, mask, Latitude, Longitude, Elevation);
     }
 
-    /// <summary>
-    /// Generates a SqlServer compatible string representation of the coordinates. <strong>POINT(23.7208298,37.9908697)</strong>
-    /// </summary>
+    /// <summary>Generates a SqlServer compatible string representation of the coordinates. <strong>POINT(23.7208298,37.9908697)</strong></summary>
     /// <returns></returns>
     /// <remarks>SQL geopoint ToString() representation. This is reversed <strong>longitude</strong> first then <strong>latitude</strong> then optionaly elevation.</remarks>
     public string ToDbGeographyString() {
@@ -80,9 +55,7 @@ public class GeoPoint
     }
 
 
-    /// <summary>
-    /// Tries to parse the given <paramref name="latlong"/> into a <paramref name="point"/>. In case of exception it handles it and returns false
-    /// </summary>
+    /// <summary>Tries to parse the given <paramref name="latlong"/> into a <paramref name="point"/>. In case of exception it handles it and returns false</summary>
     /// <param name="latlong"></param>
     /// <param name="point"></param>
     /// <returns>true in case of success</returns>
@@ -96,21 +69,19 @@ public class GeoPoint
         }
     }
 
-    /// <summary>
-    /// Parses a string representation of <see cref="GeoPoint"/>.
-    /// </summary>
+    /// <summary>Parses a string representation of <see cref="GeoPoint"/>.</summary>
     /// <param name="latlong"></param>
     /// <returns></returns>
     /// <remarks>The method can parse 3 distinct formats. 
     /// <br/><strong>37.9908697,23.7208298</strong> Web standard latitude followed by longitude invariant separated by comma.
     /// <br/><strong>geo:37.9908697,23.7208298;cgen=map</strong> [RFC5870] Geolocation header Web standard latitude followed by longitude invariant separated by comma.
-    /// <br/><strong>POINT(23.7208298,37.9908697)</strong> SQL geopoint ToString() representation. This is reversed longitude then latitude then optionaly elevation.
+    /// <br/><strong>POINT(23.7208298,37.9908697)</strong> SQL geopoint ToString() representation. This is reversed longitude then latitude then optionally elevation.
     /// </remarks>
     public static GeoPoint Parse(string latlong) {
         if (string.IsNullOrEmpty(latlong)) {
             throw new ArgumentOutOfRangeException(nameof(latlong));
         }
-        var parts = new string[0];
+        var parts = Array.Empty<string>();
         if (latlong.StartsWith("POINT", StringComparison.OrdinalIgnoreCase)) {
             latlong = latlong.TrimStart('P', 'O', 'I', 'N', 'T', '(', ' ').TrimEnd(' ', ')');
             parts = latlong.Split(' ').ToArray();
@@ -129,7 +100,7 @@ public class GeoPoint
         if (parts.Length < 2 || string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1])) {
             throw new ArgumentOutOfRangeException(nameof(latlong));
         }
-        var point = new GeoPoint() {
+        var point = new GeoPoint {
             Latitude = double.Parse(parts[0], CultureInfo.InvariantCulture),
             Longitude = double.Parse(parts[1], CultureInfo.InvariantCulture),
         };
@@ -139,25 +110,15 @@ public class GeoPoint
         return point;
     }
 
-    /// <summary>
-    /// Cast Operator 
-    /// </summary>
+    /// <summary>Cast operator.</summary>
     /// <param name="value">the text to parse</param>
-    public static explicit operator GeoPoint(string value) {
-        if (string.IsNullOrEmpty(value)) return null;
-
-        return Parse(value);
-    }
+    public static explicit operator GeoPoint(string value) => string.IsNullOrEmpty(value) ? null : Parse(value);
 }
 
-/// <summary>
-/// Type converter for converting between <see cref="GeoPoint"/> and <seealso cref="string"/>
-/// </summary>
+/// <summary>Type converter for converting between <see cref="GeoPoint"/> and <seealso cref="string"/></summary>
 public class GeoPointTypeConverter : TypeConverter
 {
-    /// <summary>
-    /// Overrides can convert to declare support for string conversion.
-    /// </summary>
+    /// <summary>Overrides can convert to declare support for string conversion.</summary>
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
     /// <returns></returns>
@@ -169,9 +130,7 @@ public class GeoPointTypeConverter : TypeConverter
         return base.CanConvertFrom(context, sourceType);
     }
 
-    /// <summary>
-    /// Supply conversion from <see cref="string"/> to <seealso cref="GeoPoint"/> otherwise use default implementation
-    /// </summary>
+    /// <summary>Supply conversion from <see cref="string"/> to <seealso cref="GeoPoint"/> otherwise use default implementation</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>
@@ -184,9 +143,7 @@ public class GeoPointTypeConverter : TypeConverter
         return base.ConvertFrom(context, culture, value);
     }
 
-    /// <summary>
-    /// Supply conversion from <see cref="GeoPoint"/> to <seealso cref="string"/> otherwise use default implementation
-    /// </summary>
+    /// <summary>Supply conversion from <see cref="GeoPoint"/> to <seealso cref="string"/> otherwise use default implementation</summary>
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>

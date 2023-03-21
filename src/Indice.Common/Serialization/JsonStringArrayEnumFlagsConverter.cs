@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Extensions;
 
 namespace Indice.Serialization;
 
-/// <summary>
-/// A factory that generates instances of <see cref="JsonStringArrayEnumFlagsConverter{TEnum}"/>.
-/// </summary>
+/// <summary>A factory that generates instances of <see cref="JsonStringArrayEnumFlagsConverter{TEnum}"/>.</summary>
 public class JsonStringArrayEnumFlagsConverterFactory : JsonConverterFactory
 {
     /// <inheritdoc />
@@ -23,9 +19,7 @@ public class JsonStringArrayEnumFlagsConverterFactory : JsonConverterFactory
     }
 }
 
-/// <summary>
-/// A custom JSON converter which transforms <see cref="Enum"/> flags to string array.
-/// </summary>
+/// <summary>A custom JSON converter which transforms <see cref="Enum"/> flags to string array.</summary>
 /// <typeparam name="TEnum">The type of the enum.</typeparam>
 internal class JsonStringArrayEnumFlagsConverter<TEnum> : JsonConverter<TEnum>
 {

@@ -1,19 +1,13 @@
-﻿using System;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Indice.Extensions;
 
-/// <summary>
-/// Extensions methods on <see cref="string"/> type.
-/// </summary>
+/// <summary>Extensions methods on <see cref="string"/> type.</summary>
 public static class StringExtensions
 {
-    /// <summary>
-    /// Gets a random string. Nice for password generation.
-    /// </summary>
+    /// <summary>Gets a random string. Nice for password generation.</summary>
     /// <param name="random">Instance of <see cref="Random"/> type.</param>
     /// <param name="length">The length of the string.</param>
     public static string NextCode(this Random random, short length = 12) {
@@ -53,9 +47,7 @@ public static class StringExtensions
         return stringBuilder.ToString();
     }
 
-    /// <summary>
-    /// Converts a string to kebab case.
-    /// </summary>
+    /// <summary>Converts a string to kebab case.</summary>
     /// <param name="value">The string to kebaberize.</param>
     public static string ToKebabCase(this string value) {
         // Find and replace all parts that starts with one capital letter e.g. Net
@@ -67,9 +59,7 @@ public static class StringExtensions
     }
 
 #if !NETSTANDARD14
-    /// <summary>
-    /// Removes accent but keeps encoding.
-    /// </summary>
+    /// <summary>Removes accent but keeps encoding.</summary>
     /// <param name="input">The string to manipulate.</param>
     public static string RemoveDiacritics(this string input) {
         var normalizedString = input.Normalize(NormalizationForm.FormD);

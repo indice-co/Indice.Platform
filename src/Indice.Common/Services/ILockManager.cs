@@ -1,13 +1,8 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Polly;
+﻿using Polly;
 
 namespace Indice.Services;
 
-/// <summary>
-/// Provides an abstraction for operations that help manage an exclusive lock on a distributed environment.
-/// </summary>
+/// <summary>Provides an abstraction for operations that help manage an exclusive lock on a distributed environment.</summary>
 /// <remarks>
 /// If you need to acquire a theoretical background, i would suggest to read the following:
 /// https://martin.kleppmann.com/2016/02/08/how-to-do-distributed-locking.html
@@ -15,63 +10,43 @@ namespace Indice.Services;
 /// </remarks>
 public interface ILockManager
 {
-    /// <summary>
-    /// Acquire a lock or throws.
-    /// </summary>
+    /// <summary>Acquire a lock or throws.</summary>
     /// <param name="name">Topic or name.</param>
     /// <param name="duration">The duration the lease will be active. Defaults 30 seconds.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <exception cref="LockManagerException">Occurs when the lock cannot be acquired.</exception>
     Task<ILockLease> AcquireLock(string name, TimeSpan? duration = null, CancellationToken cancellationToken = default);
-    /// <summary>
-    /// Renews an existing lease by lease id. This extends the duration of a non expired existing lease.
-    /// </summary>
+    /// <summary>Renews an existing lease by lease id. This extends the duration of a non expired existing lease.</summary>
     /// <param name="name">Topic or name.</param>
     /// <param name="leaseId">The lease Id (different on every lock).</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns></returns>
     /// <remarks>In case a lease has expired the client can renew the lease with their lease ID immediately if the blob has not been modified.</remarks>
     Task<ILockLease> Renew(string name, string leaseId, CancellationToken cancellationToken = default);
-    /// <summary>
-    /// Releases a lock.
-    /// </summary>
+    /// <summary>Releases a lock.</summary>
     /// <param name="lock">The lock lease.</param>
     Task ReleaseLock(ILockLease @lock);
-    /// <summary>
-    /// Clean up any expired lock leases. Depends on implementation may not be needed if the lock leases are self mainained like in Azure Blob Storage.
-    /// </summary>
+    /// <summary>Clean up any expired lock leases. Depends on implementation may not be needed if the lock leases are self mainained like in Azure Blob Storage.</summary>
     Task Cleanup();
 }
 
-/// <summary>
-/// Lock lease abstraction.
-/// </summary>
+/// <summary>Lock lease abstraction.</summary>
 public interface ILockLease : IDisposable, IAsyncDisposable
 {
-    /// <summary>
-    /// The lease Id (different on every lock).
-    /// </summary>
+    /// <summary>The lease Id (different on every lock).</summary>
     string LeaseId { get; }
-    /// <summary>
-    /// The subject of the lock (name).
-    /// </summary>
+    /// <summary>The subject of the lock (name).</summary>
     string Name { get; }
-    /// <summary>
-    /// Try renew the existing lease period.
-    /// </summary>
+    /// <summary>Try renew the existing lease period.</summary>
     public Task RenewAsync();
 }
 
-/// <summary>
-/// This object represents a lock lease.
-/// </summary>
+/// <summary>This object represents a lock lease.</summary>
 public class LockLease : ILockLease
 {
     private bool _disposed = false;
 
-    /// <summary>
-    /// Constructs a lock lease.
-    /// </summary>
+    /// <summary>Constructs a lock lease.</summary>
     /// <param name="leaseId">The lease Id (different on every lock).</param>
     /// <param name="name">The subject of the lock (name).</param>
     /// <param name="manager">The lock manager.</param>
@@ -85,9 +60,7 @@ public class LockLease : ILockLease
     public string LeaseId { get; }
     /// <inheritdoc />
     public string Name { get; }
-    /// <summary>
-    /// The lock manager.
-    /// </summary>
+    /// <summary>The lock manager.</summary>
     public ILockManager LockManager { get; }
 
     /// <inheritdoc />
@@ -112,9 +85,7 @@ public class LockLease : ILockLease
     public async Task RenewAsync() => await LockManager.Renew(Name, LeaseId);
 }
 
-/// <summary>
-/// A result object representing the lock operation result on the <see cref="ILockManager"/>.
-/// </summary>
+/// <summary>A result object representing the lock operation result on the <see cref="ILockManager"/>.</summary>
 public class LockLeaseResult
 {
     private LockLeaseResult(ILockLease @lock, bool ok) {
@@ -122,30 +93,20 @@ public class LockLeaseResult
         Ok = ok;
     }
 
-    /// <summary>
-    /// Success or fail indicator.
-    /// </summary>
+    /// <summary>Success or fail indicator.</summary>
     public bool Ok { get; }
-    /// <summary>
-    /// The lock itself. It is <see cref="IDisposable"/>
-    /// </summary>
+    /// <summary>The lock itself. It is <see cref="IDisposable"/></summary>
     public ILockLease Lock { get; }
 
-    /// <summary>
-    /// Successful <see cref="LockLeaseResult"/> factory.
-    /// </summary>
+    /// <summary>Successful <see cref="LockLeaseResult"/> factory.</summary>
     /// <param name="lock">The lock</param>
     public static LockLeaseResult Success(ILockLease @lock) => new(@lock, true);
 
-    /// <summary>
-    /// Failed  <see cref="LockLeaseResult"/> factory.
-    /// </summary>
+    /// <summary>Failed  <see cref="LockLeaseResult"/> factory.</summary>
     public static LockLeaseResult Fail() => new(null, false);
 }
 
-/// <summary>
-/// Extension methods on <see cref="ILockManager"/> type.
-/// </summary>
+/// <summary>Extension methods on <see cref="ILockManager"/> type.</summary>
 public static class ILockManagerExtensions
 {
     /// <summary>
@@ -183,9 +144,7 @@ public static class ILockManagerExtensions
         return await policy.ExecuteAsync(token => manager.TryAcquireLock(name), cancellationToken);
     }
 
-    /// <summary>
-    /// Tries to acquire the lock indefinitely until the action succeeds.
-    /// </summary>
+    /// <summary>Tries to acquire the lock indefinitely until the action succeeds.</summary>
     /// <param name="manager">The instance of <see cref="ILockManager"/>.</param>
     /// <param name="name">Topic or name.</param>
     /// <param name="retryAfter">Specifies the duration in seconds to wait for a particular retry attempt.</param>
@@ -197,9 +156,7 @@ public static class ILockManagerExtensions
         return await policy.ExecuteAsync(token => manager.TryAcquireLock(name), cancellationToken);
     }
 
-    /// <summary>
-    /// Tries to renew the lock lease.
-    /// </summary>
+    /// <summary>Tries to renew the lock lease.</summary>
     /// <param name="lockLease">The lock lease.</param>
     /// <returns>True if operation is successful, otherwise false.</returns>
     public static async Task<bool> TryRenewAsync(this ILockLease lockLease) {
@@ -211,9 +168,7 @@ public static class ILockManagerExtensions
         }
     }
 
-    /// <summary>
-    /// Tries to renew the lock lease.
-    /// </summary>
+    /// <summary>Tries to renew the lock lease.</summary>
     /// <param name="lockLease">The lock lease.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <param name="intervalInSeconds">Specifies the duration in seconds to wait for a renew attempt.</param>
@@ -230,9 +185,7 @@ public static class ILockManagerExtensions
         }
     }
 
-    /// <summary>
-    /// Uses a lease on a shared resource imposed by the <see cref="ILockManager"/> (i.e an Azure Storage blob or a shared file in a NFS) to provide a mechanism for implementing a shared, distributed mutex.
-    /// </summary>
+    /// <summary>Uses a lease on a shared resource imposed by the <see cref="ILockManager"/> (i.e an Azure Storage blob or a shared file in a NFS) to provide a mechanism for implementing a shared, distributed mutex.</summary>
     /// <remarks>
     /// This mutex can be used to elect a leader among a group of role instances in an Azure cloud service or an on-premise infrastructure. 
     /// The first role instance to acquire the lease is elected the leader, and remains the leader until it releases the lease or isn't able to renew the lease.
@@ -275,9 +228,7 @@ public static class ILockManagerExtensions
         linkedTokenSource?.Dispose();
     }
 
-    /// <summary>
-    /// Uses a lease on a shared resource imposed by the <see cref="ILockManager"/> (i.e an Azure Storage blob or a shared file in a NFS) to provide a mechanism for implementing a shared, distributed mutex.
-    /// </summary>
+    /// <summary>Uses a lease on a shared resource imposed by the <see cref="ILockManager"/> (i.e an Azure Storage blob or a shared file in a NFS) to provide a mechanism for implementing a shared, distributed mutex.</summary>
     /// <remarks>
     /// This mutex can be used to elect a leader among a group of role instances in an Azure cloud service or an on-premise infrastructure. 
     /// The first role instance to acquire the lease is elected the leader, and remains the leader until it releases the lease or isn't able to renew the lease.
@@ -291,42 +242,28 @@ public static class ILockManagerExtensions
         manager.ExclusiveRun(taskName, task, cancellationToken, ExclusiveRunOptions.Default());
 }
 
-/// <summary>
-/// Exception thrown when the <see cref="ILockManager"/> could not acquire a lock.
-/// </summary>
+/// <summary>Exception thrown when the <see cref="ILockManager"/> could not acquire a lock.</summary>
 public class LockManagerException : Exception
 {
-    /// <summary>
-    /// Constructs a new <see cref="LockManagerException"/>.
-    /// </summary>
+    /// <summary>Constructs a new <see cref="LockManagerException"/>.</summary>
     /// <param name="lockName">the name of the lock</param>
     public LockManagerException(string lockName) : base($"Could not acquire lock '{lockName}'.") { }
-    /// <summary>
-    /// Constructs a new <see cref="LockManagerException"/>.
-    /// </summary>
+    /// <summary>Constructs a new <see cref="LockManagerException"/>.</summary>
     /// <param name="lockName">The name of the lock.</param>
     /// <param name="innerException">The inner exception.</param>
     public LockManagerException(string lockName, Exception innerException) : base($"Could not acquire lock '{lockName}'.", innerException) { }
 }
 
-/// <summary>
-/// Options for configuring the ExclusiveRun method.
-/// </summary>
+/// <summary>Options for configuring the ExclusiveRun method.</summary>
 public class ExclusiveRunOptions
 {
     private int _lockDurationInSeconds = DEFAULT_LOCK_DURATION_IN_SECONDS;
     private int? _retryIntervalInSeconds = null;
-    /// <summary>
-    /// The minimum duration that a lock leases lasts.
-    /// </summary>
+    /// <summary>The minimum duration that a lock leases lasts.</summary>
     public const int MIN_LOCK_DURATION_IN_SECONDS = 3;
-    /// <summary>
-    /// The maximum duration that a lock leases lasts.
-    /// </summary>
+    /// <summary>The maximum duration that a lock leases lasts.</summary>
     public const int MAX_LOCK_DURATION_IN_SECONDS = 120;
-    /// <summary>
-    /// The default duration that a lock leases lasts.
-    /// </summary>
+    /// <summary>The default duration that a lock leases lasts.</summary>
     public const int DEFAULT_LOCK_DURATION_IN_SECONDS = 30;
 
     /// <summary>
@@ -362,9 +299,7 @@ public class ExclusiveRunOptions
         }
     }
 
-    /// <summary>
-    /// Gets the default configuration for <see cref="ExclusiveRunOptions"/>.
-    /// </summary>
+    /// <summary>Gets the default configuration for <see cref="ExclusiveRunOptions"/>.</summary>
     public static ExclusiveRunOptions Default() => new() { 
         LockDuration = DEFAULT_LOCK_DURATION_IN_SECONDS,
         _retryIntervalInSeconds = null

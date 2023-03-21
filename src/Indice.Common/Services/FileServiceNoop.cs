@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Indice.Services;
+﻿namespace Indice.Services;
 
 /// <summary>A default implementation for <see cref="IFileService"/> that does nothing.</summary>
 public class FileServiceNoop : IFileService

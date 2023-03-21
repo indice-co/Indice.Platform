@@ -1,12 +1,8 @@
-﻿using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 
 namespace Indice.Services;
 
-/// <summary>
-/// A <see cref="IEventDispatcher"/> implementation that does nothing.
-/// </summary>
+/// <summary>A <see cref="IEventDispatcher"/> implementation that does nothing.</summary>
 public class EventDispatcherNoop : IEventDispatcher
 {
     /// <inheritdoc/>

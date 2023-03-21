@@ -3,28 +3,40 @@
 /// <summary>List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</summary>
 public class ListOptions
 {
+    /// <summary>Default page number, in case it is not specified.</summary>
+    public const int DEFAULT_PAGE = 1;
+    /// <summary>Default page size, in case it is not specified.</summary>
+    public const int DEFAULT_SIZE = 100;
     private readonly Dictionary<string, string> SortRedirects;
-    
+    private int _page;
+    private int _size;
+
     /// <summary>Creates instance with default parameters.</summary>
     public ListOptions() {
-        Page = 1;
-        Size = 100;
+        Page = DEFAULT_PAGE;
+        Size = DEFAULT_SIZE;
         Sort = string.Empty;
         SortRedirects = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     }
 
-    /// <summary>The current page of the list. Default is 1.</summary>
-    public int Page { get; set; }
-    /// <summary>The size of the list. Default is 100.</summary>
-    public int Size { get; set; }
+    /// <summary>The current page of the list. Default is <see cref="DEFAULT_PAGE"/>.</summary>
+    public int? Page {
+        get => _page;
+        set => _page = value ?? DEFAULT_PAGE;
+    }
+
+    /// <summary>The size of the list. Default is <see cref="DEFAULT_SIZE"/>.</summary>
+    public int? Size {
+        get => _size;
+        set => _size = value ?? DEFAULT_SIZE;
+    }
+
     /// <summary>The property name used to sort the list.</summary>
     public string Sort { get; set; }
     /// <summary>A search term used to limit the results of the list.</summary>
     public string Search { get; set; }
 
-    /// <summary>
-    /// Retrieves the number of pages for a total of <paramref name="count"/> results.
-    /// </summary>
+    /// <summary>Retrieves the number of pages for a total of <paramref name="count"/> results.</summary>
     /// <param name="count">The number of results</param>
     public int GetPagesFor(int count) => Size > 0 ? (int)Math.Ceiling(count / (double)Size) : 0;
 
@@ -98,21 +110,37 @@ public class ListOptions
         }
         return dictionary;
     }
+
+    /// <summary>A factory method to create an instance of <see cref="ListOptions{TFilter}"/> from multiple parameters.</summary>
+    /// <typeparam name="TFilter"></typeparam>
+    /// <param name="options">The <see cref="ListOptions"/>.</param>
+    /// <param name="filter">The filter options.</param>
+    public static ListOptions<TFilter> Create<TFilter>(ListOptions options, TFilter filter) where TFilter : class, new() => new(options, filter);
 }
 
 /// <summary>A variant of list options that allows for the use of a custom filter model. More advanced than plain a search text.</summary>
 /// <typeparam name="TFilter">The type of filter.</typeparam>
 public class ListOptions<TFilter> : ListOptions where TFilter : class, new()
 {
-    /// <summary>
-    /// Creates instance with default parameters 
-    /// and initializes the Filter using the default constructor. 
-    /// </summary>
+    /// <summary>Creates instance with default parameters and initializes the Filter using the default constructor.</summary>
     public ListOptions() : base() => Filter = new TFilter();
 
-    /// <summary>
-    /// The custom filter options.
-    /// </summary>
+    /// <summary>Creates instance using the given the <paramref name="options"/> and <paramref name="filter"/> instances.</summary>
+    /// <param name="options"></param>
+    /// <param name="filter"></param>
+    public ListOptions(ListOptions options, TFilter filter) : this() {
+        if (options is not null) {
+            Page = options.Page;
+            Size = options.Size;
+            Sort = options.Sort;
+            Search = options.Search;
+        }
+        if (filter is not null) {
+            Filter = filter;
+        }
+    }
+
+    /// <summary>The custom filter options.</summary>
     public TFilter Filter { get; set; }
 
     /// <summary>

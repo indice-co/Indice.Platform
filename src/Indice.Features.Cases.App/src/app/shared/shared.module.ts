@@ -24,6 +24,7 @@ import { CaseDetailInfoComponent } from './components/case-detail-info/case-deta
 import { CaseCustomActionComponent } from './components/case-custom-action/case-custom-action.component';
 import { LookupSelectorWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
 import { CanvasTileComponent } from './components/canvas-tile/canvas-tile.component';
+import { DisplayCaseTypesComponent } from './components/select-case-type/display-case-types/display-case-types.component';
 
 
 
@@ -38,6 +39,7 @@ import { CanvasTileComponent } from './components/canvas-tile/canvas-tile.compon
     CaseDetailInfoComponent,
     CaseCustomActionComponent,
     CanvasTileComponent,
+    DisplayCaseTypesComponent,
     // ajsf
     FileWidgetComponent,
     TailwindFrameworkComponent,

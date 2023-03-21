@@ -1,16 +1,11 @@
-﻿using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Indice.Extensions;
 
-/// <summary>
-/// Extensions that enable the creation of a unique alias given a suggested string name.
-/// </summary>
+/// <summary>Extensions that enable the creation of a unique alias given a suggested string name.</summary>
 public static class AliasExtensions
 {
-    /// <summary>
-    /// Generates an alias. Alternate key from string.
-    /// </summary>
+    /// <summary>Generates an alias. Alternate key from string.</summary>
     /// <param name="existingAliases">These are the already taken aliases</param>
     /// <param name="fallbackName">The name that wull be used to generate the alias (if not set) .</param>
     /// <param name="suggestedAlias">The alias.</param>
@@ -43,9 +38,7 @@ public static class AliasExtensions
         return suggestedAlias;
     }
 
-    /// <summary>
-    /// Performs a call to the database to check if the company alias is available or not.
-    /// </summary>
+    /// <summary>Performs a call to the database to check if the company alias is available or not.</summary>
     /// <returns>Returns true if the alias is available, otherwise false.</returns>
     private static AliasAvailability CheckAvailability(IQueryable<string> existingAliases, string newAlias) {
         var lastIndex = 0;
@@ -74,18 +67,12 @@ public static class AliasExtensions
         return availabeAlias;
     }
 
-    /// <summary>
-    /// Small helper class used to report for alias availability
-    /// </summary>
+    /// <summary>Small helper class used to report for alias availability</summary>
     public class AliasAvailability
     {
-        /// <summary>
-        /// The suggested alias is available
-        /// </summary>
+        /// <summary>The suggested alias is available</summary>
         public bool IsAvailable { get; set; }
-        /// <summary>
-        /// The last index used for this alias.
-        /// </summary>
+        /// <summary>The last index used for this alias.</summary>
         public int LastIndex { get; set; }
     }
 }

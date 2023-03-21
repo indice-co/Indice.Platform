@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Indice.Serialization;
 
 namespace Indice.Types;
 
-/// <summary>
-/// A type that models the translation of an object.
-/// </summary>
+/// <summary>A type that models the translation of an object.</summary>
 /// <typeparam name="T">The type of object to translate.</typeparam>
 public class TranslationDictionary<T> : Dictionary<string, T> where T : class
 {
-    /// <summary>
-    /// Creates a new instance of <see cref="TranslationDictionary{T}"/>.
-    /// </summary>
+    /// <summary>Creates a new instance of <see cref="TranslationDictionary{T}"/>.</summary>
     /// <param name="source"></param>
     public TranslationDictionary(IDictionary<string, T> source) : this() {
         foreach (var item in source) {
@@ -21,23 +15,17 @@ public class TranslationDictionary<T> : Dictionary<string, T> where T : class
         }
     }
 
-    /// <summary>
-    /// Creates a new instance of <see cref="TranslationDictionary{T}"/>.
-    /// </summary>
+    /// <summary>Creates a new instance of <see cref="TranslationDictionary{T}"/>.</summary>
     public TranslationDictionary() : base(StringComparer.InvariantCultureIgnoreCase) { }
 
-    /// <summary>
-    /// Transforms the current <see cref="TranslationDictionary{T}"/> into an <see cref="IEnumerable{Translation}"/>
-    /// </summary>
+    /// <summary>Transforms the current <see cref="TranslationDictionary{T}"/> into an <see cref="IEnumerable{Translation}"/></summary>
     public IEnumerable<Translation<T>> ToTranslationEnumerable() {
         foreach (var item in this) {
             yield return new Translation<T>(item.Key, item.Value);
         }
     }
 
-    /// <summary>
-    /// Converts the current instance of <see cref="TranslationDictionary{T}"/> to it's JSON representation.
-    /// </summary>
+    /// <summary>Converts the current instance of <see cref="TranslationDictionary{T}"/> to it's JSON representation.</summary>
     public string ToJson() {
         if (this != null) {
             return JsonSerializer.Serialize(this, JsonSerializerOptionDefaults.GetDefaultSettings());
@@ -45,9 +33,7 @@ public class TranslationDictionary<T> : Dictionary<string, T> where T : class
         return default;
     }
 
-    /// <summary>
-    /// Creates a <see cref="TranslationDictionary{T}"/> from it's JSON representation.
-    /// </summary>
+    /// <summary>Creates a <see cref="TranslationDictionary{T}"/> from it's JSON representation.</summary>
     /// <param name="json">The JSON to create the <see cref="TranslationDictionary{T}"/>.</param>
     public static TranslationDictionary<T> FromJson(string json) {
         if (string.IsNullOrWhiteSpace(json)) {

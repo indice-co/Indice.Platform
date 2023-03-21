@@ -1,15 +1,9 @@
-﻿using System.Collections.Generic;
+﻿namespace System.Linq;
 
-namespace System.Linq;
-
-/// <summary>
-/// Extension methods on <see cref="IEnumerable{T}"/>.
-/// </summary>
+/// <summary>Extension methods on <see cref="IEnumerable{T}"/>.</summary>
 public static class EnumerableExtensions
 {
-    /// <summary>
-    /// Projects each element of a sequence to an <see cref="IEnumerable{T}"/> and flattens the resulting sequences into one sequence <b>recursively</b>.
-    /// </summary>
+    /// <summary>Projects each element of a sequence to an <see cref="IEnumerable{T}"/> and flattens the resulting sequences into one sequence <b>recursively</b>.</summary>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">A sequence of values to project.</param>
     /// <param name="selector">A transform function to apply to each element.</param>
