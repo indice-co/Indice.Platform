@@ -54,19 +54,23 @@ internal class CaseTypeService : ICaseTypeService
         var caseTypes = await _dbContext.CaseTypes
             .AsQueryable()
             .Where(c => caseTypeIds.Contains(c.Id))
+            .OrderBy(c => c.Category == null ? null : c.Category.Order)
+            .ThenBy(c => c.Order)
             .Select(c => new CaseTypePartial {
                 Id = c.Id,
                 Title = c.Title,
+                Description = c.Description,
                 Category = c.Category == null ? null : new Category {
                     Id = c.Category.Id,
                     Name = c.Category.Name,
                     Description = c.Category.Description,
+                    Order = c.Category.Order,
                     Translations = TranslationDictionary<CategoryTranslation>.FromJson(c.Category.Translations)
                 },
-                Description = c.Description,
                 DataSchema = c.DataSchema,
                 Layout = c.Layout,
                 Code = c.Code,
+                Order = c.Order,
                 Tags = c.Tags,
                 Config = c.Config,
                 Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
@@ -193,9 +197,19 @@ internal class CaseTypeService : ICaseTypeService
     private async Task<ResultSet<CaseTypePartial>> GetAdminCaseTypes() {
         var caseTypes = await _dbContext.CaseTypes
             .AsQueryable()
+                .OrderBy(c => c.Category == null ? null : c.Category.Order)
+                .ThenBy(c => c.Order)
                 .Select(c => new CaseTypePartial {
                     Id = c.Id,
                     Title = c.Title,
+                    Description = c.Description,
+                    Category = c.Category == null ? null : new Category {
+                        Id = c.Category.Id,
+                        Name = c.Category.Name,
+                        Description = c.Category.Description,
+                        Order = c.Category.Order,
+                        Translations = TranslationDictionary<CategoryTranslation>.FromJson(c.Category.Translations)
+                    },
                     Code = c.Code,
                     Tags = c.Tags,
                     Order = c.Order,
@@ -209,8 +223,14 @@ internal class CaseTypeService : ICaseTypeService
     private void TranslateCaseTypes(List<CaseTypePartial> caseTypes) {
         for (var i = 0; i < caseTypes.Count; i++) {
             caseTypes[i] = caseTypes[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            if (caseTypes[i].Category is not null) {
+                caseTypes[i].Category = TranslateCaseTypeCategory(caseTypes[i].Category, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            }
         }
     }
+
+    private Category TranslateCaseTypeCategory(Category category, string culture, bool includeTranslations) =>
+    category.Translate(culture, includeTranslations);
 
     private async Task<List<Guid>> GetCaseTypeIdsForCaseCreation(List<string> roleClaims) {
         var caseTypeExpressions = roleClaims.Select(roleClaim => (Expression<Func<DbCaseType, bool>>)(dbCaseType => EF.Functions.Like(dbCaseType.CanCreateRoles, $"%{roleClaim}%")));
