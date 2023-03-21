@@ -227,7 +227,6 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
         };
 
-        // translate case type
         caseType = TranslateCaseType(caseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
 
         return caseType;
@@ -264,16 +263,17 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                 Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
             })
             .ToListAsync();
+        TranslateCaseTypes(caseTypes);
+        return caseTypes.ToResultSet();
+    }
 
-        // translate case types
+    private void TranslateCaseTypes(List<CaseTypePartial> caseTypes) {
         for (var i = 0; i < caseTypes.Count; i++) {
             caseTypes[i] = TranslateCaseType(caseTypes[i], CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
             if (caseTypes[i].Category is not null) {
                 caseTypes[i].Category = TranslateCaseTypeCategory(caseTypes[i].Category, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
             }
         }
-
-        return caseTypes.ToResultSet();
     }
 
     private CaseTypePartial TranslateCaseType(CaseTypePartial caseTypePartial, string culture, bool includeTranslations) {
@@ -284,5 +284,5 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     }
 
     private Category TranslateCaseTypeCategory(Category category, string culture, bool includeTranslations) =>
-        category.Translate(culture, includeTranslations);
+    category.Translate(culture, includeTranslations);
 }
