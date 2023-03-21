@@ -23,8 +23,8 @@ public class UserStateProvider
     ) {
         _requirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) == true;
         _requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) == true;
-        _httpContext = httpContextAccessor?.HttpContext ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        if (_httpContext.Session.TryGetValue(USER_LOGIN_STATE_SESSION_KEY, out var bytes)) {
+        _httpContext = httpContextAccessor?.HttpContext;
+        if (_httpContext?.Session.TryGetValue(USER_LOGIN_STATE_SESSION_KEY, out var bytes) == true) {
             CurrentState = Enum.Parse<UserState>(Encoding.UTF8.GetString(bytes));
         }
     }
@@ -34,7 +34,7 @@ public class UserStateProvider
 
     internal void ChangeStateTo(UserAction action, User user = null) {
         CurrentState = GetNextState(action, user);
-        _httpContext.Session.Set(USER_LOGIN_STATE_SESSION_KEY, Encoding.UTF8.GetBytes(CurrentState.ToString()));
+        _httpContext?.Session.Set(USER_LOGIN_STATE_SESSION_KEY, Encoding.UTF8.GetBytes(CurrentState.ToString()));
     }
 
     /// <summary></summary>
@@ -42,6 +42,7 @@ public class UserStateProvider
     /// <param name="user"></param>
     /// <exception cref="InvalidOperationException"></exception>
     private UserState GetNextState(UserAction action, User user = null) => (CurrentState, action) switch {
+        (UserState.LoggedOut, UserAction.Login) when user?.TwoFactorEnabled == true && user?.PhoneNumberConfirmed == false => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
         (UserState.LoggedOut, UserAction.Login) when user?.TwoFactorEnabled == true && user?.HasExpiredPassword() == true => UserState.RequiresMfa,
         (UserState.LoggedOut, UserAction.Login) when user?.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.LoggedOut, UserAction.Login) when user?.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
