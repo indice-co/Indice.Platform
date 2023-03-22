@@ -29,12 +29,11 @@ public class FilterClauseQueryableExtensionTests : IDisposable
     [Fact]
     public async Task FilterClause_Translates_ToDatabaseQuery_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
-
         var filters = new List<FilterClause> {
             //(FilterClause)"extras.id::eq::(integer)15",
             (FilterClause)"data.displayName::contains::κων",
             (FilterClause)$"data.period.to::gt::(DateTime){DateTime.Now:yyyy-MM-dd}",
-            (FilterClause)"metadata.NAME::eq::Thanos",
+            (FilterClause)"metadata.name::eq::Thanos",
             //(FilterClause)"data.enabled::eq::(boolean)true",
             //(FilterClause)"name::eq::Κωνσταντίνος",
         };
@@ -84,7 +83,7 @@ public class DummyDbContext : DbContext
                 new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" } , Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
                 new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
                 new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
-                );
+            );
             SaveChanges();
         }
     }

@@ -1,0 +1,16 @@
+::ng-deep .ql-container {
+    min-height: 100px;
+}
+
+::ng-deep .ql-toolbar.ql-snow {
+    @apply rounded-t-lg;
+}
+
+::ng-deep .ql-container.ql-snow {
+    @apply rounded-b-lg;    
+}
+
+::ng-deep .ql-readonly .ql-container.ql-snow {
+    @apply rounded-t-lg;    
+}
+

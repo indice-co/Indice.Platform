@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.12.2] - 2023-03-15
+### Added
+- Categories & Ordering for case types
+- WYSIWYG widget, using `ngx-quill`
+
 ## [6.11.3] - 2023-03-15
 ### Changed
 - allow negative numbers to `currency-widget`
