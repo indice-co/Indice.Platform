@@ -25,6 +25,8 @@ import { CaseCustomActionComponent } from './components/case-custom-action/case-
 import { LookupSelectorWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
 import { CanvasTileComponent } from './components/canvas-tile/canvas-tile.component';
 import { DisplayCaseTypesComponent } from './components/select-case-type/display-case-types/display-case-types.component';
+import { QuillModule } from 'ngx-quill';
+import { WysiwygWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
 
 
 
@@ -51,6 +53,7 @@ import { DisplayCaseTypesComponent } from './components/select-case-type/display
     InputWidgetComponent,
     TextAreaWidgetComponent,
     LookupSelectorWidgetComponent,
+    WysiwygWidgetComponent,
     // pipes
     BeautifyBooleanPipe
   ],
@@ -61,7 +64,23 @@ import { DisplayCaseTypesComponent } from './components/select-case-type/display
     HttpClientModule,
     JsonSchemaFormModule,
     IndiceComponentsModule,
-    NgxMaskModule.forRoot()
+    NgxMaskModule.forRoot(),
+    QuillModule.forRoot({
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+          [{ 'font': [] }],
+          ['bold', 'italic', 'underline'],
+          [{ 'align': [] }],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          [{ 'script': 'sub' }, { 'script': 'super' }],
+          [{ 'indent': '-1' }, { 'indent': '+1' }],
+          ['clean'],
+        ]
+      },
+
+    })
   ],
   exports: [
     // components

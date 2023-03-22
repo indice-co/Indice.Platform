@@ -3,6 +3,10 @@
 @import "tailwindcss/utilities";
 @import "../node_modules/@indice/ng-components/_styles.scss";
 
+@import '~quill/dist/quill.core.css';
+@import '~quill/dist/quill.bubble.css';
+@import '~quill/dist/quill.snow.css';
+
 @layer components {
   .kpi-chart-container {
     @apply h-full w-full;
