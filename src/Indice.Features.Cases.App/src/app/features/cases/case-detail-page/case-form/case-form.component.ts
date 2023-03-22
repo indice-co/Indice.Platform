@@ -16,6 +16,7 @@ import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-framewo
 import { Router } from '@angular/router';
 import { FileWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
 import { LookupSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
+import { WysiwygWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
 
 @Component({
   selector: 'app-case-form',
@@ -43,7 +44,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     "currency": CurrencyWidgetComponent,
     "text": InputWidgetComponent,
     "number": InputWidgetComponent,
-    "textarea": TextAreaWidgetComponent
+    "textarea": TextAreaWidgetComponent,
+    "wysiwyg": WysiwygWidgetComponent
   };
   // Add custom framework
   public framework = {

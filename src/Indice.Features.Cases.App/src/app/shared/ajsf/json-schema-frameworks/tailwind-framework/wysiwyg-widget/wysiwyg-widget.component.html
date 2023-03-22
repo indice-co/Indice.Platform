@@ -1,0 +1,23 @@
+<div [class]="options?.htmlClass || ''">
+       <label *ngIf="options?.title"
+              class="block text-sm font-medium text-gray-700"
+              [attr.for]="'control' + layoutNode?._id"
+              [class]="options?.labelHtmlClass || ''"
+              [style.display]="options?.notitle ? 'none' : ''"
+              [innerHTML]="options?.title"></label>
+       <div class="mt-1 editor"
+            *ngIf="!options?.readonly">
+              <quill-editor [id]="'control' + layoutNode?._id"
+                            [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
+                            [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
+                            [attr.required]="options?.required"
+                            [ngModel]="controlValue"
+                            (ngModelChange)="updateValue($event)"></quill-editor>
+       </div>
+       <div class="mt-1 ql-readonly"
+            *ngIf="options?.readonly">
+              <quill-editor [ngModel]="controlValue"
+                            [disabled]="true"
+                            [modules]="{ toolbar: false }"></quill-editor>
+       </div>
+</div>
