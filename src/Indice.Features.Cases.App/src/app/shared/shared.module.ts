@@ -68,18 +68,13 @@ import { WysiwygWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-f
     QuillModule.forRoot({
       modules: {
         toolbar: [
-          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-          [{ 'font': [] }],
           ['bold', 'italic', 'underline'],
           [{ 'align': [] }],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-          [{ 'script': 'sub' }, { 'script': 'super' }],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],          
           [{ 'indent': '-1' }, { 'indent': '+1' }],
           ['clean'],
         ]
-      },
-
+      }
     })
   ],
   exports: [
