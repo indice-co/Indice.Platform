@@ -12,8 +12,7 @@ public static class JsonSerializerOptionDefaults
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             PropertyNameCaseInsensitive = true,
             WriteIndented = false,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
         options.Converters.Add(new JsonStringEnumConverter());
 #if NET6_0_OR_GREATER
