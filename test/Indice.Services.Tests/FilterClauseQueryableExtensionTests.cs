@@ -33,7 +33,7 @@ public class FilterClauseQueryableExtensionTests : IDisposable
             //(FilterClause)"extras.id::eq::(integer)15",
             (FilterClause)"data.displayName::contains::κων",
             (FilterClause)$"data.period.to::gt::(DateTime){DateTime.Now:yyyy-MM-dd}",
-            (FilterClause)"metadata.name::eq::Thanos",
+            (FilterClause)"metadata.NAME::eq::Thanos",
             //(FilterClause)"data.enabled::eq::(boolean)true",
             //(FilterClause)"name::eq::Κωνσταντίνος",
         };
