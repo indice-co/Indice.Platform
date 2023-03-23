@@ -141,8 +141,14 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         if (ShouldSignInPartially()) {
             return await DoPartialSignInAsync(user, isPersistent);
         }
-        var signInResult = await base.SignInOrTwoFactorAsync(user, isPersistent, loginProvider, bypassTwoFactor);
-        if (signInResult.Succeeded && (user is User)) {
+        if (!bypassTwoFactor && await IsTfaEnabled(user)) {
+            if (!await IsTwoFactorClientRememberedAsync(user)) {
+                var userId = await UserManager.GetUserIdAsync(user);
+                await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(userId, loginProvider));
+                return SignInResult.TwoFactorRequired;
+            }
+        }
+        if (user is User) {
             user.LastSignInDate = DateTimeOffset.UtcNow;
             await UserManager.UpdateAsync(user);
             if (RememberExpirationType == MfaExpirationType.Sliding) {
@@ -152,7 +158,18 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 }
             }
         }
-        return signInResult;
+        if (ShouldSignInPartially()) {
+            return await DoPartialSignInAsync(user, isPersistent);
+        }
+        if (loginProvider is not null) {
+            await Context.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+        if (loginProvider is null) {
+            await SignInWithClaimsAsync(user, isPersistent, new Claim[] { new Claim("amr", "pwd") });
+        } else {
+            await SignInAsync(user, isPersistent, loginProvider);
+        }
+        return SignInResult.Success;
     }
 
     /// <inheritdoc/>
@@ -170,8 +187,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return error;
         }
         if (await UserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
-            await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
             StateProvider.ChangeStateTo(UserAction.MultiFactorAuthenticated, user);
+            await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
             if (ShouldSignInPartially()) {
                 return await DoPartialSignInAsync(user, isPersistent);
             }
@@ -375,6 +392,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     private async Task DoTwoFactorSignInAsync(TUser user, TwoFactorAuthenticationInfo twoFactorInfo, bool isPersistent, bool rememberClient) {
+        if (rememberClient) {
+            await RememberTwoFactorClientAsync(user);
+        }
+        if (StateProvider.CurrentState != UserState.LoggedIn) {
+            return;
+        }
         await ResetLockout(user);
         var claims = new List<Claim> {
             new Claim("amr", "mfa")
@@ -384,9 +407,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await Context.SignOutAsync(IdentityConstants.ExternalScheme);
         }
         await Context.SignOutAsync(ExtendedIdentityConstants.TwoFactorUserIdScheme);
-        if (rememberClient) {
-            await RememberTwoFactorClientAsync(user);
-        }
         await SignInWithClaimsAsync(user, isPersistent, claims);
     }
 
