@@ -41,7 +41,7 @@ public static class OpenApiExtensions
     /// <param name="statusCode">The response status code.</param>
     /// <param name="contentType">The response content type. Defaults to "application/problem+json".</param>
     /// <returns>A <see cref="RouteGroupBuilder"/> that can be used to further customize the endpoint.</returns>
-    public static RouteGroupBuilder ProducesProblem(this RouteGroupBuilder builder, int statusCode, string? contentType = null) => 
+    public static RouteGroupBuilder ProducesProblem(this RouteGroupBuilder builder, int statusCode, string contentType = null) => 
         builder.WithMetadata(new ProducesResponseTypeMetadata(typeof(ProblemDetails), statusCode, contentType ?? "application/problem+json"));
 
     /// <summary>
@@ -52,7 +52,7 @@ public static class OpenApiExtensions
     /// <param name="statusCode">The response status code. Defaults to <see cref="StatusCodes.Status400BadRequest"/>.</param>
     /// <param name="contentType">The response content type. Defaults to "application/problem+json".</param>
     /// <returns>A <see cref="RouteGroupBuilder"/> that can be used to further customize the endpoint.</returns>
-    public static RouteGroupBuilder ProducesValidationProblem(this RouteGroupBuilder builder, int statusCode = 400, string? contentType = null) 
+    public static RouteGroupBuilder ProducesValidationProblem(this RouteGroupBuilder builder, int statusCode = 400, string contentType = null) 
         => builder.WithMetadata(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), statusCode, contentType ?? "application/problem+json"));
 }
 #endif

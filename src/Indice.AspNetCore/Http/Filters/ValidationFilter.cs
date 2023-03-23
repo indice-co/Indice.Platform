@@ -32,7 +32,7 @@ public static partial class ValidationFilterExtensions
             }
 
             // Track the indicies of validatable parameters
-            List<int>? parameterIndexesToValidate = null;
+            List<int> parameterIndexesToValidate = null;
             foreach (var p in methodInfo.GetParameters()) {
                 if (typesToValidate.Contains(p.ParameterType)) {
                     parameterIndexesToValidate ??= new();
