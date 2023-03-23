@@ -1,4 +1,5 @@
-﻿using MiniValidation;
+﻿#if NET7_0_OR_GREATER
+using MiniValidation;
 
 namespace Indice.AspNetCore.Http.Validation;
 
@@ -20,3 +21,4 @@ internal class DefaultEndpointParameterValidator : IEndpointParameterValidator
     public ValueTask<(bool IsValid, IDictionary<string, string[]> Errors)> TryValidateAsync(object argument) =>
         MiniValidator.TryValidateAsync(argument);
 }
+#endif
