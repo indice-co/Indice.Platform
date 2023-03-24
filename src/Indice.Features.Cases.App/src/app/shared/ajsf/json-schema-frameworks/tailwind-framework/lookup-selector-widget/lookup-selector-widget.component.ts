@@ -53,6 +53,10 @@ export class LookupSelectorWidgetComponent implements OnInit {
 
   ngOnInit(): void {
     this.options = this.layoutNode.options || {};
+    // early exit to avoid lookup call
+    if (this.options.condition === 'false') {
+      return
+    }
     // Get lookup's Name
     let lookupName = this.options['lookup-name'];
     // Is the widget dependent on another form field(s)?
