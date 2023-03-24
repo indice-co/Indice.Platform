@@ -2,6 +2,7 @@
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Hosting;
@@ -24,6 +25,7 @@ public static class IdentityBuilderExtensions
             options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
         });
         builder.Services.AddTransient<IMfaDeviceIdResolver, DefaultMfaDeviceIdResolver>();
+        builder.Services.TryAddTransient<IAuthenticationMethodProvider, DefaultAuthenticationMethodProvider>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
         builder.Services.TryAddTransient<UserStateProvider>();
         return builder;
@@ -32,6 +34,20 @@ public static class IdentityBuilderExtensions
     /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies, using <see cref="User"/> class as a user type..</summary>
     /// <param name="builder">The type of builder for configuring identity services.</param>
     public static IdentityBuilder AddExtendedSignInManager(this IdentityBuilder builder) => builder.AddExtendedSignInManager<User>();
+
+    /// <summary>Registers an instance of <see cref="ExtendedUserManager{TUser}"/> along with required dependencies.</summary>
+    /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
+    /// <param name="builder">The type of builder for configuring identity services.</param>
+    public static IdentityBuilder AddExtendedUserManager<TUser>(this IdentityBuilder builder) where TUser : User, new() {
+        builder.AddEntityFrameworkStores<ExtendedIdentityDbContext<TUser, Role>>()
+               .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<TUser, Role>, TUser, Role>>()
+               .AddUserManager<ExtendedUserManager<TUser>>();
+        return builder;
+    }
+
+    /// <summary>Registers an instance of <see cref="ExtendedUserManager{TUser}"/> along with required dependencies.</summary>
+    /// <param name="builder">The type of builder for configuring identity services.</param>
+    public static IdentityBuilder AddExtendedUserManager(this IdentityBuilder builder) => builder.AddExtendedUserManager<User>();
 
     /// <summary>
     /// Adds the <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/> as the default phone provider.

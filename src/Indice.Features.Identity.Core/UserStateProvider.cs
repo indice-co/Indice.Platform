@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -23,6 +24,7 @@ public class UserStateProvider
     ) {
         _requirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) == true;
         _requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) == true;
+        MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
         _httpContext = httpContextAccessor?.HttpContext;
         if (_httpContext?.Session.TryGetValue(USER_LOGIN_STATE_SESSION_KEY, out var bytes) == true) {
             CurrentState = Enum.Parse<UserState>(Encoding.UTF8.GetString(bytes));
@@ -31,32 +33,33 @@ public class UserStateProvider
 
     /// <summary>Current user login state value.</summary>
     public UserState CurrentState { get; private set; }
+    /// <summary>MFA policy applied for new users.</summary>
+    private MfaPolicy MfaPolicy { get; }
 
-    internal void ChangeStateTo(UserAction action, User user = null) {
+    internal void ChangeStateTo(UserAction action, User user) {
         CurrentState = GetNextState(action, user);
         _httpContext?.Session.Set(USER_LOGIN_STATE_SESSION_KEY, Encoding.UTF8.GetBytes(CurrentState.ToString()));
     }
 
-    /// <summary></summary>
-    /// <param name="action"></param>
-    /// <param name="user"></param>
-    /// <exception cref="InvalidOperationException"></exception>
-    private UserState GetNextState(UserAction action, User user = null) => (CurrentState, action) switch {
-        (UserState.LoggedOut, UserAction.Login) when user?.TwoFactorEnabled == true && user?.PhoneNumberConfirmed == false => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
-        (UserState.LoggedOut, UserAction.Login) when user?.TwoFactorEnabled == true => UserState.RequiresMfa,
-        (UserState.LoggedOut, UserAction.Login) when user?.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
-        (UserState.LoggedOut, UserAction.Login) when user?.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
-        (UserState.LoggedOut, UserAction.Login) when user?.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
+    internal void Clear() => _httpContext?.Session.Clear();
+
+    private UserState GetNextState(UserAction action, User user) => (CurrentState, action) switch {
+        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false && user.PhoneNumberConfirmed == false && MfaPolicy == MfaPolicy.Enforced => UserState.MfaOnboarding,
+        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true && user.PhoneNumberConfirmed == false => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
+        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true => UserState.RequiresMfa,
+        (UserState.LoggedOut, UserAction.Login) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
+        (UserState.LoggedOut, UserAction.Login) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.LoggedOut, UserAction.Login) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
         (UserState.LoggedOut, UserAction.Login) => UserState.LoggedIn,
-        (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user?.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
-        (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user?.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
+        (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
         (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) => UserState.LoggedIn,
-        (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) when user?.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
-        (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) when user?.EmailConfirmed == true => UserState.LoggedIn,
-        (UserState.RequiresEmailVerification, UserAction.VerifiedEmail) when user?.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
+        (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) when user.EmailConfirmed == true => UserState.LoggedIn,
+        (UserState.RequiresEmailVerification, UserAction.VerifiedEmail) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
         (UserState.RequiresEmailVerification, UserAction.VerifiedEmail) => UserState.LoggedIn,
-        (UserState.RequiresPasswordChange, UserAction.PasswordChanged) when user?.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
-        (UserState.RequiresPasswordChange, UserAction.PasswordChanged) when user?.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.RequiresPasswordChange, UserAction.PasswordChanged) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
+        (UserState.RequiresPasswordChange, UserAction.PasswordChanged) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
         (UserState.RequiresPasswordChange, UserAction.PasswordChanged) => UserState.LoggedIn,
         (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) => UserState.LoggedIn,
         (UserState.LoggedIn, UserAction.Logout) => UserState.LoggedOut,
@@ -78,7 +81,9 @@ public enum UserState
     /// <summary>Requires password change.</summary>
     RequiresPasswordChange,
     /// <summary>Requires MFA.</summary>
-    RequiresMfa
+    RequiresMfa,
+    /// <summary>MFA on-boarding.</summary>
+    MfaOnboarding
 }
 
 /// <summary>Describes the action taken by the principal that changes the state.</summary>

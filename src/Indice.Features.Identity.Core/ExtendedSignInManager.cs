@@ -220,7 +220,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await Context.SignOutAsync(ExternalScheme);
         }
         await base.SignOutAsync();
-        StateProvider.ChangeStateTo(UserAction.Logout);
+        StateProvider.Clear();
     }
 
     /// <inheritdoc/>
@@ -424,17 +424,25 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 public class ExtendedSignInResult : SignInResult
 {
     /// <summary>Construct an instance of <see cref="ExtendedSignInResult"/>.</summary>
-    public ExtendedSignInResult(bool requiresEmailVerification, bool requiresPhoneNumberVerification, bool requiresPasswordChange) {
+    public ExtendedSignInResult(
+        bool requiresEmailVerification,
+        bool requiresPhoneNumberVerification,
+        bool requiresPasswordChange,
+        bool requiresMfaOnboarding
+    ) {
         RequiresEmailVerification = requiresEmailVerification;
         RequiresPhoneNumberVerification = requiresPhoneNumberVerification;
         RequiresPasswordChange = requiresPasswordChange;
+        RequiresMfaOnboarding = requiresMfaOnboarding;
     }
 
     /// <summary>Construct an instance of <see cref="ExtendedSignInResult"/> based on <see cref="UserState"/>.</summary>
     public ExtendedSignInResult(UserState state) : this(
         state == UserState.RequiresEmailVerification,
         state == UserState.RequiresPhoneNumberVerification,
-        state == UserState.RequiresPasswordChange) {
+        state == UserState.RequiresPasswordChange,
+        state == UserState.MfaOnboarding
+    ) {
         Succeeded = state == UserState.LoggedIn;
     }
 
@@ -447,19 +455,23 @@ public class ExtendedSignInResult : SignInResult
     /// <summary>Returns a flag indication whether the user attempting to sign-in requires an immediate password change due to expiration.</summary>
     /// <value>True if the user attempting to sign-in requires a password change, otherwise false.</value>
     public bool RequiresPasswordChange { get; }
+    /// <summary>Returns a flag indication whether the user should on-board to MFA.</summary>
+    /// <value>True if the user attempting to sign-in requires MFA on-boarding, otherwise false.</value>
+    public bool RequiresMfaOnboarding { get; }
 }
 
 /// <summary>Extensions on <see cref="SignInResult"/> type.</summary>
 public static class ExtendedSignInManagerExtensions
 {
     /// <summary>Returns a flag indication whether the user attempting to sign-in requires phone number confirmation.</summary>
-    /// <param name="result"></param>
-    /// <returns></returns>
+    /// <param name="result">Represents the result of a sign-in operation.</param>
     public static bool RequiresPhoneNumberConfirmation(this SignInResult result) => result is ExtendedSignInResult { RequiresPhoneNumberVerification: true };
     /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation .</summary>
     public static bool RequiresEmailConfirmation(this SignInResult result) => result is ExtendedSignInResult { RequiresEmailVerification: true };
     /// <summary>Returns a flag indication whether the user attempting to sign-in requires email confirmation .</summary>
     public static bool RequiresPasswordChange(this SignInResult result) => result is ExtendedSignInResult { RequiresPasswordChange: true };
+    /// <summary>Returns a flag indication whether the user should on-board to MFA.</summary>
+    public static bool RequiresMfaOnboarding(this SignInResult result) => result is ExtendedSignInResult { RequiresMfaOnboarding: true };
 }
 
 internal sealed class TwoFactorAuthenticationInfo

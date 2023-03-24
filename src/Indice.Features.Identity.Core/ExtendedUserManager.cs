@@ -87,9 +87,6 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         if (EmailAsUserName) {
             user.UserName = user.Email;
         }
-        if (MfaPolicy == MfaPolicy.Enforced) {
-            user.TwoFactorEnabled = true;
-        }
         var result = await base.CreateAsync(user);
         if (result.Succeeded) {
             await _eventService.Publish(new UserCreatedEvent(user));

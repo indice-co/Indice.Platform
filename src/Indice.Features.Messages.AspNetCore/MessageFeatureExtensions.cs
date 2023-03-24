@@ -237,7 +237,7 @@ public static class MessageFeatureExtensions
         return options;
     }
 
-    /// <summary>Adds multitenancy capabilities in the Messages API endpoints.</summary>
+    /// <summary>Adds multi-tenancy capabilities in the Messages API endpoints.</summary>
     /// <param name="options">Options used to configure the Messages API feature.</param>
     /// <param name="accessLevel">The minimum access level required.</param>
     public static MessageEndpointOptions UseMultiTenancy(this MessageEndpointOptions options, int accessLevel) {
@@ -245,7 +245,7 @@ public static class MessageFeatureExtensions
         return options;
     }
 
-    /// <summary>Adds multitenancy capabilities in the Messages API endpoints.</summary>
+    /// <summary>Adds multi-tenancy capabilities in the Messages API endpoints.</summary>
     /// <param name="options">Options used to configure the Messages management API feature.</param>
     /// <param name="accessLevel">The minimum access level required.</param>
     public static MessageManagementOptions UseMultiTenancy(this MessageManagementOptions options, int accessLevel) {
