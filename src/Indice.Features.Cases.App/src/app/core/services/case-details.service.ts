@@ -8,10 +8,12 @@ import { Case } from './cases-api.service';
 export class CaseDetailsService {
     private _caseDetails: ReplaySubject<Case> = new ReplaySubject(1);
     public caseDetails$ = this._caseDetails.asObservable();
+    public caseDetails: Case | undefined;
 
     constructor() { }
 
     public setCaseDetails(caseDetails: Case) {
+        this.caseDetails = caseDetails;
         this._caseDetails.next(caseDetails);
     }
 }

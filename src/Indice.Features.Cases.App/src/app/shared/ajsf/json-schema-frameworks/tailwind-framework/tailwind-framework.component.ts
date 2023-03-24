@@ -8,6 +8,7 @@ import {
 
 import { JsonSchemaFormService, addClasses, inArray } from '@ajsf-extended/core';
 import { cloneDeep, map } from 'lodash';
+import { CaseDetailsService } from 'src/app/core/services/case-details.service';
 
 /**
  * Tailwind framework for Angular JSON Schema Form.
@@ -33,6 +34,7 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
   @Input() dataIndex: number[] = [];
 
   constructor(
+    private _caseDetailsService: CaseDetailsService,
     public changeDetector: ChangeDetectorRef,
     public jsf: JsonSchemaFormService
   ) { }
@@ -76,6 +78,10 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
 
   initializeFramework() {
     if (this.layoutNode) {
+      // 'case-channel' option indicates whether the field is visible based on case's channel ('Agent' or 'Customer')
+      if (this.layoutNode.options['case-channel'] && this.layoutNode.options['case-channel'] !== this._caseDetailsService.caseDetails?.channel) {
+        this.layoutNode.options.condition = 'false';
+      }
       this.options = cloneDeep(this.layoutNode.options);
       this.widgetLayoutNode = {
         ...this.layoutNode,
@@ -93,7 +99,7 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
       ]);
 
       this.options.title = this.setTitle();
-      
+
       this.options.htmlClass =
         addClasses(this.options.htmlClass, 'schema-form-' + this.layoutNode.type);
       this.options.htmlClass =
@@ -161,10 +167,10 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
         case 'button':
         case 'submit':
           // if this is a submit button and it is readonly, hide it
-          if(this.widgetOptions.readonly){
-            this.widgetOptions.fieldHtmlClass = addClasses(this.widgetOptions.fieldHtmlClass,"hidden");
+          if (this.widgetOptions.readonly) {
+            this.widgetOptions.fieldHtmlClass = addClasses(this.widgetOptions.fieldHtmlClass, "hidden");
           }
-         break;
+          break;
         // Containers - arrays and fieldsets
         case 'array':
         case 'fieldset':
@@ -197,9 +203,9 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
         default:
           this.widgetOptions.fieldHtmlClass = addClasses(
             this.widgetOptions.fieldHtmlClass, 'form-control');
-            if(this.widgetOptions.readonly){
-              this.widgetOptions.fieldHtmlClass = addClasses(this.widgetOptions.fieldHtmlClass,"read-only:bg-gray-100");
-            }
+          if (this.widgetOptions.readonly) {
+            this.widgetOptions.fieldHtmlClass = addClasses(this.widgetOptions.fieldHtmlClass, "read-only:bg-gray-100");
+          }
       }
 
       if (this.formControl) {
