@@ -46,7 +46,7 @@ public static partial class ValidationFilterExtensions
             }
 
             // We can respond with problem details if there's a validation error
-            eb.Metadata.Add(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), 400, "application/problem+json"));
+            eb.Metadata.Add(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json"));
 
             eb.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async (efic) => {
@@ -72,20 +72,20 @@ public static partial class ValidationFilterExtensions
     /// </summary>
     /// <typeparam name="TException"></typeparam>
     /// <param name="builder">the builder</param>
-    /// <param name="httpStatusCode"></param>
+    /// <param name="statusCode"></param>
     /// <returns>The builder</returns>
-    public static RouteGroupBuilder WithHandledException<TException>(this RouteGroupBuilder builder, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
-        where TException : Exception => WithHandledException<RouteGroupBuilder, TException>(builder, httpStatusCode);
+    public static RouteGroupBuilder WithHandledException<TException>(this RouteGroupBuilder builder, int statusCode = StatusCodes.Status400BadRequest)
+        where TException : Exception => WithHandledException<RouteGroupBuilder, TException>(builder, statusCode); 
 
     /// <summary>
     /// Adds exception handling for the specified exception.
     /// </summary>
     /// <typeparam name="TException"></typeparam>
     /// <param name="builder">the builder</param>
-    /// <param name="httpStatusCode"></param>
+    /// <param name="statusCode"></param>
     /// <returns>The builder</returns>
-    public static RouteHandlerBuilder WithHandledException<TException>(this RouteHandlerBuilder builder, HttpStatusCode httpStatusCode = HttpStatusCode.BadRequest)
-        where TException : Exception => WithHandledException<RouteHandlerBuilder, TException>(builder, httpStatusCode);
+    public static RouteHandlerBuilder WithHandledException<TException>(this RouteHandlerBuilder builder, int statusCode = StatusCodes.Status400BadRequest)
+        where TException : Exception => WithHandledException<RouteHandlerBuilder, TException>(builder, statusCode);
 
 
     /// <summary>
@@ -94,9 +94,9 @@ public static partial class ValidationFilterExtensions
     /// <typeparam name="TBuilder"></typeparam>
     /// <typeparam name="TException"></typeparam>
     /// <param name="builder">the builder</param>
-    /// <param name="httpStatusCode"></param>
+    /// <param name="statusCode"></param>
     /// <returns>The builder</returns>
-    public static TBuilder WithHandledException<TBuilder, TException>(this TBuilder builder, HttpStatusCode httpStatusCode) 
+    public static TBuilder WithHandledException<TBuilder, TException>(this TBuilder builder, int statusCode) 
         where TBuilder : IEndpointConventionBuilder
         where TException : Exception {
         builder.Add(eb => {
@@ -106,7 +106,7 @@ public static partial class ValidationFilterExtensions
                 return;
             }
             // We can respond with problem details if there's a validation error
-            eb.Metadata.Add(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), (int)httpStatusCode, "application/problem+json"));
+            eb.Metadata.Add(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), statusCode, "application/problem+json"));
 
             eb.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async (efic) => {
@@ -118,7 +118,7 @@ public static partial class ValidationFilterExtensions
                         if (ex is BusinessException bex) {
                             return Results.ValidationProblem(bex.Errors, detail: ex.Message, extensions: new Dictionary<string, object>() { ["code"] = bex.Code });
                         } else {
-                            return Results.Problem(detail: ex.Message, statusCode: (int)httpStatusCode, extensions: new Dictionary<string, object>() { ["code"] = typeof(TException).Name });
+                            return Results.Problem(detail: ex.Message, statusCode: statusCode, extensions: new Dictionary<string, object>() { ["code"] = typeof(TException).Name });
                         }
                     }
                 });
