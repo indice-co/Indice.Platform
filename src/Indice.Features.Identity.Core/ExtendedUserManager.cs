@@ -21,7 +21,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 
     /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
     /// <param name="userStore">The persistence store the manager will operate over.</param>
-    /// <param name="identityMessageDescriber">Provides an extensibility point for localizing messages used inside the package.</param>
+    /// <param name="identityMessageDescriber">Provides an extensibility point for altering localized resources used inside the platform.</param>
     /// <param name="optionsAccessor">The accessor used to access the <see cref="IdentityOptions"/>.</param>
     /// <param name="passwordHasher">The password hashing implementation to use when saving passwords.</param>
     /// <param name="userValidators">A collection of <see cref="IUserValidator{TUser}"/> to validate users against.</param>
@@ -68,7 +68,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public int? MaxTrustedDevices { get; }
     /// <summary></summary>
     public TimeSpan? TrustActivationDelay { get; }
-    /// <summary>Provides an extensibility point for localizing messages used inside the package.</summary>
+    /// <summary>Provides an extensibility point for altering localized resources used inside the platform.</summary>
     public IdentityMessageDescriber MessageDescriber { get; }
     /// <summary>The maximum number of devices a user can register.</summary>
     public int? MaxAllowedRegisteredDevices { get; }

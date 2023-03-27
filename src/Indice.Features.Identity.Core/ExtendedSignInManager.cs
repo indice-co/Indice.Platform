@@ -139,7 +139,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
         StateProvider.ChangeStateTo(UserAction.Login, user);
         if (ShouldSignInPartially()) {
-            return await DoPartialSignInAsync(user, isPersistent);
+            return await DoPartialSignInAsync(user);
         }
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {
             if (!await IsTwoFactorClientRememberedAsync(user)) {
@@ -159,7 +159,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             }
         }
         if (ShouldSignInPartially()) {
-            return await DoPartialSignInAsync(user, isPersistent);
+            return await DoPartialSignInAsync(user);
         }
         if (loginProvider is not null) {
             await Context.SignOutAsync(IdentityConstants.ExternalScheme);
@@ -190,7 +190,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             StateProvider.ChangeStateTo(UserAction.MultiFactorAuthenticated, user);
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
             if (ShouldSignInPartially()) {
-                return await DoPartialSignInAsync(user, isPersistent);
+                return await DoPartialSignInAsync(user);
             }
             return new ExtendedSignInResult(StateProvider.CurrentState);
         }
@@ -211,13 +211,17 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     /// <inheritdoc/>
     public async override Task SignOutAsync() {
-        var schemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
+        var allSchemes = await _authenticationSchemeProvider.GetAllSchemesAsync();
         // Check if authentication scheme is registered before trying to sign out, to avoid errors.
-        if (schemes.Any(x => x.Name == ExtendedIdentityConstants.ExtendedValidationUserIdScheme)) {
-            await Context.SignOutAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-        }
-        if (schemes.Any(x => x.Name == ExternalScheme)) {
-            await Context.SignOutAsync(ExternalScheme);
+        var schemes = new string[] { 
+            ExtendedIdentityConstants.ExtendedValidationUserIdScheme,
+            ExtendedIdentityConstants.MfaOnboardingScheme,
+            ExternalScheme
+        };
+        foreach (var scheme in schemes) {
+            if (allSchemes.FirstOrDefault(x => x.Name == scheme) is not null) {
+                await Context.SignOutAsync(scheme);
+            }
         }
         await base.SignOutAsync();
         StateProvider.Clear();
@@ -287,24 +291,32 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     #endregion
 
     #region Helper Methods
-    private bool ShouldSignInPartially() =>
+    private bool ShouldSignInForExtendedValidation() =>
         StateProvider.CurrentState == UserState.RequiresEmailVerification ||
         StateProvider.CurrentState == UserState.RequiresPhoneNumberVerification ||
         StateProvider.CurrentState == UserState.RequiresPasswordChange;
 
-    private async Task<ExtendedSignInResult> DoPartialSignInAsync(TUser user, bool isPersistent) {
+    private bool ShouldSignInForMfaOnboarding() => StateProvider.CurrentState == UserState.MfaOnboarding;
+
+    private bool ShouldSignInPartially() => ShouldSignInForExtendedValidation() || ShouldSignInForMfaOnboarding();
+
+    private async Task<ExtendedSignInResult> DoPartialSignInAsync(TUser user) {
+        var scheme = ShouldSignInForExtendedValidation() 
+            ? ExtendedIdentityConstants.TwoFactorUserIdScheme 
+            : ShouldSignInForMfaOnboarding() 
+                ? ExtendedIdentityConstants.MfaOnboardingScheme 
+                : throw new InvalidOperationException("Cannot partially sign in.");
         var userClaims = await UserManager.GetClaimsAsync(user);
         var firstName = userClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value;
         var lastName = userClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value;
         var isEmailConfirmed = await UserManager.IsEmailConfirmedAsync(user);
         var isPhoneConfirmed = await UserManager.IsPhoneNumberConfirmedAsync(user);
         var isPasswordExpired = user.HasExpiredPassword();
-        // Store the userId for use after two factor check.
         var userId = await UserManager.GetUserIdAsync(user);
         var returnUrl = Context.Request.Query["ReturnUrl"];
-        await Context.SignInAsync(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName), new AuthenticationProperties {
+        await Context.SignInAsync(scheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName), new AuthenticationProperties {
             RedirectUri = returnUrl,
-            IsPersistent = isPersistent
+            IsPersistent = false
         });
         return new ExtendedSignInResult(StateProvider.CurrentState);
     }

@@ -3,6 +3,7 @@ using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Hosting;
@@ -24,8 +25,12 @@ public static class IdentityBuilderExtensions
             options.Cookie.Name = ExtendedIdentityConstants.ExtendedValidationUserIdScheme;
             options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
         });
-        builder.Services.AddTransient<IMfaDeviceIdResolver, DefaultMfaDeviceIdResolver>();
-        builder.Services.TryAddTransient<IAuthenticationMethodProvider, DefaultAuthenticationMethodProvider>();
+        builder.Services.AddAuthentication().AddCookie(ExtendedIdentityConstants.MfaOnboardingScheme, options => {
+            options.Cookie.Name = ExtendedIdentityConstants.MfaOnboardingScheme;
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        });
+        builder.Services.AddTransient<IMfaDeviceIdResolver, MfaDeviceIdResolverHttpContext>();
+        builder.Services.TryAddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
         builder.Services.TryAddTransient<UserStateProvider>();
         return builder;
@@ -67,6 +72,24 @@ public static class IdentityBuilderExtensions
             providerType = typeof(ExtendedPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType);
         }
         builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, providerType);
+        return builder;
+    }
+
+    /// <summary>Registers the <see cref="AuthenticationMethodProviderInMemory"/> which is an in-memory static provider for <see cref="IAuthenticationMethodProvider"/>.</summary>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <param name="authenticationMethods">The authentication methods to apply in the identity system.</param>
+    /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    public static IdentityBuilder AddAuthenticationMethodProvider(this IdentityBuilder builder, params AuthenticationMethod[] authenticationMethods) {
+        builder.Services.AddSingleton<IAuthenticationMethodProvider>(new AuthenticationMethodProviderInMemory(authenticationMethods));
+        return builder;
+    }
+
+    /// <summary>Registers an implementation of <see cref="IAuthenticationMethodProvider"/>.</summary>
+    /// <typeparam name="TAuthenticationMethodProvider"></typeparam>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    public static IdentityBuilder AddAuthenticationMethodProvider<TAuthenticationMethodProvider>(this IdentityBuilder builder) where TAuthenticationMethodProvider : IAuthenticationMethodProvider { 
+        builder.Services.AddTransient(typeof(IAuthenticationMethodProvider), typeof(TAuthenticationMethodProvider));
         return builder;
     }
 

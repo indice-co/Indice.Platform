@@ -44,7 +44,7 @@ public class UserStateProvider
     internal void Clear() => _httpContext?.Session.Clear();
 
     private UserState GetNextState(UserAction action, User user) => (CurrentState, action) switch {
-        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false && user.PhoneNumberConfirmed == false && MfaPolicy == MfaPolicy.Enforced => UserState.MfaOnboarding,
+        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false && MfaPolicy == MfaPolicy.Enforced => UserState.MfaOnboarding,
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true && user.PhoneNumberConfirmed == false => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true => UserState.RequiresMfa,
         (UserState.LoggedOut, UserAction.Login) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,

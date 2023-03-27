@@ -6,5 +6,5 @@ namespace Indice.Features.Identity.Core;
 public interface IAuthenticationMethodProvider
 {
     /// <summary>Gets a list of all available authentication methods supported by the identity system.</summary>
-    Task<IEnumerable<AuthenticationMethod>> GetMethodsAsync();
+    Task<IEnumerable<AuthenticationMethod>> GetAllMethodsAsync();
 }

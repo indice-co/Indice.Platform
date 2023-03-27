@@ -22,6 +22,12 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection ConfigureExtendedValidationCookie(this IServiceCollection services, Action<CookieAuthenticationOptions> configure)
         => services.Configure(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, configure);
 
+    /// <summary>Configures the cookie used by <see cref="ExtendedIdentityConstants.MfaOnboardingScheme"/>.</summary>
+    /// <param name="services">The services available in the application.</param>
+    /// <param name="configure">An action to configure the <see cref="CookieAuthenticationOptions"/>.</param>
+    public static IServiceCollection ConfigureMfaOnboardingCookie(this IServiceCollection services, Action<CookieAuthenticationOptions> configure)
+        => services.Configure(ExtendedIdentityConstants.MfaOnboardingScheme, configure);
+
     /// <summary>Configures <see cref="RazorViewEngineOptions"/> by adding the <see cref="ClientAwareViewLocationExpander"/> in the list of available <see cref="IViewLocationExpander"/>.</summary>
     /// <param name="services">The services available in the application.</param>
     public static IServiceCollection AddClientAwareViewLocationExpander(this IServiceCollection services) {

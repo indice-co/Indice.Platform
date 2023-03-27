@@ -59,7 +59,7 @@ public class AccountService : IAccountService
     /// <inheritdoc />
     public async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl) {
         var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-        if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null) {
+        if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) is not null) {
             var local = context.IdP == IdentityServerConstants.LocalIdentityProvider;
             // This is meant to short circuit the UI and only trigger the one external IdP.
             var viewModel = new LoginViewModel {
