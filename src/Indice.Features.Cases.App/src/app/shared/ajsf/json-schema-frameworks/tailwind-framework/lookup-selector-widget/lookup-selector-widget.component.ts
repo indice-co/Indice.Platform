@@ -5,6 +5,7 @@ import { Subject } from "rxjs";
 import { take, takeUntil } from "rxjs/operators";
 import { CaseDetailsService } from "src/app/core/services/case-details.service";
 import { Case, CasesApiService, FilterTerm, LookupItemResultSet } from "src/app/core/services/cases-api.service";
+import { LookupsService } from "src/app/core/services/lookups.service";
 
 @Component({
   selector: 'app-lookup-selector-widget',
@@ -45,6 +46,7 @@ export class LookupSelectorWidgetComponent implements OnInit {
   private destroy$ = new Subject();
 
   constructor(
+    private _lookupsService: LookupsService,
     private _changeDetector: ChangeDetectorRef,
     private _caseDetailsService: CaseDetailsService,
     private _api: CasesApiService,
@@ -53,6 +55,10 @@ export class LookupSelectorWidgetComponent implements OnInit {
 
   ngOnInit(): void {
     this.options = this.layoutNode.options || {};
+    // early exit to avoid lookup call
+    if (this.options.condition === 'false') {
+      return
+    }
     // Get lookup's Name
     let lookupName = this.options['lookup-name'];
     // Is the widget dependent on another form field(s)?
@@ -70,7 +76,7 @@ export class LookupSelectorWidgetComponent implements OnInit {
       if (!this.lookupFilterFields || (this.lookupFilterFields && !_.isEmpty(this.lookupFilterFieldValues) && this.allPropertiesHaveValues(this.lookupFilterFieldValues))) {
         let lookupFilterTerms: FilterTerm[] = this.addFilterFieldValuesToFilterTerms();
         // get lookUp Items - notice we don't use the caching service!
-        this._api.getLookup(lookupName, lookupFilterTerms).pipe(
+        this._lookupsService.getLookup(lookupName, lookupFilterTerms).pipe(
           takeUntil(this.destroy$),
           take(1)
         ).subscribe(
