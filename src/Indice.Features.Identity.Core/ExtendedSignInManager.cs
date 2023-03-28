@@ -296,7 +296,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         StateProvider.CurrentState == UserState.RequiresPhoneNumberVerification ||
         StateProvider.CurrentState == UserState.RequiresPasswordChange;
 
-    private bool ShouldSignInForMfaOnboarding() => StateProvider.CurrentState == UserState.MfaOnboarding;
+    private bool ShouldSignInForMfaOnboarding() => StateProvider.CurrentState == UserState.RequiresMfaOnboarding;
 
     private bool ShouldSignInPartially() => ShouldSignInForExtendedValidation() || ShouldSignInForMfaOnboarding();
 
@@ -453,7 +453,7 @@ public class ExtendedSignInResult : SignInResult
         state == UserState.RequiresEmailVerification,
         state == UserState.RequiresPhoneNumberVerification,
         state == UserState.RequiresPasswordChange,
-        state == UserState.MfaOnboarding
+        state == UserState.RequiresMfaOnboarding
     ) {
         Succeeded = state == UserState.LoggedIn;
     }

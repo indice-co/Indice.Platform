@@ -44,13 +44,14 @@ public class UserStateProvider
     internal void Clear() => _httpContext?.Session.Clear();
 
     private UserState GetNextState(UserAction action, User user) => (CurrentState, action) switch {
-        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false && MfaPolicy == MfaPolicy.Enforced => UserState.MfaOnboarding,
+        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false && MfaPolicy == MfaPolicy.Enforced => UserState.RequiresMfaOnboarding,
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true && user.PhoneNumberConfirmed == false => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true => UserState.RequiresMfa,
         (UserState.LoggedOut, UserAction.Login) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.LoggedOut, UserAction.Login) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
         (UserState.LoggedOut, UserAction.Login) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
         (UserState.LoggedOut, UserAction.Login) => UserState.LoggedIn,
+        (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
         (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) => UserState.LoggedIn,
@@ -83,7 +84,7 @@ public enum UserState
     /// <summary>Requires MFA.</summary>
     RequiresMfa,
     /// <summary>MFA on-boarding.</summary>
-    MfaOnboarding
+    RequiresMfaOnboarding
 }
 
 /// <summary>Describes the action taken by the principal that changes the state.</summary>
@@ -99,6 +100,8 @@ public enum UserAction
     MultiFactorAuthenticated,
     /// <summary>Changed password.</summary>
     PasswordChanged,
+    /// <summary>MFA enabled.</summary>
+    MfaEnabled,
     /// <summary>Logout.</summary>
     Logout
 }

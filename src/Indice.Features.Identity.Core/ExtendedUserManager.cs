@@ -174,6 +174,15 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         }
         return result;
     }
+
+    /// <inheritdoc />
+    public override async Task<IdentityResult> SetTwoFactorEnabledAsync(TUser user, bool enabled) {
+        var result = await base.SetTwoFactorEnabledAsync(user, enabled);
+        if (result.Succeeded) {
+            StateProvider.ChangeStateTo(UserAction.MfaEnabled, user);
+        }
+        return result;
+    }
     #endregion
 
     #region Custom Methods
