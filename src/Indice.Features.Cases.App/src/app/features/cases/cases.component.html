@@ -27,25 +27,25 @@
                    (pageSizeChanged)="pageSizeChanged($event)"
                    (sortChanged)="sortChanged($event)"
                    (sortdirChanged)="sortdirChanged($event)">
-        <lib-list-column title="ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ">
+        <lib-list-column title="ΑΡΙΘΜΟΣ ΠΕΛΑΤΗ">
             <ng-template let-item>{{ item.customerId }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΟΝΟΜΑ ΠΕΛΑΤΗ">
             <ng-template let-item>{{ item.customerName }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="Α.Φ.Μ. ΠΕΛΑΤΗ">
+        <lib-list-column title="Α.Φ.Μ.">
             <ng-template let-item>{{ item.metadata?.TaxId }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΑΡΙΘΜΟΣ ΚΑΤΑΣΤΗΜΑΤΟΣ">
+        <lib-list-column title="ΚΑΤΑΣΤΗΜΑ">
             <ng-template let-item>{{ item.groupId }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΤΥΠΟΣ ΑΙΤΗΣΗΣ">
             <ng-template let-item>{{ item.caseType.title }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ">
+        <lib-list-column title="ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ">
             <ng-template let-item>{{ item.checkpointTypeCode }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΑΝΑΤΕΘΕΙΜΕΝΟ ΣΕ">
+        <lib-list-column title="ΑΝΑΘΕΣΗ ΣΕ">
             <ng-template let-item>{{ item.assignedToName || ' - '}}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΗΜ. ΥΠΟΒΟΛΗΣ">
