@@ -15,24 +15,26 @@
     <form #notificationsForm="ngForm"
           class="border-t border-gray-200 px-4 py-5 sm:p-0"
           (ngSubmit)="onSubmit()">
-
-      <fieldset class="m-4 space-y-5">
-        <div class="relative flex items-start"
-             *ngFor="let model of notificationSubscriptionViewModels">
-          <div class="flex h-5 items-center">
-            <input id="id-{{model.notificationSubscription?.caseTypeId}}"
-                   name="name-{{model.notificationSubscription?.caseTypeId}}"
-                   type="checkbox"
-                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                   [(ngModel)]="model.subscribed">
+      <div class="border-gray-200 pb-5"
+           *ngFor="let category of displayNotificationSubscriptionsViewModel?.categories">
+        <h3 class="text-base m-2 font-semibold leading-6 text-gray-900">{{ category.name }}</h3>
+        <fieldset class="m-4 space-y-5">
+          <div class="relative flex items-start"
+               *ngFor="let model of category.notificationSubscriptions">
+            <div class="flex h-5 items-center">
+              <input id="id-{{model.notificationSubscription?.caseTypeId}}"
+                     name="name-{{model.notificationSubscription?.caseTypeId}}"
+                     type="checkbox"
+                     class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                     [(ngModel)]="model.subscribed">
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="id-{{model.notificationSubscription?.caseTypeId}}"
+                     class="font-medium uppercase text-gray-700">{{model.title}}</label>
+            </div>
           </div>
-          <div class="ml-3 text-sm">
-            <label for="id-{{model.notificationSubscription?.caseTypeId}}"
-                   class="font-medium uppercase text-gray-700">{{model.title}}</label>
-          </div>
-        </div>
-      </fieldset>
-
+        </fieldset>
+      </div>
       <div class="form-actions">
         <button #submitBtn
                 type="submit"
