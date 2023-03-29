@@ -12,8 +12,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Swagger configuration extensions the Indice way. Exposes useful defaults for hosting an API. Also leverages appsettings.json configuration through <see cref="GeneralSettings"/> for API setup.</summary>
-public static class SwaggerConfig
-{
+public static class SwaggerConfig {
     /// <summary>
     /// Since Swashbuckle 4.0 release the support for parameters of type IFormFile is out-of-the-box. 
     /// That is, the generator will automatically detect these and generate the correct Swagger to describe parameters that are passed in formData.
@@ -27,7 +26,10 @@ public static class SwaggerConfig
 
     /// <summary>Adds support for Fluent validation.</summary>
     /// <param name="options">The options used to generate the swagger.json file.</param>
-    public static void AddFluentValidationSupport(this SwaggerGenOptions options) => options.SchemaFilter<SchemaFluentValidationFilter>();
+    public static void AddFluentValidationSupport(this SwaggerGenOptions options) { 
+        options.RequestBodyFilter<RequestBodyFluentValidationSwaggerFilter>();
+        options.SchemaFilter<SchemaFluentValidationFilter>();
+    }
 
     /// <summary>Simplifies generics and removes 'info' suffix.</summary>
     /// <param name="options">The options used to generate the swagger.json file.</param>

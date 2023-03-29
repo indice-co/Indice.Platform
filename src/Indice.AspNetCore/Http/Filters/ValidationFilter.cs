@@ -89,15 +89,15 @@ public static partial class ValidationFilterExtensions
             }
 
             // Track the indicies of validatable parameters
-            List<int> parameterIndexesToValidate = null;
+            List<ValidationDescriptor> parametersToValidate = null;
             foreach (var p in methodInfo.GetParameters()) {
                 if (typeToValidate.Equals(p.ParameterType) || (otherTypesToValidate is not null && otherTypesToValidate.Contains(p.ParameterType))) {
-                    parameterIndexesToValidate ??= new();
-                    parameterIndexesToValidate.Add(p.Position);
+                    parametersToValidate ??= new();
+                    parametersToValidate.Add(new (p.Position, p.ParameterType));
                 }
             }
 
-            if (parameterIndexesToValidate is null) {
+            if (parametersToValidate is null) {
                 // Nothing to validate so don't add the filter to this endpoint
                 return;
             }
@@ -108,9 +108,9 @@ public static partial class ValidationFilterExtensions
             eb.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async (efic) => {
                     var validator = context.ApplicationServices.GetService<IEndpointParameterValidator>();
-                    foreach (var index in parameterIndexesToValidate) {
-                        if (efic.Arguments[index] is { } arg) {
-                            var (isValid, errors) = await (validator?.TryValidateAsync(arg) ?? MiniValidator.TryValidateAsync(arg));
+                    foreach (var descriptor in parametersToValidate) {
+                        if (efic.Arguments[descriptor.ArgumentIndex] is { } arg) {
+                            var (isValid, errors) = await (validator?.TryValidateAsync(descriptor.ArgumentType, arg) ?? MiniValidator.TryValidateAsync(arg));
                             if (!isValid) {
                                 return Results.ValidationProblem(errors, detail: "Model state validation", extensions: new Dictionary<string, object>() { ["code"] = "MODEL_STATE" });
                             }
@@ -124,56 +124,7 @@ public static partial class ValidationFilterExtensions
         return builder;
     }
 
-    /// <summary>
-    /// Adds the validation of input parameters and <see cref="HttpValidationProblemDetails"/> automatic response when something is out of place.
-    /// </summary>
-    /// <typeparam name="TBuilder"></typeparam>
-    /// <param name="builder">the builder</param>
-    /// <param name="typesToValidate">What types to include validation for</param>
-    /// <returns>The builder</returns>
-    public static TBuilder WithParameterValidation<TBuilder>(this TBuilder builder, params Type[] typesToValidate) where TBuilder : IEndpointConventionBuilder {
-        builder.Add(eb => {
-            var methodInfo = eb.Metadata.OfType<MethodInfo>().FirstOrDefault();
-
-            if (methodInfo is null) {
-                return;
-            }
-
-            // Track the indicies of validatable parameters
-            List<int> parameterIndexesToValidate = null;
-            foreach (var p in methodInfo.GetParameters()) {
-                if (typesToValidate.Contains(p.ParameterType)) {
-                    parameterIndexesToValidate ??= new();
-                    parameterIndexesToValidate.Add(p.Position);
-                }
-            }
-
-            if (parameterIndexesToValidate is null) {
-                // Nothing to validate so don't add the filter to this endpoint
-                return;
-            }
-
-            // We can respond with problem details if there's a validation error
-            eb.Metadata.Add(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json"));
-
-            eb.FilterFactories.Add((context, next) => {
-                return new EndpointFilterDelegate(async (efic) => {
-                    var validator = context.ApplicationServices.GetService<IEndpointParameterValidator>();
-                    foreach (var index in parameterIndexesToValidate) {
-                        if (efic.Arguments[index] is { } arg) {
-                            var (isValid, errors) = await (validator?.TryValidateAsync(arg) ?? MiniValidator.TryValidateAsync(arg));
-                            if (!isValid) { 
-                                return Results.ValidationProblem(errors, detail:"Model state validation", extensions: new Dictionary<string, object>() { ["code"] = "MODEL_STATE" });
-                            }
-                        }
-                    }
-                    return await next(efic);
-                });
-            });
-        });
-
-        return builder;
-    }
+    private sealed record ValidationDescriptor(int ArgumentIndex, Type ArgumentType);
 
     /// <summary>
     /// Adds exception handling for the specified exception.

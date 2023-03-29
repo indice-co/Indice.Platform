@@ -5,8 +5,18 @@ export class NotificationSubscriptionViewModel {
     public subscribed: boolean | undefined;
     public title: string | undefined;
 
-    constructor(notificationSubscription: NotificationSubscription, subscribed: boolean) {
+    constructor(notificationSubscription: NotificationSubscription, subscribed: boolean, title: string) {
         this.notificationSubscription = notificationSubscription;
         this.subscribed = subscribed;
+        this.title = title;
     }
 }
+
+export class NotificationSubscriptionCategoryViewModel {
+    public name: string | undefined;
+    public notificationSubscriptions: NotificationSubscriptionViewModel[] | undefined;
+  }
+
+export class DisplayNotificationSubscriptionsViewModel {
+    public categories: NotificationSubscriptionCategoryViewModel[] | undefined;
+  }
