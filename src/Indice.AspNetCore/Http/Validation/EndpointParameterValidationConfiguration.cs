@@ -2,6 +2,7 @@
 using System.Reflection;
 using FluentValidation;
 using Indice.AspNetCore.Http.Validation;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -17,10 +18,10 @@ public static class EndpointParameterValidationConfiguration
     /// <param name="scanAssemblies"></param>
     /// <returns></returns>
     public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection collection, params Assembly[] scanAssemblies) {
-        collection.AddTransient<IEndpointParameterValidator, EndpointParameterFluentValidator>();
+        collection.TryAddTransient<IEndpointParameterValidator, EndpointParameterFluentValidator>();
         if (scanAssemblies?.Length > 0) {
             AssemblyScanner.FindValidatorsInAssemblies(scanAssemblies)
-                           .ForEach(x => collection.AddTransient(x.InterfaceType, x.ValidatorType));
+                           .ForEach(x => collection.TryAddTransient(x.InterfaceType, x.ValidatorType));
         }
         return collection;
     }
