@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationM
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -47,6 +49,18 @@ public static class ServiceCollectionExtensions
         configureAction?.Invoke(policy);
         services.TryAddSingleton(policy);
         return services;
+    }
+
+    /// <summary>
+    /// Configures content security policy (<strong>Content-Security-Policy</strong> header) options <see cref="CSP"/> from <seealso cref="IConfiguration"/>.<br />
+    /// </summary>
+    /// <param name="policy">the csp policy to configure</param>
+    /// <param name="configuration">Configuration</param>
+    /// <param name="sectionName">Configuration section name</param>
+    /// <remarks>Better use the more complete version <see cref="AddSecurityHeaders(IServiceCollection, Action{SecurityHeadersPolicy})"/></remarks>
+    public static CSP FromConfiguration(this CSP policy, IConfiguration configuration, string sectionName = null) {
+        configuration.Bind(nameof(CSP), policy);
+        return policy;
     }
 
     /// <summary>Adds an instance of <see cref="IHtmlRenderingEngine"/> for generating HTML content for use cases like email sending and other non HTTP related operations.</summary>
