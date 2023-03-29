@@ -193,5 +193,20 @@ sp_rename 'case.CheckpointType.PublicStatus', 'Status', 'column'
 - New entity `DbCaseTypeCategory`
 - New navigation property `CaseType.Category`
 - Property `Order` to `CaseType`
+### Migration
+```sql
+CREATE TABLE [case].[Category](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](128) NULL,
+	[Description] [nvarchar](512) NULL,
+	[Order] [int] NULL,
+	[Translations] [nvarchar](max) NULL,
+ CONSTRAINT [PK_Category] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+```
+
 ### Removed 
 - Property `Category` from `CaseType` entity
