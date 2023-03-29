@@ -33,7 +33,7 @@ public class SmsAuthenticationMethod : AuthenticationMethod
     /// <param name="description">A detailed description.</param>
     /// <param name="enabled">Determines whether this authentication method is enabled.</param>
     public SmsAuthenticationMethod(string displayName, string description, bool enabled = true) : base(displayName, description, enabled) {
-        Type = AuthenticationMethodType.SMS;
+        Type = AuthenticationMethodType.PhoneNumber;
         SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
     }
 }

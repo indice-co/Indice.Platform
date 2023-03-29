@@ -3,8 +3,8 @@
 /// <summary>An enumeration type for the <see cref="AuthenticationMethod"/>.</summary>
 public enum AuthenticationMethodType
 {
-    /// <summary>SMS</summary>
-    SMS,
+    /// <summary>Phone number</summary>
+    PhoneNumber,
     /// <summary>FIDO2</summary>
     Fido2,
     /// <summary>Microsoft Authenticator application</summary>

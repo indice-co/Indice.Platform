@@ -44,14 +44,16 @@ public class UserStateProvider
     internal void Clear() => _httpContext?.Session.Clear();
 
     private UserState GetNextState(UserAction action, User user) => (CurrentState, action) switch {
-        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false && MfaPolicy == MfaPolicy.Enforced => UserState.RequiresMfaOnboarding,
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true && user.PhoneNumberConfirmed == false => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
+        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false && MfaPolicy == MfaPolicy.Enforced => UserState.RequiresMfaOnboarding,
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true => UserState.RequiresMfa,
         (UserState.LoggedOut, UserAction.Login) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.LoggedOut, UserAction.Login) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
         (UserState.LoggedOut, UserAction.Login) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
         (UserState.LoggedOut, UserAction.Login) => UserState.LoggedIn,
+        (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.TwoFactorEnabled == true => UserState.RequiresMfa,
         (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
+        (UserState.RequiresMfaOnboarding, UserAction.VerifiedPhoneNumber) => UserState.LoggedOut,
         (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
         (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) => UserState.LoggedIn,

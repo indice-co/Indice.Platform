@@ -302,7 +302,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     private async Task<ExtendedSignInResult> DoPartialSignInAsync(TUser user) {
         var scheme = ShouldSignInForExtendedValidation() 
-            ? ExtendedIdentityConstants.TwoFactorUserIdScheme 
+            ? ExtendedIdentityConstants.ExtendedValidationUserIdScheme 
             : ShouldSignInForMfaOnboarding() 
                 ? ExtendedIdentityConstants.MfaOnboardingScheme 
                 : throw new InvalidOperationException("Cannot partially sign in.");
