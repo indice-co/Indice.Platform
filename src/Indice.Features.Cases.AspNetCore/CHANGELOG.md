@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `showDownloadPdfButton` as a case type Config option
+- `checkpointsThatAllowDownload` as a case type Config option
 ### Changed
 - `CaseDownloadedEvent` signature
 
