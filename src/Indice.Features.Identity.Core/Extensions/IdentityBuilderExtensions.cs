@@ -6,10 +6,9 @@ using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Indice.AspNetCore.Identity;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Extensions on <see cref="IdentityBuilder"/></summary>
 public static class IdentityBuilderExtensions

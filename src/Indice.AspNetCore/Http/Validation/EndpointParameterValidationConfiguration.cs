@@ -11,17 +11,28 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class EndpointParameterValidationConfiguration
 {
+
     /// <summary>
     /// Adds support for fluent validation validators in Minimal apis.
     /// </summary>
     /// <param name="collection"></param>
     /// <param name="scanAssemblies"></param>
     /// <returns></returns>
-    public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection collection, params Assembly[] scanAssemblies) {
-        collection.TryAddTransient<IEndpointParameterValidator, EndpointParameterFluentValidator>();
+    public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection collection, params Assembly[] scanAssemblies)
+        => AddEndpointParameterFluentValidation(collection, ServiceLifetime.Transient, scanAssemblies);
+
+    /// <summary>
+    /// Adds support for fluent validation validators in Minimal apis.
+    /// </summary>
+    /// <param name="collection"></param>
+    /// <param name="lifetime"></param>
+    /// <param name="scanAssemblies"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection collection, ServiceLifetime lifetime, params Assembly[] scanAssemblies) {
+        collection.TryAddScoped<IEndpointParameterValidator, EndpointParameterFluentValidator>();
         if (scanAssemblies?.Length > 0) {
             AssemblyScanner.FindValidatorsInAssemblies(scanAssemblies)
-                           .ForEach(x => collection.TryAddTransient(x.InterfaceType, x.ValidatorType));
+                           .ForEach(x => collection.TryAdd(ServiceDescriptor.Describe(x.InterfaceType, x.ValidatorType, lifetime)));
         }
         return collection;
     }
