@@ -129,7 +129,13 @@ public static class IConfigurationExtensions
     /// <returns>The api resource name. Or in other words the api base scope</returns>
     /// <remarks>Checks for the <strong>General:Api:ResourceName</strong> option in appsettings.json file.</remarks>
     public static string GetApiResourceName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").GetValue<string>(nameof(ApiSettings.ResourceName));
-    
+
+    /// <summary>A string that represents the api friendly name. This is used as the api display name in the swagger ui.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>The api display name</returns>
+    /// <remarks>Checks for the <strong>General:Api:FriendlyName</strong> option in appsettings.json file.</remarks>
+    public static string GetApiFriendlyName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").GetValue<string>(nameof(ApiSettings.FriendlyName));
+
     /// <summary>A list of symmetric keys/secrets used by the api.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>Secrets defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
