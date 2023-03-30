@@ -128,7 +128,7 @@ internal class MyCasesController : ControllerBase
         var @case = await _myCaseService.GetCaseById(User, caseId);
         var file = await CreatePdf(@case);
         var fileName = $"{@case.CaseType.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
-        await _caseEventService.Publish(new CaseDownloadedEvent(caseId, @case.CaseType.Code));
+        await _caseEventService.Publish(new CaseDownloadedEvent(@case, CasesApiConstants.Channels.Customer));
         return File(file, "application/pdf", fileName);
     }
 
