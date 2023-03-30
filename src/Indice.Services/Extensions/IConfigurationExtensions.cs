@@ -1,4 +1,5 @@
 ﻿using Indice.Configuration;
+using Indice.Types;
 
 namespace Microsoft.Extensions.Configuration;
 
@@ -116,13 +117,25 @@ public static class IConfigurationExtensions
     /// <returns><see cref="ApiSettings"/></returns>
     /// <remarks>Checks for the <strong>General:Api</strong> option in appsettings.json file and binds it to the <see cref="ApiSettings"/> class.</remarks>
     public static ApiSettings GetApiSettings(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").Get<ApiSettings>();
+
+    /// <summary>Get an object class that represents all the configuration under the <strong>General</strong> configuration section.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>A snapshot of the current <see cref="GeneralSettings"/></returns>
+    /// <remarks>Checks for the <strong>General</strong> option in appsettings.json file and binds it to the <see cref="GeneralSettings"/> class.</remarks>
+    public static GeneralSettings GetGeneralSettings(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}").Get<GeneralSettings>();
     
     /// <summary>A string that represents the api resource scope.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>The api resource name. Or in other words the api base scope</returns>
     /// <remarks>Checks for the <strong>General:Api:ResourceName</strong> option in appsettings.json file.</remarks>
     public static string GetApiResourceName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").GetValue<string>(nameof(ApiSettings.ResourceName));
-    
+
+    /// <summary>A string that represents the api friendly name. This is used as the api display name in the swagger ui.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <returns>The api display name</returns>
+    /// <remarks>Checks for the <strong>General:Api:FriendlyName</strong> option in appsettings.json file.</remarks>
+    public static string GetApiFriendlyName(this IConfiguration configuration) => configuration.GetSection($"{GeneralSettings.Name}:{nameof(GeneralSettings.Api)}").GetValue<string>(nameof(ApiSettings.FriendlyName));
+
     /// <summary>A list of symmetric keys/secrets used by the api.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <returns>Secrets defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
@@ -137,4 +150,24 @@ public static class IConfigurationExtensions
     /// <exception cref="KeyNotFoundException">Throws a <see cref="KeyNotFoundException"/> if the specified key is not found.</exception>
     public static string GetApiSecret(this IConfiguration configuration, string key) => GetApiSecrets(configuration)[key];
 
+    /// <summary>Tries to get the signalR connection string only if valid.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="connectionStringName">The name of the connection string to search for.</param>
+    /// <param name="signalRConnection">Outputs the connection string if valid</param>
+    /// <returns>The api secret under the specified key. Api Secrets are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
+    /// <remarks>Checks for the <strong>General:Api:Secrets</strong> option in appsettings.json file.</remarks>
+    /// <exception cref="KeyNotFoundException">Throws a <see cref="KeyNotFoundException"/> if the specified key is not found.</exception>
+    public static bool TryGetSignalRConnectionString(this IConfiguration configuration, string connectionStringName, out ConnectionString signalRConnection) {
+        signalRConnection = null;
+        var signalRConnectionString = configuration.GetConnectionString(connectionStringName);
+        try {
+            signalRConnection = new ConnectionString(signalRConnectionString);
+            if (signalRConnection.ContainsProperty("Endpoint")) {
+                return true;
+            }
+        } catch {
+            return false;
+        }
+        return false;
+    }
 }
