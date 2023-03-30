@@ -1,5 +1,6 @@
 ﻿using System.Net.Mime;
 using Indice.AspNetCore.Filters;
+using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
@@ -27,6 +28,7 @@ internal class AdminCasesController : ControllerBase
     private readonly ICaseActionsService _caseBookmarkService;
     private readonly IAdminCaseMessageService _adminCaseMessageService;
     private readonly ICaseApprovalService _caseApprovalService;
+    private readonly ICaseEventService _caseEventService;
 
     public AdminCasesController(
         IAdminCaseService adminCaseService,
@@ -34,13 +36,15 @@ internal class AdminCasesController : ControllerBase
         ICaseTemplateService caseTemplateService,
         ICaseActionsService caseBookmarkService,
         IAdminCaseMessageService adminCaseMessageService,
-        ICaseApprovalService caseApprovalService) {
+        ICaseApprovalService caseApprovalService,
+        ICaseEventService caseEventService) {
         _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
         _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
         _caseTemplateService = caseTemplateService ?? throw new ArgumentNullException(nameof(caseTemplateService));
         _caseBookmarkService = caseBookmarkService ?? throw new ArgumentNullException(nameof(caseBookmarkService));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
+        _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
     }
 
     /// <summary>Create a new case in draft mode.</summary>
@@ -215,6 +219,7 @@ internal class AdminCasesController : ControllerBase
         }
         var file = await CreatePdf(@case);
         var fileName = $"{@case?.CaseType?.Code}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.pdf";
+        await _caseEventService.Publish(new CaseDownloadedEvent(@case, CasesApiConstants.Channels.Agent));
         return File(file, "application/pdf", fileName);
     }
 
