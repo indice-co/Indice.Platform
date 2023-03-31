@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Identity.Server.Manager.Models.Requests;
+﻿namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models toggling a user's 'Blocked' property.</summary>
 public class SetUserBlockRequest

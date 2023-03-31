@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Indice.Features.Identity.Server.Manager.Models.Requests;
+namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models the request to update the email for the user.</summary>
 public class UpdateUserEmailRequest

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Indice.Types;
 
-namespace Indice.Features.Identity.Server.Manager.Models.Requests;
+namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models a resource (API or identity) that will be created on the server.</summary>
 public class CreateResourceRequest : BasicResourceRequest

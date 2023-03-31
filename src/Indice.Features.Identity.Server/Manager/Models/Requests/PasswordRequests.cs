@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Indice.Features.Identity.Server.Manager.Models.Requests;
+namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models a password change request by the user.</summary>
 public class ChangePasswordRequest

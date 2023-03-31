@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Indice.Features.Identity.Server.Manager.Models.Requests;
+namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Class that models the request for validating a user's username.</summary>
 public class ValidateUserNameRequest

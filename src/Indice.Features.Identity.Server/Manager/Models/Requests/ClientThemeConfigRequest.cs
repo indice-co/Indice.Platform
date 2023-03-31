@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Identity.Server.Manager.Models.Requests;
+﻿namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Identity Server UI configuration for the specified client.</summary>
 public class ClientThemeConfigRequest

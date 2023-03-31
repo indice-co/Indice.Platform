@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Identity.Server.Manager.Models.Requests;
+﻿namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models the request to update the max devices number for the user.</summary>
 public class UpdateMaxDevicesCountRequest

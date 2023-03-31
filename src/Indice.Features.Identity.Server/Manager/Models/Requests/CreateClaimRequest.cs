@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Identity.Server.Manager.Models.Requests;
+﻿namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models a request to create a claim for an entity (e.x user or client).</summary>
 public class CreateClaimRequest

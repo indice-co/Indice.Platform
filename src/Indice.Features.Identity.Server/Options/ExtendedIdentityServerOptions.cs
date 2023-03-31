@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Identity.Core.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Identity.Server.Options;
 /// <summary>
@@ -14,6 +15,8 @@ public class ExtendedIdentityServerOptions
     public string SigningPfxPass { get; set; }
     /// <summary>ConfigurationDb connection string</summary>
     public string ConnectionStringName { get; set; }
+    /// <summary>Callback to configure the EF DbContext.</summary>
+    public Func<string, Action<DbContextOptionsBuilder>> ConfigureDbContext { get; set; }
     /// <summary>If true, it seeds the database with some initial data for users. Works only when environment is 'Development'. Default is false.</summary>
     public bool SeedDummyUsers { get; set; } = false;
     /// <summary>If true, various events (user or client created etc.) are raised from the API. Default is false.</summary>

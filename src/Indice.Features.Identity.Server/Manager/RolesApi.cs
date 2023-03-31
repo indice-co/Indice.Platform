@@ -5,7 +5,6 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -34,27 +33,27 @@ public static class RolesApi
 
         group.MapGet("", RoleHandlers.GetRoles)
              .WithName(nameof(RoleHandlers.GetRoles))
-             .WithSummary($"Returns a list of {nameof(RoleInfo)} objects containing the total number of claim types in the database and the data filtered according to the provided ListOptions.")
+             .WithSummary($"Returns a list of {nameof(RoleInfo)} objects containing the total number of roles in the database and the data filtered according to the provided ListOptions.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
         group.MapGet("{roleId}", RoleHandlers.GetRole)
              .WithName(nameof(RoleHandlers.GetRole))
-             .WithSummary("Gets a claim type by it's unique id.")
+             .WithSummary("Gets a role by it's unique id.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
         group.MapPost("", RoleHandlers.CreateRole)
              .WithName(nameof(RoleHandlers.CreateRole))
-             .WithSummary("Creates a new claim type.")
+             .WithSummary("Creates a new role.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapPut("{roleId}", RoleHandlers.UpdateRole)
              .WithName(nameof(RoleHandlers.UpdateRole))
-             .WithSummary("Updates an existing claim type.")
+             .WithSummary("Updates an existing role.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapDelete("{roleId}", RoleHandlers.DeleteRole)
              .WithName(nameof(RoleHandlers.DeleteRole))
-             .WithSummary("Permanently deletes an existing claim type.")
+             .WithSummary("Permanently deletes an existing role.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         return group;

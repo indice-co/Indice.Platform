@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Indice.Features.Identity.Core.Data.Models;
 
-namespace Indice.Features.Identity.Server.Manager.Models.Requests;
+namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models a new user that will be created on the server.</summary>
 public class CreateUserRequest

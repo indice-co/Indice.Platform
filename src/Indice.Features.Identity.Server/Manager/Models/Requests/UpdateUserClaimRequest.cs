@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Identity.Server.Manager.Models.Requests;
+﻿namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models a user claim that will be updated on the server.</summary>
 public class UpdateUserClaimRequest

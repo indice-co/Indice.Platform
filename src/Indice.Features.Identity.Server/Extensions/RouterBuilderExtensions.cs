@@ -18,8 +18,9 @@ public static class IdentityServerEndpointRouteBuilderExtensions
     /// <returns>An instance of <see cref="IdentityServerEndpointRouteBuilder"/> to </returns>
     public static IdentityServerEndpointRouteBuilder MapIdentityServerEndpoints(this IEndpointRouteBuilder routes) {
         var builder = new IdentityServerEndpointRouteBuilder(routes);
-        builder.MapClaimTypes();
+        builder.MapUsers();
         builder.MapRoles();
+        builder.MapClaimTypes();
         return builder; 
     }
     /// <summary>

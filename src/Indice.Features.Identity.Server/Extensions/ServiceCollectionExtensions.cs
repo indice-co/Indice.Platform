@@ -25,6 +25,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
+using static IdentityModel.ClaimComparer;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -66,17 +67,19 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         var builder = new ExtendedIdentityServerBuilder(innerServerBuilder, innerIdentityBuilder, configuration, environment);
 
         //builder.Services.AddTransient<IAccountService, AccountService>();
-
+        extendedOptions.ConfigureDbContext ??= (connectionStringName) => dbBuilder => dbBuilder.UseSqlServer(builder.Configuration.GetConnectionString(connectionStringName));
+        
+        builder.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(extendedOptions.ConfigureDbContext(extendedOptions.ConnectionStringName ?? "IdentityDb"));
         builder.AddConfigurationStore<ExtendedConfigurationDbContext>(options => {
             options.SetupTables();
-            options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(builder.Configuration.GetConnectionString(extendedOptions.ConnectionStringName ?? "ConfigurationDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(typeof(ExtendedConfigurationDbContext).Assembly.GetName().Name));
+            options.ConfigureDbContext = extendedOptions.ConfigureDbContext(extendedOptions.ConnectionStringName ?? "ConfigurationDb");
         })
         .AddOperationalStore(options => {
             options.SetupTables();
             options.EnableTokenCleanup = true;
             options.TokenCleanupInterval = (int)TimeSpan.FromHours(1).TotalSeconds;
             options.TokenCleanupBatchSize = 250;
-            options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(builder.Configuration.GetConnectionString(extendedOptions.ConnectionStringName ?? "OperationalDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(typeof(ExtendedConfigurationDbContext).Assembly.GetName().Name));
+            options.ConfigureDbContext = extendedOptions.ConfigureDbContext(extendedOptions.ConnectionStringName ?? "OperationalDb");
         })
         .AddDelegationGrantValidator()
         .AddJwtBearerClientAuthentication()
