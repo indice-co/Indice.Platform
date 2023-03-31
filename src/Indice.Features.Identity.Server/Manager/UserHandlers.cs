@@ -1,6 +1,4 @@
-﻿using Bogus.DataSets;
-using System.Security.Claims;
-using Humanizer;
+﻿using System.Security.Claims;
 using IdentityModel;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -13,7 +11,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Extensions;
-using Microsoft.AspNetCore.Mvc;
 using Indice.Services;
 using Indice.Features.Identity.Core.Events;
 using IdentityServer4.Services;
