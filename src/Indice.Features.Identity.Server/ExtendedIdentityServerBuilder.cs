@@ -24,16 +24,13 @@ public interface IExtendedIdentityServerBuilder : IIdentityServerBuilder
     /// The current environment
     /// </summary>
     public IWebHostEnvironment Environment { get; }
-
-    internal IServiceProvider ServiceProvider { get; }
 }
 
 /// <inheritdoc/>
 internal class ExtendedIdentityServerBuilder : IExtendedIdentityServerBuilder
 {
     /// <inheritdoc/>
-    public ExtendedIdentityServerBuilder(IServiceProvider serviceProvider, IIdentityServerBuilder innerServerBuilder, IdentityBuilder innerIdentityBuilder, IConfiguration configuration, IWebHostEnvironment environment) {
-        ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+    public ExtendedIdentityServerBuilder(IIdentityServerBuilder innerServerBuilder, IdentityBuilder innerIdentityBuilder, IConfiguration configuration, IWebHostEnvironment environment) {
         IdentityServerBuilder = innerServerBuilder ?? throw new ArgumentNullException(nameof(innerServerBuilder));
         IdentityBuilder = innerIdentityBuilder ?? throw new ArgumentNullException(nameof(innerIdentityBuilder));
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -41,8 +38,6 @@ internal class ExtendedIdentityServerBuilder : IExtendedIdentityServerBuilder
         IdentityServerBuilder.Services.AddEndpointsApiExplorer();
         IdentityServerBuilder.Services.AddEndpointParameterFluentValidation(ServiceLifetime.Singleton);
     }
-
-    public IServiceProvider ServiceProvider { get; }
     public IIdentityServerBuilder IdentityServerBuilder { get; }
     public IdentityBuilder IdentityBuilder { get; }
     public IConfiguration Configuration { get; }

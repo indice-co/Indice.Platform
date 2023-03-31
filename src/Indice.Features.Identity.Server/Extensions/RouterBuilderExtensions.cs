@@ -23,9 +23,9 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         return builder; 
     }
     /// <summary>
-    /// Get the <see cref="IdentityServerEndpointOptions"/>
+    /// Get the <see cref="ExtendedEndpointOptions"/>
     /// </summary>
     /// <param name="routes">the aspnet core route builder</param>
-    /// <returns>An instance of <see cref="IdentityServerEndpointOptions"/> to </returns>
-    public static IdentityServerEndpointOptions GetEndpointOptions(this IEndpointRouteBuilder routes) => routes.ServiceProvider.GetService<IOptions<IdentityServerEndpointOptions>>()?.Value;
+    /// <returns>An instance of <see cref="ExtendedEndpointOptions"/> to </returns>
+    public static ExtendedEndpointOptions GetEndpointOptions(this IEndpointRouteBuilder routes) => routes.ServiceProvider.GetService<IOptions<ExtendedEndpointOptions>>()?.Value;
 }

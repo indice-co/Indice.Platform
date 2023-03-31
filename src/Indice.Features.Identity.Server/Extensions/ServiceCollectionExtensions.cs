@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography.X509Certificates;
 using Indice.Configuration;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
@@ -21,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
 
@@ -35,15 +37,14 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// Adds Scalefin Server.
     /// </summary>
     /// <param name="services">The services.</param>
+    /// <param name="configuration"></param>
+    /// <param name="environment"></param>
     /// <param name="setupAction">The setup action.</param>
     /// <returns>The <see cref="IExtendedIdentityServerBuilder"/></returns>
-    public static IExtendedIdentityServerBuilder AddExtendedIdentityServer(this IServiceCollection services, Action<ExtendedIdentityServerOptions> setupAction = null) {
+    public static IExtendedIdentityServerBuilder AddExtendedIdentityServer(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment, Action<ExtendedIdentityServerOptions> setupAction = null) {
         var extendedOptions = new ExtendedIdentityServerOptions();
         setupAction?.Invoke(extendedOptions);
         services.AddSingleton(extendedOptions);
-        var serviceProvider = services.BuildServiceProvider();
-        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-        var environment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
         services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
         services.Configure<CookieTempDataProviderOptions>(options => options.Cookie.Expiration = TimeSpan.FromMinutes(30));
         services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorRememberMeScheme, options => {
@@ -61,21 +62,21 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.UserInteraction.ErrorIdParameter = "errorId";
             options.EmitScopesAsSpaceDelimitedStringInJwt = true;
         });
-        var innerIdentityBuilder = services.AddIdentityDefaults();
-        var builder = new ExtendedIdentityServerBuilder(serviceProvider, innerServerBuilder, innerIdentityBuilder, configuration, environment);
+        var innerIdentityBuilder = services.AddIdentityDefaults(configuration);
+        var builder = new ExtendedIdentityServerBuilder(innerServerBuilder, innerIdentityBuilder, configuration, environment);
 
         //builder.Services.AddTransient<IAccountService, AccountService>();
 
         builder.AddConfigurationStore<ExtendedConfigurationDbContext>(options => {
             options.SetupTables();
-            options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(extendedOptions.ConfigurationDbConnectionString ?? builder.Configuration.GetConnectionString("ConfigurationDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(typeof(ExtendedConfigurationDbContext).Assembly.GetName().Name));
+            options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(builder.Configuration.GetConnectionString(extendedOptions.ConnectionStringName ?? "ConfigurationDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(typeof(ExtendedConfigurationDbContext).Assembly.GetName().Name));
         })
         .AddOperationalStore(options => {
             options.SetupTables();
             options.EnableTokenCleanup = true;
             options.TokenCleanupInterval = (int)TimeSpan.FromHours(1).TotalSeconds;
             options.TokenCleanupBatchSize = 250;
-            options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(extendedOptions.OperationalDbConnectionString ?? builder.Configuration.GetConnectionString("OperationalDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(typeof(ExtendedConfigurationDbContext).Assembly.GetName().Name));
+            options.ConfigureDbContext = dbBuilder => dbBuilder.UseSqlServer(builder.Configuration.GetConnectionString(extendedOptions.ConnectionStringName ?? "OperationalDb"), sqlServerOptions => sqlServerOptions.MigrationsAssembly(typeof(ExtendedConfigurationDbContext).Assembly.GetName().Name));
         })
         .AddDelegationGrantValidator()
         .AddJwtBearerClientAuthentication()
@@ -103,9 +104,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         return extendedIdentityServerBuilder;
     }
 
-    private static IdentityBuilder AddIdentityDefaults(this IServiceCollection services) {
+    private static IdentityBuilder AddIdentityDefaults(this IServiceCollection services, IConfiguration configuration) {
         JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
         services.AddExternalProviderClaimsTransformation();
+        services.Configure<TotpOptions>(TotpOptions.Name, configuration);
         services.TryAddScoped<IdentityMessageDescriber>();
         services.TryAddScoped<ExtendedUserManager<User>>(); // Try register the extended version of UserManager<User>.
         return services.AddIdentity<User, Role>()
@@ -115,81 +117,94 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                               .AddDefaultPasswordValidators()
                               .AddClaimsPrincipalFactory<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                               .AddDefaultTokenProviders()
-                              .AddExtendedPhoneNumberTokenProvider();
+                              .AddExtendedPhoneNumberTokenProvider(configuration);
     }
 
     /// <summary>
     /// Adds Identity server management endpoints dependencies. 
     /// </summary>
     /// <param name="builder"></param>
+    /// <param name="configureAction"></param>
     /// <returns></returns>
-    public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder) {
-        var builderOptions = builder.ServiceProvider.GetRequiredService<ExtendedIdentityServerOptions>();
-        // Configure anti-forgery token options.
-        builder.Services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName);
+    public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder, Action<ExtendedEndpointOptions> configureAction = null) {
+        var options = new ExtendedEndpointOptions();
+        builder.Services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName); // Configure anti-forgery token options.
+
+        builder.Services.Configure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, builder.Configuration);
+        builder.Services.PostConfigure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, options => configureAction?.Invoke(options));
+        builder.Services.Configure<CacheResourceFilterOptions>(ExtendedEndpointOptions.Name, builder.Configuration);// Configure options for CacheResourceFilter.
+        builder.Services.PostConfigure<CacheResourceFilterOptions>(ExtendedEndpointOptions.Name, options => {
+            var eeo = new ExtendedEndpointOptions { DisableCache = options.DisableCache };
+            configureAction?.Invoke(eeo);
+            options.DisableCache = eeo.DisableCache;
+        });
+
+        var o = builder.Services.BuildServiceProvider().GetService<IOptions<CacheResourceFilterOptions>>();
+
         builder.Services.AddDistributedMemoryCache();
+        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("IdentityServer:Features"));
-        // Configure options for CacheResourceFilter.
-        builder.Services.Configure<CacheResourceFilterOptions>(options => options.DisableCache = builderOptions.DisableCache);
         // Invoke action provided by developer to override default options.
         builder.Services.TryAddTransient<IPlatformEventService, PlatformEventService>();
         builder.Services.TryAddScoped<IClientThemingService<DefaultClientThemeConfig>, ClientThemingService<DefaultClientThemeConfig>>();
         // Add authorization policies that are used by the IdentityServer API.
         builder.Services.AddAuthorization(authOptions => {
-            authOptions.AddPolicy(IdentityServerNames.Scope, policy => {
-                policy.AddAuthenticationSchemes(IdentityServerNames.AuthenticationScheme)
+            authOptions.AddPolicy(IdentityEndpoints.Scope, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScope(IdentityServerNames.Scope) || x.User.IsAdmin() || x.User.IsSystemClient());
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.Scope) || x.User.IsAdmin() || x.User.IsSystemClient());
             });
-            authOptions.AddPolicy(IdentityServerNames.Policies.BeUsersReader, policy => {
-                policy.AddAuthenticationSchemes(IdentityServerNames.AuthenticationScheme)
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeUsersReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScope(IdentityServerNames.SubScopes.Users) && x.User.CanReadUsers());
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanReadUsers());
             });
-            authOptions.AddPolicy(IdentityServerNames.Policies.BeUsersWriter, policy => {
-                policy.AddAuthenticationSchemes(IdentityServerNames.AuthenticationScheme)
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeUsersWriter, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScope(IdentityServerNames.SubScopes.Users) && x.User.CanWriteUsers());
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanWriteUsers());
             });
-            authOptions.AddPolicy(IdentityServerNames.Policies.BeClientsReader, policy => {
-                policy.AddAuthenticationSchemes(IdentityServerNames.AuthenticationScheme)
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeClientsReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScope(IdentityServerNames.SubScopes.Clients) && x.User.CanReadClients());
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Clients) && x.User.CanReadClients());
             });
-            authOptions.AddPolicy(IdentityServerNames.Policies.BeClientsWriter, policy => {
-                policy.AddAuthenticationSchemes(IdentityServerNames.AuthenticationScheme)
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeClientsWriter, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScope(IdentityServerNames.SubScopes.Clients) && x.User.CanWriteClients());
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Clients) && x.User.CanWriteClients());
             });
-            authOptions.AddPolicy(IdentityServerNames.Policies.BeUsersOrClientsReader, policy => {
-                policy.AddAuthenticationSchemes(IdentityServerNames.AuthenticationScheme)
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeUsersOrClientsReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScope(IdentityServerNames.SubScopes.Users) && (x.User.CanReadUsers() || x.User.CanReadClients()));
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Users) && (x.User.CanReadUsers() || x.User.CanReadClients()));
             });
-            authOptions.AddPolicy(IdentityServerNames.Policies.BeAdmin, policy => {
-                policy.AddAuthenticationSchemes(IdentityServerNames.AuthenticationScheme)
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeAdmin, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
-                      .RequireAssertion(x => x.User.HasScope(IdentityServerNames.Scope) && (x.User.HasRoleClaim(BasicRoleNames.Administrator) || x.User.HasRoleClaim(BasicRoleNames.AdminUIAdministrator) || x.User.IsAdmin() || x.User.IsSystemClient()));
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.Scope) && (x.User.HasRoleClaim(BasicRoleNames.Administrator) || x.User.HasRoleClaim(BasicRoleNames.AdminUIAdministrator) || x.User.IsAdmin() || x.User.IsSystemClient()));
             });
 
 
         });
         // Register the authentication handler, using a custom scheme name, for local APIs.
         builder.Services.AddAuthentication()
-                .AddLocalApi(IdentityServerNames.AuthenticationScheme, options => {
-                    options.ExpectedScope = IdentityServerNames.Scope;
+                .AddLocalApi(IdentityEndpoints.AuthenticationScheme, options => {
+                    options.ExpectedScope = IdentityEndpoints.Scope;
                 });
 
         return builder;
     }
 
     /// <summary>Registers the <see cref="DbContext"/> to be used by the Identity system.</summary>
-    /// <param name="options">Options for configuring the IdentityServer API feature.</param>
+    /// <param name="builder">Options for configuring the IdentityServer API feature.</param>
     /// <param name="configureAction">Configuration for <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</param>
-    public static void AddExtendedDbContext(this IExtendedIdentityServerBuilder options, Action<IdentityDbContextOptions> configureAction) {
-        var dbContextOptions = new IdentityDbContextOptions();
-        configureAction?.Invoke(dbContextOptions);
-        options.Services.AddSingleton(dbContextOptions);
-        options.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(dbContextOptions.ConfigureDbContext);
+    public static IExtendedIdentityServerBuilder AddExtendedDbContext(this IExtendedIdentityServerBuilder builder, Action<IdentityDbContextOptions> configureAction) {
+        var options = new IdentityDbContextOptions();
+        configureAction?.Invoke(options);
+        builder.Services.AddSingleton(options);
+        builder.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureDbContext);
+
+        return builder;
     }
 }

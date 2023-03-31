@@ -8,6 +8,9 @@
     <StaticWebAssetBasePath Condition="$(StaticWebAssetBasePath) == ''">/</StaticWebAssetBasePath>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefix)" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
   </ItemGroup>
   <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">

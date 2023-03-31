@@ -19,13 +19,13 @@ public class IdentityServerEndpointRouteBuilder : IEndpointRouteBuilder
     /// <param name="endpointRouteBuilder">The aspnetcore default builder</param>
     public IdentityServerEndpointRouteBuilder(IEndpointRouteBuilder endpointRouteBuilder) {
         _innerBuilder = endpointRouteBuilder ?? throw new ArgumentNullException(nameof(endpointRouteBuilder));
-        Options = endpointRouteBuilder.ServiceProvider.GetRequiredService<IOptions<IdentityServerEndpointOptions>>()?.Value;
+        Options = endpointRouteBuilder.ServiceProvider.GetRequiredService<IOptions<ExtendedEndpointOptions>>()?.Value;
     }
 
     /// <summary>
     /// Scalefin Server Options
     /// </summary>
-    public IdentityServerEndpointOptions Options { get; }
+    public ExtendedEndpointOptions Options { get; }
     /// <inheritdoc/>
     public IServiceProvider ServiceProvider => _innerBuilder.ServiceProvider;
     /// <inheritdoc/>

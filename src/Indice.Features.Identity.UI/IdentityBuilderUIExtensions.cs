@@ -1,13 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
-namespace Indice.AspNetCore.Identity;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary></summary>
 public static class IdentityBuilderUIExtensions
 {
     /// <summary></summary>
-    /// <param name="builder"></param>
-    public static IdentityBuilder AddDefaultIdentityUI(this IdentityBuilder builder) {
-        return builder;
+    /// <param name="services"></param>
+    /// <param name="configuration"></param>
+    public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration) {
+        services.AddLocalization(options => options.ResourcesPath = "Resources");
+        services.AddGeneralSettings(configuration);
+        services.AddClientAwareViewLocationExpander();
+        return services;
     }
 }

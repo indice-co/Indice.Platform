@@ -24,9 +24,9 @@ public static class RolesApi
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must*
         // be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope, IdentityServerNames.SubScopes.Users}.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users}.Where(x => x != null).ToArray();
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .AddAuthenticationSchemes(IdentityServerNames.AuthenticationScheme)
+                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -34,28 +34,28 @@ public static class RolesApi
 
         group.MapGet("", RoleHandlers.GetRoles)
              .WithName(nameof(RoleHandlers.GetRoles))
-             .WithSummary($"Returns a list of {nameof(RoleInfo)} objects containing the total number of claim types in the database and the data filtered according to the provided **ListOptions**.")
-             .RequireAuthorization(IdentityServerNames.Policies.BeUsersReader);
+             .WithSummary($"Returns a list of {nameof(RoleInfo)} objects containing the total number of claim types in the database and the data filtered according to the provided ListOptions.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
         group.MapGet("{roleId}", RoleHandlers.GetRole)
              .WithName(nameof(RoleHandlers.GetRole))
              .WithSummary("Gets a claim type by it's unique id.")
-             .RequireAuthorization(IdentityServerNames.Policies.BeUsersReader);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
         group.MapPost("", RoleHandlers.CreateRole)
              .WithName(nameof(RoleHandlers.CreateRole))
              .WithSummary("Creates a new claim type.")
-             .RequireAuthorization(IdentityServerNames.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapPut("{roleId}", RoleHandlers.UpdateRole)
              .WithName(nameof(RoleHandlers.UpdateRole))
              .WithSummary("Updates an existing claim type.")
-             .RequireAuthorization(IdentityServerNames.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapDelete("{roleId}", RoleHandlers.DeleteRole)
              .WithName(nameof(RoleHandlers.DeleteRole))
              .WithSummary("Permanently deletes an existing claim type.")
-             .RequireAuthorization(IdentityServerNames.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         return group;
     }

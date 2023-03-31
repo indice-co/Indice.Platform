@@ -24,9 +24,9 @@ public static class ClaimTypesApi
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must*
         // be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope, IdentityServerNames.SubScopes.Users }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users }.Where(x => x != null).ToArray();
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .AddAuthenticationSchemes(IdentityServerNames.AuthenticationScheme)
+                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -34,28 +34,28 @@ public static class ClaimTypesApi
 
         group.MapGet("", ClaimTypeHandlers.GetClaimTypes)
              .WithName(nameof(ClaimTypeHandlers.GetClaimTypes))
-             .WithSummary($"Returns a list of {nameof(ClaimTypeInfo)} objects containing the total number of claim types in the database and the data filtered according to the provided **ListOptions**.")
-             .RequireAuthorization(IdentityServerNames.Policies.BeUsersReader);
+             .WithSummary($"Returns a list of {nameof(ClaimTypeInfo)} objects containing the total number of claim types in the database and the data filtered according to the provided ListOptions.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
         group.MapGet("{claimTypeId}", ClaimTypeHandlers.GetClaimType)
              .WithName(nameof(ClaimTypeHandlers.GetClaimType))
              .WithSummary("Gets a claim type by it's unique id.")
-             .RequireAuthorization(IdentityServerNames.Policies.BeUsersReader);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
         group.MapPost("", ClaimTypeHandlers.CreateClaimType)
              .WithName(nameof(ClaimTypeHandlers.CreateClaimType))
              .WithSummary("Creates a new claim type.")
-             .RequireAuthorization(IdentityServerNames.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapPut("{claimTypeId}", ClaimTypeHandlers.UpdateClaimType)
              .WithName(nameof(ClaimTypeHandlers.UpdateClaimType))
              .WithSummary("Updates an existing claim type.")
-             .RequireAuthorization(IdentityServerNames.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapDelete("{claimTypeId}", ClaimTypeHandlers.DeleteClaimType)
              .WithName(nameof(ClaimTypeHandlers.DeleteClaimType))
              .WithSummary("Permanently deletes an existing claim type.")
-             .RequireAuthorization(IdentityServerNames.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         return group;
     }

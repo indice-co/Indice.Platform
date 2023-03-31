@@ -5,6 +5,7 @@ using Indice.AspNetCore.Identity.Features;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Grants;
 using Indice.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +16,8 @@ public static class TotpFeatureExtensions
     /// <param name="builder">IdentityServer builder Interface.</param>
     /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
     public static IMvcBuilder AddTotp(this IMvcBuilder builder, Action<TotpOptions> configure = null) {
-        builder.Services.AddTotpServiceFactory(configure);
+        var configuration = builder.Services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+        builder.Services.AddTotpServiceFactory(configuration, configure);
         builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new TotpFeatureProvider()));
         return builder;
     }
@@ -24,7 +26,8 @@ public static class TotpFeatureExtensions
     /// <param name="builder">IdentityServer builder Interface.</param>
     /// <param name="configure">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
     public static IIdentityServerBuilder AddTotp(this IIdentityServerBuilder builder, Action<TotpOptions> configure = null) {
-        builder.Services.AddTotpServiceFactory(configure);
+        var configuration = builder.Services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+        builder.Services.AddTotpServiceFactory(configuration, configure);
         builder.Services.Configure<IdentityServerOptions>(options => {
             options.Discovery.CustomEntries.Add("totp", new {
                 endpoint = options.IssuerUri.TrimEnd('/') + "/totp",

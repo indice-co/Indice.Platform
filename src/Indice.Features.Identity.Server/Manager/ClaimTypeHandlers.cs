@@ -11,7 +11,7 @@ namespace Indice.Features.Identity.Server.Manager;
 internal static class ClaimTypeHandlers
 {
 
-    internal static async Task<Ok<ResultSet<ClaimTypeInfo>>> GetClaimTypes(ExtendedConfigurationDbContext configurationDbContext, ListOptions options, ClaimTypesListFilter filter) {
+    internal static async Task<Ok<ResultSet<ClaimTypeInfo>>> GetClaimTypes(ExtendedConfigurationDbContext configurationDbContext, [AsParameters]ListOptions options, [AsParameters]ClaimTypesListFilter filter) {
 
         var query = configurationDbContext.ClaimTypes.AsNoTracking().AsQueryable();
         if (!string.IsNullOrEmpty(options.Search)) {

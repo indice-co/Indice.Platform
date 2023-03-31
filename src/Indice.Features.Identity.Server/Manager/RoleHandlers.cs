@@ -13,7 +13,7 @@ namespace Indice.Features.Identity.Server.Manager;
 internal static class RoleHandlers
 {
 
-    internal static async Task<Ok<ResultSet<RoleInfo>>> GetRoles(RoleManager<Role> roleManager, ListOptions options) {
+    internal static async Task<Ok<ResultSet<RoleInfo>>> GetRoles(RoleManager<Role> roleManager, [AsParameters]ListOptions options) {
         var query = roleManager.Roles.AsNoTracking();
         if (!string.IsNullOrEmpty(options.Search)) {
             var searchTerm = options.Search.ToLower();
