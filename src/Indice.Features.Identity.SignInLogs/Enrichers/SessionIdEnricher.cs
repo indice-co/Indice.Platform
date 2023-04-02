@@ -13,8 +13,9 @@ internal class SessionIdEnricher : ISignInLogEntryEnricher
     }
 
     public int Priority => 3;
+    public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
 
-    public async Task Enrich(SignInLogEntry logEntry) {
+    public async Task EnrichAsync(SignInLogEntry logEntry) {
         logEntry.SessionId = await _userSession.GetSessionIdAsync();
     }
 }

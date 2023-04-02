@@ -1,15 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net7.0</TargetFramework>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefix)" />
+    <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
   </ItemGroup>
 </Project>

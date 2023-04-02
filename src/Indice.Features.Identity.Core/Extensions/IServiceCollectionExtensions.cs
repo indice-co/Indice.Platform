@@ -50,10 +50,10 @@ public static class IServiceCollectionExtensions
 
     /// <summary></summary>
     /// <param name="services"></param>
+    /// <param name="configuration"></param>
     /// <param name="configure"></param>
-    public static IServiceCollection AddTotpServiceFactory(this IServiceCollection services, Action<TotpOptions> configure = null) {
-        var serviceProvider = services.BuildServiceProvider();
-        var totpSection = serviceProvider.GetRequiredService<IConfiguration>().GetSection(TotpOptions.Name);
+    public static IServiceCollection AddTotpServiceFactory(this IServiceCollection services, IConfiguration configuration, Action<TotpOptions> configure = null) {
+        var totpSection = configuration.GetSection(TotpOptions.Name);
         var totpOptions = new TotpOptions {
             CodeDuration = totpSection.GetValue<int?>(nameof(TotpOptions.CodeDuration)) ?? TotpOptions.DefaultCodeDuration,
             CodeLength = totpSection.GetValue<int?>(nameof(TotpOptions.CodeLength)) ?? TotpOptions.DefaultCodeLength,

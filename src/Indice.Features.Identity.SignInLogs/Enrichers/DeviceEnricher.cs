@@ -13,6 +13,7 @@ internal class DeviceEnricher : ISignInLogEntryEnricher
     private readonly IMfaDeviceIdResolver _mfaDeviceIdResolver;
 
     public int Priority => 6;
+    public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
 
     public DeviceEnricher(
         IHttpContextAccessor httpContextAccessor,
@@ -22,7 +23,7 @@ internal class DeviceEnricher : ISignInLogEntryEnricher
         _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
     }
 
-    public async Task Enrich(SignInLogEntry logEntry) {
+    public async Task EnrichAsync(SignInLogEntry logEntry) {
         var deviceId = await _mfaDeviceIdResolver.Resolve();
         logEntry.DeviceId = deviceId;
         var userAgentHeader = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent];
