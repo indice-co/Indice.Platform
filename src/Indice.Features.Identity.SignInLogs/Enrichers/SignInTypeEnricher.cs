@@ -26,8 +26,9 @@ internal class SignInTypeEnricher : ISignInLogEntryEnricher
     };
 
     public int Priority => 2;
+    public EnricherDependencyType DependencyType => EnricherDependencyType.Default;
 
-    public Task Enrich(SignInLogEntry logEntry) {
+    public Task EnrichAsync(SignInLogEntry logEntry) {
         if (logEntry?.SignInType is not null || string.IsNullOrWhiteSpace(logEntry?.GrantType)) {
             return Task.CompletedTask;
         }
