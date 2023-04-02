@@ -61,7 +61,7 @@ public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
     /// <inheritdoc/>
     public void Apply(OpenApiRequestBody requestBody, RequestBodyFilterContext context) {
         Type validatorType = typeof(IValidator<>).MakeGenericType(context.BodyParameterDescription.Type);
-        IValidator? validator = services.GetService(validatorType) as IValidator;
+        IValidator validator = services.GetService(validatorType) as IValidator;
         if (validator is not null) {
             OpenApiSchema schema = context.SchemaRepository.Schemas[context.BodyParameterDescription.Type.FullName];
             IValidatorDescriptor descriptor = validator.CreateDescriptor();

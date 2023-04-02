@@ -13,8 +13,9 @@ internal class RequestIdEnricher : ISignInLogEntryEnricher
     }
 
     public int Priority => 4;
+    public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
 
-    public Task Enrich(SignInLogEntry logEntry) {
+    public Task EnrichAsync(SignInLogEntry logEntry) {
         logEntry.RequestId = _httpContextAccessor.HttpContext.TraceIdentifier;
         return Task.CompletedTask;
     }

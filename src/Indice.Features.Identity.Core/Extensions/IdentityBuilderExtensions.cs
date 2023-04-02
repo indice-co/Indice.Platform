@@ -6,10 +6,10 @@ using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
-namespace Indice.AspNetCore.Identity;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Extensions on <see cref="IdentityBuilder"/></summary>
 public static class IdentityBuilderExtensions
@@ -36,19 +36,14 @@ public static class IdentityBuilderExtensions
     /// Make sure you call this method after using <see cref="Microsoft.AspNetCore.Identity.IdentityBuilderExtensions.AddDefaultTokenProviders(IdentityBuilder)"/>.
     /// </summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <param name="configuration"></param>
     /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, Action<TotpOptions> configure = null) {
-        var serviceProvider = builder.Services.BuildServiceProvider();
-        var configuredTotpOptions = serviceProvider.GetRequiredService<TotpOptions>();
-        var hostingEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-        Type providerType;
-        if (configuredTotpOptions.EnableDeveloperTotp && !hostingEnvironment.IsProduction()) {
-            providerType = typeof(DeveloperPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType);
-        } else {
-            providerType = typeof(ExtendedPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType);
-        }
-        builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, providerType);
+    public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<TotpOptions> configure = null) {
+        if (configure is not null)
+            builder.Services.PostConfigure(configure); 
+        builder.Services.AddTotpServiceFactory(configuration, configure);
+        builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, typeof(DeveloperPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType));
         return builder;
     }
 
