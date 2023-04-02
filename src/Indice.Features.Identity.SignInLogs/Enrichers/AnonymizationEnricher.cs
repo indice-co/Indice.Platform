@@ -14,8 +14,9 @@ internal class AnonymizationEnricher : ISignInLogEntryEnricher
     }
 
     public int Priority => int.MaxValue;
+    public EnricherDependencyType DependencyType => EnricherDependencyType.Default;
 
-    public Task Enrich(SignInLogEntry logEntry) {
+    public Task EnrichAsync(SignInLogEntry logEntry) {
         if (!_signInLogOptions.AnonymizePersonalData) {
             return Task.CompletedTask;
         }

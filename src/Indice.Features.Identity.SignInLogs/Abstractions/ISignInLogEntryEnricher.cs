@@ -7,7 +7,8 @@ internal interface ISignInLogEntryEnricher
 {
     /// <summary>The precedence order that the enricher runs.</summary>
     public int Priority { get; }
+    public EnricherDependencyType DependencyType { get; }
     /// <summary>Enrich the <see cref="SignInLogEntry"/> class.</summary>
     /// <param name="logEntry">The instance of <see cref="SignInLogEntry"/> to enrich.</param>
-    Task Enrich(SignInLogEntry logEntry);
+    Task EnrichAsync(SignInLogEntry logEntry);
 }
