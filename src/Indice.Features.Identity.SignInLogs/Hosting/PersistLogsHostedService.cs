@@ -25,16 +25,14 @@ internal class PersistLogsHostedService : TimedHostedService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
         try {
-            var logEntryExists = _signInLogEntryQueue.TryDequeue(out var logEntry);
-            if (!logEntryExists) {
-                return;
-            }
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
                 var signInLogStore = serviceScope.ServiceProvider.GetRequiredService<ISignInLogStore>();
                 var enricherAggregator = serviceScope.ServiceProvider.GetRequiredService<SignInLogEntryEnricherAggregator>();
-                var discard = await enricherAggregator.EnrichAsync(logEntry, EnricherDependencyType.Default | EnricherDependencyType.OnDataStore);
-                if (!discard) {
-                    await signInLogStore.CreateAsync(logEntry);
+                await foreach (var logEntry in _signInLogEntryQueue.DequeueAllAsync()) {
+                    var discard = await enricherAggregator.EnrichAsync(logEntry, EnricherDependencyType.Default | EnricherDependencyType.OnDataStore);
+                    if (!discard) {
+                        await signInLogStore.CreateAsync(logEntry);
+                    }
                 }
             }
         } catch (Exception exception) {
