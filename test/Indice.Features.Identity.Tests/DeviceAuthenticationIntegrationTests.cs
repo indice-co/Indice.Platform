@@ -169,7 +169,8 @@ public class DeviceAuthenticationIntegrationTests
             });
         });
         builder.ConfigureServices(services => {
-            services.AddTotpServiceFactory()
+            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+            services.AddTotpServiceFactory(configuration)
                     .AddSmsServiceNoop()
                     .AddPushNotificationServiceNoop()
                     .AddLocalization()
@@ -179,7 +180,7 @@ public class DeviceAuthenticationIntegrationTests
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                     .AddExtendedSignInManager()
                     .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
-                    .AddExtendedPhoneNumberTokenProvider();
+                    .AddExtendedPhoneNumberTokenProvider(configuration);
             services.AddIdentityServer(options => options.EmitStaticAudienceClaim = true)
                     .AddInMemoryIdentityResources(GetIdentityResources())
                     .AddInMemoryApiScopes(GetApiScopes())

@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using Indice.AspNetCore.Identity;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -29,7 +28,8 @@ public class TotpServiceTests
         });
         builder.ConfigureServices(services => {
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
-            services.AddTotpServiceFactory()
+            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+            services.AddTotpServiceFactory(configuration)
                     .AddSmsServiceNoop()
                     .AddPushNotificationServiceNoop()
                     .AddLocalization()
@@ -40,7 +40,7 @@ public class TotpServiceTests
                     .AddExtendedSignInManager()
                     .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
-                    .AddExtendedPhoneNumberTokenProvider()
+                    .AddExtendedPhoneNumberTokenProvider(configuration)
                     .AddIdentityMessageDescriber<IdentityMessageDescriber>();
         });
         builder.Configure(app => { });
