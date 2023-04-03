@@ -1,10 +1,9 @@
 using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
-using Indice.Features.Identity.UI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages;
+namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the logged out screen.</summary>
 [SecurityHeaders]

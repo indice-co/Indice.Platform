@@ -1,6 +1,6 @@
 using Indice.AspNetCore.Filters;
 using Indice.Configuration;
-using Indice.Features.Identity.UI.Areas.Identity.Models;
+using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages;
+namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the home/landing screen.</summary>
 [SecurityHeaders]

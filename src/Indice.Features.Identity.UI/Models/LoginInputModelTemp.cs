@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Models;
+﻿namespace Indice.Features.Identity.UI.Models;
 
 /// <summary>Input model for the login page.</summary>
 public class LoginInputModelTemp

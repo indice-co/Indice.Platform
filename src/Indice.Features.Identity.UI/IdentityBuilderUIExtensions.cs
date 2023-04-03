@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Indice.Features.Identity.UI;
 
 /// <summary></summary>
 public static class IdentityBuilderUIExtensions
@@ -13,6 +14,7 @@ public static class IdentityBuilderUIExtensions
         services.AddLocalization(options => options.ResourcesPath = "Resources");
         services.AddGeneralSettings(configuration);
         services.AddClientAwareViewLocationExpander();
+        services.AddMarkdown();
         return services;
     }
 }

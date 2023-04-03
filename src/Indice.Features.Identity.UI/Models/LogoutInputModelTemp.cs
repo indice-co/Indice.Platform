@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Models;
+﻿namespace Indice.Features.Identity.UI.Models;
 
 /// <summary>Input model for the logout page.</summary>
 public class LogoutInputModelTemp

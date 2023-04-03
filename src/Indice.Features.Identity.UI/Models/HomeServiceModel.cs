@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Identity.UI.Areas.Identity.Models;
+﻿namespace Indice.Features.Identity.UI.Models;
 
 /// <summary></summary>
 public class HomeServiceModel

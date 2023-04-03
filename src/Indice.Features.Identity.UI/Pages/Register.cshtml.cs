@@ -3,9 +3,9 @@ using IdentityServer4;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Identity.UI.Areas.Identity.Models;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages;
+namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the registration screen.</summary>
 [AllowAnonymous]

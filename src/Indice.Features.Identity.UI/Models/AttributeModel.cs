@@ -1,4 +1,4 @@
-﻿namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Models;
+﻿namespace Indice.Features.Identity.UI.Models;
 
 /// <summary>Class that allows for extending the register request with custom attributes as needed per application.</summary>
 public class AttributeModel

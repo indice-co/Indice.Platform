@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages;
+namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the logout screen.</summary>
 [Authorize]

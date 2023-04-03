@@ -5,11 +5,10 @@ using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Identity.UI.Areas.Identity.Models;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Extensions;
-using Indice.Features.Identity.UI;
+using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +16,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
-namespace Indice.AspNetCore.Identity.UI.Areas.Identity.Pages;
+namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the login screen.</summary>
 [AllowAnonymous]
@@ -32,7 +31,7 @@ public class LoginModel : PageModel
     private readonly IAuthenticationSchemeProvider _schemeProvider;
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly ExtendedUserManager<User> _userManager;
-    
+
     /// <summary>Creates a new instance of <see cref="LoginModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
@@ -74,10 +73,10 @@ public class LoginModel : PageModel
     /// <summary>Specifies whether a device (browser) id should be generated.</summary>
     public bool GenerateDeviceId { get; set; }
     /// <summary>Login input model data.</summary>
-    
+
     [BindProperty]
     public LoginInputModelTemp Input { get; set; }
-    
+
     /// <summary>Use this flag to hide the local login form.</summary>
     public bool IsExternalLoginOnly => EnableLocalLogin == false && ExternalProviders?.Count() == 1;
     /// <summary>A direction to display a different screen when a client asks for the authorize endpoint.</summary>
@@ -87,7 +86,7 @@ public class LoginModel : PageModel
     public string ReturnUrl { get; set; }
     /// <summary>The visible external providers are those form the <see cref="ExternalProviders"/> list that have a display name.</summary>
     public IEnumerable<ExternalProviderModel> VisibleExternalProviders => ExternalProviders.Where(x => !string.IsNullOrWhiteSpace(x.DisplayName));
-    
+
     /// <summary>Login page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public async Task<IActionResult> OnGetAsync(string returnUrl = null) {
