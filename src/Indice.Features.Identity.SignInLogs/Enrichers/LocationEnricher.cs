@@ -9,8 +9,9 @@ namespace Indice.Features.Identity.SignInLogs.Enrichers;
 internal class LocationEnricher : ISignInLogEntryEnricher
 {
     public int Priority => 5;
+    public EnricherDependencyType DependencyType => EnricherDependencyType.Default;
 
-    public Task Enrich(SignInLogEntry logEntry) {
+    public Task EnrichAsync(SignInLogEntry logEntry) {
         if (string.IsNullOrWhiteSpace(logEntry?.IpAddress)) {
             return Task.CompletedTask;
         }

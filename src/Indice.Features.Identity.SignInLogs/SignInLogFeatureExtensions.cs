@@ -2,6 +2,7 @@
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.SignInLogs;
 using Indice.Features.Identity.SignInLogs.Abstractions;
+using Indice.Features.Identity.SignInLogs.Enrichers;
 using Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 using Indice.Features.Identity.SignInLogs.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -39,11 +40,13 @@ public static class SignInLogFeatureExtensions
         // Add IdentityServer sink that captures required sign in events.
         if (resolvedOptions.Enable) {
             builder.AddEventSink<SignInLogEventSink>();
+            services.AddSingleton<IHostedService, PersistLogsHostedService>();
         }
         // Add built-in enrichers & filters for the log entry model.
         services.AddDefaultEnrichers();
         services.AddDefaultFilters();
-        services.AddTransient<SignInLogManager>();
+        services.AddTransient<SignInLogEntryEnricherAggregator>();
+        services.AddSingleton<SignInLogEntryQueue>();
         // Enable feature management for this module.
         services.AddFeatureManagement(configuration.GetSection(IdentityServerFeatures.Section));
         // Add a default implementation in case one is not specified. Avoids DI errors.
@@ -77,10 +80,7 @@ public static class SignInLogFeatureExtensions
     }
 
     private static IServiceCollection AddDefaultEnrichers(this IServiceCollection services) {
-        var enrichers = Assembly
-            .GetExecutingAssembly()
-            .GetTypes()
-            .Where(type => type.IsClass && typeof(ISignInLogEntryEnricher).IsAssignableFrom(type));
+        var enrichers = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryEnricher>();
         foreach (var enricher in enrichers) {
             services.AddTransient(typeof(ISignInLogEntryEnricher), enricher);
         }
@@ -88,10 +88,7 @@ public static class SignInLogFeatureExtensions
     }
 
     private static IServiceCollection AddDefaultFilters(this IServiceCollection services) {
-        var filters = Assembly
-            .GetExecutingAssembly()
-            .GetTypes()
-            .Where(type => type.IsClass && typeof(ISignInLogEntryFilter).IsAssignableFrom(type));
+        var filters = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryFilter>();
         foreach (var filter in filters) {
             services.AddTransient(typeof(ISignInLogEntryFilter), filter);
         }
