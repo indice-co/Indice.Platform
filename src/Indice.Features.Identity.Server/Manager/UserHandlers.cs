@@ -421,20 +421,19 @@ internal static class UserHandlers
         return TypedResults.Ok(response);
     }
 
-    internal static async Task<Ok<List<UserLoginProviderInfo>>> GetUserExternalLogins(
+    internal static async Task<Ok<ResultSet<UserLoginProviderInfo>>> GetUserExternalLogins(
         ExtendedUserManager<User> userManager,
         string userId) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
-            return TypedResults.Ok(new List<UserLoginProviderInfo>());
+            return TypedResults.Ok(new ResultSet<UserLoginProviderInfo>());
         }
         var externalLogins = await userManager.GetLoginsAsync(user);
         var response = externalLogins.Select(x => new UserLoginProviderInfo {
             Key = x.ProviderKey,
             Name = x.LoginProvider,
             DisplayName = !string.IsNullOrWhiteSpace(x.ProviderDisplayName) ? x.ProviderDisplayName : x.LoginProvider
-        }).ToList();
-        /*.ToResultSet()*/;
+        }).ToResultSet();
         return TypedResults.Ok(response);
     }
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteUserExternalLogin(

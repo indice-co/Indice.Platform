@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Server;
+﻿using Indice.AspNetCore.Http.Filters;
+using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Security;
@@ -29,12 +30,14 @@ public static class RolesApi
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized);
+             .ProducesProblem(StatusCodes.Status401Unauthorized)
+             .WithCachedResponse();
 
         group.MapGet("", RoleHandlers.GetRoles)
              .WithName(nameof(RoleHandlers.GetRoles))
              .WithSummary($"Returns a list of {nameof(RoleInfo)} objects containing the total number of roles in the database and the data filtered according to the provided ListOptions.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader)
+             .NoCache();
 
         group.MapGet("{roleId}", RoleHandlers.GetRole)
              .WithName(nameof(RoleHandlers.GetRole))

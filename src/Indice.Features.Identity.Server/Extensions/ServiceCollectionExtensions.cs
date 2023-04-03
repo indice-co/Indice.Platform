@@ -149,7 +149,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("IdentityServer:Features"));
         // Invoke action provided by developer to override default options.
         builder.Services.TryAddTransient<IPlatformEventService, PlatformEventService>();
-        builder.Services.TryAddScoped<IClientThemingService<DefaultClientThemeConfig>, ClientThemingService<DefaultClientThemeConfig>>();
+        //builder.Services.TryAddScoped<IClientThemingService<DefaultClientThemeConfig>, ClientThemingService<DefaultClientThemeConfig>>();
+        builder.Services.AddClientThemingService();
         // Add authorization policies that are used by the IdentityServer API.
         builder.Services.AddAuthorization(authOptions => {
             authOptions.AddPolicy(IdentityEndpoints.Scope, policy => {

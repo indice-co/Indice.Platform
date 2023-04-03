@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Indice.AspNetCore.Http.Filters;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -200,15 +201,4 @@ public sealed class CacheResourceFilterAttribute : TypeFilterAttribute
         get => (string[])Arguments[3];
         set => Arguments[3] = value;
     }
-}
-
-/// <summary>An optional extension to the cache key discriminator that will be created inside on th <see cref="CacheResourceFilter"/>.</summary>
-/// <remarks>Use only in case the default functionality is not enough.</remarks>
-public interface ICacheResourceFilterKeyExtensionResolver
-{
-    /// <summary>Will return custom cache key extension based on the current request or null.</summary>
-    /// <param name="httpContext">The current request <see cref="HttpContext"/></param>
-    /// <param name="cacheKey">The current key</param>
-    /// <remarks>Only return the custom/extension part of the key <b>do not recreate the whole thing</b>.</remarks>
-    public Task<string> ResolveCacheKeyExtensionAsync(HttpContext httpContext, string cacheKey);
 }
