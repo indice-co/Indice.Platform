@@ -23,6 +23,7 @@ using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Models;
 using Indice.Security;

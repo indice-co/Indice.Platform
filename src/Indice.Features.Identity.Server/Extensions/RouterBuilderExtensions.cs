@@ -19,6 +19,7 @@ public static class IdentityServerEndpointRouteBuilderExtensions
     public static IdentityServerEndpointRouteBuilder MapIdentityServerEndpoints(this IEndpointRouteBuilder routes) {
         var builder = new IdentityServerEndpointRouteBuilder(routes);
         builder.MapUsers();
+        builder.MapClients();
         builder.MapRoles();
         builder.MapClaimTypes();
         return builder; 

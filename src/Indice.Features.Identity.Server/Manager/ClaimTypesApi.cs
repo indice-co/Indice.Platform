@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Server;
+﻿using Indice.AspNetCore.Http.Filters;
+using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Security;
@@ -29,12 +30,14 @@ public static class ClaimTypesApi
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized);
+             .ProducesProblem(StatusCodes.Status401Unauthorized)
+             .WithCachedResponse();
 
         group.MapGet("", ClaimTypeHandlers.GetClaimTypes)
              .WithName(nameof(ClaimTypeHandlers.GetClaimTypes))
              .WithSummary($"Returns a list of {nameof(ClaimTypeInfo)} objects containing the total number of claim types in the database and the data filtered according to the provided ListOptions.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader)
+             .NoCache();
 
         group.MapGet("{claimTypeId}", ClaimTypeHandlers.GetClaimType)
              .WithName(nameof(ClaimTypeHandlers.GetClaimType))
