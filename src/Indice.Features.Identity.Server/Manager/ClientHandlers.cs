@@ -509,7 +509,6 @@ internal static class ClientHandlers
 
     internal static async Task<Results<NoContent, ValidationProblem>> CreateOrUpdateClientTheme(
         ExtendedConfigurationDbContext configurationDbContext,
-        ClientThemeConfigTypeResolver themeConfigResolver,
         string clientId, ClientThemeConfigRequest request) {
         var client = await configurationDbContext
             .Clients
