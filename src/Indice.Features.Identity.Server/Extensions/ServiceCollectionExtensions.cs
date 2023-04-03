@@ -142,8 +142,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.DisableCache = eeo.DisableCache;
         });
 
-        var o = builder.Services.BuildServiceProvider().GetService<IOptions<CacheResourceFilterOptions>>();
-
         builder.Services.AddDistributedMemoryCache();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("IdentityServer:Features"));
