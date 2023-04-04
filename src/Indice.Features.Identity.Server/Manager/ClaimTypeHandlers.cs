@@ -57,11 +57,12 @@ internal static class ClaimTypeHandlers
 
     internal static async Task<Results<CreatedAtRoute<ClaimTypeInfo>, ValidationProblem>> CreateClaimType(ExtendedConfigurationDbContext configurationDbContext, CreateClaimTypeRequest request) {
         if (request is null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>() { [""] = new[] { "Request body cannot be null." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("", "Request body cannot be null."));
         }
         var exists = await configurationDbContext.ClaimTypes.AsNoTracking().AnyAsync(x => x.Name == request.Name);
         if (exists) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>() { [nameof(CreateClaimTypeRequest.Name).Camelize()] = new[] { $"A claim type with name {request.Name} already exists." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(CreateClaimTypeRequest.Name).Camelize(), 
+                                                                            $"A claim type with name {request.Name} already exists."));
         }
         var claimType = new ClaimType {
             Id = $"{Guid.NewGuid()}",
@@ -123,7 +124,7 @@ internal static class ClaimTypeHandlers
             return TypedResults.NotFound();
         }
         if (claimType.Reserved) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>() { [nameof(CreateClaimTypeRequest.Name).Camelize()] = new[] { "Cannot delete a reserved claim type." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(CreateClaimTypeRequest.Name).Camelize(), "Cannot delete a reserved claim type."));
         }
         configurationDbContext.ClaimTypes.Remove(claimType);
         await configurationDbContext.SaveChangesAsync();

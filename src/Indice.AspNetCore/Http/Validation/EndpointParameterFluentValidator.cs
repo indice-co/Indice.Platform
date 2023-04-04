@@ -1,5 +1,6 @@
 ﻿#if NET7_0_OR_GREATER
 using FluentValidation;
+using MiniValidation;
 
 namespace Indice.AspNetCore.Http.Validation;
 internal class EndpointParameterFluentValidator : IEndpointParameterValidator
@@ -14,7 +15,7 @@ internal class EndpointParameterFluentValidator : IEndpointParameterValidator
         var validatorType = typeof(IValidator<>).MakeGenericType(argumentType);
         var validator = _serviceProvider.GetService(validatorType) as IValidator;
         if (validator == null) {
-            return new (true, new Dictionary<string, string[]>());
+            return await MiniValidator.TryValidateAsync(argument);
         }
         var validationContextType = typeof(ValidationContext<>).MakeGenericType(argumentType);
         var validationContext = Activator.CreateInstance(validationContextType, argument) as IValidationContext;
