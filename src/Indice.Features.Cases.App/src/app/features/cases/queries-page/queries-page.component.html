@@ -15,10 +15,10 @@
                                             {{query.friendlyName}}</td>
                                         <td
                                             class="whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-2">
+                                            <a (click)="openDeleteQueryModal(query)"
+                                               class="cursor-pointer text-red-600 hover:text-red-900 pr-5">Διαγραφή</a>
                                             <a (click)="applyQuery(query)"
                                                class="cursor-pointer text-indigo-600 hover:text-indigo-900 pr-2">Εφαρμογή</a>
-                                            <a (click)="deleteQuery(query)"
-                                               class="cursor-pointer text-red-600 hover:text-red-900 pr-2">Διαγραφή</a>
                                         </td>
                                     </tr>
                                 </tbody>
