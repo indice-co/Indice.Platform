@@ -38,4 +38,13 @@ public static partial class IdentityEndpoints
         /// <summary>A user must have the 'Admin' flag or own one of the <see cref="BasicRoleNames.Administrator"/>, <see cref="BasicRoleNames.AdminUIAdministrator"/>, <see cref="BasicRoleNames.AdminUIUsersReader"/> or <see cref="BasicRoleNames.AdminUIClientsReader"/> roles.</summary>
         public const string BeUsersOrClientsReader = nameof(BeUsersOrClientsReader);
     }
+
+    /// <summary>Feature flags for Identity Server API.</summary>
+    public static partial class Features
+    {
+        /// <summary>Enables API for public registration API.</summary>
+        public const string PublicRegistration = nameof(PublicRegistration);
+        /// <summary>Enables API for public registration API.</summary>
+        public const string DashboardMetrics = nameof(DashboardMetrics);
+    }
 }

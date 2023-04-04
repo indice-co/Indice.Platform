@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Http.Filters;
+﻿using IdentityModel;
+using Indice.AspNetCore.Http.Filters;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -31,7 +32,7 @@ public static class RolesApi
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .WithCachedResponse();
+             .CacheOutputMemory();
 
         group.MapGet("", RoleHandlers.GetRoles)
              .WithName(nameof(RoleHandlers.GetRoles))
@@ -47,7 +48,8 @@ public static class RolesApi
         group.MapPost("", RoleHandlers.CreateRole)
              .WithName(nameof(RoleHandlers.CreateRole))
              .WithSummary("Creates a new role.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .InvalidateCache(nameof(DashboardHandlers.GetSystemSummary), JwtClaimTypes.Subject);
 
         group.MapPut("{roleId}", RoleHandlers.UpdateRole)
              .WithName(nameof(RoleHandlers.UpdateRole))

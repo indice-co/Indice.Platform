@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using IdentityModel;
 using Indice.AspNetCore.Http.Filters;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
@@ -43,13 +44,14 @@ public static class ClientsApi
              .WithName(nameof(ClientHandlers.GetClient))
              .WithSummary("Gets a client by it's unique id.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader)
-             .WithCachedResponse();
+             .InvalidateCache(nameof(ClientHandlers.GetClient))
+             .CacheOutputMemory();
 
         group.MapPost("", ClientHandlers.CreateClient)
              .WithName(nameof(ClientHandlers.CreateClient))
              .WithSummary("Creates a new client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithCachedResponse(dependentStaticPaths: new string[] { "api/dashboard/summary" });
+             .InvalidateCache(nameof(DashboardHandlers.GetSystemSummary), JwtClaimTypes.Subject);
 
         group.MapPut("{clientId}", ClientHandlers.UpdateClient)
              .WithName(nameof(ClientHandlers.UpdateClient))
@@ -60,49 +62,49 @@ public static class ClientsApi
              .WithName(nameof(ClientHandlers.AddClientClaim))
              .WithSummary("Adds a claim for the specified client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithCachedResponse(dependentPaths: new string[] { "{clientId}" });
+             .InvalidateCache(nameof(ClientHandlers.GetClient));
 
         group.MapDelete("{clientId}/claims/{claimId:int}", ClientHandlers.DeleteClientClaim)
              .WithName(nameof(ClientHandlers.DeleteClientClaim))
              .WithSummary("Removes an identity resource from the specified client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithCachedResponse(dependentPaths: new string[] { "{clientId}" });
+             .InvalidateCache(nameof(ClientHandlers.GetClient));
 
         group.MapPut("{clientId}/urls", ClientHandlers.UpdateClientUrls)
              .WithName(nameof(ClientHandlers.UpdateClientUrls))
              .WithSummary("Renews the list of client urls (redirect cors etc).")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithCachedResponse(dependentPaths: new string[] { "{clientId}" });
+             .InvalidateCache(nameof(ClientHandlers.GetClient));
 
         group.MapPost("{clientId}/resources", ClientHandlers.AddClientResources)
              .WithName(nameof(ClientHandlers.AddClientResources))
              .WithSummary("Adds an identity resource to the specified client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithCachedResponse(dependentPaths: new string[] { "{clientId}" });
+             .InvalidateCache(nameof(ClientHandlers.GetClient));
 
         group.MapDelete("{clientId}/resources", ClientHandlers.DeleteClientResource)
              .WithName(nameof(ClientHandlers.DeleteClientResource))
              .WithSummary("Removes a range of identity resources from the specified client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithCachedResponse(dependentPaths: new string[] { "{clientId}" });
-            
+             .InvalidateCache(nameof(ClientHandlers.GetClient));
+
         group.MapPost("{clientId}/grant-types/{grantType}", ClientHandlers.AddClientGrantType)
              .WithName(nameof(ClientHandlers.AddClientGrantType))
              .WithSummary("Adds a grant type to the specified client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithCachedResponse(dependentPaths: new string[] { "{clientId}" });
+             .InvalidateCache(nameof(ClientHandlers.GetClient));
 
         group.MapDelete("{clientId}/grant-types/{grantType}", ClientHandlers.DeleteClientGrantType)
              .WithName(nameof(ClientHandlers.DeleteClientGrantType))
              .WithSummary("Removes a grant type from the specified client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithCachedResponse(dependentPaths: new string[] { "{clientId}" });
+             .InvalidateCache(nameof(ClientHandlers.GetClient));
 
         group.MapPost("{clientId}/secrets", ClientHandlers.AddClientSecret)
              .WithName(nameof(ClientHandlers.AddClientSecret))
              .WithSummary("Adds a new secret to an existing client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithCachedResponse(dependentPaths: new string[] { "{clientId}" });
+             .InvalidateCache(nameof(ClientHandlers.GetClient));
 
         //[AllowedFileExtensions(".cer")]
         //[AllowedFileSize(2097152)] // 2 MegaBytes
@@ -125,13 +127,13 @@ public static class ClientsApi
              .WithSummary("Downloads a client secret if it is a certificate.")
              .Produces<Stream>(StatusCodes.Status200OK, "application/x-x509-user-cert")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader)
-             .WithCachedResponse(dependentPaths: new string[] { "{clientId}" });
+             .InvalidateCache(nameof(ClientHandlers.GetClient));
 
         group.MapDelete("{clientId}/secrets/{secretId}", ClientHandlers.DeleteClientSecret)
              .WithName(nameof(ClientHandlers.DeleteClientSecret))
              .WithSummary("Removes a specified secret from a client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .WithCachedResponse(dependentPaths: new string[] { "{clientId}" });
+             .InvalidateCache(nameof(ClientHandlers.GetClient));
 
         group.MapDelete("{clientId}", ClientHandlers.DeleteClient)
              .WithName(nameof(ClientHandlers.DeleteClient))

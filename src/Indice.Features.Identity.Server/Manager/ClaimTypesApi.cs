@@ -31,7 +31,7 @@ public static class ClaimTypesApi
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .WithCachedResponse();
+             .CacheOutputMemory();
 
         group.MapGet("", ClaimTypeHandlers.GetClaimTypes)
              .WithName(nameof(ClaimTypeHandlers.GetClaimTypes))
@@ -52,12 +52,14 @@ public static class ClaimTypesApi
         group.MapPut("{claimTypeId}", ClaimTypeHandlers.UpdateClaimType)
              .WithName(nameof(ClaimTypeHandlers.UpdateClaimType))
              .WithSummary("Updates an existing claim type.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .InvalidateCache(nameof(ClaimTypeHandlers.GetClaimType));
 
         group.MapDelete("{claimTypeId}", ClaimTypeHandlers.DeleteClaimType)
              .WithName(nameof(ClaimTypeHandlers.DeleteClaimType))
              .WithSummary("Permanently deletes an existing claim type.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .InvalidateCache(nameof(ClaimTypeHandlers.GetClaimType));
 
         return group;
     }

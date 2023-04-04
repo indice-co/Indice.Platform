@@ -131,6 +131,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <returns></returns>
     public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder, Action<ExtendedEndpointOptions> configureAction = null) {
         var options = new ExtendedEndpointOptions();
+        builder.Services.AddProblemDetails();
+        builder.Services.AddOutputCache();
         builder.Services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName); // Configure anti-forgery token options.
         builder.Services.Configure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, builder.Configuration);
         builder.Services.PostConfigure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, options => configureAction?.Invoke(options));

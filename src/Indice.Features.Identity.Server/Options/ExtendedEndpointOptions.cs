@@ -13,7 +13,7 @@ namespace Indice.Features.Identity.Server.Options;
 /// </summary>
 public class ExtendedEndpointOptions
 {
-    private string _apiPrefix;
+    private string _apiPrefix = "/api";
     /// <summary>Configuration section name</summary>
     public const string Name = "IdentityServer:Endpoints";
 
