@@ -378,7 +378,7 @@ internal static class ClientHandlers
         });
     }
 
-    internal static async Task<Results<Ok<SecretInfo>, NotFound, ValidationProblem>> UploadCertificate(ExtendedConfigurationDbContext configurationDbContext, string clientId, FileUploadRequest request) {
+    internal static async Task<Results<Ok<SecretInfo>, NotFound, ValidationProblem>> UploadCertificate(ExtendedConfigurationDbContext configurationDbContext, string clientId, CertificateUploadRequest request) {
         if (request?.File == null) {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Please upload a certificate." } });
         }
@@ -387,7 +387,7 @@ internal static class ClientHandlers
         try {
             await request.File.CopyToAsync(memoryStream);
             var certificateBytes = memoryStream.ToArray();
-            certificate = new X509Certificate2(certificateBytes);
+            certificate = new X509Certificate2(certificateBytes, request.Password);
         } catch (CryptographicException) {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Uploaded certificate is not valid." } });
         } finally {
@@ -414,7 +414,7 @@ internal static class ClientHandlers
             Value = GetClientSecretValue(newSecret)
         });
     }
-    internal static async Task<Results<Ok<SecretInfoBase>, NotFound, ValidationProblem>> GetCertificateMetadata(FileUploadRequest request) {
+    internal static async Task<Results<Ok<SecretInfoBase>, NotFound, ValidationProblem>> GetCertificateMetadata(CertificateUploadRequest request) {
         if (request?.File == null) {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Please upload a certificate." } });
         }
@@ -423,7 +423,7 @@ internal static class ClientHandlers
         try {
             await request.File.CopyToAsync(memoryStream);
             var certificateBytes = memoryStream.ToArray();
-            certificate = new X509Certificate2(certificateBytes);
+            certificate = new X509Certificate2(certificateBytes, request.Password);
         } catch (CryptographicException) {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Uploaded certificate is not valid." } });
         } finally {

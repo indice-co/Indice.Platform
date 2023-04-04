@@ -6,8 +6,8 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 /// <summary>File upload request</summary>
 public class FileUploadRequest
 {
-    [Required]
     /// <summary>File data</summary>
+    [Required]
     public IFormFile File { get; set; }
 
     /// <summary>

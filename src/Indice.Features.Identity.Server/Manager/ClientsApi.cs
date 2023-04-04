@@ -25,7 +25,7 @@ public static class ClientsApi
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must*
         // be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Clients }.Where(x => x != null).ToArray();
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
                                            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
@@ -109,7 +109,7 @@ public static class ClientsApi
         group.MapPost("{clientId}/certificates", ClientHandlers.UploadCertificate)
              .WithName(nameof(ClientHandlers.UploadCertificate))
              .WithSummary("Adds a new secret, from a certificate, to an existing client.")
-             .Accepts<FileUploadRequest>("multipart/form-data")
+             .Accepts<CertificateUploadRequest>("multipart/form-data")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter);
 
         //[AllowedFileExtensions(".cer")]
@@ -117,7 +117,7 @@ public static class ClientsApi
         group.MapPost("certificates", ClientHandlers.GetCertificateMetadata)
              .WithName(nameof(ClientHandlers.GetCertificateMetadata))
              .WithSummary("Gets the metadata of a certificate for display.")
-             .Accepts<FileUploadRequest>("multipart/form-data")
+             .Accepts<CertificateUploadRequest>("multipart/form-data")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader);
 
         group.MapGet("{clientId}/certificates/{secretId:int}", ClientHandlers.GetCertificate)
