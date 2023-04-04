@@ -10,13 +10,13 @@ namespace Indice.Features.Cases.Controllers;
 
 /// <summary>Manage queries for Back-office users.</summary>
 [ApiController]
-[ApiExplorerSettings(GroupName = CasesApiConstants.Scope)]
+[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroup)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
 [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route("[casesApiPrefix]/manage/queries")]
+[Route($"{ApiPrefixes.CasesApiPrefix}/manage/queries")]
 internal class AdminQueriesController : ControllerBase
 {
     private readonly IQueryService _queryService;

@@ -15,6 +15,9 @@ public static class CasesApiConstants
     /// <summary>Cases API scope.</summary>
     public const string Scope = "cases-api";
 
+    /// <summary>Cases GroupName Api Explorer.</summary>
+    public const string GroupName = "cases-api";
+
     /// <summary>Default database schema.</summary>
     public const string DatabaseSchema = "case";
 
@@ -63,4 +66,14 @@ public static class CasesApiConstants
             public const string Save = nameof(Save);
         }
     }
+}
+
+internal static class ApiGroups
+{
+    internal const string CasesApiGroup = "[casesApiGroup]";
+}
+
+internal class ApiPrefixes
+{
+    internal const string CasesApiPrefix = "[casesApiPrefix]";
 }

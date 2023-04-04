@@ -2,13 +2,13 @@
 using Elsa;
 using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
+using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.Features.Cases.Converters;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Factories;
 using Indice.Features.Cases.Handlers;
 using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Mvc.Conventions;
 using Indice.Features.Cases.Resources;
 using Indice.Features.Cases.Services;
 using Indice.Features.Cases.Services.CaseMessageService;
@@ -62,7 +62,8 @@ public static class CasesApiFeatureExtensions
 
         // Post configure MVC options.
         services.PostConfigure<MvcOptions>(options => {
-            options.Conventions.Add(new ApiPrefixControllerModelConvention(casesApiOptions));
+            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CasesApiPrefix, casesApiOptions.ApiPrefix ?? "api"));
+            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CasesApiGroup, casesApiOptions.GroupName));
         });
 
         // Register framework services.
@@ -127,7 +128,8 @@ public static class CasesApiFeatureExtensions
 
         // Post configure MVC options.
         services.PostConfigure<MvcOptions>(options => {
-            options.Conventions.Add(new ApiPrefixControllerModelConvention(casesApiOptions));
+            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CasesApiPrefix, casesApiOptions.ApiPrefix ?? "api"));
+            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CasesApiGroup, casesApiOptions.GroupName));
         });
 
         // Register framework services.

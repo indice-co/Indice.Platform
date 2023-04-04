@@ -13,13 +13,13 @@ namespace Indice.Features.Cases.Controllers;
 
 /// <summary>Manage customer cases.</summary>
 [ApiController]
-[ApiExplorerSettings(GroupName = CasesApiConstants.Scope)]
+[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroup)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesUser)]
 [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route("[casesApiPrefix]/my/cases")]
+[Route($"{ApiPrefixes.CasesApiPrefix}/my/cases")]
 internal class MyCasesController : ControllerBase
 {
     public const string Name = "Cases";
