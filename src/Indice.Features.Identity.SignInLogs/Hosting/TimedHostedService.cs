@@ -27,7 +27,7 @@ public abstract class TimedHostedService : IHostedService, IDisposable
     /// <summary>Triggered when the application host is ready to start the service.</summary>
     /// <param name="cancellationToken">Indicates that the start process has been aborted.</param>
     /// <returns>A <see cref="Task"/> that represents the asynchronous Start operation.</returns>
-    public Task StartAsync(CancellationToken cancellationToken) {
+    public virtual Task StartAsync(CancellationToken cancellationToken) {
         // Create linked token to allow canceling executing task from provided token.
         _stoppingCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         Task.Factory.StartNew(async () => {
@@ -54,7 +54,7 @@ public abstract class TimedHostedService : IHostedService, IDisposable
     /// <summary>Triggered when the application host is performing a graceful shutdown.</summary>
     /// <param name="cancellationToken">Indicates that the shutdown process should no longer be graceful.</param>
     /// <returns>A <see cref="Task"/> that represents the asynchronous Stop operation.</returns>
-    public Task StopAsync(CancellationToken cancellationToken) {
+    public virtual Task StopAsync(CancellationToken cancellationToken) {
         // Signal cancellation to the executing method.
         _stoppingCts?.Cancel();
         _stoppingCts = null;
