@@ -23,6 +23,8 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         builder.MapRoles();
         builder.MapClaimTypes();
         builder.MapDashboard();
+        builder.MapLookups();
+        builder.MapMyAccount();
         return builder; 
     }
     /// <summary>

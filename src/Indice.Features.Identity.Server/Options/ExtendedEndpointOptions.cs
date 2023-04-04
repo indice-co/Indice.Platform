@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Indice.Security;
+﻿using Indice.Security;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Server.Options;
@@ -32,4 +27,8 @@ public class ExtendedEndpointOptions
         get => _apiPrefix;
         set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? "" : value; }
     }
+    /// <summary>Options for the SMS sent when a user updates his phone number.</summary>
+    public PhoneNumberOptions PhoneNumber { get; set; } = new PhoneNumberOptions();
+    /// <summary>Options for the email sent when a user updates his email address.</summary>
+    public EmailOptions Email { get; set; } = new EmailOptions();
 }
