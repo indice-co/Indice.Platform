@@ -25,6 +25,7 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         builder.MapDashboard();
         builder.MapLookups();
         builder.MapMyAccount();
+        builder.MapResources();
         return builder; 
     }
     /// <summary>
