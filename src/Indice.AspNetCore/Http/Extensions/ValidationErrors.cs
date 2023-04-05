@@ -28,7 +28,13 @@ public static class ValidationErrors
     /// <param name="message">The error message</param>
     /// <returns></returns>
     public static IDictionary<string, string[]> AddError(string key, string message) {
-        var errors = new Dictionary<string, string[]>();
+        var errors = Create();
         return errors.AddError(key, message);
     }
+
+    /// <summary>
+    /// Creates an <see cref="IDictionary{TKey, TValue}"/>.
+    /// </summary>
+    /// <returns></returns>
+    public static IDictionary<string, string[]> Create() => new Dictionary<string, string[]>();
 }

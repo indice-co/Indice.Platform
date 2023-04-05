@@ -29,6 +29,7 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         builder.MapManageMyAccount();
         // devices
         builder.MapManageDevices();
+        builder.MapDevicePush();
         return builder; 
     }
     /// <summary>
