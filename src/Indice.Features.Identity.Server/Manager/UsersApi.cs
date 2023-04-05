@@ -12,8 +12,11 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for managing application users.</summary>
 public static class UsersApi
 {
-    /// <summary>Adds Indice Identity Server claim type endpoints.</summary>
-    /// <param name="routes">Indice Identity Server route builder.</param>
+    /// <summary>
+    /// Add Identity User Endpoints
+    /// </summary>
+    /// <param name="routes"></param>
+    /// <returns></returns>
     public static RouteGroupBuilder MapManageUsers(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/users");

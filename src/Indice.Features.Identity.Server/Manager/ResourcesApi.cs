@@ -2,7 +2,6 @@
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
-using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -21,11 +20,10 @@ public static class ResourcesApi
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Clients }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(policy => policy
-            .RequireAuthenticatedUser()
-            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        );
+        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
+                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme));
+        
+             
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);

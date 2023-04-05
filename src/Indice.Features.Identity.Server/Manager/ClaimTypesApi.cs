@@ -12,8 +12,11 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for managing application claim types.</summary>
 public static class ClaimTypesApi
 {
-    /// <summary>Adds Indice Identity Server client claim type endpoints.</summary>
-    /// <param name="routes">Indice Identity Server route builder.</param>
+    /// <summary>
+    /// Add Identity ClaimType Endpoints
+    /// </summary>
+    /// <param name="routes"></param>
+    /// <returns></returns>
     public static RouteGroupBuilder MapManageClaimTypes(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/claim-types");
