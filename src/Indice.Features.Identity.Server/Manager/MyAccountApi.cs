@@ -14,7 +14,7 @@ public static class MyAccountApi
 {
     /// <summary>Adds Indice Identity Server user account endpoints.</summary>
     /// <param name="routes">Indice Identity Server route builder.</param>
-    public static RouteGroupBuilder MapManageMyAccount(this IdentityServerEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapMyAccount(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}");
         group.WithTags("MyAccount");

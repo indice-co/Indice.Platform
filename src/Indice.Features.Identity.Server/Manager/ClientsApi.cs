@@ -111,25 +111,21 @@ public static class ClientsApi
              .InvalidateCache(nameof(ClientHandlers.GetClient))
              .WithParameterValidation<CreateSecretRequest>();
 
-        //[AllowedFileExtensions(".cer")]
-        //[AllowedFileSize(2097152)] // 2 MegaBytes
         group.MapPost("{clientId}/certificates", ClientHandlers.UploadCertificate)
              .WithName(nameof(ClientHandlers.UploadCertificate))
              .WithSummary("Adds a new secret, from a certificate, to an existing client.")
              .Accepts<CertificateUploadRequest>("multipart/form-data")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
              .WithParameterValidation<CertificateUploadRequest>()
-             .LimitUpload(2097152, ".cer, .pfx");
+             .LimitUpload(2097152, ".cer, .pfx"); // 2 MegaBytes
 
-        //[AllowedFileExtensions(".cer")]
-        //[AllowedFileSize(2097152)] // 2 MegaBytes
         group.MapPost("certificates", ClientHandlers.GetCertificateMetadata)
              .WithName(nameof(ClientHandlers.GetCertificateMetadata))
              .WithSummary("Gets the metadata of a certificate for display.")
              .Accepts<CertificateUploadRequest>("multipart/form-data")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader)
              .WithParameterValidation<CertificateUploadRequest>()
-             .LimitUpload(2097152, ".cer, .pfx");
+             .LimitUpload(2097152, ".cer, .pfx");// 2 MegaBytes
 
         group.MapGet("{clientId}/certificates/{secretId:int}", ClientHandlers.GetCertificate)
              .WithName(nameof(ClientHandlers.GetCertificate))
