@@ -10,12 +10,12 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Identity.Server.Manager;
+
 internal static class ResourceHandlers
 {
-
     internal static async Task<Ok<ResultSet<IdentityResourceInfo>>> GetIdentityResources(
-        ExtendedConfigurationDbContext configurationDbContext, 
-        [AsParameters]ListOptions options) {
+        ExtendedConfigurationDbContext configurationDbContext,
+        [AsParameters] ListOptions options) {
         var query = configurationDbContext.IdentityResources.AsNoTracking();
         if (!string.IsNullOrEmpty(options.Search)) {
             var searchTerm = options.Search.ToLower();
@@ -36,6 +36,7 @@ internal static class ResourceHandlers
         .ToResultSetAsync(options);
         return TypedResults.Ok(resources);
     }
+
     internal static async Task<Results<Ok<IdentityResourceInfo>, NotFound>> GetIdentityResource(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId) {
@@ -56,6 +57,7 @@ internal static class ResourceHandlers
             AllowedClaims = resource.UserClaims.Select(x => x.Type)
         });
     }
+
     internal static async Task<CreatedAtRoute<IdentityResourceInfo>> CreateIdentityResource(
         ExtendedConfigurationDbContext configurationDbContext,
         CreateResourceRequest request) {
@@ -85,6 +87,7 @@ internal static class ResourceHandlers
             AllowedClaims = resource.UserClaims.Select(x => x.Type)
         }, nameof(GetIdentityResource), new { resourceId = resource.Id });
     }
+
     internal static async Task<Results<NoContent, NotFound>> UpdateIdentityResource(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId, UpdateIdentityResourceRequest request) {
@@ -101,6 +104,7 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> AddIdentityResourceClaims(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId, string[] claims) {
@@ -108,7 +112,7 @@ internal static class ResourceHandlers
         if (resource == null) {
             return TypedResults.NotFound();
         }
-        if (!(claims?.Length > 0)) { 
+        if (!(claims?.Length > 0)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("claims", "A claims list is required"));
         }
         resource.UserClaims = new List<IdentityResourceClaim>();
@@ -119,6 +123,7 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound>> DeleteIdentityResourceClaim(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId, string claim) {
@@ -137,9 +142,11 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound>> DeleteIdentityResource(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId) {
+        int resourceId
+    ) {
         var resource = await configurationDbContext.IdentityResources.SingleOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null) {
             return TypedResults.NotFound();
@@ -148,9 +155,11 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Ok<ResultSet<ApiResourceInfo>>> GetApiResources(
         ExtendedConfigurationDbContext configurationDbContext,
-        [AsParameters]ListOptions options) {
+        [AsParameters] ListOptions options
+    ) {
         var query = configurationDbContext.ApiResources.AsNoTracking();
         if (!string.IsNullOrEmpty(options.Search)) {
             var searchTerm = options.Search.ToLower();
@@ -168,9 +177,11 @@ internal static class ResourceHandlers
         .ToResultSetAsync(options);
         return TypedResults.Ok(resources);
     }
+
     internal static async Task<Ok<ResultSet<ApiScopeInfo>>> GetApiScopes(
         ExtendedConfigurationDbContext configurationDbContext,
-        [AsParameters] ListOptions options) {
+        [AsParameters] ListOptions options
+    ) {
         var query = configurationDbContext.ApiScopes.Include(x => x.Properties).AsNoTracking();
         if (!string.IsNullOrEmpty(options.Search)) {
             var searchTerm = options.Search.ToLower();
@@ -192,9 +203,11 @@ internal static class ResourceHandlers
         .ToResultSetAsync(options);
         return TypedResults.Ok(scopes);
     }
+
     internal static async Task<Results<Ok<ApiResourceInfo>, NotFound>> GetApiResource(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId) {
+        int resourceId
+    ) {
         var apiResource = await configurationDbContext.ApiResources
             .AsNoTracking()
             .Include(x => x.Properties)
@@ -243,9 +256,11 @@ internal static class ResourceHandlers
         }
         return TypedResults.Ok(apiResource);
     }
+
     internal static async Task<CreatedAtRoute<ApiResourceInfo>> CreateApiResource(
         ExtendedConfigurationDbContext configurationDbContext,
-        CreateResourceRequest request) {
+        CreateResourceRequest request
+    ) {
         var apiResource = new ApiResource {
             Name = request.Name,
             DisplayName = request.DisplayName,
@@ -286,9 +301,12 @@ internal static class ResourceHandlers
             })
         }, nameof(GetApiResource), new { resourceId = apiResource.Id });
     }
+
     internal static async Task<Results<NoContent, NotFound>> UpdateApiResource(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId, UpdateApiResourceRequest request) {
+        int resourceId, 
+        UpdateApiResourceRequest request
+    ) {
         var resource = await configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null) {
             return TypedResults.NotFound();
@@ -299,9 +317,12 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<Ok<SecretInfo>, NotFound>> AddApiResourceSecret(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId, CreateSecretRequest request) {
+        int resourceId, 
+        CreateSecretRequest request
+    ) {
         var resource = await configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null) {
             return TypedResults.NotFound();
@@ -324,9 +345,12 @@ internal static class ResourceHandlers
             Value = "*****"
         });
     }
+
     internal static async Task<Results<NoContent, NotFound>> DeleteApiResourceSecret(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId, int secretId) {
+        int resourceId, 
+        int secretId
+    ) {
         var resource = await configurationDbContext.ApiResources.Include(x => x.Secrets).SingleOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null) {
             return TypedResults.NotFound();
@@ -342,9 +366,12 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> AddApiResourceClaims(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId, string[] claims) {
+        int resourceId,
+        string[] claims
+    ) {
         var resource = await configurationDbContext.ApiResources.SingleOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null) {
             return TypedResults.NotFound();
@@ -360,9 +387,12 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound>> DeleteApiResourceClaim(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId, string claim) {
+        int resourceId,
+        string claim
+    ) {
         var resource = await configurationDbContext.ApiResources.Include(x => x.UserClaims).SingleOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null) {
             return TypedResults.NotFound();
@@ -378,9 +408,12 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<Ok<ApiScopeInfo>, NotFound, ValidationProblem>> AddApiResourceScope(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId, CreateApiScopeRequest request) {
+        int resourceId,
+        CreateApiScopeRequest request
+    ) {
         var resource = await configurationDbContext.ApiResources.Include(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null) {
             return TypedResults.NotFound();
@@ -424,9 +457,13 @@ internal static class ResourceHandlers
             )
         });
     }
+
     internal static async Task<Results<NoContent, NotFound>> UpdateApiResourceScope(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId, int scopeId, UpdateApiScopeRequest request) {
+        int resourceId,
+        int scopeId,
+        UpdateApiScopeRequest request
+    ) {
         var apiResourceScope = await configurationDbContext.ApiResources.AsNoTracking().Where(x => x.Id == resourceId).SelectMany(x => x.Scopes).SingleOrDefaultAsync(x => x.Id == scopeId);
         if (apiResourceScope == null) {
             return TypedResults.NotFound();
@@ -446,6 +483,7 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound>> DeleteApiResourceScope(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId, int scopeId) {
@@ -466,9 +504,13 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> AddApiResourceScopeClaims(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId, int scopeId, string[] claims) {
+        int resourceId,
+        int scopeId,
+        string[] claims
+    ) {
         var apiResourceScope = await configurationDbContext
             .ApiResources
             .AsNoTracking()
@@ -489,9 +531,13 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound>> DeleteApiResourceScopeClaim(
         ExtendedConfigurationDbContext configurationDbContext,
-        int resourceId, int scopeId, string claim) {
+        int resourceId,
+        int scopeId,
+        string claim
+    ) {
         var apiResourceScope = await configurationDbContext
              .ApiResources
              .Where(apiResource => apiResource.Id == resourceId)
@@ -512,6 +558,7 @@ internal static class ResourceHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound>> DeleteApiResource(
         ExtendedConfigurationDbContext configurationDbContext,
         int resourceId) {
@@ -528,10 +575,6 @@ internal static class ResourceHandlers
         return TypedResults.NoContent();
     }
 
-    /// <summary>Adds translations to an <see cref="ApiScope"/>.</summary>
-    /// <remarks>If the parameter translations is null, string.Empty will be persisted.</remarks>
-    /// <param name="apiScope">The <see cref="ApiScope"/>.</param>
-    /// <param name="translations">The JSON string with the translations</param>
     private static void AddTranslationsToApiScope(ApiScope apiScope, string translations) {
         apiScope.Properties ??= new List<ApiScopeProperty>();
         apiScope.Properties.Add(new ApiScopeProperty {

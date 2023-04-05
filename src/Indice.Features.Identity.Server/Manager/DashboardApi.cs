@@ -9,25 +9,23 @@ using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.Routing;
 
-/// <summary>Provides useful information for the system.</summary>
+/// <summary>Contains operations that provide useful information for the system.</summary>
 public static class DashboardApi
 {
-    /// <summary>
-    /// Adds endpoints that provide useful information for the system.
-    /// </summary>
-    /// <param name="routes"></param>
-    /// <returns></returns>
+    /// <summary>Adds Indice Identity Server dashboard endpoints.</summary>
+    /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageDashboard(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/dashboard");
         group.WithTags("Dashboard");
         group.WithGroupName("identity");
-        // Add security requirements, all incoming requests to this API *must*
-        // be authenticated with a valid user.
+        // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users, IdentityEndpoints.SubScopes.Clients }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
+        group.RequireAuthorization(policy => policy
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+        );
         group.WithOpenApi();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
@@ -37,9 +35,6 @@ public static class DashboardApi
              .WithSummary("Displays blog posts from the official IdentityServer blog.")
              .AllowAnonymous()
              .CacheOutputMemory(expiration: 3600);
-             //.CacheOutput(policy => {
-             //    policy.SetVaryByQuery("page", "size");
-             //});
 
         group.MapGet("summary", DashboardHandlers.GetSystemSummary)
              .WithName(nameof(DashboardHandlers.GetSystemSummary))
@@ -53,6 +48,7 @@ public static class DashboardApi
              .WithSummary("Gets the UI features status.")
              .AllowAnonymous()
              .CacheOutputMemory(expiration: 120);
+
         return group;
     }
 }

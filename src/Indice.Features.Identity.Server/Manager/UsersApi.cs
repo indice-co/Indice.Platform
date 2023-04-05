@@ -9,25 +9,23 @@ using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.Routing;
 
-/// <summary>Contains operations for managing application Users.</summary>
+/// <summary>Contains operations for managing application users.</summary>
 public static class UsersApi
 {
-    /// <summary>
-    /// Add Identity User Endpoints
-    /// </summary>
-    /// <param name="routes"></param>
-    /// <returns></returns>
+    /// <summary>Adds Indice Identity Server claim type endpoints.</summary>
+    /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageUsers(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/users");
         group.WithTags("Users");
         group.WithGroupName("identity");
-        // Add security requirements, all incoming requests to this API *must*
-        // be authenticated with a valid user.
+        // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
+        group.RequireAuthorization(policy => policy
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+        );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
@@ -46,12 +44,14 @@ public static class UsersApi
         group.MapPost("", UserHandlers.CreateUser)
              .WithName(nameof(UserHandlers.CreateUser))
              .WithSummary("Creates a new user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .WithParameterValidation<CreateUserRequest>();
 
         group.MapPut("{userId}", UserHandlers.UpdateUser)
              .WithName(nameof(UserHandlers.UpdateUser))
              .WithSummary("Updates an existing user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .WithParameterValidation<UpdateUserRequest>()
              .CacheOutputMemory();
 
         group.MapDelete("{userId}", UserHandlers.DeleteUser)
@@ -87,12 +87,14 @@ public static class UsersApi
              .WithName(nameof(UserHandlers.AddUserClaim))
              .WithSummary("Adds a claim for the specified user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .WithParameterValidation<CreateClaimRequest>()
              .InvalidateCache(nameof(UserHandlers.GetUser));
 
         group.MapPut("{userId}/claims/{claimId}", UserHandlers.UpdateUserClaim)
              .WithName(nameof(UserHandlers.UpdateUserClaim))
              .WithSummary("Updates an existing user claim.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .WithParameterValidation<CreateUserRequest>()
              .InvalidateCache(nameof(UserHandlers.GetUser));
 
         group.MapDelete("{userId}/claims/{claimId}", UserHandlers.DeleteUserClaim)
@@ -125,7 +127,8 @@ public static class UsersApi
              .WithName(nameof(UserHandlers.SetUserBlock))
              .WithSummary("Toggles user block state.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCache(nameof(UserHandlers.GetUser));
+             .InvalidateCache(nameof(UserHandlers.GetUser))
+             .WithParameterValidation<SetUserBlockRequest>();
 
         group.MapPut("{userId}/unlock", UserHandlers.UnlockUser)
              .WithName(nameof(UserHandlers.UnlockUser))
@@ -137,7 +140,9 @@ public static class UsersApi
              .WithName(nameof(UserHandlers.SetPassword))
              .WithSummary("Sets the password for a given user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCache(nameof(UserHandlers.GetUser));
+             .InvalidateCache(nameof(UserHandlers.GetUser))
+             .WithParameterValidation<SetPasswordRequest>();
+
         return group;
     }
 }

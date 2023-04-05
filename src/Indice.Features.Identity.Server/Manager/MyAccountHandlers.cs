@@ -15,7 +15,6 @@ using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -23,9 +22,9 @@ using Microsoft.FeatureManagement;
 using static IdentityServer4.IdentityServerConstants;
 
 namespace Indice.Features.Identity.Server.Manager;
+
 internal static class MyAccountHandlers
 {
-
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateEmail(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
@@ -68,6 +67,7 @@ internal static class MyAccountHandlers
         });
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmEmail(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
@@ -121,6 +121,7 @@ internal static class MyAccountHandlers
         await smsService.SendAsync(request.PhoneNumber, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token));
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ConfirmPhoneNumber(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
@@ -144,6 +145,7 @@ internal static class MyAccountHandlers
         }
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateUserName(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
@@ -158,6 +160,7 @@ internal static class MyAccountHandlers
         }
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdatePassword(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
@@ -172,6 +175,7 @@ internal static class MyAccountHandlers
         }
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ForgotPassword(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
@@ -208,6 +212,7 @@ internal static class MyAccountHandlers
         });
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, ValidationProblem>> ForgotPasswordConfirmation(
         ExtendedUserManager<User> userManager,
         ForgotPasswordConfirmationRequest request) {
@@ -221,6 +226,7 @@ internal static class MyAccountHandlers
         }
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound>> UpdatePasswordExpirationPolicy(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
@@ -232,6 +238,7 @@ internal static class MyAccountHandlers
         await userManager.SetPasswordExpirationPolicyAsync(user, request.Policy);
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateMaxDevicesCount(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
@@ -246,6 +253,7 @@ internal static class MyAccountHandlers
         }
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<Ok<ResultSet<ClaimInfo>>, NotFound, ValidationProblem>> GetClaims(
         ExtendedUserManager<User> userManager,
         ExtendedIdentityDbContext<User, Role> dbContext,
@@ -262,6 +270,7 @@ internal static class MyAccountHandlers
         });
         return TypedResults.Ok(response.ToResultSet());
     }
+
     internal static async Task<Results<Ok<ResultSet<ClaimInfo>>, NotFound, ValidationProblem>> AddClaims(
         ExtendedUserManager<User> userManager,
         ExtendedIdentityDbContext<User, Role> dbContext,
@@ -490,8 +499,7 @@ internal static class MyAccountHandlers
             return TypedResults.StatusCode(StatusCodes.Status410Gone);
         }
         var user = await userManager.FindByNameAsync(request.UserName);
-        return user == null ? TypedResults.NotFound() :
-                              TypedResults.NoContent();
+        return user == null ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
     private static User CreateUserFromRequest(RegisterRequest request) {

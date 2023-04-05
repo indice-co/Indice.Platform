@@ -8,11 +8,10 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Identity.Server.Manager;
+
 internal static class ClaimTypeHandlers
 {
-
-    internal static async Task<Ok<ResultSet<ClaimTypeInfo>>> GetClaimTypes(ExtendedConfigurationDbContext configurationDbContext, [AsParameters]ListOptions options, [AsParameters]ClaimTypesListFilter filter) {
-
+    internal static async Task<Ok<ResultSet<ClaimTypeInfo>>> GetClaimTypes(ExtendedConfigurationDbContext configurationDbContext, [AsParameters] ListOptions options, [AsParameters] ClaimTypesListFilter filter) {
         var query = configurationDbContext.ClaimTypes.AsNoTracking().AsQueryable();
         if (!string.IsNullOrEmpty(options.Search)) {
             var searchTerm = options.Search.ToLower();
@@ -61,8 +60,7 @@ internal static class ClaimTypeHandlers
         }
         var exists = await configurationDbContext.ClaimTypes.AsNoTracking().AnyAsync(x => x.Name == request.Name);
         if (exists) {
-            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(CreateClaimTypeRequest.Name).Camelize(), 
-                                                                            $"A claim type with name {request.Name} already exists."));
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(CreateClaimTypeRequest.Name).Camelize(), $"A claim type with name {request.Name} already exists."));
         }
         var claimType = new ClaimType {
             Id = $"{Guid.NewGuid()}",
