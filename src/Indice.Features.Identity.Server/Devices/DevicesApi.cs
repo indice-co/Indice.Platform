@@ -28,7 +28,7 @@ public static class DevicesApi
     /// </summary>
     /// <param name="routes"></param>
     /// <returns></returns>
-    public static RouteGroupBuilder MapManageDevices(this IdentityServerEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapMyDevices(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/my/devices");
         group.WithTags("Devices");

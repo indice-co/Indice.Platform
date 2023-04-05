@@ -26,9 +26,9 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         builder.MapManageDashboard();
         builder.MapManageLookups();
         builder.MapManageResources();
-        builder.MapManageMyAccount();
+        builder.MapMyAccount();
         // devices
-        builder.MapManageDevices();
+        builder.MapMyDevices();
         builder.MapDevicePush();
         // totps
         builder.MapTotps();

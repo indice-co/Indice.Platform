@@ -12,22 +12,20 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for managing a user's account.</summary>
 public static class MyAccountApi
 {
-    /// <summary>
-    /// Adds enpoints for my account.
-    /// </summary>
-    /// <param name="routes"></param>
-    /// <returns></returns>
+    /// <summary>Adds Indice Identity Server user account endpoints.</summary>
+    /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageMyAccount(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}");
         group.WithTags("MyAccount");
         group.WithGroupName("identity");
-        // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
+        // Add security requirements, all incoming requests to this API *must*
+        // be authenticated with a valid user.
         var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(policy => policy
-            .RequireAuthenticatedUser()
-            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-        );     
+        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
+                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme));
+        
+             
         group.WithOpenApi();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
