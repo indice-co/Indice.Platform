@@ -8,7 +8,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Features.Identity.Server" Version="$(VersionPrefix)" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
@@ -18,7 +18,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="7.0.4" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
+    <ProjectReference Include="..\Indice.Features.Identity.Server\Indice.Features.Identity.Server.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GeoLite2\GeoLite2-City.mmdb">

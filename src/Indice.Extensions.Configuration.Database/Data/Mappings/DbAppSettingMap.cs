@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Extensions.Configuration.Database.Data;
 
-/// <summary>Database configuration for <see cref="AppSetting"/> entity.</summary>
-public class AppSettingMap : IEntityTypeConfiguration<AppSetting>
+/// <summary>Database configuration for <see cref="DbAppSetting"/> entity.</summary>
+public class AppSettingMap : IEntityTypeConfiguration<DbAppSetting>
 {
     /// <inheritdoc />
-    public void Configure(EntityTypeBuilder<AppSetting> builder) {
+    public void Configure(EntityTypeBuilder<DbAppSetting> builder) {
         // Configure table name and schema.
-        builder.ToTable(nameof(AppSetting), AppSetting.TableSchema);
+        builder.ToTable("AppSetting", "config");
         // Configure primary key.
         builder.HasKey(x => x.Key);
         // Configure fields.

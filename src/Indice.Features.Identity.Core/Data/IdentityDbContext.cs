@@ -33,7 +33,7 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
     /// <summary>Stores user devices in database.</summary>
     public DbSet<UserDevice> UserDevices { get; set; }
     /// <summary>Application settings stored in the database.</summary>
-    public DbSet<AppSetting> AppSettings { get; set; }
+    public DbSet<DbAppSetting> AppSettings { get; set; }
 
     /// <summary>Configures schema needed for the Identity framework.</summary>
     /// <param name="builder">Class used to create and apply a set of data model conventions.</param>

@@ -5,22 +5,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Identity.Server;
 
-/// <summary>
-/// Builder for configuring the identity server.
-/// </summary>
+/// <summary>Builder for configuring the Indice Identity Server.</summary>
 public interface IExtendedIdentityServerBuilder : IIdentityServerBuilder
 {
-    /// <summary>
-    /// Gets the services.
-    /// </summary>
+    /// <summary>Gets the services.</summary>
     public IdentityBuilder IdentityBuilder { get; }
-    /// <summary>
-    /// Gets the Configuration.
-    /// </summary>
+    /// <summary>Gets the Configuration.</summary>
     public IConfiguration Configuration { get; }
-    /// <summary>
-    /// The current environment
-    /// </summary>
+    /// <summary>The current environment.</summary>
     public IWebHostEnvironment Environment { get; }
 }
 
