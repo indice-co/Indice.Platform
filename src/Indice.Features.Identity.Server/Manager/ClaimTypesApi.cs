@@ -12,22 +12,20 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for managing application claim types.</summary>
 public static class ClaimTypesApi
 {
-    /// <summary>
-    /// Add Identity ClaimType Endpoints
-    /// </summary>
-    /// <param name="routes"></param>
-    /// <returns></returns>
+    /// <summary>Adds Indice Identity Server client claim type endpoints.</summary>
+    /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageClaimTypes(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/claim-types");
         group.WithTags("ClaimTypes");
         group.WithGroupName("identity");
-        // Add security requirements, all incoming requests to this API *must*
-        // be authenticated with a valid user.
+        // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
+        group.RequireAuthorization(policy => policy
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+        );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -47,13 +45,15 @@ public static class ClaimTypesApi
         group.MapPost("", ClaimTypeHandlers.CreateClaimType)
              .WithName(nameof(ClaimTypeHandlers.CreateClaimType))
              .WithSummary("Creates a new claim type.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .WithParameterValidation<CreateClaimTypeRequest>();
 
         group.MapPut("{claimTypeId}", ClaimTypeHandlers.UpdateClaimType)
              .WithName(nameof(ClaimTypeHandlers.UpdateClaimType))
              .WithSummary("Updates an existing claim type.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCache(nameof(ClaimTypeHandlers.GetClaimType));
+             .InvalidateCache(nameof(ClaimTypeHandlers.GetClaimType))
+             .WithParameterValidation<UpdateClaimTypeRequest>();
 
         group.MapDelete("{claimTypeId}", ClaimTypeHandlers.DeleteClaimType)
              .WithName(nameof(ClaimTypeHandlers.DeleteClaimType))

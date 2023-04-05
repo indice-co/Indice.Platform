@@ -1,40 +1,35 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 using Humanizer;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Mappers;
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Extensions;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Server.Manager.Models;
+using Indice.Serialization;
+using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using Indice.Features.Identity.Core;
 using Microsoft.Extensions.Configuration;
-using System.Security.Claims;
-using IdentityServer4.Extensions;
-using Indice.Services;
-using Indice.Features.Identity.Core.Events;
 using Client = IdentityServer4.EntityFramework.Entities.Client;
 using ClientClaim = IdentityServer4.EntityFramework.Entities.ClientClaim;
-using Humanizer.Localisation;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
-using Microsoft.AspNetCore.DataProtection;
-using Indice.Features.Identity.Core.Extensions;
-using System.Text.Json;
-using Indice.Features.Identity.Core.Models;
-using Indice.Serialization;
 
 namespace Indice.Features.Identity.Server.Manager;
 internal static class ClientHandlers
 {
-
-    internal static async Task<Ok<ResultSet<ClientInfo>>> GetClients(ExtendedConfigurationDbContext configurationDbContext, [AsParameters]ListOptions options) {
-
+    internal static async Task<Ok<ResultSet<ClientInfo>>> GetClients(ExtendedConfigurationDbContext configurationDbContext, [AsParameters] ListOptions options) {
         var query = configurationDbContext.Clients.AsQueryable();
         if (!string.IsNullOrEmpty(options.Search)) {
             var searchTerm = options.Search.ToLower();
@@ -140,7 +135,7 @@ internal static class ClientHandlers
     }
 
     internal static async Task<Results<CreatedAtRoute<ClientInfo>, ValidationProblem>> CreateClient(
-        ExtendedConfigurationDbContext configurationDbContext, 
+        ExtendedConfigurationDbContext configurationDbContext,
         IPlatformEventService eventService,
         IConfiguration configuration,
         ClaimsPrincipal currentUser,
@@ -240,6 +235,7 @@ internal static class ClientHandlers
             Value = claimToAdd.Value
         });
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientClaim(ExtendedConfigurationDbContext configurationDbContext, string clientId, int claimId) {
         var client = await configurationDbContext.Clients.Include(x => x.Claims).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
@@ -254,6 +250,7 @@ internal static class ClientHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateClientUrls(ExtendedConfigurationDbContext configurationDbContext, string clientId, UpdateClientUrls request) {
         var client = await configurationDbContext
             .Clients
@@ -288,6 +285,7 @@ internal static class ClientHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> AddClientResources(ExtendedConfigurationDbContext configurationDbContext, string clientId, string[] resources) {
         var client = await configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
@@ -414,6 +412,7 @@ internal static class ClientHandlers
             Value = GetClientSecretValue(newSecret)
         });
     }
+
     internal static async Task<Results<Ok<SecretInfoBase>, NotFound, ValidationProblem>> GetCertificateMetadata(CertificateUploadRequest request) {
         if (request?.File == null) {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["file"] = new[] { "Please upload a certificate." } });
@@ -437,6 +436,7 @@ internal static class ClientHandlers
         };
         return TypedResults.Ok(secretInfo);
     }
+
     internal static async Task<Results<FileContentHttpResult, NotFound, ValidationProblem>> GetCertificate(ExtendedConfigurationDbContext configurationDbContext, string clientId, int secretId) {
         var client = await configurationDbContext.Clients.Include(x => x.ClientSecrets).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
@@ -459,8 +459,9 @@ internal static class ClientHandlers
         } finally {
             certificate?.Dispose();
         }
-        return TypedResults.File(certificateBytes, contentType:"application/x-x509-user-cert", fileDownloadName: $"{client.ClientId}.cer");
+        return TypedResults.File(certificateBytes, contentType: "application/x-x509-user-cert", fileDownloadName: $"{client.ClientId}.cer");
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClientSecret(ExtendedConfigurationDbContext configurationDbContext, string clientId, int secretId) {
         var client = await configurationDbContext.Clients.Include(x => x.ClientSecrets).SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {
@@ -489,8 +490,8 @@ internal static class ClientHandlers
     }
 
     internal static async Task<Results<Ok<ClientThemeConfigResponse>, ValidationProblem>> GetClientTheme(
-        ExtendedConfigurationDbContext configurationDbContext, 
-        ClientThemeConfigTypeResolver themeConfigResolver, 
+        ExtendedConfigurationDbContext configurationDbContext,
+        ClientThemeConfigTypeResolver themeConfigResolver,
         string clientId) {
         var client = await configurationDbContext
             .Clients
@@ -552,10 +553,6 @@ internal static class ClientHandlers
         }
     }
 
-    /// <summary>Creates default client configuration based on <see cref="ClientType"/>.</summary>
-    /// <param name="clientType">The type of the client.</param>
-    /// <param name="authorityUri">The IdentityServer instance URI.</param>
-    /// <param name="clientRequest">Client information provided by the user.</param>
     private static Client CreateForType(ClientType clientType, string authorityUri, CreateClientRequest clientRequest) {
         var client = new Client {
             ClientId = clientRequest.ClientId,
@@ -659,10 +656,6 @@ internal static class ClientHandlers
         return client;
     }
 
-    /// <summary>Adds translations to a <see cref="Client"/>.</summary>
-    /// <remarks>If the parameter translations is null, string.Empty will be persisted.</remarks>
-    /// <param name="client">The <see cref="Client"/></param>
-    /// <param name="translations">The JSON string with the translations</param>
     private static void AddClientTranslations(Client client, string translations) {
         client.Properties ??= new List<ClientProperty>();
         client.Properties.Add(new ClientProperty {

@@ -1,12 +1,10 @@
 ﻿using System.Security.Claims;
 using System.ServiceModel.Syndication;
 using System.Xml;
-using Humanizer;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Server.Manager.Models;
-using Indice.Features.Identity.Server.Options;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
@@ -16,9 +14,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
 
 namespace Indice.Features.Identity.Server.Manager;
+
 internal static class DashboardHandlers
 {
-
     internal static Ok<ResultSet<BlogItemInfo>> GetNews(int? page, int? size) {
         const string url = "https://www.identityserver.com/rss";
         var feedItems = new List<BlogItemInfo>();
@@ -84,5 +82,4 @@ internal static class DashboardHandlers
             MetricsEnabled = await featureManager.IsEnabledAsync(IdentityServerFeatures.DashboardMetrics),
             SignInLogsEnabled = await featureManager.IsEnabledAsync(IdentityServerFeatures.SignInLogs)
         });
-
 }

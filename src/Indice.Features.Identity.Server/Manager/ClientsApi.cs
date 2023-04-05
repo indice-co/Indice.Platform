@@ -1,5 +1,4 @@
-﻿using System.Net.Mime;
-using IdentityModel;
+﻿using IdentityModel;
 using Indice.AspNetCore.Http.Filters;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
@@ -11,25 +10,23 @@ using Microsoft.AspNetCore.Http;
 
 namespace Microsoft.AspNetCore.Routing;
 
-/// <summary>Contains operations for managing application claim types.</summary>
+/// <summary>Contains operations for managing Indice Identity Server client applications.</summary>
 public static class ClientsApi
 {
-    /// <summary>
-    /// Add Identity ClaimType Endpoints
-    /// </summary>
-    /// <param name="routes"></param>
-    /// <returns></returns>
+    /// <summary>Adds Indice Identity Server client applications endpoints.</summary>
+    /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageClients(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/clients");
         group.WithTags("Clients");
         group.WithGroupName("identity");
-        // Add security requirements, all incoming requests to this API *must*
-        // be authenticated with a valid user.
+        // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Clients }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
+        group.RequireAuthorization(policy => policy
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+        );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
@@ -51,18 +48,21 @@ public static class ClientsApi
              .WithName(nameof(ClientHandlers.CreateClient))
              .WithSummary("Creates a new client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(DashboardHandlers.GetSystemSummary), JwtClaimTypes.Subject);
+             .InvalidateCache(nameof(DashboardHandlers.GetSystemSummary), JwtClaimTypes.Subject)
+             .WithParameterValidation<CreateClientRequest>();
 
         group.MapPut("{clientId}", ClientHandlers.UpdateClient)
              .WithName(nameof(ClientHandlers.UpdateClient))
              .WithSummary("Updates an existing client.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .WithParameterValidation<UpdateClientRequest>();
 
         group.MapPost("{clientId}/claims", ClientHandlers.AddClientClaim)
              .WithName(nameof(ClientHandlers.AddClientClaim))
              .WithSummary("Adds a claim for the specified client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ClientHandlers.GetClient));
+             .InvalidateCache(nameof(ClientHandlers.GetClient))
+             .WithParameterValidation<CreateClaimRequest>();
 
         group.MapDelete("{clientId}/claims/{claimId:int}", ClientHandlers.DeleteClientClaim)
              .WithName(nameof(ClientHandlers.DeleteClientClaim))
@@ -74,7 +74,8 @@ public static class ClientsApi
              .WithName(nameof(ClientHandlers.UpdateClientUrls))
              .WithSummary("Renews the list of client urls (redirect cors etc).")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ClientHandlers.GetClient));
+             .InvalidateCache(nameof(ClientHandlers.GetClient))
+             .WithParameterValidation<UpdateClientUrls>();
 
         group.MapPost("{clientId}/resources", ClientHandlers.AddClientResources)
              .WithName(nameof(ClientHandlers.AddClientResources))
@@ -104,7 +105,8 @@ public static class ClientsApi
              .WithName(nameof(ClientHandlers.AddClientSecret))
              .WithSummary("Adds a new secret to an existing client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ClientHandlers.GetClient));
+             .InvalidateCache(nameof(ClientHandlers.GetClient))
+             .WithParameterValidation<CreateSecretRequest>();
 
         //[AllowedFileExtensions(".cer")]
         //[AllowedFileSize(2097152)] // 2 MegaBytes
@@ -112,7 +114,8 @@ public static class ClientsApi
              .WithName(nameof(ClientHandlers.UploadCertificate))
              .WithSummary("Adds a new secret, from a certificate, to an existing client.")
              .Accepts<CertificateUploadRequest>("multipart/form-data")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .WithParameterValidation<CertificateUploadRequest>();
 
         //[AllowedFileExtensions(".cer")]
         //[AllowedFileSize(2097152)] // 2 MegaBytes
@@ -120,7 +123,8 @@ public static class ClientsApi
              .WithName(nameof(ClientHandlers.GetCertificateMetadata))
              .WithSummary("Gets the metadata of a certificate for display.")
              .Accepts<CertificateUploadRequest>("multipart/form-data")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader)
+             .WithParameterValidation<CertificateUploadRequest>();
 
         group.MapGet("{clientId}/certificates/{secretId:int}", ClientHandlers.GetCertificate)
              .WithName(nameof(ClientHandlers.GetCertificate))
@@ -148,7 +152,8 @@ public static class ClientsApi
         group.MapPut("{clientId}/theme", ClientHandlers.CreateOrUpdateClientTheme)
              .WithName(nameof(ClientHandlers.CreateOrUpdateClientTheme))
              .WithSummary("Creates or updates the ui configuration for the specified client.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .WithParameterValidation<ClientThemeConfigRequest>();
 
         return group;
     }
