@@ -2,6 +2,7 @@
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -23,7 +24,8 @@ public static class ResourcesApi
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-        );     
+            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+        );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);

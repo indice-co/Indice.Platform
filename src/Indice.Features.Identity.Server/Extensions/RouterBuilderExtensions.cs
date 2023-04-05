@@ -30,6 +30,8 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         // devices
         builder.MapManageDevices();
         builder.MapDevicePush();
+        // totps
+        builder.MapTotps();
         return builder; 
     }
     /// <summary>

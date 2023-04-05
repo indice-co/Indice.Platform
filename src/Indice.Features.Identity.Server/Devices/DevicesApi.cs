@@ -6,6 +6,7 @@ using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Devices;
 using Indice.Features.Identity.Server.Devices.Models;
 using Indice.Features.Identity.Server.Options;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -36,7 +37,8 @@ public static class DevicesApi
         // be authenticated with a valid user.
         var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).ToArray();
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme));
+                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
