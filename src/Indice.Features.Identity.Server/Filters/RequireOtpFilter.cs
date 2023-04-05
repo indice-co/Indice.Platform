@@ -4,7 +4,6 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Security;
 using Indice.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using static Microsoft.AspNetCore.Http.RequireOtpFilterExtensions;
@@ -38,7 +37,6 @@ public static class RequireOtpFilterExtensions {
     public static TBuilder RequireOtp<TBuilder>(this TBuilder builder, Action<RequireOtpPolicy> configureAction = null)
         where TBuilder : IEndpointConventionBuilder {
         builder.Add(eb => {
-
             // We can respond with problem details if there's a validation error
             eb.Metadata.Add(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json"));
 
