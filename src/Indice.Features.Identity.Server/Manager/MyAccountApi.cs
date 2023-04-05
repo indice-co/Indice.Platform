@@ -28,7 +28,6 @@ public static class MyAccountApi
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
                                            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme));
         
-             
         group.WithOpenApi();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);

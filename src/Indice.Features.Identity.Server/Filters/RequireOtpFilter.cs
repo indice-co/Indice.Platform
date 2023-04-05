@@ -11,7 +11,7 @@ using static Microsoft.AspNetCore.Http.RequireOtpFilterExtensions;
 namespace Microsoft.AspNetCore.Http;
 
 
-/// <summary>Exndpoint memory caching extensions</summary>
+/// <summary>Exndpoint require OTP extensions</summary>
 public static class RequireOtpFilterExtensions {
     /// <summary>The default header value for capturing the TOTP code.</summary>
     public const string DEFAULT_HEADER_NAME = "X-TOTP";
