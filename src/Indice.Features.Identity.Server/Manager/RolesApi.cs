@@ -13,8 +13,11 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for managing application roles.</summary>
 public static class RolesApi
 {
-    /// <summary>Adds Indice Identity Server role endpoints.</summary>
-    /// <param name="routes">Indice Identity Server route builder.</param>
+    /// <summary>
+    /// Add Identity ClaimType Endpoints
+    /// </summary>
+    /// <param name="routes"></param>
+    /// <returns></returns>
     public static RouteGroupBuilder MapManageRoles(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/roles");

@@ -12,8 +12,11 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations that provide useful information for the system.</summary>
 public static class DashboardApi
 {
-    /// <summary>Adds Indice Identity Server dashboard endpoints.</summary>
-    /// <param name="routes">Indice Identity Server route builder.</param>
+    /// <summary>
+    /// Adds endpoints that provide useful information for the system.
+    /// </summary>
+    /// <param name="routes"></param>
+    /// <returns></returns>
     public static RouteGroupBuilder MapManageDashboard(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/dashboard");

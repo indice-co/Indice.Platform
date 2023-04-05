@@ -12,12 +12,9 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for managing a user's account.</summary>
 public static class MyAccountApi
 {
-    /// <summary>
-    /// Adds enpoints for my account.
-    /// </summary>
-    /// <param name="routes"></param>
-    /// <returns></returns>
-    public static RouteGroupBuilder MapMyAccount(this IdentityServerEndpointRouteBuilder routes) {
+    /// <summary>Adds Indice Identity Server user account endpoints.</summary>
+    /// <param name="routes">Indice Identity Server route builder.</param>
+    public static RouteGroupBuilder MapManageMyAccount(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}");
         group.WithTags("MyAccount");
