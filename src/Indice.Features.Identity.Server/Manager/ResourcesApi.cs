@@ -26,7 +26,7 @@ public static class ResourcesApi
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must*
         // be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Clients }.Where(x => x != null).ToArray();
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
                                            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme));
         
@@ -34,7 +34,7 @@ public static class ResourcesApi
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
-        /*
+        
         group.MapGet("identity", ResourceHandlers.GetIdentityResources)
              .WithName(nameof(ResourceHandlers.GetIdentityResources))
              .WithSummary("Returns a list of IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided ListOptions.")
@@ -44,18 +44,20 @@ public static class ResourcesApi
              .WithName(nameof(ResourceHandlers.GetIdentityResource))
              .WithSummary("Gets an identity resource by it's unique id.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader)
-             .OutputCacheMemory();
+             .CacheOutputMemory();
 
         group.MapPost("identity/{resourceId:int}", ResourceHandlers.CreateIdentityResource)
              .WithName(nameof(ResourceHandlers.CreateIdentityResource))
              .WithSummary("Creates a new identity resource.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .WithParameterValidation<CreateResourceRequest>();
 
         group.MapPut("identity/{resourceId:int}", ResourceHandlers.UpdateIdentityResource)
              .WithName(nameof(ResourceHandlers.UpdateIdentityResource))
              .WithSummary("Updates an identity resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetIdentityResource));
+             .InvalidateCache(nameof(ResourceHandlers.GetIdentityResource))
+             .WithParameterValidation<UpdateIdentityResourceRequest>();
 
         group.MapPost("identity/{resourceId:int}/claims", ResourceHandlers.AddIdentityResourceClaims)
              .WithName(nameof(ResourceHandlers.AddIdentityResourceClaims))
@@ -93,19 +95,22 @@ public static class ResourcesApi
         group.MapPost("protected", ResourceHandlers.CreateApiResource)
              .WithName(nameof(ResourceHandlers.CreateApiResource))
              .WithSummary("Creates a new API resource.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
+             .WithParameterValidation<CreateResourceRequest>();
 
         group.MapPut("protected/{resourceId:int}", ResourceHandlers.UpdateApiResource)
              .WithName(nameof(ResourceHandlers.UpdateApiResource))
              .WithSummary("Updates an API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCache(nameof(ResourceHandlers.GetApiResource))
+             .WithParameterValidation<UpdateApiResourceRequest>();
 
         group.MapPost("protected/{resourceId:int}/secrets", ResourceHandlers.AddApiResourceSecret)
              .WithName(nameof(ResourceHandlers.AddApiResourceSecret))
              .WithSummary("Adds a new scope to an existing API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCache(nameof(ResourceHandlers.GetApiResource))
+             .WithParameterValidation<CreateSecretRequest>();
 
         group.MapDelete("protected/{resourceId:int}/secrets/{secretId}", ResourceHandlers.DeleteApiResourceSecret)
              .WithName(nameof(ResourceHandlers.DeleteApiResourceSecret))
@@ -129,13 +134,15 @@ public static class ResourcesApi
              .WithName(nameof(ResourceHandlers.AddApiResourceScope))
              .WithSummary("Adds a new scope to an existing API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCache(nameof(ResourceHandlers.GetApiResource))
+             .WithParameterValidation<CreateApiScopeRequest>();
 
         group.MapPut("protected/{resourceId:int}/scopes/{scopeId:int}", ResourceHandlers.UpdateApiResourceScope)
              .WithName(nameof(ResourceHandlers.UpdateApiResourceScope))
              .WithSummary("Updates a specified scope of an API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCache(nameof(ResourceHandlers.GetApiResource))
+             .WithParameterValidation<UpdateApiScopeRequest>();
 
         group.MapDelete("protected/{resourceId:int}/scopes/{scopeId:int}", ResourceHandlers.DeleteApiResourceScope)
              .WithName(nameof(ResourceHandlers.DeleteApiResourceScope))
@@ -160,7 +167,6 @@ public static class ResourcesApi
              .WithSummary("Permanently deletes an API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
              .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
-        */
         return group;
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -8,6 +10,7 @@ using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Options;
 using Indice.Security;
+using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -131,8 +134,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <returns></returns>
     public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder, Action<ExtendedEndpointOptions> configureAction = null) {
         var options = new ExtendedEndpointOptions();
-        builder.Services.AddProblemDetails();
-        builder.Services.AddOutputCache();
         builder.Services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName); // Configure anti-forgery token options.
         builder.Services.Configure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, builder.Configuration);
         builder.Services.PostConfigure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, options => configureAction?.Invoke(options));
@@ -144,6 +145,19 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             configureAction?.Invoke(endpointOptions);
             options.DisableCache = endpointOptions.DisableCache;
         });
+        builder.Services.ConfigureHttpJsonOptions(options => {
+            options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            options.SerializerOptions.Converters.Add(new JsonStringDecimalConverter());
+            options.SerializerOptions.Converters.Add(new JsonStringDoubleConverter());
+            options.SerializerOptions.Converters.Add(new JsonStringInt32Converter());
+            options.SerializerOptions.Converters.Add(new JsonStringBooleanConverter());
+            options.SerializerOptions.Converters.Add(new JsonAnyStringConverter());
+            options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
+        });
+        builder.Services.AddProblemDetails();
+        builder.Services.AddOutputCache();
         builder.Services.AddDistributedMemoryCache();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("IdentityServer:Features"));

@@ -2,7 +2,7 @@
 
 namespace Indice.AspNetCore.Http.Filters;
 
-/// <summary>An optional extension to the cache key discriminator that will be created inside on the <see cref="CacheResourceFilter"/>.</summary>
+/// <summary>An optional extension to the cache key discriminator that will be created inside on the mvc CacheResourceFilter and WithParameterValidation in minimal APIs.</summary>
 /// <remarks>Use only in case the default functionality is not enough.</remarks>
 public interface ICacheResourceFilterKeyExtensionResolver
 {
