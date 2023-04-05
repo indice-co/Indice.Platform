@@ -19,7 +19,7 @@ public static class LookupsApi
     /// </summary>
     /// <param name="routes"></param>
     /// <returns></returns>
-    public static RouteGroupBuilder MapLookups(this IdentityServerEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapManageLookups(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/lookups");
         group.WithTags("Lookups");

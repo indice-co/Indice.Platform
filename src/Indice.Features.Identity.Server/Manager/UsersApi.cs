@@ -17,7 +17,7 @@ public static class UsersApi
     /// </summary>
     /// <param name="routes"></param>
     /// <returns></returns>
-    public static RouteGroupBuilder MapUsers(this IdentityServerEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapManageUsers(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/users");
         group.WithTags("Users");

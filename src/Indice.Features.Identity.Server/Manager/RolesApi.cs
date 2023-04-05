@@ -18,7 +18,7 @@ public static class RolesApi
     /// </summary>
     /// <param name="routes"></param>
     /// <returns></returns>
-    public static RouteGroupBuilder MapRoles(this IdentityServerEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapManageRoles(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/roles");
         group.WithTags("Roles");

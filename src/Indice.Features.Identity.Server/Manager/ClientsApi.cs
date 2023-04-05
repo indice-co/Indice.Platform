@@ -19,7 +19,7 @@ public static class ClientsApi
     /// </summary>
     /// <param name="routes"></param>
     /// <returns></returns>
-    public static RouteGroupBuilder MapClients(this IdentityServerEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapManageClients(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/clients");
         group.WithTags("Clients");

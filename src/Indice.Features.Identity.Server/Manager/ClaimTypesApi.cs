@@ -17,7 +17,7 @@ public static class ClaimTypesApi
     /// </summary>
     /// <param name="routes"></param>
     /// <returns></returns>
-    public static RouteGroupBuilder MapClaimTypes(this IdentityServerEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapManageClaimTypes(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/claim-types");
         group.WithTags("ClaimTypes");

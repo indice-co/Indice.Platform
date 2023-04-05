@@ -17,7 +17,7 @@ public static class MyAccountApi
     /// </summary>
     /// <param name="routes"></param>
     /// <returns></returns>
-    public static RouteGroupBuilder MapMyAccount(this IdentityServerEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapManageMyAccount(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}");
         group.WithTags("MyAccount");

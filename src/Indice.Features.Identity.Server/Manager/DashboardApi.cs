@@ -17,7 +17,7 @@ public static class DashboardApi
     /// </summary>
     /// <param name="routes"></param>
     /// <returns></returns>
-    public static RouteGroupBuilder MapDashboard(this IdentityServerEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapManageDashboard(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/dashboard");
         group.WithTags("Dashboard");

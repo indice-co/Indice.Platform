@@ -24,6 +24,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
+using FluentValidation.AspNetCore;
+using FluentValidation;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -161,6 +163,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         builder.Services.AddDistributedMemoryCache();
         builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("IdentityServer:Features"));
+        builder.Services.AddPushNotificationServiceNoop();
         // Invoke action provided by developer to override default options.
         builder.Services.TryAddTransient<IPlatformEventService, PlatformEventService>();
         builder.Services.AddClientThemingService();
@@ -210,6 +213,24 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                });
         return builder;
     }
+    
+    /// <summary>Adds all required services and controllers for <b>Devices</b> feature.</summary>
+    /// <param name="builder">An interface for configuring MVC services.</param>
+    /// <param name="configureAction">Configuration used for <b>Devices</b> feature.</param>
+    public static IExtendedIdentityServerBuilder AddDevices(this IExtendedIdentityServerBuilder builder, Action<DeviceOptions> configureAction = null) {
+        var services = builder.Services;
+        var options = new DeviceOptions {
+            Services = services
+        };
+        configureAction?.Invoke(options);
+        options.Services = null;
+        services.Configure<DeviceOptions>(x => {
+            x.DefaultTotpDeliveryChannel = options.DefaultTotpDeliveryChannel;
+        });
+        services.AddPushNotificationServiceNoop();
+        services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+        return builder;
+    }
 
     /// <summary>Registers the <see cref="DbContext"/> to be used by the Identity system.</summary>
     /// <param name="builder">Options for configuring the IdentityServer API feature.</param>
@@ -221,4 +242,14 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         builder.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureDbContext);
         return builder;
     }
+}
+
+/// <summary>Extension methods on <see cref="DeviceOptions"/> type.</summary>
+public static class DeviceOptionsExtensions
+{
+    /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
+    /// <param name="deviceOptions">Options used to configure <b>Devices</b> feature.</param>
+    /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
+    public static void UsePushNotificationsServiceAzure(this DeviceOptions deviceOptions, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>
+        deviceOptions.Services.AddPushNotificationServiceAzure(configure);
 }

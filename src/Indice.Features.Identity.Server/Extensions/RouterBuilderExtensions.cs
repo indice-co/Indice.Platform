@@ -18,14 +18,17 @@ public static class IdentityServerEndpointRouteBuilderExtensions
     /// <returns>An instance of <see cref="IdentityServerEndpointRouteBuilder"/> to </returns>
     public static IdentityServerEndpointRouteBuilder MapIdentityServerEndpoints(this IEndpointRouteBuilder routes) {
         var builder = new IdentityServerEndpointRouteBuilder(routes);
-        builder.MapUsers();
-        builder.MapClients();
-        builder.MapRoles();
-        builder.MapClaimTypes();
-        builder.MapDashboard();
-        builder.MapLookups();
-        builder.MapMyAccount();
-        builder.MapResources();
+        // manager
+        builder.MapManageUsers();
+        builder.MapManageClients();
+        builder.MapManageRoles();
+        builder.MapManageClaimTypes();
+        builder.MapManageDashboard();
+        builder.MapManageLookups();
+        builder.MapManageResources();
+        builder.MapManageMyAccount();
+        // devices
+        builder.MapManageDevices();
         return builder; 
     }
     /// <summary>
