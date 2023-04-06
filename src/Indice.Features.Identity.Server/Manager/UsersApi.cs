@@ -12,11 +12,8 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for managing application users.</summary>
 public static class UsersApi
 {
-    /// <summary>
-    /// Add Identity User Endpoints
-    /// </summary>
-    /// <param name="routes"></param>
-    /// <returns></returns>
+    /// <summary>Adds endpoints for managing application users.</summary>
+    /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageUsers(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/users");
@@ -25,9 +22,9 @@ public static class UsersApi
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users }.Where(x => x != null).ToArray();
         group.RequireAuthorization(policy => policy
-            .RequireAuthenticatedUser()
-            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+             .RequireAuthenticatedUser()
+             .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

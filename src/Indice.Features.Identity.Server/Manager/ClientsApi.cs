@@ -14,7 +14,7 @@ namespace Microsoft.AspNetCore.Routing;
 public static class ClientsApi
 {
     /// <summary>Maps the endpoints for managing Indice Identity Server client applications.</summary>
-    /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
+    /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageClients(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/clients");

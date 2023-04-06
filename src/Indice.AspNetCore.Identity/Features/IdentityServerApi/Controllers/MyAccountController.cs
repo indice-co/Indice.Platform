@@ -274,7 +274,7 @@ internal class MyAccountController : ControllerBase
     /// <param name="request">Contains info about the user password to change.</param>
     /// <response code="204">No Content</response>
     /// <response code="400">Bad Request</response>
-    [HttpPost("my/account/forgot-password")]
+    [HttpPost("account/forgot-password")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request) {
@@ -312,7 +312,7 @@ internal class MyAccountController : ControllerBase
     /// <param name="request">Contains info about the user password to change.</param>
     /// <response code="204">No Content</response>
     /// <response code="400">Bad Request</response>
-    [HttpPut("my/account/forgot-password/confirmation")]
+    [HttpPut("account/forgot-password/confirmation")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     public async Task<IActionResult> ForgotPasswordConfirmation([FromBody] ForgotPasswordVerifyModel request) {

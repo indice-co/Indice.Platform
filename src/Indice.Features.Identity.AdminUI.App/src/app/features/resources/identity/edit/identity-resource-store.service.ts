@@ -43,7 +43,7 @@ export class IdentityResourceStore {
     public getAllClaims(): Observable<ClaimTypeInfo[]> {
         if (!this._allClaims) {
             this._allClaims = new AsyncSubject<ClaimTypeInfo[]>();
-            this._api.getClaimTypes(undefined, 1, 2147483647, 'name+', undefined).subscribe((response: ClaimTypeInfoResultSet) => {
+            this._api.getClaimTypes(1, 2147483647, 'name+', undefined).subscribe((response: ClaimTypeInfoResultSet) => {
                 this._allClaims.next(response.items);
                 this._allClaims.complete();
             });

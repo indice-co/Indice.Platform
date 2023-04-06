@@ -171,7 +171,7 @@ export class ClientStore {
             this._client.next(client);
             this._client.complete();
         });
-        return this._api.deleteClientClaim(clientId, claim.id);
+        return this._api.deleteClientClaim(claim.id, clientId);
     }
 
     public addApiResource(clientId: string, resource: ApiResourceInfo): Observable<void> {
@@ -256,7 +256,7 @@ export class ClientStore {
             this._client.next(client);
             this._client.complete();
         });
-        return this._api.deleteClientSecret(clientId, secret.id);
+        return this._api.deleteClientSecret(secret.id, clientId);
     }
 
     public deleteClient(clientId: string): Observable<void> {

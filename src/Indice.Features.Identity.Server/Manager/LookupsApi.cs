@@ -9,11 +9,8 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for retrieving various lookups.</summary>
 public static class LookupsApi
 {
-    /// <summary>
-    /// Adds enpoints for various lookups.
-    /// </summary>
-    /// <param name="routes"></param>
-    /// <returns></returns>
+    /// <summary>Contains operations for retrieving various lookups.</summary>
+    /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageLookups(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/lookups");

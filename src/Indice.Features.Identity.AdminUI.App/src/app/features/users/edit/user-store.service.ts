@@ -4,7 +4,7 @@ import { Observable, AsyncSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateClaimRequest, BasicClaimInfo,
-    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, SetPasswordRequest, SetUserBlockRequest, UserLoginProviderInfo, DeviceInfo, DeviceInfoResultSet
+    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, SetPasswordRequest, SetUserBlockRequest, UserLoginProviderInfo, DeviceInfo, DeviceInfoResultSet, UserLoginProviderInfoResultSet
 } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './details/models/claim-type.model';
 
@@ -138,7 +138,7 @@ export class UserStore {
     }
 
     public updateUserClaim(userId: string, claimId: number, value: string): Observable<void> {
-        return this._api.updateUserClaim(userId, claimId, {
+        return this._api.updateUserClaim(claimId, userId, {
             claimValue: value
         } as UpdateUserClaimRequest).pipe(map(_ => {
             this.getUser(userId).subscribe((user: SingleUserInfo) => {
@@ -151,7 +151,7 @@ export class UserStore {
     }
 
     public deleteUserClaim(userId: string, claimId: number): Observable<void> {
-        return this._api.deleteUserClaim(userId, claimId).pipe(map(_ => {
+        return this._api.deleteUserClaim(claimId, userId).pipe(map(_ => {
             this.getUser(userId).subscribe((user: SingleUserInfo) => {
                 const claim = user.claims.find(x => x.id === claimId);
                 const index = user.claims.indexOf(claim, 0);
@@ -189,8 +189,8 @@ export class UserStore {
     public getUserExternalLogins(userId: string): Observable<UserLoginProviderInfo[]> {
         if (!this._userExternalLogins) {
             this._userExternalLogins = new AsyncSubject<UserLoginProviderInfo[]>();
-            this._api.getUserExternalLogins(userId).subscribe((response: UserLoginProviderInfo[]) => {
-                this._userExternalLogins.next(response);
+            this._api.getUserExternalLogins(userId).subscribe((response: UserLoginProviderInfoResultSet) => {
+                this._userExternalLogins.next(response.items);
                 this._userExternalLogins.complete();
             });
         }
@@ -215,7 +215,7 @@ export class UserStore {
     public getAllClaims(): Observable<ClaimTypeInfo[]> {
         if (!this._allClaims) {
             this._allClaims = new AsyncSubject<ClaimTypeInfo[]>();
-            this._api.getClaimTypes(undefined, 1, 2147483647, 'name+', undefined).subscribe((response: ClaimTypeInfoResultSet) => {
+            this._api.getClaimTypes(1, 2147483647, 'name+', undefined).subscribe((response: ClaimTypeInfoResultSet) => {
                 this._allClaims.next(response.items);
                 this._allClaims.complete();
             });

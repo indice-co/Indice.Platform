@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Models;
+using Indice.Types;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -37,7 +37,7 @@ internal class LookupsController : ControllerBase
     /// <response code="200">OK</response>
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(List<ExternalProvider>))]
+    [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<ExternalProvider>))]
     public async Task<IActionResult> GetExternalProviders() {
         var providers = (await _schemeProvider.GetAllSchemesAsync())
             .Where(x => x.DisplayName != null)
@@ -45,7 +45,7 @@ internal class LookupsController : ControllerBase
                 DisplayName = x.DisplayName ?? x.Name,
                 AuthenticationScheme = x.Name
             })
-            .ToList();
+            .ToResultSet();
         return Ok(providers);
     }
 }

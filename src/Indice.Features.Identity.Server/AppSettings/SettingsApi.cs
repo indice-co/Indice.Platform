@@ -13,7 +13,7 @@ public static class SettingsApi
 {
     /// <summary></summary>
     /// <param name="routeBuilder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    public static RouteGroupBuilder MapDatabaseSettingEndpoints(this IEndpointRouteBuilder routeBuilder) {
+    public static RouteGroupBuilder MapDatabaseSettings(this IEndpointRouteBuilder routeBuilder) {
         var options = routeBuilder.GetEndpointOptions<SettingsApiOptions>();
         var group = routeBuilder
             .MapGroup($"{options.ApiPrefix}/app-settings")

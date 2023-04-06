@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { IdentityApiService, ValidationProblemDetails, ProblemDetails, RoleInfo, CreateRoleRequest } from 'src/app/core/services/identity-api.service';
+import { IdentityApiService, HttpValidationProblemDetails, ProblemDetails, RoleInfo, CreateRoleRequest } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
 
@@ -22,7 +22,7 @@ export class RoleAddComponent {
         this._api.createRole(this.role).subscribe((response: RoleInfo) => {
             this._toast.showSuccess(`Role '${response.name}' was created successfully.`);
             this._router.navigate(['../'], { relativeTo: this._route });
-        }, (problemDetails: ValidationProblemDetails) => {
+        }, (problemDetails: HttpValidationProblemDetails) => {
             this.problemDetails = problemDetails;
         });
     }
