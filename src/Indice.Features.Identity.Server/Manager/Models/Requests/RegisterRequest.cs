@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Indice.Features.Identity.Server.Manager.Models;
 
 /// <summary>Models a new user that is registering on the system.</summary>
-public class ApiRegisterRequest
+public class RegisterRequest
 {
     /// <summary>The first name of the user.</summary>
     public string FirstName { get; set; }

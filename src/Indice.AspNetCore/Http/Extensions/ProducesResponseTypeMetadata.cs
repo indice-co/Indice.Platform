@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http.Metadata;
 namespace Microsoft.AspNetCore.Builder;
 
 // Equivalent to the .Produces call to add metadata to endpoints
-internal sealed class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
+public sealed class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
 {
     public ProducesResponseTypeMetadata(Type type, int statusCode, string contentType) {
         Type = type;

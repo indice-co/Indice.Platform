@@ -1,28 +1,18 @@
-﻿using IdentityServer4.Configuration;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Indice.Features.Identity.Server;
 
-/// <summary>
-/// Builder for configuring the identity server.
-/// </summary>
+/// <summary>Builder for configuring the Indice Identity Server.</summary>
 public interface IExtendedIdentityServerBuilder : IIdentityServerBuilder
 {
-    /// <summary>
-    /// Gets the services.
-    /// </summary>
+    /// <summary>Gets the services.</summary>
     public IdentityBuilder IdentityBuilder { get; }
-    /// <summary>
-    /// Gets the Configuration.
-    /// </summary>
+    /// <summary>Gets the Configuration.</summary>
     public IConfiguration Configuration { get; }
-    /// <summary>
-    /// The current environment
-    /// </summary>
+    /// <summary>The current environment.</summary>
     public IWebHostEnvironment Environment { get; }
 }
 
@@ -38,6 +28,7 @@ internal class ExtendedIdentityServerBuilder : IExtendedIdentityServerBuilder
         IdentityServerBuilder.Services.AddEndpointsApiExplorer();
         IdentityServerBuilder.Services.AddEndpointParameterFluentValidation(ServiceLifetime.Singleton);
     }
+
     public IIdentityServerBuilder IdentityServerBuilder { get; }
     public IdentityBuilder IdentityBuilder { get; }
     public IConfiguration Configuration { get; }

@@ -21,20 +21,19 @@ internal class PersistLogsHostedService : TimedHostedService
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
-    public override TimeSpan Interval => TimeSpan.FromMilliseconds(300);
+    public override TimeSpan Interval => TimeSpan.FromMinutes(1);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
         try {
-            var logEntryExists = _signInLogEntryQueue.TryDequeue(out var logEntry);
-            if (!logEntryExists) {
-                return;
-            }
             using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
                 var signInLogStore = serviceScope.ServiceProvider.GetRequiredService<ISignInLogStore>();
                 var enricherAggregator = serviceScope.ServiceProvider.GetRequiredService<SignInLogEntryEnricherAggregator>();
-                var discard = await enricherAggregator.EnrichAsync(logEntry, EnricherDependencyType.Default | EnricherDependencyType.OnDataStore);
-                if (!discard) {
-                    await signInLogStore.CreateAsync(logEntry);
+                var logEntries = new List<SignInLogEntry>();
+                await foreach (var logEntry in _signInLogEntryQueue.DequeueAllAsync().WithCancellation(stoppingToken)) {
+                    var discard = await enricherAggregator.EnrichAsync(logEntry, EnricherDependencyType.Default | EnricherDependencyType.OnDataStore);
+                    if (!discard) {
+                        await signInLogStore.CreateAsync(logEntry, stoppingToken);
+                    }
                 }
             }
         } catch (Exception exception) {

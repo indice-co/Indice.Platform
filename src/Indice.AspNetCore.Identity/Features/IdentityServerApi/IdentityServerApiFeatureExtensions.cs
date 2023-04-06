@@ -37,12 +37,6 @@ public static class IdentityServerApiFeatureExtensions
         var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         var dbContextOptions = serviceProvider.GetRequiredService<IdentityDbContextOptions>();
-        mvcBuilder.AddSettingsApiEndpoints(settingsApiOptions => {
-            settingsApiOptions.ApiPrefix = "api";
-            settingsApiOptions.RequiredScope = IdentityServerApi.Scope;
-            settingsApiOptions.AuthenticationSchemes = new[] { IdentityServerApi.AuthenticationScheme };
-            settingsApiOptions.ConfigureDbContext = dbContextOptions.ConfigureDbContext;
-        });
         services.AddDistributedMemoryCache();
         services.AddFeatureManagement(configuration.GetSection("IdentityServer:Features"));
         // Configure options for CacheResourceFilter.

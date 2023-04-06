@@ -32,22 +32,24 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
         .ExecuteDeleteAsync(cancellationToken);
 
     /// <inheritdoc />
-    public async Task CreateAsync(SignInLogEntry logEntry) {
-        _dbContext.SignInLogs.Add(logEntry.ToDbSignInLogEntry());
-        await _dbContext.SaveChangesAsync();
+    public Task CreateAsync(SignInLogEntry logEntry, CancellationToken cancellationToken = default) => 
+        CreateManyAsync(new List<SignInLogEntry> { logEntry }, cancellationToken);
+
+    /// <inheritdoc />
+    public async Task CreateManyAsync(IEnumerable<SignInLogEntry> logEntries, CancellationToken cancellationToken = default) {
+        _dbContext.SignInLogs.AddRange(logEntries.Select(logEntry => logEntry.ToDbSignInLogEntry()));
+        await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
     /// <inheritdoc />
-    public async Task<ResultSet<SignInLogEntry>> ListAsync(ListOptions options) {
+    public async Task<ResultSet<SignInLogEntry>> ListAsync(ListOptions options, CancellationToken cancellationToken = default) {
         var query = _dbContext.SignInLogs;
         return await query.Select(ObjectMapping.ToSignInLogEntry).ToResultSetAsync(options);
     }
 
     /// <inheritdoc />
-    public Task<int> UpdateAsync(Guid id, SignInLogEntryRequest model) => _dbContext
+    public Task<int> UpdateAsync(Guid id, SignInLogEntryRequest model, CancellationToken cancellationToken = default) => _dbContext
         .SignInLogs
         .Where(x => x.Id == id)
-        .ExecuteUpdateAsync(updates => updates
-            .SetProperty(x => x.Review, model.Review)
-        );
+        .ExecuteUpdateAsync(updates => updates.SetProperty(x => x.Review, model.Review), cancellationToken);
 }

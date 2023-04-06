@@ -6,25 +6,19 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.Server;
 
-/// <summary>
-/// Scalefin route builder
-/// </summary>
+/// <summary>Indice Identity Server route builder.</summary>
 public class IdentityServerEndpointRouteBuilder : IEndpointRouteBuilder
 {
     private readonly IEndpointRouteBuilder _innerBuilder;
 
-    /// <summary>
-    /// constructs a <see cref="IdentityServerEndpointRouteBuilder"/> given the default builder from AspNetCore
-    /// </summary>
-    /// <param name="endpointRouteBuilder">The aspnetcore default builder</param>
+    /// <summary>Constructs an <see cref="IdentityServerEndpointRouteBuilder"/> given the default framework builder.</summary>
+    /// <param name="endpointRouteBuilder">The <see cref="IEndpointRouteBuilder"/> default route builder.</param>
     public IdentityServerEndpointRouteBuilder(IEndpointRouteBuilder endpointRouteBuilder) {
         _innerBuilder = endpointRouteBuilder ?? throw new ArgumentNullException(nameof(endpointRouteBuilder));
         Options = endpointRouteBuilder.ServiceProvider.GetRequiredService<IOptions<ExtendedEndpointOptions>>()?.Value;
     }
 
-    /// <summary>
-    /// Scalefin Server Options
-    /// </summary>
+    /// <summary>Indice Identity Server endpoints configuration options.</summary>
     public ExtendedEndpointOptions Options { get; }
     /// <inheritdoc/>
     public IServiceProvider ServiceProvider => _innerBuilder.ServiceProvider;

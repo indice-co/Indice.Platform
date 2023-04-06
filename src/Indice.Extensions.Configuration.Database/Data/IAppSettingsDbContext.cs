@@ -7,5 +7,5 @@ namespace Indice.Extensions.Configuration.Database;
 public interface IAppSettingsDbContext
 {
     /// <summary>The settings table.</summary>
-    DbSet<AppSetting> AppSettings { get; set; }
+    DbSet<DbAppSetting> AppSettings { get; set; }
 }

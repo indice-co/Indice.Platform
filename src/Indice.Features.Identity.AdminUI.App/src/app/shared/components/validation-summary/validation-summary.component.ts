@@ -1,13 +1,13 @@
 import { Input, Component } from '@angular/core';
 
-import { ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
+import { HttpValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 
 @Component({
     selector: 'app-validation-summary',
     templateUrl: './validation-summary.component.html'
 })
 export class ValidationSummaryComponent {
-    @Input() public problemDetails: ValidationProblemDetails;
+    @Input() public problemDetails: HttpValidationProblemDetails;
     @Input() public level: 'danger' | 'warning' = 'danger';
 
     public get validationErrors() {

@@ -32,7 +32,7 @@ internal class EntityConfigurationProvider<TContext> : ConfigurationProvider, ID
         using (var dbContext = (TContext)Activator.CreateInstance(typeof(TContext), new object[] { builder.Options })) {
             var canConnect = await dbContext.Database.CanConnectAsync();
             if (canConnect) {
-                var data = await dbContext.Set<AppSetting>().ToDictionaryAsync(x => x.Key, y => y.Value, StringComparer.OrdinalIgnoreCase);
+                var data = await dbContext.Set<DbAppSetting>().ToDictionaryAsync(x => x.Key, y => y.Value, StringComparer.OrdinalIgnoreCase);
                 if (data != null) {
                     Data = data;
                 }
