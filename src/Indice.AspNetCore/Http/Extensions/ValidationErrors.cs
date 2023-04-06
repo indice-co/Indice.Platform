@@ -3,8 +3,7 @@
 /// <summary>
 /// Extension methods for model state validation.
 /// </summary>
-public static class ValidationErrors
-{
+public static class ValidationErrors {
     /// <summary>
     /// Adds an error to the existing item of the validation problem dictionary.
     /// </summary>
@@ -37,4 +36,17 @@ public static class ValidationErrors
     /// </summary>
     /// <returns></returns>
     public static IDictionary<string, string[]> Create() => new Dictionary<string, string[]>();
+
+    /// <summary>
+    /// Gets the first error message in the dictionary
+    /// </summary>
+    /// <param name="errors"></param>
+    /// <returns></returns>
+    public static string Detail(this IDictionary<string, string[]> errors) => errors.FirstOrDefault().Value?.FirstOrDefault();
+    /// <summary>
+    /// Gets the first error code
+    /// </summary>
+    /// <param name="errors"></param>
+    /// <returns></returns>
+    public static string Code(this IDictionary<string, string[]> errors) => errors.FirstOrDefault().Key;
 }

@@ -166,10 +166,7 @@ internal static class UserHandlers
             return TypedResults.NotFound();
         }
         if (userManager.EmailAsUserName && !request.BypassEmailAsUserNamePolicy && request.UserName != request.Email) {
-            var errors = new Dictionary<string, string[]>() {
-                [nameof(request.UserName)] = new[] {
-                "EmailAsUserName policy is applied to the identity system. Email and UserName properties should have the same value. User is not updated." }
-            };
+            var errors = ValidationErrors.AddError(nameof(request.UserName), "EmailAsUserName policy is applied to the identity system. Email and UserName properties should have the same value. User is not updated.");
             return TypedResults.ValidationProblem(errors);
         }
         user.UserName = request.UserName;
@@ -244,10 +241,8 @@ internal static class UserHandlers
             return TypedResults.NotFound();
         }
         if (await userManager.IsEmailConfirmedAsync(user)) {
-            var errors = new Dictionary<string, string[]>() {
-                [string.Empty] = new[] { "User's email is already confirmed." }
-            };
-            return TypedResults.ValidationProblem(errors);
+            var errors = ValidationErrors.AddError(string.Empty, "User's email is already confirmed.");
+            return TypedResults.ValidationProblem(errors, detail: errors.Detail());
         }
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         await eventService.Publish(new UserRequestForEmailConfirmationEvent(user, token));
@@ -269,9 +264,8 @@ internal static class UserHandlers
             return TypedResults.NotFound();
         }
         if (await userManager.IsInRoleAsync(user, role.Name)) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]> {
-                { $"{nameof(roleId)}", new[] { $"User {user.Email} is already a member of role {role.Name}." } }
-            });
+            var errors = ValidationErrors.AddError(nameof(roleId), $"User {user.Email} is already a member of role {role.Name}.");
+            return TypedResults.ValidationProblem(errors, detail: errors.Detail());
         }
         var result = await userManager.AddToRoleAsync(user, role.Name);
         if (!result.Succeeded) {
