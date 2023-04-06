@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography.X509Certificates;
-using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -24,8 +24,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
-using FluentValidation.AspNetCore;
-using FluentValidation;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -131,9 +129,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     }
 
     /// <summary>Adds Identity server management endpoints dependencies. </summary>
-    /// <param name="builder"></param>
+    /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction"></param>
-    /// <returns></returns>
     public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder, Action<ExtendedEndpointOptions> configureAction = null) {
         var options = new ExtendedEndpointOptions();
         builder.Services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName); // Configure anti-forgery token options.
@@ -141,8 +138,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         builder.Services.PostConfigure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, options => configureAction?.Invoke(options));
         builder.Services.Configure<CacheResourceFilterOptions>(ExtendedEndpointOptions.Name, builder.Configuration);// Configure options for CacheResourceFilter.
         builder.Services.PostConfigure<CacheResourceFilterOptions>(ExtendedEndpointOptions.Name, options => {
-            var endpointOptions = new ExtendedEndpointOptions { 
-                DisableCache = options.DisableCache 
+            var endpointOptions = new ExtendedEndpointOptions {
+                DisableCache = options.DisableCache
             };
             configureAction?.Invoke(endpointOptions);
             options.DisableCache = endpointOptions.DisableCache;
@@ -213,11 +210,11 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                });
         return builder;
     }
-    
-    /// <summary>Adds all required services and controllers for <b>Devices</b> feature.</summary>
-    /// <param name="builder">An interface for configuring MVC services.</param>
+
+    /// <summary>Adds all required services for <b>Devices</b> feature.</summary>
+    /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction">Configuration used for <b>Devices</b> feature.</param>
-    public static IExtendedIdentityServerBuilder AddDevices(this IExtendedIdentityServerBuilder builder, Action<DeviceOptions> configureAction = null) {
+    public static IExtendedIdentityServerBuilder AddDeviceEndpoints(this IExtendedIdentityServerBuilder builder, Action<DeviceOptions> configureAction = null) {
         var services = builder.Services;
         var options = new DeviceOptions {
             Services = services
@@ -232,8 +229,24 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         return builder;
     }
 
+    /// <summary>Adds all required services for <b>Database Settings</b> feature.</summary>
+    /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
+    /// <param name="configureAction">Configuration used for <b>Database Settings</b> feature.</param>
+    public static IExtendedIdentityServerBuilder AddDatabaseSettingEndpoints(this IExtendedIdentityServerBuilder builder, Action<SettingsApiOptions> configureAction = null) {
+        var settingsApiOptions = new SettingsApiOptions {
+            Services = builder.Services
+        };
+        configureAction?.Invoke(settingsApiOptions);
+        settingsApiOptions.Services = null;
+        builder.Services.Configure<SettingsApiOptions>(options => {
+            options.ApiPrefix = settingsApiOptions.ApiPrefix;
+            options.ApiScope = settingsApiOptions.ApiScope;
+        });
+        return builder;
+    }
+
     /// <summary>Registers the <see cref="DbContext"/> to be used by the Identity system.</summary>
-    /// <param name="builder">Options for configuring the IdentityServer API feature.</param>
+    /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction">Configuration for <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</param>
     public static IExtendedIdentityServerBuilder AddExtendedDbContext(this IExtendedIdentityServerBuilder builder, Action<IdentityDbContextOptions> configureAction) {
         var options = new IdentityDbContextOptions();

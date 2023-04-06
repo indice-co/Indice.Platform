@@ -10,16 +10,18 @@ using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.Server.Devices;
+
 internal static class DeviceHandlers
 {
     internal static async Task<Results<Ok<ResultSet<DeviceInfo>>, NotFound>> GetDevices(
-        ExtendedUserManager<User> userManager, 
+        ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
-        [AsParameters] ListOptions options, [AsParameters] UserDeviceListFilter filter) {
+        [AsParameters] ListOptions options,
+        [AsParameters] UserDeviceListFilter filter
+    ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user is null) {
             return TypedResults.NotFound();
@@ -32,10 +34,12 @@ internal static class DeviceHandlers
             .ToResultSetAsync(options);
         return TypedResults.Ok(devices);
     }
+
     internal static async Task<Results<Ok<DeviceInfo>, NotFound>> GetDeviceById(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
-        string deviceId) {
+        string deviceId
+    ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user is null) {
             return TypedResults.NotFound();
@@ -46,12 +50,14 @@ internal static class DeviceHandlers
         }
         return TypedResults.Ok(DeviceInfoExtensions.ToDeviceInfo.Compile()(device));
     }
+
     internal static async Task<Results<CreatedAtRoute<DeviceInfo>, NotFound, ValidationProblem>> CreateDevice(
         ExtendedUserManager<User> userManager,
         IPushNotificationService pushNotificationService,
         ILogger<IPushNotificationService> logger,
         ClaimsPrincipal currentUser,
-        RegisterDeviceRequest request) {
+        RegisterDeviceRequest request
+    ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user is null) {
             return TypedResults.NotFound();
@@ -90,12 +96,14 @@ internal static class DeviceHandlers
         var response = DeviceInfoExtensions.ToDeviceInfo.Compile()(device);
         return TypedResults.CreatedAtRoute(response, nameof(GetDeviceById), new { deviceId = device.DeviceId });
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateDevice(
         ExtendedUserManager<User> userManager,
         IPushNotificationService pushNotificationService,
         ILogger<IPushNotificationService> logger,
         ClaimsPrincipal currentUser,
-        string deviceId, UpdateDeviceRequest request) {
+        string deviceId, UpdateDeviceRequest request
+    ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user is null) {
             return TypedResults.NotFound();
@@ -125,7 +133,7 @@ internal static class DeviceHandlers
         device.Data = request.Data;
         device.PnsHandle = request.PnsHandle;
         device.Tags = request.Tags?.ToArray();
-        var result = await userManager.UpdateDeviceAsync(user, device); 
+        var result = await userManager.UpdateDeviceAsync(user, device);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -134,7 +142,9 @@ internal static class DeviceHandlers
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> TrustDevice(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
-        string deviceId, TrustDeviceRequest request) {
+        string deviceId,
+        TrustDeviceRequest request
+    ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user is null) {
             return TypedResults.NotFound();
@@ -149,10 +159,12 @@ internal static class DeviceHandlers
         }
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UntrustDevice(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
-        string deviceId) {
+        string deviceId
+    ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user is null) {
             return TypedResults.NotFound();
@@ -167,12 +179,14 @@ internal static class DeviceHandlers
         }
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound>> DeleteDevice(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
         IPushNotificationService pushNotificationService,
         ILogger<IPushNotificationService> logger,
-        string deviceId) {
+        string deviceId
+    ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user is null) {
             return TypedResults.NotFound();
@@ -185,7 +199,6 @@ internal static class DeviceHandlers
             await pushNotificationService.UnRegister(device.Id.ToString());
         } catch (Exception exception) {
             logger.LogError("An exception occurred when connection to Azure Notification Hubs. Exception is '{Exception}'. Inner Exception is '{InnerException}'.", exception.Message, exception.InnerException?.Message ?? "N/A");
-            //throw; this does not throw probably on purpose
         }
         await userManager.RemoveDeviceAsync(user, device);
         return TypedResults.NoContent();

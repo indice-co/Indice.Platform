@@ -11,7 +11,11 @@ namespace Indice.Features.Identity.Server.Manager;
 
 internal static class ClaimTypeHandlers
 {
-    internal static async Task<Ok<ResultSet<ClaimTypeInfo>>> GetClaimTypes(ExtendedConfigurationDbContext configurationDbContext, [AsParameters] ListOptions options, [AsParameters] ClaimTypesListFilter filter) {
+    internal static async Task<Ok<ResultSet<ClaimTypeInfo>>> GetClaimTypes(
+        ExtendedConfigurationDbContext configurationDbContext, 
+        [AsParameters] ListOptions options, 
+        [AsParameters] ClaimTypesListFilter filter
+    ) {
         var query = configurationDbContext.ClaimTypes.AsNoTracking().AsQueryable();
         if (!string.IsNullOrEmpty(options.Search)) {
             var searchTerm = options.Search.ToLower();
@@ -35,7 +39,10 @@ internal static class ClaimTypeHandlers
         return TypedResults.Ok(claimTypes);
     }
 
-    internal static async Task<Results<Ok<ClaimTypeInfo>, NotFound>> GetClaimType(ExtendedConfigurationDbContext configurationDbContext, string claimTypeId) {
+    internal static async Task<Results<Ok<ClaimTypeInfo>, NotFound>> GetClaimType(
+        ExtendedConfigurationDbContext configurationDbContext, 
+        string claimTypeId
+    ) {
         var claimType = await configurationDbContext.ClaimTypes.AsNoTracking().Select(x => new ClaimTypeInfo {
             Id = x.Id,
             Name = x.Name,
@@ -48,13 +55,16 @@ internal static class ClaimTypeHandlers
             UserEditable = x.UserEditable
         })
         .FirstOrDefaultAsync(x => x.Id == claimTypeId);
-        if (claimType == null) {
+        if (claimType is null) {
             return TypedResults.NotFound();
         }
         return TypedResults.Ok(claimType);
     }
 
-    internal static async Task<Results<CreatedAtRoute<ClaimTypeInfo>, ValidationProblem>> CreateClaimType(ExtendedConfigurationDbContext configurationDbContext, CreateClaimTypeRequest request) {
+    internal static async Task<Results<CreatedAtRoute<ClaimTypeInfo>, ValidationProblem>> CreateClaimType(
+        ExtendedConfigurationDbContext configurationDbContext, 
+        CreateClaimTypeRequest request
+    ) {
         if (request is null) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("", "Request body cannot be null."));
         }
@@ -88,7 +98,11 @@ internal static class ClaimTypeHandlers
         }, nameof(GetClaimType), new { claimTypeId = claimType.Id });
     }
 
-    internal static async Task<Results<Ok<ClaimTypeInfo>, NotFound>> UpdateClaimType(ExtendedConfigurationDbContext configurationDbContext, string claimTypeId, UpdateClaimTypeRequest request) {
+    internal static async Task<Results<Ok<ClaimTypeInfo>, NotFound>> UpdateClaimType(
+        ExtendedConfigurationDbContext configurationDbContext, 
+        string claimTypeId, 
+        UpdateClaimTypeRequest request
+    ) {
         var claimType = await configurationDbContext.ClaimTypes.SingleOrDefaultAsync(x => x.Id == claimTypeId);
         if (claimType == null) {
             return TypedResults.NotFound();
@@ -116,7 +130,10 @@ internal static class ClaimTypeHandlers
         });
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClaimType(ExtendedConfigurationDbContext configurationDbContext, string claimTypeId) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteClaimType(
+        ExtendedConfigurationDbContext configurationDbContext, 
+        string claimTypeId
+    ) {
         var claimType = await configurationDbContext.ClaimTypes.AsNoTracking().SingleOrDefaultAsync(x => x.Id == claimTypeId);
         if (claimType == null) {
             return TypedResults.NotFound();

@@ -1,7 +1,7 @@
-﻿namespace Indice.AspNetCore.Features.Settings.Models;
+﻿namespace Indice.Features.Identity.Server.AppSettings.Models;
 
 /// <summary>Models an application setting persisted in the database.</summary>
-public class CreateAppSettingRequest
+public class AppSettingInfo
 {
     /// <summary>The key of application setting.</summary>
     public string Key { get; set; }
