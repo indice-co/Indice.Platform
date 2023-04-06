@@ -155,6 +155,12 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.SerializerOptions.Converters.Add(new JsonAnyStringConverter());
             options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
         });
+        // the following is unfortunately required in order to have consistent swagger generator.
+        builder.Services.Configure<JsonOptions>(options => {
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
         builder.Services.AddProblemDetails();
         builder.Services.AddOutputCache();
         builder.Services.AddDistributedMemoryCache();
