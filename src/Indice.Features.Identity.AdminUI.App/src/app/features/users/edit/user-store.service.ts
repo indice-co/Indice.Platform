@@ -4,7 +4,7 @@ import { Observable, AsyncSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
     IdentityApiService, SingleUserInfo, RoleInfoResultSet, RoleInfo, ClaimTypeInfo, ClaimTypeInfoResultSet, UpdateUserRequest, ClaimInfo, CreateClaimRequest, BasicClaimInfo,
-    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, SetPasswordRequest, SetUserBlockRequest, UserLoginProviderInfo, DeviceInfo, DeviceInfoResultSet, UserLoginProviderInfoResultSet
+    UserClientInfo, UserClientInfoResultSet, UpdateUserClaimRequest, SetPasswordRequest, SetUserBlockRequest, UserLoginProviderInfo, DeviceInfo, DeviceInfoResultSet
 } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './details/models/claim-type.model';
 
@@ -189,8 +189,8 @@ export class UserStore {
     public getUserExternalLogins(userId: string): Observable<UserLoginProviderInfo[]> {
         if (!this._userExternalLogins) {
             this._userExternalLogins = new AsyncSubject<UserLoginProviderInfo[]>();
-            this._api.getUserExternalLogins(userId).subscribe((response: UserLoginProviderInfoResultSet) => {
-                this._userExternalLogins.next(response.items);
+            this._api.getUserExternalLogins(userId).subscribe((response: UserLoginProviderInfo[]) => {
+                this._userExternalLogins.next(response);
                 this._userExternalLogins.complete();
             });
         }

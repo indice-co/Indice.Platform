@@ -21,7 +21,7 @@ public static class PushNotificationsApi
     public static RouteGroupBuilder MapDevicePush(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/devices");
-        group.WithTags("PushNotifications");
+        group.WithTags("DevicePush");
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must*
         // be authenticated with a valid user.
