@@ -27,6 +27,7 @@ import { CanvasTileComponent } from './components/canvas-tile/canvas-tile.compon
 import { DisplayCaseTypesComponent } from './components/select-case-type/display-case-types/display-case-types.component';
 import { QuillModule } from 'ngx-quill';
 import { WysiwygWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
+import { DeleteQueryModalComponent } from './components/delete-query-modal/delete-query-modal.component';
 
 
 
@@ -42,6 +43,7 @@ import { WysiwygWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-f
     CaseCustomActionComponent,
     CanvasTileComponent,
     DisplayCaseTypesComponent,
+    DeleteQueryModalComponent,
     // ajsf
     FileWidgetComponent,
     TailwindFrameworkComponent,
