@@ -13,13 +13,13 @@ namespace Indice.Features.Cases.Controllers;
 
 /// <summary>Manage cases, attachments and everything related to cases for back-office users.</summary>
 [ApiController]
-[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroup)]
+[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroupNamePlaceholder)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
 [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route($"{ApiPrefixes.CasesApiPrefix}/manage/cases")]
+[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage/cases")]
 internal class AdminCasesController : ControllerBase
 {
     private readonly IAdminCaseService _adminCaseService;

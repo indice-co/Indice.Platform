@@ -8,13 +8,13 @@ namespace Indice.Features.Cases.Controllers;
 
 /// <summary>Manage check point types.</summary>
 [ApiController]
-[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroup)]
+[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroupNamePlaceholder)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
 [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route($"{ApiPrefixes.CasesApiPrefix}/manage/checkpoint-types")]
+[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage/checkpoint-types")]
 
 internal class AdminCheckpointTypesController : ControllerBase
 {

@@ -9,13 +9,13 @@ namespace Indice.Features.Cases.Controllers;
 
 /// <summary>Invoking workflow activities for suspended instances.</summary>
 [ApiController]
-[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroup)]
+[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroupNamePlaceholder)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
 [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route($"{ApiPrefixes.CasesApiPrefix}/manage")]
+[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage")]
 internal class AdminWorkflowInvokerController : ControllerBase
 {
     private readonly IAwaitApprovalInvoker _approvalInvoker;

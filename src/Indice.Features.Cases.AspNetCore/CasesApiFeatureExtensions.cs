@@ -62,8 +62,8 @@ public static class CasesApiFeatureExtensions
 
         // Post configure MVC options.
         services.PostConfigure<MvcOptions>(options => {
-            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CasesApiPrefix, casesApiOptions.ApiPrefix ?? "api"));
-            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CasesApiGroup, casesApiOptions.GroupName));
+            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CasesApiTemplatePrefixPlaceholder, casesApiOptions.ApiPrefix ?? "api"));
+            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CasesApiGroupNamePlaceholder, casesApiOptions.GroupName));
         });
 
         // Register framework services.
@@ -128,8 +128,8 @@ public static class CasesApiFeatureExtensions
 
         // Post configure MVC options.
         services.PostConfigure<MvcOptions>(options => {
-            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CasesApiPrefix, casesApiOptions.ApiPrefix ?? "api"));
-            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CasesApiGroup, casesApiOptions.GroupName));
+            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CasesApiTemplatePrefixPlaceholder, casesApiOptions.ApiPrefix ?? "api"));
+            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CasesApiGroupNamePlaceholder, casesApiOptions.GroupName));
         });
 
         // Register framework services.

@@ -68,12 +68,16 @@ public static class CasesApiConstants
     }
 }
 
+/// <summary>Constant values for Cases Api Groups.</summary>
 internal static class ApiGroups
 {
-    internal const string CasesApiGroup = "[casesApiGroup]";
+    /// <summary>The group name placeholder that will be replaced.</summary>
+    internal const string CasesApiGroupNamePlaceholder = "[casesApiGroupName]";
 }
 
+/// <summary>Constant values for Cases Api Prefixes.</summary>
 internal class ApiPrefixes
 {
-    internal const string CasesApiPrefix = "[casesApiPrefix]";
+    /// <summary>The api prefix placeholder that will be replaced.</summary>
+    internal const string CasesApiTemplatePrefixPlaceholder = "[casesApiPrefix]";
 }

@@ -9,13 +9,13 @@ namespace Indice.Features.Cases.Controllers;
 
 /// <summary>Integration endpoints with 3rd party systems.</summary>
 [ApiController]
-[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroup)]
+[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroupNamePlaceholder)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
 [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route($"{ApiPrefixes.CasesApiPrefix}/manage/integrations")]
+[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage/integrations")]
 public class AdminIntegrationController : ControllerBase
 {
     private readonly ICustomerIntegrationService _customerIntegrationService;

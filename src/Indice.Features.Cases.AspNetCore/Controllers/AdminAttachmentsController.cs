@@ -8,13 +8,13 @@ namespace Indice.Features.Cases.Controllers;
 
 /// <summary>Manage attachments for a case.</summary>
 [ApiController]
-[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroup)]
+[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroupNamePlaceholder)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
 [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route($"{ApiPrefixes.CasesApiPrefix}/manage/attachments")]
+[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage/attachments")]
 internal class AdminAttachmentsController : ControllerBase
 {
     private readonly IAdminCaseService _adminCaseService;

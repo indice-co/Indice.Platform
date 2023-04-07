@@ -11,13 +11,13 @@ namespace Indice.Features.Cases.Controllers;
 
 /// <summary>Case types from the customer's perspective.</summary>
 [ApiController]
-[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroup)]
+[ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroupNamePlaceholder)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesUser)]
 [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route($"{ApiPrefixes.CasesApiPrefix}/my/case-types")]
+[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/my/case-types")]
 internal class MyCaseTypesController : ControllerBase
 {
     private readonly IMyCaseService _myCaseService;
