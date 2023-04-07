@@ -10,5 +10,19 @@ public interface IPlatformEventService
     Task Publish<TEvent>(TEvent @event) where TEvent : IPlatformEvent;
 }
 
+/// <summary>Platform event Arguments</summary>
+public class PlatformEventArgs
+{
+    /// <summary>Stops all other hadlers from executing the same event</summary>
+    public bool Handled { get; set; }
+    /// <summary>Let an exception break the control flow</summary>
+    /// <remarks>This should not be relevant to 99% of the cases since the control flow is already publishing an event for something that has already happened. 
+    /// State cannot be changes and compensation logic must be handled on the side of the listener.</remarks>
+    public bool ThrowOnError { get; set; }
+}
+
 /// <summary>Represents an event that is raised inside the platform.</summary>
-public interface IPlatformEvent { }
+public interface IPlatformEvent { 
+    
+
+}

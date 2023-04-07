@@ -12,7 +12,7 @@ internal class UserNameOrPasswordChangedEventHandler : IPlatformEventHandler<Use
         _userManager = extendedUserManager ?? throw new ArgumentNullException(nameof(extendedUserManager));
     }
 
-    public Task Handle(UserNameChangedEvent @event) => _userManager.SetNativeDevicesRequirePasswordAsync(@event.User, requiresPassword: true);
+    public Task Handle(UserNameChangedEvent @event, PlatformEventArgs args) => _userManager.SetNativeDevicesRequirePasswordAsync(@event.User, requiresPassword: true);
 
-    public Task Handle(PasswordChangedEvent @event) => _userManager.SetNativeDevicesRequirePasswordAsync(@event.User, requiresPassword: true);
+    public Task Handle(PasswordChangedEvent @event, PlatformEventArgs args) => _userManager.SetNativeDevicesRequirePasswordAsync(@event.User, requiresPassword: true);
 }
