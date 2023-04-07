@@ -5,7 +5,7 @@ import { Subscription, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { NgbDateStruct, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SwalPortalTargets } from '@sweetalert2/ngx-sweetalert2';
-import { SingleUserInfo, ClaimTypeInfo, ClaimValueType, PasswordExpirationPolicy, ProblemDetails, ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
+import { SingleUserInfo, ClaimTypeInfo, ClaimValueType, PasswordExpirationPolicy, ProblemDetails, HttpValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ClaimType } from './models/claim-type.model';
 import { UserStore } from '../user-store.service';
 import { NgbDateCustomParserFormatter } from 'src/app/shared/services/custom-parser-formatter.service';
@@ -120,7 +120,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
                 this.userPasswordExpirationPolicy = this.user.passwordExpirationPolicy ? this.user.passwordExpirationPolicy : '';
                 this._toast.showSuccess(`Password for user '${this.user.userName}' was reset successfully.`);
                 this._modalService.dismissAll();
-            }, (problemDetails: ValidationProblemDetails) => {
+            }, (problemDetails: HttpValidationProblemDetails) => {
                 this.resetPasswordProblemDetails = problemDetails;
             });
     }
@@ -137,7 +137,7 @@ export class UserDetailsComponent implements OnInit, OnDestroy {
         this.user.passwordExpirationPolicy = this.userPasswordExpirationPolicy === '' ? undefined : this.userPasswordExpirationPolicy as PasswordExpirationPolicy;
         this._updateUserSubscription = this._userStore.updateUser(this.user, requiredClaims, this.bypassEmailAsUserNamePolicy).subscribe(_ => {
             this._toast.showSuccess(`User '${this.user.email}' was updated successfully.`);
-        }, (problemDetails: ValidationProblemDetails) => {
+        }, (problemDetails: HttpValidationProblemDetails) => {
             this.updateUserProblemDetails = problemDetails;
             this.showBypassEmailAsUserNamePolicy = true;
         });

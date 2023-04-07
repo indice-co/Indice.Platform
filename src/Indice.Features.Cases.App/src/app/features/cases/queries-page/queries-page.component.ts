@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { ModalService } from '@indice/ng-components';
 import { CasesApiService, Query } from 'src/app/core/services/cases-api.service';
+import { DeleteQueryModalComponent } from 'src/app/shared/components/delete-query-modal/delete-query-modal.component';
 
 @Component({
   selector: 'app-queries-page',
@@ -11,7 +13,8 @@ export class QueriesPageComponent implements OnInit {
 
   constructor(
     private _api: CasesApiService,
-    private _router: Router
+    private _router: Router,
+    private _modalService: ModalService
   ) { }
 
   ngOnInit(): void { }
@@ -20,12 +23,12 @@ export class QueriesPageComponent implements OnInit {
     this.redirectTo(`/cases${query!.parameters}`);
   }
 
-  deleteQuery(query: Query): void {
-    this._api.deleteQuery(query?.id!).subscribe(
-      (_) => {
-        this.redirectTo('/cases');
-      }
-    )
+  openDeleteQueryModal(query: Query): void {
+    this._modalService.show(DeleteQueryModalComponent, {
+      backdrop: 'static',
+      keyboard: false,
+      initialState: { query: query }
+    });
   }
 
   private redirectTo(url: string) {

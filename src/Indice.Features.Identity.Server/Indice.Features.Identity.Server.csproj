@@ -9,12 +9,14 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefix)" />
     <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Features.Identity.SignInLogs" Version="$(VersionPrefix)" />
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
+    <ProjectReference Include="..\Indice.Features.Identity.SignInLogs\Indice.Features.Identity.SignInLogs.csproj" />
   </ItemGroup>
 </Project>

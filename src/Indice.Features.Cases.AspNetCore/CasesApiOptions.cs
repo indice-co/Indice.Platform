@@ -15,6 +15,9 @@ public class CasesApiOptions
     /// <summary>The default scope name to be used for Cases API. Defaults to <see cref="CasesApiConstants.Scope"/>.</summary>
     public string ExpectedScope { get; set; } = CasesApiConstants.Scope;
 
+    /// <summary>Cases GroupName Api Explorer. Defaults to <see cref="CasesApiConstants.GroupName"/>.</summary>
+    public string GroupName { get; set; } = CasesApiConstants.GroupName;
+    
     /// <summary>Specifies a prefix for the API endpoints. Defaults to <i>api</i>.</summary>
     public string ApiPrefix { get; set; } = "api";
     

@@ -13,6 +13,6 @@ export class SettingResolverService implements Resolve<AppSettingInfo> {
         if (!key) {
             return of(new AppSettingInfo());
         }
-        return this.api.getSetting(key);
+        return this.api.getSettingByKey(key);
     }
 }

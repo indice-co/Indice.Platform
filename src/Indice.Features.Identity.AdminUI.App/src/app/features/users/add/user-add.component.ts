@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { CreateUserRequest, IdentityApiService, SingleUserInfo, ProblemDetails, ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
+import { CreateUserRequest, IdentityApiService, SingleUserInfo, ProblemDetails, HttpValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
 
@@ -31,7 +31,7 @@ export class UserAddComponent {
       } else {
         this._router.navigate(['../'], { relativeTo: this._route });
       }
-    }, (problemDetails: ValidationProblemDetails) => {
+    }, (problemDetails: HttpValidationProblemDetails) => {
       this.problemDetails = problemDetails;
     });
   }

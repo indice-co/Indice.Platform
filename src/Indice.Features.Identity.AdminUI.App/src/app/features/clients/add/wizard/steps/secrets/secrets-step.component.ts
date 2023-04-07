@@ -4,7 +4,7 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { TableColumn } from '@swimlane/ngx-datatable';
 import { StepBaseComponent } from '../../../../../../shared/components/step-base/step-base.component';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
-import { CreateSecretRequest, FileParameter, IdentityApiService, ProblemDetails, SecretInfoBase, ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
+import { CreateSecretRequest, FileParameter, IdentityApiService, ProblemDetails, SecretInfoBase, HttpValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 import { ClientWizardModel } from '../../models/client-wizard-model';
 import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
@@ -108,7 +108,7 @@ export class SecretsStepComponent extends StepBaseComponent<ClientWizardModel> i
             this.data.form.get('certificates').setValue([...this._certificates]);
             this.formValidated.emit(false);
             this.clientSecret = new CreateSecretRequest();
-        }, (problemDetails: ValidationProblemDetails) => {
+        }, (problemDetails: HttpValidationProblemDetails) => {
             this.problemDetails = problemDetails
             setTimeout(() => this._validationSummary.clear(), 5000);
         });

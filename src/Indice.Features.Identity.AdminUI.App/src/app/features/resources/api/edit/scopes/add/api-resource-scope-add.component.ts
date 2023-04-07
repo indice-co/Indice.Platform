@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs';
 import { WizardStepDescriptor } from 'src/app/shared/components/step-base/models/wizard-step-descriptor';
 import { WizardStepDirective } from 'src/app/shared/components/step-base/wizard-step.directive';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
-import { CreateApiScopeRequest, ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
+import { CreateApiScopeRequest, HttpValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ResourceWizardModel } from '../../../../add/models/resource-wizard-model';
 import { ApiResourceStore } from '../../../api-resource-store.service';
@@ -95,7 +95,7 @@ export class ApiResourceScopeAddComponent implements OnInit {
         } as CreateApiScopeRequest).subscribe(_ => {
             this._toast.showSuccess(`API scope '${resourceName}' was created successfully.`);
             this._router.navigate(['../'], { relativeTo: this._route });
-        }, (problemDetails: ValidationProblemDetails) => {
+        }, (problemDetails: HttpValidationProblemDetails) => {
             const errorMessage = problemDetails.errors.name[0];
             this._toast.showDanger(errorMessage);
         });

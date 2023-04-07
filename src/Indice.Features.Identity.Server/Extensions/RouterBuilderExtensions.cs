@@ -11,8 +11,9 @@ public static class IdentityServerEndpointRouteBuilderExtensions
 {
     /// <summary>Maps all Indice Identity Server API endpoints.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    public static IdentityServerEndpointRouteBuilder MapIdentityServerEndpoints(this IEndpointRouteBuilder routes) {
+    public static IdentityServerEndpointRouteBuilder MapIdentityServer(this IEndpointRouteBuilder routes) {
         var builder = new IdentityServerEndpointRouteBuilder(routes);
+        // Indice Identity Server endpoints.
         builder.MapManageUsers();
         builder.MapManageClients();
         builder.MapManageRoles();
@@ -21,12 +22,16 @@ public static class IdentityServerEndpointRouteBuilderExtensions
         builder.MapManageLookups();
         builder.MapManageResources();
         builder.MapMyAccount();
-        // devices
+        // Devices and push notifications endpoints.
         builder.MapMyDevices();
         builder.MapDevicePush();
-        // totps
+        // TOTP API
         builder.MapTotps();
-        return builder; 
+        // Sign in logs endpoints.
+        builder.MapSignInLogs();
+        // Database settings endpoints.
+        builder.MapDatabaseSettings();
+        return builder;
     }
 
     /// <summary>Gets the instance of <see cref="ExtendedEndpointOptions"/>.</summary>
