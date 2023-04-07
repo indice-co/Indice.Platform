@@ -19,7 +19,7 @@ public static class SignInLogFeatureExtensions
     /// <summary>Registers the <see cref="SignInLogEventSink"/> implementation to the IdentityServer infrastructure.</summary>
     /// <param name="builder">IdentityServer builder interface.</param>
     /// <param name="configure">Configure action for the sign in log feature.</param>
-    public static IIdentityServerBuilder AddUserSignInLogs(this IIdentityServerBuilder builder, Action<SignInLogOptions> configure) {
+    public static IIdentityServerBuilder AddSignInLogs(this IIdentityServerBuilder builder, Action<SignInLogOptions> configure) {
         var services = builder.Services;
         var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
