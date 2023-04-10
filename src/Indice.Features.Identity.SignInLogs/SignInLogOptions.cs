@@ -31,7 +31,7 @@ public class SignInLogOptions
     /// <summary>Cleanup options.</summary>
     public LogCleanupOptions Cleanup { get; set; } = new LogCleanupOptions();
     /// <summary>Schema name to be used for the database, in case a relational provider is configured. Defaults to <i>dbo</i>.</summary>
-    public string DatabaseSchema { get; set; } = "dbo";
+    public string DatabaseSchema { get; set; } = "auth";
     /// <summary>Determines whether logging sign-in events is enabled. Defaults to <i>true</i>.</summary>
     public bool Enable { get; set; } = true;
 

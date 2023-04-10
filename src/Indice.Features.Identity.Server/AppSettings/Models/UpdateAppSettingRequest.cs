@@ -7,5 +7,5 @@ public class UpdateAppSettingRequest
 {
     /// <summary>The value of application setting.</summary>
     [Required]
-    public string Value { get; set; }
+    public string? Value { get; set; }
 }

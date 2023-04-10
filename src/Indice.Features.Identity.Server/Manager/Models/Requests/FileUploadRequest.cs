@@ -8,7 +8,7 @@ public class FileUploadRequest
 {
     /// <summary>File data</summary>
     [Required]
-    public IFormFile File { get; set; }
+    public IFormFile? File { get; set; }
 
     /// <summary>
     /// Bind method

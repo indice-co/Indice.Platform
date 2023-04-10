@@ -41,5 +41,5 @@ public static class IdentityServerEndpointRouteBuilderExtensions
     /// <summary>Get an instance of the provided options type.</summary>
     /// <typeparam name="TOptions"></typeparam>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    public static TOptions GetEndpointOptions<TOptions>(this IEndpointRouteBuilder routes) where TOptions : class => routes.ServiceProvider.GetService<IOptions<TOptions>>()?.Value;
+    public static TOptions GetEndpointOptions<TOptions>(this IEndpointRouteBuilder routes) where TOptions : class, new() => routes.ServiceProvider.GetService<IOptions<TOptions>>()?.Value ?? new TOptions();
 }

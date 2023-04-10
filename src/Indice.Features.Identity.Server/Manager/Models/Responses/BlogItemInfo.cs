@@ -6,11 +6,11 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 public class BlogItemInfo
 {
     /// <summary>Title of the post.</summary>
-    public string Title { get; set; }
+    public string? Title { get; set; }
     /// <summary>Original link to the post.</summary>
-    public string Link { get; set; }
+    public string? Link { get; set; }
     /// <summary>The datetime that the post was published.</summary>
-    public DateTime PublishDate { get; set; }
+    public DateTime? PublishDate { get; set; }
     /// <summary>A small description for the post.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }

@@ -8,7 +8,7 @@ public class UserConsentsListFilter
     /// <summary>The type of consent to look for.</summary>
     public UserConsentType? ConsentType { get; set; }
     /// <summary>The id of the client.</summary>
-    public string ClientId { get; set; }
+    public string? ClientId { get; set; }
 }
 
 /// <summary>The type of user consent.</summary>
@@ -33,7 +33,7 @@ public static class UserConsentTypeExtensions
 {
     /// <summary>Transforms <see cref="UserConsentType"/> enum to it's string value.</summary>
     /// <param name="consentType">The <see cref="UserConsentType"/> enum.</param>
-    public static string ToConstantName(this UserConsentType? consentType) => consentType switch {
+    public static string? ToConstantName(this UserConsentType? consentType) => consentType switch {
         UserConsentType.AuthorizationCode => PersistedGrantTypes.AuthorizationCode,
         UserConsentType.ReferenceToken => PersistedGrantTypes.ReferenceToken,
         UserConsentType.RefreshToken => PersistedGrantTypes.RefreshToken,

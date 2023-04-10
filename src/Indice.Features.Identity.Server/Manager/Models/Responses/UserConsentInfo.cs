@@ -7,13 +7,13 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 public class UserConsentInfo
 {
     /// <summary>The client id.</summary>
-    public string ClientId { get; set; }
+    public string? ClientId { get; set; }
     /// <summary>Consent creation <see cref="DateTime"/>.</summary>
     public DateTime CreatedAt { get; set; }
     /// <summary>Consent expiration <see cref="DateTime"/>.</summary>
     public DateTime? ExpiresAt { get; set; }
     /// <summary>Consent type.</summary>
-    public string Type { get; set; }
+    public string? Type { get; set; }
     /// <summary>Associated scopes.</summary>
     public IEnumerable<string> Scopes { get; set; } = new List<string>();
     /// <summary>Associated claims.</summary>

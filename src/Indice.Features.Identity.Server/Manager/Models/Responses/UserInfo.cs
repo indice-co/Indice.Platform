@@ -33,7 +33,7 @@ public class SingleUserInfo : BasicUserInfo
             Type = x.ClaimType,
             Value = x.ClaimValue
         })
-        .ToList()
+        .ToList() ?? new ()
     };
 }
 
@@ -41,7 +41,7 @@ public class SingleUserInfo : BasicUserInfo
 public class BasicUserInfo
 {
     /// <summary>User's unique identifier.</summary>
-    public string Id { get; set; }
+    public string? Id { get; set; }
     /// <summary>Indicates whether a user's email is confirmed or not.</summary>
     public bool EmailConfirmed { get; set; }
     /// <summary>Indicates whether lockout feature is enabled for the user.</summary>
@@ -55,11 +55,11 @@ public class BasicUserInfo
     /// <summary>The date-time where the lockout period ends.</summary>
     public DateTimeOffset? LockoutEnd { get; set; }
     /// <summary>User's email address.</summary>
-    public string Email { get; set; }
+    public string? Email { get; set; }
     /// <summary>User's phone number.</summary>
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     /// <summary>The username.</summary>
-    public string UserName { get; set; }
+    public string? UserName { get; set; }
     /// <summary>Indicates whether the user is forcefully blocked.</summary>
     public bool Blocked { get; set; }
     /// <summary>Represents the password expiration policy the value is measured in days.</summary>
@@ -78,9 +78,9 @@ public class BasicUserInfo
 public class UserInfo : BasicUserInfo
 {
     /// <summary>User's first name.</summary>
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
     /// <summary>User's last name.</summary>
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
 }
 
 /// <summary>Extension methods that are used to convert from <see cref="User"/> type to other DTOs.</summary>

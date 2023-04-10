@@ -14,7 +14,7 @@ internal static class RoleHandlers
         var query = roleManager.Roles.AsNoTracking();
         if (!string.IsNullOrEmpty(options.Search)) {
             var searchTerm = options.Search.ToLower();
-            query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.Contains(searchTerm));
+            query = query.Where(x => x.Name!.ToLower().Contains(searchTerm) || x.Description.Contains(searchTerm));
         }
         var roles = await query.Select(x => new RoleInfo {
             Id = x.Id,
@@ -39,9 +39,9 @@ internal static class RoleHandlers
 
     internal static async Task<Results<CreatedAtRoute<RoleInfo>, ValidationProblem>> CreateRole(RoleManager<Role> roleManager, CreateRoleRequest request) {
         if (request is null) {
-            return TypedResults.ValidationProblem(new Dictionary<string, string[]>() { [""] = new[] { "Request body cannot be null." } });
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("name", "'name' cannot be empty"), detail: "Request body cannot be null.");
         }
-        var exists = await roleManager.RoleExistsAsync(request.Name);
+        var exists = await roleManager.RoleExistsAsync(request.Name!);
         if (exists) {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]>() { [nameof(CreateRoleRequest.Name).Camelize()] = new[] { $"A claim type with name {request.Name} already exists." } });
         }

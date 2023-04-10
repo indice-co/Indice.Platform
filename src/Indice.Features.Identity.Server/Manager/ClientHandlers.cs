@@ -166,7 +166,7 @@ internal static class ClientHandlers
         }
         client.AbsoluteRefreshTokenLifetime = request.AbsoluteRefreshTokenLifetime;
         client.AccessTokenLifetime = request.AccessTokenLifetime;
-        client.AccessTokenType = (int)request.AccessTokenType;
+        client.AccessTokenType = (int)request.AccessTokenType.GetValueOrDefault();
         client.AllowAccessTokensViaBrowser = request.AllowAccessTokensViaBrowser;
         client.AllowOfflineAccess = request.AllowOfflineAccess;
         client.AllowPlainTextPkce = request.AllowPlainTextPkce;
@@ -265,19 +265,19 @@ internal static class ClientHandlers
         client.RedirectUris?.RemoveAll(x => true);
         client.PostLogoutRedirectUris?.RemoveAll(x => true);
         if (request.AllowedCorsOrigins?.Count() > 0) {
-            client.AllowedCorsOrigins.AddRange(request.AllowedCorsOrigins.Select(x => new ClientCorsOrigin {
+            client.AllowedCorsOrigins!.AddRange(request.AllowedCorsOrigins.Select(x => new ClientCorsOrigin {
                 ClientId = client.Id,
                 Origin = x.TrimEnd('/')
             }));
         }
         if (request.RedirectUris?.Count() > 0) {
-            client.RedirectUris.AddRange(request.RedirectUris.Select(x => new ClientRedirectUri {
+            client.RedirectUris!.AddRange(request.RedirectUris.Select(x => new ClientRedirectUri {
                 ClientId = client.Id,
                 RedirectUri = x
             }));
         }
         if (request.PostLogoutRedirectUris?.Count() > 0) {
-            client.PostLogoutRedirectUris.AddRange(request.PostLogoutRedirectUris.Select(x => new ClientPostLogoutRedirectUri {
+            client.PostLogoutRedirectUris!.AddRange(request.PostLogoutRedirectUris.Select(x => new ClientPostLogoutRedirectUri {
                 ClientId = client.Id,
                 PostLogoutRedirectUri = x
             }));
@@ -449,7 +449,7 @@ internal static class ClientHandlers
         if (clientSecret.Type != IdentityServerConstants.SecretTypes.X509CertificateBase64) {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["type"] = new[] { $"A secret of type {clientSecret.Type} cannot be downloaded." } });
         }
-        X509Certificate2 certificate = null;
+        X509Certificate2? certificate = null;
         byte[] certificateBytes;
         try {
             certificate = new X509Certificate2(Convert.FromBase64String(clientSecret.Value));

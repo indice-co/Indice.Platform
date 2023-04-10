@@ -9,12 +9,12 @@ public class CertificateUploadRequest
 {
     /// <summary>File data</summary>
     [Required]
-    public IFormFile File { get; set; }
+    public IFormFile? File { get; set; }
 
     /// <summary>
     /// Optional password in case this is a application/x-pkcs12
     /// </summary>
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
 
     /// <summary>

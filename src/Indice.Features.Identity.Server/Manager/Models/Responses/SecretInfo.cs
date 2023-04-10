@@ -6,13 +6,13 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 public class SecretInfoBase
 {
     /// <summary>Description of client secret.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
     /// <summary>The value of client secret.</summary>
-    public string Value { get; set; }
+    public string? Value { get; set; }
     /// <summary>Optional expiration of client secret.</summary>
     public DateTime? Expiration { get; set; }
     /// <summary>The type of client secret.</summary>
-    public string Type { get; set; }
+    public string? Type { get; set; }
 }
 
 /// <summary>Models a secret value used for a client or API.</summary>

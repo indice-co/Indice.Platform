@@ -36,7 +36,7 @@ internal static class MyAccountHandlers
             return TypedResults.NotFound();
         }
         var currentEmail = await userManager.GetEmailAsync(user);
-        if (currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase) && await userManager.IsEmailConfirmedAsync(user)) {
+        if (currentEmail is not null && currentEmail.Equals(request.Email, StringComparison.OrdinalIgnoreCase) && await userManager.IsEmailConfirmedAsync(user)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.Email).ToLower(), userManager.MessageDescriber.EmailAlreadyExists(request.Email)));
         }
         var result = await userManager.SetEmailAsync(user, request.Email);
@@ -117,7 +117,7 @@ internal static class MyAccountHandlers
         }
         var smsService = smsServiceFactory.Create(request.DeliveryChannel) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
 
-        var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber);
+        var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber!);
         await smsService.SendAsync(request.PhoneNumber, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token));
         return TypedResults.NoContent();
     }
@@ -216,7 +216,7 @@ internal static class MyAccountHandlers
     internal static async Task<Results<NoContent, ValidationProblem>> ForgotPasswordConfirmation(
         ExtendedUserManager<User> userManager,
         ForgotPasswordConfirmationRequest request) {
-        var user = await userManager.FindByEmailAsync(request.Email);
+        var user = await userManager.FindByEmailAsync(request.Email!);
         if (user == null) {
             return TypedResults.NoContent();
         }
@@ -426,7 +426,7 @@ internal static class MyAccountHandlers
     internal static async Task<Ok<CredentialsValidationInfo>> ValidatePassword(
         ExtendedUserManager<User> userManager,
         ValidatePasswordRequest request) {
-        User user = null;
+        User? user = null;
         if (!string.IsNullOrWhiteSpace(request.Token) && Base64Id.TryParse(request.Token, out var userId)) {
             user = await userManager.FindByIdAsync(userId.Id.ToString());
         }
@@ -482,7 +482,7 @@ internal static class MyAccountHandlers
                 UserId = user.Id
             });
         }
-        var result = await userManager.CreateAsync(user, request.Password);
+        var result = await userManager.CreateAsync(user, request.Password!);
         if (!result.Succeeded) {
             TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -498,7 +498,7 @@ internal static class MyAccountHandlers
         if (!allowUserEnumeration) {
             return TypedResults.StatusCode(StatusCodes.Status410Gone);
         }
-        var user = await userManager.FindByNameAsync(request.UserName);
+        var user = await userManager.FindByNameAsync(request.UserName!);
         return user == null ? TypedResults.NotFound() : TypedResults.NoContent();
     }
 
@@ -545,8 +545,8 @@ internal static class MyAccountHandlers
         return user;
     }
 
-    private static IDictionary<string, (string Description, string Hint)> GetAvailableRules(this ExtendedUserManager<User> userManager, bool userAvailable, bool userNameAvailable) {
-        var result = new Dictionary<string, (string Description, string Hint)>();
+    private static IDictionary<string, (string Description, string? Hint)> GetAvailableRules(this ExtendedUserManager<User> userManager, bool userAvailable, bool userNameAvailable) {
+        var result = new Dictionary<string, (string Description, string? Hint)>();
         var passwordOptions = userManager.Options.Password;
         var errorDescriber = userManager.ErrorDescriber as ExtendedIdentityErrorDescriber;
         var messageDescriber = userManager.MessageDescriber;
@@ -600,7 +600,7 @@ internal static class MyAccountHandlers
         return result;
     }
 
-    private static async Task<IEnumerable<UserConsentInfo>> GetPersistedGrantsAsync(this IPersistedGrantStore persistedGrantStore, IPersistentGrantSerializer serializer, string subjectId, string clientId, string consentType) {
+    private static async Task<IEnumerable<UserConsentInfo>> GetPersistedGrantsAsync(this IPersistedGrantStore persistedGrantStore, IPersistentGrantSerializer serializer, string subjectId, string? clientId, string? consentType) {
         if (string.IsNullOrWhiteSpace(subjectId)) {
             throw new ArgumentNullException(nameof(subjectId));
         }
@@ -640,7 +640,7 @@ internal static class MyAccountHandlers
                     Claims = x.AccessToken?.Claims?.Select(x => new BasicClaimInfo {
                         Type = x.Type,
                         Value = x.Value
-                    }),
+                    }) ?? new List<BasicClaimInfo>(),
                     CreatedAt = x.CreationTime,
                     ExpiresAt = x.CreationTime.AddSeconds(x.Lifetime),
                     Type = PersistedGrantTypes.RefreshToken

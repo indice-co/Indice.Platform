@@ -106,14 +106,14 @@ internal static class UserHandlers
                     role => role.Id,
                     (userRole, role) => role.Name
                 )
-                .ToList()
+                .Cast<string>().ToList()
             }
         )
         .SingleOrDefaultAsync();
         if (foundUser is null) {
             return TypedResults.NotFound();
         }
-        var userClaimIds = foundUser.Claims.Select(claim => claim.Type).ToList();
+        var userClaimIds = foundUser.Claims.Select(claim => claim.Type).Cast<string>().ToList();
         if (userClaimIds.Any()) {
             var claimTypes = await configurationDbContext.ClaimTypes.Where(claim => userClaimIds.Contains(claim.Name)).ToListAsync();
             foreach (var claim in foundUser.Claims) {
@@ -138,7 +138,7 @@ internal static class UserHandlers
             PhoneNumber = request.PhoneNumber,
             PasswordExpirationPolicy = request.PasswordExpirationPolicy
         };
-        IdentityResult result = null;
+        IdentityResult? result = null;
         if (string.IsNullOrEmpty(request.Password)) {
             result = await userManager.CreateAsync(user);
         } else {
@@ -150,7 +150,7 @@ internal static class UserHandlers
         if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
         }
-        var claims = request?.Claims?.Count() > 0 ? request.Claims.Select(x => new Claim(x.Type, x.Value)).ToList() : new List<Claim>();
+        var claims = request.Claims?.Count() > 0 ? request.Claims.Select(x => new Claim(x.Type!, x.Value!)).ToList() : new List<Claim>();
         if (!string.IsNullOrEmpty(request.FirstName)) {
             claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
         }
@@ -224,7 +224,7 @@ internal static class UserHandlers
                 Value = x.ClaimValue
             })
             .ToList(),
-            Roles = roles
+            Roles = roles.Cast<string>().ToList(),
         });
     }
 
@@ -276,11 +276,11 @@ internal static class UserHandlers
         if (role == null) {
             return TypedResults.NotFound();
         }
-        if (await userManager.IsInRoleAsync(user, role.Name)) {
+        if (await userManager.IsInRoleAsync(user, role.Name!)) {
             var errors = ValidationErrors.AddError(nameof(roleId), $"User {user.Email} is already a member of role {role.Name}.");
             return TypedResults.ValidationProblem(errors, detail: errors.Detail());
         }
-        var result = await userManager.AddToRoleAsync(user, role.Name);
+        var result = await userManager.AddToRoleAsync(user, role.Name!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -306,12 +306,12 @@ internal static class UserHandlers
         if (role == null) {
             return TypedResults.NotFound();
         }
-        if (!await userManager.IsInRoleAsync(user, role.Name)) {
+        if (!await userManager.IsInRoleAsync(user, role.Name!)) {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> {
                 { $"{nameof(roleId)}", new[] { $"User {user.Email} is not a member of role {role.Name}." } }
             });
         }
-        var result = await userManager.RemoveFromRoleAsync(user, role.Name);
+        var result = await userManager.RemoveFromRoleAsync(user, role.Name!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }

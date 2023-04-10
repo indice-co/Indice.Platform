@@ -4,9 +4,9 @@
 public class RoleInfo
 {
     /// <summary>The id of the role.</summary>
-    public string Id { get; set; }
+    public string? Id { get; set; }
     /// <summary>The name of the role.</summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
     /// <summary>A description for the role.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }
