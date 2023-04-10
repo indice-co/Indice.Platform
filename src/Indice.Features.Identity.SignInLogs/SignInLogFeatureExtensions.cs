@@ -36,6 +36,7 @@ public static class SignInLogFeatureExtensions
             options.Cleanup.RetentionDays = resolvedOptions.Cleanup.RetentionDays;
             options.DatabaseSchema = resolvedOptions.DatabaseSchema;
             options.Enable = resolvedOptions.Enable;
+            options.QueueChannelCapacity = resolvedOptions.QueueChannelCapacity;
         });
         // Add IdentityServer sink that captures required sign in events.
         if (resolvedOptions.Enable) {

@@ -34,27 +34,14 @@ public class SignInLogOptions
     public string DatabaseSchema { get; set; } = "dbo";
     /// <summary>Determines whether logging sign-in events is enabled. Defaults to <i>true</i>.</summary>
     public bool Enable { get; set; } = true;
+    /// <summary>The maximum number of items the internal queue may store.</summary>
+    public int QueueChannelCapacity { get; set; } = 100;
 
     /// <summary>Specifies a prefix for the API endpoints.</summary>
     public PathString ApiPrefix {
         get => _apiPrefix;
         set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? string.Empty : value; }
     }
-
-    /// <summary>Performs a deep copy of the current <see cref="SignInLogOptions"/> instance.</summary>
-    public SignInLogOptions Copy() => new() {
-        AnonymizePersonalData = AnonymizePersonalData,
-        ApiPrefix = ApiPrefix,
-        ApiScope = ApiScope,
-        Cleanup = new LogCleanupOptions {
-            BatchSize = Cleanup.BatchSize,
-            IntervalSeconds = Cleanup.IntervalSeconds,
-            Enable = Cleanup.Enable,
-            RetentionDays = Cleanup.RetentionDays,
-        },
-        DatabaseSchema = DatabaseSchema,
-        Enable = Enable
-    };
 }
 
 /// <summary>Options regarding log cleanup.</summary>
