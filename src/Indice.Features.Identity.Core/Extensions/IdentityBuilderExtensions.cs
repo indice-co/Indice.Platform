@@ -61,8 +61,9 @@ public static class IdentityBuilderExtensions
     /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
     public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<TotpOptions> configure = null) {
-        if (configure is not null)
-            builder.Services.PostConfigure(configure); 
+        if (configure is not null) {
+            builder.Services.PostConfigure(configure);
+        }
         builder.Services.AddTotpServiceFactory(configuration, configure);
         builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, typeof(DeveloperPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType));
         return builder;

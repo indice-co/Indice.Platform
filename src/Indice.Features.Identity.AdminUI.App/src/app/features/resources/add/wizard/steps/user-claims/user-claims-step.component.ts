@@ -23,7 +23,7 @@ export class UserClaimsStepComponent extends StepBaseComponent<ResourceWizardMod
     public selectedClaims: ClaimTypeInfo[];
 
     public ngOnInit(): void {
-        this._api.getClaimTypes(undefined, 1, 2147483647, 'name+', undefined).subscribe((response: ClaimTypeInfoResultSet) => {
+        this._api.getClaimTypes(1, 2147483647, 'name+', undefined).subscribe((response: ClaimTypeInfoResultSet) => {
             this._selectedClaimsControl = this.data.form.controls.userClaims;
             this.availableClaims = response.items.filter(x => !this._selectedClaimsControl.value.includes(x.name));
             this.selectedClaims = response.items.filter(x => this._selectedClaimsControl.value.includes(x.name));

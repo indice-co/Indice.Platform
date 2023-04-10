@@ -39,8 +39,8 @@ public static class IServiceCollectionExtensions
     /// <summary>Adds the required services in order to access client theme data in the Views.</summary>
     /// <param name="services">The services available in the application.</param>
     public static IServiceCollection AddClientThemingService<TThemeConfig>(this IServiceCollection services) where TThemeConfig : class {
-        services.AddScoped<IClientThemingService<TThemeConfig>, ClientThemingService<TThemeConfig>>();
-        services.AddSingleton(serviceProvider => new ClientThemeConfigTypeResolver(typeof(TThemeConfig)));
+        services.TryAddScoped<IClientThemingService<TThemeConfig>, ClientThemingService<TThemeConfig>>();
+        services.TryAddSingleton(serviceProvider => new ClientThemeConfigTypeResolver(typeof(TThemeConfig)));
         return services;
     }
 

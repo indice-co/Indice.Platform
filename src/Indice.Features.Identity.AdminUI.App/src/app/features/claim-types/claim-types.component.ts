@@ -38,7 +38,7 @@ export class ClaimTypesComponent implements OnInit {
     }
 
     public getClaimTypes(event: SearchEvent): void {
-        this._api.getClaimTypes(undefined, event.page, event.pageSize, event.sortField, event.searchTerm).subscribe((claimTypes: ClaimTypeInfoResultSet) => {
+        this._api.getClaimTypes(event.page, event.pageSize, event.sortField, event.searchTerm).subscribe((claimTypes: ClaimTypeInfoResultSet) => {
             this.count = claimTypes.count;
             this.rows = claimTypes.items;
         });

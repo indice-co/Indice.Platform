@@ -9,15 +9,21 @@ public class PlatformEventService : IPlatformEventService
 
     /// <summary>Creates a new instance of <see cref="PlatformEventService"/>.</summary>
     /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
-    public PlatformEventService(IServiceProvider serviceProvider) {
+    public PlatformEventService(IServiceProvider serviceProvider) =>
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-    }
 
     /// <inheritdoc />
     public async Task Publish<TEvent>(TEvent @event) where TEvent : IPlatformEvent {
         var handlers = _serviceProvider.GetService<IEnumerable<IPlatformEventHandler<TEvent>>>() ?? Enumerable.Empty<IPlatformEventHandler<TEvent>>();
         foreach (var handler in handlers) {
-            await handler.Handle(@event);
+            var args = new PlatformEventArgs();
+            try {
+                await handler.Handle(@event, args);
+            } catch {
+                if (args.ThrowOnError) {
+                    throw;
+                }
+            }
         }
     }
 }
@@ -28,6 +34,18 @@ public interface IPlatformEventHandler<TEvent> where TEvent : IPlatformEvent
 {
     /// <summary>The method used to handle the event creation.</summary>
     /// <param name="event">The type of the event raised.</param>
+    /// <param name="args">Arguments to communicate back to the event publisher</param>
     /// <returns>The <see cref="Task"/> that was successfully completed.</returns>
-    Task Handle(TEvent @event);
+    Task Handle(TEvent @event, PlatformEventArgs args);
+}
+
+/// <summary>Extension methods on <see cref="IPlatformEventHandler{TEvent}"/>.</summary>
+public static class IPlatformEventHandlerExtensions
+{
+    /// <summary>The method used to handle the event creation using the default setup for <see cref="PlatformEventArgs"/>.</summary>
+    /// <typeparam name="TEvent"></typeparam>
+    /// <param name="eventHandler">Models the event handler.</param>
+    /// <param name="event">The type of the event raised.</param>
+    public static Task Handle<TEvent>(this IPlatformEventHandler<TEvent> eventHandler, TEvent @event) where TEvent : IPlatformEvent =>
+        eventHandler.Handle(@event, new PlatformEventArgs { ThrowOnError = false });
 }

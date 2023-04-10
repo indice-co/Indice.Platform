@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Indice.Features.Identity.Core.Extensions;
+namespace Microsoft.AspNetCore.Identity;
 
 /// <summary>Extension methods for <see cref="IdentityError"/> type.</summary>
 public static class IdentityErrorExtensions

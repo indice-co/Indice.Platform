@@ -16,14 +16,14 @@ internal class SignInLogEntryEnricherAggregator
         _filters = filters ?? throw new ArgumentNullException(nameof(filters));
     }
 
-    public async Task<bool> EnrichAsync(SignInLogEntry logEntry, EnricherDependencyType? dependencyType = null) {
+    public async Task<EnrichResult> EnrichAsync(SignInLogEntry logEntry, EnricherDependencyType? dependencyType = null) {
         var discard = false;
         if (logEntry is null) {
-            return true;
+            return EnrichResult.Failed;
         }
         discard = await MustDiscardAsync(logEntry);
         if (discard) {
-            return discard;
+            return EnrichResult.MustDiscard;
         }
         if (dependencyType.HasValue) {
             _enrichers = _enrichers.Where(enricher => dependencyType.Value.HasFlag(enricher.DependencyType));
@@ -31,7 +31,7 @@ internal class SignInLogEntryEnricherAggregator
         foreach (var enricher in _enrichers) {
             await enricher.EnrichAsync(logEntry);
         }
-        return false;
+        return EnrichResult.Success;
     }
 
     private async Task<bool> MustDiscardAsync(SignInLogEntry logEntry) {
@@ -45,4 +45,18 @@ internal class SignInLogEntryEnricherAggregator
         }
         return discard;
     }
+}
+
+internal class EnrichResult
+{
+    private static readonly EnrichResult _success = new() { Succeeded = true };
+    private static readonly EnrichResult _failed = new();
+    private static readonly EnrichResult _mustDiscard = new() { IsDiscarded = true };
+
+    public bool Succeeded { get; protected set; }
+    public bool IsDiscarded { get; protected set; }
+    public static EnrichResult Success => _success;
+    public static EnrichResult Failed => _failed;
+    public static EnrichResult MustDiscard => _mustDiscard;
+
 }

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Channels;
 using Indice.Features.Identity.SignInLogs.Models;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.SignInLogs;
 
@@ -7,18 +8,15 @@ internal class SignInLogEntryQueue
 {
     private readonly Channel<SignInLogEntry> _queue;
 
-    public SignInLogEntryQueue() => 
-        _queue = Channel.CreateUnbounded<SignInLogEntry>(new UnboundedChannelOptions {
+    public SignInLogEntryQueue(IOptions<SignInLogOptions> signInLogOptions) =>
+        _queue = Channel.CreateBounded<SignInLogEntry>(new BoundedChannelOptions(signInLogOptions.Value.QueueChannelCapacity) {
             AllowSynchronousContinuations = false,
             SingleReader = true,
-            SingleWriter = false
+            SingleWriter = false,
+            FullMode = BoundedChannelFullMode.Wait
         });
 
-    public async Task EnqueueAsync(SignInLogEntry LogEntry) => await _queue.Writer.WriteAsync(LogEntry);
+    public ValueTask EnqueueAsync(SignInLogEntry logEntry) => _queue.Writer.WriteAsync(logEntry);
 
-    public bool TryDequeue(out SignInLogEntry logEntry) {
-        var isRead = _queue.Reader.TryRead(out var dequeuedLogEntry);
-        logEntry = dequeuedLogEntry;
-        return isRead;
-    }
+    public IAsyncEnumerable<SignInLogEntry> DequeueAllAsync() => _queue.Reader.ReadAllAsync();
 }

@@ -29,7 +29,7 @@ public static class EndpointParameterValidationConfiguration
     /// <param name="scanAssemblies"></param>
     /// <returns></returns>
     public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection collection, ServiceLifetime lifetime, params Assembly[] scanAssemblies) {
-        collection.TryAddScoped<IEndpointParameterValidator, EndpointParameterFluentValidator>();
+        collection.TryAddSingleton<IEndpointParameterValidator, EndpointParameterFluentValidator>();
         if (scanAssemblies?.Length > 0) {
             AssemblyScanner.FindValidatorsInAssemblies(scanAssemblies)
                            .ForEach(x => collection.TryAdd(ServiceDescriptor.Describe(x.InterfaceType, x.ValidatorType, lifetime)));

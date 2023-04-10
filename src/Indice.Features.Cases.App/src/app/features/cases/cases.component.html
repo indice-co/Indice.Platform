@@ -5,12 +5,11 @@
                  (onAction)="actionHandler($event)"
                  (onSearch)="searchChanged($event)">
     <div class="text-right">
-        <button class="btn-success"
+        <button class="btn-submit"
                 [ngClass]="{'opacity-50 cursor-not-allowed': !queryParamsHasFilter}"
                 [disabled]="!queryParamsHasFilter"
                 (click)="openQueryModal()">
-            <p>Αποθήκευση Αναζήτησης</p>
-        </button>
+            Αποθήκευση Αναζήτησης</button>
     </div>
     <lib-list-view [items]="items"
                    [search-options]="searchOptions"

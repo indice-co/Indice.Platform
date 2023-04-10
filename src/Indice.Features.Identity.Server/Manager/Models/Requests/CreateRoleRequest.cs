@@ -9,8 +9,8 @@ public class CreateRoleRequest
     /// <summary>The name of the role.</summary>
     [Required]
     [MaxLength(TextSizePresets.S64)]
-    public string Name { get; set; }
+    public string? Name { get; set; }
     /// <summary>A description for the role.</summary>
     [MaxLength(TextSizePresets.M512)]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }

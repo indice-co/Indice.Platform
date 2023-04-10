@@ -1,4 +1,5 @@
 ﻿using System;
+using Json.Schema.Generation;
 
 namespace Indice.Features.Identity.Server.Manager.Models;
 
@@ -6,9 +7,10 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 public class CreateSecretRequest
 {
     /// <summary>Description of client secret.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
     /// <summary>The value of client secret.</summary>
-    public string Value { get; set; }
+    [Required]
+    public string? Value { get; set; }
     /// <summary>Optional expiration of client secret.</summary>
     public DateTime? Expiration { get; set; }
 }

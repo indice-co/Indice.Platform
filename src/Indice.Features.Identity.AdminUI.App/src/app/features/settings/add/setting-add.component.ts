@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { IdentityApiService, ValidationProblemDetails, ProblemDetails, CreateAppSettingRequest, AppSettingInfo } from 'src/app/core/services/identity-api.service';
+import { IdentityApiService, HttpValidationProblemDetails, ProblemDetails, CreateAppSettingRequest, AppSettingInfo } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
 
@@ -22,7 +22,7 @@ export class SettingAddComponent {
         this._api.createSetting(this.setting).subscribe((response: AppSettingInfo) => {
             this._toast.showSuccess(`Setting '${response.key}' was created successfully.`);
             this._router.navigate(['../'], { relativeTo: this._route });
-        }, (problemDetails: ValidationProblemDetails) => {
+        }, (problemDetails: HttpValidationProblemDetails) => {
             this.problemDetails = problemDetails;
         });
     }

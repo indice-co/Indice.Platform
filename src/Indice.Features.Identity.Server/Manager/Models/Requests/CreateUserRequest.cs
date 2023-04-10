@@ -8,18 +8,18 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 public class CreateUserRequest
 {
     /// <summary>The first name of the user.</summary>
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
     /// <summary>The last name of the user.</summary>
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
     /// <summary>The username used to login.</summary>
     [Required(AllowEmptyStrings = false, ErrorMessage = "Field 'UserName' is required.")]
-    public string UserName { get; set; }
+    public string UserName { get; set; } = string.Empty;
     /// <summary>The email of the user.</summary>
-    public string Email { get; set; }
+    public string? Email { get; set; }
     /// <summary>The initial password of the user.</summary>
-    public string Password { get; set; }
+    public string? Password { get; set; }
     /// <summary>User's phone number.</summary>
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     /// <summary>Represents the password expiration policy the value is measured in days.</summary>
     public PasswordExpirationPolicy? PasswordExpirationPolicy { get; set; }
     /// <summary>Forces the user to change his password after created by the system admin.</summary>

@@ -7,11 +7,11 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 public class CreateResourceRequest : BasicResourceRequest
 {
     /// <summary>The unique name of the resource.</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     /// <summary>List of allowed signing algorithms for access token. If empty, will use the server default signing algorithm.</summary>
-    public string AllowedAccessTokenSigningAlgorithms { get; set; }
+    public string? AllowedAccessTokenSigningAlgorithms { get; set; }
     /// <summary>List of associated user claims that should be included when this resource is requested.</summary>
-    public List<string> UserClaims { get; set; }
+    public List<string> UserClaims { get; set; } = new List<string>();
     /// <summary>Translations.</summary>
     public TranslationDictionary<ApiScopeTranslation> Translations { get; set; } = new TranslationDictionary<ApiScopeTranslation>();
 }
@@ -64,7 +64,7 @@ public class UpdateApiScopeRequest : BasicResourceRequest
 public class BasicResourceRequest
 {
     /// <summary>Display name of the resource.</summary>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
     /// <summary>Description of the resource.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }

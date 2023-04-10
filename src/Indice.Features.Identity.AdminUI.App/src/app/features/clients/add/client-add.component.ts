@@ -8,7 +8,7 @@ import { ClientsWizardService } from './wizard/clients-wizard.service';
 import { ClientType } from './wizard/models/client-type';
 import { WizardStepDescriptor } from 'src/app/shared/components/step-base/models/wizard-step-descriptor';
 import { WizardStepDirective } from '../../../shared/components/step-base/wizard-step.directive';
-import { CreateClientRequest, IdentityApiService, ClientInfo, ClientSecretInfo, SecretInfo, FileParameter, CreateSecretRequest, ValidationProblemDetails } from 'src/app/core/services/identity-api.service';
+import { CreateClientRequest, IdentityApiService, ClientInfo, ClientSecretInfo, SecretInfo, FileParameter, CreateSecretRequest, HttpValidationProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ClientWizardModel } from './wizard/models/client-wizard-model';
 import { StepBaseComponent } from 'src/app/shared/components/step-base/step-base.component';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
@@ -45,7 +45,7 @@ export class ClientAddComponent implements OnInit {
   public client: CreateClientRequest = new CreateClientRequest();
   public form: FormGroup;
   public hostFormValidated = false;
-  public problemDetails: ValidationProblemDetails;
+  public problemDetails: HttpValidationProblemDetails;
 
   public get canGoFront(): boolean {
     return this.wizardStepIndex >= 0 && this.wizardStepIndex < this.clientTypeSteps.length - 1;
@@ -150,7 +150,7 @@ export class ClientAddComponent implements OnInit {
       .subscribe(_ => {
         this._toast.showSuccess(`Client '${createClientRequest.clientId}' was created successfully.`);
         this._router.navigate(['../'], { relativeTo: this._route });
-      }, (problemDetails: ValidationProblemDetails) => {
+      }, (problemDetails: HttpValidationProblemDetails) => {
         this.problemDetails = problemDetails;
       });
   }

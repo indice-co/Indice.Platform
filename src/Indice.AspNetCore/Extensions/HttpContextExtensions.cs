@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace Indice.AspNetCore.Extensions;
 
@@ -7,18 +8,19 @@ public static class HttpContextExtensions
 {
     /// <summary>Tries to identify the IP address of the request.</summary>
     /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
-    public static string GetClientIpAddress(this HttpContext httpContext) {
+    public static IPAddress GetClientIpAddress(this HttpContext httpContext) {
         var headers = httpContext.Request.Headers;
+        string ipAddress = null;
         if (headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)) {
-            return xForwardedFor;
+            ipAddress = xForwardedFor;
         }
-        var ipAddress = httpContext.Connection.RemoteIpAddress.ToString();
-        if (!string.IsNullOrWhiteSpace(ipAddress)) {
-            return ipAddress;
+        var remoteIpAddress = httpContext.Connection.RemoteIpAddress.ToString();
+        if (!string.IsNullOrWhiteSpace(remoteIpAddress)) {
+            ipAddress = remoteIpAddress;
         }
         if (headers.TryGetValue("REMOTE_ADDR", out var remoteAddress)) {
-            return remoteAddress;
+            ipAddress = remoteAddress;
         }
-        return null;
+        return ipAddress is not null ? IPAddress.Parse(ipAddress) : IPAddress.None;
     }
 }

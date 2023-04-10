@@ -1,4 +1,5 @@
-﻿using Indice.Types;
+﻿using Indice.Features.Identity.Core.Data.Models;
+using Indice.Types;
 
 namespace Indice.Features.Identity.SignInLogs.Models;
 
@@ -16,6 +17,7 @@ public class SignInLogEntry
     /// <summary>Creates a new instance of <see cref="SignInLogEntry"/> class.</summary>
     public SignInLogEntry() : this(Guid.NewGuid(), DateTimeOffset.UtcNow) { }
 
+    internal User User { get; set; }
     /// <summary>The unique id of the user's sign in log entry.</summary>
     public Guid Id { get; set; }
     /// <summary>A timestamp that indicates when the user's sign in log entry occurred.</summary>

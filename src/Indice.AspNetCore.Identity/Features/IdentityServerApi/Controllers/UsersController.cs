@@ -604,7 +604,7 @@ internal class UsersController : ControllerBase
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersReader)]
     [HttpGet("{userId}/external-logins")]
-    [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(IEnumerable<UserLoginProviderInfo>))]
+    [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ResultSet<UserLoginProviderInfo>))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
     public async Task<IActionResult> GetUserExternalLogins([FromRoute] string userId) {
         var user = await _userManager.FindByIdAsync(userId);
@@ -616,7 +616,8 @@ internal class UsersController : ControllerBase
             Key = x.ProviderKey,
             Name = x.LoginProvider,
             DisplayName = !string.IsNullOrWhiteSpace(x.ProviderDisplayName) ? x.ProviderDisplayName : x.LoginProvider
-        }));
+        })
+        .ToResultSet());
     }
 
     /// <summary>Gets a list of the external login providers for the specified user.</summary>
