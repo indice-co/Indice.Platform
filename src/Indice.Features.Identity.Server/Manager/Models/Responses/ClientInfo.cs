@@ -8,11 +8,11 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 public class ClientInfo
 {
     /// <summary>The unique identifier for this application.</summary>
-    public string ClientId { get; set; }
+    public string? ClientId { get; set; }
     /// <summary>Application name that will be seen on consent screens.</summary>
-    public string ClientName { get; set; }
+    public string? ClientName { get; set; }
     /// <summary>Application description.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
     /// <summary>Determines whether this application is enabled or not.</summary>
     public bool? Enabled { get; set; }
     /// <summary>Specifies whether a consent screen is required.</summary>
@@ -20,9 +20,9 @@ public class ClientInfo
     /// <summary>Specifies whether consent screen is remembered after having been given.</summary>
     public bool? AllowRememberConsent { get; set; }
     /// <summary>Application logo that will be seen on consent screens.</summary>
-    public string LogoUri { get; set; }
+    public string? LogoUri { get; set; }
     /// <summary>Application URL that will be seen on consent screens.</summary>
-    public string ClientUri { get; set; }
+    public string? ClientUri { get; set; }
     /// <summary>Specifies whether the client can be edited or not.</summary>
     public bool NonEditable { get; set; }
 
@@ -54,9 +54,9 @@ public class SingleClientInfo : ClientInfo
     /// <summary>The maximum duration (in seconds) since the last time the user authenticated.</summary>
     public int? UserSsoLifetime { get; set; }
     /// <summary>Specifies logout URI at client for HTTP front-channel based logout.</summary>
-    public string FrontChannelLogoutUri { get; set; }
+    public string? FrontChannelLogoutUri { get; set; }
     /// <summary>Gets or sets a salt value used in pair-wise subjectId generation for users of this client.</summary>
-    public string PairWiseSubjectSalt { get; set; }
+    public string? PairWiseSubjectSalt { get; set; }
     /// <summary>Specifies whether the access token is a reference token or a self contained JWT token.</summary>
     public AccessTokenType? AccessTokenType { get; set; }
     /// <summary>
@@ -91,46 +91,46 @@ public class SingleClientInfo : ClientInfo
     /// <summary>Specifies whether a proof key can be sent using plain method.</summary>
     public bool? AllowPlainTextPkce { get; set; }
     /// <summary>Gets or sets a value to prefix it on client claim types.</summary>
-    public string ClientClaimsPrefix { get; set; }
+    public string? ClientClaimsPrefix { get; set; }
     /// <summary>Specifies logout URI at client for HTTP back-channel based logout.</summary>
-    public string BackChannelLogoutUri { get; set; }
+    public string? BackChannelLogoutUri { get; set; }
     /// <summary>If the user's session id should be sent to the <see cref="FrontChannelLogoutUri"/>. Defaults to true</summary>
     public bool BackChannelLogoutSessionRequired { get; set; }
     /// <summary>Gets or sets the type of the device flow user code.</summary>
-    public string UserCodeType { get; set; }
+    public string? UserCodeType { get; set; }
     /// <summary>Sliding lifetime of a refresh token in seconds. Defaults to 1296000 seconds / 15 days.</summary>
     public int SlidingRefreshTokenLifetime { get; set; }
     /// <summary>Gets or sets the device code lifetime.</summary>
     public int? DeviceCodeLifetime { get; set; }
     /// <summary>List of client claims.</summary>
-    public IEnumerable<ClaimInfo> Claims { get; set; }
+    public IEnumerable<ClaimInfo>? Claims { get; set; }
     /// <summary>List of configured grant types.</summary>
-    public IEnumerable<string> GrantTypes { get; set; }
+    public IEnumerable<string>? GrantTypes { get; set; }
     /// <summary>List of available client secrets.</summary>
-    public IEnumerable<ClientSecretInfo> Secrets { get; set; }
+    public IEnumerable<ClientSecretInfo>? Secrets { get; set; }
     /// <summary>CORS origins allowed.</summary>
-    public IEnumerable<string> AllowedCorsOrigins { get; set; }
+    public IEnumerable<string>? AllowedCorsOrigins { get; set; }
     /// <summary>Allowed URIs to redirect after logout.</summary>
-    public IEnumerable<string> PostLogoutRedirectUris { get; set; }
+    public IEnumerable<string>? PostLogoutRedirectUris { get; set; }
     /// <summary>Allowed URIs to redirect after successful login.</summary>
-    public IEnumerable<string> RedirectUris { get; set; }
+    public IEnumerable<string>? RedirectUris { get; set; }
     /// <summary>The API resources that the client has access to.</summary>
-    public IEnumerable<string> ApiResources { get; set; }
+    public IEnumerable<string>? ApiResources { get; set; }
     /// <summary>The identity resources that the client has access to.</summary>
-    public IEnumerable<string> IdentityResources { get; set; }
+    public IEnumerable<string>? IdentityResources { get; set; }
     /// <summary>Translations.</summary>
-    public TranslationDictionary<ClientTranslation> Translations { get; set; }
+    public TranslationDictionary<ClientTranslation>? Translations { get; set; }
     /// <summary>Determines whether login using a local account is allowed for this client.</summary>
     public bool EnableLocalLogin { get; set; }
     /// <summary>List of identity providers that are not allowed for this client.</summary>
-    public IEnumerable<string> IdentityProviderRestrictions { get; set; }
+    public IEnumerable<string>? IdentityProviderRestrictions { get; set; }
 }
 
 /// <summary>Translation object for type <see cref="SingleClientInfo"/>.</summary>
 public class ClientTranslation
 {
     /// <summary>The name of the client.</summary>
-    public string ClientName { get; set; }
+    public string? ClientName { get; set; }
     /// <summary>The description of the client.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }

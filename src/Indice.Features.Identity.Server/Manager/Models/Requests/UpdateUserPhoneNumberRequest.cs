@@ -10,7 +10,7 @@ public class UpdateUserPhoneNumberRequest
     [Required(AllowEmptyStrings = false)]
     [RegularExpression(@"^\d+$")]
     [DisplayName("phoneNumber")]
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     /// <summary></summary>
-    public string DeliveryChannel { get; set; } = "Sms";
+    public string? DeliveryChannel { get; set; } = "Sms";
 }

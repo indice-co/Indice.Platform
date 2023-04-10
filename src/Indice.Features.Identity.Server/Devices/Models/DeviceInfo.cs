@@ -7,15 +7,15 @@ namespace Indice.Features.Identity.Server.Devices.Models;
 public class DeviceInfo
 {
     /// <summary>Device id.</summary>
-    public string DeviceId { get; set; }
+    public string? DeviceId { get; set; }
     /// <summary>Device operating system.</summary>
     public DevicePlatform Platform { get; set; }
     /// <summary>Device name.</summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
     /// <summary>Device model.</summary>
-    public string Model { get; set; }
+    public string? Model { get; set; }
     /// <summary>Device OS version.</summary>
-    public string OsVersion { get; set; }
+    public string? OsVersion { get; set; }
     /// <summary>The date this device was created.</summary>
     public DateTimeOffset DateCreated { get; set; }
     /// <summary>Gets or sets the date and time, in UTC, when the device last signed in.</summary>
@@ -35,7 +35,7 @@ public class DeviceInfo
     /// <summary>Indicates whether the user can activate device trust after waiting for the specified delay.</summary>
     public bool CanActivateDeviceTrust => TrustActivationDate.HasValue && TrustActivationDate.Value <= DateTimeOffset.UtcNow && !IsTrusted;
     /// <summary>Extra metadata for the device.</summary>
-    public dynamic Data { get; set; }
+    public dynamic? Data { get; set; }
     /// <summary>Describes the type of a user device.</summary>
     public DeviceClientType? ClientType { get; set; }
 }

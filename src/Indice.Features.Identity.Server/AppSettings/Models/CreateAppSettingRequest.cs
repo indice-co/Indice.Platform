@@ -7,8 +7,8 @@ public class CreateAppSettingRequest
 {
     /// <summary>The key of application setting.</summary>
     [Required]
-    public string Key { get; set; }
+    public string? Key { get; set; }
     /// <summary>The value of application setting.</summary>
     [Required]
-    public string Value { get; set; }
+    public string? Value { get; set; }
 }

@@ -22,7 +22,7 @@ public static class DevicesApi
         group.WithTags("Devices");
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
@@ -77,13 +77,13 @@ public static class DevicesApi
             if (!deviceIdSpecified) {
                 return null;
             }
-            return await userManager.GetDeviceByIdAsync(user, deviceId.ToString());
+            return await userManager.GetDeviceByIdAsync(user, deviceId!.ToString());
         })
         .AddMessageTemplate((serviceProvider, principal, state) =>
-            serviceProvider.GetRequiredService<IdentityMessageDescriber>().TrustedDeviceRequiresOtpMessage((UserDevice)state)
+            serviceProvider.GetRequiredService<IdentityMessageDescriber>().TrustedDeviceRequiresOtpMessage((UserDevice)state!)
         )
         .AddPurpose((sp, principal, sub, phone, state) =>
-            $"{nameof(DeviceHandlers.TrustDevice)}:{sub}:{phone}:{((UserDevice)state).Id}"
+            $"{nameof(DeviceHandlers.TrustDevice)}:{sub}:{phone}:{((UserDevice)state!).Id}"
         )
         .AddValidator((sp, principal, state) =>
             state is null ? null : ValidationErrors.AddError("deviceId", "User or Device does not exist.")

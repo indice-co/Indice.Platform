@@ -9,7 +9,7 @@ public class EmailOptions
     /// <remarks>Hint: also remember to register an implementation of <see cref="IEmailService"/>.</remarks>
     public bool SendEmailOnUpdate { get; set; } = false;
     /// <summary>The optional template to use for the email change email message. Default is null.</summary>
-    public string UpdateEmailTemplate { get; set; }
+    public string? UpdateEmailTemplate { get; set; }
     /// <summary>The template to use for the password update email message. Default is null.</summary>
-    public string ForgotPasswordTemplate { get; set; }
+    public string? ForgotPasswordTemplate { get; set; }
 }

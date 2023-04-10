@@ -16,7 +16,7 @@ public class ExtendedEndpointOptions
     /// <summary>The claim type used to identify the user. Defaults to <strong>sub</strong>.</summary>
     public string UserClaimType { get; set; } = BasicClaimTypes.Subject;
     /// <summary>API default resource scope. Defaults to <strong>identity</strong>.</summary>
-    public string ApiScope { get; set; } = IdentityEndpoints.Scope;
+    public string? ApiScope { get; set; } = IdentityEndpoints.Scope;
     /// <summary>API sub-scope delimiter. Defaults to <strong>.</strong> dot.</summary>
     public string ApiSubScopeDelimiter { get; set; } = ".";
     /// <summary>Specifies a prefix for the API endpoints.</summary>

@@ -7,5 +7,5 @@ public class ValidateUserNameRequest
 {
     /// <summary>The username.</summary>
     [Required]
-    public string UserName { get; set; }
+    public string? UserName { get; set; }
 }

@@ -10,7 +10,7 @@ public sealed class ValidRegularExpressionAttribute : ValidationAttribute
     /// <param name="value">The value to validate.</param>
     /// <param name="validationContext">The context information about the validation operation.</param>
     /// <returns>An instance of the <see cref="ValidationResult"/> class.</returns>
-    protected override ValidationResult IsValid(object value, ValidationContext validationContext) {
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext) {
         if (value != null && $"{value}".Trim().Length > 0) {
             try {
                 Regex.Match(string.Empty, $"{value}");

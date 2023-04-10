@@ -7,7 +7,7 @@ public class TotpVerificationRequest
 {
     /// <summary>The TOTP code.</summary>
     [Required]
-    public string Code { get; set; }
+    public string Code { get; set; } = string.Empty;
     /// <summary>Optionally pass the reason used to generate the TOTP.</summary>
-    public string Purpose { get; set; }
+    public string? Purpose { get; set; }
 }

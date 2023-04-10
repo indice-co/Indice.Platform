@@ -6,18 +6,18 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 public class CredentialsValidationInfo
 {
     /// <summary>Contains the results of checking various password validation rules.</summary>
-    public IList<PasswordRuleInfo> PasswordRules { get; set; }
+    public IList<PasswordRuleInfo> PasswordRules { get; set; } = new List<PasswordRuleInfo>();
 }
 
 /// <summary>Models a password validation rule.</summary>
 public class PasswordRuleInfo
 {
     /// <summary>The name of the rule checked.</summary>
-    public string Code { get; set; }
+    public string Code { get; set; } = string.Empty;
     /// <summary>The rule error description.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
     /// <summary>The requirement for the rule.</summary>
-    public string Requirement { get; set; }
+    public string? Requirement { get; set; }
     /// <summary>Determines if rule validation was successful or not.</summary>
     public bool IsValid { get; set; }
 }

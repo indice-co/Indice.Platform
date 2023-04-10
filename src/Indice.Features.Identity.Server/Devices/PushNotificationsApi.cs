@@ -25,7 +25,7 @@ public static class PushNotificationsApi
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must*
         // be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
                                            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));

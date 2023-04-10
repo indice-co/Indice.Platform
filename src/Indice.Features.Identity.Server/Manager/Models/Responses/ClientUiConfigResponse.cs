@@ -6,7 +6,7 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 public class ClientThemeConfigResponse
 {
     /// <summary>JSON schema describing the properties to configure for the UI.</summary>
-    public dynamic Schema { get; set; }
+    public dynamic? Schema { get; set; }
     /// <summary>Identity Server UI configuration for the specified client.</summary>
-    public DefaultClientThemeConfig Data { get; set; }
+    public DefaultClientThemeConfig? Data { get; set; }
 }
