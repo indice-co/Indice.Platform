@@ -1,22 +1,24 @@
 ﻿using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
-internal class RequestIdEnricher : ISignInLogEntryEnricher
+internal class UserAgentEnricher : ISignInLogEntryEnricher
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public RequestIdEnricher(IHttpContextAccessor httpContextAccessor) {
+    public int Priority => 4;
+    public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
+
+    public UserAgentEnricher(IHttpContextAccessor httpContextAccessor) {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
-    public int Priority => 2;
-    public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
-
     public Task EnrichAsync(SignInLogEntry logEntry) {
-        logEntry.RequestId = _httpContextAccessor.HttpContext.TraceIdentifier;
+        var userAgentHeader = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent];
+        logEntry.ExtraData.UserAgent = userAgentHeader;
         return Task.CompletedTask;
     }
 }

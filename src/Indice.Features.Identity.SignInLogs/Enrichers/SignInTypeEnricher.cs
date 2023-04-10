@@ -25,7 +25,7 @@ internal class SignInTypeEnricher : ISignInLogEntryEnricher
         TotpConstants.GrantType.Totp
     };
 
-    public int Priority => 2;
+    public int Priority => 7;
     public EnricherDependencyType DependencyType => EnricherDependencyType.Default;
 
     public Task EnrichAsync(SignInLogEntry logEntry) {

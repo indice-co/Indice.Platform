@@ -35,7 +35,7 @@ public static class IdentityServerEndpointRouteBuilderExtensions
     }
 
     /// <summary>Gets the instance of <see cref="ExtendedEndpointOptions"/>.</summary>
-    /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>\
+    /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static ExtendedEndpointOptions GetEndpointOptions(this IEndpointRouteBuilder routes) => routes.GetEndpointOptions<ExtendedEndpointOptions>();
 
     /// <summary>Get an instance of the provided options type.</summary>

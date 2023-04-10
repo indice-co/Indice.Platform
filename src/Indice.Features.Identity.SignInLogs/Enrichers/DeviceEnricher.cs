@@ -1,43 +1,54 @@
 ﻿using Indice.Features.Identity.Core;
-using Indice.Features.Identity.Core.Types;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
 internal class DeviceEnricher : ISignInLogEntryEnricher
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IMfaDeviceIdResolver _mfaDeviceIdResolver;
+    private readonly ExtendedUserManager<User> _userManager;
 
-    public int Priority => 6;
-    public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
-
-    public DeviceEnricher(
-        IHttpContextAccessor httpContextAccessor,
-        IMfaDeviceIdResolver mfaDeviceIdResolver
-    ) {
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
+    public DeviceEnricher(ExtendedUserManager<User> userManager) {
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
+    public int Priority => 5;
+
+    public EnricherDependencyType DependencyType => EnricherDependencyType.OnDataStore;
+
     public async Task EnrichAsync(SignInLogEntry logEntry) {
-        var deviceId = await _mfaDeviceIdResolver.Resolve();
-        logEntry.DeviceId = deviceId;
-        var userAgentHeader = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent];
-        if (string.IsNullOrWhiteSpace(userAgentHeader)) {
+        if (string.IsNullOrWhiteSpace(logEntry.DeviceId)) {
             return;
         }
-        var userAgent = new UserAgent(userAgentHeader);
-        logEntry.ExtraData.Device = new { 
-            Id = deviceId,
-            Model = userAgent.DeviceModel,
-            Name = userAgent.DisplayName,
-            Platform = userAgent.DevicePlatform,
-            UserAgent = userAgent.Raw,
-            userAgent.Os
+        logEntry.User ??= (!string.IsNullOrWhiteSpace(logEntry.SubjectId) ? await _userManager.FindByIdAsync(logEntry.SubjectId) : default);
+        if (logEntry.User is null) {
+            return;
+        }
+        var device = await _userManager.GetDeviceByIdAsync(logEntry.User, logEntry.DeviceId);
+        if (device is null) {
+            return;
+        }
+        logEntry.ExtraData.Device = new {
+            device.Id,
+            device.Blocked,
+            device.ClientType,
+            device.DateCreated,
+            device.IsPendingTrustActivation,
+            device.IsPushNotificationsEnabled,
+            device.IsTrusted,
+            device.LastSignInDate,
+            device.MfaSessionExpirationDate,
+            device.Model,
+            device.Name,
+            device.OsVersion,
+            device.Platform,
+            device.RequiresPassword,
+            device.SupportsFingerprintLogin,
+            device.SupportsPinLogin,
+            device.Tags,
+            device.TrustActivationDate,
+            device.Data
         };
     }
 }

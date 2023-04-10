@@ -13,14 +13,11 @@ internal class SubjectNameEnricher : ISignInLogEntryEnricher
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
-    public int Priority => 1;
+    public int Priority => 8;
     public EnricherDependencyType DependencyType => EnricherDependencyType.OnDataStore;
 
     public async Task EnrichAsync(SignInLogEntry logEntry) {
-        if (string.IsNullOrWhiteSpace(logEntry?.SubjectId) || !string.IsNullOrWhiteSpace(logEntry?.SubjectName)) {
-            return;
-        }
-        var user = await _userManager.FindByIdAsync(logEntry.SubjectId);
-        logEntry.SubjectName = user?.UserName;
+        logEntry.User ??= (!string.IsNullOrWhiteSpace(logEntry.SubjectId) ? await _userManager.FindByIdAsync(logEntry.SubjectId) : default);
+        logEntry.SubjectName = logEntry?.User?.UserName;
     }
 }

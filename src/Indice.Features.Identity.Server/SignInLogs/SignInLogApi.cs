@@ -21,15 +21,16 @@ public static class SignInLogApi
     public static IEndpointRouteBuilder MapSignInLogs(this IEndpointRouteBuilder builder) {
         var options = builder.GetEndpointOptions<SignInLogOptions>();
         var group = builder.MapGroup($"{options.ApiPrefix}/")
+                           .WithGroupName("identity")
+                           .WithTags("SignInLogs")
                            .RequireAuthorization(policyBuilder =>
                                 policyBuilder.AddAuthenticationSchemes("IdentityServerApiAccessToken")
                                              .RequireAdmin()
                                              .RequireClaim(BasicClaimTypes.Scope, options.ApiScope)
                            )
-                           .WithTags("SignInLogs")
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
                            .ProducesProblem(StatusCodes.Status403Forbidden);
-        group.AddOpenApiSecurityRequirement("oauth2", options.ApiScope);
+        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", options.ApiScope);
         // GET: /api/sign-in-logs
         group.MapGet("/sign-in-logs", async (
             [FromServices] ISignInLogStore signInLogStore,
