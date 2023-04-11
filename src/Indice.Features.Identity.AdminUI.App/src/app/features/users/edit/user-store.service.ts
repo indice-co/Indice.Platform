@@ -138,7 +138,7 @@ export class UserStore {
     }
 
     public updateUserClaim(userId: string, claimId: number, value: string): Observable<void> {
-        return this._api.updateUserClaim(claimId, userId, {
+        return this._api.updateUserClaim(userId, claimId, {
             claimValue: value
         } as UpdateUserClaimRequest).pipe(map(_ => {
             this.getUser(userId).subscribe((user: SingleUserInfo) => {

@@ -85,7 +85,7 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
     }
 
     public downloadCertificate(clientSecretId: number): void {
-        this._api.getCertificate(clientSecretId, this.client.clientId).subscribe((file: FileResponse) => {
+        this._api.getCertificate(this.client.clientId, clientSecretId).subscribe((file: FileResponse) => {
             const blob = file.data;
             saveAs(blob, file.fileName);
         });

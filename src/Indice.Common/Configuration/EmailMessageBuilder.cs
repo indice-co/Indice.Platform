@@ -17,7 +17,7 @@ public class EmailMessageBuilder
     /// <summary>The template used to render the email.</summary>
     internal string Template { get; set; }
     /// <summary>Data that are passed to the email template.</summary>
-    internal object Data { get; set; }
+    internal object? Data { get; set; }
 }
 
 /// <summary><see cref="EmailMessageBuilder" /> extensions.</summary>

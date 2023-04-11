@@ -25,6 +25,7 @@ public static class IdentityServerApiFeatureExtensions
     /// <summary>Adds the IdentityServer API endpoints in the MVC project.</summary>
     /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
     /// <param name="configureAction">Configuration options for IdentityServer API feature.</param>
+    [Obsolete("This will be removed in a feature version. Please use MapIdentityServer extension method on type Microsoft.AspNetCore.Builder.WebApplication in order to use the Minimal API equivalent.")]
     public static IMvcBuilder AddIdentityServerApiEndpoints(this IMvcBuilder mvcBuilder, Action<IdentityServerApiEndpointsOptions> configureAction = null) {
         mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new IdentityServerApiFeatureProvider()));
         var services = mvcBuilder.Services;

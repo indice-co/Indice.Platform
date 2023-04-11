@@ -22,16 +22,16 @@ public static class ClaimTypesApi
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
         var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Users }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(policy => policy
-            .RequireAuthenticatedUser()
-            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+             .RequireAuthenticatedUser()
+             .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .CacheOutputMemory();
 
-        group.MapGet("", ClaimTypeHandlers.GetClaimTypes)
+        group.MapGet(string.Empty, ClaimTypeHandlers.GetClaimTypes)
              .WithName(nameof(ClaimTypeHandlers.GetClaimTypes))
              .WithSummary($"Returns a list of {nameof(ClaimTypeInfo)} objects containing the total number of claim types in the database and the data filtered according to the provided ListOptions.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader)

@@ -13,6 +13,8 @@ public static class PushNotificationsFeatureExtensions
     /// <summary>Adds all required services in order for Push notifications to work.</summary>
     /// <param name="builder">An interface for configuring MVC services.</param>
     /// <param name="configure">Configuration used in the implementation of <see cref="IPushNotificationService"/> service.</param>
+
+    [Obsolete("This will be removed in a feature version. Please use MapIdentityServer extension method on type Microsoft.AspNetCore.Builder.WebApplication in order to use the Minimal API equivalent.")]
     public static IMvcBuilder AddPushNotifications(this IMvcBuilder builder, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) {
         var options = new PushNotificationAzureOptions();
         configure?.Invoke(builder.Services.BuildServiceProvider(), options);

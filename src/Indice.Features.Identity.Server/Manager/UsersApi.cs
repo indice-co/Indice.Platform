@@ -30,7 +30,7 @@ public static class UsersApi
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
 
-        group.MapGet("", UserHandlers.GetUsers)
+        group.MapGet(string.Empty, UserHandlers.GetUsers)
              .WithName(nameof(UserHandlers.GetUsers))
              .WithSummary($"Returns a list of {nameof(UserInfo)} objects containing the total number of users in the database and the data filtered according to the provided ListOptions.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);

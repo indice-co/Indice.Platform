@@ -1,4 +1,5 @@
-﻿namespace Indice.Types;
+﻿#nullable enable
+namespace Indice.Types;
 
 /// <summary>List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</summary>
 public class ListOptions
@@ -32,9 +33,9 @@ public class ListOptions
     }
 
     /// <summary>The property name used to sort the list.</summary>
-    public string Sort { get; set; }
+    public string? Sort { get; set; }
     /// <summary>A search term used to limit the results of the list.</summary>
-    public string Search { get; set; }
+    public string? Search { get; set; }
 
     /// <summary>Retrieves the number of pages for a total of <paramref name="count"/> results.</summary>
     /// <param name="count">The number of results</param>
@@ -153,3 +154,4 @@ public class ListOptions<TFilter> : ListOptions where TFilter : class, new()
         return dictionary.Merge(Filter, typeof(TFilter), "filter.");
     }
 }
+#nullable disable
