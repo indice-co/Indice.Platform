@@ -36,7 +36,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <param name="environment">Provides information about the web hosting environment an application is running in.</param>
     /// <param name="setupAction">The setup action.</param>
     /// <returns>The <see cref="IExtendedIdentityServerBuilder"/></returns>
-    public static IExtendedIdentityServerBuilder AddExtendedIdentityServer(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment, Action<ExtendedIdentityServerOptions> setupAction = null) {
+    public static IExtendedIdentityServerBuilder AddExtendedIdentityServer(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment, Action<ExtendedIdentityServerOptions>? setupAction = null) {
         var extendedOptions = new ExtendedIdentityServerOptions();
         setupAction?.Invoke(extendedOptions);
         services.AddSingleton(extendedOptions);
@@ -78,7 +78,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             IdentityModelEventSource.ShowPII = true;
             builder.AddDeveloperSigningCredential();
         } else {
-            var certificate = new X509Certificate2(Path.Combine(builder.Environment.ContentRootPath, builder.Configuration["IdentityServer:SigningPfxFile"]), builder.Configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+            var certificate = new X509Certificate2(Path.Combine(builder.Environment.ContentRootPath, builder.Configuration["IdentityServer:SigningPfxFile"]!), builder.Configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
             builder.AddSigningCredential(certificate);
         }
         builder.AddDotnet7CompatibleStores();
@@ -131,7 +131,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <summary>Adds Identity server management endpoints dependencies. </summary>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction"></param>
-    public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder, Action<ExtendedEndpointOptions> configureAction = null) {
+    public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder, Action<ExtendedEndpointOptions>? configureAction = null) {
         var options = new ExtendedEndpointOptions();
         builder.Services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName); // Configure anti-forgery token options.
         builder.Services.Configure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, builder.Configuration);
@@ -154,6 +154,12 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.SerializerOptions.Converters.Add(new JsonStringBooleanConverter());
             options.SerializerOptions.Converters.Add(new JsonAnyStringConverter());
             options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
+        });
+        // the following is unfortunately required in order to have consistent swagger generator.
+        builder.Services.Configure<JsonOptions>(options => {
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
         builder.Services.AddProblemDetails();
         builder.Services.AddOutputCache();
@@ -214,7 +220,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <summary>Adds all required services for <b>Devices</b> feature.</summary>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction">Configuration used for <b>Devices</b> feature.</param>
-    public static IExtendedIdentityServerBuilder AddDeviceEndpoints(this IExtendedIdentityServerBuilder builder, Action<DeviceOptions> configureAction = null) {
+    public static IExtendedIdentityServerBuilder AddDeviceEndpoints(this IExtendedIdentityServerBuilder builder, Action<DeviceOptions>? configureAction = null) {
         var services = builder.Services;
         var options = new DeviceOptions {
             Services = services
@@ -232,7 +238,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <summary>Adds all required services for <b>Database Settings</b> feature.</summary>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction">Configuration used for <b>Database Settings</b> feature.</param>
-    public static IExtendedIdentityServerBuilder AddDatabaseSettingEndpoints(this IExtendedIdentityServerBuilder builder, Action<SettingsApiOptions> configureAction = null) {
+    public static IExtendedIdentityServerBuilder AddDatabaseSettingEndpoints(this IExtendedIdentityServerBuilder builder, Action<SettingsApiOptions>? configureAction = null) {
         var settingsApiOptions = new SettingsApiOptions {
             Services = builder.Services
         };
@@ -248,7 +254,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <summary>Registers the <see cref="DbContext"/> to be used by the Identity system.</summary>
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction">Configuration for <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</param>
-    public static IExtendedIdentityServerBuilder AddExtendedDbContext(this IExtendedIdentityServerBuilder builder, Action<IdentityDbContextOptions> configureAction) {
+    public static IExtendedIdentityServerBuilder AddExtendedDbContext(this IExtendedIdentityServerBuilder builder, Action<IdentityDbContextOptions>? configureAction) {
         var options = new IdentityDbContextOptions();
         configureAction?.Invoke(options);
         builder.Services.AddSingleton(options);
@@ -263,6 +269,6 @@ public static class DeviceOptionsExtensions
     /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
     /// <param name="deviceOptions">Options used to configure <b>Devices</b> feature.</param>
     /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
-    public static void UsePushNotificationsServiceAzure(this DeviceOptions deviceOptions, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>
+    public static void UsePushNotificationsServiceAzure(this DeviceOptions deviceOptions, Action<IServiceProvider, PushNotificationAzureOptions>? configure = null) =>
         deviceOptions.Services.AddPushNotificationServiceAzure(configure);
 }

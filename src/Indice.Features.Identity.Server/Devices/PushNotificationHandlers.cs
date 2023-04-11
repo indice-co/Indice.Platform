@@ -13,12 +13,13 @@ internal static class PushNotificationHandlers
         var errors = ValidationErrors.Create();
         if (string.IsNullOrWhiteSpace(request.Title))
             errors.AddError(nameof(request.Title).Camelize(), "Please provide a message title.");
-        if (!request.Broadcast && string.IsNullOrWhiteSpace(request.UserTag))
+        var broadcast = request.Broadcast.GetValueOrDefault();
+        if (!broadcast && string.IsNullOrWhiteSpace(request.UserTag))
             errors.AddError(nameof(request.Title).Camelize(), "Please provide a user tag.");
         if (errors.Count > 0) {
             TypedResults.ValidationProblem(errors, detail: "Model validation failed");
         }
-        if (request.Broadcast) {
+        if (broadcast) {
             await pushNotificationService.BroadcastAsync(request.Title, request.Body, request.Data, request.Classification);
         } else {
             await pushNotificationService.SendToUserAsync(request.Title, request.Body, request.Data, request.UserTag, request.Classification, request.Tags ?? Array.Empty<string>());

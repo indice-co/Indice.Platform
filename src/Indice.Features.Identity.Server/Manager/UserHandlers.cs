@@ -19,8 +19,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Features.Identity.Server.Manager;
 internal static class UserHandlers
 {
-    internal static async Task<Ok<ResultSet<UserInfo>>> GetUsers(ExtendedIdentityDbContext<User, Role> dbContext, [AsParameters] ListOptions options, [AsParameters] UserListFilter filter) {
-
+    internal static async Task<Ok<ResultSet<UserInfo>>> GetUsers(
+        ExtendedIdentityDbContext<User, Role> dbContext,
+        [AsParameters] ListOptions options,
+        [AsParameters] UserListFilter filter
+    ) {
         var query = dbContext.Users.AsNoTracking();
         if (filter != null) {
             query = query.Where(x => filter.ClaimType == null || x.Claims.Any(x => x.ClaimType == filter.ClaimType && x.ClaimValue == filter.ClaimValue));
@@ -69,7 +72,8 @@ internal static class UserHandlers
     internal static async Task<Results<Ok<SingleUserInfo>, NotFound>> GetUser(
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedConfigurationDbContext configurationDbContext,
-        string userId) {
+        string userId
+    ) {
         var foundUser = await (
             from user in dbContext.Users.AsNoTracking()
             where user.Id == userId
@@ -102,14 +106,14 @@ internal static class UserHandlers
                     role => role.Id,
                     (userRole, role) => role.Name
                 )
-                .ToList()
+                .Cast<string>().ToList()
             }
         )
         .SingleOrDefaultAsync();
         if (foundUser is null) {
             return TypedResults.NotFound();
         }
-        var userClaimIds = foundUser.Claims.Select(claim => claim.Type).ToList();
+        var userClaimIds = foundUser.Claims.Select(claim => claim.Type).Cast<string>().ToList();
         if (userClaimIds.Any()) {
             var claimTypes = await configurationDbContext.ClaimTypes.Where(claim => userClaimIds.Contains(claim.Name)).ToListAsync();
             foreach (var claim in foundUser.Claims) {
@@ -122,7 +126,10 @@ internal static class UserHandlers
         return TypedResults.Ok(foundUser);
     }
 
-    internal static async Task<Results<CreatedAtRoute<SingleUserInfo>, ValidationProblem>> CreateUser(ExtendedUserManager<User> userManager, CreateUserRequest request) {
+    internal static async Task<Results<CreatedAtRoute<SingleUserInfo>, ValidationProblem>> CreateUser(
+        ExtendedUserManager<User> userManager,
+        CreateUserRequest request
+    ) {
         var user = new User {
             Id = $"{Guid.NewGuid()}",
             UserName = request.UserName,
@@ -131,7 +138,7 @@ internal static class UserHandlers
             PhoneNumber = request.PhoneNumber,
             PasswordExpirationPolicy = request.PasswordExpirationPolicy
         };
-        IdentityResult result = null;
+        IdentityResult? result = null;
         if (string.IsNullOrEmpty(request.Password)) {
             result = await userManager.CreateAsync(user);
         } else {
@@ -143,7 +150,7 @@ internal static class UserHandlers
         if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
         }
-        var claims = request?.Claims?.Count() > 0 ? request.Claims.Select(x => new Claim(x.Type, x.Value)).ToList() : new List<Claim>();
+        var claims = request.Claims?.Count() > 0 ? request.Claims.Select(x => new Claim(x.Type!, x.Value!)).ToList() : new List<Claim>();
         if (!string.IsNullOrEmpty(request.FirstName)) {
             claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
         }
@@ -160,7 +167,9 @@ internal static class UserHandlers
     internal static async Task<Results<Ok<SingleUserInfo>, NotFound, ValidationProblem>> UpdateUser(
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedUserManager<User> userManager,
-        string userId, UpdateUserRequest request) {
+        string userId,
+        UpdateUserRequest request
+    ) {
         var user = await dbContext.Users.Include(x => x.Claims).SingleOrDefaultAsync(x => x.Id == userId);
         if (user == null) {
             return TypedResults.NotFound();
@@ -215,13 +224,15 @@ internal static class UserHandlers
                 Value = x.ClaimValue
             })
             .ToList(),
-            Roles = roles
+            Roles = roles.Cast<string>().ToList(),
         });
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteUser(
         ExtendedIdentityDbContext<User, Role> dbContext,
-        ExtendedUserManager<User> userManager, string userId) {
+        ExtendedUserManager<User> userManager,
+        string userId
+    ) {
         var user = await dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
         if (user == null) {
             return TypedResults.NotFound();
@@ -254,7 +265,9 @@ internal static class UserHandlers
         RoleManager<Role> roleManager,
         ClaimsPrincipal currentUser,
         IPersistedGrantService persistedGrantService,
-        string userId, string roleId) {
+        string userId,
+        string roleId
+    ) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.NotFound();
@@ -263,11 +276,11 @@ internal static class UserHandlers
         if (role == null) {
             return TypedResults.NotFound();
         }
-        if (await userManager.IsInRoleAsync(user, role.Name)) {
+        if (await userManager.IsInRoleAsync(user, role.Name!)) {
             var errors = ValidationErrors.AddError(nameof(roleId), $"User {user.Email} is already a member of role {role.Name}.");
             return TypedResults.ValidationProblem(errors, detail: errors.Detail());
         }
-        var result = await userManager.AddToRoleAsync(user, role.Name);
+        var result = await userManager.AddToRoleAsync(user, role.Name!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -282,7 +295,9 @@ internal static class UserHandlers
         ExtendedUserManager<User> userManager,
         RoleManager<Role> roleManager,
         IPersistedGrantService persistedGrantService,
-        string userId, string roleId) {
+        string userId,
+        string roleId
+    ) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.NotFound();
@@ -291,12 +306,12 @@ internal static class UserHandlers
         if (role == null) {
             return TypedResults.NotFound();
         }
-        if (!await userManager.IsInRoleAsync(user, role.Name)) {
+        if (!await userManager.IsInRoleAsync(user, role.Name!)) {
             return TypedResults.ValidationProblem(new Dictionary<string, string[]> {
                 { $"{nameof(roleId)}", new[] { $"User {user.Email} is not a member of role {role.Name}." } }
             });
         }
-        var result = await userManager.RemoveFromRoleAsync(user, role.Name);
+        var result = await userManager.RemoveFromRoleAsync(user, role.Name!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -308,7 +323,9 @@ internal static class UserHandlers
 
     internal static async Task<Results<Ok<BasicClaimInfo>, NotFound>> GetUserClaim(
         ExtendedIdentityDbContext<User, Role> dbContext,
-        string userId, int claimId) {
+        string userId,
+        int claimId
+    ) {
         var claim = await dbContext.UserClaims.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
         if (claim == null) {
             return TypedResults.NotFound();
@@ -321,7 +338,9 @@ internal static class UserHandlers
 
     internal static async Task<Results<CreatedAtRoute<ClaimInfo>, NotFound>> AddUserClaim(
         ExtendedIdentityDbContext<User, Role> dbContext,
-        string userId, CreateClaimRequest request) {
+        string userId,
+        CreateClaimRequest request
+    ) {
         var user = await dbContext.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == userId);
         if (user == null) {
             return TypedResults.NotFound();
@@ -342,7 +361,10 @@ internal static class UserHandlers
 
     internal static async Task<Results<Ok<ClaimInfo>, NotFound>> UpdateUserClaim(
         ExtendedIdentityDbContext<User, Role> dbContext,
-        string userId, int claimId, UpdateUserClaimRequest request) {
+        string userId,
+        int claimId,
+        UpdateUserClaimRequest request
+    ) {
         var userClaim = await dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
         if (userClaim == null) {
             return TypedResults.NotFound();
@@ -358,7 +380,9 @@ internal static class UserHandlers
 
     internal static async Task<Results<NoContent, NotFound>> DeleteUserClaim(
         ExtendedIdentityDbContext<User, Role> dbContext,
-        string userId, int claimId) {
+        int claimId,
+        string userId
+    ) {
         var userClaim = await dbContext.UserClaims.SingleOrDefaultAsync(x => x.UserId == userId && x.Id == claimId);
         if (userClaim == null) {
             return TypedResults.NotFound();
@@ -371,7 +395,8 @@ internal static class UserHandlers
     internal static async Task<Ok<ResultSet<UserClientInfo>>> GetUserApplications(
         IPersistedGrantService persistedGrantService,
         IClientStore clientStore,
-        string userId) {
+        string userId
+    ) {
         var userGrants = await persistedGrantService.GetAllGrantsAsync(userId);
         var clients = new List<UserClientInfo>();
         foreach (var grant in userGrants) {
@@ -397,7 +422,8 @@ internal static class UserHandlers
 
     internal static async Task<Ok<ResultSet<DeviceInfo>>> GetUserDevices(
         ExtendedUserManager<User> userManager,
-        string userId) {
+        string userId
+    ) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.Ok(new ResultSet<DeviceInfo>());
@@ -424,7 +450,8 @@ internal static class UserHandlers
 
     internal static async Task<Ok<ResultSet<UserLoginProviderInfo>>> GetUserExternalLogins(
         ExtendedUserManager<User> userManager,
-        string userId) {
+        string userId
+    ) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.Ok(new ResultSet<UserLoginProviderInfo>());
@@ -440,7 +467,9 @@ internal static class UserHandlers
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteUserExternalLogin(
         ExtendedUserManager<User> userManager,
-        string userId, string provider) {
+        string userId,
+        string provider
+    ) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.NotFound();
@@ -460,7 +489,9 @@ internal static class UserHandlers
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SetUserBlock(
         ExtendedUserManager<User> userManager,
         IPersistedGrantService persistedGrantService,
-        string userId, SetUserBlockRequest request) {
+        string userId,
+        SetUserBlockRequest request
+    ) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.NotFound();
@@ -478,7 +509,9 @@ internal static class UserHandlers
     }
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UnlockUser(
-        ExtendedUserManager<User> userManager, string userId) {
+        ExtendedUserManager<User> userManager,
+        string userId
+    ) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.NotFound();
@@ -496,7 +529,9 @@ internal static class UserHandlers
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SetPassword(
         ExtendedUserManager<User> userManager,
-        string userId, SetPasswordRequest request) {
+        string userId,
+        SetPasswordRequest request
+    ) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.NotFound();

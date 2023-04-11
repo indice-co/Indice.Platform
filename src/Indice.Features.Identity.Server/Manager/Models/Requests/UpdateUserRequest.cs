@@ -9,11 +9,11 @@ public class UpdateUserRequest
     /// <summary>Indicates whether two-factor authentication is enabled for the user.</summary>
     public bool TwoFactorEnabled { get; set; }
     /// <summary>User's email address.</summary>
-    public string Email { get; set; }
+    public string? Email { get; set; }
     /// <summary>User's phone number.</summary>
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     /// <summary>The username.</summary>
-    public string UserName { get; set; }
+    public string? UserName { get; set; }
     /// <summary>Dynamic claims that have been marked as required.</summary>
     public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
     /// <summary>Represents the password expiration policy the value is measured in days.</summary>

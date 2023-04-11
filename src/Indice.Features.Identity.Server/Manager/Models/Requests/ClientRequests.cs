@@ -10,11 +10,11 @@ public class CreateClientRequest : BaseClientRequest
     /// <summary>Describes the type of the client.</summary>
     public ClientType ClientType { get; set; }
     /// <summary>The unique identifier for this application.</summary>
-    public string ClientId { get; set; }
+    public string ClientId { get; set; } = string.Empty;
     /// <summary>Allowed URL to return after logging in.</summary>
-    public string RedirectUri { get; set; }
+    public string? RedirectUri { get; set; }
     /// <summary>Allowed URL to return after logout.</summary>
-    public string PostLogoutRedirectUri { get; set; }
+    public string? PostLogoutRedirectUri { get; set; }
     /// <summary>The client secrets.</summary>
     public List<CreateSecretRequest> Secrets { get; set; } = new List<CreateSecretRequest>();
     /// <summary>The list of identity resources allowed by the client.</summary>
@@ -39,13 +39,13 @@ public class UpdateClientRequest : BaseClientRequest
     /// <summary>The maximum duration (in seconds) since the last time the user authenticated.</summary>
     public int? UserSsoLifetime { get; set; }
     /// <summary>Specifies logout URI at client for HTTP front-channel based logout.</summary>
-    public string FrontChannelLogoutUri { get; set; }
+    public string? FrontChannelLogoutUri { get; set; }
     /// <summary>Gets or sets a salt value used in pair-wise subjectId generation for users of this client.</summary>
-    public string PairWiseSubjectSalt { get; set; }
+    public string? PairWiseSubjectSalt { get; set; }
     /// <summary>Gets or sets a value indicating whether the access token (and its claims) should be updated on a refresh token request.</summary>
     public bool UpdateAccessTokenClaimsOnRefresh { get; set; }
     /// <summary>Specifies logout URI at client for HTTP back-channel based logout.</summary>
-    public string BackChannelLogoutUri { get; set; }
+    public string? BackChannelLogoutUri { get; set; }
     /// <summary>Specifies is the user's session id should be sent to the BackChannelLogoutUri.</summary>
     public bool BackChannelLogoutSessionRequired { get; set; }
     /// <summary>Specifies whether the access token is a reference token or a self contained JWT token.</summary>
@@ -78,11 +78,11 @@ public class UpdateClientRequest : BaseClientRequest
     /// <summary>Specifies whether a proof key can be sent using plain method.</summary>
     public bool AllowPlainTextPkce { get; set; }
     /// <summary>Gets or sets a value to prefix it on client claim types.</summary>
-    public string ClientClaimsPrefix { get; set; }
+    public string? ClientClaimsPrefix { get; set; }
     /// <summary>Specifies whether consent screen is remembered after having been given.</summary>
     public bool AllowRememberConsent { get; set; }
     /// <summary>Gets or sets the type of the device flow user code.</summary>
-    public string UserCodeType { get; set; }
+    public string? UserCodeType { get; set; }
     /// <summary>Gets or sets the device code lifetime.</summary>
     public int DeviceCodeLifetime { get; set; }
     /// <summary>Specifies if client is enabled.</summary>
@@ -99,13 +99,13 @@ public class UpdateClientRequest : BaseClientRequest
 public class BaseClientRequest
 {
     /// <summary>Application name that will be seen on consent screens.</summary>
-    public string ClientName { get; set; }
+    public string? ClientName { get; set; }
     /// <summary>Application URL that will be seen on consent screens.</summary>
-    public string ClientUri { get; set; }
+    public string? ClientUri { get; set; }
     /// <summary>Application logo that will be seen on consent screens.</summary>
-    public string LogoUri { get; set; }
+    public string? LogoUri { get; set; }
     /// <summary>Application description.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
     /// <summary>Specifies whether a consent screen is required.</summary>
     public bool RequireConsent { get; set; }
     /// <summary>Translations.</summary>
@@ -116,11 +116,11 @@ public class BaseClientRequest
 public class UpdateClientUrls
 {
     /// <summary>Cors origins allowed.</summary>
-    public IEnumerable<string> AllowedCorsOrigins { get; set; }
+    public IEnumerable<string>? AllowedCorsOrigins { get; set; }
     /// <summary>Allowed URIs to redirect after logout.</summary>
-    public IEnumerable<string> PostLogoutRedirectUris { get; set; }
+    public IEnumerable<string>? PostLogoutRedirectUris { get; set; }
     /// <summary>Allowed URIs to redirect after successful login.</summary>
-    public IEnumerable<string> RedirectUris { get; set; }
+    public IEnumerable<string>? RedirectUris { get; set; }
 }
 
 /// <summary>Models an OAuth client type.</summary>

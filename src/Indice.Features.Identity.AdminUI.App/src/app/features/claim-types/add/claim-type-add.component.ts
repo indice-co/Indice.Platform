@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { CreateClaimTypeRequest, ClaimValueType, IdentityApiService, ClaimTypeInfo, ValidationProblemDetails, ProblemDetails } from 'src/app/core/services/identity-api.service';
+import { CreateClaimTypeRequest, ClaimValueType, IdentityApiService, ClaimTypeInfo, HttpValidationProblemDetails, ProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
 
@@ -34,7 +34,7 @@ export class ClaimTypeAddComponent implements OnInit {
         this._api.createClaimType(this.claimType).subscribe((response: ClaimTypeInfo) => {
             this._toast.showSuccess(`Claim type '${response.name}' was created successfully.`);
             this._router.navigate(['../'], { relativeTo: this._route });
-        }, (problemDetails: ValidationProblemDetails) => {
+        }, (problemDetails: HttpValidationProblemDetails) => {
             this.problemDetails = problemDetails;
         });
     }

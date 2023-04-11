@@ -4,5 +4,5 @@
 public class UpdateUserClaimRequest
 {
     /// <summary>The value of the claim.</summary>
-    public string ClaimValue { get; set; }
+    public string? ClaimValue { get; set; }
 }

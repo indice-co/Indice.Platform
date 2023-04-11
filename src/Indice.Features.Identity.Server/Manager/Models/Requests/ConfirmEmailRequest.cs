@@ -7,5 +7,5 @@ public class ConfirmEmailRequest
 {
     /// <summary>The token. </summary>
     [Required(AllowEmptyStrings = false)]
-    public string Token { get; set; }
+    public string? Token { get; set; }
 }

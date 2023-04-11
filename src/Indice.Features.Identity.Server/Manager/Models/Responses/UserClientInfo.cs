@@ -11,5 +11,5 @@ public class UserClientInfo : ClientInfo
     /// <summary>Expiration of grant.</summary>
     public DateTime? ExpiresAt { get; set; }
     /// <summary>Resources/scopes accessible by the application.</summary>
-    public IEnumerable<string> Scopes { get; set; }
+    public IEnumerable<string>? Scopes { get; set; }
 }

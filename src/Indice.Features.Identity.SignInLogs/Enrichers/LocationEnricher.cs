@@ -6,7 +6,7 @@ namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
 internal class LocationEnricher : ISignInLogEntryEnricher
 {
-    public int Priority => 5;
+    public int Priority => 6;
     public EnricherDependencyType DependencyType => EnricherDependencyType.Default;
 
     public Task EnrichAsync(SignInLogEntry logEntry) {

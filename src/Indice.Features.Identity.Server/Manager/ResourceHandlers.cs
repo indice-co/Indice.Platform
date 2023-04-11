@@ -451,8 +451,8 @@ internal static class ResourceHandlers
             UserClaims = apiScopeToAdd.UserClaims.Select(x => x.Type),
             Emphasize = apiScopeToAdd.Emphasize,
             ShowInDiscoveryDocument = apiScopeToAdd.ShowInDiscoveryDocument,
-            Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScope.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
-                ? apiScope.Properties.Single(x => x.Key == ClientPropertyKeys.Translation).Value
+            Translations = TranslationDictionary<ApiScopeTranslation>.FromJson(apiScopeToAdd.Properties.Any(x => x.Key == ClientPropertyKeys.Translation)
+                ? apiScopeToAdd.Properties.Single(x => x.Key == ClientPropertyKeys.Translation).Value
                 : string.Empty
             )
         });
@@ -468,7 +468,10 @@ internal static class ResourceHandlers
         if (apiResourceScope == null) {
             return TypedResults.NotFound();
         }
-        var apiScope = await configurationDbContext.ApiScopes.Include(x => x.Properties).SingleOrDefaultAsync(x => x.Name == apiResourceScope.Scope);
+        var apiScope = await configurationDbContext.ApiScopes.Include(x => x.Properties).Where(x => x.Name == apiResourceScope.Scope).SingleOrDefaultAsync();
+        if (apiScope is null) {
+            return TypedResults.NotFound();
+        }
         apiScope.DisplayName = request.DisplayName;
         apiScope.Description = request.Description;
         apiScope.Required = request.Required;
@@ -495,7 +498,7 @@ internal static class ResourceHandlers
         if (apiResourceScope == null) {
             return TypedResults.NotFound();
         }
-        apiResource.Scopes.Remove(apiResourceScope);
+        apiResource.Scopes!.Remove(apiResourceScope);
         var apiScope = await configurationDbContext.ApiScopes.SingleOrDefaultAsync(x => x.Name == apiResourceScope.Scope);
         if (apiScope == null) {
             return TypedResults.NotFound();

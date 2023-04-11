@@ -10,7 +10,7 @@ import { saveAs } from 'file-saver';
 import { ListViewComponent } from 'src/app/shared/components/list-view/list-view.component';
 import { UtilitiesService } from 'src/app/core/services/utilities.services';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
-import { CreateSecretRequest, SingleClientInfo, ClientSecretInfo, IdentityApiService, FileResponse, ValidationProblemDetails, ProblemDetails } from 'src/app/core/services/identity-api.service';
+import { CreateSecretRequest, SingleClientInfo, ClientSecretInfo, IdentityApiService, FileResponse, HttpValidationProblemDetails, ProblemDetails } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../client-store.service';
 import { ValidationSummaryComponent } from 'src/app/shared/components/validation-summary/validation-summary.component';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -131,7 +131,7 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
             this.rows = [...this.client.secrets];
             this._form.resetForm({ 'client-secret-type': 'X509CertificateBase64' });
             this._toast.showSuccess(`Certificate was uploaded successfully for client '${this.client.clientName}'.`);
-        }, (problemDetails: ValidationProblemDetails) => {
+        }, (problemDetails: HttpValidationProblemDetails) => {
             this.problemDetails = problemDetails
             setTimeout(() => this._validationSummary.clear(), 5000);
         });

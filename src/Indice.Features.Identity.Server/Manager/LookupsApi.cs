@@ -9,18 +9,15 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for retrieving various lookups.</summary>
 public static class LookupsApi
 {
-    /// <summary>
-    /// Adds enpoints for various lookups.
-    /// </summary>
-    /// <param name="routes"></param>
-    /// <returns></returns>
+    /// <summary>Contains operations for retrieving various lookups.</summary>
+    /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageLookups(this IdentityServerEndpointRouteBuilder routes) {
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/lookups");
         group.WithTags("Lookups");
         group.WithGroupName("identity");
         // Add security requirements, all incoming requests to this API *must* be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)

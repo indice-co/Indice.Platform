@@ -12,7 +12,7 @@ internal class RequestIdEnricher : ISignInLogEntryEnricher
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
-    public int Priority => 4;
+    public int Priority => 2;
     public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
 
     public Task EnrichAsync(SignInLogEntry logEntry) {

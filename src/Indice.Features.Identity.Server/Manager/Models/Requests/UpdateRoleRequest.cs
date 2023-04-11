@@ -4,5 +4,5 @@
 public class UpdateRoleRequest
 {
     /// <summary>A description for the role.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }

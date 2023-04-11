@@ -19,9 +19,7 @@ export class CaseCreatePageComponent implements OnInit {
 
   }
 
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void { }
 
   public createDraft() {
     const request = new CreateDraftCaseRequest({

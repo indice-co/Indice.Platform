@@ -10,8 +10,8 @@ namespace Indice.Features.Identity.Server.Manager.Models;
 public class ExternalProvider
 {
     /// <summary>The display name</summary>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
 
     /// <summary>The authentication scheme for the cookie</summary>
-    public string AuthenticationScheme { get; set; }
+    public string? AuthenticationScheme { get; set; }
 }

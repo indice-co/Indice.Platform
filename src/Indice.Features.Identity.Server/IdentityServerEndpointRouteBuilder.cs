@@ -15,7 +15,7 @@ public class IdentityServerEndpointRouteBuilder : IEndpointRouteBuilder
     /// <param name="endpointRouteBuilder">The <see cref="IEndpointRouteBuilder"/> default route builder.</param>
     public IdentityServerEndpointRouteBuilder(IEndpointRouteBuilder endpointRouteBuilder) {
         _innerBuilder = endpointRouteBuilder ?? throw new ArgumentNullException(nameof(endpointRouteBuilder));
-        Options = endpointRouteBuilder.ServiceProvider.GetRequiredService<IOptions<ExtendedEndpointOptions>>()?.Value;
+        Options = endpointRouteBuilder.ServiceProvider.GetRequiredService<IOptions<ExtendedEndpointOptions>>()?.Value ?? new ExtendedEndpointOptions();
     }
 
     /// <summary>Indice Identity Server endpoints configuration options.</summary>

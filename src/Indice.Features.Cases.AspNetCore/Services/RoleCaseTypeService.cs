@@ -37,7 +37,7 @@ internal class RoleCaseTypeService : ICaseAuthorizationService
 
         // if client is systemic or admin, then bypass checks
         if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
-            filter.CheckpointTypeCodes = await ApplyAdminCheckpointTypeFilter(filter.CheckpointTypeCodes);
+            filter.CheckpointTypeIds = await ApplyAdminCheckpointTypeFilter(filter.CheckpointTypeCodes);
             // no need to do anything for CaseType codes if user is systemic or admin!
             return filter;
         }

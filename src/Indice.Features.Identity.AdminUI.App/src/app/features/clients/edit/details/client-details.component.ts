@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { forkJoin, Subscription } from 'rxjs';
-import { SingleClientInfo, ClientTranslation, ExternalProvider, IdentityApiService } from 'src/app/core/services/identity-api.service';
+import { SingleClientInfo, ClientTranslation, ExternalProvider, IdentityApiService, ExternalProviderResultSet } from 'src/app/core/services/identity-api.service';
 import { ClientStore } from '../client-store.service';
 import { ToastService } from 'src/app/layout/services/app-toast.service';
 import { TranslateInputService } from 'src/app/shared/components/translate-input/translate-input.service';
@@ -42,9 +42,9 @@ export class ClientDetailsComponent implements OnInit, OnDestroy {
         const clientId = this._route.parent.snapshot.params.id;
         const getClient$ = this._clientStore.getClient(clientId);
         const getExternalProviders$ = this._identityApi.getExternalProviders();
-        this._getDataSubscription = forkJoin([getClient$, getExternalProviders$]).subscribe((result: [SingleClientInfo, ExternalProvider[]]) => {
+        this._getDataSubscription = forkJoin([getClient$, getExternalProviders$]).subscribe((result: [SingleClientInfo, ExternalProviderResultSet]) => {
             this.client = result[0];
-            this.externalProviders = result[1].map((provider: ExternalProvider) =>
+            this.externalProviders = result[1].items.map((provider: ExternalProvider) =>
                 new SelectableExternalProvider(this.client.identityProviderRestrictions.indexOf(provider.authenticationScheme) > -1 ? false : true, provider.displayName, provider.authenticationScheme));
             if (!this.client.translations) {
                 this.client.translations = {} as { [key: string]: ClientTranslation; };

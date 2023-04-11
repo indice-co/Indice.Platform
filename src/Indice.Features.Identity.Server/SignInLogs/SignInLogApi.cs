@@ -1,6 +1,5 @@
 ﻿using System.Net.Mime;
 using Indice.Features.Identity.Core;
-using Indice.Features.Identity.Server;
 using Indice.Features.Identity.SignInLogs;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
@@ -19,16 +18,19 @@ public static class SignInLogApi
 {
     /// <summary>Maps the sign in logs endpoints.</summary>
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    public static IEndpointRouteBuilder MapSignInLogEndpoints(this IEndpointRouteBuilder builder) {
-        var options = builder.GetRequiredOptions<SignInLogOptions>();
+    public static IEndpointRouteBuilder MapSignInLogs(this IEndpointRouteBuilder builder) {
+        var options = builder.GetEndpointOptions<SignInLogOptions>();
         var group = builder.MapGroup($"{options.ApiPrefix}/")
+                           .WithGroupName("identity")
+                           .WithTags("SignInLogs")
                            .RequireAuthorization(policyBuilder =>
-                                policyBuilder.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                                policyBuilder.AddAuthenticationSchemes("IdentityServerApiAccessToken")
                                              .RequireAdmin()
                                              .RequireClaim(BasicClaimTypes.Scope, options.ApiScope)
                            )
-                           .WithTags("SignInLogs");
-        group.AddOpenApiSecurityRequirement("oauth2", options.ApiScope);
+                           .ProducesProblem(StatusCodes.Status401Unauthorized)
+                           .ProducesProblem(StatusCodes.Status403Forbidden);
+        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", options.ApiScope);
         // GET: /api/sign-in-logs
         group.MapGet("/sign-in-logs", async (
             [FromServices] ISignInLogStore signInLogStore,
@@ -43,10 +45,7 @@ public static class SignInLogApi
             return TypedResults.Ok(signInLogs);
         })
         .Produces<ResultSet<SignInLogEntry>>(StatusCodes.Status200OK, MediaTypeNames.Application.Json)
-        .ProducesProblem(StatusCodes.Status401Unauthorized, "application/problem+json")
-        .ProducesProblem(StatusCodes.Status403Forbidden, "application/problem+json")
         .WithDescription("Gets the list of sign in logs produced by the Identity system.")
-        .WithDisplayName("Get Sign in Logs")
         .WithName("GetSignInLogs")
         .WithSummary("Gets the list of sign in logs produced by the Identity system.");
         // PATCH: /api/sign-in-logs/{rowId}
@@ -64,10 +63,7 @@ public static class SignInLogApi
         })
         .Produces(StatusCodes.Status204NoContent)
         .ProducesProblem(StatusCodes.Status404NotFound, "application/problem+json")
-        .ProducesProblem(StatusCodes.Status401Unauthorized, "application/problem+json")
-        .ProducesProblem(StatusCodes.Status403Forbidden, "application/problem+json")
         .WithDescription("Patches the specified log entry by updating the properties given in the request.")
-        .WithDisplayName("Patches Log Entry.")
         .WithName("PatchSignInLog")
         .WithSummary("Patches the specified log entry by updating the properties given in the request.");
         return group;
