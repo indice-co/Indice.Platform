@@ -42,10 +42,26 @@ public class AuditMeta
     }
 
     private static AuditMeta Populate(AuditMeta meta, ClaimsPrincipal user, DateTimeOffset? now = null) {
-        meta = meta ?? new AuditMeta();
-        meta.Id = user.FindFirstValue(BasicClaimTypes.Subject);
-        meta.Email = user.FindFirstValue(BasicClaimTypes.Email);
-        meta.Name = $"{user.FindFirstValue(BasicClaimTypes.GivenName)} {user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim();
+        meta ??= new AuditMeta();
+
+        var subject = user.FindFirstValue(BasicClaimTypes.Subject);
+        var hasSubject = !string.IsNullOrWhiteSpace(subject);
+
+        string email;
+        string name;
+        if (hasSubject) {
+            email = user.FindFirstValue(BasicClaimTypes.Email);
+            name = $"{user.FindFirstValue(BasicClaimTypes.GivenName)} {user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim();
+        } else {
+            subject = user.FindFirstValue(BasicClaimTypes.ClientId);
+            email = user.FindFirstValue(BasicClaimTypes.ClientId);
+            name = "system_user";
+        }
+
+
+        meta.Id = subject;
+        meta.Email = email;
+        meta.Name = name;
         meta.When = now ?? DateTimeOffset.UtcNow;
         return meta;
     }

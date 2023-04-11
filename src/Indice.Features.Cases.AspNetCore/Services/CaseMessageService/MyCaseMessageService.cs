@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
+using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Security;
@@ -34,7 +35,7 @@ internal class MyCaseMessageService : BaseCaseMessageService, IMyCaseMessageServ
         if (caseId == Guid.Empty) {
             throw new ArgumentException(nameof(caseId));
         };
-        var userId = user.FindSubjectId();
+        var userId = user.FindSubjectIdOrClientId();
         if (string.IsNullOrEmpty(userId)) {
             throw new ArgumentException(nameof(userId));
         }

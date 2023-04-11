@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
+using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
@@ -102,7 +103,7 @@ internal abstract class BaseCaseService
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     protected async Task<DbCase> GetDbCaseForCustomer(Guid caseId, ClaimsPrincipal customer) {
-        var userId = customer.FindSubjectId();
+        var userId = customer.FindSubjectIdOrClientId();
         var @case = await _dbContext.Cases
             .Include(c => c.CaseType)
             .FirstOrDefaultAsync(p => p.Id == caseId && (p.CreatedBy.Id == userId || p.Customer.UserId == userId));

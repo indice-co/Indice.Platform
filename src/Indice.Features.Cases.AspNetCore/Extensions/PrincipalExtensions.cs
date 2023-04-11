@@ -17,4 +17,9 @@ internal static class PrincipalExtensions
         var identity = new ClaimsIdentity(claims, "Basic"); // By setting "Basic" we are making the identity "Authenticated" so we can user user.IsAuthenticated() property later in our code
         return new ClaimsPrincipal(identity);
     }
+
+    public static string FindSubjectIdOrClientId(this ClaimsPrincipal user) {
+        var subjectId = user.FindSubjectId();
+        return !string.IsNullOrWhiteSpace(subjectId) ? subjectId : user.FindFirstValue(BasicClaimTypes.ClientId);
+    }
 }
