@@ -11,6 +11,8 @@ public class BasicPolicyNames
 public class ExtendedIdentityConstants
 {
     private const string CookiePrefix = "Identity";
+    /// <summary>The scheme used to identify MFA on-boarding authentication cookies for round tripping user identities.</summary>
+    public const string MfaOnboardingScheme = CookiePrefix + ".MfaOnboarding";
     /// <summary>The scheme used to identify extended validation authentication cookies for round tripping user identities.</summary>
     public const string ExtendedValidationUserIdScheme = CookiePrefix + ".ExtendedValidationUserId";
     /// <summary>The scheme used to identify Two Factor authentication cookies for round tripping user identities.</summary>
