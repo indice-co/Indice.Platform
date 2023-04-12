@@ -10,5 +10,5 @@ internal interface ISignInLogEntryEnricher
     public EnricherDependencyType DependencyType { get; }
     /// <summary>Enrich the <see cref="SignInLogEntry"/> class.</summary>
     /// <param name="logEntry">The instance of <see cref="SignInLogEntry"/> to enrich.</param>
-    Task EnrichAsync(SignInLogEntry logEntry);
+    ValueTask EnrichAsync(SignInLogEntry logEntry);
 }

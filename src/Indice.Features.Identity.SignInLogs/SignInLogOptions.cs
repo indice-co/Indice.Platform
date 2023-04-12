@@ -9,7 +9,7 @@ public class SignInLogOptions
 {
     internal static string GEO_LITE2_CITY_FILE_NAME = "GeoLite2-City.mmdb";
     internal static string GEO_LITE2_COUNTRY_FILE_NAME = "GeoLite2-Country.mmdb";
-    private string _apiPrefix;
+    private string _apiPrefix = "/api";
 
     /// <summary>Creates a new instance of <see cref="SignInLogOptions"/> class.</summary>
     public SignInLogOptions() { }
@@ -30,14 +30,14 @@ public class SignInLogOptions
     public string ApiScope { get; set; } = "identity";
     /// <summary>Cleanup options.</summary>
     public LogCleanupOptions Cleanup { get; set; } = new LogCleanupOptions();
-    /// <summary>Schema name to be used for the database, in case a relational provider is configured. Defaults to <i>dbo</i>.</summary>
+    /// <summary>Schema name to be used for the database, in case a relational provider is configured. Defaults to <i>auth</i>.</summary>
     public string DatabaseSchema { get; set; } = "auth";
     /// <summary>Determines whether logging sign-in events is enabled. Defaults to <i>true</i>.</summary>
     public bool Enable { get; set; } = true;
-    /// <summary>The maximum number of items the internal queue may store.</summary>
+    /// <summary>The maximum number of items the internal queue may store. Defaults to <i>100</i>.</summary>
     public int QueueChannelCapacity { get; set; } = 100;
 
-    /// <summary>Specifies a prefix for the API endpoints.</summary>
+    /// <summary>Specifies a prefix for the API endpoints. Defaults to <i>/api</i>.</summary>
     public PathString ApiPrefix {
         get => _apiPrefix;
         set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? string.Empty : value; }

@@ -28,9 +28,9 @@ internal class SignInTypeEnricher : ISignInLogEntryEnricher
     public int Priority => 7;
     public EnricherDependencyType DependencyType => EnricherDependencyType.Default;
 
-    public Task EnrichAsync(SignInLogEntry logEntry) {
+    public ValueTask EnrichAsync(SignInLogEntry logEntry) {
         if (logEntry?.SignInType is not null || string.IsNullOrWhiteSpace(logEntry?.GrantType)) {
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
         if (INTERACTIVE_GRANT_TYPES.Contains(logEntry.GrantType)) {
             logEntry.SignInType = SignInType.Interactive;
@@ -38,6 +38,6 @@ internal class SignInTypeEnricher : ISignInLogEntryEnricher
         if (NON_INTERACTIVE_GRANT_TYPES.Contains(logEntry.GrantType)) {
             logEntry.SignInType = SignInType.NonInteractive;
         }
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }

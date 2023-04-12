@@ -9,15 +9,13 @@ namespace Indice.Features.Identity.Core.Types;
 public class UserAgent
 {
     /// <summary>Creates a new instance of <see cref="UserAgent"/> class, accepting the <see cref="HeaderNames.UserAgent"/> header value as parameter.</summary>
-    /// <param name="userAgent">The <see cref="HeaderNames.UserAgent"/> header value.</param>
+    /// <param name="userAgentHeader">The <see cref="HeaderNames.UserAgent"/> header value.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public UserAgent(string userAgent) {
-        if (string.IsNullOrWhiteSpace(userAgent)) {
-            throw new ArgumentNullException(nameof(userAgent));
-        }
-        Raw = userAgent;
+    public UserAgent(string userAgentHeader) {
+        ArgumentNullException.ThrowIfNull(userAgentHeader);
+        HeaderValue = userAgentHeader;
         var uaParser = Parser.GetDefault();
-        var clientInfo = uaParser.Parse(userAgent);
+        var clientInfo = uaParser.Parse(userAgentHeader);
         Os = FormatOsInfo(clientInfo?.OS);
         DisplayName = $"{FormatUserAgentInfo(clientInfo?.UA)} on {Os}".Trim();
         DevicePlatform = DecideDevicePlatform(Os);
@@ -33,7 +31,7 @@ public class UserAgent
     /// <summary>The operating system name.</summary>
     public string Os { get; }
     /// <summary>The raw value of the header.</summary>
-    public string Raw { get; }
+    public string HeaderValue { get; }
 
     private static string FormatUserAgentInfo(UAParser.UserAgent userAgent) {
         if (userAgent is null) {
@@ -85,9 +83,6 @@ public class UserAgent
             return default;
         }
         var stringBuilder = new StringBuilder();
-        if (!string.IsNullOrWhiteSpace(device.Family)) {
-            stringBuilder.Append(device.Family);
-        }
         if (!string.IsNullOrWhiteSpace(device.Brand)) {
             stringBuilder.Append($" {device.Brand}");
         }

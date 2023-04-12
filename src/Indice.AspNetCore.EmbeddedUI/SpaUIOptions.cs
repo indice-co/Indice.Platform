@@ -15,8 +15,8 @@ public class SpaUIOptions
     public string Authority { get; set; }
     /// <summary>The client id used to identify the application in the authority server. Defaults to <b>spa-ui</b>.</summary>
     public string ClientId { get; set; } = "spa-ui";
-    /// <summary>The default scope names, as space separated values, to be used for Campaigns API. This can include the main scope (audience) and sub-scopes. Defaults to <b>campaigns</b>.</summary>
-    public string Scope { get; set; } = "campaigns";
+    /// <summary>The default scope names, as space separated values, to be used for Campaigns API. This can include the main scope (audience) and sub-scopes. Defaults to <b>null</b>.</summary>
+    public string Scope { get; set; }
     /// <summary>Specifies the title (shown in browser tab) used in the application. Defaults to <b>Indice BackOffice UI</b>.</summary>
     public string DocumentTitle { get; set; } = "Indice BackOffice UI";
     /// <summary>Gets or sets additional content to place in the head of the SPA page.</summary>

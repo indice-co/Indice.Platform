@@ -27,8 +27,9 @@ public static class UsersApi
              .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-        group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized);
+        group.ProducesProblem(StatusCodes.Status401Unauthorized)
+             .ProducesProblem(StatusCodes.Status403Forbidden)
+             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet(string.Empty, UserHandlers.GetUsers)
              .WithName(nameof(UserHandlers.GetUsers))
