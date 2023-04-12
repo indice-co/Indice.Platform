@@ -46,7 +46,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         IdentityMessageDescriber identityMessageDescriber,
         IPlatformEventService eventService,
         IConfiguration configuration,
-        UserStateProvider userStateProvider
+        IUserStateProvider<TUser> userStateProvider
     ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         StateProvider = userStateProvider ?? throw new ArgumentNullException(nameof(userStateProvider));
@@ -79,7 +79,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <summary>MFA policy applied for new users.</summary>
     public MfaPolicy MfaPolicy { get; }
     /// <summary>Describes the state of the current principal.</summary>
-    public UserStateProvider StateProvider { get; }
+    public IUserStateProvider<TUser> StateProvider { get; }
 
     #region Method Overrides
     /// <inheritdoc />
@@ -160,7 +160,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
-            StateProvider.ChangeStateTo(UserAction.VerifiedPhoneNumber, user);
+            StateProvider.ChangeState(user, UserAction.VerifiedPhoneNumber);
         }
         return result;
     }
@@ -170,7 +170,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var result = await base.ConfirmEmailAsync(user, token);
         if (result.Succeeded) {
             await _eventService.Publish(new EmailConfirmedEvent(user));
-            StateProvider.ChangeStateTo(UserAction.VerifiedEmail, user);
+            StateProvider.ChangeState(user, UserAction.VerifiedEmail);
         }
         return result;
     }
@@ -179,7 +179,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public override async Task<IdentityResult> SetTwoFactorEnabledAsync(TUser user, bool enabled) {
         var result = await base.SetTwoFactorEnabledAsync(user, enabled);
         if (result.Succeeded) {
-            StateProvider.ChangeStateTo(UserAction.MfaEnabled, user);
+            StateProvider.ChangeState(user, UserAction.MfaEnabled);
         }
         return result;
     }
@@ -270,7 +270,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         if (!result.Succeeded) {
             return result;
         }
-        StateProvider.ChangeStateTo(UserAction.PasswordChanged, user);
+        StateProvider.ChangeState(user, UserAction.PasswordChanged);
         await _eventService.Publish(new PasswordChangedEvent(user));
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);

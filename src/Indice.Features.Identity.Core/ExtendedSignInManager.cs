@@ -54,7 +54,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         IAuthenticationSchemeProvider authenticationSchemeProvider,
         IUserStore<TUser> userStore,
         IMfaDeviceIdResolver mfaDeviceIdResolver,
-        UserStateProvider userStateProvider
+        IUserStateProvider<TUser> userStateProvider
     ) : base(userManager, httpContextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
         _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
@@ -88,7 +88,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <summary>Type of expiration for <see cref="IdentityConstants.TwoFactorRememberMeScheme"/> cookie.</summary>
     public MfaExpirationType RememberExpirationType { get; }
     /// <summary>Describes the state of the current principal.</summary>
-    public UserStateProvider StateProvider { get; }
+    public IUserStateProvider<TUser> StateProvider { get; }
 
     #region Method Overrides
     /// <inheritdoc/>
@@ -137,7 +137,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
-        StateProvider.ChangeStateTo(UserAction.Login, user);
+        StateProvider.ChangeState(user, UserAction.Login);
         if (ShouldSignInPartially()) {
             return await DoPartialSignInAsync(user);
         }
@@ -187,7 +187,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return error;
         }
         if (await UserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
-            StateProvider.ChangeStateTo(UserAction.MultiFactorAuthenticated, user);
+            StateProvider.ChangeState(user, UserAction.MultiFactorAuthenticated);
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
             if (ShouldSignInPartially()) {
                 return await DoPartialSignInAsync(user);
@@ -224,7 +224,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             }
         }
         await base.SignOutAsync();
-        StateProvider.Clear();
+        StateProvider.ClearState();
     }
 
     /// <inheritdoc/>
@@ -270,7 +270,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             isRemembered = device is not null && device.MfaSessionExpirationDate.HasValue && device.MfaSessionExpirationDate.Value > DateTimeOffset.UtcNow;
         }
         if (isRemembered) {
-            StateProvider.ChangeStateTo(UserAction.MultiFactorAuthenticated, user);
+            StateProvider.ChangeState(user, UserAction.MultiFactorAuthenticated);
         }
         return isRemembered;
     }

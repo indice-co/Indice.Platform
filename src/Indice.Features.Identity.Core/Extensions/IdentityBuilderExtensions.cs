@@ -30,7 +30,7 @@ public static class IdentityBuilderExtensions
         builder.Services.AddTransient<IMfaDeviceIdResolver, MfaDeviceIdResolverHttpContext>();
         builder.Services.TryAddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
-        builder.Services.TryAddTransient<UserStateProvider>();
+        builder.Services.TryAddTransient<IUserStateProvider<TUser>, DefaultUserStateProvider<TUser>>();
         return builder;
     }
 
@@ -82,7 +82,7 @@ public static class IdentityBuilderExtensions
     /// <typeparam name="TAuthenticationMethodProvider"></typeparam>
     /// <param name="builder">Helper functions for configuring identity services.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddAuthenticationMethodProvider<TAuthenticationMethodProvider>(this IdentityBuilder builder) where TAuthenticationMethodProvider : IAuthenticationMethodProvider { 
+    public static IdentityBuilder AddAuthenticationMethodProvider<TAuthenticationMethodProvider>(this IdentityBuilder builder) where TAuthenticationMethodProvider : IAuthenticationMethodProvider {
         builder.Services.AddTransient(typeof(IAuthenticationMethodProvider), typeof(TAuthenticationMethodProvider));
         return builder;
     }
