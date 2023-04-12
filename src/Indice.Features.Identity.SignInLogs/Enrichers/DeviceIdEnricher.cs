@@ -16,7 +16,7 @@ internal class DeviceIdEnricher : ISignInLogEntryEnricher
 
     public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
 
-    public async Task EnrichAsync(SignInLogEntry logEntry) {
+    public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
         var deviceId = await _mfaDeviceIdResolver.Resolve();
         logEntry.DeviceId = deviceId;
     }

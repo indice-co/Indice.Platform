@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -187,6 +188,16 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                       .RequireAuthenticatedUser()
                       .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanWriteUsers());
             });
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeUsersReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanReadUsers());
+            });
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeUsersWriter, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Users) && x.User.CanWriteUsers());
+            });
             authOptions.AddPolicy(IdentityEndpoints.Policies.BeClientsReader, policy => {
                 policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
@@ -206,6 +217,16 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                 policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
                       .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.Scope) && (x.User.HasRoleClaim(BasicRoleNames.Administrator) || x.User.HasRoleClaim(BasicRoleNames.AdminUIAdministrator) || x.User.IsAdmin() || x.User.IsSystemClient()));
+            });
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeLogsReader, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Logs) && x.User.CanReadUsers());
+            });
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeLogsWriter, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Logs) && x.User.CanWriteUsers());
             });
         });
         // Register the authentication handler, using a custom scheme name, for local APIs.

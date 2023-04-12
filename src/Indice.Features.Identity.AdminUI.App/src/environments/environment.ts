@@ -17,7 +17,7 @@ export const environment = {
     redirect_uri: 'http://localhost:4200/auth-callback',
     response_type: 'code',
     revokeAccessTokenOnSignout: true,
-    scope: 'openid profile email role offline_access identity identity:clients identity:users',
+    scope: 'openid profile email role offline_access identity identity:clients identity:users identity:logs',
     silent_redirect_uri: 'http://localhost:4200/auth-renew'
   },
   culture: 'en-GB',

@@ -9,7 +9,7 @@ export const environment = {
     post_logout_redirect_uri: 'https://indice-admin-ui.azureedge.net/#/logged-out',
     redirect_uri: 'https://indice-admin-ui.azureedge.net/#/auth-callback',
     response_type: 'code',
-    scope: 'openid profile email role offline_access identity identity:clients identity:users',
+    scope: 'openid profile email role offline_access identity identity:clients identity:users identity:logs',
     silent_redirect_uri: 'https://indice-admin-ui.azureedge.net/#/auth-renew',
     revokeAccessTokenOnSignout: true,
     accessTokenExpiringNotificationTime: 60,
