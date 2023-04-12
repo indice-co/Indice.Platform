@@ -16,7 +16,7 @@ internal class SubjectNameEnricher : ISignInLogEntryEnricher
     public int Priority => 8;
     public EnricherDependencyType DependencyType => EnricherDependencyType.OnDataStore;
 
-    public async Task EnrichAsync(SignInLogEntry logEntry) {
+    public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
         logEntry.User ??= (!string.IsNullOrWhiteSpace(logEntry.SubjectId) ? await _userManager.FindByIdAsync(logEntry.SubjectId) : default);
         logEntry.SubjectName = logEntry?.User?.UserName;
     }

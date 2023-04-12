@@ -18,16 +18,14 @@ export const IDENTITY_API_BASE_URL = new InjectionToken<string>('IDENTITY_API_BA
 export interface IIdentityApiService {
     /**
      * Generates a password reset token and sends it to the user via email.
-     * @param body (optional) 
      * @return No Content
      */
-    forgotPassword(body?: ForgotPasswordRequest | undefined): Observable<void>;
+    forgotPassword(body: ForgotPasswordRequest): Observable<void>;
     /**
      * Changes the password of the user confirming the code received during forgot password process.
-     * @param body (optional) 
      * @return No Content
      */
-    forgotPasswordConfirmation(body?: ForgotPasswordConfirmationRequest | undefined): Observable<void>;
+    forgotPasswordConfirmation(body: ForgotPasswordConfirmationRequest): Observable<void>;
     /**
      * Gets the password options that are applied when the user creates an account.
      * @return OK
@@ -35,66 +33,54 @@ export interface IIdentityApiService {
     getPasswordOptions(): Observable<PasswordOptions>;
     /**
      * Self-service user registration endpoint.
-     * @param body (optional) 
      * @return No Content
      */
-    register(body?: RegisterRequest | undefined): Observable<void>;
+    register(body: RegisterRequest): Observable<void>;
     /**
      * Checks if a username already exists in the database.
-     * @param body (optional) 
      * @return No Content
      */
-    checkUserNameExists(body?: ValidateUserNameRequest | undefined): Observable<void>;
+    checkUserNameExists(body: ValidateUserNameRequest): Observable<void>;
     /**
      * Validates a user's password against one or more configured IPasswordValidator.
-     * @param body (optional) 
      * @return OK
      */
-    validatePassword(body?: ValidatePasswordRequest | undefined): Observable<CredentialsValidationInfo>;
+    validatePassword(body: ValidatePasswordRequest): Observable<CredentialsValidationInfo>;
     /**
      * Returns a list of AppSettingInfo objects containing the total number of application settings in the database and the data filtered according to the provided AppSettingInfo.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getSettings(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<AppSettingInfoResultSet>;
+    getSettings(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<AppSettingInfoResultSet>;
     /**
      * Creates a new application setting.
-     * @param body (optional) 
      * @return Created
      */
-    createSetting(body?: CreateAppSettingRequest | undefined): Observable<AppSettingInfo>;
+    createSetting(body: CreateAppSettingRequest): Observable<AppSettingInfo>;
     /**
      * Gets an application setting by it's key.
-     * @param key (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getSettingByKey(key?: string | undefined, body?: any | undefined): Observable<AppSettingInfo>;
+    getSettingByKey(key: string): Observable<AppSettingInfo>;
     /**
      * Updates an existing application setting.
-     * @param key (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    updateSetting(key?: string | undefined, body?: UpdateAppSettingRequest | undefined): Observable<AppSettingInfo>;
+    updateSetting(key: string, body: UpdateAppSettingRequest): Observable<AppSettingInfo>;
     /**
      * Permanently deletes an application setting.
-     * @param key (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteSetting(key?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteSetting(key: string): Observable<void>;
     /**
      * Loads the appsettings.json file and saves the configuration in the database.
      * @param hardRefresh (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    loadFromAppSettingsJson(hardRefresh?: boolean | undefined, body?: any | undefined): Observable<void>;
+    loadFromAppSettingsJson(hardRefresh?: boolean | undefined): Observable<void>;
     /**
      * Returns a list of ClaimTypeInfo objects containing the total number of claim types in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) 
@@ -102,169 +88,125 @@ export interface IIdentityApiService {
      * @param sort (optional) 
      * @param search (optional) 
      * @param required (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getClaimTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, required?: boolean | undefined, body?: any | undefined): Observable<ClaimTypeInfoResultSet>;
+    getClaimTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, required?: boolean | undefined): Observable<ClaimTypeInfoResultSet>;
     /**
      * Creates a new claim type.
-     * @param body (optional) 
      * @return Created
      */
-    createClaimType(body?: CreateClaimTypeRequest | undefined): Observable<ClaimTypeInfo>;
+    createClaimType(body: CreateClaimTypeRequest): Observable<ClaimTypeInfo>;
     /**
      * Gets a claim type by it's unique id.
-     * @param claimTypeId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getClaimType(claimTypeId?: string | undefined, body?: any | undefined): Observable<ClaimTypeInfo>;
+    getClaimType(claimTypeId: string): Observable<ClaimTypeInfo>;
     /**
      * Updates an existing claim type.
-     * @param claimTypeId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    updateClaimType(claimTypeId?: string | undefined, body?: UpdateClaimTypeRequest | undefined): Observable<ClaimTypeInfo>;
+    updateClaimType(claimTypeId: string, body: UpdateClaimTypeRequest): Observable<ClaimTypeInfo>;
     /**
      * Permanently deletes an existing claim type.
-     * @param claimTypeId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClaimType(claimTypeId?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteClaimType(claimTypeId: string): Observable<void>;
     /**
      * Returns a list of ClientInfo objects containing the total number of claim types in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getClients(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<ClientInfoResultSet>;
+    getClients(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClientInfoResultSet>;
     /**
      * Creates a new client.
-     * @param body (optional) 
      * @return Created
      */
-    createClient(body?: CreateClientRequest | undefined): Observable<ClientInfo>;
+    createClient(body: CreateClientRequest): Observable<ClientInfo>;
     /**
      * Gets a client by it's unique id.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getClient(clientId?: string | undefined, body?: any | undefined): Observable<SingleClientInfo>;
+    getClient(clientId: string): Observable<SingleClientInfo>;
     /**
      * Updates an existing client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    updateClient(clientId?: string | undefined, body?: UpdateClientRequest | undefined): Observable<void>;
+    updateClient(clientId: string, body: UpdateClientRequest): Observable<void>;
     /**
      * Permanently deletes an existing client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClient(clientId?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteClient(clientId: string): Observable<void>;
     /**
      * Adds a new secret, from a certificate, to an existing client.
-     * @param clientId (optional) 
      * @param file (optional) File data
      * @param password (optional) Optional password in case this is a application/x-pkcs12
      * @return OK
      */
-    uploadCertificate(clientId?: string | undefined, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo>;
+    uploadCertificate(clientId: string, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo>;
     /**
      * Downloads a client secret if it is a certificate.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getCertificate(secretId: number, clientId?: string | undefined, body?: any | undefined): Observable<FileResponse>;
+    getCertificate(clientId: string, secretId: number): Observable<FileResponse>;
     /**
      * Adds a claim for the specified client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    addClientClaim(clientId?: string | undefined, body?: CreateClaimRequest | undefined): Observable<ClaimInfo>;
+    addClientClaim(clientId: string, body: CreateClaimRequest): Observable<ClaimInfo>;
     /**
      * Removes an identity resource from the specified client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClientClaim(claimId: number, clientId?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteClientClaim(clientId: string, claimId: number): Observable<void>;
     /**
      * Adds a grant type to the specified client.
-     * @param clientId (optional) 
-     * @param grantType (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    addClientGrantType(clientId?: string | undefined, grantType?: string | undefined, body?: any | undefined): Observable<GrantTypeInfo>;
+    addClientGrantType(clientId: string, grantType: string): Observable<GrantTypeInfo>;
     /**
      * Removes a grant type from the specified client.
-     * @param clientId (optional) 
-     * @param grantType (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClientGrantType(clientId?: string | undefined, grantType?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteClientGrantType(clientId: string, grantType: string): Observable<void>;
     /**
      * Adds an identity resource to the specified client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    addClientResources(clientId?: string | undefined, body?: string[] | undefined): Observable<void>;
+    addClientResources(clientId: string, body: string[]): Observable<void>;
     /**
      * Removes a range of identity resources from the specified client.
-     * @param clientId (optional) 
-     * @param resources (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClientResource(clientId?: string | undefined, resources?: string[] | undefined, body?: any | undefined): Observable<void>;
+    deleteClientResource(clientId: string, resources: string[], body: any): Observable<void>;
     /**
      * Adds a new secret to an existing client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    addClientSecret(clientId?: string | undefined, body?: CreateSecretRequest | undefined): Observable<SecretInfo>;
+    addClientSecret(clientId: string, body: CreateSecretRequest): Observable<SecretInfo>;
     /**
      * Removes a specified secret from a client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClientSecret(secretId: number, clientId?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteClientSecret(clientId: string, secretId: number): Observable<void>;
     /**
      * Gets the UI configuration for the specified client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getClientTheme(clientId?: string | undefined, body?: any | undefined): Observable<ClientThemeConfigResponse>;
+    getClientTheme(clientId: string): Observable<ClientThemeConfigResponse>;
     /**
      * Creates or updates the ui configuration for the specified client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    createOrUpdateClientTheme(clientId?: string | undefined, body?: ClientThemeConfigRequest | undefined): Observable<void>;
+    createOrUpdateClientTheme(clientId: string, body: ClientThemeConfigRequest): Observable<void>;
     /**
      * Renews the list of client urls (redirect cors etc).
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    updateClientUrls(clientId?: string | undefined, body?: UpdateClientUrls | undefined): Observable<void>;
+    updateClientUrls(clientId: string, body: UpdateClientUrls): Observable<void>;
     /**
      * Gets the metadata of a certificate for display.
      * @param file (optional) File data
@@ -281,10 +223,9 @@ export interface IIdentityApiService {
     getNews(page?: number | undefined, size?: number | undefined): Observable<BlogItemInfoResultSet>;
     /**
      * Gets some useful information as a summary of the system.
-     * @param body (optional) 
      * @return OK
      */
-    getSystemSummary(body?: any | undefined): Observable<SummaryInfo>;
+    getSystemSummary(): Observable<SummaryInfo>;
     /**
      * Gets the UI features status.
      * @return OK
@@ -292,58 +233,49 @@ export interface IIdentityApiService {
     getUiFeatures(): Observable<UiFeaturesInfo>;
     /**
      * Sends a push notification.
-     * @param body (optional) 
      * @return No Content
      */
-    sendPushNotification(body?: SendPushNotificationRequest | undefined): Observable<void>;
+    sendPushNotification(body: SendPushNotificationRequest): Observable<void>;
     /**
      * Gets the list of available external providers.
-     * @param body (optional) 
      * @return OK
      */
-    getExternalProviders(body?: any | undefined): Observable<ExternalProviderResultSet>;
+    getExternalProviders(): Observable<ExternalProviderResultSet>;
     /**
      * Permanently deletes current user's account.
-     * @param body (optional) 
      * @return No Content
      */
-    deleteAccount(body?: any | undefined): Observable<void>;
+    deleteAccount(): Observable<void>;
     /**
      * Gets the claims of the user.
-     * @param body (optional) 
      * @return OK
      */
-    getClaims(body?: any | undefined): Observable<ClaimInfoResultSet>;
+    getClaims(): Observable<ClaimInfoResultSet>;
     /**
      * Adds the requested claims on the current user's account.
-     * @param body (optional) 
      * @return OK
      */
-    addClaims(body?: any | undefined): Observable<ClaimInfoResultSet>;
+    addClaims(): Observable<ClaimInfoResultSet>;
     /**
      * Upserts the requested claims on the current user's account.
-     * @param body (optional) 
      * @return OK
      */
-    patchClaims(body?: any | undefined): Observable<ClaimInfoResultSet>;
+    patchClaims(): Observable<ClaimInfoResultSet>;
     /**
      * Updates the specified claim for the current user.
-     * @param body (optional) 
      * @return OK
      */
-    updateClaim(claimId: number, body?: UpdateUserClaimRequest | undefined): Observable<ClaimInfo>;
+    updateClaim(claimId: number, body: UpdateUserClaimRequest): Observable<ClaimInfo>;
     /**
      * Updates the email of the current user.
-     * @param body (optional) 
      * @return No Content
      */
-    updateEmail(body?: UpdateUserEmailRequest | undefined): Observable<void>;
+    updateEmail(body: UpdateUserEmailRequest): Observable<void>;
     /**
      * Confirms the email address of a given user.
-     * @param body (optional) 
      * @return No Content
      */
-    confirmEmail(body?: ConfirmEmailRequest | undefined): Observable<void>;
+    confirmEmail(body: ConfirmEmailRequest): Observable<void>;
     /**
      * Gets the consents given by the user.
      * @param page (optional) 
@@ -352,46 +284,39 @@ export interface IIdentityApiService {
      * @param search (optional) 
      * @param consentType (optional) 
      * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: string | undefined, clientId?: string | undefined, body?: any | undefined): Observable<UserConsentInfoResultSet>;
+    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: string | undefined, clientId?: string | undefined): Observable<UserConsentInfoResultSet>;
     /**
      * Updates the max devices count.
-     * @param body (optional) 
      * @return No Content
      */
-    updateMaxDevicesCount(body?: UpdateMaxDevicesCountRequest | undefined): Observable<void>;
+    updateMaxDevicesCount(body: UpdateMaxDevicesCountRequest): Observable<void>;
     /**
      * Changes the password for the current user, but requires the old password to be present.
-     * @param body (optional) 
      * @return No Content
      */
-    updatePassword(body?: ChangePasswordRequest | undefined): Observable<void>;
+    updatePassword(body: ChangePasswordRequest): Observable<void>;
     /**
      * Updates the password expiration policy.
-     * @param body (optional) 
      * @return No Content
      */
-    updatePasswordExpirationPolicy(body?: UpdatePasswordExpirationPolicyRequest | undefined): Observable<void>;
+    updatePasswordExpirationPolicy(body: UpdatePasswordExpirationPolicyRequest): Observable<void>;
     /**
      * Requests a phone number change for the current user.
-     * @param body (optional) 
      * @return No Content
      */
-    updatePhoneNumber(body?: UpdateUserPhoneNumberRequest | undefined): Observable<void>;
+    updatePhoneNumber(body: UpdateUserPhoneNumberRequest): Observable<void>;
     /**
      * Confirms the phone number of the user, using the OTP token.
-     * @param body (optional) 
      * @return No Content
      */
-    confirmPhoneNumber(body?: ConfirmPhoneNumberRequest | undefined): Observable<void>;
+    confirmPhoneNumber(body: ConfirmPhoneNumberRequest): Observable<void>;
     /**
      * Changes the username for the current user.
-     * @param body (optional) 
      * @return No Content
      */
-    updateUserName(body?: UpdateUserNameRequest | undefined): Observable<void>;
+    updateUserName(body: UpdateUserNameRequest): Observable<void>;
     /**
      * Returns a list of registered user devices.
      * @param page (optional) 
@@ -403,247 +328,232 @@ export interface IIdentityApiService {
      * @param blocked (optional) 
      * @param clientType (optional) 
      * @param isPendingTrustActivation (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getDevices(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isPushNotificationEnabled?: boolean | undefined, isTrusted?: boolean | undefined, blocked?: boolean | undefined, clientType?: string | undefined, isPendingTrustActivation?: boolean | undefined, body?: any | undefined): Observable<DeviceInfoResultSet>;
+    getDevices(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isPushNotificationEnabled?: boolean | undefined, isTrusted?: boolean | undefined, blocked?: boolean | undefined, clientType?: string | undefined, isPendingTrustActivation?: boolean | undefined): Observable<DeviceInfoResultSet>;
     /**
      * Creates a new device and optionally registers for push notifications.
-     * @param body (optional) 
      * @return Created
      */
-    createDevice(body?: RegisterDeviceRequest | undefined): Observable<DeviceInfo>;
+    createDevice(body: RegisterDeviceRequest): Observable<DeviceInfo>;
     /**
      * Gets a device by it's unique id.
-     * @param deviceId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getDeviceById(deviceId?: string | undefined, body?: any | undefined): Observable<DeviceInfo>;
+    getDeviceById(deviceId: string): Observable<DeviceInfo>;
     /**
      * Updates a device.
-     * @param deviceId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    updateDevice(deviceId?: string | undefined, body?: UpdateDeviceRequest | undefined): Observable<void>;
+    updateDevice(deviceId: string, body: UpdateDeviceRequest): Observable<void>;
     /**
      * Deletes the device.
-     * @param deviceId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteDevice(deviceId?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteDevice(deviceId: string): Observable<void>;
     /**
      * Starts the process of trusting a device.
-     * @param deviceId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    trustDevice(deviceId?: string | undefined, body?: TrustDeviceRequest | undefined): Observable<void>;
+    trustDevice(deviceId: string, body: TrustDeviceRequest): Observable<void>;
     /**
      * Sets a device as untrusted.
-     * @param deviceId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    untrustDevice(deviceId?: string | undefined, body?: any | undefined): Observable<void>;
+    untrustDevice(deviceId: string): Observable<void>;
+    /**
+     * Gets the list of sign in logs for the current user.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param from (optional) 
+     * @param to (optional) 
+     * @return OK
+     */
+    getMySignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined): Observable<SignInLogEntryResultSet>;
     /**
      * Returns a list of IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getIdentityResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<IdentityResourceInfoResultSet>;
+    getIdentityResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<IdentityResourceInfoResultSet>;
     /**
      * Gets an identity resource by it's unique id.
-     * @param body (optional) 
      * @return OK
      */
-    getIdentityResource(resourceId: number, body?: any | undefined): Observable<IdentityResourceInfo>;
+    getIdentityResource(resourceId: number): Observable<IdentityResourceInfo>;
     /**
      * Creates a new identity resource.
-     * @param body (optional) 
      * @return Created
      */
-    createIdentityResource(body?: CreateResourceRequest | undefined): Observable<IdentityResourceInfo>;
+    createIdentityResource(body: CreateResourceRequest): Observable<IdentityResourceInfo>;
     /**
      * Updates an identity resource.
-     * @param body (optional) 
      * @return No Content
      */
-    updateIdentityResource(resourceId: number, body?: UpdateIdentityResourceRequest | undefined): Observable<void>;
+    updateIdentityResource(resourceId: number, body: UpdateIdentityResourceRequest): Observable<void>;
     /**
      * Permanently deletes an identity resource.
-     * @param body (optional) 
      * @return No Content
      */
-    deleteIdentityResource(resourceId: number, body?: any | undefined): Observable<void>;
+    deleteIdentityResource(resourceId: number): Observable<void>;
     /**
      * Adds claims to an identity resource.
-     * @param body (optional) 
      * @return No Content
      */
-    addIdentityResourceClaims(resourceId: number, body?: string[] | undefined): Observable<void>;
+    addIdentityResourceClaims(resourceId: number, body: string[]): Observable<void>;
     /**
      * Removes a specified claim from an identity resource.
-     * @param claim (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteIdentityResourceClaim(resourceId: number, claim?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteIdentityResourceClaim(resourceId: number, claim: string): Observable<void>;
     /**
      * Returns a list of ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getApiResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<ApiResourceInfoResultSet>;
+    getApiResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ApiResourceInfoResultSet>;
     /**
      * Creates a new API resource.
-     * @param body (optional) 
      * @return Created
      */
-    createApiResource(body?: CreateResourceRequest | undefined): Observable<ApiResourceInfo>;
+    createApiResource(body: CreateResourceRequest): Observable<ApiResourceInfo>;
     /**
      * Gets an API resource by it's unique id.
-     * @param body (optional) 
      * @return OK
      */
-    getApiResource(resourceId: number, body?: any | undefined): Observable<ApiResourceInfo>;
+    getApiResource(resourceId: number): Observable<ApiResourceInfo>;
     /**
      * Updates an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    updateApiResource(resourceId: number, body?: UpdateApiResourceRequest | undefined): Observable<void>;
+    updateApiResource(resourceId: number, body: UpdateApiResourceRequest): Observable<void>;
     /**
      * Permanently deletes an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    deleteApiResource(resourceId: number, body?: any | undefined): Observable<void>;
+    deleteApiResource(resourceId: number): Observable<void>;
     /**
      * Adds claims to an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    addApiResourceClaims(resourceId: number, body?: string[] | undefined): Observable<void>;
+    addApiResourceClaims(resourceId: number, body: string[]): Observable<void>;
     /**
      * Removes a specified claim from an API resource.
-     * @param claim (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteApiResourceClaim(resourceId: number, claim?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteApiResourceClaim(resourceId: number, claim: string): Observable<void>;
     /**
      * Adds a new scope to an existing API resource.
-     * @param body (optional) 
      * @return OK
      */
-    addApiResourceScope(resourceId: number, body?: CreateApiScopeRequest | undefined): Observable<ApiScopeInfo>;
+    addApiResourceScope(resourceId: number, body: CreateApiScopeRequest): Observable<ApiScopeInfo>;
     /**
      * Updates a specified scope of an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    updateApiResourceScope(resourceId: number, scopeId: number, body?: UpdateApiScopeRequest | undefined): Observable<void>;
+    updateApiResourceScope(resourceId: number, scopeId: number, body: UpdateApiScopeRequest): Observable<void>;
     /**
      * Deletes a specified scope from an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    deleteApiResourceScope(resourceId: number, scopeId: number, body?: any | undefined): Observable<void>;
+    deleteApiResourceScope(resourceId: number, scopeId: number): Observable<void>;
     /**
      * Adds claims to an API scope of a protected resource.
-     * @param body (optional) 
      * @return No Content
      */
-    addApiResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | undefined): Observable<void>;
+    addApiResourceScopeClaims(resourceId: number, scopeId: number, body: string[]): Observable<void>;
     /**
      * Deletes a claim from an API scope of a protected resource.
-     * @param claim (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void>;
     /**
      * Adds a new scope to an existing API resource.
-     * @param body (optional) 
      * @return OK
      */
-    addApiResourceSecret(resourceId: number, body?: CreateSecretRequest | undefined): Observable<SecretInfo>;
+    addApiResourceSecret(resourceId: number, body: CreateSecretRequest): Observable<SecretInfo>;
     /**
      * Removes a specified claim from an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    deleteApiResourceSecret(resourceId: number, secretId: number, body?: any | undefined): Observable<void>;
+    deleteApiResourceSecret(resourceId: number, secretId: number): Observable<void>;
     /**
      * Returns a list of ApiResourceInfo objects containing the total number of API resources in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<ApiScopeInfoResultSet>;
+    getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ApiScopeInfoResultSet>;
     /**
      * Returns a list of RoleInfo objects containing the total number of roles in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getRoles(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<RoleInfoResultSet>;
+    getRoles(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<RoleInfoResultSet>;
     /**
      * Creates a new role.
-     * @param body (optional) 
      * @return Created
      */
-    createRole(body?: CreateRoleRequest | undefined): Observable<RoleInfo>;
+    createRole(body: CreateRoleRequest): Observable<RoleInfo>;
     /**
      * Gets a role by it's unique id.
-     * @param roleId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getRole(roleId?: string | undefined, body?: any | undefined): Observable<RoleInfo>;
+    getRole(roleId: string): Observable<RoleInfo>;
     /**
      * Updates an existing role.
-     * @param roleId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    updateRole(roleId?: string | undefined, body?: UpdateRoleRequest | undefined): Observable<RoleInfo>;
+    updateRole(roleId: string, body: UpdateRoleRequest): Observable<RoleInfo>;
     /**
      * Permanently deletes an existing role.
-     * @param roleId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteRole(roleId?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteRole(roleId: string): Observable<void>;
+    /**
+     * Gets the list of sign in logs produced by the Identity system.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param from (optional) 
+     * @param to (optional) 
+     * @param applicationId (optional) 
+     * @param subjectId (optional) 
+     * @param sessionId (optional) 
+     * @param signInType (optional) 
+     * @param markForReview (optional) 
+     * @return OK
+     */
+    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, signInType?: string | undefined, markForReview?: boolean | undefined): Observable<SignInLogEntryResultSet>;
+    /**
+     * Patches the specified log entry by updating the properties given in the request.
+     * @return No Content
+     */
+    patchSignInLog(rowId: string, body: SignInLogEntryRequest): Observable<void>;
     /**
      * Sends a new code via the selected channel.
-     * @param body (optional) 
      * @return No Content
      */
-    send(body?: TotpRequest | undefined): Observable<void>;
+    send(body: TotpRequest): Observable<void>;
     /**
      * Verify the code received.
-     * @param body (optional) 
      * @return No Content
      */
-    verify(body?: TotpVerificationRequest | undefined): Observable<void>;
+    verify(body: TotpVerificationRequest): Observable<void>;
     /**
      * Returns a list of UserInfo objects containing the total number of users in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) 
@@ -659,155 +569,94 @@ export interface IIdentityApiService {
     getUsers(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, claimType?: string | undefined, claimValue?: string | undefined, userId?: string[] | undefined, body?: any | undefined): Observable<UserInfoResultSet>;
     /**
      * Creates a new user.
-     * @param body (optional) 
      * @return Created
      */
-    createUser(body?: CreateUserRequest | undefined): Observable<SingleUserInfo>;
+    createUser(body: CreateUserRequest): Observable<SingleUserInfo>;
     /**
      * Gets a user by it's unique id.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getUser(userId?: string | undefined, body?: any | undefined): Observable<SingleUserInfo>;
+    getUser(userId: string): Observable<SingleUserInfo>;
     /**
      * Updates an existing user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    updateUser(userId?: string | undefined, body?: UpdateUserRequest | undefined): Observable<SingleUserInfo>;
+    updateUser(userId: string, body: UpdateUserRequest): Observable<SingleUserInfo>;
     /**
      * Permanently deletes an existing user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteUser(userId?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteUser(userId: string): Observable<void>;
     /**
      * Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getUserApplications(userId?: string | undefined, body?: any | undefined): Observable<UserClientInfoResultSet>;
+    getUserApplications(userId: string): Observable<UserClientInfoResultSet>;
     /**
      * Adds a claim for the specified user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return Created
      */
-    addUserClaim(userId?: string | undefined, body?: CreateClaimRequest | undefined): Observable<ClaimInfo>;
+    addUserClaim(userId: string, body: CreateClaimRequest): Observable<ClaimInfo>;
     /**
      * Gets a specified claim for a given user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getUserClaim(claimId: number, userId?: string | undefined, body?: any | undefined): Observable<BasicClaimInfo>;
+    getUserClaim(userId: string, claimId: number): Observable<BasicClaimInfo>;
     /**
      * Updates an existing user claim.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    updateUserClaim(claimId: number, userId?: string | undefined, body?: UpdateUserClaimRequest | undefined): Observable<ClaimInfo>;
+    updateUserClaim(userId: string, claimId: number, body: UpdateUserClaimRequest): Observable<ClaimInfo>;
     /**
      * Permanently deletes a specified claim from a user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteUserClaim(claimId: number, userId?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteUserClaim(claimId: number, userId: string): Observable<void>;
     /**
      * Gets a list of the devices of the specified user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getUserDevices(userId?: string | undefined, body?: any | undefined): Observable<DeviceInfoResultSet>;
+    getUserDevices(userId: string): Observable<DeviceInfoResultSet>;
     /**
      * Resends the confirmation email for a given user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    resendConfirmationEmail(userId?: string | undefined, body?: any | undefined): Observable<void>;
+    resendConfirmationEmail(userId: string): Observable<void>;
     /**
      * Gets a list of the external login providers for the specified user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getUserExternalLogins(userId?: string | undefined, body?: any | undefined): Observable<UserLoginProviderInfoResultSet>;
+    getUserExternalLogins(userId: string): Observable<UserLoginProviderInfoResultSet>;
     /**
      * Permanently deletes a specified login provider association from a user.
-     * @param userId (optional) 
-     * @param provider (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteUserExternalLogin(userId?: string | undefined, provider?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteUserExternalLogin(userId: string, provider: string): Observable<void>;
     /**
      * Adds a new role to the specified user.
-     * @param userId (optional) 
-     * @param roleId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    addUserRole(userId?: string | undefined, roleId?: string | undefined, body?: any | undefined): Observable<void>;
+    addUserRole(userId: string, roleId: string): Observable<void>;
     /**
      * Removes an existing role from the specified user.
-     * @param userId (optional) 
-     * @param roleId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteUserRole(userId?: string | undefined, roleId?: string | undefined, body?: any | undefined): Observable<void>;
+    deleteUserRole(userId: string, roleId: string): Observable<void>;
     /**
      * Toggles user block state.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    setUserBlock(userId?: string | undefined, body?: SetUserBlockRequest | undefined): Observable<void>;
+    setUserBlock(userId: string, body: SetUserBlockRequest): Observable<void>;
     /**
      * Sets the password for a given user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    setPassword(userId?: string | undefined, body?: SetPasswordRequest | undefined): Observable<void>;
+    setPassword(userId: string, body: SetPasswordRequest): Observable<void>;
     /**
      * Unlocks a user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    unlockUser(userId?: string | undefined, body?: any | undefined): Observable<void>;
-    /**
-     * Gets the list of sign in logs produced by the Identity system.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @param from (optional) 
-     * @param to (optional) 
-     * @param applicationId (optional) 
-     * @param subjectId (optional) 
-     * @param sessionId (optional) 
-     * @param signInType (optional) 
-     * @param markForReview (optional) 
-     * @param body (optional) 
-     * @return OK
-     */
-    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, signInType?: string | undefined, markForReview?: boolean | undefined, body?: any | undefined): Observable<SignInLogEntryResultSet>;
-    /**
-     * Patches the specified log entry by updating the properties given in the request.
-     * @param body (optional) 
-     * @return No Content
-     */
-    patchSignInLog(rowId: string, body?: SignInLogEntryRequest | undefined): Observable<void>;
+    unlockUser(userId: string): Observable<void>;
 }
 
 @Injectable({
@@ -825,10 +674,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Generates a password reset token and sends it to the user via email.
-     * @param body (optional) 
      * @return No Content
      */
-    forgotPassword(body?: ForgotPasswordRequest | undefined): Observable<void> {
+    forgotPassword(body: ForgotPasswordRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/account/forgot-password";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -903,10 +751,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Changes the password of the user confirming the code received during forgot password process.
-     * @param body (optional) 
      * @return No Content
      */
-    forgotPasswordConfirmation(body?: ForgotPasswordConfirmationRequest | undefined): Observable<void> {
+    forgotPasswordConfirmation(body: ForgotPasswordConfirmationRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/account/forgot-password/confirmation";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1047,10 +894,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Self-service user registration endpoint.
-     * @param body (optional) 
      * @return No Content
      */
-    register(body?: RegisterRequest | undefined): Observable<void> {
+    register(body: RegisterRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/account/register";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1125,10 +971,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Checks if a username already exists in the database.
-     * @param body (optional) 
      * @return No Content
      */
-    checkUserNameExists(body?: ValidateUserNameRequest | undefined): Observable<void> {
+    checkUserNameExists(body: ValidateUserNameRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/account/username-exists";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1210,10 +1055,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Validates a user's password against one or more configured IPasswordValidator.
-     * @param body (optional) 
      * @return OK
      */
-    validatePassword(body?: ValidatePasswordRequest | undefined): Observable<CredentialsValidationInfo> {
+    validatePassword(body: ValidatePasswordRequest): Observable<CredentialsValidationInfo> {
         let url_ = this.baseUrl + "/api/account/validate-password";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1292,10 +1136,9 @@ export class IdentityApiService implements IIdentityApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getSettings(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<AppSettingInfoResultSet> {
+    getSettings(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<AppSettingInfoResultSet> {
         let url_ = this.baseUrl + "/api/app-settings?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -1315,14 +1158,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -1379,10 +1218,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new application setting.
-     * @param body (optional) 
      * @return Created
      */
-    createSetting(body?: CreateAppSettingRequest | undefined): Observable<AppSettingInfo> {
+    createSetting(body: CreateAppSettingRequest): Observable<AppSettingInfo> {
         let url_ = this.baseUrl + "/api/app-settings";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1457,26 +1295,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets an application setting by it's key.
-     * @param key (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getSettingByKey(key?: string | undefined, body?: any | undefined): Observable<AppSettingInfo> {
+    getSettingByKey(key: string): Observable<AppSettingInfo> {
         let url_ = this.baseUrl + "/api/app-settings/{key}";
-        if (key !== null && key !== undefined)
+        if (key === undefined || key === null)
+            throw new Error("The parameter 'key' must be defined.");
         url_ = url_.replace("{key}", encodeURIComponent("" + key));
-        else
-            url_ = url_.replace("/{key}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -1537,16 +1368,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates an existing application setting.
-     * @param key (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    updateSetting(key?: string | undefined, body?: UpdateAppSettingRequest | undefined): Observable<AppSettingInfo> {
+    updateSetting(key: string, body: UpdateAppSettingRequest): Observable<AppSettingInfo> {
         let url_ = this.baseUrl + "/api/app-settings/{key}";
-        if (key !== null && key !== undefined)
+        if (key === undefined || key === null)
+            throw new Error("The parameter 'key' must be defined.");
         url_ = url_.replace("{key}", encodeURIComponent("" + key));
-        else
-            url_ = url_.replace("/{key}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -1624,26 +1452,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes an application setting.
-     * @param key (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteSetting(key?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteSetting(key: string): Observable<void> {
         let url_ = this.baseUrl + "/api/app-settings/{key}";
-        if (key !== null && key !== undefined)
+        if (key === undefined || key === null)
+            throw new Error("The parameter 'key' must be defined.");
         url_ = url_.replace("{key}", encodeURIComponent("" + key));
-        else
-            url_ = url_.replace("/{key}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -1701,10 +1522,9 @@ export class IdentityApiService implements IIdentityApiService {
     /**
      * Loads the appsettings.json file and saves the configuration in the database.
      * @param hardRefresh (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    loadFromAppSettingsJson(hardRefresh?: boolean | undefined, body?: any | undefined): Observable<void> {
+    loadFromAppSettingsJson(hardRefresh?: boolean | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/app-settings/load?";
         if (hardRefresh === null)
             throw new Error("The parameter 'hardRefresh' cannot be null.");
@@ -1712,14 +1532,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "hardRefresh=" + encodeURIComponent("" + hardRefresh) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -1788,10 +1604,9 @@ export class IdentityApiService implements IIdentityApiService {
      * @param sort (optional) 
      * @param search (optional) 
      * @param required (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getClaimTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, required?: boolean | undefined, body?: any | undefined): Observable<ClaimTypeInfoResultSet> {
+    getClaimTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, required?: boolean | undefined): Observable<ClaimTypeInfoResultSet> {
         let url_ = this.baseUrl + "/api/claim-types?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -1815,14 +1630,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "Required=" + encodeURIComponent("" + required) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -1879,10 +1690,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new claim type.
-     * @param body (optional) 
      * @return Created
      */
-    createClaimType(body?: CreateClaimTypeRequest | undefined): Observable<ClaimTypeInfo> {
+    createClaimType(body: CreateClaimTypeRequest): Observable<ClaimTypeInfo> {
         let url_ = this.baseUrl + "/api/claim-types";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1957,26 +1767,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets a claim type by it's unique id.
-     * @param claimTypeId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getClaimType(claimTypeId?: string | undefined, body?: any | undefined): Observable<ClaimTypeInfo> {
+    getClaimType(claimTypeId: string): Observable<ClaimTypeInfo> {
         let url_ = this.baseUrl + "/api/claim-types/{claimTypeId}";
-        if (claimTypeId !== null && claimTypeId !== undefined)
+        if (claimTypeId === undefined || claimTypeId === null)
+            throw new Error("The parameter 'claimTypeId' must be defined.");
         url_ = url_.replace("{claimTypeId}", encodeURIComponent("" + claimTypeId));
-        else
-            url_ = url_.replace("/{claimTypeId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -2037,16 +1840,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates an existing claim type.
-     * @param claimTypeId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    updateClaimType(claimTypeId?: string | undefined, body?: UpdateClaimTypeRequest | undefined): Observable<ClaimTypeInfo> {
+    updateClaimType(claimTypeId: string, body: UpdateClaimTypeRequest): Observable<ClaimTypeInfo> {
         let url_ = this.baseUrl + "/api/claim-types/{claimTypeId}";
-        if (claimTypeId !== null && claimTypeId !== undefined)
+        if (claimTypeId === undefined || claimTypeId === null)
+            throw new Error("The parameter 'claimTypeId' must be defined.");
         url_ = url_.replace("{claimTypeId}", encodeURIComponent("" + claimTypeId));
-        else
-            url_ = url_.replace("/{claimTypeId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -2124,26 +1924,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes an existing claim type.
-     * @param claimTypeId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClaimType(claimTypeId?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteClaimType(claimTypeId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/claim-types/{claimTypeId}";
-        if (claimTypeId !== null && claimTypeId !== undefined)
+        if (claimTypeId === undefined || claimTypeId === null)
+            throw new Error("The parameter 'claimTypeId' must be defined.");
         url_ = url_.replace("{claimTypeId}", encodeURIComponent("" + claimTypeId));
-        else
-            url_ = url_.replace("/{claimTypeId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -2211,10 +2004,9 @@ export class IdentityApiService implements IIdentityApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getClients(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<ClientInfoResultSet> {
+    getClients(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ClientInfoResultSet> {
         let url_ = this.baseUrl + "/api/clients?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -2234,14 +2026,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -2298,10 +2086,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new client.
-     * @param body (optional) 
      * @return Created
      */
-    createClient(body?: CreateClientRequest | undefined): Observable<ClientInfo> {
+    createClient(body: CreateClientRequest): Observable<ClientInfo> {
         let url_ = this.baseUrl + "/api/clients";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2376,26 +2163,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets a client by it's unique id.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getClient(clientId?: string | undefined, body?: any | undefined): Observable<SingleClientInfo> {
+    getClient(clientId: string): Observable<SingleClientInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -2456,16 +2236,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates an existing client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    updateClient(clientId?: string | undefined, body?: UpdateClientRequest | undefined): Observable<void> {
+    updateClient(clientId: string, body: UpdateClientRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -2539,26 +2316,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes an existing client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClient(clientId?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteClient(clientId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -2622,17 +2392,15 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds a new secret, from a certificate, to an existing client.
-     * @param clientId (optional) 
      * @param file (optional) File data
      * @param password (optional) Optional password in case this is a application/x-pkcs12
      * @return OK
      */
-    uploadCertificate(clientId?: string | undefined, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo> {
+    uploadCertificate(clientId: string, file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/certificates";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
@@ -2715,29 +2483,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Downloads a client secret if it is a certificate.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getCertificate(secretId: number, clientId?: string | undefined, body?: any | undefined): Observable<FileResponse> {
+    getCertificate(clientId: string, secretId: number): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/certificates/{secretId}";
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
+        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
         if (secretId === undefined || secretId === null)
             throw new Error("The parameter 'secretId' must be defined.");
         url_ = url_.replace("{secretId}", encodeURIComponent("" + secretId));
-        if (clientId !== null && clientId !== undefined)
-        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/x-x509-user-cert"
             })
         };
@@ -2803,16 +2564,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds a claim for the specified client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    addClientClaim(clientId?: string | undefined, body?: CreateClaimRequest | undefined): Observable<ClaimInfo> {
+    addClientClaim(clientId: string, body: CreateClaimRequest): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/claims";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -2890,29 +2648,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Removes an identity resource from the specified client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClientClaim(claimId: number, clientId?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteClientClaim(clientId: string, claimId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/claims/{claimId}";
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
+        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
         if (claimId === undefined || claimId === null)
             throw new Error("The parameter 'claimId' must be defined.");
         url_ = url_.replace("{claimId}", encodeURIComponent("" + claimId));
-        if (clientId !== null && clientId !== undefined)
-        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -2976,31 +2727,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds a grant type to the specified client.
-     * @param clientId (optional) 
-     * @param grantType (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    addClientGrantType(clientId?: string | undefined, grantType?: string | undefined, body?: any | undefined): Observable<GrantTypeInfo> {
+    addClientGrantType(clientId: string, grantType: string): Observable<GrantTypeInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/grant-types/{grantType}";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
-        if (grantType !== null && grantType !== undefined)
+        if (grantType === undefined || grantType === null)
+            throw new Error("The parameter 'grantType' must be defined.");
         url_ = url_.replace("{grantType}", encodeURIComponent("" + grantType));
-        else
-            url_ = url_.replace("/{grantType}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -3068,31 +2810,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Removes a grant type from the specified client.
-     * @param clientId (optional) 
-     * @param grantType (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClientGrantType(clientId?: string | undefined, grantType?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteClientGrantType(clientId: string, grantType: string): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/grant-types/{grantType}";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
-        if (grantType !== null && grantType !== undefined)
+        if (grantType === undefined || grantType === null)
+            throw new Error("The parameter 'grantType' must be defined.");
         url_ = url_.replace("{grantType}", encodeURIComponent("" + grantType));
-        else
-            url_ = url_.replace("/{grantType}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -3156,16 +2889,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds an identity resource to the specified client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    addClientResources(clientId?: string | undefined, body?: string[] | undefined): Observable<void> {
+    addClientResources(clientId: string, body: string[]): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/resources";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3239,20 +2969,16 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Removes a range of identity resources from the specified client.
-     * @param clientId (optional) 
-     * @param resources (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClientResource(clientId?: string | undefined, resources?: string[] | undefined, body?: any | undefined): Observable<void> {
+    deleteClientResource(clientId: string, resources: string[], body: any): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/resources?";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
+        if (resources === undefined || resources === null)
+            throw new Error("The parameter 'resources' must be defined and cannot be null.");
         else
-            url_ = url_.replace("/{clientId}", "");
-        if (resources === null)
-            throw new Error("The parameter 'resources' cannot be null.");
-        else if (resources !== undefined)
             resources && resources.forEach(item => { url_ += "resources=" + encodeURIComponent("" + item) + "&"; });
         url_ = url_.replace(/[?&]$/, "");
 
@@ -3327,16 +3053,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds a new secret to an existing client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    addClientSecret(clientId?: string | undefined, body?: CreateSecretRequest | undefined): Observable<SecretInfo> {
+    addClientSecret(clientId: string, body: CreateSecretRequest): Observable<SecretInfo> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/secrets";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3414,29 +3137,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Removes a specified secret from a client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteClientSecret(secretId: number, clientId?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteClientSecret(clientId: string, secretId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/secrets/{secretId}";
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
+        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
         if (secretId === undefined || secretId === null)
             throw new Error("The parameter 'secretId' must be defined.");
         url_ = url_.replace("{secretId}", encodeURIComponent("" + secretId));
-        if (clientId !== null && clientId !== undefined)
-        url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -3500,26 +3216,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets the UI configuration for the specified client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getClientTheme(clientId?: string | undefined, body?: any | undefined): Observable<ClientThemeConfigResponse> {
+    getClientTheme(clientId: string): Observable<ClientThemeConfigResponse> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/theme";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -3583,16 +3292,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates or updates the ui configuration for the specified client.
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    createOrUpdateClientTheme(clientId?: string | undefined, body?: ClientThemeConfigRequest | undefined): Observable<void> {
+    createOrUpdateClientTheme(clientId: string, body: ClientThemeConfigRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/theme";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3662,16 +3368,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Renews the list of client urls (redirect cors etc).
-     * @param clientId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    updateClientUrls(clientId?: string | undefined, body?: UpdateClientUrls | undefined): Observable<void> {
+    updateClientUrls(clientId: string, body: UpdateClientUrls): Observable<void> {
         let url_ = this.baseUrl + "/api/clients/{clientId}/urls";
-        if (clientId !== null && clientId !== undefined)
+        if (clientId === undefined || clientId === null)
+            throw new Error("The parameter 'clientId' must be defined.");
         url_ = url_.replace("{clientId}", encodeURIComponent("" + clientId));
-        else
-            url_ = url_.replace("/{clientId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -3909,21 +3612,16 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets some useful information as a summary of the system.
-     * @param body (optional) 
      * @return OK
      */
-    getSystemSummary(body?: any | undefined): Observable<SummaryInfo> {
+    getSystemSummary(): Observable<SummaryInfo> {
         let url_ = this.baseUrl + "/api/dashboard/summary";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -4046,10 +3744,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Sends a push notification.
-     * @param body (optional) 
      * @return No Content
      */
-    sendPushNotification(body?: SendPushNotificationRequest | undefined): Observable<void> {
+    sendPushNotification(body: SendPushNotificationRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/devices/push";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -4120,21 +3817,16 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets the list of available external providers.
-     * @param body (optional) 
      * @return OK
      */
-    getExternalProviders(body?: any | undefined): Observable<ExternalProviderResultSet> {
+    getExternalProviders(): Observable<ExternalProviderResultSet> {
         let url_ = this.baseUrl + "/api/lookups/external-providers";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -4191,21 +3883,16 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes current user's account.
-     * @param body (optional) 
      * @return No Content
      */
-    deleteAccount(body?: any | undefined): Observable<void> {
+    deleteAccount(): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -4269,21 +3956,16 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets the claims of the user.
-     * @param body (optional) 
      * @return OK
      */
-    getClaims(body?: any | undefined): Observable<ClaimInfoResultSet> {
+    getClaims(): Observable<ClaimInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/account/claims";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -4351,21 +4033,16 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds the requested claims on the current user's account.
-     * @param body (optional) 
      * @return OK
      */
-    addClaims(body?: any | undefined): Observable<ClaimInfoResultSet> {
+    addClaims(): Observable<ClaimInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/account/claims";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -4433,21 +4110,16 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Upserts the requested claims on the current user's account.
-     * @param body (optional) 
      * @return OK
      */
-    patchClaims(body?: any | undefined): Observable<ClaimInfoResultSet> {
+    patchClaims(): Observable<ClaimInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/account/claims";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -4515,10 +4187,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates the specified claim for the current user.
-     * @param body (optional) 
      * @return OK
      */
-    updateClaim(claimId: number, body?: UpdateUserClaimRequest | undefined): Observable<ClaimInfo> {
+    updateClaim(claimId: number, body: UpdateUserClaimRequest): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/my/account/claims/{claimId}";
         if (claimId === undefined || claimId === null)
             throw new Error("The parameter 'claimId' must be defined.");
@@ -4600,10 +4271,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates the email of the current user.
-     * @param body (optional) 
      * @return No Content
      */
-    updateEmail(body?: UpdateUserEmailRequest | undefined): Observable<void> {
+    updateEmail(body: UpdateUserEmailRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/email";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -4678,10 +4348,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Confirms the email address of a given user.
-     * @param body (optional) 
      * @return No Content
      */
-    confirmEmail(body?: ConfirmEmailRequest | undefined): Observable<void> {
+    confirmEmail(body: ConfirmEmailRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/email/confirmation";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -4762,10 +4431,9 @@ export class IdentityApiService implements IIdentityApiService {
      * @param search (optional) 
      * @param consentType (optional) 
      * @param clientId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: string | undefined, clientId?: string | undefined, body?: any | undefined): Observable<UserConsentInfoResultSet> {
+    getConsents(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, consentType?: string | undefined, clientId?: string | undefined): Observable<UserConsentInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/account/grants?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -4793,14 +4461,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "ClientId=" + encodeURIComponent("" + clientId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -4861,10 +4525,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates the max devices count.
-     * @param body (optional) 
      * @return No Content
      */
-    updateMaxDevicesCount(body?: UpdateMaxDevicesCountRequest | undefined): Observable<void> {
+    updateMaxDevicesCount(body: UpdateMaxDevicesCountRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/max-devices-count";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -4939,10 +4602,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Changes the password for the current user, but requires the old password to be present.
-     * @param body (optional) 
      * @return No Content
      */
-    updatePassword(body?: ChangePasswordRequest | undefined): Observable<void> {
+    updatePassword(body: ChangePasswordRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/password";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -5017,10 +4679,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates the password expiration policy.
-     * @param body (optional) 
      * @return No Content
      */
-    updatePasswordExpirationPolicy(body?: UpdatePasswordExpirationPolicyRequest | undefined): Observable<void> {
+    updatePasswordExpirationPolicy(body: UpdatePasswordExpirationPolicyRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/password-expiration-policy";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -5095,10 +4756,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Requests a phone number change for the current user.
-     * @param body (optional) 
      * @return No Content
      */
-    updatePhoneNumber(body?: UpdateUserPhoneNumberRequest | undefined): Observable<void> {
+    updatePhoneNumber(body: UpdateUserPhoneNumberRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/phone-number";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -5173,10 +4833,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Confirms the phone number of the user, using the OTP token.
-     * @param body (optional) 
      * @return No Content
      */
-    confirmPhoneNumber(body?: ConfirmPhoneNumberRequest | undefined): Observable<void> {
+    confirmPhoneNumber(body: ConfirmPhoneNumberRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/phone-number/confirmation";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -5251,10 +4910,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Changes the username for the current user.
-     * @param body (optional) 
      * @return No Content
      */
-    updateUserName(body?: UpdateUserNameRequest | undefined): Observable<void> {
+    updateUserName(body: UpdateUserNameRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/account/username";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -5338,10 +4996,9 @@ export class IdentityApiService implements IIdentityApiService {
      * @param blocked (optional) 
      * @param clientType (optional) 
      * @param isPendingTrustActivation (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getDevices(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isPushNotificationEnabled?: boolean | undefined, isTrusted?: boolean | undefined, blocked?: boolean | undefined, clientType?: string | undefined, isPendingTrustActivation?: boolean | undefined, body?: any | undefined): Observable<DeviceInfoResultSet> {
+    getDevices(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isPushNotificationEnabled?: boolean | undefined, isTrusted?: boolean | undefined, blocked?: boolean | undefined, clientType?: string | undefined, isPendingTrustActivation?: boolean | undefined): Observable<DeviceInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/devices?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -5381,14 +5038,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "IsPendingTrustActivation=" + encodeURIComponent("" + isPendingTrustActivation) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -5449,10 +5102,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new device and optionally registers for push notifications.
-     * @param body (optional) 
      * @return Created
      */
-    createDevice(body?: RegisterDeviceRequest | undefined): Observable<DeviceInfo> {
+    createDevice(body: RegisterDeviceRequest): Observable<DeviceInfo> {
         let url_ = this.baseUrl + "/api/my/devices";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -5531,26 +5183,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets a device by it's unique id.
-     * @param deviceId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getDeviceById(deviceId?: string | undefined, body?: any | undefined): Observable<DeviceInfo> {
+    getDeviceById(deviceId: string): Observable<DeviceInfo> {
         let url_ = this.baseUrl + "/api/my/devices/{deviceId}";
-        if (deviceId !== null && deviceId !== undefined)
+        if (deviceId === undefined || deviceId === null)
+            throw new Error("The parameter 'deviceId' must be defined.");
         url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId));
-        else
-            url_ = url_.replace("/{deviceId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -5611,16 +5256,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates a device.
-     * @param deviceId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    updateDevice(deviceId?: string | undefined, body?: UpdateDeviceRequest | undefined): Observable<void> {
+    updateDevice(deviceId: string, body: UpdateDeviceRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/devices/{deviceId}";
-        if (deviceId !== null && deviceId !== undefined)
+        if (deviceId === undefined || deviceId === null)
+            throw new Error("The parameter 'deviceId' must be defined.");
         url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId));
-        else
-            url_ = url_.replace("/{deviceId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -5694,26 +5336,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Deletes the device.
-     * @param deviceId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteDevice(deviceId?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteDevice(deviceId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/my/devices/{deviceId}";
-        if (deviceId !== null && deviceId !== undefined)
+        if (deviceId === undefined || deviceId === null)
+            throw new Error("The parameter 'deviceId' must be defined.");
         url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId));
-        else
-            url_ = url_.replace("/{deviceId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -5770,16 +5405,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Starts the process of trusting a device.
-     * @param deviceId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    trustDevice(deviceId?: string | undefined, body?: TrustDeviceRequest | undefined): Observable<void> {
+    trustDevice(deviceId: string, body: TrustDeviceRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/my/devices/{deviceId}/trust";
-        if (deviceId !== null && deviceId !== undefined)
+        if (deviceId === undefined || deviceId === null)
+            throw new Error("The parameter 'deviceId' must be defined.");
         url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId));
-        else
-            url_ = url_.replace("/{deviceId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -5853,26 +5485,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Sets a device as untrusted.
-     * @param deviceId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    untrustDevice(deviceId?: string | undefined, body?: any | undefined): Observable<void> {
+    untrustDevice(deviceId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/my/devices/{deviceId}/untrust";
-        if (deviceId !== null && deviceId !== undefined)
+        if (deviceId === undefined || deviceId === null)
+            throw new Error("The parameter 'deviceId' must be defined.");
         url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId));
-        else
-            url_ = url_.replace("/{deviceId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -5935,15 +5560,124 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Gets the list of sign in logs for the current user.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param from (optional) 
+     * @param to (optional) 
+     * @return OK
+     */
+    getMySignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined): Observable<SignInLogEntryResultSet> {
+        let url_ = this.baseUrl + "/api/my/sign-in-logs?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (from === null)
+            throw new Error("The parameter 'from' cannot be null.");
+        else if (from !== undefined)
+            url_ += "from=" + encodeURIComponent("" + from) + "&";
+        if (to === null)
+            throw new Error("The parameter 'to' cannot be null.");
+        else if (to !== undefined)
+            url_ += "to=" + encodeURIComponent("" + to) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMySignInLogs(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMySignInLogs(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SignInLogEntryResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SignInLogEntryResultSet>;
+        }));
+    }
+
+    protected processGetMySignInLogs(response: HttpResponseBase): Observable<SignInLogEntryResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SignInLogEntryResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Returns a list of IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) 
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getIdentityResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<IdentityResourceInfoResultSet> {
+    getIdentityResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<IdentityResourceInfoResultSet> {
         let url_ = this.baseUrl + "/api/resources/identity?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -5963,14 +5697,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -6027,24 +5757,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets an identity resource by it's unique id.
-     * @param body (optional) 
      * @return OK
      */
-    getIdentityResource(resourceId: number, body?: any | undefined): Observable<IdentityResourceInfo> {
+    getIdentityResource(resourceId: number): Observable<IdentityResourceInfo> {
         let url_ = this.baseUrl + "/api/resources/identity/{resourceId}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
         url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -6105,10 +5830,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new identity resource.
-     * @param body (optional) 
      * @return Created
      */
-    createIdentityResource(body?: CreateResourceRequest | undefined): Observable<IdentityResourceInfo> {
+    createIdentityResource(body: CreateResourceRequest): Observable<IdentityResourceInfo> {
         let url_ = this.baseUrl + "/api/resources/identity/{resourceId}";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -6183,10 +5907,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates an identity resource.
-     * @param body (optional) 
      * @return No Content
      */
-    updateIdentityResource(resourceId: number, body?: UpdateIdentityResourceRequest | undefined): Observable<void> {
+    updateIdentityResource(resourceId: number, body: UpdateIdentityResourceRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/identity/{resourceId}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -6264,24 +5987,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes an identity resource.
-     * @param body (optional) 
      * @return No Content
      */
-    deleteIdentityResource(resourceId: number, body?: any | undefined): Observable<void> {
+    deleteIdentityResource(resourceId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/identity/{resourceId}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
         url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -6338,10 +6056,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds claims to an identity resource.
-     * @param body (optional) 
      * @return No Content
      */
-    addIdentityResourceClaims(resourceId: number, body?: string[] | undefined): Observable<void> {
+    addIdentityResourceClaims(resourceId: number, body: string[]): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/identity/{resourceId}/claims";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -6419,29 +6136,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Removes a specified claim from an identity resource.
-     * @param claim (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteIdentityResourceClaim(resourceId: number, claim?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteIdentityResourceClaim(resourceId: number, claim: string): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/identity/{resourceId}/claims/{claim}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
         url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
-        if (claim !== null && claim !== undefined)
+        if (claim === undefined || claim === null)
+            throw new Error("The parameter 'claim' must be defined.");
         url_ = url_.replace("{claim}", encodeURIComponent("" + claim));
-        else
-            url_ = url_.replace("/{claim}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -6502,10 +6212,9 @@ export class IdentityApiService implements IIdentityApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getApiResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<ApiResourceInfoResultSet> {
+    getApiResources(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ApiResourceInfoResultSet> {
         let url_ = this.baseUrl + "/api/resources/protected?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -6525,14 +6234,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -6589,10 +6294,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new API resource.
-     * @param body (optional) 
      * @return Created
      */
-    createApiResource(body?: CreateResourceRequest | undefined): Observable<ApiResourceInfo> {
+    createApiResource(body: CreateResourceRequest): Observable<ApiResourceInfo> {
         let url_ = this.baseUrl + "/api/resources/protected";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -6667,24 +6371,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets an API resource by it's unique id.
-     * @param body (optional) 
      * @return OK
      */
-    getApiResource(resourceId: number, body?: any | undefined): Observable<ApiResourceInfo> {
+    getApiResource(resourceId: number): Observable<ApiResourceInfo> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
         url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -6745,10 +6444,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    updateApiResource(resourceId: number, body?: UpdateApiResourceRequest | undefined): Observable<void> {
+    updateApiResource(resourceId: number, body: UpdateApiResourceRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -6826,24 +6524,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    deleteApiResource(resourceId: number, body?: any | undefined): Observable<void> {
+    deleteApiResource(resourceId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
         url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -6900,10 +6593,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds claims to an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    addApiResourceClaims(resourceId: number, body?: string[] | undefined): Observable<void> {
+    addApiResourceClaims(resourceId: number, body: string[]): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -6981,29 +6673,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Removes a specified claim from an API resource.
-     * @param claim (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteApiResourceClaim(resourceId: number, claim?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteApiResourceClaim(resourceId: number, claim: string): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/claims/{claim}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
         url_ = url_.replace("{resourceId}", encodeURIComponent("" + resourceId));
-        if (claim !== null && claim !== undefined)
+        if (claim === undefined || claim === null)
+            throw new Error("The parameter 'claim' must be defined.");
         url_ = url_.replace("{claim}", encodeURIComponent("" + claim));
-        else
-            url_ = url_.replace("/{claim}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -7060,10 +6745,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds a new scope to an existing API resource.
-     * @param body (optional) 
      * @return OK
      */
-    addApiResourceScope(resourceId: number, body?: CreateApiScopeRequest | undefined): Observable<ApiScopeInfo> {
+    addApiResourceScope(resourceId: number, body: CreateApiScopeRequest): Observable<ApiScopeInfo> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -7145,10 +6829,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates a specified scope of an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    updateApiResourceScope(resourceId: number, scopeId: number, body?: UpdateApiScopeRequest | undefined): Observable<void> {
+    updateApiResourceScope(resourceId: number, scopeId: number, body: UpdateApiScopeRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -7229,10 +6912,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Deletes a specified scope from an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    deleteApiResourceScope(resourceId: number, scopeId: number, body?: any | undefined): Observable<void> {
+    deleteApiResourceScope(resourceId: number, scopeId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -7242,14 +6924,10 @@ export class IdentityApiService implements IIdentityApiService {
         url_ = url_.replace("{scopeId}", encodeURIComponent("" + scopeId));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -7306,10 +6984,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds claims to an API scope of a protected resource.
-     * @param body (optional) 
      * @return No Content
      */
-    addApiResourceScopeClaims(resourceId: number, scopeId: number, body?: string[] | undefined): Observable<void> {
+    addApiResourceScopeClaims(resourceId: number, scopeId: number, body: string[]): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -7390,11 +7067,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Deletes a claim from an API scope of a protected resource.
-     * @param claim (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteApiResourceScopeClaim(resourceId: number, scopeId: number, claim: string): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/scopes/{scopeId}/claims/{claim}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -7402,20 +7077,15 @@ export class IdentityApiService implements IIdentityApiService {
         if (scopeId === undefined || scopeId === null)
             throw new Error("The parameter 'scopeId' must be defined.");
         url_ = url_.replace("{scopeId}", encodeURIComponent("" + scopeId));
-        if (claim !== null && claim !== undefined)
+        if (claim === undefined || claim === null)
+            throw new Error("The parameter 'claim' must be defined.");
         url_ = url_.replace("{claim}", encodeURIComponent("" + claim));
-        else
-            url_ = url_.replace("/{claim}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -7472,10 +7142,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds a new scope to an existing API resource.
-     * @param body (optional) 
      * @return OK
      */
-    addApiResourceSecret(resourceId: number, body?: CreateSecretRequest | undefined): Observable<SecretInfo> {
+    addApiResourceSecret(resourceId: number, body: CreateSecretRequest): Observable<SecretInfo> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/secrets";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -7557,10 +7226,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Removes a specified claim from an API resource.
-     * @param body (optional) 
      * @return No Content
      */
-    deleteApiResourceSecret(resourceId: number, secretId: number, body?: any | undefined): Observable<void> {
+    deleteApiResourceSecret(resourceId: number, secretId: number): Observable<void> {
         let url_ = this.baseUrl + "/api/resources/protected/{resourceId}/secrets/{secretId}";
         if (resourceId === undefined || resourceId === null)
             throw new Error("The parameter 'resourceId' must be defined.");
@@ -7570,14 +7238,10 @@ export class IdentityApiService implements IIdentityApiService {
         url_ = url_.replace("{secretId}", encodeURIComponent("" + secretId));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -7638,10 +7302,9 @@ export class IdentityApiService implements IIdentityApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<ApiScopeInfoResultSet> {
+    getApiScopes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ApiScopeInfoResultSet> {
         let url_ = this.baseUrl + "/api/resources/protected/scopes?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -7661,14 +7324,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -7729,10 +7388,9 @@ export class IdentityApiService implements IIdentityApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getRoles(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, body?: any | undefined): Observable<RoleInfoResultSet> {
+    getRoles(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<RoleInfoResultSet> {
         let url_ = this.baseUrl + "/api/roles?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -7752,14 +7410,10 @@ export class IdentityApiService implements IIdentityApiService {
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -7816,10 +7470,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new role.
-     * @param body (optional) 
      * @return Created
      */
-    createRole(body?: CreateRoleRequest | undefined): Observable<RoleInfo> {
+    createRole(body: CreateRoleRequest): Observable<RoleInfo> {
         let url_ = this.baseUrl + "/api/roles";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -7894,26 +7547,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets a role by it's unique id.
-     * @param roleId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getRole(roleId?: string | undefined, body?: any | undefined): Observable<RoleInfo> {
+    getRole(roleId: string): Observable<RoleInfo> {
         let url_ = this.baseUrl + "/api/roles/{roleId}";
-        if (roleId !== null && roleId !== undefined)
+        if (roleId === undefined || roleId === null)
+            throw new Error("The parameter 'roleId' must be defined.");
         url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
-        else
-            url_ = url_.replace("/{roleId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -7974,16 +7620,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates an existing role.
-     * @param roleId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    updateRole(roleId?: string | undefined, body?: UpdateRoleRequest | undefined): Observable<RoleInfo> {
+    updateRole(roleId: string, body: UpdateRoleRequest): Observable<RoleInfo> {
         let url_ = this.baseUrl + "/api/roles/{roleId}";
-        if (roleId !== null && roleId !== undefined)
+        if (roleId === undefined || roleId === null)
+            throw new Error("The parameter 'roleId' must be defined.");
         url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
-        else
-            url_ = url_.replace("/{roleId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -8061,26 +7704,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes an existing role.
-     * @param roleId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteRole(roleId?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteRole(roleId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/roles/{roleId}";
-        if (roleId !== null && roleId !== undefined)
+        if (roleId === undefined || roleId === null)
+            throw new Error("The parameter 'roleId' must be defined.");
         url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
-        else
-            url_ = url_.replace("/{roleId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -8136,11 +7772,228 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
-     * Sends a new code via the selected channel.
-     * @param body (optional) 
+     * Gets the list of sign in logs produced by the Identity system.
+     * @param page (optional) 
+     * @param size (optional) 
+     * @param sort (optional) 
+     * @param search (optional) 
+     * @param from (optional) 
+     * @param to (optional) 
+     * @param applicationId (optional) 
+     * @param subjectId (optional) 
+     * @param sessionId (optional) 
+     * @param signInType (optional) 
+     * @param markForReview (optional) 
+     * @return OK
+     */
+    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, signInType?: string | undefined, markForReview?: boolean | undefined): Observable<SignInLogEntryResultSet> {
+        let url_ = this.baseUrl + "/api/sign-in-logs?";
+        if (page === null)
+            throw new Error("The parameter 'page' cannot be null.");
+        else if (page !== undefined)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (size === null)
+            throw new Error("The parameter 'size' cannot be null.");
+        else if (size !== undefined)
+            url_ += "Size=" + encodeURIComponent("" + size) + "&";
+        if (sort === null)
+            throw new Error("The parameter 'sort' cannot be null.");
+        else if (sort !== undefined)
+            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
+        if (search === null)
+            throw new Error("The parameter 'search' cannot be null.");
+        else if (search !== undefined)
+            url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (from === null)
+            throw new Error("The parameter 'from' cannot be null.");
+        else if (from !== undefined)
+            url_ += "From=" + encodeURIComponent("" + from) + "&";
+        if (to === null)
+            throw new Error("The parameter 'to' cannot be null.");
+        else if (to !== undefined)
+            url_ += "To=" + encodeURIComponent("" + to) + "&";
+        if (applicationId === null)
+            throw new Error("The parameter 'applicationId' cannot be null.");
+        else if (applicationId !== undefined)
+            url_ += "ApplicationId=" + encodeURIComponent("" + applicationId) + "&";
+        if (subjectId === null)
+            throw new Error("The parameter 'subjectId' cannot be null.");
+        else if (subjectId !== undefined)
+            url_ += "SubjectId=" + encodeURIComponent("" + subjectId) + "&";
+        if (sessionId === null)
+            throw new Error("The parameter 'sessionId' cannot be null.");
+        else if (sessionId !== undefined)
+            url_ += "SessionId=" + encodeURIComponent("" + sessionId) + "&";
+        if (signInType === null)
+            throw new Error("The parameter 'signInType' cannot be null.");
+        else if (signInType !== undefined)
+            url_ += "SignInType=" + encodeURIComponent("" + signInType) + "&";
+        if (markForReview === null)
+            throw new Error("The parameter 'markForReview' cannot be null.");
+        else if (markForReview !== undefined)
+            url_ += "MarkForReview=" + encodeURIComponent("" + markForReview) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetSignInLogs(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetSignInLogs(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<SignInLogEntryResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<SignInLogEntryResultSet>;
+        }));
+    }
+
+    protected processGetSignInLogs(response: HttpResponseBase): Observable<SignInLogEntryResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = SignInLogEntryResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Patches the specified log entry by updating the properties given in the request.
      * @return No Content
      */
-    send(body?: TotpRequest | undefined): Observable<void> {
+    patchSignInLog(rowId: string, body: SignInLogEntryRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/sign-in-logs/{rowId}";
+        if (rowId === undefined || rowId === null)
+            throw new Error("The parameter 'rowId' must be defined.");
+        url_ = url_.replace("{rowId}", encodeURIComponent("" + rowId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPatchSignInLog(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPatchSignInLog(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processPatchSignInLog(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Sends a new code via the selected channel.
+     * @return No Content
+     */
+    send(body: TotpRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/totp";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -8225,10 +8078,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Verify the code received.
-     * @param body (optional) 
      * @return No Content
      */
-    verify(body?: TotpVerificationRequest | undefined): Observable<void> {
+    verify(body: TotpVerificationRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/totp";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -8381,19 +8233,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8412,10 +8271,9 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Creates a new user.
-     * @param body (optional) 
      * @return Created
      */
-    createUser(body?: CreateUserRequest | undefined): Observable<SingleUserInfo> {
+    createUser(body: CreateUserRequest): Observable<SingleUserInfo> {
         let url_ = this.baseUrl + "/api/users";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -8452,19 +8310,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 201) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8490,26 +8355,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets a user by it's unique id.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getUser(userId?: string | undefined, body?: any | undefined): Observable<SingleUserInfo> {
+    getUser(userId: string): Observable<SingleUserInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -8535,19 +8393,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8570,16 +8435,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates an existing user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    updateUser(userId?: string | undefined, body?: UpdateUserRequest | undefined): Observable<SingleUserInfo> {
+    updateUser(userId: string, body: UpdateUserRequest): Observable<SingleUserInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -8615,19 +8477,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8657,26 +8526,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes an existing user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteUser(userId?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteUser(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -8701,19 +8563,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8740,26 +8609,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets a list of the applications the user has given consent to or currently has IdentityServer side tokens for.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getUserApplications(userId?: string | undefined, body?: any | undefined): Observable<UserClientInfoResultSet> {
+    getUserApplications(userId: string): Observable<UserClientInfoResultSet> {
         let url_ = this.baseUrl + "/api/users/{userId}/applications";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -8785,19 +8647,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8816,16 +8685,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds a claim for the specified user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return Created
      */
-    addUserClaim(userId?: string | undefined, body?: CreateClaimRequest | undefined): Observable<ClaimInfo> {
+    addUserClaim(userId: string, body: CreateClaimRequest): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -8861,19 +8727,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 201) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8903,29 +8776,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets a specified claim for a given user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getUserClaim(claimId: number, userId?: string | undefined, body?: any | undefined): Observable<BasicClaimInfo> {
+    getUserClaim(userId: string, claimId: number): Observable<BasicClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
         if (claimId === undefined || claimId === null)
             throw new Error("The parameter 'claimId' must be defined.");
         url_ = url_.replace("{claimId}", encodeURIComponent("" + claimId));
-        if (userId !== null && userId !== undefined)
-        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -8951,19 +8817,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8986,19 +8859,16 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Updates an existing user claim.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    updateUserClaim(claimId: number, userId?: string | undefined, body?: UpdateUserClaimRequest | undefined): Observable<ClaimInfo> {
+    updateUserClaim(userId: string, claimId: number, body: UpdateUserClaimRequest): Observable<ClaimInfo> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
         if (claimId === undefined || claimId === null)
             throw new Error("The parameter 'claimId' must be defined.");
         url_ = url_.replace("{claimId}", encodeURIComponent("" + claimId));
-        if (userId !== null && userId !== undefined)
-        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -9034,19 +8904,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9069,29 +8946,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes a specified claim from a user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteUserClaim(claimId: number, userId?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteUserClaim(claimId: number, userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/claims/{claimId}";
         if (claimId === undefined || claimId === null)
             throw new Error("The parameter 'claimId' must be defined.");
         url_ = url_.replace("{claimId}", encodeURIComponent("" + claimId));
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -9116,19 +8986,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9148,26 +9025,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets a list of the devices of the specified user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getUserDevices(userId?: string | undefined, body?: any | undefined): Observable<DeviceInfoResultSet> {
+    getUserDevices(userId: string): Observable<DeviceInfoResultSet> {
         let url_ = this.baseUrl + "/api/users/{userId}/devices";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -9193,19 +9063,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9224,26 +9101,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Resends the confirmation email for a given user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    resendConfirmationEmail(userId?: string | undefined, body?: any | undefined): Observable<void> {
+    resendConfirmationEmail(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/email/confirmation";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -9268,19 +9138,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9307,26 +9184,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets a list of the external login providers for the specified user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
-    getUserExternalLogins(userId?: string | undefined, body?: any | undefined): Observable<UserLoginProviderInfoResultSet> {
+    getUserExternalLogins(userId: string): Observable<UserLoginProviderInfoResultSet> {
         let url_ = this.baseUrl + "/api/users/{userId}/external-logins";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -9352,19 +9222,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9383,31 +9260,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Permanently deletes a specified login provider association from a user.
-     * @param userId (optional) 
-     * @param provider (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteUserExternalLogin(userId?: string | undefined, provider?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteUserExternalLogin(userId: string, provider: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/external-logins/{provider}";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
-        if (provider !== null && provider !== undefined)
+        if (provider === undefined || provider === null)
+            throw new Error("The parameter 'provider' must be defined.");
         url_ = url_.replace("{provider}", encodeURIComponent("" + provider));
-        else
-            url_ = url_.replace("/{provider}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -9432,19 +9300,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9471,31 +9346,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Adds a new role to the specified user.
-     * @param userId (optional) 
-     * @param roleId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    addUserRole(userId?: string | undefined, roleId?: string | undefined, body?: any | undefined): Observable<void> {
+    addUserRole(userId: string, roleId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/roles/{roleId}";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
-        if (roleId !== null && roleId !== undefined)
+        if (roleId === undefined || roleId === null)
+            throw new Error("The parameter 'roleId' must be defined.");
         url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
-        else
-            url_ = url_.replace("/{roleId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -9520,19 +9386,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9559,31 +9432,22 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Removes an existing role from the specified user.
-     * @param userId (optional) 
-     * @param roleId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    deleteUserRole(userId?: string | undefined, roleId?: string | undefined, body?: any | undefined): Observable<void> {
+    deleteUserRole(userId: string, roleId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/roles/{roleId}";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
-        if (roleId !== null && roleId !== undefined)
+        if (roleId === undefined || roleId === null)
+            throw new Error("The parameter 'roleId' must be defined.");
         url_ = url_.replace("{roleId}", encodeURIComponent("" + roleId));
-        else
-            url_ = url_.replace("/{roleId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -9608,19 +9472,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9647,16 +9518,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Toggles user block state.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    setUserBlock(userId?: string | undefined, body?: SetUserBlockRequest | undefined): Observable<void> {
+    setUserBlock(userId: string, body: SetUserBlockRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/set-block";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -9691,19 +9559,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9730,16 +9605,13 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Sets the password for a given user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    setPassword(userId?: string | undefined, body?: SetPasswordRequest | undefined): Observable<void> {
+    setPassword(userId: string, body: SetPasswordRequest): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/set-password";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(body);
@@ -9774,19 +9646,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9813,26 +9692,19 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Unlocks a user.
-     * @param userId (optional) 
-     * @param body (optional) 
      * @return No Content
      */
-    unlockUser(userId?: string | undefined, body?: any | undefined): Observable<void> {
+    unlockUser(userId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/users/{userId}/unlock";
-        if (userId !== null && userId !== undefined)
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
         url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        else
-            url_ = url_.replace("/{userId}", "");
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(body);
-
         let options_ : any = {
-            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -9857,19 +9729,26 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9885,209 +9764,6 @@ export class IdentityApiService implements IIdentityApiService {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = HttpValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * Gets the list of sign in logs produced by the Identity system.
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @param from (optional) 
-     * @param to (optional) 
-     * @param applicationId (optional) 
-     * @param subjectId (optional) 
-     * @param sessionId (optional) 
-     * @param signInType (optional) 
-     * @param markForReview (optional) 
-     * @param body (optional) 
-     * @return OK
-     */
-    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, signInType?: string | undefined, markForReview?: boolean | undefined, body?: any | undefined): Observable<SignInLogEntryResultSet> {
-        let url_ = this.baseUrl + "/sign-in-logs?";
-        if (page === null)
-            throw new Error("The parameter 'page' cannot be null.");
-        else if (page !== undefined)
-            url_ += "Page=" + encodeURIComponent("" + page) + "&";
-        if (size === null)
-            throw new Error("The parameter 'size' cannot be null.");
-        else if (size !== undefined)
-            url_ += "Size=" + encodeURIComponent("" + size) + "&";
-        if (sort === null)
-            throw new Error("The parameter 'sort' cannot be null.");
-        else if (sort !== undefined)
-            url_ += "Sort=" + encodeURIComponent("" + sort) + "&";
-        if (search === null)
-            throw new Error("The parameter 'search' cannot be null.");
-        else if (search !== undefined)
-            url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        if (from === null)
-            throw new Error("The parameter 'from' cannot be null.");
-        else if (from !== undefined)
-            url_ += "From=" + encodeURIComponent("" + from) + "&";
-        if (to === null)
-            throw new Error("The parameter 'to' cannot be null.");
-        else if (to !== undefined)
-            url_ += "To=" + encodeURIComponent("" + to) + "&";
-        if (applicationId === null)
-            throw new Error("The parameter 'applicationId' cannot be null.");
-        else if (applicationId !== undefined)
-            url_ += "ApplicationId=" + encodeURIComponent("" + applicationId) + "&";
-        if (subjectId === null)
-            throw new Error("The parameter 'subjectId' cannot be null.");
-        else if (subjectId !== undefined)
-            url_ += "SubjectId=" + encodeURIComponent("" + subjectId) + "&";
-        if (sessionId === null)
-            throw new Error("The parameter 'sessionId' cannot be null.");
-        else if (sessionId !== undefined)
-            url_ += "SessionId=" + encodeURIComponent("" + sessionId) + "&";
-        if (signInType === null)
-            throw new Error("The parameter 'signInType' cannot be null.");
-        else if (signInType !== undefined)
-            url_ += "SignInType=" + encodeURIComponent("" + signInType) + "&";
-        if (markForReview === null)
-            throw new Error("The parameter 'markForReview' cannot be null.");
-        else if (markForReview !== undefined)
-            url_ += "MarkForReview=" + encodeURIComponent("" + markForReview) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetSignInLogs(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetSignInLogs(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<SignInLogEntryResultSet>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<SignInLogEntryResultSet>;
-        }));
-    }
-
-    protected processGetSignInLogs(response: HttpResponseBase): Observable<SignInLogEntryResultSet> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = SignInLogEntryResultSet.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * Patches the specified log entry by updating the properties given in the request.
-     * @param body (optional) 
-     * @return No Content
-     */
-    patchSignInLog(rowId: string, body?: SignInLogEntryRequest | undefined): Observable<void> {
-        let url_ = this.baseUrl + "/sign-in-logs/{rowId}";
-        if (rowId === undefined || rowId === null)
-            throw new Error("The parameter 'rowId' must be defined.");
-        url_ = url_.replace("{rowId}", encodeURIComponent("" + rowId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processPatchSignInLog(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processPatchSignInLog(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processPatchSignInLog(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result404: any = null;
-            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result404 = ProblemDetails.fromJS(resultData404);
-            return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -10674,7 +10350,7 @@ export class BlogItemInfo implements IBlogItemInfo {
     /** Original link to the post. */
     link?: string | undefined;
     /** The datetime that the post was published. */
-    publishDate?: Date;
+    publishDate?: Date | undefined;
     /** A small description for the post. */
     description?: string | undefined;
 
@@ -10720,7 +10396,7 @@ export interface IBlogItemInfo {
     /** Original link to the post. */
     link?: string | undefined;
     /** The datetime that the post was published. */
-    publishDate?: Date;
+    publishDate?: Date | undefined;
     /** A small description for the post. */
     description?: string | undefined;
 }
@@ -10771,52 +10447,6 @@ export class BlogItemInfoResultSet implements IBlogItemInfoResultSet {
 export interface IBlogItemInfoResultSet {
     count?: number;
     items?: BlogItemInfo[] | undefined;
-}
-
-/** Certificate upload request with optional password. */
-export class CertificateUploadRequest implements ICertificateUploadRequest {
-    /** File data */
-    file!: string;
-    /** Optional password in case this is a application/x-pkcs12 */
-    password?: string | undefined;
-
-    constructor(data?: ICertificateUploadRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.file = _data["file"];
-            this.password = _data["password"];
-        }
-    }
-
-    static fromJS(data: any): CertificateUploadRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new CertificateUploadRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["file"] = this.file;
-        data["password"] = this.password;
-        return data;
-    }
-}
-
-/** Certificate upload request with optional password. */
-export interface ICertificateUploadRequest {
-    /** File data */
-    file: string;
-    /** Optional password in case this is a application/x-pkcs12 */
-    password?: string | undefined;
 }
 
 /** Models a password change request by the user. */
@@ -12653,11 +12283,11 @@ export class ForgotPasswordConfirmationRequest implements IForgotPasswordConfirm
     /** The token. */
     token?: string | undefined;
     /** The user's email. */
-    email?: string | undefined;
+    email!: string;
     /** The new password. */
-    newPassword?: string | undefined;
+    newPassword!: string;
     /** The new password confirmed (optional). */
-    newPasswordConfirmation?: string | undefined;
+    newPasswordConfirmation!: string;
     /** The url to return to. */
     returnUrl?: string | undefined;
 
@@ -12703,11 +12333,11 @@ export interface IForgotPasswordConfirmationRequest {
     /** The token. */
     token?: string | undefined;
     /** The user's email. */
-    email?: string | undefined;
+    email: string;
     /** The new password. */
-    newPassword?: string | undefined;
+    newPassword: string;
     /** The new password confirmed (optional). */
-    newPasswordConfirmation?: string | undefined;
+    newPasswordConfirmation: string;
     /** The url to return to. */
     returnUrl?: string | undefined;
 }
@@ -12761,7 +12391,7 @@ export interface IForgotPasswordRequest {
 /** Describes the grant type of a client in the database. */
 export class GrantTypeInfo implements IGrantTypeInfo {
     /** The id of the grant type in the system. */
-    id?: number;
+    id?: number | undefined;
     /** The name of the grant type. */
     name?: string | undefined;
 
@@ -12799,7 +12429,7 @@ export class GrantTypeInfo implements IGrantTypeInfo {
 /** Describes the grant type of a client in the database. */
 export interface IGrantTypeInfo {
     /** The id of the grant type in the system. */
-    id?: number;
+    id?: number | undefined;
     /** The name of the grant type. */
     name?: string | undefined;
 }
@@ -13626,7 +13256,7 @@ export class SendPushNotificationRequest implements ISendPushNotificationRequest
     /** The body to send. */
     body?: string | undefined;
     /** Defines if push notification is sent to all registered user devices. */
-    broadcast?: boolean;
+    broadcast?: boolean | undefined;
     /** The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc. Required when Indice.Features.Identity.Server.Devices.Models.SendPushNotificationRequest.Broadcast has the value <i>false</i>. */
     userTag?: string | undefined;
     /** List of extra tags. */
@@ -13704,7 +13334,7 @@ export interface ISendPushNotificationRequest {
     /** The body to send. */
     body?: string | undefined;
     /** Defines if push notification is sent to all registered user devices. */
-    broadcast?: boolean;
+    broadcast?: boolean | undefined;
     /** The user identifier that correlates devices with users. This can be any identifier like user id, username, user email, customer code etc. Required when Indice.Features.Identity.Server.Devices.Models.SendPushNotificationRequest.Broadcast has the value <i>false</i>. */
     userTag?: string | undefined;
     /** List of extra tags. */
@@ -14753,7 +14383,7 @@ export class TotpRequest implements ITotpRequest {
     /** Optionally pass the reason to generate the TOTP. */
     purpose?: string | undefined;
     /** The message to be sent in the SMS/Viber or PushNotification. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed. */
-    message?: string | undefined;
+    message!: string;
     /** The payload data in JSON string to be sent in the Push Notification. */
     data?: any | undefined;
     /** The type of the Push Notification. */
@@ -14806,7 +14436,7 @@ export interface ITotpRequest {
     /** Optionally pass the reason to generate the TOTP. */
     purpose?: string | undefined;
     /** The message to be sent in the SMS/Viber or PushNotification. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed. */
-    message?: string | undefined;
+    message: string;
     /** The payload data in JSON string to be sent in the Push Notification. */
     data?: any | undefined;
     /** The type of the Push Notification. */

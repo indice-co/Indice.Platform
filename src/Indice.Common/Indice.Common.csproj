@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net6.0;net7.0;</TargetFrameworks>
     <RootNamespace>Indice</RootNamespace>
+    <TargetFrameworks>netstandard2.1;net6.0;net7.0;</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageTags>AspNet;Api;Utilities</PackageTags>

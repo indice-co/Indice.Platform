@@ -95,31 +95,6 @@ public static class ClaimsPrincipalExtensions
     /// <param name="role">The role name.</param>
     public static bool HasRoleClaim(this ClaimsPrincipal principal, string role) => principal.HasClaim("role", role);
 
-    /// <summary>Checks if the current principal can read users data.</summary>
-    /// <param name="principal">The current principal.</param>
-    public static bool CanReadUsers(this ClaimsPrincipal principal) =>
-        principal.HasRoleClaim(BasicRoleNames.AdminUIUsersReader) || principal.HasRoleClaim(BasicRoleNames.AdminUIUsersWriter) || principal.IsAdmin() || principal.IsSystemClient();
-
-    /// <summary>Checks if the current principal can read and write users data.</summary>
-    /// <param name="principal">The current principal.</param>
-    public static bool CanWriteUsers(this ClaimsPrincipal principal) =>
-        principal.HasRoleClaim(BasicRoleNames.AdminUIUsersWriter) || principal.IsAdmin() || principal.IsSystemClient();
-
-    /// <summary>Checks if the current principal can read clients data.</summary>
-    /// <param name="principal">The current principal.</param>
-    public static bool CanReadClients(this ClaimsPrincipal principal) =>
-        principal.HasRoleClaim(BasicRoleNames.AdminUIClientsReader) || principal.HasRoleClaim(BasicRoleNames.AdminUIClientsWriter) || principal.IsAdmin() || principal.IsSystemClient();
-
-    /// <summary>Checks if the current principal can read and write clients data.</summary>
-    /// <param name="principal">The current principal.</param>
-    public static bool CanWriteClients(this ClaimsPrincipal principal) =>
-        principal.HasRoleClaim(BasicRoleNames.AdminUIClientsWriter) || principal.IsAdmin() || principal.IsSystemClient();
-
-    /// <summary>Checks if the current principal can manage campaigns data.</summary>
-    /// <param name="principal">The current principal.</param>
-    public static bool CanManageCampaigns(this ClaimsPrincipal principal) =>
-        principal.HasRoleClaim(BasicRoleNames.CampaignManager) || principal.IsAdmin() || principal.IsSystemClient();
-
     /// <summary>Logic for normalizing scope claims to separate claim types.</summary>
     /// <param name="principal">The current principal.</param>
     /// <param name="separator">The character that separates scopes.</param>

@@ -171,7 +171,7 @@ export class ClientStore {
             this._client.next(client);
             this._client.complete();
         });
-        return this._api.deleteClientClaim(claim.id, clientId);
+        return this._api.deleteClientClaim(clientId, claim.id);
     }
 
     public addApiResource(clientId: string, resource: ApiResourceInfo): Observable<void> {
@@ -192,7 +192,7 @@ export class ClientStore {
             this._client.next(client);
             this._client.complete();
         });
-        return this._api.deleteClientResource(clientId, [resource.name]);
+        return this._api.deleteClientResource(clientId, [resource.name], null);
     }
 
     public addIdentityResource(clientId: string, resource: IdentityResourceInfo): Observable<void> {
@@ -213,7 +213,7 @@ export class ClientStore {
             this._client.next(client);
             this._client.complete();
         });
-        return this._api.deleteClientResource(clientId, [resource.name]);
+        return this._api.deleteClientResource(clientId, [resource.name], null);
     }
 
     public addGrantType(clientId: string, grantType: string): Observable<void> {
@@ -256,7 +256,7 @@ export class ClientStore {
             this._client.next(client);
             this._client.complete();
         });
-        return this._api.deleteClientSecret(secret.id, clientId);
+        return this._api.deleteClientSecret(clientId, secret.id);
     }
 
     public deleteClient(clientId: string): Observable<void> {

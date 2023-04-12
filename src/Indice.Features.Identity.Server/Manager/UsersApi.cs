@@ -27,10 +27,11 @@ public static class UsersApi
              .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-        group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized);
+        group.ProducesProblem(StatusCodes.Status401Unauthorized)
+             .ProducesProblem(StatusCodes.Status403Forbidden)
+             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("", UserHandlers.GetUsers)
+        group.MapGet(string.Empty, UserHandlers.GetUsers)
              .WithName(nameof(UserHandlers.GetUsers))
              .WithSummary($"Returns a list of {nameof(UserInfo)} objects containing the total number of users in the database and the data filtered according to the provided ListOptions.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);

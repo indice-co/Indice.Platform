@@ -16,11 +16,11 @@ internal class AnonymizationEnricher : ISignInLogEntryEnricher
     public int Priority => int.MaxValue;
     public EnricherDependencyType DependencyType => EnricherDependencyType.Default;
 
-    public Task EnrichAsync(SignInLogEntry logEntry) {
+    public ValueTask EnrichAsync(SignInLogEntry logEntry) {
         if (!_signInLogOptions.AnonymizePersonalData) {
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
         logEntry.IpAddress = IPAddress.Any.ToString();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }

@@ -9,18 +9,18 @@ internal class LocationEnricher : ISignInLogEntryEnricher
     public int Priority => 6;
     public EnricherDependencyType DependencyType => EnricherDependencyType.Default;
 
-    public Task EnrichAsync(SignInLogEntry logEntry) {
+    public ValueTask EnrichAsync(SignInLogEntry logEntry) {
         if (string.IsNullOrWhiteSpace(logEntry?.IpAddress)) {
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
         var isValidIp = IPAddress.TryParse(logEntry.IpAddress, out var ipAddress);
         if (!isValidIp) {
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
         var location = ipAddress.GetLocationMetadata();
         logEntry.CountryIsoCode = location.CountryIsoCode;
         logEntry.Location = location.ToString();
         logEntry.Coordinates = location.Coordinates;
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }

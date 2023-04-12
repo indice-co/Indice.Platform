@@ -1,7 +1,4 @@
-﻿using System.Reflection;
-using Indice.Security;
-
-namespace Indice.Features.Identity.Server;
+﻿namespace Indice.Features.Identity.Server;
 
 /// <summary>Constants for IdentityServer API feature.</summary>
 public static partial class IdentityEndpoints

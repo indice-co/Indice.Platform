@@ -2,9 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Identity.Server.Options;
-/// <summary>
-/// The <see cref="ExtendedIdentityServerOptions"/> is the top level container for all configuration settings of Identity Server.
-/// </summary>
+/// <summary>The <see cref="ExtendedIdentityServerOptions"/> is the top level container for all configuration settings of Identity Server.</summary>
 public class ExtendedIdentityServerOptions
 {
     /// <summary>Configuration section name</summary>
