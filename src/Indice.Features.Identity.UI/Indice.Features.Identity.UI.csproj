@@ -5,6 +5,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <StaticWebAssetBasePath Condition="$(StaticWebAssetBasePath) == ''">/identity-ui</StaticWebAssetBasePath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefix)" />
