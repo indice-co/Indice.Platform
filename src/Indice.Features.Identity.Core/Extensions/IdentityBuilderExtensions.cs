@@ -2,10 +2,13 @@
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -20,14 +23,34 @@ public static class IdentityBuilderExtensions
             options.Cookie.Name = ExtendedIdentityConstants.ExtendedValidationUserIdScheme;
             options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
         });
-        builder.Services.AddTransient<IMfaDeviceIdResolver, DefaultMfaDeviceIdResolver>();
+        builder.Services.AddAuthentication().AddCookie(ExtendedIdentityConstants.MfaOnboardingScheme, options => {
+            options.Cookie.Name = ExtendedIdentityConstants.MfaOnboardingScheme;
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+        });
+        builder.Services.AddTransient<IMfaDeviceIdResolver, MfaDeviceIdResolverHttpContext>();
+        builder.Services.TryAddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
+        builder.Services.TryAddTransient<IUserStateProvider<TUser>, DefaultUserStateProvider<TUser>>();
         return builder;
     }
 
     /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies, using <see cref="User"/> class as a user type..</summary>
     /// <param name="builder">The type of builder for configuring identity services.</param>
     public static IdentityBuilder AddExtendedSignInManager(this IdentityBuilder builder) => builder.AddExtendedSignInManager<User>();
+
+    /// <summary>Registers an instance of <see cref="ExtendedUserManager{TUser}"/> along with required dependencies.</summary>
+    /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
+    /// <param name="builder">The type of builder for configuring identity services.</param>
+    public static IdentityBuilder AddExtendedUserManager<TUser>(this IdentityBuilder builder) where TUser : User, new() {
+        builder.AddEntityFrameworkStores<ExtendedIdentityDbContext<TUser, Role>>()
+               .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<TUser, Role>, TUser, Role>>()
+               .AddUserManager<ExtendedUserManager<TUser>>();
+        return builder;
+    }
+
+    /// <summary>Registers an instance of <see cref="ExtendedUserManager{TUser}"/> along with required dependencies.</summary>
+    /// <param name="builder">The type of builder for configuring identity services.</param>
+    public static IdentityBuilder AddExtendedUserManager(this IdentityBuilder builder) => builder.AddExtendedUserManager<User>();
 
     /// <summary>
     /// Adds the <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/> as the default phone provider.
@@ -43,6 +66,29 @@ public static class IdentityBuilderExtensions
         }
         builder.Services.AddTotpServiceFactory(configuration, configure);
         builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, typeof(DeveloperPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType));
+        return builder;
+    }
+
+    /// <summary>Registers the <see cref="AuthenticationMethodProviderInMemory"/> which is an in-memory static provider for <see cref="IAuthenticationMethodProvider"/>.</summary>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <param name="authenticationMethod">An authentication method to apply in the identity system.</param>
+    /// <param name="otherAuthenticationMethods">The authentication methods to apply in the identity system.</param>
+    /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    public static IdentityBuilder AddAuthenticationMethodProvider(this IdentityBuilder builder, AuthenticationMethod authenticationMethod, params AuthenticationMethod[] otherAuthenticationMethods) {
+        var allMethods = (otherAuthenticationMethods ?? Array.Empty<AuthenticationMethod>()).Prepend(authenticationMethod);
+        foreach (var method in allMethods) {
+            builder.Services.AddSingleton(method);
+        }
+        builder.Services.AddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
+        return builder;
+    }
+
+    /// <summary>Registers an implementation of <see cref="IAuthenticationMethodProvider"/>.</summary>
+    /// <typeparam name="TAuthenticationMethodProvider"></typeparam>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    public static IdentityBuilder AddAuthenticationMethodProvider<TAuthenticationMethodProvider>(this IdentityBuilder builder) where TAuthenticationMethodProvider : IAuthenticationMethodProvider {
+        builder.Services.AddTransient(typeof(IAuthenticationMethodProvider), typeof(TAuthenticationMethodProvider));
         return builder;
     }
 

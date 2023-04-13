@@ -645,7 +645,6 @@ internal class MyAccountController : ControllerBase
             }
             return BadRequest(new ValidationProblemDetails(ModelState));
         }
-        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         return NoContent();
     }
 

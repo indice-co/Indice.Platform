@@ -21,7 +21,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 
     /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
     /// <param name="userStore">The persistence store the manager will operate over.</param>
-    /// <param name="identityMessageDescriber">Provides an extensibility point for localizing messages used inside the package.</param>
+    /// <param name="identityMessageDescriber">Provides an extensibility point for altering localized resources used inside the platform.</param>
     /// <param name="optionsAccessor">The accessor used to access the <see cref="IdentityOptions"/>.</param>
     /// <param name="passwordHasher">The password hashing implementation to use when saving passwords.</param>
     /// <param name="userValidators">A collection of <see cref="IUserValidator{TUser}"/> to validate users against.</param>
@@ -32,6 +32,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <param name="logger">The logger used to log messages, warnings and errors.</param>
     /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="userStateProvider">A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</param>
     public ExtendedUserManager(
         IUserStore<TUser> userStore,
         IOptionsSnapshot<IdentityOptions> optionsAccessor,
@@ -44,9 +45,11 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         ILogger<ExtendedUserManager<TUser>> logger,
         IdentityMessageDescriber identityMessageDescriber,
         IPlatformEventService eventService,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IUserStateProvider<TUser> userStateProvider
     ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+        StateProvider = userStateProvider ?? throw new ArgumentNullException(nameof(userStateProvider));
         MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
         DefaultAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(DefaultAllowedRegisteredDevices));
         MaxAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(MaxAllowedRegisteredDevices));
@@ -65,7 +68,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public int? MaxTrustedDevices { get; }
     /// <summary></summary>
     public TimeSpan? TrustActivationDelay { get; }
-    /// <summary>Provides an extensibility point for localizing messages used inside the package.</summary>
+    /// <summary>Provides an extensibility point for altering localized resources used inside the platform.</summary>
     public IdentityMessageDescriber MessageDescriber { get; }
     /// <summary>The maximum number of devices a user can register.</summary>
     public int? MaxAllowedRegisteredDevices { get; }
@@ -74,16 +77,15 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
     public bool EmailAsUserName { get; }
     /// <summary>MFA policy applied for new users.</summary>
-    public MfaPolicy MfaPolicy { get; set; }
+    public MfaPolicy MfaPolicy { get; }
+    /// <summary>Describes the state of the current principal.</summary>
+    public IUserStateProvider<TUser> StateProvider { get; }
 
     #region Method Overrides
     /// <inheritdoc />
     public async override Task<IdentityResult> CreateAsync(TUser user) {
         if (EmailAsUserName) {
             user.UserName = user.Email;
-        }
-        if (MfaPolicy == MfaPolicy.Enforced) {
-            user.TwoFactorEnabled = true;
         }
         var result = await base.CreateAsync(user);
         if (result.Succeeded) {
@@ -158,6 +160,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
+            StateProvider.ChangeState(user, UserAction.VerifiedPhoneNumber);
         }
         return result;
     }
@@ -167,6 +170,16 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var result = await base.ConfirmEmailAsync(user, token);
         if (result.Succeeded) {
             await _eventService.Publish(new EmailConfirmedEvent(user));
+            StateProvider.ChangeState(user, UserAction.VerifiedEmail);
+        }
+        return result;
+    }
+
+    /// <inheritdoc />
+    public override async Task<IdentityResult> SetTwoFactorEnabledAsync(TUser user, bool enabled) {
+        var result = await base.SetTwoFactorEnabledAsync(user, enabled);
+        if (result.Succeeded) {
+            StateProvider.ChangeState(user, UserAction.MfaEnabled);
         }
         return result;
     }
@@ -191,16 +204,16 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 
     /// <summary>Sets the <see cref="User.PasswordExpired"/> property of the user.</summary>
     /// <param name="user">The user instance.</param>
-    /// <param name="changePassword">The value to use.</param>
+    /// <param name="expired">The value to use.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-    public async Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
+    public async Task SetPasswordExpiredAsync(TUser user, bool expired, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
         }
         var userStore = GetUserStore();
-        await userStore.SetPasswordExpiredAsync(user, changePassword, cancellationToken);
+        await userStore.SetPasswordExpiredAsync(user, expired, cancellationToken);
         await UpdateAsync(user);
     }
 
@@ -257,6 +270,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         if (!result.Succeeded) {
             return result;
         }
+        StateProvider.ChangeState(user, UserAction.PasswordChanged);
         await _eventService.Publish(new PasswordChangedEvent(user));
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);

@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Indice.Features.Identity.Core;
 using Indice.Security;
 
 namespace Indice.Features.Identity.Server;
@@ -9,7 +10,7 @@ public static partial class IdentityEndpoints
     /// <summary>The assembly name.</summary>
     public static readonly string? AssemblyName = Assembly.GetExecutingAssembly().GetName().Name;
     /// <summary>Authentication scheme name used by IdentityServer local API.</summary>
-    public const string AuthenticationScheme = "IdentityServerApiAccessToken";
+    public const string AuthenticationScheme = ExtendedIdentityConstants.ApiAuthenticationScheme;
     /// <summary>Identity API scope.</summary>
     public const string Scope = "identity";
 
