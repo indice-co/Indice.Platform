@@ -71,10 +71,15 @@ public static class IdentityBuilderExtensions
 
     /// <summary>Registers the <see cref="AuthenticationMethodProviderInMemory"/> which is an in-memory static provider for <see cref="IAuthenticationMethodProvider"/>.</summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
-    /// <param name="authenticationMethods">The authentication methods to apply in the identity system.</param>
+    /// <param name="authenticationMethod">An authentication method to apply in the identity system.</param>
+    /// <param name="otherAuthenticationMethods">The authentication methods to apply in the identity system.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddAuthenticationMethodProvider(this IdentityBuilder builder, params AuthenticationMethod[] authenticationMethods) {
-        builder.Services.AddSingleton<IAuthenticationMethodProvider>(new AuthenticationMethodProviderInMemory(authenticationMethods));
+    public static IdentityBuilder AddAuthenticationMethodProvider(this IdentityBuilder builder, AuthenticationMethod authenticationMethod, params AuthenticationMethod[] otherAuthenticationMethods) {
+        var allMethods = (otherAuthenticationMethods ?? Array.Empty<AuthenticationMethod>()).Prepend(authenticationMethod);
+        foreach (var method in allMethods) {
+            builder.Services.AddSingleton(method);
+        }
+        builder.Services.AddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
         return builder;
     }
 

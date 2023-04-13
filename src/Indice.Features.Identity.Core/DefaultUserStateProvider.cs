@@ -13,7 +13,7 @@ public class DefaultUserStateProvider : DefaultUserStateProvider<User>
     /// <summary>Creates a new instance of <see cref="DefaultUserStateProvider{User}"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
-    public DefaultUserStateProvider(IConfiguration configuration, IHttpContextAccessor httpContextAccessor) 
+    public DefaultUserStateProvider(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         : base(configuration, httpContextAccessor) { }
 }
 
@@ -36,8 +36,8 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
         _requirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) == true;
         _requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) == true;
         _mfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
-        _httpContext = httpContextAccessor.HttpContext ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        if (_httpContext.Session.TryGetValue(USER_LOGIN_STATE_SESSION_KEY, out var bytes) == true) {
+        _httpContext = httpContextAccessor?.HttpContext;
+        if (_httpContext is not null && _httpContext.Session.TryGetValue(USER_LOGIN_STATE_SESSION_KEY, out var bytes) == true) {
             CurrentState = Enum.Parse<UserState>(Encoding.UTF8.GetString(bytes));
         }
     }

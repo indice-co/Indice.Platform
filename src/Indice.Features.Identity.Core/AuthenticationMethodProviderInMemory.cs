@@ -1,4 +1,6 @@
-﻿using Indice.Features.Identity.Core.Models;
+﻿using Indice.Features.Identity.Core.Hubs;
+using Indice.Features.Identity.Core.Models;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Indice.Features.Identity.Core;
 
@@ -9,10 +11,18 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
 
     /// <summary>Creates a new instance of <see cref="AuthenticationMethodProviderInMemory"/>.</summary>
     /// <param name="authenticationMethods">The authentication methods to apply in the identity system.</param>
+    /// <param name="multiFactorAuthenticationHub"></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public AuthenticationMethodProviderInMemory(IEnumerable<AuthenticationMethod> authenticationMethods) {
+    public AuthenticationMethodProviderInMemory(
+        IEnumerable<AuthenticationMethod> authenticationMethods,
+        IEnumerable<IHubContext<MultiFactorAuthenticationHub>> multiFactorAuthenticationHub
+    ) {
         _authenticationMethods = authenticationMethods ?? throw new ArgumentNullException(nameof(authenticationMethods));
+        HubContext = multiFactorAuthenticationHub?.FirstOrDefault();
     }
+
+    /// <inheritdoc />
+    public IHubContext<MultiFactorAuthenticationHub> HubContext { get; }
 
     /// <inheritdoc />
     public Task<IEnumerable<AuthenticationMethod>> GetAllMethodsAsync() => Task.FromResult(_authenticationMethods);

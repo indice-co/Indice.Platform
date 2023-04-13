@@ -19,6 +19,8 @@ public class ExtendedIdentityConstants
     public const string TwoFactorUserIdScheme = CookiePrefix + ".TwoFactorUserId";
     /// <summary>A claim type used to store temp data regarding password expiration that will be used in a partial login to identify that a user is in need for an immediate password change.</summary>
     public const string PasswordExpiredClaimType = "PasswordExpired";
+    /// <summary>Authentication scheme name used by IdentityServer local API.</summary>
+    public const string ApiAuthenticationScheme = "IdentityServerApiAccessToken";
 }
 
 /// <summary>Constant values for custom grants.</summary>
