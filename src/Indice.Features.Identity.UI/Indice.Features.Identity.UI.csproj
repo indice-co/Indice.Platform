@@ -5,7 +5,6 @@
   </PropertyGroup>
   <PropertyGroup>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-    <StaticWebAssetBasePath Condition="$(StaticWebAssetBasePath) == ''">/</StaticWebAssetBasePath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefix)" />
@@ -18,11 +17,6 @@
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
     </Exec>
     <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
-  </Target>
-  <Target Name="CopyLibs" BeforeTargets="DispatchToInnerBuilds">
-    <Exec Command="npm run copy:libs" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
-      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
-    </Exec>
   </Target>
   <Target Name="CopyLibs" BeforeTargets="DispatchToInnerBuilds">
     <Exec Command="npm run gulp -- copy:libs" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
