@@ -29,6 +29,7 @@ public class TotpServiceTests
         builder.ConfigureServices(services => {
             services.TryAddTransient<IPlatformEventService, PlatformEventService>();
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+            services.AddTransient<IUserStateProvider<User>, UserStateProviderNoop>();
             services.AddTotpServiceFactory(configuration)
                     .AddSmsServiceNoop()
                     .AddPushNotificationServiceNoop()
@@ -36,7 +37,7 @@ public class TotpServiceTests
                     .AddDistributedMemoryCache()
                     .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                     .AddIdentity<User, Role>()
-                    .AddUserManager<ExtendedUserManager<User>>()
+                    .AddExtendedUserManager()
                     .AddExtendedSignInManager()
                     .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()

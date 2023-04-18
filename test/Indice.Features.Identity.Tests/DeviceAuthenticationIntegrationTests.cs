@@ -8,7 +8,6 @@ using IdentityModel;
 using IdentityModel.Client;
 using IdentityServer4;
 using IdentityServer4.Models;
-using Indice.AspNetCore.Identity;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -175,8 +174,9 @@ public class DeviceAuthenticationIntegrationTests
                     .AddPushNotificationServiceNoop()
                     .AddLocalization()
                     .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(IDENTITY_DATABASE_NAME));
+            services.AddTransient<IUserStateProvider<User>, UserStateProviderNoop>();
             services.AddIdentity<User, Role>()
-                    .AddUserManager<ExtendedUserManager<User>>()
+                    .AddExtendedUserManager()
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                     .AddExtendedSignInManager()
                     .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()

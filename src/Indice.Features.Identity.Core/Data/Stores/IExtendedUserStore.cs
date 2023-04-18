@@ -24,9 +24,9 @@ public interface IExtendedUserStore<TUser> where TUser : User
     Task SetPasswordExpirationPolicyAsync(TUser user, PasswordExpirationPolicy? policy, CancellationToken cancellationToken);
     /// <summary>Sets the <see cref="User.PasswordExpired"/> property of the user.</summary>
     /// <param name="user">The user instance.</param>
-    /// <param name="changePassword">The value to use.</param>
+    /// <param name="expired">The value to use.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-    Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken);
+    Task SetPasswordExpiredAsync(TUser user, bool expired, CancellationToken cancellationToken);
     /// <summary>Sets the <see cref="User.LastSignInDate"/> property of the user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>

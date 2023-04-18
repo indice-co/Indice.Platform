@@ -115,10 +115,10 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public Task SetPasswordExpiredAsync(TUser user, bool changePassword, CancellationToken cancellationToken = default) {
+    public Task SetPasswordExpiredAsync(TUser user, bool expired, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
-        user.PasswordExpired = changePassword;
+        user.PasswordExpired = expired;
         return Task.CompletedTask;
     }
 

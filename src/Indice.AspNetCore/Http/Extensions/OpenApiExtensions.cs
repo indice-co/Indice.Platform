@@ -1,5 +1,4 @@
 ﻿#if NET7_0_OR_GREATER
-using System.Net.Mime;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;

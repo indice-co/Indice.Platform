@@ -3,7 +3,7 @@ using Indice.Features.Identity.Core.Grants;
 
 namespace Indice.Features.Identity.Core;
 
-/// <summary>Provides an extensibility point for altering localizing used inside the package.</summary>
+/// <summary>Provides an extensibility point for altering localized resources used inside the platform.</summary>
 public class IdentityMessageDescriber
 {
     /// <summary>User already has email '0'.</summary>
