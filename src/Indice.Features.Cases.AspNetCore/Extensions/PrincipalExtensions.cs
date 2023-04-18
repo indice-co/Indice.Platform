@@ -5,6 +5,9 @@ namespace Indice.Features.Cases.Extensions;
 
 internal static class PrincipalExtensions
 {
+    /// <summary>
+    /// Return a system user to be used in scenarios with no HttpContext.
+    /// </summary>
     public static ClaimsPrincipal SystemUser() {
         var claims = new List<Claim> {
                 new Claim(BasicClaimTypes.Scope, CasesApiConstants.Scope),
@@ -18,8 +21,13 @@ internal static class PrincipalExtensions
         return new ClaimsPrincipal(identity);
     }
 
-    public static string FindSubjectIdOrClientId(this ClaimsPrincipal user) {
-        var subjectId = user.FindSubjectId();
-        return !string.IsNullOrWhiteSpace(subjectId) ? subjectId : user.FindFirstValue(BasicClaimTypes.ClientId);
-    }
+    /// <summary>
+    /// Get the <see cref="BasicClaimTypes.Subject"/> or the <see cref="BasicClaimTypes.ClientId"/> of a ClaimsPrincipal.
+    /// </summary>
+    /// <param name="user">The claims principal.</param>
+    /// <returns></returns>
+    public static string FindSubjectIdOrClientId(this ClaimsPrincipal user) =>
+        string.IsNullOrWhiteSpace(user.FindSubjectId()) ? 
+            user.FindFirstValue(BasicClaimTypes.ClientId) :
+            user.FindSubjectId();
 }
