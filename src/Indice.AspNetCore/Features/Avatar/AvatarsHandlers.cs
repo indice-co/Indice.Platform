@@ -20,8 +20,6 @@ internal static class AvatarsHandlers
     /// <param name="ext">The file extension (.png or .jpg).</param>
     /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
     /// <returns></returns>
-    //[HttpGet("{fullname}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "foreground", "circular", "v" })]
-    //[AllowAnonymous]
     public static Results<FileStreamHttpResult, NotFound, ValidationProblem> GetAvatar1(HttpResponse response, AvatarGenerator avatarGenerator, string fullname, string? ext, bool? circular) => GetAvatar(response, avatarGenerator, fullname, size: 192, background: null, ext, foreground: null, circular);
 
     /// <summary>Creates an avatar using random background color based on full name and optional size.</summary>
@@ -31,8 +29,6 @@ internal static class AvatarsHandlers
     /// <param name="size">The desired size of the avatar. Possible values are 16, 24, 32, 48, 64, 128, 192, 256 and 512.</param>
     /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
     /// <returns></returns>
-    //[HttpGet("{fullname}/{size?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "foreground", "circular", "v" })]
-    //[AllowAnonymous]
     public static Results<FileStreamHttpResult, NotFound, ValidationProblem> GetAvatar2(HttpResponse response, AvatarGenerator avatarGenerator, string fullname, int? size, bool? circular) => GetAvatar(response, avatarGenerator, fullname, size ?? 192, background: null, ext: null, foreground: null, circular);
 
     /// <summary>Creates an avatar using random background color based on full name and optional size and extension.</summary>
@@ -43,8 +39,6 @@ internal static class AvatarsHandlers
     /// <param name="ext">The file extension (.png or .jpg).</param>
     /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
     /// <returns></returns>
-    //[HttpGet("{fullname}/{size}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "foreground", "circular", "v" })]
-    //[AllowAnonymous]
     public static Results<FileStreamHttpResult, NotFound, ValidationProblem> GetAvatar3(HttpResponse response, AvatarGenerator avatarGenerator, string fullname, int size, string? ext, bool? circular) => GetAvatar(response, avatarGenerator, fullname, size, background: null, ext, foreground: null, circular);
 
     /// <summary>Creates an avatar using full name, size, background color and optional extension.</summary>
@@ -57,8 +51,6 @@ internal static class AvatarsHandlers
     /// <param name="foreground">The foreground color to use.</param>
     /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
     /// <returns></returns>
-    //[HttpGet("{fullname}/{size}/{background}.{ext?}"), ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "foreground", "circular", "v" })]
-    //[AllowAnonymous]
     public static Results<FileStreamHttpResult, NotFound, ValidationProblem> GetAvatar(HttpResponse response, AvatarGenerator avatarGenerator, string fullname, int size, string? background, string? ext, string? foreground, bool? circular) {
         if (string.IsNullOrWhiteSpace(fullname)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(fullname), "Fullname cannot be empty"));
@@ -91,8 +83,6 @@ internal static class AvatarsHandlers
     /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
     /// <param name="v">Use for cache busting.</param>
     /// <returns></returns>
-    //[HttpGet, ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "firstname", "lastname", "size", "ext", "background", "foreground", "circular", "v" })]
-    //[AllowAnonymous]
     public static Results<FileStreamHttpResult, NotFound, ValidationProblem> GetAvatarFull(HttpResponse response, AvatarGenerator avatarGenerator, string? firstName, string? lastName, int? size, string? ext, string? background, string? foreground, bool? circular, string? v) {
         var errors = ValidationErrors.Create();
         if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName)) {
