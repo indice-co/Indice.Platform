@@ -25,11 +25,15 @@ public static class AvatarFeatureExtensions {
     /// <summary>Add the Avatar feature to MVC.</summary>
     /// <param name="services">An interface for configuring MVC services.</param>
     /// <param name="configureOptions">Action to configure the available options</param>
-    public static IServiceCollection AddAvatars(this IServiceCollection services, Action<AvatarOptions> configureOptions) {
+    public static IServiceCollection AddAvatars(this IServiceCollection services, Action<AvatarOptions>? configureOptions = null) {
         var options = new AvatarOptions();
         configureOptions?.Invoke(options);
         services.AddSingleton(options);
         services.AddSingleton(sp => new AvatarGenerator(options));
+#if NET7_0_OR_GREATER
+        //services.AddOutputCache(o => o.AddPolicy("avatars", builder =>
+        //                                                    builder.Expire(TimeSpan.FromDays(1))));
+#endif
         return services;
     }
 }
