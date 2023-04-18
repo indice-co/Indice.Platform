@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
 
-namespace Indice.Features.Identity.UI;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary></summary>
 public static class IdentityBuilderUIExtensions

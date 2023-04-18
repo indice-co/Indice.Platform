@@ -21,7 +21,7 @@ public static class AvatarFeatureExtensions {
         mvcBuilder.ConfigureApplicationPartManager(apm => apm.FeatureProviders.Add(new AvatarFeatureProvider()));
         mvcBuilder.Services.AddResponseCaching();
         mvcBuilder.Services.AddSingleton(options);
-        mvcBuilder.Services.AddSingleton(sp => new AvatarGenerator(options));
+        mvcBuilder.Services.AddSingleton(serviceProvider => new AvatarGenerator(options));
         return mvcBuilder;
     }
 }

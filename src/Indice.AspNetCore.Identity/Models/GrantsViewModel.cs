@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Indice.AspNetCore.Identity.Models;
+﻿namespace Indice.AspNetCore.Identity.Models;
 
 /// <summary>The consented (grants) view model</summary>
 public class GrantsViewModel

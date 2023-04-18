@@ -9,12 +9,14 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Localization;
 
 namespace Indice.Features.Identity.Server.Totp;
+
 internal static class TotpHandlers
 {
     internal static async Task<Results<NoContent, ForbidHttpResult, StatusCodeHttpResult, ValidationProblem>> Send(
         TotpServiceFactory totpServiceFactory,
         ClaimsPrincipal currentUser,
-        TotpRequest request) {
+        TotpRequest request
+    ) {
         var userId = currentUser.FindSubjectId();
         if (string.IsNullOrEmpty(userId)) {
             return TypedResults.Forbid();
@@ -52,11 +54,13 @@ internal static class TotpHandlers
         }
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, ForbidHttpResult, ValidationProblem>> Verify(
         TotpServiceFactory totpServiceFactory,
         ClaimsPrincipal currentUser,
         IStringLocalizer<TotpServiceUser<User>> localizer,
-        TotpVerificationRequest request) {
+        TotpVerificationRequest request
+    ) {
         var userId = currentUser.FindSubjectId();
         if (string.IsNullOrEmpty(userId)) {
             return TypedResults.Forbid();

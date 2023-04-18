@@ -50,7 +50,7 @@
             startSignalRConnection: function () {
                 var connection = new signalR
                     .HubConnectionBuilder()
-                    .withUrl('/mfa')
+                    .withUrl(viewModelParams.hubConnectionUrl)
                     .build();
                 connection.on('LoginApproved', function (otpCode) {
                     viewModelParams.$otpCodeInput.val(otpCode);

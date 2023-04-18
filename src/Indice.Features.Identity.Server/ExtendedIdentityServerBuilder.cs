@@ -8,11 +8,11 @@ namespace Indice.Features.Identity.Server;
 /// <summary>Builder for configuring the Indice Identity Server.</summary>
 public interface IExtendedIdentityServerBuilder : IIdentityServerBuilder
 {
-    /// <summary>Gets the services.</summary>
+    /// <summary>Gets the configured <see cref="Microsoft.AspNetCore.Identity.IdentityBuilder"/>.</summary>
     public IdentityBuilder IdentityBuilder { get; }
-    /// <summary>Gets the Configuration.</summary>
+    /// <summary>Gets the <see cref="IConfiguration"/> instance.</summary>
     public IConfiguration Configuration { get; }
-    /// <summary>The current environment.</summary>
+    /// <summary>Gets the current <see cref="IWebHostEnvironment"/>.</summary>
     public IWebHostEnvironment Environment { get; }
 }
 
@@ -20,9 +20,14 @@ public interface IExtendedIdentityServerBuilder : IIdentityServerBuilder
 internal class ExtendedIdentityServerBuilder : IExtendedIdentityServerBuilder
 {
     /// <inheritdoc/>
-    public ExtendedIdentityServerBuilder(IIdentityServerBuilder innerServerBuilder, IdentityBuilder innerIdentityBuilder, IConfiguration configuration, IWebHostEnvironment environment) {
-        IdentityServerBuilder = innerServerBuilder ?? throw new ArgumentNullException(nameof(innerServerBuilder));
-        IdentityBuilder = innerIdentityBuilder ?? throw new ArgumentNullException(nameof(innerIdentityBuilder));
+    public ExtendedIdentityServerBuilder(
+        IIdentityServerBuilder identityServerBuilder, 
+        IdentityBuilder identityBuilder, 
+        IConfiguration configuration, 
+        IWebHostEnvironment environment
+    ) {
+        IdentityServerBuilder = identityServerBuilder ?? throw new ArgumentNullException(nameof(identityServerBuilder));
+        IdentityBuilder = identityBuilder ?? throw new ArgumentNullException(nameof(identityBuilder));
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         Environment = environment ?? throw new ArgumentNullException(nameof(environment));
         IdentityServerBuilder.Services.AddEndpointsApiExplorer();

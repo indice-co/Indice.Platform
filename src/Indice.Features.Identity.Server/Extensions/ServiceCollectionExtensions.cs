@@ -6,20 +6,20 @@ using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Options;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Services;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -36,76 +36,33 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="environment">Provides information about the web hosting environment an application is running in.</param>
     /// <param name="setupAction">The setup action.</param>
-    /// <returns>The <see cref="IExtendedIdentityServerBuilder"/></returns>
-    public static IExtendedIdentityServerBuilder AddExtendedIdentityServer(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment, Action<ExtendedIdentityServerOptions>? setupAction = null) {
-        var extendedOptions = new ExtendedIdentityServerOptions();
-        setupAction?.Invoke(extendedOptions);
-        services.AddSingleton(extendedOptions);
-        services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
-        services.Configure<CookieTempDataProviderOptions>(options => options.Cookie.Expiration = TimeSpan.FromMinutes(30));
-        var innerServerBuilder = services.AddIdentityServer(options => {
-            options.IssuerUri = configuration.GetHost();
-            options.Events.RaiseErrorEvents = true;
-            options.Events.RaiseInformationEvents = true;
-            options.Events.RaiseFailureEvents = true;
-            options.Events.RaiseSuccessEvents = true;
-            options.UserInteraction.LoginUrl = "/login";
-            options.UserInteraction.LogoutUrl = "/logout";
-            options.UserInteraction.ErrorUrl = "/error";
-            options.UserInteraction.ErrorIdParameter = "errorId";
-            options.EmitScopesAsSpaceDelimitedStringInJwt = true;
+    /// <returns>The <see cref="IExtendedIdentityServerBuilder"/>.</returns>
+    public static IExtendedIdentityServerBuilder AddExtendedIdentityServer(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IWebHostEnvironment environment,
+        Action<ExtendedIdentityServerOptions>? setupAction = null
+    ) {
+        var options = new ExtendedIdentityServerOptions();
+        setupAction?.Invoke(options);
+        services.AddSingleton(options);
+        var identityBuilder = services.AddIdentityDefaults(configuration);
+        var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
+        services.AddAuthenticationDefaults();
+        options.ConfigureIdentityDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("IdentityDb"));
+        services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureIdentityDbContext);
+        services.AddSession(options => {
+            options.IdleTimeout = TimeSpan.FromMinutes(10);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
         });
-        var innerIdentityBuilder = services.AddIdentityDefaults(configuration);
-        var builder = new ExtendedIdentityServerBuilder(innerServerBuilder, innerIdentityBuilder, configuration, environment);
-        builder.AddAuthenticationDefaults();
-        extendedOptions.ConfigureDbContext ??= (connectionStringName) => dbBuilder => dbBuilder.UseSqlServer(builder.Configuration.GetConnectionString(connectionStringName));
-        builder.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(extendedOptions.ConfigureDbContext(extendedOptions.ConnectionStringName ?? "IdentityDb"));
-        builder.AddConfigurationStore<ExtendedConfigurationDbContext>(options => {
-            options.SetupTables();
-            options.ConfigureDbContext = extendedOptions.ConfigureDbContext(extendedOptions.ConnectionStringName ?? "ConfigurationDb");
-        })
-        .AddOperationalStore(options => {
-            options.SetupTables();
-            options.EnableTokenCleanup = true;
-            options.TokenCleanupInterval = (int)TimeSpan.FromHours(1).TotalSeconds;
-            options.TokenCleanupBatchSize = 250;
-            options.ConfigureDbContext = extendedOptions.ConfigureDbContext(extendedOptions.ConnectionStringName ?? "OperationalDb");
-        })
-        .AddDelegationGrantValidator()
-        .AddJwtBearerClientAuthentication()
-        .AddAspNetIdentity<User>()
-        .AddAppAuthRedirectUriValidator();
-        if (builder.Environment.IsDevelopment()) {
-            IdentityModelEventSource.ShowPII = true;
-            builder.AddDeveloperSigningCredential();
-        } else {
-            var certificate = new X509Certificate2(Path.Combine(builder.Environment.ContentRootPath, builder.Configuration["IdentityServer:SigningPfxFile"]!), builder.Configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
-            builder.AddSigningCredential(certificate);
-        }
-        builder.AddDotnet7CompatibleStores();
-        return builder;
+        return new ExtendedIdentityServerBuilder(identityServerBuilder, identityBuilder, configuration, environment);
     }
 
-    private static IExtendedIdentityServerBuilder AddAuthenticationDefaults(this IExtendedIdentityServerBuilder builder) {
-        var authBuilder = builder.Services.AddAuthentication();
-        static Action<CookieAuthenticationOptions> AuthCookie() => options => {
-            options.LoginPath = new PathString("/login");
-            options.LogoutPath = new PathString("/logout");
-            options.AccessDeniedPath = new PathString("/403");
-        };
-        builder.Services.ConfigureApplicationCookie(AuthCookie());
-        builder.Services.ConfigureExtendedValidationCookie(AuthCookie());
-        builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options => {
-            options.Cookie.Name = IdentityConstants.TwoFactorUserIdScheme;
-            options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
-            options.LoginPath = new PathString("/login-with-2fa");
-            options.LogoutPath = new PathString("/logout");
-            options.AccessDeniedPath = new PathString("/403");
-        });
-        return builder;
-    }
-
-    private static IdentityBuilder AddIdentityDefaults(this IServiceCollection services, IConfiguration configuration) {
+    private static IdentityBuilder AddIdentityDefaults(
+        this IServiceCollection services,
+        IConfiguration configuration
+    ) {
         JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
         services.Configure<IdentityOptions>(configuration.GetSection(nameof(IdentityOptions)));
         services.AddExternalProviderClaimsTransformation();
@@ -118,15 +75,80 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         services.TryAddScoped<IdentityMessageDescriber>();
         return services.AddIdentity<User, Role>()
                        .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
-                       .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
+                       .AddExtendedUserManager()
                        .AddExtendedSignInManager<User>()
-                       .AddUserManager<ExtendedUserManager<User>>()
+                       .AddAuthenticationMethodProvider(
+                          new BiometricsAuthenticationMethod("Push notification using Indice app", "Provide a push notification using Indice app."),
+                          new SmsAuthenticationMethod("SMS", "Users will receive a text message containing a verification code.")
+                        )
                        .AddDefaultPasswordValidators()
                        .AddClaimsPrincipalFactory<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                        .AddDefaultTokenProviders()
-                       .AddExtendedPhoneNumberTokenProvider(configuration)/*
-                       .AddErrorDescriber<LocalizedIdentityErrorDescriber>()
-                       .AddIdentityMessageDescriber<LocalizedIdentityMessageDescriber>()*/;
+                       .AddExtendedPhoneNumberTokenProvider(configuration);
+    }
+
+    private static IIdentityServerBuilder AddIdentityServerDefaults(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        IWebHostEnvironment webHostEnvironment,
+        Action<DbContextOptionsBuilder>? configureConfigurationDbContext,
+        Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext
+    ) {
+        var identityServerBuilder = services.AddIdentityServer(options => {
+            options.IssuerUri = configuration.GetHost();
+            options.Events.RaiseErrorEvents = true;
+            options.Events.RaiseInformationEvents = true;
+            options.Events.RaiseFailureEvents = true;
+            options.Events.RaiseSuccessEvents = true;
+            options.UserInteraction.LoginUrl = "/login";
+            options.UserInteraction.LogoutUrl = "/logout";
+            options.UserInteraction.ErrorUrl = "/error";
+            options.UserInteraction.ErrorIdParameter = "errorId";
+            options.EmitScopesAsSpaceDelimitedStringInJwt = true;
+        })
+        .AddConfigurationStore<ExtendedConfigurationDbContext>(options => {
+            options.SetupTables();
+            options.ConfigureDbContext = configureConfigurationDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("ConfigurationDb"));
+        })
+        .AddOperationalStore(options => {
+            options.SetupTables();
+            options.EnableTokenCleanup = true;
+            options.TokenCleanupInterval = (int)TimeSpan.FromHours(1).TotalSeconds;
+            options.TokenCleanupBatchSize = 250;
+            options.ConfigureDbContext = configurePersistedGrantDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("OperationalDb"));
+        })
+        .AddDelegationGrantValidator()
+        .AddJwtBearerClientAuthentication()
+        .AddAspNetIdentity<User>()
+        .AddAppAuthRedirectUriValidator()
+        .AddDotnet7CompatibleStores();
+        if (webHostEnvironment.IsDevelopment()) {
+            IdentityModelEventSource.ShowPII = true;
+            identityServerBuilder.AddDeveloperSigningCredential();
+        } else {
+            var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
+            identityServerBuilder.AddSigningCredential(certificate);
+        }
+        return identityServerBuilder;
+    }
+
+    private static AuthenticationBuilder AddAuthenticationDefaults(this IServiceCollection services) {
+        var authBuilder = services.AddAuthentication();
+        static Action<CookieAuthenticationOptions> AuthCookie() => options => {
+            options.LoginPath = new PathString("/login");
+            options.LogoutPath = new PathString("/logout");
+            options.AccessDeniedPath = new PathString("/403");
+        };
+        services.ConfigureApplicationCookie(AuthCookie());
+        services.ConfigureExtendedValidationCookie(AuthCookie());
+        services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options => {
+            options.Cookie.Name = IdentityConstants.TwoFactorUserIdScheme;
+            options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+            options.LoginPath = new PathString("/login-with-2fa");
+            options.LogoutPath = new PathString("/logout");
+            options.AccessDeniedPath = new PathString("/403");
+        });
+        return authBuilder;
     }
 
     /// <summary>Adds Identity server management endpoints dependencies. </summary>
@@ -269,17 +291,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.ApiPrefix = settingsApiOptions.ApiPrefix;
             options.ApiScope = settingsApiOptions.ApiScope;
         });
-        return builder;
-    }
-
-    /// <summary>Registers the <see cref="DbContext"/> to be used by the Identity system.</summary>
-    /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
-    /// <param name="configureAction">Configuration for <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>.</param>
-    public static IExtendedIdentityServerBuilder AddExtendedDbContext(this IExtendedIdentityServerBuilder builder, Action<IdentityDbContextOptions>? configureAction) {
-        var options = new IdentityDbContextOptions();
-        configureAction?.Invoke(options);
-        builder.Services.AddSingleton(options);
-        builder.Services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(options.ConfigureDbContext);
         return builder;
     }
 }

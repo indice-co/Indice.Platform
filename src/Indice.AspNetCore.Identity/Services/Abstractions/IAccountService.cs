@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Indice.AspNetCore.Identity.Models;
+﻿using Indice.AspNetCore.Identity.Models;
 using Indice.Services;
 
 namespace Indice.AspNetCore.Identity;

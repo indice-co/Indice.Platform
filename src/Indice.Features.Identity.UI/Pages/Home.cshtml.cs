@@ -21,7 +21,7 @@ public class HomeModel : PageModel
     /// <summary>Creates a new instance of <see cref="LoginModel"/> class.</summary>
     /// <param name="logger">A generic interface for logging.</param>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="LoginModel"/>.</param>
-    /// <param name="configuration"></param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public HomeModel(
         ILogger<HomeModel> logger,
@@ -34,7 +34,7 @@ public class HomeModel : PageModel
     }
 
     /// <summary></summary>
-    public List<HomeServiceModel> Services { get; set; }
+    public List<GatewayServiceModel> Services { get; set; }
 
     /// <summary>Home page GET handler.</summary>
     public IActionResult OnGet() {
@@ -42,8 +42,8 @@ public class HomeModel : PageModel
         if (!string.IsNullOrWhiteSpace(siteUrl)) {
             return Redirect(siteUrl);
         }
-        Services = new List<HomeServiceModel> {
-            new HomeServiceModel {
+        Services = new List<GatewayServiceModel> {
+            new GatewayServiceModel {
                 DisplayName = "Admin",
                 ImageSrc = null,
                 Link = "~/admin",
