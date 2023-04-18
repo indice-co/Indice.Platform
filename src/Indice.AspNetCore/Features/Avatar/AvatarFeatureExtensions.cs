@@ -16,12 +16,20 @@ public static class AvatarFeatureExtensions {
     /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
     /// <param name="configureOptions">Action to configure the available options</param>
     public static IMvcBuilder AddAvatars(this IMvcBuilder mvcBuilder, Action<AvatarOptions> configureOptions) {
-        var options = new AvatarOptions();
-        configureOptions?.Invoke(options);
         mvcBuilder.ConfigureApplicationPartManager(apm => apm.FeatureProviders.Add(new AvatarFeatureProvider()));
         mvcBuilder.Services.AddResponseCaching();
-        mvcBuilder.Services.AddSingleton(options);
-        mvcBuilder.Services.AddSingleton(serviceProvider => new AvatarGenerator(options));
+        mvcBuilder.Services.AddAvatars(configureOptions);
         return mvcBuilder;
+    }
+
+    /// <summary>Add the Avatar feature to MVC.</summary>
+    /// <param name="services">An interface for configuring MVC services.</param>
+    /// <param name="configureOptions">Action to configure the available options</param>
+    public static IServiceCollection AddAvatars(this IServiceCollection services, Action<AvatarOptions> configureOptions) {
+        var options = new AvatarOptions();
+        configureOptions?.Invoke(options);
+        services.AddSingleton(options);
+        services.AddSingleton(sp => new AvatarGenerator(options));
+        return services;
     }
 }
