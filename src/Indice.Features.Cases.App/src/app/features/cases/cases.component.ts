@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ViewAction } from '@indice/ng-components';
-import { SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
+import { FilterClause, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { CasePartial, CasePartialResultSet, CasesApiService, } from 'src/app/core/services/cases-api.service';
+import { ParamsService } from 'src/app/core/services/params.service';
 import { QueriesModalComponent } from 'src/app/shared/components/query-modal/query-modal.component';
 
 @Component({
@@ -23,6 +24,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         private _route: ActivatedRoute,
         private _router: Router,
         private _api: CasesApiService,
+        private _paramsService: ParamsService,
         private _modalService: ModalService
     ) {
         super(_route, _router);
@@ -36,6 +38,10 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
     }
 
     public ngOnInit(): void {
+        const storedParams = this._paramsService.getParams();
+        if (storedParams) {
+            this._router.navigate(['/cases'], { queryParams: storedParams });
+        }
         // Are there any filters in queryParams?
         this._route.queryParams.subscribe((params: Params) => {
             this.queryParamsHasFilter = params['filter'] ? true : false;
@@ -132,6 +138,15 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(f.value));
         let filterMetadata: string[] = [];
         this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${f.member}::eq::(${f.dataType})${f.value}`)); // this is the form that the server accepts
+        this._paramsService.setParams({
+            view: this.view,
+            page: this.page,
+            pagesize: this.pageSize,
+            search: this.search,
+            sort: this.sort,
+            dir: this.sortdir,
+            filter: this.stringifyFilters(this.filters)
+        });
         return this._api
             .getCases(
                 customerId,
@@ -153,4 +168,15 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
                 map((result: CasePartialResultSet) => (result as IResultSet<CasePartial>))
             );
     }
+
+    // TODO: make this public in Indice.Angular
+    private stringifyFilters(filters: FilterClause[] | undefined) {
+        return filters?.map((f: FilterClause) => {
+            if (f.dataType === 'datetime') {
+                f.value = (new Date(f.value)).toISOString();
+            }
+            return f.toString();
+        }).join(',');
+    }
+
 }

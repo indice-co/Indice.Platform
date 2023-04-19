@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Events;
+using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
@@ -85,7 +86,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     }
 
     public async Task<Case> GetCaseById(ClaimsPrincipal user, Guid caseId) {
-        var userId = user.FindSubjectId();
+        var userId = user.FindSubjectIdOrClientId();
         var query =
             from c in GetCasesInternal(userId, includeAttachmentData: true, SchemaSelector)
             let isCustomer = userId == c.CustomerId
@@ -109,7 +110,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
     }
 
     public async Task<ResultSet<MyCasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetMyCasesListFilter> options) {
-        var userId = user.FindSubjectId();
+        var userId = user.FindSubjectIdOrClientId();
         var dbCaseQueryable = _dbContext.Cases
             .AsQueryable()
             .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)

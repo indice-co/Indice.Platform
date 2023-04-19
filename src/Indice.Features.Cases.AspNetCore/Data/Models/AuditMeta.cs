@@ -42,10 +42,24 @@ public class AuditMeta
     }
 
     private static AuditMeta Populate(AuditMeta meta, ClaimsPrincipal user, DateTimeOffset? now = null) {
-        meta = meta ?? new AuditMeta();
-        meta.Id = user.FindFirstValue(BasicClaimTypes.Subject);
-        meta.Email = user.FindFirstValue(BasicClaimTypes.Email);
-        meta.Name = $"{user.FindFirstValue(BasicClaimTypes.GivenName)} {user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim();
+        meta ??= new AuditMeta();
+
+        /*
+         * meta.Id logic:
+         * When the ClaimsPrincipal has Subject, then there is an authorized user that access a case.
+         * When the ClaimsPrincipal does not have Subject, we're creating a case through a proxy that has been  authorized via client-credentials.
+         */
+
+        var subject = user.FindFirstValue(BasicClaimTypes.Subject);
+        meta.Id = string.IsNullOrWhiteSpace(subject)
+            ? user.FindFirstValue(BasicClaimTypes.ClientId)
+            : subject;
+        meta.Email = string.IsNullOrWhiteSpace(subject)
+            ? user.FindFirstValue(BasicClaimTypes.ClientId)
+            : user.FindFirstValue(BasicClaimTypes.Email);
+        meta.Name = string.IsNullOrWhiteSpace(subject)
+            ? CasesApiConstants.SystemUserName
+            : $"{user.FindFirstValue(BasicClaimTypes.GivenName)} {user.FindFirstValue(BasicClaimTypes.FamilyName)}".Trim();
         meta.When = now ?? DateTimeOffset.UtcNow;
         return meta;
     }
