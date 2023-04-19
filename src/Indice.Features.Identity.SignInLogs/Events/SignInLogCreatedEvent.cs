@@ -4,11 +4,11 @@ using Indice.Services;
 namespace Indice.Features.Identity.SignInLogs.Events;
 
 /// <summary>An event that is raised when a new <see cref="SignInLogEntry"/> is created.</summary>
-public class SignInLogCreated : IPlatformEvent
+public class SignInLogCreatedEvent : IPlatformEvent
 {
-    /// <summary>Creates a new instance of <see cref="SignInLogCreated"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="SignInLogCreatedEvent"/> class.</summary>
     /// <param name="signInLog">The log entry that was created.</param>
-    public SignInLogCreated(SignInLogEntry signInLog) {
+    public SignInLogCreatedEvent(SignInLogEntry signInLog) {
         SignInLog = signInLog;
     }
 

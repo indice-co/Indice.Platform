@@ -36,7 +36,7 @@ internal class PersistLogsHostedService : BackgroundService
                 var enrichResult = await enricherAggregator.EnrichAsync(logEntry, EnricherDependencyType.Default | EnricherDependencyType.OnDataStore);
                 if (enrichResult.Succeeded) {
                     await signInLogStore.CreateAsync(logEntry, stoppingToken);
-                    await _eventService.Publish(new SignInLogCreated(logEntry));
+                    await _eventService.Publish(new SignInLogCreatedEvent(logEntry));
                 }
             }
         }

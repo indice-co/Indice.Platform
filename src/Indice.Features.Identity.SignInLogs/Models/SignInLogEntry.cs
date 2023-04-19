@@ -61,5 +61,5 @@ public class SignInLogEntry
     /// <summary>The approximate location of the operation.</summary>
     public GeoPoint Coordinates { get; set; }
     /// <summary>Additional information about the user's sign in log entry.</summary>
-    public dynamic ExtraData { get; set; }
+    public SignInLogEntryExtraData ExtraData { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Dynamic;
 using System.Reflection;
+using Indice.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -9,7 +10,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
-using Indice.Extensions;
 
 namespace Indice.Services;
 
@@ -66,7 +66,7 @@ public class HtmlRenderingEngineMvcRazor : IHtmlRenderingEngine
     private ActionContext GetActionContext() {
         // HttpContext can be null when IEmailService is used outside of the ASP.NET Core request pipeline (e.x a background service).
         var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext == null) {
+        if (httpContext is null) {
             httpContext = new DefaultHttpContext {
                 RequestServices = _serviceProvider
             };

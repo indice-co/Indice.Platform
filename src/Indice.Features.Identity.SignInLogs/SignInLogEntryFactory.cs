@@ -1,5 +1,4 @@
-﻿using System.Dynamic;
-using IdentityServer4.Events;
+﻿using IdentityServer4.Events;
 using Indice.Features.Identity.SignInLogs.Models;
 
 namespace Indice.Features.Identity.SignInLogs;
@@ -22,12 +21,15 @@ internal class SignInLogEntryFactory
             ResourceType = "IdentityServer",
             SubjectId = @event.SubjectId,
             Succeeded = true,
-            ExtraData = new ExpandoObject()
+            ExtraData = new SignInLogEntryExtraData()
         };
         logEntry.ExtraData.ProcessId = @event.ProcessId;
         logEntry.ExtraData.RedirectUri = @event.RedirectUri;
         logEntry.ExtraData.Scope = @event.Scopes;
-        logEntry.ExtraData.Tokens = @event.Tokens;
+        logEntry.ExtraData.Tokens = @event.Tokens.Select(x => new SignInLogEntryToken { 
+            TokenType = x.TokenType, 
+            TokenValue = x.TokenValue 
+        });
         return logEntry;
     }
 
@@ -47,7 +49,7 @@ internal class SignInLogEntryFactory
             ResourceType = "IdentityServer",
             SubjectId = @event.SubjectId,
             Succeeded = false,
-            ExtraData = new ExpandoObject()
+            ExtraData = new SignInLogEntryExtraData()
         };
         logEntry.ExtraData.Error = @event.Error;
         logEntry.ExtraData.ErrorDescription = @event.ErrorDescription;
@@ -73,7 +75,7 @@ internal class SignInLogEntryFactory
             SubjectId = @event.SubjectId,
             SubjectName = @event.DisplayName,
             Succeeded = true,
-            ExtraData = new ExpandoObject()
+            ExtraData = new SignInLogEntryExtraData()
         };
         logEntry.ExtraData.ProcessId = @event.ProcessId;
         logEntry.ExtraData.Provider = @event.Provider;
@@ -96,7 +98,7 @@ internal class SignInLogEntryFactory
             SubjectId = @event.Username,
             SubjectName = @event.Username,
             Succeeded = false,
-            ExtraData = new ExpandoObject()
+            ExtraData = new SignInLogEntryExtraData()
         };
         logEntry.ExtraData.ProcessId = @event.ProcessId;
         return logEntry;

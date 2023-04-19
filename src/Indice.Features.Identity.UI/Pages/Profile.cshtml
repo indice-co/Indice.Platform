@@ -6,8 +6,6 @@
 
 @{
     ViewData["Title"] = Localizer["Profile"];
-    var success = ViewData.ContainsKey("successfulChangeOfProfile") && ((bool)ViewData["successfulChangeOfProfile"]) == true;
-    var changeOfEmail = ViewData.ContainsKey("requestChangeOfEmail") && ((bool)ViewData["requestChangeOfEmail"]) == true;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
     var alert = TempData.Get<AlertModel>("Alert");
@@ -26,25 +24,22 @@
     <div id="send-confirmation-error" class="alert alert-danger d-none" style="margin-bottom: 5px;">
         @Localizer["Confirmation email delivery failed. Please contact system administrator."]
     </div>
-    @if (success)
+    @if (Model.ProfileSuccessfullyChanged)
     {
-        <div class="alert alert-success" role="alert">
-            @Localizer["Your profile was updated successfully."]
-            @if (changeOfEmail)
-            {
-                @Localizer["An email has been sent to your new email address in order to confirm it."]
-            }
-        </div>
+        var message = Localizer.GetString("Your profile was updated successfully.").ToString();
+        if (Model.EmailChangeRequested)
+        {
+            message += $" {Localizer.GetString("An email has been sent to your new email address in order to confirm it.")}";
+        }
+        <partial name="_Alert" model="@AlertModel.Success(message)" />
     }
-    @if (Model.ViewModel.EmailChangePending && !success)
+    @if (Model.ViewModel.EmailChangePending && !Model.ProfileSuccessfullyChanged)
     {
-        <div class="alert alert-warning" role="alert">
-            @Localizer["Your new email verification is still pending."]
-        </div>
+        <partial name="_Alert" model="@AlertModel.Warn(Localizer.GetString("Your new email verification is still pending."))" />
     }
     <partial name="_Alert" model="alert" />
     <partial name="_ValidationSummary" />
-    <form asp-page="/manage/profile" method="post">
+    <form asp-page="Profile" method="post">
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
@@ -115,7 +110,7 @@
         </div>
         <div class="form-group">
             <div class="form-check custom-checkbox d-inline-block">
-                <label class="form-check-label" for="ConsentCommercial">
+                <label class="form-check-label" asp-for="Input.ConsentCommercial">
                     <input asp-for="Input.ConsentCommercial" type="checkbox" class="form-check-input text-info" />
                     <span class="control flex-shrink-0"></span>
                     <span class="d-inline">

@@ -23,12 +23,12 @@ internal class DeviceEnricher : ISignInLogEntryEnricher
             return ValueTask.CompletedTask;
         }
         var userAgent = new UserAgent(userAgentHeader);
-        logEntry.ExtraData.Device = new { 
+        logEntry.ExtraData.Device = new SignInLogEntryDevice { 
             Model = userAgent.DeviceModel,
             Platform = userAgent.DevicePlatform,
             UserAgent = userAgent.HeaderValue,
-            userAgent.DisplayName,
-            userAgent.Os
+            DisplayName = userAgent.DisplayName,
+            Os = userAgent.Os
         };
         return ValueTask.CompletedTask;
     }

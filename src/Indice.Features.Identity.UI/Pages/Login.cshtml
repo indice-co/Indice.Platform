@@ -27,7 +27,7 @@
                 @foreach (var provider in Model.ViewModel.VisibleExternalProviders)
                 {
                     <li class="idp idp-@provider.AuthenticationScheme.ToLower()">
-                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="/external" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.ViewModel.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.ViewModel.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
                             @Localizer[provider.DisplayName]
                         </a>
                     </li>

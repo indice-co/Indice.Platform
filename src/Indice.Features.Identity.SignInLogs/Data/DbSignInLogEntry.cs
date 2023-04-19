@@ -49,5 +49,5 @@ internal class DbSignInLogEntry
     /// <summary>The grant type used for the login.</summary>
     public string GrantType { get; set; }
     /// <summary>Additional information about the user's sign in log entry.</summary>
-    public dynamic ExtraData { get; set; }
+    public SignInLogEntryExtraData ExtraData { get; set; }
 }

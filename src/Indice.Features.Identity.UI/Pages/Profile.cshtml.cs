@@ -13,8 +13,7 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Page model for the profile screen.</summary>
 [Authorize]
 [SecurityHeaders]
-public class ProfileModel : BasePageModel
-{
+public class ProfileModel : BasePageModel {
     private readonly ExtendedUserManager<User> _userManager;
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IConfiguration _configuration;
@@ -43,16 +42,25 @@ public class ProfileModel : BasePageModel
     [BindProperty]
     public ProfileInputModel Input { get; set; }
 
+    /// <summary></summary>
+    [ViewData]
+    public bool ProfileSuccessfullyChanged { get; set; }
+
+    /// <summary></summary>
+    [ViewData]
+    public bool EmailChangeRequested { get; set; }
+
     /// <summary>Profile page GET handler.</summary>
     public async Task<IActionResult> OnGetAsync() {
-        ViewModel = await BuildProfileViewModelAsync();
+        Input = ViewModel = await BuildProfileViewModelAsync();
         return Page();
     }
 
     /// <summary>Profile page POST handler.</summary>
     public async Task<IActionResult> OnPostAsync() {
         if (!ModelState.IsValid) {
-            //return View(model);
+            ViewModel = await BuildProfileViewModelAsync(Input);
+            return Page();
         }
         var user = await _userManager.GetUserAsync(User);
         var result = await _userManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName);
@@ -68,7 +76,7 @@ public class ProfileModel : BasePageModel
         result = await _userManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommencialDate, $"{DateTime.UtcNow:O}");
         AddModelErrors(result);
         if (user.NormalizedEmail != Input.Email.Trim().ToUpper()) {
-            ViewData["requestChangeOfEmail"] = true;
+            EmailChangeRequested = true;
             user.EmailConfirmed = false;
             await _userManager.SetEmailAsync(user, Input.Email);
             await SendChangeEmailConfirmationEmail(user, Input.Email);
@@ -76,17 +84,12 @@ public class ProfileModel : BasePageModel
         user.PhoneNumber = Input.PhoneNumber;
         if (user.UserName != Input.UserName) {
             result = await _userManager.SetUserNameAsync(user, Input.UserName);
+            AddModelErrors(result);
         }
         result = await _userManager.UpdateAsync(user);
         AddModelErrors(result);
-        ViewData["successfulChangeOfProfile"] = ModelState.ErrorCount == 0;
-        var currentLogins = await _userManager.GetLoginsAsync(user);
-        var externalLogins = await _signInManager.GetExternalAuthenticationSchemesAsync();
-        var otherLogins = externalLogins
-            .Where(scheme => currentLogins.All(loginInfo => scheme.Name != loginInfo.LoginProvider))
-            .ToList();
-        //model.CurrentLogins = currentLogins;
-        //model.OtherLogins = otherLogins;
+        ProfileSuccessfullyChanged = ModelState.ErrorCount == 0;
+        ViewModel = await BuildProfileViewModelAsync(Input);
         return Page();
     }
 
@@ -124,6 +127,32 @@ public class ProfileModel : BasePageModel
             PhoneNumber = user.PhoneNumber,
             Tin = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.Tin)?.Value,
             UserName = user.UserName
+        };
+    }
+
+    private async Task<ProfileViewModel> BuildProfileViewModelAsync(ProfileInputModel model) {
+        var user = await _userManager.GetUserAsync(User);
+        var roles = await _userManager.GetRolesAsync(user);
+        var currentLogins = await _userManager.GetLoginsAsync(user);
+        var otherLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync())
+            .Where(scheme => currentLogins.All(loginInfo => scheme.Name != loginInfo.LoginProvider))
+            .ToList();
+        return new ProfileViewModel {
+            BirthDate = model.BirthDate,
+            CanRemoveProvider = await _userManager.HasPasswordAsync(user) || currentLogins.Count > 1,
+            ConsentCommercial = model.ConsentCommercial,
+            ConsentCommercialDate = model.ConsentCommercialDate,
+            CurrentLogins = currentLogins,
+            DeveloperTotp = model.DeveloperTotp,
+            Email = model.Email,
+            EmailChangePending = !await _userManager.IsEmailConfirmedAsync(user),
+            FirstName = model.FirstName,
+            HasDeveloperTotp = _configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
+            LastName = model.LastName,
+            OtherLogins = otherLogins,
+            PhoneNumber = model.PhoneNumber,
+            Tin = model.Tin,
+            UserName = model.UserName
         };
     }
 }
