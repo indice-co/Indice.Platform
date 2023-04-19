@@ -24,8 +24,11 @@ public static class CasesApiConstants
     /// <summary>The default language key that will be used at <see cref="IJsonTranslationService"/>.</summary>
     public static string DefaultTranslationLanguage = "el";
 
-    /// <summary>The default groupId claim type</summary>
+    /// <summary>The default groupId claim type.</summary>
     public static string DefaultGroupIdClaimType = "groupId";
+
+    /// <summary> The default name for systemic claims principal.</summary>
+    public static string SystemUserName = "system_user";
 
     /// <summary>Cases API policies.</summary>
     public static class Policies
