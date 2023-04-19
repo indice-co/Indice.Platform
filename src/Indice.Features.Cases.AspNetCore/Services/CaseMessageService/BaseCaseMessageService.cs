@@ -2,6 +2,7 @@
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Events;
+using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Security;
@@ -183,9 +184,9 @@ internal abstract class BaseCaseMessageService
         };
 
         @case.DataId = newDataVersion.Id;
-
+        
         // If case is mine, my changes are also publicly visible
-        if (@case.CreatedBy.Id == user.FindSubjectId()) {
+        if (@case.CreatedBy.Id == user.FindSubjectIdOrClientId()) {
             @case.PublicDataId = newDataVersion.Id;
         }
 

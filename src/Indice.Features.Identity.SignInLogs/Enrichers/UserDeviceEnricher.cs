@@ -29,26 +29,26 @@ internal class UserDeviceEnricher : ISignInLogEntryEnricher
         if (device is null) {
             return;
         }
-        logEntry.ExtraData.UserDevice = new {
-            device.Id,
-            device.Blocked,
-            device.ClientType,
-            device.DateCreated,
-            device.IsPendingTrustActivation,
-            device.IsPushNotificationsEnabled,
-            device.IsTrusted,
-            device.LastSignInDate,
-            device.MfaSessionExpirationDate,
-            device.Model,
-            device.Name,
-            device.OsVersion,
-            device.Platform,
-            device.RequiresPassword,
-            device.SupportsFingerprintLogin,
-            device.SupportsPinLogin,
-            device.Tags,
-            device.TrustActivationDate,
-            device.Data
+        logEntry.ExtraData.UserDevice = new SignInLogEntryUserDevice {
+            Id = device.Id,
+            Blocked = device.Blocked,
+            ClientType = device.ClientType,
+            DateCreated = device.DateCreated,
+            IsPendingTrustActivation = device.IsPendingTrustActivation,
+            IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
+            IsTrusted = device.IsTrusted,
+            LastSignInDate = device.LastSignInDate,
+            MfaSessionExpirationDate = device.MfaSessionExpirationDate,
+            Model = device.Model,
+            Name = device.Name,
+            OsVersion = device.OsVersion,
+            Platform = device.Platform,
+            RequiresPassword = device.RequiresPassword,
+            SupportsFingerprintLogin = device.SupportsFingerprintLogin,
+            SupportsPinLogin = device.SupportsPinLogin,
+            Tags = device.Tags,
+            TrustActivationDate = device.TrustActivationDate,
+            Data = device.Data
         };
     }
 }

@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 namespace Indice.Features.Identity.Core;
 
 /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
-/// <typeparam name="TUser">The type encapsulating a user.</typeparam>
+/// <typeparam name="TUser"></typeparam>
 public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 {
     private readonly IPlatformEventService _eventService;

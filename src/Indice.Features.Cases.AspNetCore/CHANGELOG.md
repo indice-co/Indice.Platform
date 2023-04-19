@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - `GroupName` option to configure swagger client.
+- `FindSubjectIdOrClientId` logic to handle "my" cases when initialized from proxy apis where subject does not exist.
 
 ## [7.0.5] - 2023-03-30
 ### Added

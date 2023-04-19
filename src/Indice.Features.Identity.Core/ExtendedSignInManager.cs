@@ -18,7 +18,7 @@ using Microsoft.Net.Http.Headers;
 namespace Indice.Features.Identity.Core;
 
 /// <summary>Provides the APIs for user sign in.</summary>
-/// <typeparam name="TUser">The type encapsulating a user.</typeparam>
+/// <typeparam name="TUser"></typeparam>
 public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : User
 {
     /// <summary>Default duration in days for two-factor remember.</summary>

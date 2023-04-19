@@ -1,7 +1,7 @@
 ﻿namespace Indice.AspNetCore.Identity.Models;
 
 /// <summary>Tiny model for passing state to view regarding error bubbles and all sorts of alerts.</summary>
-/// <remarks>Usualy combined perfectly with TempData in order to pass the state of success or error between Actions.</remarks>
+/// <remarks>Usually combined perfectly with TempData in order to pass the state of success or error between Actions.</remarks>
 public class AlertModel
 {
     /// <summary>The message.</summary>

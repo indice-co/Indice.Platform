@@ -139,6 +139,7 @@ internal static class DeviceHandlers
         }
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> TrustDevice(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,

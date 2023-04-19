@@ -11,8 +11,6 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationM
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -20,12 +18,11 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Configures content security policy (<strong>Content-Security-Policy</strong> header).<br />
-    /// Configures the use of <see cref="SecurityHeadersMiddleware"/> as well as <br />
-    /// the <seealso cref="SecurityHeadersAttribute"/> (mvc filter that enables the policy on a specific action).
+    /// Configures the content security policy (<strong>Content-Security-Policy</strong> header).<br />
+    /// Configures the use of <see cref="SecurityHeadersMiddleware"/> as well as the <seealso cref="SecurityHeadersAttribute"/> (MVC filter that enables the policy on a specific action).
     /// </summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    /// <param name="configureAction"></param>
+    /// <param name="configureAction">Configuration action.</param>
     /// <remarks>Better use the more complete version <see cref="AddSecurityHeaders(IServiceCollection, Action{SecurityHeadersPolicy})"/></remarks>
     public static IServiceCollection AddCsp(this IServiceCollection services, Action<CSP> configureAction = null) {
         var cspPolicy = CSP.DefaultPolicy.Clone();
@@ -37,13 +34,11 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Configures the following header options: <br />
-    /// <strong>Content-Security-Policy</strong>, <strong>X-Frame-Options</strong>, <strong>Referrer-Policy</strong>, <strong>X-Content-Type-Options</strong>. <br />
-    /// Configures the use of <see cref="SecurityHeadersMiddleware"/> as well as <br />
-    /// the <seealso cref="SecurityHeadersAttribute"/> (mvc filter that enables the policy on a specific action).
+    /// Configures the following header options: <strong>Content-Security-Policy</strong>, <strong>X-Frame-Options</strong>, <strong>Referrer-Policy</strong>, <strong>X-Content-Type-Options</strong>. <br />
+    /// Configures the use of <see cref="SecurityHeadersMiddleware"/> as well as the <seealso cref="SecurityHeadersAttribute"/> (MVC filter that enables the policy on a specific action).
     /// </summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    /// <param name="configureAction"></param>
+    /// <param name="configureAction">Configuration action.</param>
     public static IServiceCollection AddSecurityHeaders(this IServiceCollection services, Action<SecurityHeadersPolicy> configureAction = null) {
         var policy = new SecurityHeadersPolicy();
         configureAction?.Invoke(policy);
@@ -51,13 +46,11 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>
-    /// Configures content security policy (<strong>Content-Security-Policy</strong> header) options <see cref="CSP"/> from <seealso cref="IConfiguration"/>.<br />
-    /// </summary>
-    /// <param name="policy">the csp policy to configure</param>
+    /// <summary>Configures content security policy (<strong>Content-Security-Policy</strong> header) options <see cref="CSP"/> from <seealso cref="IConfiguration"/>.<br /></summary>
+    /// <param name="policy">the CSP policy to configure.</param>
     /// <param name="configuration">Configuration</param>
-    /// <param name="sectionName">Configuration section name</param>
-    /// <remarks>Better use the more complete version <see cref="AddSecurityHeaders(IServiceCollection, Action{SecurityHeadersPolicy})"/></remarks>
+    /// <param name="sectionName">Configuration section name.</param>
+    /// <remarks>Better use the more complete version <see cref="AddSecurityHeaders(IServiceCollection, Action{SecurityHeadersPolicy})"/>.</remarks>
     public static CSP FromConfiguration(this CSP policy, IConfiguration configuration, string sectionName = null) {
         configuration.Bind(nameof(CSP), policy);
         return policy;

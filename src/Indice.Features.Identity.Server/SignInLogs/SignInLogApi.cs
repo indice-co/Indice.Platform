@@ -32,6 +32,7 @@ public static class SignInLogApi
                            .ProducesProblem(StatusCodes.Status403Forbidden)
                            .ProducesProblem(StatusCodes.Status500InternalServerError);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        
         // GET: /api/sign-in-logs
         group.MapGet("sign-in-logs", async (
             ISignInLogStore signInLogStore,
@@ -50,6 +51,7 @@ public static class SignInLogApi
         .WithName("GetSignInLogs")
         .WithSummary("Gets the list of sign in logs produced by the Identity system.")
         .RequireAuthorization(IdentityEndpoints.Policies.BeLogsReader);
+        
         // GET: /api/my/sign-in-logs
         group.MapGet("my/sign-in-logs", async (
             ClaimsPrincipal currentUser,
@@ -78,6 +80,7 @@ public static class SignInLogApi
         .ProducesProblem(StatusCodes.Status404NotFound)
         .WithName("GetMySignInLogs")
         .WithSummary("Gets the list of sign in logs for the current user.");
+        
         // PATCH: /api/sign-in-logs/{rowId}
         group.MapPatch("sign-in-logs/{rowId}", async (
             ISignInLogStore signInLogStore,
@@ -96,6 +99,7 @@ public static class SignInLogApi
         .WithName("PatchSignInLog")
         .WithSummary("Patches the specified log entry by updating the properties given in the request.")
         .RequireAuthorization(IdentityEndpoints.Policies.BeLogsWriter);
+        
         return group;
     }
 }

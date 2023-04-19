@@ -98,10 +98,10 @@ public class ListOptions
     public void AddSortRedirect(string from, string to) => SortRedirects.Add(from, to);
 
     /// <summary>Convert all the list parameters into a <see cref="Dictionary{TKey, TValue}"/>.</summary>
-    public virtual IDictionary<string, object> ToDictionary() {
-        var dictionary = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase) {
-            { nameof(Page).ToLower(), Page.ToString() },
-            { nameof(Size).ToLower(), Size.ToString() },
+    public virtual IDictionary<string, object?> ToDictionary() {
+        var dictionary = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase) {
+            { nameof(Page).ToLower(), Page?.ToString() },
+            { nameof(Size).ToLower(), Size?.ToString() },
         };
         if (!string.IsNullOrWhiteSpace(Sort)) {
             dictionary.Add(nameof(Sort).ToLower(), Sort);
@@ -149,7 +149,7 @@ public class ListOptions<TFilter> : ListOptions where TFilter : class, new()
     /// as Route parameters and / or query string parameters depending on client or server use.
     /// </summary>
     /// <returns></returns>
-    public override IDictionary<string, object> ToDictionary() {
+    public override IDictionary<string, object?> ToDictionary() {
         var dictionary = base.ToDictionary();
         return dictionary.Merge(Filter, typeof(TFilter), "filter.");
     }

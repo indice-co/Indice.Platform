@@ -2,7 +2,14 @@
 @import '_variables';
 
 body {
-    &.onboarding, &.manage, &.extended-validation, &.grants, &.consent, &.mfa, &.login {
+    &.onboarding,
+    &.manage,
+    &.extended-validation,
+    &.grants,
+    &.consent,
+    &.mfa,
+    &.login,
+    &.profile {
         #wrap {
             position: relative;
         }
@@ -59,7 +66,12 @@ body {
         }
     }
 
-    &.logged-out, &.logout, &.confirm-email, &.change-email, &.redirect-view, &.redirect {
+    &.logged-out,
+    &.logout,
+    &.confirm-email,
+    &.change-email,
+    &.redirect-view,
+    &.redirect {
         section {
             padding: 48px 40px 36px;
             height: auto;
@@ -99,15 +111,8 @@ body {
 
     @include phone {
         font-size: 2rem;
-        /*color: $color-white;*/
     }
 }
-
-/*label {
-    @include phone {
-        color: $color-white;
-    }
-}*/
 
 .hr-sect {
     display: flex;
@@ -227,7 +232,6 @@ li.idp {
 }
 
 .idp-google {
-
     a:not(.remove-idp) {
         background-image: url(../img/idps/Google.svg);
         background-repeat: no-repeat;

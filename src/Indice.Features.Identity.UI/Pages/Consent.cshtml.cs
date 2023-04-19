@@ -6,7 +6,6 @@ using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Filters;
-using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,9 +20,9 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public class ConsentModel : PageModel
 {
-    private readonly IStringLocalizer<HomeModel> _localizer;
+    private readonly IStringLocalizer<GrantsModel> _localizer;
     private readonly IEventService _eventService;
-    private readonly ILogger<HomeModel> _logger;
+    private readonly ILogger<GrantsModel> _logger;
     private readonly IIdentityServerInteractionService _interaction;
 
     /// <summary>Creates a new instance of <see cref="LoginModel"/> class.</summary>
@@ -33,8 +32,8 @@ public class ConsentModel : PageModel
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ConsentModel(
-        ILogger<HomeModel> logger,
-        IStringLocalizer<HomeModel> localizer,
+        ILogger<GrantsModel> logger,
+        IStringLocalizer<GrantsModel> localizer,
         IEventService eventService,
         IIdentityServerInteractionService interaction
     ) {
@@ -108,7 +107,7 @@ public class ConsentModel : PageModel
             // Redirect back to authorization endpoint.
             if (request.IsNativeClient() == true) {
                 // The client is native, so this change in how to return the response is for better UX for the end user.
-                return this.LoadingPage(Input.ReturnUrl);
+                //return this.LoadingPage(Input.ReturnUrl);
             }
             return Redirect(Input.ReturnUrl);
         }
