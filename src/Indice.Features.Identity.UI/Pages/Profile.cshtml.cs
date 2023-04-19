@@ -13,18 +13,18 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Page model for the profile screen.</summary>
 [Authorize]
 [SecurityHeaders]
-public class ProfileModel : BasePageModel {
+public class ProfilePageModel : BasePageModel {
     private readonly ExtendedUserManager<User> _userManager;
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IConfiguration _configuration;
 
-    /// <summary>Creates a new instance of <see cref="ProfileModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="ProfilePageModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ProfileModel(
+    public ProfilePageModel(
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         IConfiguration configuration,

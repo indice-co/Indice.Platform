@@ -2,20 +2,15 @@
 
 @inject IViewLocalizer Localizer
 
-@model GrantsModel
+@model GrantsPageModel
 
 @{
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var title = ViewData["Title"] = Localizer["Grants"].Value;
 }
 
 <section class="page-grants m-auto">
     <div class="page-header">
-        <h1>
-            <a class="header-logo" href="/">
-                <img class="mb-3 w-100" src="/identity-ui/img/logo@(langSuffix).svg" />
-            </a>
-        </h1>
+        <partial name="_Logo" model="title.ToString()" />
         <h3>@Localizer["Client Application Access"]</h3>
         <p indice-if="Model.ViewModel.Grants.Any()" class="text-muted">
             @Localizer["Below is the list of applications you have given access to and the names of the resources they have access to."]

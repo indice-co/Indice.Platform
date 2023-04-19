@@ -9,7 +9,9 @@ body {
     &.consent,
     &.mfa,
     &.login,
-    &.profile {
+    &.profile,
+    &.associate,
+    &.register {
         #wrap {
             position: relative;
         }

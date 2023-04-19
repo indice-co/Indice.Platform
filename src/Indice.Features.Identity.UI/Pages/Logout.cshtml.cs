@@ -6,7 +6,6 @@ using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.UI;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,18 +16,18 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Page model for the logout screen.</summary>
 [Authorize]
 [SecurityHeaders]
-public class LogoutModel : PageModel
+public class LogoutPageModel : PageModel
 {
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IEventService _events;
     private readonly IIdentityServerInteractionService _interaction;
 
-    /// <summary>Creates a new instance of <see cref="LogoutModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="LogoutPageModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="events">Interface for the event service.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public LogoutModel(
+    public LogoutPageModel(
         ExtendedSignInManager<User> signInManager,
         IEventService events,
         IIdentityServerInteractionService interaction

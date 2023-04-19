@@ -1,6 +1,6 @@
 ﻿@page "/login"
 
-@model LoginModel
+@model LoginPageModel
 
 @inject IViewLocalizer Localizer
 @inject IHttpContextAccessor HttpContextAccessor
@@ -8,17 +8,11 @@
 @{
     var displayRegistrationLinks = true;
     var displayForgotPasswordLinks = true;
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var title = ViewData["Title"] = Localizer["Login"].Value;
 }
 
 <section class="sign-in m-auto">
-    <h1>
-        <a class="header-logo" href="/">
-            <img class="mb-3 w-100" src="/identity-ui/img/logo@(langSuffix).svg" />
-        </a>
-        <span class="header-text">@Localizer["Sign in"]</span>
-    </h1>
+    <partial name="_Logo" model="title" />
     <partial name="_ValidationSummary" />
     @if (Model.ViewModel.VisibleExternalProviders.Any())
     {

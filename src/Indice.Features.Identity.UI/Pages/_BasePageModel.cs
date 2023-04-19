@@ -4,6 +4,7 @@ using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -22,9 +24,7 @@ public abstract class BasePageModel : PageModel
 
     /// <summary></summary>
     /// <param name="serviceProvider"></param>
-    public BasePageModel(IServiceProvider serviceProvider) {
-        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-    }
+    public BasePageModel(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
     /// <summary></summary>
     /// <param name="result"></param>
@@ -33,15 +33,15 @@ public abstract class BasePageModel : PageModel
         RedirectToPageResult redirectResult = null;
         var extendedResult = result as ExtendedSignInResult;
         if (extendedResult?.RequiresPasswordChange() == true) {
-            redirectResult = RedirectToPage("/login/password-expired", new { returnUrl });
+            redirectResult = RedirectToPage("PasswordExpired", new { returnUrl });
         } else if (extendedResult?.RequiresEmailConfirmation() == true) {
-            redirectResult = RedirectToPage("/login/add-email", new { returnUrl });
+            redirectResult = RedirectToPage("AddEmail", new { returnUrl });
         } else if (extendedResult?.RequiresPhoneNumberConfirmation() == true) {
-            redirectResult = RedirectToPage("/login/add-phone", new { returnUrl });
+            redirectResult = RedirectToPage("AddPhone", new { returnUrl });
         } else if (result.RequiresTwoFactor) {
-            redirectResult = RedirectToPage("/login/mfa", new { returnUrl });
+            redirectResult = RedirectToPage("Mfa", new { returnUrl });
         } else if (result.RequiresMfaOnboarding()) {
-            redirectResult = RedirectToPage("/login/mfa/onboarding", new { returnUrl });
+            redirectResult = RedirectToPage("MfaOnboarding", new { returnUrl });
         }
         return redirectResult;
     }
@@ -56,6 +56,35 @@ public abstract class BasePageModel : PageModel
             foreach (var error in result.Errors) {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
+        }
+    }
+
+    /// <summary></summary>
+    /// <param name="user"></param>
+    /// <param name="returnUrl"></param>
+    /// <returns></returns>
+    public virtual async Task SendConfirmationEmail(User user, string returnUrl = null) {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        var httpContextAccessor = _serviceProvider.GetRequiredService<IHttpContextAccessor>();
+        var callbackUrl = Url.PageLink("ConfirmEmail", values: new { userId = user.Id, token, returnUrl }, protocol: httpContextAccessor?.HttpContext.Request.Scheme ?? null);
+        var hostingEnvironment = _serviceProvider.GetRequiredService<IWebHostEnvironment>();
+        if (!hostingEnvironment.IsDevelopment()) {
+            var emailService = _serviceProvider.GetRequiredService<IEmailService>();
+            var localizer = _serviceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
+            await emailService.SendAsync(message =>
+                message.To(user.Email)
+                       .WithSubject(localizer["Account confirmation"])
+                       .UsingTemplate("EmailRegister")
+                       .WithData(new {
+                           user.UserName,
+                           Url = callbackUrl
+                       })
+            );
+            var logger = _serviceProvider.GetRequiredService<ILogger<BasePageModel>>();
+            logger.LogInformation("Sending a confirmation email to {Email} with callback URL: {CallbackUrl}.", user.Email, callbackUrl);
+        } else {
+            Debug.WriteLine($"Link to confirm account: {callbackUrl}");
         }
     }
 

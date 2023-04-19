@@ -2,22 +2,15 @@
 
 @inject IViewLocalizer Localizer
 
-@model ProfileModel
+@model ProfilePageModel
 
 @{
-    ViewData["Title"] = Localizer["Profile"];
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var title = ViewData["Title"] = Localizer["Profile"].Value;
     var alert = TempData.Get<AlertModel>("Alert");
 }
 
 <section class="sign-up m-auto">
-    <h1>
-        <a class="header-logo" href="/">
-            <img class="w-100" src="/identity-ui/img/logo@(langSuffix).svg" />
-        </a>
-        <span class="header-text">@Localizer["Manage Profile"]</span>
-    </h1>
+    <partial name="_Logo" model="title" />
     <div id="send-confirmation-success" class="alert alert-success d-none" style="margin-bottom: 5px;">
         @Localizer["A confirmation email has been sent to {0}.", Model.ViewModel.Email]
     </div>
@@ -26,10 +19,10 @@
     </div>
     @if (Model.ProfileSuccessfullyChanged)
     {
-        var message = Localizer.GetString("Your profile was updated successfully.").ToString();
+        var message = Localizer["Your profile was updated successfully."].Value;
         if (Model.EmailChangeRequested)
         {
-            message += $" {Localizer.GetString("An email has been sent to your new email address in order to confirm it.")}";
+            message += $" {Localizer["An email has been sent to your new email address in order to confirm it."].Value}";
         }
         <partial name="_Alert" model="@AlertModel.Success(message)" />
     }

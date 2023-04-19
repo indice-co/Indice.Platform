@@ -1,29 +1,24 @@
 ﻿@page "/consent"
 
-@inject IViewLocalizer localizer
+@inject IViewLocalizer Localizer
 
 @model ConsentModel
 
 @{
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var title = ViewData["Title"] = Localizer["Consent"].Value;
 }
 
 <section class="page-consent identity-panel">
-    <h2 class="text-center">
-        <a class="header-logo" href="/">
-            <img class="mb-3" src="~/img/logo@(langSuffix).svg" />
-        </a>
-    </h2>
+    <partial name="_Logo" model="title" />
     <div class="page-header">
         <div class="client-logo pb-2">
             <img indice-if="Model.View.ClientLogoUrl is not null" class="img-fluid rounded-circle" src="@(Url.IsLocalUrl(Model.View.ClientLogoUrl) ? Url.Content(Model.View.ClientLogoUrl) : Model.View.ClientLogoUrl)" alt="Client's logo URL" />
             <img indice-if="Model.View.ClientLogoUrl is null" class="img-fluid rounded-circle" src="~/avatar/@Model.View.ClientName/128.jpg" alt="Client's logo URL" />
         </div>
         <h1><span class="header-text">@Model.View.ClientName</span></h1>
-        <h3 indice-if="Model.View.ClientUrl != null">@localizer["This <a target=\"_blank\" href=\"{0}\">app</a> would like to", Model.View.ClientUrl]:</h3>
-        <h3 indice-if="Model.View.ClientUrl == null">@localizer["This app would like to"]:</h3>
-        <small class="text-muted">* @localizer["Uncheck the permissions you do not wish to grant."]</small>
+        <h3 indice-if="Model.View.ClientUrl != null">@Localizer["This <a target=\"_blank\" href=\"{0}\">app</a> would like to", Model.View.ClientUrl]:</h3>
+        <h3 indice-if="Model.View.ClientUrl == null">@Localizer["This app would like to"]:</h3>
+        <small class="text-muted">* @Localizer["Uncheck the permissions you do not wish to grant."]</small>
     </div>
     <div class="page-body">
         <partial name="_ValidationSummary" />
@@ -31,7 +26,10 @@
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <div indice-if="Model.View.IdentityScopes.Any()" class="card border-0 mb-3 consent-buttons">
                 <div class="card-body p-0">
-                    <h4 class="card-title"><span class="bank-icon bank-icon-contact font-weight-600 pt-1 mr-1"></span>@localizer["Personal Information"]</h4>
+                    <h4 class="card-title">
+                        <span class="bank-icon bank-icon-contact font-weight-600 pt-1 mr-1"></span>
+                        @Localizer["Personal Information"]
+                    </h4>
                     <ul class="list-group">
                         @foreach (var scope in Model.View.IdentityScopes)
                         {
@@ -43,7 +41,10 @@
             <hr />
             <div indice-if="Model.View.ApiScopes.Any()" class="card border-0 mb-3 consent-buttons">
                 <div class="card-body p-0">
-                    <h4 class="card-title"><span class="bank-icon bank-icon-permissions font-weight-600 pt-1 mr-1"></span>@localizer["Application Access"]</h4>
+                    <h4 class="card-title">
+                        <span class="bank-icon bank-icon-permissions font-weight-600 pt-1 mr-1"></span>
+                        @Localizer["Application Access"]
+                    </h4>
                     <ul class="list-group">
                         @foreach (var scope in Model.View.ApiScopes)
                         {
@@ -56,7 +57,7 @@
                 <div class="form-check custom-checkbox d-inline-block">
                     <label class="form-check-label">
                         <input class="consent-scopecheck form-check-input" asp-for="Input.RememberConsent" />
-                        @localizer["Remember My Decision"]
+                        @Localizer["Remember My Decision"]
                         <span class="control"></span>
                     </label>
                 </div>
@@ -64,10 +65,10 @@
             <div class="form-group consent-buttons">
                 <div class="form-row m-0 w-100">
                     <div class="col-sm-6 col-12 py-1">
-                        <button type="submit" name="Input.button" value="no" class="btn btn-link btn-block disallow-btn">@localizer["Cancel"]</button>
+                        <button type="submit" name="Input.button" value="no" class="btn btn-link btn-block disallow-btn">@Localizer["Cancel"]</button>
                     </div>
                     <div class="col-sm-6 col-12 py-1">
-                        <button type="submit" id="submitConsent" name="Input.button" value="yes" class="btn btn-primary btn-block" autofocus>@localizer["Accept"]</button>
+                        <button type="submit" id="submitConsent" name="Input.button" value="yes" class="btn btn-primary btn-block" autofocus>@Localizer["Accept"]</button>
                     </div>
                 </div>
             </div>

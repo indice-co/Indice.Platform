@@ -20,18 +20,18 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Page model for the login screen.</summary>
 [AllowAnonymous]
 [SecurityHeaders]
-public class LoginModel : BasePageModel
+public class LoginPageModel : BasePageModel
 {
     private readonly IClientStore _clientStore;
     private readonly IEventService _events;
     private readonly IIdentityServerInteractionService _interaction;
-    private readonly IStringLocalizer<LoginModel> _localizer;
-    private readonly ILogger<LoginModel> _logger;
+    private readonly IStringLocalizer<LoginPageModel> _localizer;
+    private readonly ILogger<LoginPageModel> _logger;
     private readonly IAuthenticationSchemeProvider _schemeProvider;
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly ExtendedUserManager<User> _userManager;
 
-    /// <summary>Creates a new instance of <see cref="LoginModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="LoginPageModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="schemeProvider">Responsible for managing what authentication schemes are supported.</param>
@@ -39,18 +39,18 @@ public class LoginModel : BasePageModel
     /// <param name="events">Interface for the event service.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="logger">A generic interface for logging.</param>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="LoginModel"/>.</param>
+    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="LoginPageModel"/>.</param>
     /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public LoginModel(
+    public LoginPageModel(
         ExtendedSignInManager<User> signInManager,
         ExtendedUserManager<User> userManager,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IEventService events,
         IIdentityServerInteractionService interaction,
-    ILogger<LoginModel> logger,
-        IStringLocalizer<LoginModel> localizer,
+        ILogger<LoginPageModel> logger,
+        IStringLocalizer<LoginPageModel> localizer,
         IServiceProvider serviceProvider
     ) : base(serviceProvider) {
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
@@ -78,11 +78,11 @@ public class LoginModel : BasePageModel
         // Build a model so we know what to show on the login page.
         ViewModel = await BuildLoginViewModelAsync(returnUrl);
         if (ViewModel.PromptRegister()) {
-            return RedirectToPage("/register", new { returnUrl });
+            return RedirectToPage("Register", new { returnUrl });
         }
         if (ViewModel.IsExternalLoginOnly) {
             // We only have one option for logging in and it's an external provider.
-            return RedirectToPage("/challenge", new {
+            return RedirectToPage("Challenge", new {
                 provider = ViewModel.ExternalLoginScheme,
                 returnUrl,
                 prompt = OidcConstants.PromptModes.SelectAccount

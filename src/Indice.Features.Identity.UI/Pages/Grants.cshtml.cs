@@ -4,27 +4,29 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.UI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the grants screen.</summary>
+[Authorize]
 [SecurityHeaders]
-public class GrantsModel : PageModel
+public class GrantsPageModel : PageModel
 {
     private readonly IClientStore _clients;
     private readonly IEventService _events;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IResourceStore _resources;
 
-    /// <summary>Creates a new instance of <see cref="LoginModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="LoginPageModel"/> class.</summary>
     /// <param name="clients">Retrieval of client configuration.</param>
     /// <param name="events">Interface for the event service.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="resources">Resource retrieval.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public GrantsModel(
+    public GrantsPageModel(
         IClientStore clients,
         IEventService events,
         IIdentityServerInteractionService interaction,

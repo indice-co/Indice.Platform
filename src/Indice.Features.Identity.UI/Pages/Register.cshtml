@@ -5,18 +5,11 @@
 @inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = Localizer["Sign up"];
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var title = ViewData["Title"] = Localizer["Sign up"].Value;
 }
 
 <section class="sign-up m-auto">
-    <h1>
-        <a class="header-logo" href="/">
-            <img class="w-100" src="~/img/logo@(langSuffix).svg" />
-        </a>
-        <span class="header-text">@ViewData["Title"]</span>
-    </h1>
+    <partial name="_Logo" model="title" />
     <partial name="_ValidationSummary" />
     @if (Model.VisibleExternalProviders.Any())
     {
