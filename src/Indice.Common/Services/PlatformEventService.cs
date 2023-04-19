@@ -14,17 +14,16 @@ public class PlatformEventService : IPlatformEventService
 
     /// <inheritdoc />
     public async Task Publish<TEvent>(TEvent @event) where TEvent : IPlatformEvent {
-        IEnumerable<IPlatformEventHandler<TEvent>> handlers = null;
         using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
-            handlers = serviceScope.ServiceProvider.GetService<IEnumerable<IPlatformEventHandler<TEvent>>>() ?? Enumerable.Empty<IPlatformEventHandler<TEvent>>();
-        }
-        foreach (var handler in handlers) {
-            var args = new PlatformEventArgs();
-            try {
-                await handler.Handle(@event, args);
-            } catch {
-                if (args.ThrowOnError) {
-                    throw;
+            var handlers = serviceScope.ServiceProvider.GetService<IEnumerable<IPlatformEventHandler<TEvent>>>() ?? Enumerable.Empty<IPlatformEventHandler<TEvent>>();
+            foreach (var handler in handlers) {
+                var args = new PlatformEventArgs();
+                try {
+                    await handler.Handle(@event, args);
+                } catch {
+                    if (args.ThrowOnError) {
+                        throw;
+                    }
                 }
             }
         }
