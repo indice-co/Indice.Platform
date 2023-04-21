@@ -22,4 +22,11 @@ export class ParamsService {
     return this.params;
   }
 
+  /**
+   * Clears Stored params.
+   */
+  resetParams() {
+    this.setParams(undefined);
+  }
+
 }
