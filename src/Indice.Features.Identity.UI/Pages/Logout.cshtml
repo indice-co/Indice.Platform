@@ -10,7 +10,7 @@
 
 <section class="identity-panel wide logout-page">
     <article class="text-center">
-        <partial name="_Logo" model="title" />
+        <partial name="_PageHeader" model="title" />
         <p>@Localizer["Would you like to logout?"]</p>
         <form asp-page="logout">
             <input type="hidden" name="logoutId" value="@Model.LogoutId" />

@@ -1,6 +1,6 @@
 ﻿@page "/login"
 
-@model LoginPageModel
+@model BaseLoginModel
 
 @inject IViewLocalizer Localizer
 @inject IHttpContextAccessor HttpContextAccessor
@@ -12,7 +12,7 @@
 }
 
 <section class="sign-in m-auto">
-    <partial name="_Logo" model="title" />
+    <partial name="_PageHeader" model="title" />
     <partial name="_ValidationSummary" />
     @if (Model.ViewModel.VisibleExternalProviders.Any())
     {
@@ -58,7 +58,7 @@
                 }
                 @if (displayForgotPasswordLinks)
                 {
-                    <a class="btn btn-link p-0 text-md float-right text-blue" asp-page="/forgot-password">@Localizer["Forgot password?"]</a>
+                    <a class="btn btn-link p-0 text-md float-right text-blue" asp-page="ForgotPassword">@Localizer["Forgot password?"]</a>
                 }
             </div>
             <div class="form-group">
@@ -66,7 +66,7 @@
                     @if (displayRegistrationLinks)
                     {
                         <div class="col-sm-6 col-12 py-1">
-                            <a class="btn btn-link btn-block" asp-page="/register" asp-route-returnUrl="@Model.ViewModel.ReturnUrl">
+                            <a class="btn btn-link btn-block" asp-page="Register" asp-route-returnUrl="@Model.ViewModel.ReturnUrl">
                                 @Localizer["Join us"]
                             </a>
                         </div>

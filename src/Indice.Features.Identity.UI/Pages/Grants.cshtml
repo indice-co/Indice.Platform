@@ -10,7 +10,7 @@
 
 <section class="page-grants m-auto">
     <div class="page-header">
-        <partial name="_Logo" model="title.ToString()" />
+        <partial name="_PageHeader" model="title" />
         <h3>@Localizer["Client Application Access"]</h3>
         <p indice-if="Model.ViewModel.Grants.Any()" class="text-muted">
             @Localizer["Below is the list of applications you have given access to and the names of the resources they have access to."]

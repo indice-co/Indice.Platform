@@ -25,7 +25,7 @@ public class ConsentModel : PageModel
     private readonly ILogger<GrantsPageModel> _logger;
     private readonly IIdentityServerInteractionService _interaction;
 
-    /// <summary>Creates a new instance of <see cref="LoginPageModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="logger">A generic interface for logging.</param>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="ConsentModel"/>.</param>
     /// <param name="eventService">Interface for the event service.</param>

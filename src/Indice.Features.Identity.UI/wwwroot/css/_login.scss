@@ -11,7 +11,8 @@ body {
     &.login,
     &.profile,
     &.associate,
-    &.register {
+    &.register,
+    &.error {
         #wrap {
             position: relative;
         }

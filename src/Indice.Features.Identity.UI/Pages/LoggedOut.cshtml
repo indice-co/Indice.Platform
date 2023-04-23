@@ -10,7 +10,7 @@
 
 <section class="identity-panel wide logged-out">
     <article class="text-center">
-        <partial name="_Logo" model="title" />
+        <partial name="_PageHeader" model="title" />
         <p>@Localizer["You are now logged out"]</p>
         <div indice-if="Model.PostLogoutRedirectUri != null">
             @Localizer["Click"] <a class="PostLogoutRedirectUri btn btn-primary" href="@Model.PostLogoutRedirectUri">@Localizer["here"]</a> @Localizer["to return to the application"]

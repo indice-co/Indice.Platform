@@ -19,16 +19,14 @@ public class AssociatePageModel : BasePageModel
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly ExtendedUserManager<User> _userManager;
 
-    /// <summary>Creates a new instance of <see cref="LoginPageModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-    /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public AssociatePageModel(
         ExtendedSignInManager<User> signInManager,
-        ExtendedUserManager<User> userManager,
-        IServiceProvider serviceProvider
-    ) : base(serviceProvider) {
+        ExtendedUserManager<User> userManager
+    ) : base() {
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }

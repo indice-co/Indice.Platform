@@ -20,20 +20,18 @@ public class ChallengePageModel : BasePageModel
     private readonly ExtendedUserManager<User> _userManager;
     private readonly IEventService _events;
 
-    /// <summary>Creates a new instance of <see cref="LoginPageModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="events">Interface for the event service.</param>
-    /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ChallengePageModel(
         IIdentityServerInteractionService interaction,
         ExtendedSignInManager<User> signInManager,
         ExtendedUserManager<User> userManager,
-        IEventService events,
-        IServiceProvider serviceProvider
-    ) : base(serviceProvider) {
+        IEventService events
+    ) : base() {
         _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -83,7 +81,7 @@ public class ChallengePageModel : BasePageModel
         // Save user tokes retrieved from external provider.
         await _signInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
         var result = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, isPersistent: true);
-        var redirectResult = GetRedirectUrl(result, returnUrl);
+        var redirectResult = GetRedirectToPageResult(result, returnUrl);
         if (redirectResult is not null) {
             return redirectResult;
         }

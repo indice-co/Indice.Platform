@@ -12,12 +12,12 @@ public class LoginViewModel : LoginInputModel
     /// <summary>The visible external providers are those form the <see cref="ExternalProviders"/> list that have a display name.</summary>
     public IEnumerable<ExternalProviderModel> VisibleExternalProviders => ExternalProviders.Where(x => !string.IsNullOrWhiteSpace(x.DisplayName));
     /// <summary>Use this flag to hide the local login form.</summary>
-    public bool IsExternalLoginOnly => EnableLocalLogin == false && ExternalProviders?.Count() == 1;
+    public bool IsExternalLoginOnly => EnableLocalLogin == false && ExternalProviders.Count() == 1;
     /// <summary>The scheme to use for external login cookie.</summary>
-    public string ExternalLoginScheme => IsExternalLoginOnly ? ExternalProviders?.SingleOrDefault()?.AuthenticationScheme : null;
+    public string? ExternalLoginScheme => IsExternalLoginOnly ? ExternalProviders.Single().AuthenticationScheme : null;
     /// <summary>A direction to display a different screen when a client asks for the authorize endpoint.</summary>
     /// <remarks>Use the 'operation={operation_name}' query parameter on the authorize endpoint.</remarks>
-    public string Operation { get; set; }
+    public string? Operation { get; set; }
     /// <summary>Specifies whether a device (browser) id should be generated.</summary>
     public bool GenerateDeviceId { get; set; }
 }

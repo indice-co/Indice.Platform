@@ -11,7 +11,7 @@
     var dash = ViewBag.Title != null ? " - " : string.Empty;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
-    var version = typeof(LoginPageModel).Assembly.GetName().Version.ToString();
+    var version = typeof(BaseLoginModel).Assembly.GetName().Version.ToString();
     var authClass = SignInManager.IsSignedIn(User) ? "authenticated" : "anonymous";
     var bgClass = SignInManager.IsSignedIn(User) ? "gradient-bg" : "gradient-bg";
 }
@@ -38,7 +38,7 @@
     <script type="text/javascript" csp-nonce="true">@Html.Raw(JavaScriptSnippet.ScriptBody)</script>
     #endif*@
 </head>
-<body route-styles class="@authClass @bgClass">
+<body route-styles class="@authClass @bgClass identity-page">
     <link rel="stylesheet" href="/identity-ui/css/bootstrap.css" asp-append-version="true" />
     <link rel="stylesheet" href="/identity-ui/css/identity.css" asp-append-version="true" />
     <link rel="stylesheet" href="/identity-ui/css/site.css" asp-append-version="true" />

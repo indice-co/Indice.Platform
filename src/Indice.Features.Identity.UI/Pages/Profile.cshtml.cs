@@ -22,14 +22,12 @@ public class ProfilePageModel : BasePageModel {
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ProfilePageModel(
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
-        IConfiguration configuration,
-        IServiceProvider serviceProvider
-    ) : base(serviceProvider) {
+        IConfiguration configuration
+    ) : base() {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));

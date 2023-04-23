@@ -20,7 +20,7 @@ public class GrantsPageModel : PageModel
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IResourceStore _resources;
 
-    /// <summary>Creates a new instance of <see cref="LoginPageModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="clients">Retrieval of client configuration.</param>
     /// <param name="events">Interface for the event service.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>

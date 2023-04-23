@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Indice.Features.Identity.UI;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -9,6 +10,7 @@ public static class IdentityBuilderUIExtensions
     /// <param name="services"></param>
     /// <param name="configuration"></param>
     public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration) {
+        services.ConfigureOptions(typeof(IdentityUIConfigureOptions));
         services.AddLocalization(options => options.ResourcesPath = "Resources");
         services.AddGeneralSettings(configuration);
         services.AddClientAwareViewLocationExpander();

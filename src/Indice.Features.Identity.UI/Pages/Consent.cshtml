@@ -9,7 +9,7 @@
 }
 
 <section class="page-consent identity-panel">
-    <partial name="_Logo" model="title" />
+    <partial name="_PageHeader" model="title" />
     <div class="page-header">
         <div class="client-logo pb-2">
             <img indice-if="Model.View.ClientLogoUrl is not null" class="img-fluid rounded-circle" src="@(Url.IsLocalUrl(Model.View.ClientLogoUrl) ? Url.Content(Model.View.ClientLogoUrl) : Model.View.ClientLogoUrl)" alt="Client's logo URL" />
