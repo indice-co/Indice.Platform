@@ -32,7 +32,6 @@ public abstract class BaseLoginModel : BasePageModel
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="logger">A generic interface for logging.</param>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseLoginModel"/>.</param>
-    /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseLoginModel(
         ExtendedSignInManager<User> signInManager,
@@ -42,8 +41,7 @@ public abstract class BaseLoginModel : BasePageModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<BaseLoginModel> logger,
-        IStringLocalizer<BaseLoginModel> localizer,
-        IServiceProvider serviceProvider
+        IStringLocalizer<BaseLoginModel> localizer
     ) : base() {
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -83,7 +81,7 @@ public abstract class BaseLoginModel : BasePageModel
 
     /// <summary>Login page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
-    public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl = null) {
+    public virtual async Task<IActionResult> OnGetAsync(string? returnUrl = null) {
         // Build a model so we know what to show on the login page.
         ViewModel = await BuildLoginViewModelAsync(returnUrl);
         if (ViewModel.PromptRegister()) {
@@ -101,14 +99,14 @@ public abstract class BaseLoginModel : BasePageModel
     }
 
     /// <summary>Login page POST handler.</summary>
-    /// <param name="button"></param>
+    /// <param name="button">The value of the button pressed.</param>
     /// <exception cref="Exception"></exception>
     [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync(string button) {
         // Check if we are in the context of an authorization request.
         var context = await Interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
         // The user clicked the 'cancel' button.
-        if (button != "login") {
+        if (button is not "login") {
             if (context is not null) {
                 // If the user cancels, send a result back into IdentityServer as if they denied the consent (even if this client does not require consent).
                 // This will send back an access denied OIDC error response to the client.
@@ -116,12 +114,12 @@ public abstract class BaseLoginModel : BasePageModel
                 // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
                 if (context.IsNativeClient()) {
                     // The client is native, so this change in how to return the response is for better UX for the end user.
-                    return this.LoadingPage("Redirect", Input.ReturnUrl);
+                    return this.LoadingPage("Redirect", Input.ReturnUrl ?? "/");
                 }
-                return Redirect(Input.ReturnUrl);
+                return Redirect(Input.ReturnUrl ?? "/");
             } else {
                 // Since we don't have a valid context, then we just go back to the home page.
-                return Redirect("~/");
+                return Redirect("/");
             }
         }
         if (ModelState.IsValid) {
@@ -131,13 +129,13 @@ public abstract class BaseLoginModel : BasePageModel
             if (result.Succeeded && user is not null) {
                 await Events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
                 Logger.LogInformation("User '{UserName}' with email {Email} was successfully logged in.", user.UserName, user.Email);
-                if (context != null) {
+                if (context is not null) {
                     if (context.IsNativeClient()) {
                         // The client is native, so this change in how to return the response is for better UX for the end user.
-                        return this.LoadingPage("Redirect", Input.ReturnUrl);
+                        return this.LoadingPage("Redirect", Input.ReturnUrl ?? "/");
                     }
                     // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
-                    return Redirect(Input.ReturnUrl);
+                    return Redirect(Input.ReturnUrl ?? "/");
                 }
                 // Request for a local page.
                 if (string.IsNullOrEmpty(Input.ReturnUrl)) {
@@ -178,7 +176,7 @@ public abstract class BaseLoginModel : BasePageModel
             // This is meant to short circuit the UI and only trigger the one external IdP.
             var viewModel = new LoginViewModel {
                 EnableLocalLogin = local,
-                ReturnUrl = returnUrl,
+                ReturnUrl = returnUrl ?? "/",
                 UserName = context.LoginHint
             };
             if (!local) {
@@ -192,7 +190,7 @@ public abstract class BaseLoginModel : BasePageModel
         }
         var schemes = await SchemeProvider.GetAllSchemesAsync();
         var providers = schemes
-            .Where(x => x.DisplayName != null)
+            .Where(x => x.DisplayName is not null)
             .Select(x => new ExternalProviderModel {
                 DisplayName = x.DisplayName ?? x.Name,
                 AuthenticationScheme = x.Name
@@ -203,7 +201,7 @@ public abstract class BaseLoginModel : BasePageModel
             var client = await ClientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
             if (client is not null) {
                 allowLocal = client.EnableLocalLogin;
-                if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
+                if (client.IdentityProviderRestrictions is not null && client.IdentityProviderRestrictions.Any()) {
                     providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                 }
             }
@@ -217,7 +215,7 @@ public abstract class BaseLoginModel : BasePageModel
             Operation = context?.Parameters?.AllKeys?.Contains(ExtraQueryParamNames.Operation) == true
                 ? context?.Parameters[ExtraQueryParamNames.Operation]
                 : null,
-            ReturnUrl = returnUrl ?? "/",
+            ReturnUrl = returnUrl,
             UserName = context?.LoginHint ?? string.Empty
         };
     }
@@ -240,7 +238,6 @@ internal class LoginModel : BaseLoginModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<BaseLoginModel> logger,
-        IStringLocalizer<BaseLoginModel> localizer,
-        IServiceProvider serviceProvider
-    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, localizer, serviceProvider) { }
+        IStringLocalizer<BaseLoginModel> localizer
+    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, localizer) { }
 }

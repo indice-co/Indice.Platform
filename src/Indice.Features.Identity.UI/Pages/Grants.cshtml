@@ -2,7 +2,7 @@
 
 @inject IViewLocalizer Localizer
 
-@model GrantsPageModel
+@model BaseGrantsModel
 
 @{
     var title = ViewData["Title"] = Localizer["Grants"].Value;
@@ -80,7 +80,7 @@
                     </div>
                 </div>
                 <small class="expires" indice-if="grant.Expires.HasValue">
-                    @Localizer["Expires on"] @grant.Expires.Value.ToString("yyyy-MM-dd") &commat;  @grant.Expires.Value.ToString("HH:mm")
+                    @Localizer["Expires on"] @(grant.Expires.HasValue ? $"{grant.Expires.Value.ToString("yyyy-MM-dd")} @ {grant.Expires.Value.ToString("HH:mm")}" : "-");
                 </small>
             </div>
         }

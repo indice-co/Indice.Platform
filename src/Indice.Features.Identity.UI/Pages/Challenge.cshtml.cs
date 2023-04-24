@@ -13,20 +13,20 @@ namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the external login screen.</summary>
 [SecurityHeaders]
-public class ChallengePageModel : BasePageModel
+public abstract class BaseChallengeModel : BasePageModel
 {
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly ExtendedUserManager<User> _userManager;
     private readonly IEventService _events;
 
-    /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseChallengeModel"/> class.</summary>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="events">Interface for the event service.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ChallengePageModel(
+    public BaseChallengeModel(
         IIdentityServerInteractionService interaction,
         ExtendedSignInManager<User> signInManager,
         ExtendedUserManager<User> userManager,
@@ -95,4 +95,14 @@ public class ChallengePageModel : BasePageModel
         }
         return Redirect(returnUrl);
     }
+}
+
+internal class ChallengeModel : BaseChallengeModel
+{
+    public ChallengeModel(
+        IIdentityServerInteractionService interaction,
+        ExtendedSignInManager<User> signInManager,
+        ExtendedUserManager<User> userManager,
+        IEventService events
+    ) : base(interaction, signInManager, userManager, events) { }
 }

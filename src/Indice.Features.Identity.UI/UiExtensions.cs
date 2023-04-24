@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Identity.UI;
 
-/// <summary>Extension methods on <see cref="IClientStore"/>.</summary>
+/// <summary>Various helper extension methods.</summary>
 public static class UiExtensions
 {
     /// <summary>Determines whether the client is configured to use PKCE.</summary>

@@ -10,12 +10,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
 
-/// <summary>Page model for the home/landing screen.</summary>
+/// <summary>Page model for the home page screen.</summary>
+[IdentityUI(typeof(HomeModel))]
 [SecurityHeaders]
-public sealed class HomePageModel : PageModel
+public abstract class BaseHomeModel : PageModel
 {
-    private readonly ILogger<HomePageModel> _logger;
-    private readonly IStringLocalizer<HomePageModel> _localizer;
+    private readonly ILogger<BaseHomeModel> _logger;
+    private readonly IStringLocalizer<BaseHomeModel> _localizer;
     private readonly IConfiguration _configuration;
 
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
@@ -23,9 +24,9 @@ public sealed class HomePageModel : PageModel
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseLoginModel"/>.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public HomePageModel(
-        ILogger<HomePageModel> logger,
-        IStringLocalizer<HomePageModel> localizer,
+    public BaseHomeModel(
+        ILogger<BaseHomeModel> logger,
+        IStringLocalizer<BaseHomeModel> localizer,
         IConfiguration configuration
     ) {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -37,10 +38,10 @@ public sealed class HomePageModel : PageModel
     public List<GatewayServiceModel> Services { get; set; } = new List<GatewayServiceModel>();
 
     /// <summary>Home page GET handler.</summary>
-    public IActionResult OnGet() {
+    public virtual async Task<IActionResult> OnGetAsync() {
         var siteUrl = _configuration[$"{GeneralSettings.Name}:Site"];
         if (!string.IsNullOrWhiteSpace(siteUrl)) {
-            return Redirect(siteUrl);
+            return await Task.FromResult(Redirect(siteUrl));
         }
         Services.AddRange(new List<GatewayServiceModel> {
             new GatewayServiceModel {
@@ -52,4 +53,13 @@ public sealed class HomePageModel : PageModel
         });
         return Page();
     }
+}
+
+internal class HomeModel : BaseHomeModel
+{
+    public HomeModel(
+        ILogger<BaseHomeModel> logger,
+        IStringLocalizer<BaseHomeModel> localizer,
+        IConfiguration configuration
+    ) : base(logger, localizer, configuration) { }
 }
