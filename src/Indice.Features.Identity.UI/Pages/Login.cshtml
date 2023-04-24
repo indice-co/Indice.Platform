@@ -3,7 +3,6 @@
 @model BaseLoginModel
 
 @inject IViewLocalizer Localizer
-@inject IHttpContextAccessor HttpContextAccessor
 
 @{
     var displayRegistrationLinks = true;
@@ -108,7 +107,7 @@
             $(document).ready(function () {
                 var viewModelParameters = {
                     $deviceIdInput: $('#DeviceId'),
-                    browserFamily: '@(HttpContextAccessor.HttpContext.Request.GetBrowserName())'
+                    browserFamily: '@(Request.GetBrowserName())'
                 };
                 var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
                 viewModel.init();
