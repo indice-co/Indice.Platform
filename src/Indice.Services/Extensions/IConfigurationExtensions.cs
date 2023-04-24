@@ -152,16 +152,24 @@ public static class IConfigurationExtensions
 
     /// <summary>Tries to get the signalR connection string only if valid.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="connectionString">Outputs the connection string if valid</param>
+    /// <returns>The true if a valid connection string is found.</returns>
+    /// <remarks>the name will be searched under the <strong>ConnenctionStrings:SignalRService</strong> option in appsettings.json file.</remarks>
+    public static bool TryGetSignalRConnectionString(this IConfiguration configuration, out ConnectionString connectionString) =>
+        TryGetSignalRConnectionString(configuration, out connectionString);
+
+    /// <summary>Tries to get the signalR connection string only if valid.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="connectionStringName">The name of the connection string to search for.</param>
-    /// <param name="signalRConnection">Outputs the connection string if valid</param>
+    /// <param name="connectionString">Outputs the connection string if valid</param>
     /// <returns>The true if a valid connection string is found.</returns>
     /// <remarks>the name will be searched under the <strong>ConnenctionStrings:connectionStringName</strong> option in appsettings.json file.</remarks>
-    public static bool TryGetSignalRConnectionString(this IConfiguration configuration, string connectionStringName, out ConnectionString signalRConnection) {
-        signalRConnection = null;
+    public static bool TryGetSignalRConnectionString(this IConfiguration configuration, string connectionStringName, out ConnectionString connectionString) {
+        connectionString = null;
         var signalRConnectionString = configuration.GetConnectionString(connectionStringName);
         try {
-            signalRConnection = new ConnectionString(signalRConnectionString);
-            if (signalRConnection.ContainsKey("Endpoint")) {
+            connectionString = new ConnectionString(signalRConnectionString);
+            if (connectionString.ContainsKey("Endpoint")) {
                 return true;
             }
         } catch {
