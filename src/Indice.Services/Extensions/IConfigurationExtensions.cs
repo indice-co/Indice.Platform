@@ -154,15 +154,33 @@ public static class IConfigurationExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="connectionStringName">The name of the connection string to search for.</param>
     /// <param name="signalRConnection">Outputs the connection string if valid</param>
-    /// <returns>The api secret under the specified key. Api Secrets are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
-    /// <remarks>Checks for the <strong>General:Api:Secrets</strong> option in appsettings.json file.</remarks>
-    /// <exception cref="KeyNotFoundException">Throws a <see cref="KeyNotFoundException"/> if the specified key is not found.</exception>
+    /// <returns>The true if a valid connection string is found.</returns>
+    /// <remarks>the name will be searched under the <strong>ConnenctionStrings:connectionStringName</strong> option in appsettings.json file.</remarks>
     public static bool TryGetSignalRConnectionString(this IConfiguration configuration, string connectionStringName, out ConnectionString signalRConnection) {
         signalRConnection = null;
         var signalRConnectionString = configuration.GetConnectionString(connectionStringName);
         try {
             signalRConnection = new ConnectionString(signalRConnectionString);
-            if (signalRConnection.ContainsProperty("Endpoint")) {
+            if (signalRConnection.ContainsKey("Endpoint")) {
+                return true;
+            }
+        } catch {
+            return false;
+        }
+        return false;
+    }
+
+    /// <summary>Tries to get the applicationInsights connection string only if valid.</summary>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="connectionString">Outputs the connection string if valid</param>
+    /// <returns>The api secret under the specified key. Api Secrets are defined in appssettings.json as a <see cref="Dictionary{String, String}"/>.</returns>
+    /// <remarks>the name will be searched under the <strong>ApplicationInsights:ConnectionString</strong> option in appsettings.json file.</remarks>
+    public static bool TryGetApplicationInsightsConnectionString(this IConfiguration configuration, out ConnectionString connectionString) {
+        connectionString = null;
+        var signalRConnectionString = configuration.GetApplicationInsightsConnectionString();
+        try {
+            connectionString = new ConnectionString(signalRConnectionString);
+            if (connectionString.ContainsKey("IngestionEndpoint")) {
                 return true;
             }
         } catch {

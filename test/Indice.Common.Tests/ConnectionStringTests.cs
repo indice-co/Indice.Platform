@@ -13,6 +13,6 @@ public class ConnectionStringTests
         Assert.Equal("True", connectionString["Trusted_Connection"]);
         Assert.Equal("true", connectionString["MultipleActiveResultSets"]);
         Assert.Throws<KeyNotFoundException>(() => connectionString["AnUnknownKey"]);
-        Assert.False(connectionString.ContainsProperty("AnUnknownKey"));
+        Assert.False(connectionString.ContainsKey("AnUnknownKey"));
     }
 }
