@@ -113,8 +113,11 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var userId = user.FindSubjectIdOrClientId();
         var dbCaseQueryable = _dbContext.Cases
             .AsQueryable()
-            .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
+            .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
             .Where(options.Filter.Metadata);
+
+        if (!options.Filter.FetchDrafts)
+            dbCaseQueryable = dbCaseQueryable.Where(p => !p.Draft);
 
         foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
             // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."
