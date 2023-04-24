@@ -1,7 +1,7 @@
 ﻿namespace Indice.Features.Identity.UI.Models;
 
 /// <summary>Input model for the logout page.</summary>
-public class LogoutInputModelTemp
+public class LogoutInputModel
 {
     /// <summary>The logout id.</summary>
     public string LogoutId { get; set; }

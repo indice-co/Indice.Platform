@@ -6,11 +6,11 @@ public class AssociateInputModel
     /// <summary>The username.</summary>
     public string? UserName { get; set; }
     /// <summary>The email.</summary>
-    public string? Email { get; set; }
+    public string Email { get; set; } = string.Empty;
     /// <summary>The first name.</summary>
-    public string? FirstName { get; set; }
+    public string FirstName { get; set; } = string.Empty;
     /// <summary>The last name.</summary>
-    public string? LastName { get; set; }
+    public string LastName { get; set; } = string.Empty;
     /// <summary>Phone number. </summary>
     public string? PhoneNumber { get; set; }
     /// <summary>User Has accepted the terms and conditions.</summary>

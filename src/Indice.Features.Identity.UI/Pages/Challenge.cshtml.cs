@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the external login screen.</summary>
+[IdentityUI(typeof(ChallengeModel))]
 [SecurityHeaders]
 public abstract class BaseChallengeModel : BasePageModel
 {
@@ -68,9 +69,9 @@ public abstract class BaseChallengeModel : BasePageModel
             var claims = externalLoginInfo.Principal.Claims.ToList();
             TempData.Put("UserDetails", new AssociateViewModel {
                 UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value,
-                Email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value,
-                FirstName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value,
-                LastName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value,
+                Email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ?? string.Empty,
+                FirstName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? string.Empty,
+                LastName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ?? string.Empty,
                 PhoneNumber = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.PhoneNumber)?.Value,
                 Provider = externalLoginInfo.LoginProvider,
                 ReturnUrl = returnUrl

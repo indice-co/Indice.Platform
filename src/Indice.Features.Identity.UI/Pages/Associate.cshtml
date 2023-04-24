@@ -1,11 +1,11 @@
 ﻿@page "/associate"
 
-@model AssociatePageModel
+@model BaseAssociateModel
 
 @inject IViewLocalizer Localizer
 
 @{
-    var title = ViewData["Title"] = $"{Localizer["Associate your"].Value} {Model.ViewModel.Provider} {Localizer["account"].Value}";
+    var title = ViewData["Title"] = $"{Localizer["Associate your"].Value} {Model.View.Provider} {Localizer["account"].Value}";
 }
 
 <section class="sign-up m-auto">

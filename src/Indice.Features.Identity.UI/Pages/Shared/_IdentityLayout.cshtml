@@ -11,7 +11,6 @@
     var dash = ViewBag.Title != null ? " - " : string.Empty;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
-    var version = typeof(BaseLoginModel).Assembly.GetName().Version.ToString();
     var authClass = SignInManager.IsSignedIn(User) ? "authenticated" : "anonymous";
     var bgClass = SignInManager.IsSignedIn(User) ? "gradient-bg" : "gradient-bg";
 }

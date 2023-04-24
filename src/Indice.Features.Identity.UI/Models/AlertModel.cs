@@ -7,7 +7,7 @@ namespace Indice.Features.Identity.UI.Models;
 public class AlertModel
 {
     /// <summary>The message.</summary>
-    public string Message { get; set; }
+    public string Message { get; set; } = string.Empty;
     /// <summary>The alert type.</summary>
     public AlertType AlertType { get; set; }
 

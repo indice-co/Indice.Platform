@@ -18,5 +18,5 @@ public class ScopeViewModel
     /// <summary>Is pre-selected.</summary>
     public bool Checked { get; set; }
     /// <summary>The available resources.</summary>
-    public IEnumerable<ResourceViewModel> Resources { get; set; }
+    public IEnumerable<ResourceViewModel> Resources { get; set; } = new List<ResourceViewModel>();
 }

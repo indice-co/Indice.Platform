@@ -71,7 +71,7 @@ public abstract class BaseLoginModel : BasePageModel
     protected ExtendedUserManager<User> UserManager { get; }
 
     /// <summary>Login view model.</summary>
-    public LoginViewModel ViewModel { get; set; } = new LoginViewModel();
+    public LoginViewModel View { get; set; } = new LoginViewModel();
     /// <summary>The current principal's username.</summary>
     public string? UserName => User.FindFirstValue(JwtClaimTypes.Name);
 
@@ -83,14 +83,14 @@ public abstract class BaseLoginModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync(string? returnUrl = null) {
         // Build a model so we know what to show on the login page.
-        ViewModel = await BuildLoginViewModelAsync(returnUrl);
-        if (ViewModel.PromptRegister()) {
+        Input = View = await BuildLoginViewModelAsync(returnUrl);
+        if (View.PromptRegister()) {
             return RedirectToPage("Register", new { returnUrl });
         }
-        if (ViewModel.IsExternalLoginOnly) {
+        if (View.IsExternalLoginOnly) {
             // We only have one option for logging in and it's an external provider.
             return RedirectToPage("Challenge", new {
-                provider = ViewModel.ExternalLoginScheme,
+                provider = View.ExternalLoginScheme,
                 returnUrl,
                 prompt = OidcConstants.PromptModes.SelectAccount
             });
@@ -165,7 +165,7 @@ public abstract class BaseLoginModel : BasePageModel
             ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
         }
         // Something went wrong, show form with error.
-        ViewModel = await BuildLoginViewModelAsync(Input);
+        View = await BuildLoginViewModelAsync(Input);
         return Page();
     }
 
