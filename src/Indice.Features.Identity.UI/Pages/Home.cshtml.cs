@@ -10,22 +10,23 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
 
-/// <summary>Page model for the home/landing screen.</summary>
+/// <summary>Page model for the home page screen.</summary>
+[IdentityUI(typeof(HomeModel))]
 [SecurityHeaders]
-public class HomeModel : PageModel
+public abstract class BaseHomeModel : PageModel
 {
-    private readonly ILogger<HomeModel> _logger;
-    private readonly IStringLocalizer<HomeModel> _localizer;
+    private readonly ILogger<BaseHomeModel> _logger;
+    private readonly IStringLocalizer<BaseHomeModel> _localizer;
     private readonly IConfiguration _configuration;
 
-    /// <summary>Creates a new instance of <see cref="LoginModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="logger">A generic interface for logging.</param>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="LoginModel"/>.</param>
+    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseLoginModel"/>.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public HomeModel(
-        ILogger<HomeModel> logger,
-        IStringLocalizer<HomeModel> localizer,
+    public BaseHomeModel(
+        ILogger<BaseHomeModel> logger,
+        IStringLocalizer<BaseHomeModel> localizer,
         IConfiguration configuration
     ) {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -34,22 +35,31 @@ public class HomeModel : PageModel
     }
 
     /// <summary></summary>
-    public List<GatewayServiceModel> Services { get; set; }
+    public List<GatewayServiceModel> Services { get; set; } = new List<GatewayServiceModel>();
 
     /// <summary>Home page GET handler.</summary>
-    public IActionResult OnGet() {
+    public virtual async Task<IActionResult> OnGetAsync() {
         var siteUrl = _configuration[$"{GeneralSettings.Name}:Site"];
         if (!string.IsNullOrWhiteSpace(siteUrl)) {
-            return Redirect(siteUrl);
+            return await Task.FromResult(Redirect(siteUrl));
         }
-        Services = new List<GatewayServiceModel> {
+        Services.AddRange(new List<GatewayServiceModel> {
             new GatewayServiceModel {
                 DisplayName = "Admin",
                 ImageSrc = null,
                 Link = "~/admin",
                 Visible = User.IsAdmin()
             }
-        };
+        });
         return Page();
     }
+}
+
+internal class HomeModel : BaseHomeModel
+{
+    public HomeModel(
+        ILogger<BaseHomeModel> logger,
+        IStringLocalizer<BaseHomeModel> localizer,
+        IConfiguration configuration
+    ) : base(logger, localizer, configuration) { }
 }

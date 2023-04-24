@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Indice.AspNetCore.Identity.Models;
+﻿namespace Indice.AspNetCore.Identity.Models;
 
 /// <summary>
 /// This is a subclass of the <see cref="RegisterRequest"/> that also contains the external Identity providers that are setup.

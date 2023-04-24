@@ -1,6 +1,6 @@
 ﻿@page "/"
 
-@model HomeModel
+@model BaseHomeModel
 
 @inject GeneralSettings Settings
 @inject IViewLocalizer Localizer
@@ -11,7 +11,7 @@
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
 
-<h1 class="text-center display-4  p-sm-2 p-md-3 p-lg-4">
+<h1 class="text-center display-4 p-sm-2 p-md-3 p-lg-4">
     @Localizer["Welcome to our Digital Services <strong>Portal</strong> of {0}", Settings.Organization]
 </h1>
 <section class="border-0 sign-in">

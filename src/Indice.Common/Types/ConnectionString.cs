@@ -33,7 +33,7 @@ public class ConnectionString
 
     /// <summary>Determines whether the connection string contains a property with the specified key.</summary>
     /// <param name="key">The key whose value to get.</param>
-    public bool ContainsProperty(string key) => _properties.ContainsKey(key);
+    public bool ContainsKey(string key) => _properties.ContainsKey(key);
 
     /// <summary>Gets the property associated with the specified key.</summary>
     /// <param name="key">The key whose value to get.</param>

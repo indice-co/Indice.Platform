@@ -2,21 +2,15 @@
 
 @inject IViewLocalizer Localizer
 
-@model LoggedOutModel
+@model BaseLoggedOutModel
 
 @{
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var title = ViewData["Title"] = Localizer["Logout"].Value;
 }
 
 <section class="identity-panel wide logged-out">
     <article class="text-center">
-        <h1>
-            <a class="header-logo" href="/">
-                <img class="mb-3 w-100" src="~/img/logo@(langSuffix).svg" />
-            </a>
-            <span class="header-text">@Localizer["Logout"]</span>
-        </h1>
+        <partial name="_PageHeader" model="title" />
         <p>@Localizer["You are now logged out"]</p>
         <div indice-if="Model.PostLogoutRedirectUri != null">
             @Localizer["Click"] <a class="PostLogoutRedirectUri btn btn-primary" href="@Model.PostLogoutRedirectUri">@Localizer["here"]</a> @Localizer["to return to the application"]

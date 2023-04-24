@@ -4,27 +4,30 @@ using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.UI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the grants screen.</summary>
+[Authorize]
+[IdentityUI(typeof(GrantsModel))]
 [SecurityHeaders]
-public class GrantsModel : PageModel
+public abstract class BaseGrantsModel : PageModel
 {
     private readonly IClientStore _clients;
     private readonly IEventService _events;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IResourceStore _resources;
 
-    /// <summary>Creates a new instance of <see cref="LoginModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="clients">Retrieval of client configuration.</param>
     /// <param name="events">Interface for the event service.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="resources">Resource retrieval.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public GrantsModel(
+    public BaseGrantsModel(
         IClientStore clients,
         IEventService events,
         IIdentityServerInteractionService interaction,
@@ -37,19 +40,19 @@ public class GrantsModel : PageModel
     }
 
     /// <summary></summary>
-    public GrantsViewModel ViewModel { get; set; }
+    public GrantsViewModel ViewModel { get; set; } = new GrantsViewModel();
 
     /// <summary>Grants page GET handler.</summary>
-    public async Task<IActionResult> OnGetAsync() {
+    public virtual async Task<IActionResult> OnGetAsync() {
         ViewModel = await BuildViewModelAsync();
         return Page();
     }
 
     /// <summary>Grants page GET handler.</summary>
-    public async Task<IActionResult> OnPostRevokeAsync(string clientId) {
+    public virtual async Task<IActionResult> OnPostRevokeAsync(string clientId) {
         await _interaction.RevokeUserConsentAsync(clientId);
         await _events.RaiseAsync(new GrantsRevokedEvent(User.GetSubjectId(), clientId));
-        return RedirectToPage("/grants");
+        return RedirectToPage("Grants");
     }
 
     private async Task<GrantsViewModel> BuildViewModelAsync() {
@@ -77,4 +80,14 @@ public class GrantsModel : PageModel
             Grants = list
         };
     }
+}
+
+internal class GrantsModel : BaseGrantsModel
+{
+    public GrantsModel(
+        IClientStore clients,
+        IEventService events,
+        IIdentityServerInteractionService interaction,
+        IResourceStore resources
+    ) : base(clients, events, interaction, resources) { }
 }

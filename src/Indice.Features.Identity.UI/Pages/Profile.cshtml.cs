@@ -12,35 +12,35 @@ namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the profile screen.</summary>
 [Authorize]
+[IdentityUI(typeof(ProfileModel))]
 [SecurityHeaders]
-public class ProfileModel : BasePageModel {
+public abstract class BaseProfileModel : BasePageModel
+{
     private readonly ExtendedUserManager<User> _userManager;
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IConfiguration _configuration;
 
-    /// <summary>Creates a new instance of <see cref="ProfileModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseProfileModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ProfileModel(
+    public BaseProfileModel(
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
-        IConfiguration configuration,
-        IServiceProvider serviceProvider
-    ) : base(serviceProvider) {
+        IConfiguration configuration
+    ) : base() {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
     /// <summary>Manage profile page view model.</summary>
-    public ProfileViewModel ViewModel { get; set; }
+    public ProfileViewModel ViewModel { get; set; } = new ProfileViewModel();
 
     /// <summary>Request input model for the manage profile page.</summary>
     [BindProperty]
-    public ProfileInputModel Input { get; set; }
+    public ProfileInputModel Input { get; set; } = new ProfileInputModel();
 
     /// <summary></summary>
     [ViewData]
@@ -51,18 +51,18 @@ public class ProfileModel : BasePageModel {
     public bool EmailChangeRequested { get; set; }
 
     /// <summary>Profile page GET handler.</summary>
-    public async Task<IActionResult> OnGetAsync() {
+    public virtual async Task<IActionResult> OnGetAsync() {
         Input = ViewModel = await BuildProfileViewModelAsync();
         return Page();
     }
 
     /// <summary>Profile page POST handler.</summary>
-    public async Task<IActionResult> OnPostAsync() {
+    public virtual async Task<IActionResult> OnPostAsync() {
         if (!ModelState.IsValid) {
             ViewModel = await BuildProfileViewModelAsync(Input);
             return Page();
         }
-        var user = await _userManager.GetUserAsync(User);
+        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         var result = await _userManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName);
         AddModelErrors(result);
         result = await _userManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName);
@@ -94,7 +94,7 @@ public class ProfileModel : BasePageModel {
     }
 
     private async Task<ProfileViewModel> BuildProfileViewModelAsync() {
-        var user = await _userManager.GetUserAsync(User);
+        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         var roles = await _userManager.GetRolesAsync(user);
         var claims = await _userManager.GetClaimsAsync(user);
         var birthDate = default(DateTime?);
@@ -118,7 +118,7 @@ public class ProfileModel : BasePageModel {
             ConsentCommercialDate = consentDate,
             CurrentLogins = currentLogins,
             DeveloperTotp = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.DeveloperTotp)?.Value,
-            Email = user.Email,
+            Email = user.Email ?? string.Empty,
             EmailChangePending = !await _userManager.IsEmailConfirmedAsync(user),
             FirstName = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value,
             HasDeveloperTotp = _configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
@@ -126,12 +126,12 @@ public class ProfileModel : BasePageModel {
             OtherLogins = otherLogins,
             PhoneNumber = user.PhoneNumber,
             Tin = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.Tin)?.Value,
-            UserName = user.UserName
+            UserName = user.UserName ?? string.Empty
         };
     }
 
     private async Task<ProfileViewModel> BuildProfileViewModelAsync(ProfileInputModel model) {
-        var user = await _userManager.GetUserAsync(User);
+        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         var roles = await _userManager.GetRolesAsync(user);
         var currentLogins = await _userManager.GetLoginsAsync(user);
         var otherLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync())
@@ -155,4 +155,13 @@ public class ProfileModel : BasePageModel {
             UserName = model.UserName
         };
     }
+}
+
+internal class ProfileModel : BaseProfileModel
+{
+    public ProfileModel(
+        ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager,
+        IConfiguration configuration
+    ) : base(userManager, signInManager, configuration) { }
 }

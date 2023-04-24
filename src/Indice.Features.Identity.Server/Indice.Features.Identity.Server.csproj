@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks></TargetFrameworks>
-    <TargetFramework>net7.0</TargetFramework>
-    <PackageTags>AspNetCore;IdentityServer;</PackageTags>
-    <PackageReleaseNotes></PackageReleaseNotes>
     <Nullable>enable</Nullable>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>AspNetCore;IdentityServer;</PackageTags>
+    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks></TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

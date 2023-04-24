@@ -4,17 +4,17 @@
 public class ProfileInputModel
 {
     /// <summary></summary>
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
     /// <summary></summary>
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
     /// <summary></summary>
-    public string UserName { get; set; }
+    public string UserName { get; set; } = string.Empty;
     /// <summary></summary>
-    public string Email { get; set; }
+    public string Email { get; set; } = string.Empty;
     /// <summary></summary>
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     /// <summary></summary>
-    public string Tin { get; set; }
+    public string? Tin { get; set; }
     /// <summary></summary>
     public DateTime? BirthDate { get; set; }
     /// <summary></summary>
@@ -22,5 +22,5 @@ public class ProfileInputModel
     /// <summary></summary>
     public DateTime? ConsentCommercialDate { get; set; }
     /// <summary></summary>
-    public string DeveloperTotp { get; set; }
+    public string? DeveloperTotp { get; set; }
 }

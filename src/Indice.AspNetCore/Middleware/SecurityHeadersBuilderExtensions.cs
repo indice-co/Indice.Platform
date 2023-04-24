@@ -26,5 +26,4 @@ public static class SecurityHeadersBuilderExtensions
         builder.UseMiddleware<SecurityHeadersMiddleware>(policy);
         return builder;
     }
-
 }

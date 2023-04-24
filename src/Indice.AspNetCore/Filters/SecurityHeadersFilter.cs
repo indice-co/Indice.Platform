@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Indice.AspNetCore.Filters;
 
@@ -14,7 +15,7 @@ public sealed class SecurityHeadersAttribute : ActionFilterAttribute
     /// <param name="context">A context for result filters, specifically <see cref="IResultFilter.OnResultExecuting(ResultExecutingContext)"/></param>
     public override void OnResultExecuting(ResultExecutingContext context) {
         var result = context.Result;
-        if (result is ViewResult) {
+        if (result is ViewResult || result is PageResult) {
             context.HttpContext.ApplySecurityHeaders();
         }
     }
