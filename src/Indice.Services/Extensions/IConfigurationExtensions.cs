@@ -156,7 +156,7 @@ public static class IConfigurationExtensions
     /// <returns>The true if a valid connection string is found.</returns>
     /// <remarks>the name will be searched under the <strong>ConnenctionStrings:SignalRService</strong> option in appsettings.json file.</remarks>
     public static bool TryGetSignalRConnectionString(this IConfiguration configuration, out ConnectionString connectionString) =>
-        TryGetSignalRConnectionString(configuration, out connectionString);
+        TryGetSignalRConnectionString(configuration, "SignalRService", out connectionString);
 
     /// <summary>Tries to get the signalR connection string only if valid.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
