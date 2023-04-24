@@ -15,19 +15,20 @@ namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the logout screen.</summary>
 [Authorize]
+[IdentityUI(typeof(LogoutModel))]
 [SecurityHeaders]
-public class LogoutPageModel : PageModel
+public abstract class BaseLogoutModel : PageModel
 {
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IEventService _events;
     private readonly IIdentityServerInteractionService _interaction;
 
-    /// <summary>Creates a new instance of <see cref="LogoutPageModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseLogoutModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="events">Interface for the event service.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public LogoutPageModel(
+    public BaseLogoutModel(
         ExtendedSignInManager<User> signInManager,
         IEventService events,
         IIdentityServerInteractionService interaction
@@ -39,18 +40,20 @@ public class LogoutPageModel : PageModel
 
     /// <summary>The logout id.</summary>
     [BindProperty]
-    public string LogoutId { get; set; }
+    public string LogoutId { get; set; } = string.Empty;
+
     /// <summary>The id of the current client in the request.</summary>
     [BindProperty]
-    public string ClientId { get; set; }
+    public string? ClientId { get; set; }
+
     /// <summary>Should show the prompt or auto logout?</summary>
     public bool ShowLogoutPrompt { get; set; } = true;
 
     /// <summary>Logout page GET handler.</summary>
-    public async Task<IActionResult> OnGetAsync(string logoutId) {
+    public virtual async Task<IActionResult> OnGetAsync(string logoutId) {
         LogoutId = logoutId;
         var showLogoutPrompt = AccountOptions.ShowLogoutPrompt;
-        if (User?.Identity.IsAuthenticated != true) {
+        if (User?.Identity?.IsAuthenticated != true) {
             // if the user is not authenticated, then just show logged out page.
             showLogoutPrompt = false;
         } else {
@@ -70,8 +73,8 @@ public class LogoutPageModel : PageModel
 
     /// <summary>Logout page POST handler.</summary>
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> OnPostAsync() {
-        if (User?.Identity.IsAuthenticated == true) {
+    public virtual async Task<IActionResult> OnPostAsync() {
+        if (User?.Identity?.IsAuthenticated == true) {
             // If there's no current logout context, we need to create one this captures necessary info from the current logged in user. This can still return null if there is no context needed.
             LogoutId ??= await _interaction.CreateLogoutContextAsync();
             // Delete local authentication cookie.
@@ -93,4 +96,13 @@ public class LogoutPageModel : PageModel
         }
         return RedirectToPage("LoggedOut", new { logoutId = LogoutId });
     }
+}
+
+internal class LogoutModel : BaseLogoutModel
+{
+    public LogoutModel(
+        ExtendedSignInManager<User> signInManager,
+        IEventService events,
+        IIdentityServerInteractionService interaction
+    ) : base(signInManager, events, interaction) { }
 }

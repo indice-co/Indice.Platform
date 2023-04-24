@@ -9,9 +9,9 @@ public class ProfileViewModel : ProfileInputModel
     /// <summary></summary>
     public bool EmailChangePending { get; set; }
     /// <summary></summary>
-    public IList<UserLoginInfo> CurrentLogins { get; set; }
+    public IList<UserLoginInfo> CurrentLogins { get; set; } = new List<UserLoginInfo>();
     /// <summary></summary>
-    public IList<AuthenticationScheme> OtherLogins { get; set; }
+    public IList<AuthenticationScheme> OtherLogins { get; set; } = new List<AuthenticationScheme>();
     /// <summary></summary>
     public bool CanRemoveProvider { get; set; }
     /// <summary></summary>

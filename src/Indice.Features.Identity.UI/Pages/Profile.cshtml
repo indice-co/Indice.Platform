@@ -2,7 +2,7 @@
 
 @inject IViewLocalizer Localizer
 
-@model ProfilePageModel
+@model BaseProfileModel
 
 @{
     var title = ViewData["Title"] = Localizer["Profile"].Value;
@@ -124,7 +124,7 @@
     </form>
 </section>
 <br />
-<section class="identity-panel wide m-auto" indice-if="Model.ViewModel.CurrentLogins?.Count > 0 || Model.ViewModel.OtherLogins?.Count > 0">
+<section class="identity-panel wide m-auto" indice-if="Model.ViewModel.CurrentLogins?.Count > 0 || Model.ViewModel.OtherLogins.Count > 0">
     <h2>
         <span class="header-text text-center">@Localizer["External providers"]</span>
     </h2>
@@ -132,7 +132,7 @@
         var alertProviders = TempData.Get<AlertModel>("AlertProviders");
     }
     <partial name="_Alert" model="alertProviders" />
-    @if (Model.ViewModel.CurrentLogins?.Count > 0)
+    @if (Model.ViewModel.CurrentLogins.Count > 0)
     {
         <div class="login-form">
             <h4>@Localizer["Existing providers"]</h4>
@@ -153,7 +153,7 @@
             }
         </div>
     }
-    @if (Model.ViewModel.OtherLogins?.Count > 0)
+    @if (Model.ViewModel.OtherLogins.Count > 0)
     {
         <div class="mt-3">
             <h4>@Localizer["Connect a new provider"]</h4>
@@ -162,7 +162,7 @@
                 {
                     <li class="idp-@provider.Name.ToLower()">
                         <a class="btn btn-@provider.Name.ToLower() btn-hover" asp-page-handler="LinkLogin" asp-route-provider="@provider.Name">
-                            @Localizer[provider.DisplayName]
+                            @Localizer[provider.DisplayName ?? "Unknown"]
                         </a>
                     </li>
                 }

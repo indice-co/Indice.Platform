@@ -108,7 +108,7 @@
             $(document).ready(function () {
                 var viewModelParameters = {
                     $deviceIdInput: $('#DeviceId'),
-                    browserFamily: '@(HttpContextAccessor.HttpContext.Request.GetBrowserName())'
+                    browserFamily: '@(HttpContextAccessor?.HttpContext?.Request.GetBrowserName() ?? string.Empty)'
                 };
                 var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
                 viewModel.init();
