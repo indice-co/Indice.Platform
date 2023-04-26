@@ -178,8 +178,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                          Id = c.Id,
                                          Created = c.CreatedBy.When,
                                          CaseTypeCode = c.CaseType.Code,
-                                         Status = c.PublicCheckpoint.CheckpointType.Status,
-                                         Checkpoint = c.PublicCheckpoint.CheckpointType.Code,
+                                         Status = c.PublicCheckpoint == null ? CaseStatus.InProgress : c.PublicCheckpoint.CheckpointType.Status,
+                                         Checkpoint = c.PublicCheckpoint == null ? string.Empty : c.PublicCheckpoint.CheckpointType.Code,
                                          Message = reasonMessage,
                                          Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(c.CaseType.Translations)
                                      };
