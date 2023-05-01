@@ -2,7 +2,7 @@
 
 @model BaseAssociateModel
 
-@inject IViewLocalizer Localizer
+@inject IIdentityViewLocalizer Localizer
 
 @{
     var title = ViewData["Title"] = $"{Localizer["Associate your"].Value} {Model.View.Provider} {Localizer["account"].Value}";

@@ -265,8 +265,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
         var isRemembered = result?.Principal is not null && result.Principal.FindFirstValue(JwtClaimTypes.Name) == userId;
         var deviceId = await _mfaDeviceIdResolver.Resolve();
-        if (!string.IsNullOrWhiteSpace(deviceId) && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
-            var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId);
+        if (!string.IsNullOrWhiteSpace(deviceId.Value) && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
+            var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
             isRemembered = device is not null && device.MfaSessionExpirationDate.HasValue && device.MfaSessionExpirationDate.Value > DateTimeOffset.UtcNow;
         }
         if (isRemembered) {
@@ -350,8 +350,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     private async Task<ClaimsPrincipal> StoreRememberClient(TUser user) {
         var deviceId = await _mfaDeviceIdResolver.Resolve();
-        if (PersistTrustedBrowsers && !string.IsNullOrWhiteSpace(deviceId)) {
-            var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId);
+        if (PersistTrustedBrowsers && !string.IsNullOrWhiteSpace(deviceId.Value)) {
+            var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
             if (device is not null) {
                 device.IsTrusted = true;
                 device.TrustActivationDate ??= DateTimeOffset.UtcNow;
@@ -362,7 +362,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 var userAgent = new UserAgent(userAgentHeader);
                 device = new UserDevice {
                     DateCreated = DateTimeOffset.UtcNow,
-                    DeviceId = deviceId,
+                    DeviceId = deviceId.Value,
                     IsTrusted = true,
                     MfaSessionExpirationDate = DateTimeOffset.UtcNow.AddDays(90),
                     Model = userAgent.DeviceModel,

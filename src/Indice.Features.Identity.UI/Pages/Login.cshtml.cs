@@ -59,7 +59,7 @@ public abstract class BaseLoginModel : BasePageModel
     protected IEventService Events { get; }
     /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
     protected IIdentityServerInteractionService Interaction { get; }
-    /// <summary>Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseLoginModel"/>.</summary>
+    /// <summary>Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="LoginModel"/>.</summary>
     protected IStringLocalizer<BaseLoginModel> Localizer { get; }
     /// <summary>A generic interface for logging.</summary>
     protected ILogger<BaseLoginModel> Logger { get; }
@@ -69,12 +69,10 @@ public abstract class BaseLoginModel : BasePageModel
     protected ExtendedSignInManager<User> SignInManager { get; }
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
-
-    /// <summary>Login view model.</summary>
-    public LoginViewModel View { get; set; } = new LoginViewModel();
     /// <summary>The current principal's username.</summary>
     public string? UserName => User.FindFirstValue(JwtClaimTypes.Name);
-
+    /// <summary>Login view model.</summary>
+    public LoginViewModel View { get; set; } = new LoginViewModel();
     /// <summary>Login input model data.</summary>
     [BindProperty]
     public LoginInputModel Input { get; set; } = new LoginInputModel();
@@ -124,8 +122,8 @@ public abstract class BaseLoginModel : BasePageModel
         }
         if (ModelState.IsValid) {
             // Validate username/password against database.
-            var result = await SignInManager.PasswordSignInAsync(Input.UserName, Input.Password, AccountOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
-            var user = await UserManager.FindByNameAsync(Input.UserName);
+            var result = await SignInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, AccountOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
+            var user = await UserManager.FindByNameAsync(Input.UserName!);
             if (result.Succeeded && user is not null) {
                 await Events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
                 Logger.LogInformation("User '{UserName}' with email {Email} was successfully logged in.", user.UserName, user.Email);
@@ -216,7 +214,7 @@ public abstract class BaseLoginModel : BasePageModel
                 ? context?.Parameters[ExtraQueryParamNames.Operation]
                 : null,
             ReturnUrl = returnUrl,
-            UserName = context?.LoginHint ?? string.Empty
+            UserName = context?.LoginHint
         };
     }
 
@@ -237,7 +235,7 @@ internal class LoginModel : BaseLoginModel
         IClientStore clientStore,
         IEventService events,
         IIdentityServerInteractionService interaction,
-        ILogger<BaseLoginModel> logger,
-        IStringLocalizer<BaseLoginModel> localizer
+        ILogger<LoginModel> logger,
+        IStringLocalizer<LoginModel> localizer
     ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, localizer) { }
 }

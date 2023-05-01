@@ -4,5 +4,5 @@
 public interface IMfaDeviceIdResolver
 {
     /// <summary>Gets the device identifier.</summary>
-    Task<string> Resolve();
+    Task<MfaDeviceIdentifier> Resolve();
 }

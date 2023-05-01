@@ -3,7 +3,7 @@
 @model BaseHomeModel
 
 @inject GeneralSettings Settings
-@inject IViewLocalizer Localizer
+@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 
 @{
@@ -28,7 +28,7 @@
             </div>
             @await Html.PartialAsync("_ServiceDeck", Model.Services)
             <p class="lead" indice-if="@Environment.IsDevelopment()">
-                @Localizer["Please login to the application"] <a asp-page="/login">@Localizer["here"]</a>.
+                @Localizer["Please login to the application"] <a asp-page="Login">@Localizer["here"]</a>.
             </p>
         }
         else

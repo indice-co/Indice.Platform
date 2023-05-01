@@ -1,16 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Indice.Features.Identity.UI.Models;
+﻿namespace Indice.Features.Identity.UI.Models;
 
 /// <summary>Request input model for the login page.</summary>
 public class LoginInputModel
 {
     /// <summary>The user name.</summary>
-    [Required]
-    public string UserName { get; set; } = string.Empty;
+    public string? UserName { get; set; }
     /// <summary>The password</summary>
-    [Required]
-    public string Password { get; set; } = string.Empty;
+    public string? Password { get; set; }
     /// <summary>Flag that indicates that the login cookie should be persisted</summary>
     public bool RememberLogin { get; set; }
     /// <summary>The return URL after the login is successful.</summary>

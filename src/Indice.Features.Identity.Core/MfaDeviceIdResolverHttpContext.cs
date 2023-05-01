@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿#nullable enable
+
+using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
+using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Core;
 
@@ -15,11 +18,25 @@ public class MfaDeviceIdResolverHttpContext : IMfaDeviceIdResolver
     }
 
     /// <inheritdoc />
-    public Task<string> Resolve() {
-        var request = _httpContextAccessor.HttpContext.Request;
-        if (request.HasFormContentType && request.Form.TryGetValue("DeviceId", out var deviceId)) {
-            return Task.FromResult((string)deviceId);
+    public Task<MfaDeviceIdentifier> Resolve() {
+        var request = _httpContextAccessor.HttpContext?.Request;
+        if (request is not null && request.HasFormContentType && (request.Form.TryGetValue("DeviceId", out var deviceId) || request.Form.TryGetValue(RegistrationRequestParameters.DeviceId, out deviceId))) {
+            return Task.FromResult(new MfaDeviceIdentifier(deviceId));
         }
-        return Task.FromResult(default(string));
+        if (request is not null && request.HasFormContentType && request.Form.TryGetValue(RegistrationRequestParameters.RegistrationId, out var registrationIdText) && Guid.TryParse(registrationIdText, out var registrationId)) {
+            return Task.FromResult(new MfaDeviceIdentifier(null, registrationId));
+        }
+        return Task.FromResult(new MfaDeviceIdentifier(null));
     }
 }
+
+/// <summary></summary>
+/// <param name="Value"></param>
+/// <param name="RegistrationId"></param>
+public record MfaDeviceIdentifier(string? Value, Guid? RegistrationId = null)
+{
+    /// <summary></summary>
+    public bool HasRegistrationId => RegistrationId.HasValue;
+}
+
+#nullable disable

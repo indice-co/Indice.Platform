@@ -126,10 +126,20 @@ public static class IdentityBuilderExtensions
     }
 
     /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <remarks>The <see cref="LocalizedIdentityMessageDescriber"/> is registered.</remarks>
+    public static IdentityBuilder AddIdentityMessageDescriber(this IdentityBuilder builder) => builder.AddIdentityMessageDescriber<LocalizedIdentityMessageDescriber>();
+
+    /// <summary>Adds an overridden implementation of <see cref="IdentityMessageDescriber"/>.</summary>
     /// <typeparam name="TDescriber">The type of message describer.</typeparam>
     /// <param name="builder">Helper functions for configuring identity services.</param>
     public static IdentityBuilder AddIdentityMessageDescriber<TDescriber>(this IdentityBuilder builder) where TDescriber : IdentityMessageDescriber {
         builder.Services.AddScoped<IdentityMessageDescriber, TDescriber>();
         return builder;
     }
+
+    /// <summary>Adds an <see cref="IdentityErrorDescriber"/>.</summary>
+    /// <returns>The current <see cref="IdentityBuilder"/> instance.</returns>
+    /// <remarks>The <see cref="LocalizedIdentityErrorDescriber"/> is registered.</remarks>
+    public static IdentityBuilder AddErrorDescriber(this IdentityBuilder builder) => builder.AddErrorDescriber<LocalizedIdentityErrorDescriber>();
 }
