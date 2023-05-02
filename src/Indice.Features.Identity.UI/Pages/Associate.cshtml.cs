@@ -14,7 +14,7 @@ namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the external login screen.</summary>
 [SecurityHeaders]
-public class AssociatePageModel : BasePageModel
+public class BaseAssociateModel : BasePageModel
 {
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly ExtendedUserManager<User> _userManager;
@@ -23,7 +23,7 @@ public class AssociatePageModel : BasePageModel
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public AssociatePageModel(
+    public BaseAssociateModel(
         ExtendedSignInManager<User> signInManager,
         ExtendedUserManager<User> userManager
     ) : base() {
@@ -32,11 +32,11 @@ public class AssociatePageModel : BasePageModel
     }
 
     /// <summary>The view model that backs the external provider association page.</summary>
-    public AssociateViewModel ViewModel { get; set; }
+    public AssociateViewModel View { get; set; } = new AssociateViewModel();
 
     /// <summary>The input model that backs the external provider association page.</summary>
     [BindProperty]
-    public AssociateInputModel Input { get; set; }
+    public AssociateInputModel Input { get; set; } = new AssociateInputModel();
 
     /// <summary>Associate page GET handler.</summary>
     public IActionResult OnGet() {
@@ -46,12 +46,12 @@ public class AssociatePageModel : BasePageModel
         if (associateViewModel is null) {
             return RedirectToPage("Login");
         }
-        Input = ViewModel = associateViewModel;
+        Input = View = associateViewModel;
         return Page();
     }
 
     /// <summary>Associate page POST handler.</summary>
-    public async Task<IActionResult> OnPostAsync(string returnUrl) {
+    public async Task<IActionResult> OnPostAsync(string? returnUrl) {
         if (!ModelState.IsValid) {
             var associateViewModel = TempData.Peek<AssociateViewModel>("UserDetails");
             if (associateViewModel is null) {
@@ -75,50 +75,55 @@ public class AssociatePageModel : BasePageModel
         claims.Add(new Claim(BasicClaimTypes.ConsentCommencialDate, $"{DateTime.UtcNow:O}"));
         var user = await ProvisionExternalUser(Input.UserName, Input.PhoneNumber, claims);
         await _userManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.ProviderDisplayName ?? externalLoginInfo.LoginProvider));
-        return RedirectToPage("Challenge", "Callback", routeValues: new { returnUrl = Input.ReturnUrl });
+        return RedirectToPage("Challenge", "Callback", new { 
+            returnUrl = Input.ReturnUrl 
+        });
     }
 
-    private async Task<User> ProvisionExternalUser(string userName, string phoneNumber, List<Claim> claims) {
+    private async Task<User> ProvisionExternalUser(string? userName, string? phoneNumber, List<Claim> claims) {
         var emailClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email);
-        claims.Remove(emailClaim);
+        if (emailClaim is not null) {
+            claims.Remove(emailClaim);
+        }
         var phoneClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.PhoneNumber);
-        if (phoneClaim is not null) claims.Remove(phoneClaim);
+        if (phoneClaim is not null) {
+            claims.Remove(phoneClaim);
+        }
         var givenNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName);
         var familyNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName);
-        var email = emailClaim.Value;
-        var user = await _userManager.FindByEmailAsync(email);
-        if (user != null) {
-            if (!user.EmailConfirmed) {
+        var email = emailClaim?.Value;
+        if (!string.IsNullOrWhiteSpace(email)) {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user is not null && !user.EmailConfirmed) {
                 await SendConfirmationEmail(user);
                 throw new Exception("User exists as a local account but the email is not yet confirmed. If you are the owner please confirm your email first so that the accounts can be merged.");
             }
-        } else {
-            var userId = Guid.NewGuid().ToString();
-            user = new User(userName, userId) {
-                Email = email,
-                UserName = userName,
-                EmailConfirmed = userName == email,
-                PhoneNumber = phoneNumber
-            };
-            foreach (var claim in claims) {
-                user.Claims.Add(new IdentityUserClaim<string> {
-                    ClaimType = claim.Type,
-                    ClaimValue = claim.Value,
-                    UserId = userId
-                });
-            }
-            var result = await _userManager.CreateAsync(user);
-            if (!result.Succeeded) {
-                var errors = new StringBuilder();
-                foreach (var error in result.Errors) {
-                    errors.AppendLine(error.Description);
-                }
-                throw new Exception($"Failed to provision automatically external user: {errors}.");
-            }
-            if (!user.EmailConfirmed) {
-                await SendConfirmationEmail(user);
-            }
         }
-        return user;
+        var userId = Guid.NewGuid().ToString();
+        var newUser = new User(userName, userId) {
+            Email = email,
+            UserName = userName,
+            EmailConfirmed = userName == email,
+            PhoneNumber = phoneNumber
+        };
+        foreach (var claim in claims) {
+            newUser.Claims.Add(new IdentityUserClaim<string> {
+                ClaimType = claim.Type,
+                ClaimValue = claim.Value,
+                UserId = userId
+            });
+        }
+        var result = await _userManager.CreateAsync(newUser);
+        if (!result.Succeeded) {
+            var errors = new StringBuilder();
+            foreach (var error in result.Errors) {
+                errors.AppendLine(error.Description);
+            }
+            throw new Exception($"Failed to provision automatically external user: {errors}.");
+        }
+        if (!newUser.EmailConfirmed) {
+            await SendConfirmationEmail(newUser);
+        }
+        return newUser;
     }
 }

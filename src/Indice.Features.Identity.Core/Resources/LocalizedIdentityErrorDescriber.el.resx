@@ -117,34 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Forgot password?" xml:space="preserve">
-    <value>Ξέχασες το κωδικό;</value>
+  <data name="A lower case letter." xml:space="preserve">
+    <value>Ένα μικρό γράμμα.</value>
   </data>
-  <data name="Invalid login request" xml:space="preserve">
-    <value>Μη έγκυρο αίτημα σύνδεσης</value>
+  <data name="A non-alphanumeric character." xml:space="preserve">
+    <value>Ένα μη αλφαριθμητικό χαρακτήρα.</value>
   </data>
-  <data name="Login" xml:space="preserve">
-    <value>Είσοδος</value>
+  <data name="A numeric character." xml:space="preserve">
+    <value>Έναν αριθμητικό χαρακτήρα.</value>
   </data>
-  <data name="OR" xml:space="preserve">
-    <value>Ή</value>
+  <data name="An upper case letter." xml:space="preserve">
+    <value>Ένα κεφαλαίο γράμμα.</value>
   </data>
-  <data name="Password" xml:space="preserve">
-    <value>Κωδικός</value>
+  <data name="At least {0} characters long." xml:space="preserve">
+    <value>Τουλάχιστον {0} χαρακτήρες.</value>
   </data>
-  <data name="Please check your credentials." xml:space="preserve">
-    <value>Παρακαλώ ελέξτε τα στοιχεία εισόδου σας.</value>
+  <data name="Passwords must be at least {0} characters." xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον {0} χαρακτήρες.</value>
   </data>
-  <data name="Remember me" xml:space="preserve">
-    <value>Να με θυμάσαι</value>
+  <data name="Passwords must have at least one digit ('0'-'9')." xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα ψηφίο.</value>
   </data>
-  <data name="Sign in" xml:space="preserve">
-    <value>Είσοδος</value>
+  <data name="Passwords must have at least one lowercase ('a'-'z')." xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα μικρό γράμμα.</value>
   </data>
-  <data name="There are no login schemes configured for this client." xml:space="preserve">
-    <value>Δεν υπάρχουν διαμορφωμένα προγράμματα σύνδεσης για αυτή την εφαρμογή.</value>
+  <data name="Passwords must have at least one non alphanumeric character." xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα μη αλφαριθμητικό χαρακτήρα.</value>
   </data>
-  <data name="Username" xml:space="preserve">
-    <value>Όνομα χρήστη</value>
+  <data name="Passwords must have at least one uppercase ('A'-'Z')." xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον ένα κεφαλαίο γράμμα.</value>
+  </data>
+  <data name="Passwords must use at least {0} different characters." xml:space="preserve">
+    <value>Ο κωδικός πρέπει να περιέχει τουλάχιστον {0} διαφορετικούς χαρακτήρες.</value>
+  </data>
+  <data name="Username '{0}' is already in user." xml:space="preserve">
+    <value>Το όνομα χρήστη '{0}' χρησιμοποιείται ήδη.</value>
+  </data>
+  <data name="{0} unique chars required." xml:space="preserve">
+    <value>{0} μοναδικοί χαρακτήρες απαιτούνται.</value>
   </data>
 </root>

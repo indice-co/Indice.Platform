@@ -4,7 +4,7 @@
 public class AttributeModel
 {
     /// <summary>The equivalent for a claim type.</summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     /// <summary>The value.</summary>
-    public string Value { get; set; }
+    public string Value { get; set; } = string.Empty;
 }

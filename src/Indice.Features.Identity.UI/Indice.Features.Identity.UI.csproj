@@ -14,11 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="Resources\Pages\**\*.resx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
   <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
     <Exec Command="npm install" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
       <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />

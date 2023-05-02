@@ -59,7 +59,7 @@ public abstract class BaseLoginModel : BasePageModel
     protected IEventService Events { get; }
     /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
     protected IIdentityServerInteractionService Interaction { get; }
-    /// <summary>Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseLoginModel"/>.</summary>
+    /// <summary>Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="LoginModel"/>.</summary>
     protected IStringLocalizer<BaseLoginModel> Localizer { get; }
     /// <summary>A generic interface for logging.</summary>
     protected ILogger<BaseLoginModel> Logger { get; }
@@ -69,12 +69,10 @@ public abstract class BaseLoginModel : BasePageModel
     protected ExtendedSignInManager<User> SignInManager { get; }
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
-
-    /// <summary>Login view model.</summary>
-    public LoginViewModel ViewModel { get; set; } = new LoginViewModel();
     /// <summary>The current principal's username.</summary>
     public string? UserName => User.FindFirstValue(JwtClaimTypes.Name);
-
+    /// <summary>Login view model.</summary>
+    public LoginViewModel View { get; set; } = new LoginViewModel();
     /// <summary>Login input model data.</summary>
     [BindProperty]
     public LoginInputModel Input { get; set; } = new LoginInputModel();
@@ -83,14 +81,14 @@ public abstract class BaseLoginModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync(string? returnUrl = null) {
         // Build a model so we know what to show on the login page.
-        ViewModel = await BuildLoginViewModelAsync(returnUrl);
-        if (ViewModel.PromptRegister()) {
+        Input = View = await BuildLoginViewModelAsync(returnUrl);
+        if (View.PromptRegister()) {
             return RedirectToPage("Register", new { returnUrl });
         }
-        if (ViewModel.IsExternalLoginOnly) {
+        if (View.IsExternalLoginOnly) {
             // We only have one option for logging in and it's an external provider.
             return RedirectToPage("Challenge", new {
-                provider = ViewModel.ExternalLoginScheme,
+                provider = View.ExternalLoginScheme,
                 returnUrl,
                 prompt = OidcConstants.PromptModes.SelectAccount
             });
@@ -124,8 +122,8 @@ public abstract class BaseLoginModel : BasePageModel
         }
         if (ModelState.IsValid) {
             // Validate username/password against database.
-            var result = await SignInManager.PasswordSignInAsync(Input.UserName, Input.Password, AccountOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
-            var user = await UserManager.FindByNameAsync(Input.UserName);
+            var result = await SignInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, AccountOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
+            var user = await UserManager.FindByNameAsync(Input.UserName!);
             if (result.Succeeded && user is not null) {
                 await Events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
                 Logger.LogInformation("User '{UserName}' with email {Email} was successfully logged in.", user.UserName, user.Email);
@@ -165,7 +163,7 @@ public abstract class BaseLoginModel : BasePageModel
             ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
         }
         // Something went wrong, show form with error.
-        ViewModel = await BuildLoginViewModelAsync(Input);
+        View = await BuildLoginViewModelAsync(Input);
         return Page();
     }
 
@@ -216,7 +214,7 @@ public abstract class BaseLoginModel : BasePageModel
                 ? context?.Parameters[ExtraQueryParamNames.Operation]
                 : null,
             ReturnUrl = returnUrl,
-            UserName = context?.LoginHint ?? string.Empty
+            UserName = context?.LoginHint
         };
     }
 
@@ -237,7 +235,7 @@ internal class LoginModel : BaseLoginModel
         IClientStore clientStore,
         IEventService events,
         IIdentityServerInteractionService interaction,
-        ILogger<BaseLoginModel> logger,
-        IStringLocalizer<BaseLoginModel> localizer
+        ILogger<LoginModel> logger,
+        IStringLocalizer<LoginModel> localizer
     ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, localizer) { }
 }

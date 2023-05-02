@@ -5,8 +5,6 @@ using Indice.Security;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -15,22 +13,12 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseHomeModel : PageModel
 {
-    private readonly ILogger<BaseHomeModel> _logger;
-    private readonly IStringLocalizer<BaseHomeModel> _localizer;
     private readonly IConfiguration _configuration;
 
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
-    /// <param name="logger">A generic interface for logging.</param>
-    /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseLoginModel"/>.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public BaseHomeModel(
-        ILogger<BaseHomeModel> logger,
-        IStringLocalizer<BaseHomeModel> localizer,
-        IConfiguration configuration
-    ) {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+    public BaseHomeModel(IConfiguration configuration) {
         _configuration = configuration;
     }
 
@@ -57,9 +45,5 @@ public abstract class BaseHomeModel : PageModel
 
 internal class HomeModel : BaseHomeModel
 {
-    public HomeModel(
-        ILogger<BaseHomeModel> logger,
-        IStringLocalizer<BaseHomeModel> localizer,
-        IConfiguration configuration
-    ) : base(logger, localizer, configuration) { }
+    public HomeModel(IConfiguration configuration) : base(configuration) { }
 }

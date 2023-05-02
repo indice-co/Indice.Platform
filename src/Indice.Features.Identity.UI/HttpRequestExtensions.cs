@@ -3,21 +3,26 @@ using UAParser;
 
 namespace Microsoft.AspNetCore.Http;
 
-/// <summary></summary>
+/// <summary>Extension methods on type <see cref="HttpRequest"/>.</summary>
 public static class HttpRequestExtensions
 {
-    /// <summary>Tries to identity the browser name from the current <see cref="HttpRequest"/>.</summary>
+    /// <summary>Gets information about the current browser via User-Agent.</summary>
     /// <param name="request">Represents the incoming side of an individual HTTP request.</param>
-    public static string? GetBrowserName(this HttpRequest request) {
-        if (request is null) {
+    /// <returns>The browser name (User Agent Family).</returns>
+    /// <remarks>This extension is used solely for informational purposes and logging. It is not considered fool proof.</remarks>
+    public static string GetBrowserName(this HttpRequest request)
+    {
+        if (request is null)
+        {
             throw new ArgumentNullException(nameof(request), "Parameter request cannot be null.");
         }
         var userAgent = request.Headers[HeaderNames.UserAgent];
         ClientInfo? clientInfo = null;
-        if (!string.IsNullOrWhiteSpace(userAgent)) {
+        if (!string.IsNullOrWhiteSpace(userAgent))
+        {
             var uaParser = Parser.GetDefault();
             clientInfo = uaParser.Parse(userAgent);
         }
-        return clientInfo?.UA?.Family;
+        return clientInfo?.UA?.Family ?? string.Empty;
     }
 }

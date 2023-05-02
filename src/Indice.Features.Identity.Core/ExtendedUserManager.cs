@@ -111,6 +111,10 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public async override Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword) {
         var result = await base.ChangePasswordAsync(user, currentPassword, newPassword);
         if (result.Succeeded) {
+            if (user.HasExpiredPassword()) {
+                await SetPasswordExpiredAsync(user, expired: false);
+                await base.UpdateAsync(user);
+            }
             await _eventService.Publish(new PasswordChangedEvent(user));
         }
         return result;

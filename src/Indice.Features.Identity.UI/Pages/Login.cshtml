@@ -2,8 +2,7 @@
 
 @model BaseLoginModel
 
-@inject IViewLocalizer Localizer
-@inject IHttpContextAccessor HttpContextAccessor
+@inject IIdentityViewLocalizer Localizer
 
 @{
     var displayRegistrationLinks = true;
@@ -14,14 +13,14 @@
 <section class="sign-in m-auto">
     <partial name="_PageHeader" model="title" />
     <partial name="_ValidationSummary" />
-    @if (Model.ViewModel.VisibleExternalProviders.Any())
+    @if (Model.View.VisibleExternalProviders.Any())
     {
         <div class="login-form">
             <ul class="list-unstyled">
-                @foreach (var provider in Model.ViewModel.VisibleExternalProviders)
+                @foreach (var provider in Model.View.VisibleExternalProviders)
                 {
                     <li class="idp idp-@provider.AuthenticationScheme.ToLower()">
-                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.ViewModel.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
                             @Localizer[provider.DisplayName]
                         </a>
                     </li>
@@ -30,11 +29,11 @@
         </div>
         <div class="hr-sect">@Localizer["OR"]</div>
     }
-    @if (Model.ViewModel.EnableLocalLogin)
+    @if (Model.View.EnableLocalLogin)
     {
-        <form asp-route-returnUrl="@Model.ViewModel.ReturnUrl" method="POST">
-            <input type="hidden" asp-for="ViewModel.ReturnUrl" />
-            <input type="hidden" asp-for="ViewModel.DeviceId" />
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="POST">
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+            <input type="hidden" asp-for="Input.DeviceId" />
             <div class="form-group">
                 <label asp-for="Input.UserName" class="">@Localizer["Username"]</label>
                 <input class="form-control" type="text" placeholder="@Localizer["Username"]" asp-for="Input.UserName" />
@@ -46,7 +45,7 @@
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                @if (Model.ViewModel.AllowRememberLogin)
+                @if (Model.View.AllowRememberLogin)
                 {
                     <div class="form-check custom-checkbox d-inline-block">
                         <label class="form-check-label">
@@ -66,7 +65,7 @@
                     @if (displayRegistrationLinks)
                     {
                         <div class="col-sm-6 col-12 py-1">
-                            <a class="btn btn-link btn-block" asp-page="Register" asp-route-returnUrl="@Model.ViewModel.ReturnUrl">
+                            <a class="btn btn-link btn-block" asp-page="Register" asp-route-returnUrl="@Model.View.ReturnUrl">
                                 @Localizer["Join us"]
                             </a>
                         </div>
@@ -78,7 +77,7 @@
             </div>
         </form>
     }
-    @if (!Model.ViewModel.EnableLocalLogin && !Model.ViewModel.VisibleExternalProviders.Any())
+    @if (!Model.View.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
     {
         <div class="alert alert-warning">
             <strong>@Localizer["Invalid login request"]</strong>
@@ -100,15 +99,15 @@
             };
         });
     </script>
-    @if (Model.ViewModel.GenerateDeviceId)
+    @if (Model.View.GenerateDeviceId)
     {
         <script type="text/javascript" src="/identity-ui/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
         <script type="text/javascript" src="/identity-ui/js/mfa.js" csp-nonce></script>
         <script type="text/javascript" csp-nonce>
             $(document).ready(function () {
                 var viewModelParameters = {
-                    $deviceIdInput: $('#DeviceId'),
-                    browserFamily: '@(HttpContextAccessor?.HttpContext?.Request.GetBrowserName() ?? string.Empty)'
+                    $deviceIdInput: $('#Input_DeviceId'),
+                    browserFamily: '@Request.GetBrowserName()'
                 };
                 var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
                 viewModel.init();
