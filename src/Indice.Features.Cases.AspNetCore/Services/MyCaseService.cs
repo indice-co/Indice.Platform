@@ -113,8 +113,20 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         var userId = user.FindSubjectIdOrClientId();
         var dbCaseQueryable = _dbContext.Cases
             .AsQueryable()
-            .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && !p.Draft && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
+            .Where(p => (p.CreatedBy.Id == userId || p.Customer.UserId == userId) && p.PublicCheckpoint.CheckpointType.Status != CaseStatus.Deleted)
             .Where(options.Filter.Metadata);
+
+        // We do not return draft cases as a default behaviour either when
+        // IncludeDrafts does not have value or IncludeDrafts is false.
+        // If IncludeDrafts is true we return both draft and non draft cases
+        //
+        // TODO: as an alternative we can return (however this will result in breaking changes)
+        // * both draft and non draft cases if IncludeDrafts is null
+        // * only non draft cases if IncludeDrafts is false
+        // * only drafts cases if IncludeDrafts is true
+        if (!options.Filter.IncludeDrafts.HasValue || !options.Filter.IncludeDrafts.Value) {
+            dbCaseQueryable = dbCaseQueryable.Where(p => !p.Draft);
+        }
 
         foreach (var tag in options.Filter?.CaseTypeTags ?? new List<string>()) {
             // If there are more than 1 tag, the linq will be translated into "WHERE [Tag] LIKE %tag1% AND [Tag] LIKE %tag2% ..."

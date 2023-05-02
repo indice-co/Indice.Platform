@@ -2,6 +2,7 @@
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Exceptions;
+using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
@@ -42,7 +43,7 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
         if (user == null) {
             throw new ArgumentNullException(nameof(user));
         }
-        var userId = user.FindSubjectId();
+        var userId = user.FindSubjectIdOrClientId();
         if (string.IsNullOrEmpty(userId)) {
             throw new ArgumentException(nameof(userId));
         }
