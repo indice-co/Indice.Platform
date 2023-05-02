@@ -26,6 +26,6 @@ public class GetMyCasesListFilter
     public List<FilterClause> Data { get; set; }
     /// <summary>Construct filter clauses based on case metadata.</summary>
     public List<FilterClause> Metadata { get; set; }
-    /// <summary>Return cases with draft state</summary
-    public bool FetchDrafts { get; set; }
+    /// <summary>Determines whether draft cases should be included in result</summary>
+    public bool? IncludeDrafts { get; set; }
 }
