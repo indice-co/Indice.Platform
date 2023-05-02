@@ -86,7 +86,7 @@ public abstract class BaseLogoutModel : PageModel
             // If it's a local login we can ignore this workflow.
             if (idp != null && idp != IdentityServerConstants.LocalIdentityProvider) {
                 // We need to see if the provider supports external logout.
-                if (await HttpContext.GetSchemeSupportsSignOutAsync(idp)) {
+                if (!"Apple".Equals(idp) && await HttpContext.GetSchemeSupportsSignOutAsync(idp)) {
                     // Build a return URL so the upstream provider will redirect back to us after the user has logged out. This allows us to then complete our single sign-out processing.
                     var url = Url.Page("LoggedOut", new { logoutId = LogoutId });
                     // This triggers a redirect to the external provider for sign-out.

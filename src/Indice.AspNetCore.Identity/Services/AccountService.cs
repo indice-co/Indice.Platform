@@ -219,7 +219,7 @@ public class AccountService : IAccountService
         if (user?.Identity.IsAuthenticated == true) {
             var idp = user.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
             if (idp != null && idp != IdentityServerConstants.LocalIdentityProvider) {
-                var providerSupportsSignout = await _httpContextAccessor.HttpContext.GetSchemeSupportsSignOutAsync(idp);
+                var providerSupportsSignout = !"Apple".Equals(idp) && await _httpContextAccessor.HttpContext.GetSchemeSupportsSignOutAsync(idp);
                 if (providerSupportsSignout) {
                     if (viewModel.LogoutId == null) {
                         // If there's no current logout context, we need to create one. This captures necessary info from the current logged in user before we sign out and redirect away to the external IdP for sign out.
