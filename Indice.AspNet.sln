@@ -94,6 +94,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Identity.Se
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Identity.SignInLogs", "src\Indice.Features.Identity.SignInLogs\Indice.Features.Identity.SignInLogs.csproj", "{2D87BC5B-FB1E-4D18-9BC3-B7ED78CC3CF1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Identity.UI.Assets", "src\Indice.Features.Identity.UI.Assets\Indice.Features.Identity.UI.Assets.csproj", "{27563A23-FF5D-4999-80B5-D1F9DBB6DD6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -240,6 +242,10 @@ Global
 		{2D87BC5B-FB1E-4D18-9BC3-B7ED78CC3CF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D87BC5B-FB1E-4D18-9BC3-B7ED78CC3CF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D87BC5B-FB1E-4D18-9BC3-B7ED78CC3CF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27563A23-FF5D-4999-80B5-D1F9DBB6DD6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27563A23-FF5D-4999-80B5-D1F9DBB6DD6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27563A23-FF5D-4999-80B5-D1F9DBB6DD6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27563A23-FF5D-4999-80B5-D1F9DBB6DD6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -280,6 +286,7 @@ Global
 		{66D58583-A0A9-4666-A250-7E34299A031A} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{D304A4FA-3773-4BB6-A59B-D75B91BA6EF9} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{2D87BC5B-FB1E-4D18-9BC3-B7ED78CC3CF1} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{27563A23-FF5D-4999-80B5-D1F9DBB6DD6F} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

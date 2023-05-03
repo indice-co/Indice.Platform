@@ -2,17 +2,7 @@
 @import '_variables';
 
 body {
-    &.onboarding,
-    &.manage,
-    &.extended-validation,
-    &.grants,
-    &.consent,
-    &.mfa,
-    &.login,
-    &.profile,
-    &.associate,
-    &.register,
-    &.error {
+    &.account, &.onboarding, &.manage, &.extended-validation, &.grants, &.consent, &.mfa {
         #wrap {
             position: relative;
         }
@@ -55,6 +45,16 @@ body {
         }
     }
 
+    #authentication-methods {
+        a {
+            color: #4e4e4e;
+        }
+
+        .selected {
+            background-color: #F2F2F2;
+        }
+    }
+
     .identity-panel {
         &.wide {
             max-width: 48rem;
@@ -69,12 +69,7 @@ body {
         }
     }
 
-    &.logged-out,
-    &.logout,
-    &.confirm-email,
-    &.change-email,
-    &.redirect-view,
-    &.redirect {
+    &.logged-out, &.logout, &.confirm-email, &.change-email, &.redirect-view, &.redirect {
         section {
             padding: 48px 40px 36px;
             height: auto;
@@ -135,7 +130,7 @@ body {
     }
 }
 
-li.idp {
+li[class^="idp-"] {
     position: relative;
     margin-bottom: 10px;
 
@@ -235,6 +230,7 @@ li.idp {
 }
 
 .idp-google {
+
     a:not(.remove-idp) {
         background-image: url(../img/idps/Google.svg);
         background-repeat: no-repeat;

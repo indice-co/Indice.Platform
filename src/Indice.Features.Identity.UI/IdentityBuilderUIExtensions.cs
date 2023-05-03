@@ -2,6 +2,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.Features.Identity.UI;
+using Indice.Features.Identity.UI.Assets;
 using Indice.Features.Identity.UI.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +17,8 @@ public static class IdentityBuilderUIExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration) {
         // Post configure razor pages options.
-        services.ConfigureOptions(typeof(IdentityUIConfigureOptions));
+        services.ConfigureOptions(typeof(IdentityUIRazorPagesConfigureOptions));
+        services.ConfigureOptions(typeof(IdentityUIStaticFileConfigureOptions));
         // Configure FluentValidation.
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddFluentValidationAutoValidation(config => {

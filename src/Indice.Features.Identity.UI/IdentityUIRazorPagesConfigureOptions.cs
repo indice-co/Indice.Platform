@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI;
 
-internal class IdentityUIConfigureOptions : IPostConfigureOptions<RazorPagesOptions>
+internal class IdentityUIRazorPagesConfigureOptions : IPostConfigureOptions<RazorPagesOptions>
 {
     public void PostConfigure(string? name, RazorPagesOptions options) {
         options = options ?? throw new ArgumentNullException(nameof(options));

@@ -30,18 +30,17 @@
     <meta name="msapplication-TileColor" content="#006E58" />
     @RenderSection("meta", required: false)
     <title>@ViewBag.Title @dash @Localizer[Settings.ApplicationName]</title>
-    <link href="/identity-uifavicon.ico" rel="icon" type="image/vnd.microsoft.icon" sizes="16x16 32x32 64x64 128x128" />
-    <link href="/identity-ui/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link href="/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" sizes="16x16 32x32 64x64 128x128" />
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <link rel="preconnect" href="https://storage.googleapis.com" />
     @*#if (!DisableAppInsights)
     <script type="text/javascript" csp-nonce="true">@Html.Raw(JavaScriptSnippet.ScriptBody)</script>
     #endif*@
 </head>
 <body route-styles class="@authClass @bgClass identity-page">
-    <link rel="stylesheet" href="/identity-ui/css/bootstrap.css" asp-append-version="true" />
-    <link rel="stylesheet" href="/identity-ui/css/identity.css" asp-append-version="true" />
-    <link rel="stylesheet" href="/identity-ui/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" type="text/css" href="/identity-ui/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="/css/bootstrap.css" asp-append-version="true" />
+    <link rel="stylesheet" href="/css/identity.css" asp-append-version="true" />
+    <link rel="stylesheet" type="text/css" href="/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />
     @RenderSection("css", required: false)
     @await Html.PartialAsync("_MenuMain")
     <environment exclude="Production">
@@ -57,10 +56,10 @@
             @await Html.PartialAsync("_Footer")
         </main>
     </div>
-    <script type="text/javascript" src="/identity-ui/lib/jquery/dist/jquery.min.js" csp-nonce="true"></script>
-    <script type="text/javascript" src="/identity-ui/lib/popper.js/dist/umd/popper.min.js" csp-nonce="true"></script>
-    <script type="text/javascript" src="/identity-ui/lib/bootstrap/dist/js/bootstrap.bundle.min.js" csp-nonce="true"></script>
-    <script type="text/javascript" src="/identity-ui/js/site.js" csp-nonce="true" asp-append-version="true"></script>
+    <script type="text/javascript" src="/lib/jquery/dist/jquery.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/lib/popper.js/dist/umd/popper.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/js/site.js" csp-nonce="true" asp-append-version="true"></script>
     @RenderSection("scripts", required: false)
 </body>
 </html>
