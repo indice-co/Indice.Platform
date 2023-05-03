@@ -25,6 +25,7 @@ public class LocalizedIdentityMessageDescriber : IdentityMessageDescriber
     public override string PasswordIsCommonRequirement => _localizer["Not easy to guess."];
     public override string PasswordIdenticalToUserNameRequirement => _localizer["Does not contain part of your username."];
     public override string PasswordRecentlyUsedRequirement => _localizer["Not recently used."];
+    
     public override string ForgotPasswordMessageBody<TUser>(TUser user, string token) {
         var u = user as User;
         var body = $"Παρακαλούμε δημιουργήστε το νέο σας κωδικό <a href=\"{_settings.Host}/forgot-password/confirmation?email={u.Email}&token={token}\">ακολουθώντας τον εξής σύνδεσμο</a>.";

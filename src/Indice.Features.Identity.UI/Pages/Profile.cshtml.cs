@@ -36,7 +36,7 @@ public abstract class BaseProfileModel : BasePageModel
     }
 
     /// <summary>Manage profile page view model.</summary>
-    public ProfileViewModel ViewModel { get; set; } = new ProfileViewModel();
+    public ProfileViewModel View { get; set; } = new ProfileViewModel();
 
     /// <summary>Request input model for the manage profile page.</summary>
     [BindProperty]
@@ -52,14 +52,14 @@ public abstract class BaseProfileModel : BasePageModel
 
     /// <summary>Profile page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
-        Input = ViewModel = await BuildProfileViewModelAsync();
+        Input = View = await BuildProfileViewModelAsync();
         return Page();
     }
 
     /// <summary>Profile page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
         if (!ModelState.IsValid) {
-            ViewModel = await BuildProfileViewModelAsync(Input);
+            View = await BuildProfileViewModelAsync(Input);
             return Page();
         }
         var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
@@ -75,11 +75,13 @@ public abstract class BaseProfileModel : BasePageModel
         AddModelErrors(result);
         result = await _userManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommencialDate, $"{DateTime.UtcNow:O}");
         AddModelErrors(result);
-        if (user.NormalizedEmail != Input.Email.Trim().ToUpper()) {
+        if (user.NormalizedEmail != Input.Email?.Trim().ToUpper()) {
             EmailChangeRequested = true;
             user.EmailConfirmed = false;
             await _userManager.SetEmailAsync(user, Input.Email);
-            await SendChangeEmailConfirmationEmail(user, Input.Email);
+            if (!string.IsNullOrWhiteSpace(Input.Email)) {
+                await SendChangeEmailConfirmationEmail(user, Input.Email);
+            }
         }
         user.PhoneNumber = Input.PhoneNumber;
         if (user.UserName != Input.UserName) {
@@ -89,7 +91,7 @@ public abstract class BaseProfileModel : BasePageModel
         result = await _userManager.UpdateAsync(user);
         AddModelErrors(result);
         ProfileSuccessfullyChanged = ModelState.ErrorCount == 0;
-        ViewModel = await BuildProfileViewModelAsync(Input);
+        View = await BuildProfileViewModelAsync(Input);
         return Page();
     }
 

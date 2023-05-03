@@ -117,28 +117,70 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="authorized applications" xml:space="preserve">
-    <value>εξουσιοδοτημένες εφαρμογές σας</value>
+  <data name="A confirmation email has been sent to {0}." xml:space="preserve">
+    <value>Ένα email επιβεβαίωσης έχει σταλεί στη διεύθυνση {0}.</value>
   </data>
-  <data name="Check and revoke your" xml:space="preserve">
-    <value>Ελέγξτε και ανακαλέστε τις</value>
+  <data name="An email has been sent to your new email address in order to confirm it." xml:space="preserve">
+    <value>Ένα email έχει σταλεί στη νέα σας διεύθυνση ώστε να το επιβεβαιώσετε.</value>
+  </data>
+  <data name="Birth date" xml:space="preserve">
+    <value>Ημερομηνία Γέννησης</value>
+  </data>
+  <data name="Confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
+  <data name="Confirmation email delivery failed. Please contact system administrator." xml:space="preserve">
+    <value>Η αποστολή του email επιβεβαίωσης απέτυχε. Παρακαλώ επικοινωνήστε με το διαχειριστή του συστήματος.</value>
+  </data>
+  <data name="Connect a new provider" xml:space="preserve">
+    <value>Συνδέστε ένα νέο πάροχο</value>
+  </data>
+  <data name="Developer TOTP" xml:space="preserve">
+    <value>TOTP για προγραμματιστές</value>
+  </data>
+  <data name="Existing providers" xml:space="preserve">
+    <value>Υπάρχοντες πάροχοι</value>
+  </data>
+  <data name="External providers" xml:space="preserve">
+    <value>Εξωτερικοί πάροχοι</value>
+  </data>
+  <data name="First name" xml:space="preserve">
+    <value>Όνομα</value>
   </data>
   <data name="here" xml:space="preserve">
     <value>εδώ</value>
   </data>
-  <data name="Manage your grants" xml:space="preserve">
-    <value>Προσβάσεις τρίτων εφαρμογών.</value>
+  <data name="I have been informed about the processing of my personal data and I consent to it, as specifically defined" xml:space="preserve">
+    <value>'Εχω ενημερωθεί για την επεξεργασία των προσωπικών μου δεδομένων και συναινώ, όπως περιγράφεται</value>
   </data>
-  <data name="Please login to the application" xml:space="preserve">
-    <value>Παρακαλώ συνδεθείτε στην εφαρμογή</value>
+  <data name="Last name" xml:space="preserve">
+    <value>Επίθετο</value>
   </data>
-  <data name="Welcome back" xml:space="preserve">
-    <value>Καλώς ήλθατε</value>
+  <data name="Phone number" xml:space="preserve">
+    <value>Αριθμός τηλεφώνου</value>
   </data>
-  <data name="Welcome to our Digital Services &lt;strong&gt;Portal&lt;/strong&gt; of {0}" xml:space="preserve">
-    <value>Καλωσήλθατε στην &lt;strong&gt;Πύλη&lt;/strong&gt; Ψηφιακών Υπηρεσιών της {0}</value>
+  <data name="Profile" xml:space="preserve">
+    <value>Προφίλ</value>
   </data>
-  <data name="You are in the {0} Identity Server. A place to manage your user profile and account access settings. Use the links below to get started." xml:space="preserve">
-    <value>Η υπηρεσία "Identity" σας δίνει πρόσβαση με ένα λογαριασμό σε όλες τις υπηρεσίες της {0}. Εδώ μπορείτε να διαχειριστείτε το προφίλ χρήστη και τις παραμέτρους πρόσβασης σας στις υπηρεσίες. Ξεκινήστε χρησιμοποιώντας τους παρακάτω συνδέσμους.</value>
+  <data name="Remove" xml:space="preserve">
+    <value>Αφαίρεση</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Αποθήκευση</value>
+  </data>
+  <data name="Tax identification" xml:space="preserve">
+    <value>Α.Φ.Μ</value>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>Άγνωστος</value>
+  </data>
+  <data name="Username" xml:space="preserve">
+    <value>Όνομα χρήστη</value>
+  </data>
+  <data name="Your new email verification is still pending." xml:space="preserve">
+    <value>Η επιβεβαίωση του λογαριασμού σας εκκρεμεί.</value>
+  </data>
+  <data name="Your profile was updated successfully." xml:space="preserve">
+    <value>To προφίλ σας ενημερώθηκε επιτυχώς.</value>
   </data>
 </root>

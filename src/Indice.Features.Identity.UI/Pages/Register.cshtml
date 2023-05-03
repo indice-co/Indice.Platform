@@ -11,14 +11,14 @@
 <section class="sign-up m-auto">
     <partial name="_PageHeader" model="title" />
     <partial name="_ValidationSummary" />
-    @if (Model.ViewModel.VisibleExternalProviders.Any())
+    @if (Model.View.VisibleExternalProviders.Any())
     {
         <div class="login-form">
             <ul class="list-unstyled">
-                @foreach (var provider in Model.ViewModel.VisibleExternalProviders)
+                @foreach (var provider in Model.View.VisibleExternalProviders)
                 {
                     <li class="idp idp-@provider.AuthenticationScheme.ToLower()">
-                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="External" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.ViewModel.ReturnUrl">
+                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="External" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl">
                             @Localizer[provider.DisplayName]
                         </a>
                     </li>
@@ -27,7 +27,7 @@
         </div>
         <div class="hr-sect">@Localizer["OR"]</div>
     }
-    <form asp-route-returnUrl="@Model.ViewModel.ReturnUrl" data-sbind="event: { change: formChanged }" method="POST" autocomplete="new-password" novalidate>
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="POST" autocomplete="new-password" novalidate>
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
@@ -125,7 +125,7 @@
         <div class="row align-items-center">
             <div class="col-md-6 col-12">
                 <div class="form-group">
-                    <a class="btn btn-link btn-block" asp-page="Login" asp-route-returnUrl="@Model.ViewModel.ReturnUrl">@Localizer["Already have an account?"]</a>
+                    <a class="btn btn-link btn-block" asp-page="Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer["Already have an account?"]</a>
                 </div>
             </div>
             <div class="col-md-6 col-12">

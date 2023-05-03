@@ -1,5 +1,4 @@
 ﻿using IdentityModel;
-using IdentityServer4.EntityFramework.DbContexts;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Builder;
@@ -36,7 +35,7 @@ public static class ExtendedIdentityDbContextExtensions
             return;
         }
         const string adminEmail = "company@indice.gr";
-        var adminAccount = dbContext.Users.SingleOrDefault(user => user.Email == adminEmail);
+        var adminAccount = dbContext.Users.SingleOrDefault(user => user.UserName == adminEmail);
         if (adminAccount is not null) {
             return;
         }
@@ -72,6 +71,10 @@ public static class ExtendedIdentityDbContextExtensions
             ClaimValue = "123456",
             UserId = admin.Id
         });
+        var rolesExist = dbContext.Roles.Any();
+        if (rolesExist) {
+            return;
+        }
         var initialRoles = InitialRoles<TRole>.Get();
         dbContext.Roles.AddRange(InitialRoles<TRole>.Get());
         foreach (var role in initialRoles) {

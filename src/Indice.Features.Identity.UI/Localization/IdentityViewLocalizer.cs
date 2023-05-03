@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 using Microsoft.AspNetCore.Mvc.Localization;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Localization;
@@ -23,14 +21,14 @@ internal sealed class IdentityViewLocalizer : IIdentityViewLocalizer, IViewConte
         _localizerFactory = localizerFactory ?? throw new ArgumentNullException(nameof(localizerFactory));
     }
 
-    public LocalizedHtmlString this[string name] { 
-        get { 
+    public LocalizedHtmlString this[string name] {
+        get {
             var resource = _inner[name];
             if (resource.IsResourceNotFound) {
                 resource = _internalPathLocalizer[name];
             }
             return resource;
-        } 
+        }
     }
 
     public LocalizedHtmlString this[string name, params object[] arguments] {
@@ -45,16 +43,10 @@ internal sealed class IdentityViewLocalizer : IIdentityViewLocalizer, IViewConte
 
     public void Contextualize(ViewContext viewContext) {
         ((IViewContextAware)_inner).Contextualize(viewContext);
-        // Given a view path "/Views/Home/Index.cshtml" we want a baseName like "MyApplication.Views.Home.Index"
         var path = viewContext.ExecutingFilePath;
-
         if (string.IsNullOrEmpty(path)) {
             path = viewContext.View.Path;
         }
-
-
-        Debug.Assert(!string.IsNullOrEmpty(path), "Couldn't determine a path for the view");
-
         _internalPathLocalizer = _localizerFactory.Create(BuildBaseName(path), _applicationName);
     }
 
@@ -88,13 +80,9 @@ internal sealed class IdentityViewLocalizer : IIdentityViewLocalizer, IViewConte
         var length = path.Length - startIndex - extension.Length;
         var capacity = length + _applicationName.Length + 1;
         var builder = new StringBuilder(path, startIndex, length, capacity);
-
         builder.Replace('/', '.').Replace('\\', '.');
-
-        // Prepend the application name
         builder.Insert(0, '.');
         builder.Insert(0, _applicationName);
-
         return builder.ToString();
     }
 }

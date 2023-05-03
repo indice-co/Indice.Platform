@@ -1,8 +1,8 @@
-﻿using FluentValidation;
+﻿using System.Reflection;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.Localization;
-using Indice.Features.Identity.UI.Validators;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 
@@ -18,7 +18,7 @@ public static class IdentityBuilderUIExtensions
         // Post configure razor pages options.
         services.ConfigureOptions(typeof(IdentityUIConfigureOptions));
         // Configure FluentValidation.
-        services.AddValidatorsFromAssemblyContaining<LoginInputModelValidator>();
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddFluentValidationAutoValidation(config => {
             config.DisableDataAnnotationsValidation = true;
         });

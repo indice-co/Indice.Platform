@@ -21,9 +21,9 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseConsentModel : PageModel
 {
-    private readonly IStringLocalizer<BaseGrantsModel> _localizer;
+    private readonly IStringLocalizer<BaseConsentModel> _localizer;
     private readonly IEventService _eventService;
-    private readonly ILogger<BaseGrantsModel> _logger;
+    private readonly ILogger<BaseConsentModel> _logger;
     private readonly IIdentityServerInteractionService _interaction;
 
     /// <summary>Creates a new instance of <see cref="BaseConsentModel"/> class.</summary>
@@ -33,8 +33,8 @@ public abstract class BaseConsentModel : PageModel
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseConsentModel(
-        ILogger<BaseGrantsModel> logger,
-        IStringLocalizer<BaseGrantsModel> localizer,
+        ILogger<BaseConsentModel> logger,
+        IStringLocalizer<BaseConsentModel> localizer,
         IEventService eventService,
         IIdentityServerInteractionService interaction
     ) {
@@ -93,7 +93,6 @@ public abstract class BaseConsentModel : PageModel
                     ScopesValuesConsented = scopes.ToArray(),
                     Description = Input.Description
                 };
-
                 // Emit event.
                 await _eventService.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues, grantedConsent.ScopesValuesConsented, grantedConsent.RememberConsent));
             } else {
@@ -200,22 +199,20 @@ public abstract class BaseConsentModel : PageModel
         };
     }
 
-    private static ScopeViewModel GetOfflineAccessScope(bool check) {
-        return new ScopeViewModel {
-            Value = IdentityServerConstants.StandardScopes.OfflineAccess,
-            DisplayName = ConsentOptions.OfflineAccessDisplayName,
-            Description = ConsentOptions.OfflineAccessDescription,
-            Emphasize = true,
-            Checked = check
-        };
-    }
+    private static ScopeViewModel GetOfflineAccessScope(bool check) => new ScopeViewModel {
+        Value = IdentityServerConstants.StandardScopes.OfflineAccess,
+        DisplayName = ConsentOptions.OfflineAccessDisplayName,
+        Description = ConsentOptions.OfflineAccessDescription,
+        Emphasize = true,
+        Checked = check
+    };
 }
 
 internal class ConsentModel : BaseConsentModel
 {
     public ConsentModel(
-        ILogger<BaseGrantsModel> logger,
-        IStringLocalizer<BaseGrantsModel> localizer,
+        ILogger<ConsentModel> logger,
+        IStringLocalizer<ConsentModel> localizer,
         IEventService eventService,
         IIdentityServerInteractionService interaction
     ) : base(logger, localizer, eventService, interaction) { }
