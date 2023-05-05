@@ -15,7 +15,7 @@ public static class IdentityBuilderUIExtensions
     /// <summary>Adds the required services and pages for Identity UI pages features.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="configureAction">Configure action</param>
+    /// <param name="configureAction">Configure action.</param>
     public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration, Action<IdentityUIOptions>? configureAction = null) {
         services.Configure<IdentityUIOptions>(configuration);
         services.PostConfigure<IdentityUIOptions>(options => configureAction?.Invoke(options));

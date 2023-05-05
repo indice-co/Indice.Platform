@@ -1,7 +1,9 @@
 ﻿@page "/privacy"
+
 @model BasePrivacyModel
 
 @inject IIdentityViewLocalizer Localizer
+
 @{
     ViewData["body-css-class"] = "article-page";
     ViewData["Title"] = Localizer[Model.View.Title];
@@ -10,10 +12,6 @@
 }
 
 <article class="p-0 py-md-4 px-md-5">
-    <h1 class="text-center">
-        <a class="header-logo" href="/">
-            <img class="mb-3" src="~/img/logo@(langSuffix).svg" />
-        </a>
-    </h1>
+    <partial name="_PageHeader" model="string.Empty" />
     <md path="@Model.View.MarkdownPath" class="markdown-body"></md>
 </article>

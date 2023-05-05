@@ -6,24 +6,15 @@
 
 @{
     var title = ViewData["Title"] = Localizer["Error"].Value;
-}
-
-@{
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
     var error = Model.ErrorMessages.GetValueOrDefault(Model.ErrorStatusCode.GetValueOrDefault());
 }
 
 <section class="error-page">
     <article class="text-center">
-        <h3>
-            <a class="header-logo" href="/">
-                <img class="mb-3" src="~/img/logo@(langSuffix).svg" />
-            </a>
-        </h3>
+        <partial name="_PageHeader" model="string.Empty" />
         <h1 class="page-message glitch" data-text="@Model">@Model.ErrorStatusCode</h1>
-        <h2 class="page-message-title">@Localizer[error!.Title]</h2>
-        <p class="page-message-description">@Localizer[error!.Message]</p>
-        <a class="btn btn-outline-light btn-lg" href="~/">@Localizer["Go back home"]</a>
+        <h2 indice-if="!string.IsNullOrEmpty(error?.Title)" class="page-message-title">@Localizer[error!.Title]</h2>
+        <p indice-if="!string.IsNullOrEmpty(error?.Message)" class="page-message-description">@Localizer[error!.Message]</p>
+        <a class="btn btn-outline-light btn-lg" asp-page="Home">@Localizer["Go back home"]</a>
     </article>
 </section>

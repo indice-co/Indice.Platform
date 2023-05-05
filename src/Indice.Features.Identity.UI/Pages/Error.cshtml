@@ -2,7 +2,7 @@
 
 @inject IIdentityViewLocalizer Localizer
 
-@model ErrorModel
+@model BaseErrorModel
 
 @{
     var title = ViewData["Title"] = Localizer["Error"].Value;
@@ -16,14 +16,12 @@
             @if (Model?.Message is not null)
             {
                 <strong>
-                    <em>
-                        : @Model?.Message
-                    </em>
+                    <em>: @Model.Message</em>
                 </strong>
             }
             @if (Model?.RequestId is not null)
             {
-                <div class="request-id">@Localizer["Request Id"]: @Model?.RequestId</div>
+                <div class="request-id">@Localizer["Request Id"]: @Model.RequestId</div>
             }
         </p>
     </article>
