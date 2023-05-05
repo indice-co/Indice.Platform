@@ -116,7 +116,7 @@
                     <label class="checkbox">
                         <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
                         @Localizer["I consent to the registration and processing of the above personal details for my contact and service as they are defined"]
-                        <a style="font-weight:bold" asp-page="/privacy" target="_blank">@Localizer["here"].</a>.
+                        <a style="font-weight:bold" asp-page="/privacy" target="_blank">@Localizer["here"]</a>.
                     </label>
                     <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
                 </div>
