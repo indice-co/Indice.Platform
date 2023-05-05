@@ -84,10 +84,9 @@ public abstract class BasePageModel : PageModel
         var hostingEnvironment = ServiceProvider.GetRequiredService<IWebHostEnvironment>();
         if (!hostingEnvironment.IsDevelopment()) {
             var emailService = ServiceProvider.GetRequiredService<IEmailService>();
-            var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
             await emailService.SendAsync(message =>
                 message.To(user.Email)
-                       .WithSubject(localizer["Account confirmation"])
+                       .WithSubject("Account confirmation")
                        .UsingTemplate("EmailRegister")
                        .WithData(new {
                            user.UserName,
