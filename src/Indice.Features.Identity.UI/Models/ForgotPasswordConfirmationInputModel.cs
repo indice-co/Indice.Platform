@@ -7,8 +7,6 @@ public class ForgotPasswordConfirmationInputModel
     public string? Email { get; set; }
     /// <summary>The new password.</summary>
     public string? NewPassword { get; set; }
-    /// <summary>The new password confirmed (optional).</summary>
-    public string? NewPasswordConfirmation { get; set; }
     /// <summary>The URL to return to.</summary>
     public string? ReturnUrl { get; set; }
     /// <summary>The token.</summary>

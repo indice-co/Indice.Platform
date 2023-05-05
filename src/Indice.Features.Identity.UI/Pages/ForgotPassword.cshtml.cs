@@ -92,6 +92,6 @@ internal class ForgotPasswordModel : BaseForgotPasswordModel
         ExtendedUserManager<User> userManager,
         ILogger<ForgotPasswordModel> logger,
         IEmailService emailService,
-        IStringLocalizer<BaseForgotPasswordModel> localizer
+        IStringLocalizer<ForgotPasswordModel> localizer
     ) : base(userManager, logger, emailService, localizer) { }
 }

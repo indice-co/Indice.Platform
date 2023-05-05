@@ -14,7 +14,8 @@ body {
     &.register,
     &.error,
     &.forgot-password,
-    &.forgot-password-confirmation {
+    &.forgot-password-confirmation,
+    &.change-password {
         #wrap {
             position: relative;
         }

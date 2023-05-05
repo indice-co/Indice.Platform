@@ -16,7 +16,6 @@ public class ForgotPasswordConfirmationInputModelValidator : AbstractValidator<F
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
         RuleFor(x => x.NewPassword).NotEmpty().WithName(_localizer["New Password"]);
-        RuleFor(x => x.NewPasswordConfirmation).NotEmpty().WithName(_localizer["New Password Confirmation"]);
         RuleFor(x => x.Token).NotEmpty();
     }
 }
