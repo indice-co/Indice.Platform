@@ -15,6 +15,9 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Base model class for article pages.</summary>
 public abstract class BaseArticlePageModel : PageModel
 {
+    /// <summary>Will propagate to body class</summary>
+    [ViewData]
+    public string BodyCssClass { get; set; } = "identity-page article-page";
     /// <summary>Defines a mechanism for retrieving a service object.</summary>
     protected IServiceProvider ServiceProvider => HttpContext.RequestServices;
 

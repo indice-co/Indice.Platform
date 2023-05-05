@@ -13,7 +13,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="wwwroot\css\identity.scss" />
-    <None Remove="wwwroot\css\_login.scss" />
+    <None Remove="wwwroot\css\_panel.scss" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
