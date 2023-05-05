@@ -138,7 +138,7 @@
             <h4>@Localizer["Existing providers"]</h4>
             @foreach (var provider in Model.View.CurrentLogins)
             {
-                <div class="row idp idp-@provider.LoginProvider.ToLower()">
+                <div class="row idp-@provider.LoginProvider.ToLower()">
                     <div class="col-sm-9">
                         <a class="btn btn-@provider.LoginProvider.ToLower() btn-hover btn-md inline-block cursor-pointer">@Localizer[string.IsNullOrEmpty(provider.ProviderDisplayName) ? provider.LoginProvider : provider.ProviderDisplayName]</a>
                     </div>
@@ -160,7 +160,7 @@
             <ul class="list-unstyled">
                 @foreach (var provider in Model.View.OtherLogins)
                 {
-                    <li class="idp-@provider.Name.ToLower()">
+                    <li class="idp idp-@provider.Name.ToLower()">
                         <a class="btn btn-@provider.Name.ToLower() btn-hover" asp-page-handler="LinkLogin" asp-route-provider="@provider.Name">
                             @Localizer[provider.DisplayName ?? "Unknown"]
                         </a>
