@@ -2,20 +2,7 @@
 @import '_variables';
 
 body {
-    &.onboarding,
-    &.manage,
-    &.extended-validation,
-    &.grants,
-    &.consent,
-    &.mfa,
-    &.login,
-    &.profile,
-    &.associate,
-    &.register,
-    &.error,
-    &.forgot-password,
-    &.forgot-password-confirmation,
-    &.change-password {
+    &.identity-page {
         #wrap {
             position: relative;
         }
@@ -72,32 +59,19 @@ body {
         }
     }
 
-    &.logged-out,
-    &.logout,
-    &.confirm-email,
-    &.change-email,
-    &.redirect-view,
-    &.redirect {
-        section {
-            padding: 48px 40px 36px;
-            height: auto;
-            transition: .2s;
-            box-shadow: 0 10px 25px rgba(0,0,0,.3);
-            border-radius: 5px;
-            color: $gray-900;
-            background: white;
+    .height-auto {
+        height: auto;
 
-            @include phone {
-                box-shadow: none;
-            }
+        @include phone {
+            box-shadow: none;
         }
+    }
 
-        .header-logo {
-            width: 140px;
-            height: 70px;
-            display: inline-block;
-            color: transparent;
-        }
+    .header-logo {
+        width: 140px;
+        height: 70px;
+        display: inline-block;
+        color: transparent;
     }
 }
 
@@ -238,6 +212,7 @@ li.idp {
 }
 
 .idp-google {
+
     a:not(.remove-idp) {
         background-image: url(../img/idps/Google.svg);
         background-repeat: no-repeat;
@@ -299,6 +274,16 @@ li.idp {
                 background-position: 10px center;
                 background-size: 24px;
                 margin-bottom: 5px;
+            }
+        }
+    }
+
+    &.row {
+        a:not(.remove-idp) {
+            &.btn-google {
+                &::after {
+                    margin-left: 15px;
+                }
             }
         }
     }
