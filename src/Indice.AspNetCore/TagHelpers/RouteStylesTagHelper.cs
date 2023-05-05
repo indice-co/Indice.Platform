@@ -27,8 +27,8 @@ public class RouteStylesTagHelper : TagHelper
         var page = GetUrlCasing($"{ViewContext.RouteData.Values["page"]}").Replace("/-", string.Empty);
         var action = GetUrlCasing($"{ViewContext.RouteData.Values["action"]}");
         var extras = string.Empty;
-        if (ViewContext.ViewData.ContainsKey("body-css-class")) {
-            extras = GetUrlCasing($"{ViewContext.ViewData["body-css-class"]}");
+        if (ViewContext.ViewData.ContainsKey("BodyCssClass")) {
+            extras = GetUrlCasing($"{ViewContext.ViewData["BodyCssClass"]}");
         }
         if (action == "index") {
             action = string.Empty;

@@ -18,7 +18,7 @@ public abstract class BaseErrorModel : PageModel
     private readonly IIdentityServerInteractionService _interaction;
     /// <summary>Will propagate to body class</summary>
     [ViewData]
-    public string BodyCssClass { get; set; } = "identity-page";
+    public string BodyCssClass { get; set; } = "identity-page error-page";
 
     /// <summary>Constructor</summary>
     /// <param name="logger"></param>

@@ -17,7 +17,7 @@ public abstract class BaseError40XModel : PageModel
     private readonly ILogger<BaseError40XModel> _logger;
     /// <summary>Will propagate to body class</summary>
     [ViewData]
-    public string BodyCssClass { get; set; } = "identity-page error";
+    public string BodyCssClass { get; set; } = "identity-page error-page";
 
     /// <summary>Constructor</summary>
     /// <param name="logger"></param>
