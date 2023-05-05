@@ -117,22 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Add Password" xml:space="preserve">
-    <value>Προσθήκη Κωδικού</value>
+  <data name="Account confirmation" xml:space="preserve">
+    <value>Επιβεβαίωση λογαριασμού</value>
   </data>
-  <data name="Change Password" xml:space="preserve">
-    <value>Αλλαγή Κωδικού</value>
+  <data name="here" xml:space="preserve">
+    <value>εδώ</value>
   </data>
-  <data name="Grants" xml:space="preserve">
-    <value>Άδειες Πρόσβασης</value>
+  <data name="Hi" xml:space="preserve">
+    <value>Γεια σας</value>
   </data>
-  <data name="Log out" xml:space="preserve">
-    <value>Αποσύνδεση</value>
+  <data name="Sincerely" xml:space="preserve">
+    <value>Με εκτίμηση</value>
   </data>
-  <data name="Profile" xml:space="preserve">
-    <value>Προφίλ</value>
+  <data name="Thanks" xml:space="preserve">
+    <value>Ευχαριστούμε</value>
   </data>
-  <data name="Sign in with a different account" xml:space="preserve">
-    <value>Σύνδεση με διαφορετικό λογαριασμό</value>
+  <data name="to get verified" xml:space="preserve">
+    <value>το επιβεβαιώσετε</value>
+  </data>
+  <data name="We need you to verify your email. Please click" xml:space="preserve">
+    <value>Πρέπει να επιβεβαιώσουμε το λογαριασμό email σας. Παρακαλώ πατήστε</value>
   </data>
 </root>
