@@ -21,28 +21,6 @@ body {
             padding-bottom: 12px;
         }
 
-        &.cookies, &.privacy, &.terms {
-            color: $gray-900;
-
-            .container {
-                padding: 20px;
-
-                article {
-                    padding: 20px;
-                    border-radius: 10px;
-                    background: white;
-
-                    @include phone {
-                        padding: 0;
-                    }
-                }
-            }
-
-            header {
-                display: none !important;
-            }
-        }
-
         &.error {
             header {
                 display: none !important;
