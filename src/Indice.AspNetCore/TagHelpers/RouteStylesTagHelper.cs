@@ -26,6 +26,10 @@ public class RouteStylesTagHelper : TagHelper
         var controller = GetUrlCasing($"{ViewContext.RouteData.Values["controller"]}");
         var page = GetUrlCasing($"{ViewContext.RouteData.Values["page"]}").Replace("/-", string.Empty);
         var action = GetUrlCasing($"{ViewContext.RouteData.Values["action"]}");
+        var extras = string.Empty;
+        if (ViewContext.ViewData.ContainsKey("body-css-class")) {
+            extras = GetUrlCasing($"{ViewContext.ViewData["body-css-class"]}");
+        }
         if (action == "index") {
             action = string.Empty;
         }
@@ -33,7 +37,7 @@ public class RouteStylesTagHelper : TagHelper
         if (output.Attributes.TryGetAttribute("class", out var css)) {
             classList = css.Value.ToString().Split(' ').ToList();
         }
-        var pageSpecificClasses = new List<string> { area, controller, action, page };
+        var pageSpecificClasses = new List<string> { area, controller, action, page, extras };
         classList.AddRange(pageSpecificClasses.Where(x => !string.IsNullOrWhiteSpace(x)).Distinct());
         output.Attributes.SetAttribute("class", string.Join(" ", classList));
     }
