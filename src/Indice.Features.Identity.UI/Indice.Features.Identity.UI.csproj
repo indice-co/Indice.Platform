@@ -15,4 +15,10 @@
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
     <ProjectReference Include="..\Indice.Features.Identity.UI.Assets\Indice.Features.Identity.UI.Assets.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="Pages\Error.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

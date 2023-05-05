@@ -117,18 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Agents Portal" xml:space="preserve">
-    <value>Πύλη συνεργατών</value>
-  </data>
-  <data name="Clients Portal" xml:space="preserve">
-    <value>Πύλη πελατών</value>
-  </data>
-  <data name="Group Policies" xml:space="preserve">
-    <value>Ομαδική Ασφάλιση</value>
-  </data>
-  <data name="Intranet" xml:space="preserve">
-    <value>Intranet</value>
-  </data>
   <data name="Sign in" xml:space="preserve">
     <value>Είσοδος</value>
   </data>
