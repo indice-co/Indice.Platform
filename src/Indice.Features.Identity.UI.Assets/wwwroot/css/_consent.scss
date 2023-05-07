@@ -6,7 +6,7 @@ body {
         .container {
             padding: 20px;
             border-radius: 10px;
-          box-shadow:none;
+            box-shadow: none;
 
             @include phone {
                 box-shadow: none;
@@ -78,8 +78,8 @@ body {
     .list-group-item {
         background: linear-gradient(135deg, #FFFFFF 0%, #f3f6f8 100%);
 
-        .form-check-label{
-            flex-direction:row;
+        .form-check-label {
+            flex-direction: row;
         }
     }
 }

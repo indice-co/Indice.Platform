@@ -14,7 +14,7 @@ public class ScopeViewModel
     public string Description { get; set; }
     /// <summary>Should make the scope stand out.</summary>
     public bool Emphasize { get; set; }
-    /// <summary>Can deselect the scope on the consent screen or not.</summary>
+    /// <summary>Can unselect the scope on the consent screen or not.</summary>
     public bool Required { get; set; }
     /// <summary>Is preselected.</summary>
     public bool Checked { get; set; }
