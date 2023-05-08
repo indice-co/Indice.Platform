@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text;
 using IdentityModel;
+using IdentityServer4.Services;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
@@ -9,26 +10,32 @@ using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the external login screen.</summary>
+[IdentityUI(typeof(AssociateModel))]
 [SecurityHeaders]
-public class BaseAssociateModel : BasePageModel
+public abstract class BaseAssociateModel : BasePageModel
 {
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly ExtendedUserManager<User> _userManager;
+    private readonly IdentityUIOptions _options;
 
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+    /// <param name="options">Identity ui options</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseAssociateModel(
         ExtendedSignInManager<User> signInManager,
-        ExtendedUserManager<User> userManager
+        ExtendedUserManager<User> userManager,
+        IOptions<IdentityUIOptions> options
     ) : base() {
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _options = options?.Value ?? new IdentityUIOptions();
     }
 
     /// <summary>The view model that backs the external provider association page.</summary>
@@ -39,7 +46,7 @@ public class BaseAssociateModel : BasePageModel
     public AssociateInputModel Input { get; set; } = new AssociateInputModel();
 
     /// <summary>Associate page GET handler.</summary>
-    public IActionResult OnGet() {
+    public async Task<IActionResult> OnGet() {
         // if i got here then there was an external login for a new user not present in the database.
         // This following view will help to review the data coming in before proceeding with the user provisioning.
         var associateViewModel = TempData.Peek<AssociateViewModel>("UserDetails");
@@ -47,16 +54,16 @@ public class BaseAssociateModel : BasePageModel
             return RedirectToPage("Login");
         }
         Input = View = associateViewModel;
+        if (_options.AutoProvisionExternalUsers) {
+            return await OnPostAsync();
+        }
+
         return Page();
     }
 
     /// <summary>Associate page POST handler.</summary>
-    public async Task<IActionResult> OnPostAsync(string? returnUrl) {
+    public virtual async Task<IActionResult> OnPostAsync() {
         if (!ModelState.IsValid) {
-            var associateViewModel = TempData.Peek<AssociateViewModel>("UserDetails");
-            if (associateViewModel is null) {
-                return RedirectToPage("Login");
-            }
             return Page();
         }
         var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
@@ -73,14 +80,33 @@ public class BaseAssociateModel : BasePageModel
         claims.Add(new Claim(BasicClaimTypes.ConsentTerms, Input.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower()));
         claims.Add(new Claim(BasicClaimTypes.ConsentTermsDate, $"{DateTime.UtcNow:O}"));
         claims.Add(new Claim(BasicClaimTypes.ConsentCommencialDate, $"{DateTime.UtcNow:O}"));
-        var user = await ProvisionExternalUser(Input.UserName, Input.PhoneNumber, claims);
+        await AddExtraClaims(claims);
+        var user = await FindOrCreateUser(Input.UserName, Input.PhoneNumber, claims);
         await _userManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.ProviderDisplayName ?? externalLoginInfo.LoginProvider));
         return RedirectToPage("Challenge", "Callback", new { 
             returnUrl = Input.ReturnUrl 
         });
     }
 
-    private async Task<User> ProvisionExternalUser(string? userName, string? phoneNumber, List<Claim> claims) {
+    /// <summary>
+    /// Will be called each time a new user is going to be provisioned.
+    /// Can implement custom input model or Temp Data model form an OnBoarding process 
+    /// to drive the additional claims needed.
+    /// </summary>
+    /// <param name="userClaims">The collection of claims on the user.</param>
+    /// <returns></returns>
+    public abstract Task AddExtraClaims(List<Claim> userClaims);
+
+    /// <summary>
+    /// Provision External user
+    /// </summary>
+    /// <param name="userName">The username</param>
+    /// <param name="phoneNumber">The phone number</param>
+    /// <param name="claims">Additional claims</param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    [NonAction]
+    protected async Task<User> FindOrCreateUser(string? userName, string? phoneNumber, List<Claim> claims) {
         var emailClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email);
         if (emailClaim is not null) {
             claims.Remove(emailClaim);
@@ -93,12 +119,17 @@ public class BaseAssociateModel : BasePageModel
         var familyNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName);
         var email = emailClaim?.Value;
         if (!string.IsNullOrWhiteSpace(email)) {
+            // try find existing user 
             var user = await _userManager.FindByEmailAsync(email);
-            if (user is not null && !user.EmailConfirmed) {
-                await SendConfirmationEmail(user);
-                throw new Exception("User exists as a local account but the email is not yet confirmed. If you are the owner please confirm your email first so that the accounts can be merged.");
+            if (user is not null) {
+                if (!user.EmailConfirmed) { 
+                    await SendConfirmationEmail(user);
+                    throw new Exception("User exists as a local account but the email is not yet confirmed. If you are the owner please confirm your email first so that the accounts can be merged.");
+                }
+                return user;
             }
         }
+        // new user flow
         var userId = Guid.NewGuid().ToString();
         var newUser = new User(userName, userId) {
             Email = email,
@@ -126,4 +157,18 @@ public class BaseAssociateModel : BasePageModel
         }
         return newUser;
     }
+}
+
+internal class AssociateModel : BaseAssociateModel
+{
+    public AssociateModel(
+        ExtendedSignInManager<User> signInManager,
+        ExtendedUserManager<User> userManager,
+        IOptions<IdentityUIOptions> options
+    ) : base(signInManager, userManager, options) {
+    
+    }
+
+    public override Task AddExtraClaims(List<Claim> userClaims) 
+        => Task.CompletedTask; // nothing todo.
 }

@@ -22,20 +22,10 @@ body {
         }
 
         .container {
-            .sign-in {
-                padding: 48px 40px 36px;
+            .identity-panel {
                 height: auto;
-                transition: .2s;
-                box-shadow: 0 10px 25px rgba(0,0,0,.3);
+                min-height: auto;
                 border-radius: 10px;
-                color: $gray-900;
-                background: white;
-                max-width: 100%;
-
-                @include phone {
-                    box-shadow: none;
-                    padding: 28px 20px 16px;
-                }
             }
         }
     }
