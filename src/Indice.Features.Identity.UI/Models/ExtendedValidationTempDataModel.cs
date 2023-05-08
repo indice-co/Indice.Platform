@@ -1,6 +1,6 @@
 ﻿namespace Indice.Features.Identity.UI.Models;
 
-/// <summary>Temp Data model for passing around state between views via cookies in extended validation.</summary>
+/// <summary>Temp data model for passing around state between views via cookies in extended validation.</summary>
 public class ExtendedValidationTempDataModel
 {
     /// <summary>The current user id.</summary>
