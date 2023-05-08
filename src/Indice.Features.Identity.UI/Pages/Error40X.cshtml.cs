@@ -12,11 +12,24 @@ namespace Indice.Features.Identity.UI.Pages;
 [IdentityUI(typeof(Error40XModel))]
 public abstract class BaseError40XModel : PageModel
 {
+    private readonly ILogger<BaseError40XModel> _logger;
+    
+    /// <summary>Will propagate to body class</summary>
+    [ViewData]
+    public string BodyCssClass { get; set; } = "identity-page error-page";
+
     /// <summary>Creates a new instance of <see cref="BaseError40XModel"/> class.</summary>
     /// <param name="logger">Represents a type used to perform logging.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public BaseError40XModel(ILogger<BaseError40XModel> logger) { }
+    public BaseError40XModel(ILogger<BaseError40XModel> logger) {
+        _logger = logger;
+    }
 
+
+    /// <summary>The request id</summary>
+    public string? RequestId { get; set; }
+    /// <summary>Should show the request id</summary>
+    public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     /// <summary>Error messages to description mapping.</summary>
     public Dictionary<int, Error40XMessage> ErrorMessages => new() {
         [400] = new("Bad Request", "You request does not seem to be valid."),
