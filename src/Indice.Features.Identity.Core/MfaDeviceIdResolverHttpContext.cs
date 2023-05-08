@@ -20,10 +20,18 @@ public class MfaDeviceIdResolverHttpContext : IMfaDeviceIdResolver
     /// <inheritdoc />
     public Task<MfaDeviceIdentifier> Resolve() {
         var request = _httpContextAccessor.HttpContext?.Request;
-        if (request is not null && request.HasFormContentType && (request.Form.TryGetValue("DeviceId", out var deviceId) || request.Form.TryGetValue(RegistrationRequestParameters.DeviceId, out deviceId))) {
+        if (request is not null && request.HasFormContentType && (
+            request.Form.TryGetValue("DeviceId", out var deviceId) ||
+            request.Form.TryGetValue("Input.DeviceId", out deviceId) ||
+            request.Form.TryGetValue(RegistrationRequestParameters.DeviceId, out deviceId))
+        ) {
             return Task.FromResult(new MfaDeviceIdentifier(deviceId));
         }
-        if (request is not null && request.HasFormContentType && request.Form.TryGetValue(RegistrationRequestParameters.RegistrationId, out var registrationIdText) && Guid.TryParse(registrationIdText, out var registrationId)) {
+        if (request is not null &&
+            request.HasFormContentType &&
+            request.Form.TryGetValue(RegistrationRequestParameters.RegistrationId, out var registrationIdText) &&
+            Guid.TryParse(registrationIdText, out var registrationId)
+        ) {
             return Task.FromResult(new MfaDeviceIdentifier(null, registrationId));
         }
         return Task.FromResult(new MfaDeviceIdentifier(null));

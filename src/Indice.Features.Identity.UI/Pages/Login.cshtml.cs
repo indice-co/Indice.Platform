@@ -73,6 +73,7 @@ public abstract class BaseLoginModel : BasePageModel
     public string? UserName => User.FindFirstValue(JwtClaimTypes.Name);
     /// <summary>Login view model.</summary>
     public LoginViewModel View { get; set; } = new LoginViewModel();
+    
     /// <summary>Login input model data.</summary>
     [BindProperty]
     public LoginInputModel Input { get; set; } = new LoginInputModel();
@@ -151,10 +152,10 @@ public abstract class BaseLoginModel : BasePageModel
                 await Events.RaiseAsync(new UserLoginFailureEvent(Input.UserName, "User locked out."));
                 ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
             }
-            var redirectResult = GetRedirectToPageResult(result, Input.ReturnUrl);
-            if (redirectResult is not null && user is not null) {
+            var redirectUrl = GetRedirectUrl(result, Input.ReturnUrl);
+            if (redirectUrl is not null && user is not null) {
                 await Events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
-                return redirectResult;
+                return Redirect(redirectUrl);
             }
             Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", UserName);
             await Events.RaiseAsync(new UserLoginFailureEvent(Input.UserName, "Invalid credentials."));

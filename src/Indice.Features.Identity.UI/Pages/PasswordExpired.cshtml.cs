@@ -64,13 +64,12 @@ public abstract class BasePasswordExpiredModel : BasePageModel
             return Page();
         }
         await _userManager.SetPasswordExpiredAsync(user, false);
-        var infoMessage = _localizer["Your password has been changed successfully. Please press the 'Next' button to continue."];
         if (_userManager.StateProvider.CurrentState == UserState.LoggedIn) {
             await AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
         }
         var redirectUrl = GetRedirectUrl(_userManager.StateProvider.CurrentState, Input.ReturnUrl);
-        TempData.Put(nameof(infoMessage), new ExtendedValidationTempDataModel {
-            Alert = AlertModel.Success(infoMessage),
+        TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
+            Alert = AlertModel.Success(_localizer["Your password has been changed successfully. Please press the 'Next' button to continue."]),
             DisableForm = true,
             NextStepUrl = redirectUrl
         });

@@ -31,21 +31,21 @@ public abstract class BasePageModel : PageModel
     /// <summary>Gets the page to redirect based on the <see cref="SignInResult"/>.</summary>
     /// <param name="result">Represents the result of a sign-in operation.</param>
     /// <param name="returnUrl">The return URL.</param>
-    public RedirectToPageResult? GetRedirectToPageResult(SignInResult result, string? returnUrl = null) {
-        RedirectToPageResult? redirectResult = null;
+    public string? GetRedirectUrl(SignInResult result, string? returnUrl = null) {
+        string? url = null;
         var extendedResult = result as ExtendedSignInResult;
         if (extendedResult?.RequiresPasswordChange() == true) {
-            redirectResult = RedirectToPage("PasswordExpired", new { returnUrl });
+            url = Url.PageLink("PasswordExpired", values: new { returnUrl });
         } else if (extendedResult?.RequiresEmailConfirmation() == true) {
-            redirectResult = RedirectToPage("AddEmail", new { returnUrl });
+            url = Url.PageLink("AddEmail", values: new { returnUrl });
         } else if (extendedResult?.RequiresPhoneNumberConfirmation() == true) {
-            redirectResult = RedirectToPage("AddPhone", new { returnUrl });
+            url = Url.PageLink("AddPhone", values: new { returnUrl });
         } else if (result.RequiresTwoFactor) {
-            redirectResult = RedirectToPage("Mfa", new { returnUrl });
+            url = Url.PageLink("Mfa", values: new { returnUrl });
         } else if (result.RequiresMfaOnboarding()) {
-            redirectResult = RedirectToPage("MfaOnboarding", new { returnUrl });
+            url = Url.PageLink("MfaOnboarding", values: new { returnUrl });
         }
-        return redirectResult;
+        return url;
     }
 
     /// <summary>>Gets the page to redirect based on the <see cref="UserState"/>.</summary>

@@ -73,9 +73,9 @@ public abstract class BaseChallengeModel : BasePageModel
         // Save user tokes retrieved from external provider.
         await _signInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
         var result = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, isPersistent: true);
-        var redirectResult = GetRedirectToPageResult(result, returnUrl);
-        if (redirectResult is not null) {
-            return redirectResult;
+        var redirectUrl = GetRedirectUrl(result, returnUrl);
+        if (redirectUrl is not null) {
+            return Redirect(redirectUrl);
         }
         // Check if external login is in the context of an OIDC request.
         var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
@@ -88,12 +88,9 @@ public abstract class BaseChallengeModel : BasePageModel
         return Redirect(returnUrl);
     }
 
-    /// <summary>
-    /// This is called whenever a user is not found by an associated external identity provider.
-    /// </summary>
-    /// <param name="externalLoginInfo"></param>
-    /// <param name="returnUrl"></param>
-    /// <returns></returns>
+    /// <summary>This is called whenever a user is not found by an associated external identity provider.</summary>
+    /// <param name="externalLoginInfo">Represents login information, source and externally source principal for a user record.</param>
+    /// <param name="returnUrl">The return URL.</param>
     [NonAction]
     protected virtual async Task<IActionResult> UserNotFound(ExternalLoginInfo externalLoginInfo, string returnUrl) {
         await Task.CompletedTask;

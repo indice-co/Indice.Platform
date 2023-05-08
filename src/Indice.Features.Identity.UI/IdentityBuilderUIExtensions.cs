@@ -4,6 +4,7 @@ using FluentValidation.AspNetCore;
 using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.Assets;
 using Indice.Features.Identity.UI.Localization;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 
@@ -19,6 +20,7 @@ public static class IdentityBuilderUIExtensions
     public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration, Action<IdentityUIOptions>? configureAction = null) {
         services.Configure<IdentityUIOptions>(configuration);
         services.PostConfigure<IdentityUIOptions>(options => configureAction?.Invoke(options));
+        services.Configure<AntiforgeryOptions>(options => options.HeaderName = "X-XSRF-TOKEN");
         // Post configure razor pages options.
         services.ConfigureOptions(typeof(IdentityUIRazorPagesConfigureOptions));
         services.ConfigureOptions(typeof(IdentityUIStaticFileConfigureOptions));
