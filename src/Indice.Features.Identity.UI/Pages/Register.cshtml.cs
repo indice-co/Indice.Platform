@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -26,6 +27,7 @@ public abstract class BaseRegisterModel : BasePageModel
     private readonly IClientStore _clientStore;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<BaseRegisterModel> _logger;
+    private readonly IdentityUIOptions _options;
 
     /// <summary></summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
@@ -33,19 +35,22 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <param name="clientStore">Retrieval of client configuration.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="logger">A generic interface for logging.</param>
+    /// <param name="options">UI options</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseRegisterModel(
         ExtendedUserManager<User> userManager,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
-        ILogger<BaseRegisterModel> logger
+        ILogger<BaseRegisterModel> logger,
+        IOptions<IdentityUIOptions> options
     ) {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
         _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
         _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _options = options?.Value ?? new IdentityUIOptions();
     }
 
     /// <summary>The view model for registration page.</summary>
@@ -58,6 +63,9 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <summary>Registration page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync(string? returnUrl = null) {
+        if (!_options.EnableRegisterPage) {
+            return Redirect("/404");
+        }
         View = await BuildRegisterViewModelAsync(returnUrl);
         if (View.IsExternalRegistrationOnly) {
             return RedirectToPage("External", new {
@@ -70,6 +78,9 @@ public abstract class BaseRegisterModel : BasePageModel
 
     /// <summary>Registration page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
+        if (!_options.EnableRegisterPage) {
+            return Redirect("/404");
+        }
         if (!ModelState.IsValid) {
             return Page();
         }
@@ -193,6 +204,7 @@ internal class RegisterModel : BaseRegisterModel
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
-        ILogger<RegisterModel> logger
-    ) : base(userManager, schemeProvider, clientStore, interaction, logger) { }
+        ILogger<RegisterModel> logger,
+        IOptions<IdentityUIOptions> options
+    ) : base(userManager, schemeProvider, clientStore, interaction, logger, options) { }
 }

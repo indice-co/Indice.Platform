@@ -28,4 +28,13 @@ public class IdentityUIOptions
 
     /// <summary>Controls whether an external Identity user be associated to an existing one using the email account</summary>
     public bool AutoAssociateExternalUsers { get; set; } = true;
+
+    /// <summary>Controls whether The self service /register page is accessible</summary>
+    public bool EnableRegisterPage { get; set; } = true;
+    /// <summary>Controls whether The self service /forgot-password page is accessible</summary>
+    public bool EnableForgotPasswordPage { get; set; } = true;
+    /// <summary>Allow remember login.</summary>
+    public bool AllowRememberLogin { get; set; } = true;
+    /// <summary>Enables local logins (if false only external provider list will be available).</summary>
+    public bool EnableLocalLogin { get; set; } = true;
 }

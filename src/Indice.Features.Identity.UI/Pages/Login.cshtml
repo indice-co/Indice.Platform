@@ -3,10 +3,11 @@
 @model BaseLoginModel
 
 @inject IIdentityViewLocalizer Localizer
+@inject IOptions<IdentityUIOptions> Options
 
 @{
-    var displayRegistrationLinks = true;
-    var displayForgotPasswordLinks = true;
+    var displayRegistrationLinks = Options.Value.EnableRegisterPage;
+    var displayForgotPasswordLinks = Options.Value.EnableForgotPasswordPage;
     var title = ViewData["Title"] = Localizer["Login"].Value;
 }
 
