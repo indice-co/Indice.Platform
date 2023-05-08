@@ -2,6 +2,7 @@
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Indice.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -33,8 +34,7 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
         RuleFor(x => x.UserName).UserName(identityOptions.Value.User).WithName(_localizer["Username"]).WithMessage(_localizer["Field '{PropertyName}' can accept digits, uppercase or lowercase latin characters and the symbols -._@+"]);
         RuleFor(x => x.UserName).Must(UserNameNotBeAssignedToAnotherUser).WithMessage(_localizer["This username already exists. Please use a different one."]);
         RuleFor(x => x.Password).NotEmpty().WithName(_localizer["Password"]);
-        RuleFor(x => x.PhoneNumber).Length(10).WithName(_localizer["Mobile phone"]);
-        RuleFor(x => x.PhoneNumber).Must(p => string.IsNullOrEmpty(p) || p.StartsWith("69")).WithMessage(_localizer["Mobile phone must start with '69' and have 10 digits."]);
+        RuleFor(x => x.PhoneNumber).GreekPhoneNumber().WithMessage(_localizer["Mobile phone must start with '69' and have 10 digits."]);
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
         RuleFor(x => x.Email).Must(EmailNotBeAssignedToAnotherUser).WithMessage(_localizer["This email already exists. Please use a different email."]);
         RuleFor(x => x.HasAcceptedTerms).Equal(true).WithMessage(_localizer["You must accept the service 'terms of use'."]);

@@ -1,10 +1,10 @@
 ﻿namespace Indice.Features.Identity.UI.Models;
 
-/// <summary></summary>
+/// <summary>The input model that backs the add email page.</summary>
 public class AddEmailInputModel
 {
-    /// <summary></summary>
+    /// <summary>The email address.</summary>
     public string? Email { get; set; }
-    /// <summary></summary>
+    /// <summary>The return URL.</summary>
     public string? ReturnUrl { get; set; }
 }

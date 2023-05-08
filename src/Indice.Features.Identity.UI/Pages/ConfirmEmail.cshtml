@@ -20,7 +20,11 @@
         else
         {
             <partial name="_PageHeader" model="errorMessage" />
-            <p>@Localizer["If you feel you got this error by mistake, simply click the button below to sign in or go back."]</p>
+            <p>
+                @Localizer["If you feel you got this error by mistake, simply click"] 
+                <a asp-page="Home">@Localizer["here"]</a> 
+                @Localizer["to sign in or go back."]
+            </p>
         }
     </article>
 </section>
