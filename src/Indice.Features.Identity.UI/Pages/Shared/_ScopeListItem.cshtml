@@ -1,4 +1,5 @@
 ﻿@inject IMarkdownProcessor Markdown
+@inject IIdentityViewLocalizer Localizer
 
 @model ScopeViewModel
 
@@ -11,9 +12,7 @@
             {
                 <input type="hidden" name="Input.ScopesConsented" value="@Model.Value" />
             }
-            <strong>
-                @Model.DisplayName
-            </strong>
+            <strong>@(!string.IsNullOrWhiteSpace(Model.DisplayName) ? Localizer[Model.DisplayName] : string.Empty)</strong>
             @if (Model.Emphasize)
             {
                 <span class="glyphicon glyphicon-exclamation-sign"></span>
@@ -22,9 +21,9 @@
     </div>
     @if (Model.Required)
     {
-        <span><em>(required)</em></span>
+        <span><em>(@Localizer["required"])</em></span>
     }
-    @if (Model.Description != null)
+    @if (Model.Description is not null)
     {
         <div class="consent-description">
             <label for="scopes_@Model.Value">@Html.Raw(Markdown.Convert(Model.Description))</label>

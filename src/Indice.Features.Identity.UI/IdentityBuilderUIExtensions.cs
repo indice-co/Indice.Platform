@@ -1,8 +1,9 @@
-﻿using FluentValidation;
+﻿using System.Reflection;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.Features.Identity.UI;
+using Indice.Features.Identity.UI.Assets;
 using Indice.Features.Identity.UI.Localization;
-using Indice.Features.Identity.UI.Validators;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 
@@ -14,11 +15,15 @@ public static class IdentityBuilderUIExtensions
     /// <summary>Adds the required services and pages for Identity UI pages features.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration) {
+    /// <param name="configureAction">Configure action.</param>
+    public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration, Action<IdentityUIOptions>? configureAction = null) {
+        services.Configure<IdentityUIOptions>(configuration);
+        services.PostConfigure<IdentityUIOptions>(options => configureAction?.Invoke(options));
         // Post configure razor pages options.
-        services.ConfigureOptions(typeof(IdentityUIConfigureOptions));
+        services.ConfigureOptions(typeof(IdentityUIRazorPagesConfigureOptions));
+        services.ConfigureOptions(typeof(IdentityUIStaticFileConfigureOptions));
         // Configure FluentValidation.
-        services.AddValidatorsFromAssemblyContaining<LoginInputModelValidator>();
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddFluentValidationAutoValidation(config => {
             config.DisableDataAnnotationsValidation = true;
         });

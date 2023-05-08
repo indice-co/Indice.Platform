@@ -49,7 +49,7 @@ public abstract class BaseRegisterModel : BasePageModel
     }
 
     /// <summary>The view model for registration page.</summary>
-    public RegisterViewModel ViewModel { get; set; } = new RegisterViewModel();
+    public RegisterViewModel View { get; set; } = new RegisterViewModel();
 
     /// <summary>Registration input model data.</summary>
     [BindProperty]
@@ -58,10 +58,10 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <summary>Registration page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync(string? returnUrl = null) {
-        ViewModel = await BuildRegisterViewModelAsync(returnUrl);
-        if (ViewModel.IsExternalRegistrationOnly) {
+        View = await BuildRegisterViewModelAsync(returnUrl);
+        if (View.IsExternalRegistrationOnly) {
             return RedirectToPage("External", new {
-                provider = ViewModel.ExternalRegistrationScheme,
+                provider = View.ExternalRegistrationScheme,
                 returnUrl
             });
         }
@@ -74,9 +74,9 @@ public abstract class BaseRegisterModel : BasePageModel
             return Page();
         }
         var user = CreateUserFromInput(Input);
-        var result = await _userManager.CreateAsync(user, Input.Password);
+        var result = await _userManager.CreateAsync(user, Input.Password ?? throw new InvalidOperationException("User password cannot be null."));
         if (!result.Succeeded) {
-            ViewModel = await BuildRegisterViewModelAsync(Input.ReturnUrl);
+            View = await BuildRegisterViewModelAsync(Input.ReturnUrl);
             AddModelErrors(result);
             return Page();
         }
@@ -193,6 +193,6 @@ internal class RegisterModel : BaseRegisterModel
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
-        ILogger<BaseRegisterModel> logger
+        ILogger<RegisterModel> logger
     ) : base(userManager, schemeProvider, clientStore, interaction, logger) { }
 }

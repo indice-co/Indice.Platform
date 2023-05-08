@@ -1,0 +1,32 @@
+﻿@import '_colors';
+@import '_mixins';
+
+body {
+    &.home {
+        .header-logo {
+            img {
+                max-height: 100px;
+
+                &.hero {
+                    max-height: 200px;
+                }
+
+                @include phone {
+                    max-height: 60px;
+                }
+            }
+        }
+
+        .paragraph-block {
+            padding-bottom: 12px;
+        }
+
+        .container {
+            .identity-panel {
+                height: auto;
+                min-height: auto;
+                border-radius: 10px;
+            }
+        }
+    }
+}

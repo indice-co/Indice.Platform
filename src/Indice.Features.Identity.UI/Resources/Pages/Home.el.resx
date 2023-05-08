@@ -117,8 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Check and revoke your &lt;a class=\&quot;reference external\&quot; href=\&quot;/grants\&quot;&gt;authorized applications&lt;/a&gt;." xml:space="preserve">
-    <value>Διαχειριστείτε τις &lt;a class="reference external" href="/grants"&gt;προσβάσεις&lt;/a&gt; που έχετε δώσει σε τρίτες εφαρμογές</value>
+  <data name="authorized applications" xml:space="preserve">
+    <value>εξουσιοδοτημένες εφαρμογές σας</value>
+  </data>
+  <data name="Check and revoke your" xml:space="preserve">
+    <value>Ελέγξτε και ανακαλέστε τις</value>
   </data>
   <data name="here" xml:space="preserve">
     <value>εδώ</value>

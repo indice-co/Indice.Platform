@@ -123,6 +123,9 @@
   <data name="Invalid login request" xml:space="preserve">
     <value>Μη έγκυρο αίτημα σύνδεσης</value>
   </data>
+  <data name="Join us" xml:space="preserve">
+    <value>Νέος χρήστης</value>
+  </data>
   <data name="Login" xml:space="preserve">
     <value>Είσοδος</value>
   </data>
@@ -131,9 +134,6 @@
   </data>
   <data name="Password" xml:space="preserve">
     <value>Κωδικός</value>
-  </data>
-  <data name="Please check your credentials." xml:space="preserve">
-    <value>Παρακαλώ ελέξτε τα στοιχεία εισόδου σας.</value>
   </data>
   <data name="Remember me" xml:space="preserve">
     <value>Να με θυμάσαι</value>

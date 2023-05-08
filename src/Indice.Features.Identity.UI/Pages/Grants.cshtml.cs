@@ -40,11 +40,11 @@ public abstract class BaseGrantsModel : PageModel
     }
 
     /// <summary></summary>
-    public GrantsViewModel ViewModel { get; set; } = new GrantsViewModel();
+    public GrantsViewModel View { get; set; } = new GrantsViewModel();
 
     /// <summary>Grants page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
-        ViewModel = await BuildViewModelAsync();
+        View = await BuildViewModelAsync();
         return Page();
     }
 

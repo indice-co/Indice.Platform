@@ -1,32 +1,33 @@
 ﻿@page "/login/add-email"
 
-@model AddEmailPageModel
+@model BaseAddEmailModel
 
 @inject IIdentityViewLocalizer Localizer
 
 @{
     var title = ViewData["Title"] = Localizer["Verify email"].Value;
+    var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
 }
 
 <div class="sign-in m-auto">
     <partial name="_PageHeader" model="title" />
     <partial name="_ValidationSummary" />
-    <partial name="_Alert" model="Model.UiHint.Alert" />
-    <form asp-asp-page="AddEmail" asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+    <partial name="_Alert" model="tempData.Alert" />
+    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="POST">
         <div class="form-group">
             <label asp-for="Input.Email" class="sr-only">@Localizer["Email"]</label>
-            <input class="form-control" type="text" placeholder="@Localizer["Email"]" asp-for="Input.Email" disabled="@Model.UiHint.DisableForm" />
+            <input class="form-control" type="text" placeholder="@Localizer["Email"]" asp-for="Input.Email" disabled="@tempData.DisableForm" />
             <span asp-validation-for="Input.Email" class="text-danger"></span>
         </div>
         <div class="form-group">
             <div class="form-row m-0 w-100">
-                <div class="@(Model.UiHint.DisableForm ? "col-sm-6" : String.Empty) col-12 py-1">
-                    <button class="btn btn-info btn-block" type="submit" disabled="@Model.UiHint.DisableForm">@Localizer["Save"]</button>
+                <div class="@(tempData.DisableForm ? "col-sm-6" : String.Empty) col-12 py-1">
+                    <button class="btn btn-info btn-block" type="submit" disabled="@tempData.DisableForm">@Localizer["Save"]</button>
                 </div>
-                @if (Model.UiHint.DisableForm || !string.IsNullOrEmpty(Model.UiHint.NextStepUrl))
+                @if (tempData.DisableForm || !string.IsNullOrEmpty(tempData.NextStepUrl))
                 {
                     <div class="col-sm-6 col-12 py-1">
-                        <a class="btn btn-info btn-block" href="@Model.UiHint.NextStepUrl">@Localizer["Next"]</a>
+                        <a class="btn btn-info btn-block" href="@tempData.NextStepUrl">@Localizer["Next"]</a>
                     </div>
                 }
             </div>

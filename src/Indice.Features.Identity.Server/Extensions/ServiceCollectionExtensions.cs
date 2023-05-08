@@ -155,7 +155,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction"></param>
     public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder, Action<ExtendedEndpointOptions>? configureAction = null) {
-        var options = new ExtendedEndpointOptions();
+        
         builder.Services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName); // Configure anti-forgery token options.
         builder.Services.Configure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, builder.Configuration);
         builder.Services.PostConfigure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, options => configureAction?.Invoke(options));

@@ -1,25 +1,36 @@
-﻿using Indice.Services;
+﻿using System;
+using System.Net.Http;
+using Indice.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.TagHelpers;
 
 /// <summary>Markdown tag helper.</summary>
 public class MdTagHelper : TagHelper
 {
-    private IWebHostEnvironment env;
-    private ILogger<MdTagHelper> logger;
-    private IMarkdownProcessor markdownProcessor;
+    private IWebHostEnvironment _env;
+    private readonly ILogger<MdTagHelper> _logger;
+    private readonly IMarkdownProcessor _markdownProcessor;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IFileProvider _fileProvider;
 
     /// <summary>constructs the helper</summary>
     /// <param name="env"></param>
     /// <param name="logger"></param>
     /// <param name="markdownProcessor"></param>
-    public MdTagHelper(IWebHostEnvironment env, ILogger<MdTagHelper> logger, IMarkdownProcessor markdownProcessor) {
-        this.env = env ?? throw new ArgumentNullException(paramName: nameof(env));
-        this.logger = logger ?? throw new ArgumentNullException(paramName: nameof(logger));
-        this.markdownProcessor = markdownProcessor ?? throw new ArgumentNullException(paramName: nameof(markdownProcessor));
+    /// <param name="httpClientFactory"></param>
+    /// <param name="staticFileOptions"></param>
+    public MdTagHelper(IWebHostEnvironment env, ILogger<MdTagHelper> logger, IMarkdownProcessor markdownProcessor, IHttpClientFactory httpClientFactory, IOptions<StaticFileOptions> staticFileOptions) {
+        _env = env ?? throw new ArgumentNullException(paramName: nameof(env));
+        _logger = logger ?? throw new ArgumentNullException(paramName: nameof(logger));
+        _markdownProcessor = markdownProcessor ?? throw new ArgumentNullException(paramName: nameof(markdownProcessor));
+        _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+        _fileProvider = staticFileOptions?.Value?.FileProvider;
     }
 
     /// <summary>local server path</summary>
@@ -39,25 +50,22 @@ public class MdTagHelper : TagHelper
 
         if (Path != null) {
             try {
-                if (Path.StartsWith("~")) {
-                    Path = Path.Replace("~", env.WebRootPath);
-                }
-
-                using (var reader = File.OpenText(Path)) {
+                
+                var file = (_fileProvider ?? _env.WebRootFileProvider).GetFileInfo(Path.TrimStart('~', '/'));
+                using (var reader = new StreamReader(file.CreateReadStream())) {
                     md = await reader.ReadToEndAsync();
                 }
             } catch (Exception ex) {
                 md = $"Problem reading file at {Path}";
-                logger.LogError(eventId: 0, exception: ex, message: md);
+                _logger.LogError(eventId: 0, exception: ex, message: md);
             }
         } else if (HRef != null) {
             try {
-                using (var httpClient = new HttpClient()) {
-                    md = await httpClient.GetStringAsync(HRef);
-                }
+                var httpClient = _httpClientFactory.CreateClient();
+                md = await httpClient.GetStringAsync(HRef);
             } catch (Exception ex) {
                 md = $"Problem reading url {HRef}";
-                logger.LogError(eventId: 0, exception: ex, message: md);
+                _logger.LogError(eventId: 0, exception: ex, message: md);
             }
         } else if (Path == null && HRef == null) {
             var result = await output.GetChildContentAsync();
@@ -72,7 +80,7 @@ public class MdTagHelper : TagHelper
         }
 
         if (md != string.Empty) {
-            var mdAsHtml = markdownProcessor.Convert(md);
+            var mdAsHtml = _markdownProcessor.Convert(md);
             output.Content.AppendHtml(mdAsHtml);
         }
     }

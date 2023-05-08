@@ -2,6 +2,7 @@
 @inject IOptions<GeneralSettings> GeneralSettingsWrapper
 @inject IIdentityViewLocalizer Localizer
 @inject ExtendedSignInManager<User> SignInManager
+@inject ExtendedUserManager<User> UserManager
 
 @{
     var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
@@ -9,7 +10,7 @@
     var showRibbon = !Environment.IsProduction();
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
-    var userName = User.Claims.Where(x => x.Type == JwtClaimTypes.Name).FirstOrDefault()?.Value;
+    var user = await UserManager.GetUserAsync(User);
 }
 
 @if (displayMenu)
@@ -19,7 +20,7 @@
             <div class="container-fluid px-0">
                 <div class="d-flex flex-column align-items-center justify-content-center navbar-brand-wrapper">
                     <a class="navbar-brand d-flex align-items-center" href="~/">
-                        <img src="/identity-ui/img/logo@(langSuffix).svg" height="28" alt="">
+                        <img src="/img/logo@(langSuffix).svg" height="28" alt="">
                     </a>
                 </div>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-links" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -36,7 +37,14 @@
                             </div>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="ChangePassword">@Localizer["Change Password"]</a>
+                            @if (user is not null && await UserManager.HasPasswordAsync(user))
+                            {
+                                <a class="nav-link" asp-page="ChangePassword">@Localizer["Change Password"]</a>
+                            }
+                            else
+                            {
+                                <a class="nav-link" asp-page="AddPassword">@Localizer["Add Password"]</a>
+                            }
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-page="Profile">@Localizer["Profile"]</a>
@@ -67,9 +75,16 @@
                                             </div>
                                             <div class="account-details">
                                                 <div class="account-fullname text-truncate" title="@User.FindDisplayName()">@User.FindDisplayName()</div>
-                                                <div class="account-username text-truncate">@userName</div>
+                                                <div class="account-username text-truncate">@(user?.UserName ?? string.Empty)</div>
                                                 <div class="account-links">
-                                                    <a class="account-link" asp-page="ChangePassword">@Localizer["Change Password"]</a>
+                                                    @if (user is not null && await UserManager.HasPasswordAsync(user))
+                                                    {
+                                                        <a class="account-link" asp-page="ChangePassword">@Localizer["Change Password"]</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a class="account-link" asp-page="AddPassword">@Localizer["Add Password"]</a>
+                                                    }
                                                     <a class="account-link" asp-page="Profile">@Localizer["Profile"]</a>
                                                     <a class="account-link" asp-page="Grants">@Localizer["Grants"]</a>
                                                 </div>
@@ -117,7 +132,7 @@ else
             <div class="container px-0">
                 <div class="d-flex flex-column align-items-center justify-content-center navbar-brand-wrapper">
                     <a class="navbar-brand d-flex align-items-center" href="~/">
-                        <img src="/identity-ui/img/logo-dark-bg@(langSuffix).svg" height="60" alt="">
+                        <img src="/img/logo-dark-bg@(langSuffix).svg" height="60" alt="">
                     </a>
                 </div>
             </div>

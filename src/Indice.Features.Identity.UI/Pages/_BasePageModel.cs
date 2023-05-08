@@ -22,6 +22,9 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Base model class for pages containing some common utility methods.</summary>
 public abstract class BasePageModel : PageModel
 {
+    /// <summary>Will propagate to body class</summary>
+    [ViewData]
+    public string BodyCssClass { get; set; } = "identity-page";
     /// <summary>Defines a mechanism for retrieving a service object.</summary>
     protected IServiceProvider ServiceProvider => HttpContext.RequestServices;
 
@@ -71,7 +74,7 @@ public abstract class BasePageModel : PageModel
         }
     }
 
-    /// <summary>Sends an email, using the 'EmailRegister' page as template, containing a verification link for user's email.</summary>
+    /// <summary>Generates a registration email confirmation link and sends it to the email of the specified user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task SendConfirmationEmail(User user, string? returnUrl = null) {
@@ -81,10 +84,9 @@ public abstract class BasePageModel : PageModel
         var hostingEnvironment = ServiceProvider.GetRequiredService<IWebHostEnvironment>();
         if (!hostingEnvironment.IsDevelopment()) {
             var emailService = ServiceProvider.GetRequiredService<IEmailService>();
-            var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
             await emailService.SendAsync(message =>
                 message.To(user.Email)
-                       .WithSubject(localizer["Account confirmation"])
+                       .WithSubject("Account confirmation")
                        .UsingTemplate("EmailRegister")
                        .WithData(new {
                            user.UserName,
@@ -98,10 +100,10 @@ public abstract class BasePageModel : PageModel
         }
     }
 
-    /// <summary></summary>
-    /// <param name="user"></param>
-    /// <param name="newEmail"></param>
-    /// <param name="returnUrl"></param>
+    /// <summary>Generates a change email confirmation link and sends it to the email of the specified user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="newEmail">The new email of the user.</param>
+    /// <param name="returnUrl">The return URL.</param>
     public virtual async Task SendChangeEmailConfirmationEmail(User user, string newEmail, string? returnUrl = null) {
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var token = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
@@ -127,9 +129,25 @@ public abstract class BasePageModel : PageModel
         }
     }
 
-    /// <summary></summary>
-    /// <param name="user"></param>
-    /// <param name="scheme"></param>
+    /// <summary>Generates a TOTP code and sends it to the phone number of the specified user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="phoneNumber">The phone number.</param>
+    public virtual async Task SendVerificationSmsAsync(User user, string phoneNumber) {
+        var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
+        var code = await userManager.GenerateChangePhoneNumberTokenAsync(user, phoneNumber);
+        var hostingEnvironment = ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+        if (!hostingEnvironment.IsDevelopment()) {
+            var smsService = ServiceProvider.GetRequiredService<ISmsService>();
+            var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
+            await smsService.SendAsync(phoneNumber, localizer["Verify phone number"], localizer["OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES.", code]);
+        } else {
+            Debug.WriteLine($"OTP Code: {code}");
+        }
+    }
+
+    /// <summary>Automatically signs in the given user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="scheme">Authenticates the current request using the specified scheme.</param>
     public async Task<AuthenticationProperties?> AutoSignIn(User user, string scheme) {
         var authenticateResult = await HttpContext.AuthenticateAsync(scheme);
         AuthenticationProperties? authenticationProperties = default;

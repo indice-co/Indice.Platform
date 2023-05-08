@@ -1,0 +1,30 @@
+﻿@page "/confirm-email"
+
+@model BaseConfirmEmailModel
+
+@inject IIdentityViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Email Confirmation"];
+    var successMessage = Localizer["Your email has been successfully confirmed."].Value;
+    var errorMessage = Localizer["No action was taken."].Value;
+}
+
+<section class="border-0 confirm-email">
+    <article class="text-center">
+        @if (ViewContext.ModelState.IsValid)
+        {
+            <partial name="_PageHeader" model="successMessage" />
+            <p>@Localizer["You can now close this browse window."]</p>
+        }
+        else
+        {
+            <partial name="_PageHeader" model="errorMessage" />
+            <p>
+                @Localizer["If you feel you got this error by mistake, simply click"] 
+                <a asp-page="Home">@Localizer["here"]</a> 
+                @Localizer["to sign in or go back."]
+            </p>
+        }
+    </article>
+</section>

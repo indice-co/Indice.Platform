@@ -7,6 +7,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -66,17 +67,7 @@ public abstract class BaseChallengeModel : BasePageModel
         var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync() ?? throw new Exception($"Cannot read external login information from external provider.");
         var user = await _userManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
         if (user is null) {
-            var claims = externalLoginInfo.Principal.Claims.ToList();
-            TempData.Put("UserDetails", new AssociateViewModel {
-                UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value,
-                Email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ?? string.Empty,
-                FirstName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? string.Empty,
-                LastName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ?? string.Empty,
-                PhoneNumber = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.PhoneNumber)?.Value,
-                Provider = externalLoginInfo.LoginProvider,
-                ReturnUrl = returnUrl
-            });
-            return RedirectToPage("Associate");
+            return await UserNotFound(externalLoginInfo, returnUrl);
         }
         await _events.RaiseAsync(new UserLoginSuccessEvent(externalLoginInfo.LoginProvider, externalLoginInfo.Principal.GetSubjectId(), user.Id, user.UserName));
         // Save user tokes retrieved from external provider.
@@ -95,6 +86,28 @@ public abstract class BaseChallengeModel : BasePageModel
             }
         }
         return Redirect(returnUrl);
+    }
+
+    /// <summary>
+    /// This is called whenever a user is not found by an associated external identity provider.
+    /// </summary>
+    /// <param name="externalLoginInfo"></param>
+    /// <param name="returnUrl"></param>
+    /// <returns></returns>
+    [NonAction]
+    protected virtual async Task<IActionResult> UserNotFound(ExternalLoginInfo externalLoginInfo, string returnUrl) {
+        await Task.CompletedTask;
+        var claims = externalLoginInfo.Principal.Claims.ToList();
+        TempData.Put("UserDetails", new AssociateViewModel {
+            UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value,
+            Email = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email)?.Value ?? string.Empty,
+            FirstName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? string.Empty,
+            LastName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value ?? string.Empty,
+            PhoneNumber = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.PhoneNumber)?.Value,
+            Provider = externalLoginInfo.LoginProvider,
+            ReturnUrl = returnUrl
+        });
+        return RedirectToPage("Associate");
     }
 }
 

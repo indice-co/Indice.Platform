@@ -4,19 +4,19 @@
 public class RegisterInputModel
 {
     /// <summary>The first name.</summary>
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
     /// <summary>The last name.</summary>
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
     /// <summary>The username that will be used.</summary>
-    public string UserName { get; set; }
+    public string? UserName { get; set; }
     /// <summary>The password.</summary>
-    public string Password { get; set; }
+    public string? Password { get; set; }
     /// <summary>The password confirmed (optional).</summary>
-    public string PasswordConfirmation { get; set; }
+    public string? PasswordConfirmation { get; set; }
     /// <summary>The users email.</summary>
-    public string Email { get; set; }
+    public string? Email { get; set; }
     /// <summary>The users phone number. Usually used to store the mobile phone in order later on enable 2 factor authentication scenarios through SMS.</summary>
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
     /// <summary>The return URL is used to keep track of the original intent of the user when he landed on login and switched over to register.</summary>
     public string? ReturnUrl { get; set; }
     /// <summary>The privacy policy is read.</summary>

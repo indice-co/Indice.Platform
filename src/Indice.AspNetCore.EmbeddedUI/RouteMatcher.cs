@@ -13,8 +13,9 @@ internal class RouteMatcher
 
     public bool IsMatch(RoutePattern pattern, out IDictionary<string, string> resolvedParameters) {
         resolvedParameters = new Dictionary<string, string>();
-        if (pattern.RawText.Equals("/"))
+        if (pattern.RawText.Equals("/")) {
             return true;
+        }
         var requestPath = HttpContext.Request.Path.Value;
         var isValid = Uri.TryCreate($"https://example.com/{requestPath.Trim('/')}", UriKind.Absolute, out var requestUri);
         if (!isValid) {

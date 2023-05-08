@@ -14,10 +14,10 @@
 <h1 class="text-center display-4 p-sm-2 p-md-3 p-lg-4">
     @Localizer["Welcome to our Digital Services <strong>Portal</strong> of {0}", Settings.Organization]
 </h1>
-<section class="border-0 sign-in">
+<section class="border-0 identity-panel">
     <article class="text-center">
         <div class="header-logo d-xs-block d-sm-block d-md-none pb-5">
-            <img class="img-fluid" src="/identity-ui/img/logo@(langSuffix).svg" />
+            <img class="img-fluid" src="/img/logo@(langSuffix).svg" />
         </div>
         @if (!User.IsAuthenticated())
         {
@@ -42,7 +42,9 @@
             @await Html.PartialAsync("_ServiceDeck", Model.Services)
             <div class="paragraph-block text-left">
                 <h4>@Localizer["Manage your grants"]</h4>
-                <p class="lead">@Localizer["Check and revoke your <a class=\"reference external\" href=\"/grants\">authorized applications</a>."]</p>
+                <p class="lead">
+                    @Localizer["Check and revoke your"] <a asp-page="Grants" class="reference external">@Localizer["authorized applications"]</a>
+                </p>
             </div>
         }
     </article>
