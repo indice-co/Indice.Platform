@@ -38,12 +38,11 @@ public abstract class BasePageModel : PageModel
     /// <param name="returnUrl">The return URL.</param>
     public string? GetRedirectUrl(SignInResult result, string? returnUrl = null) {
         string? url = null;
-        var extendedResult = result as ExtendedSignInResult;
-        if (extendedResult?.RequiresPasswordChange() == true) {
+        if (result.RequiresPasswordChange()) {
             url = Url.PageLink("PasswordExpired", values: new { returnUrl });
-        } else if (extendedResult?.RequiresEmailConfirmation() == true) {
+        } else if (result.RequiresEmailConfirmation()) {
             url = Url.PageLink("AddEmail", values: new { returnUrl });
-        } else if (extendedResult?.RequiresPhoneNumberConfirmation() == true) {
+        } else if (result.RequiresPhoneNumberConfirmation()) {
             url = Url.PageLink("AddPhone", values: new { returnUrl });
         } else if (result.RequiresTwoFactor) {
             url = Url.PageLink("Mfa", values: new { returnUrl });
