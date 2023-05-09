@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Indice.AspNetCore.Filters;
 using Indice.Configuration;
+using Indice.Features.Identity.UI.Localization;
 using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +13,7 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Page model for the home page screen.</summary>
 [IdentityUI(typeof(HomeModel))]
 [SecurityHeaders]
-public abstract class BaseHomeModel : PageModel
+public abstract class BaseHomeModel : BasePageModel
 {
     private readonly IConfiguration _configuration;
 
@@ -31,6 +33,13 @@ public abstract class BaseHomeModel : PageModel
         if (!string.IsNullOrWhiteSpace(siteUrl)) {
             return await Task.FromResult(Redirect(siteUrl));
         }
+        Services.AddRange(UiOptions.HomepageLinks.Select(x => new GatewayServiceModel {
+            DisplayName = x.DisplayName,
+            CssClass = x.CssClass,
+            ImageSrc = x.ImageSrc,
+            Link = x.Link,
+            Visible = (x.VisibilityPredicate ?? new Predicate<ClaimsPrincipal>(principal => true))(User)
+        }));
         Services.AddRange(new List<GatewayServiceModel> {
             new GatewayServiceModel {
                 DisplayName = "Admin",

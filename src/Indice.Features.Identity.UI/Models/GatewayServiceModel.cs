@@ -9,6 +9,8 @@ public class GatewayServiceModel
     public string DisplayName { get; set; } = string.Empty;
     /// <summary>Image source.</summary>
     public string? ImageSrc { get; set; }
+    /// <summary>Css Class.</summary>
+    public string? CssClass { get; set; }
     /// <summary>Determines whether is visible.</summary>
     public bool Visible { get; set; }
 }
