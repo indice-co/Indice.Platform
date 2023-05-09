@@ -18,7 +18,7 @@ dotnet pack src/Indice.Extensions.Configuration.Database/Indice.Extensions.Confi
 dotnet pack src/Indice.Features.Identity.AdminUI/Indice.Features.Identity.AdminUI.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Identity.Server/Indice.Features.Identity.Server.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Identity.UI/Indice.Features.Identity.UI.csproj --no-build -c Release -o ./artifacts
-dotnet pack src/Indice.Features.Identity.UI/Indice.Features.Identity.UI.Assets.csproj --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Identity.UI.Assets/Indice.Features.Identity.UI.Assets.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Identity.Core/Indice.Features.Identity.Core.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Identity.SignInLogs/Indice.Features.Identity.SignInLogs.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Cases.AspNetCore/Indice.Features.Cases.AspNetCore.csproj --no-build -c Release -o ./artifacts
