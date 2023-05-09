@@ -18,6 +18,10 @@ public abstract class BaseArticlePageModel : PageModel
     /// <summary>Defines a mechanism for retrieving a service object.</summary>
     protected IServiceProvider ServiceProvider => HttpContext.RequestServices;
 
+    private IdentityUIOptions? _UiOptions;
+    /// <summary>UI Options</summary>
+    public IdentityUIOptions UiOptions => _UiOptions ??= ServiceProvider.GetRequiredService<IOptions<IdentityUIOptions>>().Value;
+
     /// <summary>The article view model.</summary>
     public ArticleViewModel View { get; set; } = new ArticleViewModel();
 

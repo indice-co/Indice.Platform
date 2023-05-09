@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Indice.Features.Identity.UI.Pages;
@@ -27,6 +28,10 @@ public abstract class BasePageModel : PageModel
     public string BodyCssClass { get; set; } = "identity-page";
     /// <summary>Defines a mechanism for retrieving a service object.</summary>
     protected IServiceProvider ServiceProvider => HttpContext.RequestServices;
+
+    private IdentityUIOptions? _UiOptions;
+    /// <summary>UI Options</summary>
+    public IdentityUIOptions UiOptions => _UiOptions ??= ServiceProvider.GetRequiredService<IOptions<IdentityUIOptions>>().Value;
 
     /// <summary>Gets the page to redirect based on the <see cref="SignInResult"/>.</summary>
     /// <param name="result">Represents the result of a sign-in operation.</param>

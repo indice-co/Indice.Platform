@@ -3,11 +3,8 @@
 @model BaseLoginModel
 
 @inject IIdentityViewLocalizer Localizer
-@inject IOptions<IdentityUIOptions> Options
 
 @{
-    var displayRegistrationLinks = Options.Value.EnableRegisterPage;
-    var displayForgotPasswordLinks = Options.Value.EnableForgotPasswordPage;
     var title = ViewData["Title"] = Localizer["Login"].Value;
 }
 
@@ -30,7 +27,7 @@
         </div>
         <div class="hr-sect">@Localizer["OR"]</div>
     }
-    @if (Model.View.EnableLocalLogin)
+    @if (Model.UiOptions.EnableLocalLogin)
     {
         <form asp-route-returnUrl="@Model.View.ReturnUrl" method="POST">
             <input type="hidden" asp-for="Input.ReturnUrl" />
@@ -46,7 +43,7 @@
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
             <div class="form-group">
-                @if (Model.View.AllowRememberLogin)
+                @if (Model.UiOptions.AllowRememberLogin)
                 {
                     <div class="form-check custom-checkbox d-inline-block">
                         <label class="form-check-label">
@@ -56,14 +53,14 @@
                         </label>
                     </div>
                 }
-                @if (displayForgotPasswordLinks)
+                @if (Model.UiOptions.EnableForgotPasswordPage)
                 {
                     <a class="btn btn-link p-0 text-md float-right text-blue" asp-page="ForgotPassword">@Localizer["Forgot password?"]</a>
                 }
             </div>
             <div class="form-group">
                 <div class="form-row m-0 w-100">
-                    @if (displayRegistrationLinks)
+                    @if (Model.UiOptions.EnableRegisterPage)
                     {
                         <div class="col-sm-6 col-12 py-1">
                             <a class="btn btn-link btn-block" asp-page="Register" asp-route-returnUrl="@Model.View.ReturnUrl">
@@ -78,7 +75,7 @@
             </div>
         </form>
     }
-    @if (!Model.View.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
+    @if (!Model.UiOptions.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
     {
         <div class="alert alert-warning">
             <strong>@Localizer["Invalid login request"]</strong>

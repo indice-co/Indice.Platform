@@ -26,16 +26,13 @@ public abstract class BaseAssociateModel : BasePageModel
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-    /// <param name="options">Identity ui options</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseAssociateModel(
         ExtendedSignInManager<User> signInManager,
-        ExtendedUserManager<User> userManager,
-        IOptions<IdentityUIOptions> options
+        ExtendedUserManager<User> userManager
     ) : base() {
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _options = options?.Value ?? new IdentityUIOptions();
     }
 
     /// <summary>The view model that backs the external provider association page.</summary>
@@ -163,9 +160,8 @@ internal class AssociateModel : BaseAssociateModel
 {
     public AssociateModel(
         ExtendedSignInManager<User> signInManager,
-        ExtendedUserManager<User> userManager,
-        IOptions<IdentityUIOptions> options
-    ) : base(signInManager, userManager, options) {
+        ExtendedUserManager<User> userManager
+    ) : base(signInManager, userManager) {
     
     }
 

@@ -17,27 +17,24 @@ namespace Indice.Features.Identity.UI.Pages;
 [AllowAnonymous]
 [IdentityUI(typeof(ForgotPasswordModel))]
 [SecurityHeaders]
-public abstract class BaseForgotPasswordModel : PageModel
+public abstract class BaseForgotPasswordModel : BasePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseForgotPasswordModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
     /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
     /// <param name="localizer">Represents a service that provides localized strings.</param>
-    /// <param name="options">UI options</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseForgotPasswordModel(
         ExtendedUserManager<User> userManager,
         ILogger<BaseForgotPasswordModel> logger,
         IEmailService emailService,
-        IStringLocalizer<BaseForgotPasswordModel> localizer,
-        IOptions<IdentityUIOptions> options
+        IStringLocalizer<BaseForgotPasswordModel> localizer
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         EmailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-        _Options = options.Value;
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -49,8 +46,6 @@ public abstract class BaseForgotPasswordModel : PageModel
     /// <summary>Represents a service that provides localized strings.</summary>
     public IStringLocalizer<BaseForgotPasswordModel> Localizer { get; }
 
-    private readonly IdentityUIOptions _Options;
-
     /// <summary>Forgot password input model data.</summary>
     [BindProperty]
     public ForgotPasswordInputModel Input { get; set; } = new ForgotPasswordInputModel();
@@ -61,7 +56,7 @@ public abstract class BaseForgotPasswordModel : PageModel
 
     /// <summary>Forgot password page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
-        if (!_Options.EnableForgotPasswordPage) {
+        if (!UiOptions.EnableForgotPasswordPage) {
             return Redirect("/404");
         }
         await Task.CompletedTask;
@@ -71,7 +66,7 @@ public abstract class BaseForgotPasswordModel : PageModel
     /// <summary>Forgot password page POST handler.</summary>
     [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
-        if (!_Options.EnableForgotPasswordPage) {
+        if (!UiOptions.EnableForgotPasswordPage) {
             return Redirect("/404");
         }
         RequestSent = true;
@@ -104,7 +99,6 @@ internal class ForgotPasswordModel : BaseForgotPasswordModel
         ExtendedUserManager<User> userManager,
         ILogger<ForgotPasswordModel> logger,
         IEmailService emailService,
-        IStringLocalizer<ForgotPasswordModel> localizer,
-        IOptions<IdentityUIOptions> options
-    ) : base(userManager, logger, emailService, localizer, options) { }
+        IStringLocalizer<ForgotPasswordModel> localizer
+    ) : base(userManager, logger, emailService, localizer) { }
 }
