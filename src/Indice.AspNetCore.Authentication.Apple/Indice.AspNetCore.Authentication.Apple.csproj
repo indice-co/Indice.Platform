@@ -2,6 +2,7 @@
   <PropertyGroup Label="Package">
     <PackageTags>AspNetCore;Authentication;OpenID;Apple</PackageTags>
     <PackageReleaseNotes>Handle OnRedirectToIdentityProvider for prompt parameter.</PackageReleaseNotes>
+    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

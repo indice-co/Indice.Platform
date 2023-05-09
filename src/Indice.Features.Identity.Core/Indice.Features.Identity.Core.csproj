@@ -2,14 +2,15 @@
   <PropertyGroup>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
+    <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Bogus" Version="34.0.2" />
-    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefix)" />
-    <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefixCore)" />
     <PackageReference Include="JsonSchema.Net" Version="4.0.3" />
     <PackageReference Include="JsonSchema.Net.Generation" Version="3.1.0" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.0.0-preview" />

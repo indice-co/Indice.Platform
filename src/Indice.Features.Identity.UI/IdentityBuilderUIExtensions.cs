@@ -37,7 +37,7 @@ public static class IdentityBuilderUIExtensions
         services.AddTransient<IIdentityViewLocalizer, IdentityViewLocalizer>();
         // Configure other services.
         services.AddGeneralSettings(configuration);
-        //services.AddClientAwareViewLocationExpander();
+        //services.PostConfigure<RazorViewEngineOptions>(options => options.ViewLocationExpanders.Add(new ClientThemesViewLocationExpander()));
         services.AddMarkdown();
         return services;
     }

@@ -2,9 +2,10 @@
   <PropertyGroup>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Configuration;Settings;EntityFrameworkCore</PackageTags>
+    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0'">

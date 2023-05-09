@@ -2,6 +2,7 @@
   <PropertyGroup Label="Package">
     <PackageTags>AspNetCore;Authentication;OpenID;GovGr</PackageTags>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -13,7 +14,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.2" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.GovGr" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Features.GovGr" Version="$(VersionPrefixCore)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.GovGr\Indice.Features.GovGr.csproj" />

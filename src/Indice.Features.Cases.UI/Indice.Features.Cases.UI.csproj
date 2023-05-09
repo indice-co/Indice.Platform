@@ -5,6 +5,7 @@
     <SpaProjectName>cases-app</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Cases.App</SpaSourceFolder>
     <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
+    <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
     <!--<Version>6.5.1</Version>-->
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Cases;CaseManagement</PackageTags>
@@ -17,7 +18,7 @@
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
