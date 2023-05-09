@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using System.Text;
 using IdentityModel;
-using IdentityServer4.Services;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
@@ -10,7 +9,6 @@ using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -21,21 +19,17 @@ public abstract class BaseAssociateModel : BasePageModel
 {
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly ExtendedUserManager<User> _userManager;
-    private readonly IdentityUIOptions _options;
 
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-    /// <param name="options">Identity ui options</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseAssociateModel(
         ExtendedSignInManager<User> signInManager,
-        ExtendedUserManager<User> userManager,
-        IOptions<IdentityUIOptions> options
+        ExtendedUserManager<User> userManager
     ) : base() {
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _options = options?.Value ?? new IdentityUIOptions();
     }
 
     /// <summary>The view model that backs the external provider association page.</summary>
@@ -54,10 +48,9 @@ public abstract class BaseAssociateModel : BasePageModel
             return RedirectToPage("Login");
         }
         Input = View = associateViewModel;
-        if (_options.AutoProvisionExternalUsers) {
+        if (UiOptions.AutoProvisionExternalUsers) {
             return await OnPostAsync();
         }
-
         return Page();
     }
 
@@ -83,8 +76,8 @@ public abstract class BaseAssociateModel : BasePageModel
         await AddExtraClaims(claims);
         var user = await FindOrCreateUser(Input.UserName, Input.PhoneNumber, claims);
         await _userManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.ProviderDisplayName ?? externalLoginInfo.LoginProvider));
-        return RedirectToPage("Challenge", "Callback", new { 
-            returnUrl = Input.ReturnUrl 
+        return RedirectToPage("Challenge", "Callback", new {
+            returnUrl = Input.ReturnUrl
         });
     }
 
@@ -122,7 +115,7 @@ public abstract class BaseAssociateModel : BasePageModel
             // try find existing user 
             var user = await _userManager.FindByEmailAsync(email);
             if (user is not null) {
-                if (!user.EmailConfirmed) { 
+                if (!user.EmailConfirmed) {
                     await SendConfirmationEmail(user);
                     throw new Exception("User exists as a local account but the email is not yet confirmed. If you are the owner please confirm your email first so that the accounts can be merged.");
                 }
@@ -163,12 +156,11 @@ internal class AssociateModel : BaseAssociateModel
 {
     public AssociateModel(
         ExtendedSignInManager<User> signInManager,
-        ExtendedUserManager<User> userManager,
-        IOptions<IdentityUIOptions> options
-    ) : base(signInManager, userManager, options) {
-    
+        ExtendedUserManager<User> userManager
+    ) : base(signInManager, userManager) {
+
     }
 
-    public override Task AddExtraClaims(List<Claim> userClaims) 
+    public override Task AddExtraClaims(List<Claim> userClaims)
         => Task.CompletedTask; // nothing todo.
 }

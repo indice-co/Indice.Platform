@@ -9,19 +9,10 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BasePrivacyModel : BaseArticlePageModel
 {
-    /// <summary>Creates a new instance of <see cref="BaseTermsModel"/> class.</summary>
-    /// <param name="options"></param>
-    public BasePrivacyModel(IOptions<IdentityUIOptions> options) {
-        Options = options.Value ?? throw new ArgumentNullException(nameof(options));
-    }
-
-    /// <summary>Identity UI options.</summary>
-    protected IdentityUIOptions Options { get; }
-
     /// <summary>Privacy page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
-        if (!string.IsNullOrWhiteSpace(Options.PrivacyUrl) && Uri.IsWellFormedUriString(Options.PrivacyUrl, UriKind.Absolute)) {
-            return Redirect(Options.PrivacyUrl);
+        if (!string.IsNullOrWhiteSpace(UiOptions.PrivacyUrl) && Uri.IsWellFormedUriString(UiOptions.PrivacyUrl, UriKind.Absolute)) {
+            return Redirect(UiOptions.PrivacyUrl);
         }
         return await Article("Privacy Policy", "~/legal/privacy-policy.md");
     }
@@ -29,5 +20,5 @@ public abstract class BasePrivacyModel : BaseArticlePageModel
 
 internal class PrivacyModel : BasePrivacyModel
 {
-    public PrivacyModel(IOptions<IdentityUIOptions> options) : base(options) { }
+    public PrivacyModel() : base() { }
 }

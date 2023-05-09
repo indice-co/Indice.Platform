@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -58,6 +59,9 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <summary>Registration page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync(string? returnUrl = null) {
+        if (!UiOptions.EnableRegisterPage) {
+            return Redirect("/404");
+        }
         View = await BuildRegisterViewModelAsync(returnUrl);
         if (View.IsExternalRegistrationOnly) {
             return RedirectToPage("External", new {
@@ -70,6 +74,9 @@ public abstract class BaseRegisterModel : BasePageModel
 
     /// <summary>Registration page POST handler.</summary>
     public virtual async Task<IActionResult> OnPostAsync() {
+        if (!UiOptions.EnableRegisterPage) {
+            return Redirect("/404");
+        }
         if (!ModelState.IsValid) {
             return Page();
         }

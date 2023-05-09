@@ -41,6 +41,7 @@
     <link rel="stylesheet" href="/css/bootstrap.css" asp-append-version="true" />
     <link rel="stylesheet" href="/css/identity.css" asp-append-version="true" />
     <link rel="stylesheet" type="text/css" href="/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />
+    <partial name="_Styles" />
     @RenderSection("css", required: false)
     @await Html.PartialAsync("_MenuMain")
     <environment exclude="Production">

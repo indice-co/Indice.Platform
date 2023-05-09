@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -16,7 +17,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [AllowAnonymous]
 [IdentityUI(typeof(ForgotPasswordModel))]
 [SecurityHeaders]
-public abstract class BaseForgotPasswordModel : PageModel
+public abstract class BaseForgotPasswordModel : BasePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseForgotPasswordModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
@@ -55,6 +56,9 @@ public abstract class BaseForgotPasswordModel : PageModel
 
     /// <summary>Forgot password page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
+        if (!UiOptions.EnableForgotPasswordPage) {
+            return Redirect("/404");
+        }
         await Task.CompletedTask;
         return Page();
     }
@@ -62,6 +66,9 @@ public abstract class BaseForgotPasswordModel : PageModel
     /// <summary>Forgot password page POST handler.</summary>
     [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
+        if (!UiOptions.EnableForgotPasswordPage) {
+            return Redirect("/404");
+        }
         RequestSent = true;
         if (!ModelState.IsValid) {
             return Page();

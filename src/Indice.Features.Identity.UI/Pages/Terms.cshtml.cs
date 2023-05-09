@@ -9,19 +9,10 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseTermsModel : BaseArticlePageModel
 {
-    /// <summary>Creates a new instance of <see cref="BaseTermsModel"/> class.</summary>
-    /// <param name="options"></param>
-    public BaseTermsModel(IOptions<IdentityUIOptions> options) {
-        Options = options.Value ?? throw new ArgumentNullException(nameof(options));
-    }
-
-    /// <summary>Identity UI options.</summary>
-    protected IdentityUIOptions Options { get; }
-
     /// <summary>Terms and conditions page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
-        if (!string.IsNullOrWhiteSpace(Options.TermsUrl) && Uri.IsWellFormedUriString(Options.TermsUrl, UriKind.Absolute)) {
-            return Redirect(Options.TermsUrl);
+        if (!string.IsNullOrWhiteSpace(UiOptions.TermsUrl) && Uri.IsWellFormedUriString(UiOptions.TermsUrl, UriKind.Absolute)) {
+            return Redirect(UiOptions.TermsUrl);
         }
         return await Article("Terms of Service", "~/legal/terms-of-service.md");
     }
@@ -29,5 +20,5 @@ public abstract class BaseTermsModel : BaseArticlePageModel
 
 internal class TermsModel : BaseTermsModel
 {
-    public TermsModel(IOptions<IdentityUIOptions> options) : base(options) { }
+    public TermsModel() : base() { }
 }
