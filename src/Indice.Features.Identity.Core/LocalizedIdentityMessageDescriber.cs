@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using System.Runtime;
+using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 
@@ -44,7 +45,8 @@ public class LocalizedIdentityMessageDescriber : IdentityMessageDescriber
     /// <inheritdoc/>
     public override string ForgotPasswordMessageBody<TUser>(TUser user, string token) {
         var u = user as User;
-        var body = $"Παρακαλούμε δημιουργήστε το νέο σας κωδικό <a href=\"{_configuration.GetHost()}/forgot-password/confirmation?email={u.Email}&token={token}\">ακολουθώντας τον εξής σύνδεσμο</a>.";
+        var url = $"{_configuration.GetHost()}/forgot-password/confirmation?email={Uri.EscapeDataString(u.Email)}&token={Uri.EscapeDataString(token)}";
+        var body = $"Παρακαλούμε δημιουργήστε το νέο σας κωδικό <a href=\"{url}\">ακολουθώντας τον εξής σύνδεσμο</a>.";
         return body;
     }
 }
