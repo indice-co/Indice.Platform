@@ -3,10 +3,11 @@
     <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
     <PackageTags>Multitenancy;Functions;Azure;</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <VersionPrefix>$(VersionPrefixMultitenancy)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Multitenancy.Core" Version="$(VersionPrefix)" />
-    <PackageReference Include="Indice.Services" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Features.Multitenancy.Core" Version="$(VersionPrefixMultitenancy)" />
+    <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.10.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">

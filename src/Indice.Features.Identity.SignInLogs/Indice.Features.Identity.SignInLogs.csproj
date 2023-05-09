@@ -2,9 +2,10 @@
   <PropertyGroup>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentity;SignInLogs;</PackageTags>
+    <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">

@@ -3,9 +3,10 @@
     <TargetFrameworks>netstandard2.1;net6.0;net7.0;</TargetFrameworks>
     <PackageTags>Events;Files;Emails;Sms;Push Notifications;Locking</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.15.1" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.13.1" />
     <PackageReference Include="MailKit" Version="3.6.0" />

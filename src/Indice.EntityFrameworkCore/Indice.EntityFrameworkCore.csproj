@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>netstandard2.1;net6.0;net7.0;</TargetFrameworks>
+    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageTags>AspNet;Api;Utilities</PackageTags>
     <PackageReleaseNotes>Update Indice.Common.</PackageReleaseNotes>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Common" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.1" />

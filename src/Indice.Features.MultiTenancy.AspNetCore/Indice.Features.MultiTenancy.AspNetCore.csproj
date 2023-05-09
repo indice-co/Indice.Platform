@@ -2,12 +2,13 @@
   <PropertyGroup Label="Package">
     <PackageTags>AspNetCore;Multitenancy</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <VersionPrefix>$(VersionPrefixMultitenancy)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Multitenancy.Core" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Features.Multitenancy.Core" Version="$(VersionPrefixMultitenancy)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">
     <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />

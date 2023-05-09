@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="IdentityModel" Version="6.0.0" />
-    <PackageReference Include="Indice.Common" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.14.1" />
   </ItemGroup>
 
