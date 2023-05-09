@@ -2,10 +2,11 @@
   <PropertyGroup Label="Package">
     <PackageReleaseNotes>Update Indice Packages.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CampaignManagement;Workers</PackageTags>
+    <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefix)" />
-    <PackageReference Include="Indice.Hosting" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)" />
+    <PackageReference Include="Indice.Hosting" Version="$(VersionPrefixCore)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />

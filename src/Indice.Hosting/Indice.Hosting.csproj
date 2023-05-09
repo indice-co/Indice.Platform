@@ -3,9 +3,10 @@
     <TargetFrameworks>netstandard2.1;net6.0;net7.0;</TargetFrameworks>
     <PackageTags>Background Tasks;Hosting;Hosted Services</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
+    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Services" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Services" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Quartz" Version="3.6.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net7.0' ">

@@ -5,15 +5,16 @@
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
     <TargetFramework>net7.0</TargetFramework>
     <TargetFrameworks></TargetFrameworks>
+    <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
-    <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefix)" />
-    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefix)" />
-    <PackageReference Include="Indice.Features.Identity.SignInLogs" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
+    <PackageReference Include="Indice.Features.Identity.SignInLogs" Version="$(VersionPrefixIdentity)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />

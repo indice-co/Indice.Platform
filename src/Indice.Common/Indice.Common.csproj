@@ -2,6 +2,7 @@
   <PropertyGroup>
     <RootNamespace>Indice</RootNamespace>
     <TargetFrameworks>netstandard2.1;net6.0;net7.0;</TargetFrameworks>
+    <VersionPrefix>$(VersionPrefixCore)</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup Label="Package">
     <PackageTags>AspNet;Api;Utilities</PackageTags>

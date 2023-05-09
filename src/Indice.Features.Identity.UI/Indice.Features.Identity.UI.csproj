@@ -3,22 +3,17 @@
     <Nullable>enable</Nullable>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentityUI</PackageTags>
+    <VersionPrefix>$(VersionPrefixIdentityUI)</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefix)" />
-    <PackageReference Include="Indice.Features.Identity.UI.Assets" Version="$(VersionPrefix)"></PackageReference>
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
+    <PackageReference Include="Indice.Features.Identity.UI.Assets" Version="$(VersionPrefixIdentityUI)"></PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
     <ProjectReference Include="..\Indice.Features.Identity.UI.Assets\Indice.Features.Identity.UI.Assets.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="Pages\Error.cshtml">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
   </ItemGroup>
 </Project>

@@ -4,9 +4,10 @@
     <SpaProjectName>adminui-app</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Identity.AdminUI.App</SpaSourceFolder>
     <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
-    <!--<Version>7.0.0-beta01</Version>-->
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
+    <!--<Version>7.0.0-beta01</Version>-->
+    <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -16,7 +17,7 @@
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />

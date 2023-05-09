@@ -5,6 +5,7 @@
     <Authors>Thanos Panousis, Dimitris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
     <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
+    <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
     <!--<Version>6.4.1</Version>-->
   </PropertyGroup>
   <ItemGroup>
@@ -19,8 +20,8 @@
     <PackageReference Include="Elsa.Designer.Components.Web" Version="2.9.2" />
     <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.9.2" />
     <PackageReference Include="Elsa.Server.Api" Version="2.9.2" />
-    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefix)" />
-    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefix)" />
+    <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
     <PackageReference Include="JsonSchema.Net" Version="3.3.2" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
