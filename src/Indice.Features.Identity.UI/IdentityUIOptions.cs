@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Indice.Security;
 
 namespace Indice.Features.Identity.UI;
 
@@ -27,7 +28,9 @@ public class IdentityUIOptions
     /// <summary>
     /// Services shown in the homepage
     /// </summary>
-    public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>();
+    public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
+        new HomePageLink("Admin","~/admin", CssClass:"admin", VisibilityPredicate: user => user.IsAdmin())
+    };
 
 
     /// <summary>

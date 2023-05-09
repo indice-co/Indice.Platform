@@ -40,14 +40,6 @@ public abstract class BaseHomeModel : BasePageModel
             Link = x.Link,
             Visible = (x.VisibilityPredicate ?? new Predicate<ClaimsPrincipal>(principal => true))(User)
         }));
-        Services.AddRange(new List<GatewayServiceModel> {
-            new GatewayServiceModel {
-                DisplayName = "Admin",
-                ImageSrc = null,
-                Link = "~/admin",
-                Visible = User.IsAdmin()
-            }
-        });
         return Page();
     }
 }
