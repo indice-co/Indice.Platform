@@ -68,7 +68,7 @@
                             </a>
                         </div>
                     }
-                    <div class="@(displayRegistrationLinks ? "col-sm-6" : string.Empty) col-12 py-1">
+                    <div class="@(Model.UiOptions.EnableRegisterPage ? "col-sm-6" : string.Empty) col-12 py-1">
                         <button class="btn btn-primary btn-block" name="button" value="login" type="submit">@Localizer["Sign in"]</button>
                     </div>
                 </div>
