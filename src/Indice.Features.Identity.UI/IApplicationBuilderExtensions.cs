@@ -14,7 +14,7 @@ public static class IApplicationBuilderExtensions
     /// <summary>Coordinates the page selection process for pages that need to be overridden for specified clients.</summary>
     /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
     /// <remarks>Should be used after UseRouting() method is called.</remarks>
-    public static void UseIdentityUI(this IApplicationBuilder app) => app.Use(async (context, next) => {
+    public static void UseIdentityUIThemes(this IApplicationBuilder app) => app.Use(async (context, next) => {
         var currentEndpoint = context.GetEndpoint() as RouteEndpoint;
         if (currentEndpoint is not null) {
             var descriptor = currentEndpoint.Metadata.GetMetadata<CompiledPageActionDescriptor>();
