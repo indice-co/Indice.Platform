@@ -18,7 +18,6 @@ public static class IdentityBuilderUIExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configureAction">Configure action.</param>
     public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration, Action<IdentityUIOptions>? configureAction = null) {
-        services.Configure<IdentityUIOptions>(configuration);
         services.PostConfigure<IdentityUIOptions>(options => configureAction?.Invoke(options));
         services.Configure<AntiforgeryOptions>(options => options.HeaderName = "X-XSRF-TOKEN");
         // Post configure razor pages options.
@@ -37,7 +36,6 @@ public static class IdentityBuilderUIExtensions
         services.AddTransient<IIdentityViewLocalizer, IdentityViewLocalizer>();
         // Configure other services.
         services.AddGeneralSettings(configuration);
-        //services.PostConfigure<RazorViewEngineOptions>(options => options.ViewLocationExpanders.Add(new ClientThemesViewLocationExpander()));
         services.AddMarkdown();
         return services;
     }
