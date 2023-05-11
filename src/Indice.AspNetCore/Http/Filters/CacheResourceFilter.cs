@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Http.Filters;
 
-/// <summary>Exndpoint memory caching extensions</summary>
+/// <summary>Endpoint memory caching extensions</summary>
 public static class CacheResourceFilterExtensions
 {
     /// <summary>

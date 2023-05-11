@@ -19,7 +19,7 @@ public static class IdentityBuilderUIExtensions
     /// <param name="configureAction">Configure action.</param>
     public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration, Action<IdentityUIOptions>? configureAction = null) {
         services.PostConfigure<IdentityUIOptions>(options => configureAction?.Invoke(options));
-        services.Configure<AntiforgeryOptions>(options => options.HeaderName = "X-XSRF-TOKEN");
+        services.PostConfigure<AntiforgeryOptions>(options => options.HeaderName = "X-XSRF-TOKEN");
         // Post configure razor pages options.
         services.ConfigureOptions(typeof(IdentityUIRazorPagesConfigureOptions));
         services.ConfigureOptions(typeof(IdentityUIStaticFileConfigureOptions));

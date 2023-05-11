@@ -71,8 +71,9 @@ public static class DevicesApi
         policy.AddState(async httpContext => {
             var userManager = httpContext.RequestServices.GetRequiredService<ExtendedUserManager<User>>();
             var user = await userManager.GetUserAsync(httpContext.User);
-            if (user is null)
+            if (user is null) {
                 return null;
+            }
             var deviceIdSpecified = httpContext.Request.RouteValues.TryGetValue("deviceId", out var deviceId);
             if (!deviceIdSpecified) {
                 return null;
@@ -82,10 +83,10 @@ public static class DevicesApi
         .AddMessageTemplate((serviceProvider, principal, state) =>
             serviceProvider.GetRequiredService<IdentityMessageDescriber>().TrustedDeviceRequiresOtpMessage((UserDevice)state!)
         )
-        .AddPurpose((sp, principal, sub, phone, state) =>
+        .AddPurpose((serviceProvider, principal, sub, phone, state) =>
             $"{nameof(DeviceHandlers.TrustDevice)}:{sub}:{phone}:{((UserDevice)state!).Id}"
         )
         .AddValidator((sp, principal, state) =>
-            state is null ? null : ValidationErrors.AddError("deviceId", "User or Device does not exist.")
+            state is null ? ValidationErrors.AddError("deviceId", "Device does not exist.") : ValidationErrors.Create()
         );
 }

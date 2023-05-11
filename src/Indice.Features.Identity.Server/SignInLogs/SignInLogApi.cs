@@ -19,18 +19,25 @@ public static class SignInLogApi
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static IEndpointRouteBuilder MapSignInLogs(this IEndpointRouteBuilder builder) {
         var options = builder.GetEndpointOptions<SignInLogOptions>();
-        var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Logs }.Where(x => x != null).Cast<string>().ToArray();
-        var group = builder.MapGroup($"{options.ApiPrefix}/")
-                           .WithGroupName("identity")
-                           .WithTags("SignInLogs")
-                           .RequireAuthorization(policy => policy
-                               .RequireAuthenticatedUser()
-                               .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
-                               .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-                           )
-                           .ProducesProblem(StatusCodes.Status401Unauthorized)
-                           .ProducesProblem(StatusCodes.Status403Forbidden)
-                           .ProducesProblem(StatusCodes.Status500InternalServerError);
+        var allowedScopes = new[] { 
+            options.ApiScope, 
+            IdentityEndpoints.SubScopes.Logs 
+        }
+        .Where(x => x is not null)
+        .Cast<string>()
+        .ToArray();
+        var group = builder
+            .MapGroup($"{options.ApiPrefix}/")
+            .WithGroupName("identity")
+            .WithTags("SignInLogs")
+            .RequireAuthorization(policy => policy
+                .RequireAuthenticatedUser()
+                .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+            )
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         
         // GET: /api/sign-in-logs
