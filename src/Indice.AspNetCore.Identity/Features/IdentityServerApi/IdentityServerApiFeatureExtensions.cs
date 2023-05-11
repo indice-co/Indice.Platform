@@ -52,8 +52,6 @@ public static class IdentityServerApiFeatureExtensions
         services.AddScoped<CreateRoleRequestValidationFilter>();
         // Add authorization policies that are used by the IdentityServer API.
         services.AddIdentityApiAuthorization();
-        // Configure anti-forgery token options.
-        services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName);
         services.TryAddScoped<IdentityMessageDescriber>();
         // Try register the extended version of UserManager<User>.
         services.TryAddScoped<ExtendedUserManager<User>>();

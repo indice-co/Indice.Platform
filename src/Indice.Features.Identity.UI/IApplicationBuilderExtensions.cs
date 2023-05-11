@@ -14,19 +14,19 @@ public static class IApplicationBuilderExtensions
     /// <summary>Coordinates the page selection process for pages that need to be overridden for specified clients.</summary>
     /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
     /// <remarks>Should be used after UseRouting() method is called.</remarks>
-    public static void UseIdentityUIThemes(this IApplicationBuilder app) => app.Use(async (context, next) => {
-        var currentEndpoint = context.GetEndpoint() as RouteEndpoint;
+    public static void UseIdentityUIThemes(this IApplicationBuilder app) => app.Use(async (httpContext, next) => {
+        var currentEndpoint = httpContext.GetEndpoint() as RouteEndpoint;
         if (currentEndpoint is not null) {
             var descriptor = currentEndpoint.Metadata.GetMetadata<CompiledPageActionDescriptor>();
             if (descriptor is not null) {
                 var attribute = descriptor.ModelTypeInfo?.GetCustomAttribute<ClientThemeAttribute>();
                 if (attribute is not null) {
-                    var requestClientId = context.GetClientIdFromReturnUrl();
+                    var requestClientId = httpContext.GetClientIdFromReturnUrl();
                     var pageClientId = attribute.ClientId;
                     var clientIdsAreEqual = requestClientId?.Equals(pageClientId, StringComparison.OrdinalIgnoreCase);
                     var shouldSwapEndpoint = !clientIdsAreEqual.HasValue || clientIdsAreEqual.Value == false;
                     if (shouldSwapEndpoint) {
-                        var endpointDataSources = context.RequestServices.GetService<IEnumerable<EndpointDataSource>>();
+                        var endpointDataSources = httpContext.RequestServices.GetService<IEnumerable<EndpointDataSource>>();
                         var availableEndpoints = endpointDataSources?.SelectMany(x => x.Endpoints);
                         var pageEndpoint = availableEndpoints?
                             .OfType<RouteEndpoint>()
@@ -34,12 +34,12 @@ public static class IApplicationBuilderExtensions
                             .OrderByDescending(x => x.Order)
                             .FirstOrDefault();
                         if (pageEndpoint is not null) {
-                            context.SetEndpoint(pageEndpoint);
+                            httpContext.SetEndpoint(pageEndpoint);
                         }
                     }
                 }
             }
         }
-        await next(context);
+        await next(httpContext);
     });
 }

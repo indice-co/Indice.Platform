@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Identity.Server.Manager;
+
 internal static class UserHandlers
 {
     internal static async Task<Ok<ResultSet<UserInfo>>> GetUsers(
