@@ -29,6 +29,7 @@ public static class MfaApi
                  .AddAuthenticationSchemes(ExtendedIdentityConstants.TwoFactorUserIdScheme)
              )
              .ValidateAntiforgery();
+
         return builder;
     }
 }
