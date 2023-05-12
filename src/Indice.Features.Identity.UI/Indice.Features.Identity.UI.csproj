@@ -10,7 +10,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
-    <PackageReference Include="Indice.Features.Identity.UI.Assets" Version="$(VersionPrefixIdentityUI)"></PackageReference>
+    <PackageReference Include="Indice.Features.Identity.UI.Assets" Version="$(VersionPrefixIdentityUI)" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />

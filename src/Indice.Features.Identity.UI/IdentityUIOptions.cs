@@ -24,6 +24,8 @@ public class IdentityUIOptions
     public bool AllowRememberLogin { get; set; } = true;
     /// <summary>Enables local logins (if false only external provider list will be available).</summary>
     public bool EnableLocalLogin { get; set; } = true;
+    /// <summary>rgb color to be used with avatar endpoints to render the user avatar background with initials.</summary>
+    public string AvatarColorHex { get; set; } = "1abc9c";
 
     /// <summary>
     /// Services shown in the homepage

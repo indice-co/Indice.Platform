@@ -1,10 +1,9 @@
 ﻿@inject GeneralSettings Settings
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
-@*#if (!DisableAppInsights)
+@inject IConfiguration Configuration
 @inject JavaScriptSnippet JavaScriptSnippet
 @inject IOptions<ApplicationInsightsServiceOptions> AppInsightsOptions
-#endif*@
 @inject SignInManager<User> SignInManager
 
 @{
@@ -33,11 +32,9 @@
     <link href="/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" sizes="16x16 32x32 64x64 128x128" />
     <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <link rel="preconnect" href="https://storage.googleapis.com" />
-    @*#if (!DisableAppInsights)
     <script type="text/javascript" csp-nonce="true">@Html.Raw(JavaScriptSnippet.ScriptBody)</script>
-    #endif*@
 </head>
-<body route-styles class="@authClass @bgClass identity-page">
+<body route-styles class="@authClass @bgClass">
     <link rel="stylesheet" href="/css/bootstrap.css" asp-append-version="true" />
     <link rel="stylesheet" href="/css/identity.css" asp-append-version="true" />
     <link rel="stylesheet" type="text/css" href="/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />

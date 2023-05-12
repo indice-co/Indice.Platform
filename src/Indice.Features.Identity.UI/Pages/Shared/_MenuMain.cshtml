@@ -1,5 +1,6 @@
 ﻿@inject IWebHostEnvironment Environment
 @inject IOptions<GeneralSettings> GeneralSettingsWrapper
+@inject IOptions<IdentityUIOptions> IdentityUIOptionsWrapper
 @inject IIdentityViewLocalizer Localizer
 @inject ExtendedSignInManager<User> SignInManager
 @inject ExtendedUserManager<User> UserManager
@@ -11,6 +12,8 @@
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
     var user = await UserManager.GetUserAsync(User);
+
+    var UiOptions = IdentityUIOptionsWrapper.Value;
 }
 
 @if (displayMenu)
@@ -33,7 +36,7 @@
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <div class="nav-avatar">
-                                <img class="card-img rounded-circle" src="~/avatar/@User.FindDisplayName()/48/1abc9c.png" alt="@User.FindDisplayName() avatar" />
+                                <img class="card-img rounded-circle" src="~/avatar/@User.FindDisplayName()/48/@(UiOptions.AvatarColorHex).png" alt="@User.FindDisplayName() avatar" />
                             </div>
                         </li>
                         <li class="nav-item">
@@ -62,7 +65,7 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <div class="nav-avatar">
-                                    <img class="card-img rounded-circle" src="~/avatar/@User.FindDisplayName()/48/1abc9c.png" alt="@User.FindDisplayName() avatar" />
+                                    <img class="card-img rounded-circle" src="~/avatar/@User.FindDisplayName()/48/@(UiOptions.AvatarColorHex).png" alt="@User.FindDisplayName() avatar" />
                                 </div>
                             </a>
                             <div class="dropdown-menu drop-card" aria-labelledby="navbarDropdownMenuLink">
@@ -71,7 +74,7 @@
                                         <div class="account-organization">@Localizer[generalSettings.Organization]</div>
                                         <div class="account-info">
                                             <div class="account-picture">
-                                                <img class="card-img rounded-circle" src="~/avatar/@User.FindDisplayName()/128/1abc9c.png" alt="@User.FindDisplayName() avatar" />
+                                                <img class="card-img rounded-circle" src="~/avatar/@User.FindDisplayName()/128/@(UiOptions.AvatarColorHex).png" alt="@User.FindDisplayName() avatar" />
                                             </div>
                                             <div class="account-details">
                                                 <div class="account-fullname text-truncate" title="@User.FindDisplayName()">@User.FindDisplayName()</div>
