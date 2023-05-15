@@ -18,7 +18,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize]
 [IdentityUI(typeof(ConsentModel))]
 [SecurityHeaders]
-public abstract class BaseConsentModel : PageModel
+public abstract class BaseConsentModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseConsentModel> _localizer;
     private readonly IEventService _eventService;

@@ -1,0 +1,58 @@
+﻿@page "/login/mfa/onboarding"
+
+@model BaseMfaOnboardingModel
+
+@inject IIdentityViewLocalizer Localizer
+@inject IConfiguration Configuration
+
+@{
+    var title = ViewData["Title"] = Localizer["Enable MFA"].Value;
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+
+<div class="sign-in m-auto">
+    <h1>
+        <a class="header-logo" href="/">
+            <img src="~/img/logo@(langSuffix).svg" />
+        </a>
+        <span class="header-text">@Localizer["Keep your account safe"]</span>
+        <span class="text-1">@Localizer["Setup an additional authentication method."]</span>
+    </h1>
+    <div id="authentication-methods" class="list-group">
+        <!-- ko foreach: authenticationMethods -->
+        <a href="javascript:void(0)" data-sbind="event: { click: $parent.methodSelected }, css: { selected: selected }" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1" data-sbind="text: displayName"></h5>
+            </div>
+            <small data-sbind="text: description"></small>
+        </a>
+        <!-- /ko -->
+    </div>
+    <form class="mt-3" asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
+        <input type="hidden" asp-for="Input.ReturnUrl" />
+        <input type="hidden" data-sbind="value: selectedMethodType" asp-for="Input.SelectedAuthenticationMethod" />
+        <div class="form-group">
+            <div class="form-row m-0 w-100">
+                <div class="col-12 py-1">
+                    <button class="btn btn-primary btn-block" name="button" value="login" type="submit">@Localizer["Next"]</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section scripts {
+    <script type="text/javascript" src="~/lib/knockout/build/output/knockout-latest.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/mfa-onboarding.js" csp-nonce></script>
+    <script type="text/javascript" csp-nonce>
+        var viewModelParameters = {
+            authenticationMethods: @Html.Raw(JsonSerializer.Serialize(Model.View.AuthenticationMethods, JsonSerializerOptionDefaults.GetDefaultSettings()))
+                };
+        var viewModel = new indice.MfaOnboardingViewModelFactory(viewModelParameters);
+        viewModel.init();
+        ko.bindingProvider.instance = new ko.secureBindingsProvider();
+        ko.applyBindings(viewModel);
+    </script>
+}

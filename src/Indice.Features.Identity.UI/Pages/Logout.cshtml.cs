@@ -17,7 +17,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize]
 [IdentityUI(typeof(LogoutModel))]
 [SecurityHeaders]
-public abstract class BaseLogoutModel : PageModel
+public abstract class BaseLogoutModel : BasePageModel
 {
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IEventService _events;

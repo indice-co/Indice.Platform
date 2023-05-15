@@ -1,0 +1,45 @@
+﻿@page "/login/mfa/onboarding/add-phone"
+
+@model BaseMfaOnboardingAddPhoneModel
+
+@inject IIdentityViewLocalizer Localizer
+@inject IWebHostEnvironment HostingEnvironment
+
+@{
+    var title = ViewBag.Title = Localizer["MFA onboarding - SMS"].Value;
+    var alert = TempData.Peek<AlertModel>(BaseMfaOnboardingAddPhoneModel.TempDataKey);
+}
+
+<div class="sign-in m-auto">
+    <partial name="_PageHeader" model="title" />
+    <partial name="_ValidationSummary" />
+    <partial name="_Alert" model="alert" />
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
+        <div class="form-group">
+            <label asp-for="Input.PhoneNumber" class="sr-only">@Localizer["Phone number"]</label>
+            <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+            <input type="hidden" asp-for="Input.PhoneNumber" />
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+            <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" disabled="@Model.View.DisablePhoneNumberInput" />
+            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <div class="form-row m-0 w-100">
+                <div class="col-12 py-1">
+                    @if (!string.IsNullOrEmpty(Model.View.NextStepUrl))
+                    {
+                        <a class="btn btn-info btn-block" href="@Model.View.NextStepUrl">@Localizer["Next"]</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-info btn-block" type="submit">@Localizer["Save"]</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

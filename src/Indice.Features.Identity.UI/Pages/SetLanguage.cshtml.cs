@@ -1,7 +1,4 @@
 using System.Globalization;
-using System.Text.RegularExpressions;
-using IdentityServer4.Events;
-using IdentityServer4.Extensions;
 using Indice.AspNetCore.Filters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
-/// <summary>Page model for the external login screen.</summary>
+/// <summary>Page model for the set language screen.</summary>
 [IdentityUI(typeof(SetLanguageModel))]
 [SecurityHeaders]
 public abstract class BaseSetLanguageModel : BasePageModel
@@ -25,7 +22,6 @@ public abstract class BaseSetLanguageModel : BasePageModel
 
     /// <summary>Challenge callback page GET handler.</summary>
     public IActionResult OnPost([FromQuery] string culture, [FromQuery] string returnUrl) {
-
         var supportedCultures = (_requestLocalizationOptions.SupportedCultures ?? new List<CultureInfo>()).Select(x => x.TwoLetterISOLanguageName).ToHashSet();
         if (!supportedCultures.Contains(culture)) {
             culture = _requestLocalizationOptions.DefaultRequestCulture.Culture.TwoLetterISOLanguageName;
@@ -34,7 +30,7 @@ public abstract class BaseSetLanguageModel : BasePageModel
             CookieRequestCultureProvider.DefaultCookieName,
             CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)), new CookieOptions {
                 Expires = DateTimeOffset.UtcNow.AddYears(1),
-                IsEssential = true,  // Critical setting to apply new culture.
+                IsEssential = true, // Critical setting to apply new culture.
                 Path = "/",
                 HttpOnly = false
             }

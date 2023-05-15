@@ -1,28 +1,20 @@
-﻿using Indice.Security;
+﻿using Indice.Features.Identity.Core;
 
 namespace Indice.Features.Identity.Server;
 
-/// <summary>Constants for IdentityServer API feature.</summary>
+/// <summary>Constants for MFA API feature.</summary>
 public static partial class IdentityEndpoints
 {
-    /// <summary>Identity API sub-scopes.</summary>
-    public static partial class SubScopes
-    {
-        /// <summary>A scope that allows managing clients on IdentityServer.</summary>
-        public const string Logs = "identity:logs";
-    }
+    /// <summary>MFA API sub-scopes.</summary>
+    public static partial class SubScopes { }
 
-    /// <summary>Identity API policies.</summary>
+    /// <summary>Identity MFA policies.</summary>
     public static partial class Policies
     {
-        /// <summary>A user must have the 'Admin' flag or own one of the <see cref="BasicRoleNames.Administrator"/>, <see cref="BasicRoleNames.AdminUIAdministrator"/> or <see cref="BasicRoleNames.AdminUIUsersReader"/> roles.</summary>
-        public const string BeLogsReader = nameof(BeLogsReader);
-        /// <summary>A user must have the 'Admin' flag or own one of the <see cref="BasicRoleNames.Administrator"/>, <see cref="BasicRoleNames.AdminUIAdministrator"/> or <see cref="BasicRoleNames.AdminUIUsersWriter"/> roles.</summary>
-        public const string BeLogsWriter = nameof(BeLogsWriter);
+        /// <summary>User must be authenticated with <see cref="CustomGrantTypes.DeviceAuthentication"/> grant type.</summary>
+        public const string BeDeviceAuthenticated = "BeDeviceAuthenticated";
     }
 
-    /// <summary>Feature flags for Identity Server API.</summary>
-    public static partial class Features
-    {
-    }
+    /// <summary>Feature flags for MFA API.</summary>
+    public static partial class Features { }
 }

@@ -53,7 +53,7 @@ public static class UsersApi
              .WithSummary("Updates an existing user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
              .WithParameterValidation<UpdateUserRequest>()
-             .CacheOutputMemory();
+             .InvalidateCache(nameof(UserHandlers.GetUser));
 
         group.MapDelete("{userId}", UserHandlers.DeleteUser)
              .WithName(nameof(UserHandlers.DeleteUser))

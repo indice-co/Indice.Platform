@@ -8,7 +8,7 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Page model for the logged out screen.</summary>
 [SecurityHeaders]
 [IdentityUI(typeof(LoggedOutModel))]
-public abstract class BaseLoggedOutModel : PageModel
+public abstract class BaseLoggedOutModel : BasePageModel
 {
     private readonly IIdentityServerInteractionService _interaction;
 

@@ -1,0 +1,93 @@
+using Indice.AspNetCore.Extensions;
+using Indice.AspNetCore.Filters;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
+
+namespace Indice.Features.Identity.UI.Pages;
+
+/// <summary>Page model for the MFA onboarding add phone screen.</summary>
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.MfaOnboardingScheme)]
+[IdentityUI(typeof(MfaOnboardingAddPhoneModel))]
+[SecurityHeaders]
+public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
+{
+    private readonly ExtendedUserManager<User> _userManager;
+    private readonly IStringLocalizer<BaseMfaOnboardingAddPhoneModel> _localizer;
+
+    /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingAddPhoneModel"/> class.</summary>
+    /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+    /// <param name="localizer">Represents a service that provides localized strings.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public BaseMfaOnboardingAddPhoneModel(
+        ExtendedUserManager<User> userManager,
+        IStringLocalizer<BaseMfaOnboardingAddPhoneModel> localizer
+    ) {
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+    }
+
+    /// <summary>MFA onboarding add phone view model.</summary>
+    public EnableMfaSmsViewModel View { get; set; } = new EnableMfaSmsViewModel();
+
+    /// <summary>The input model that backs the MFA onboarding add phone page.</summary>
+    [BindProperty]
+    public EnableMfaSmsInputModel Input { get; set; } = new EnableMfaSmsInputModel();
+
+    /// <summary>Key used for setting and retrieving temp data.</summary>
+    public static string TempDataKey => "mfa_onboarding_add_phone_alert";
+
+    /// <summary>MFA onboarding add phone page GET handler.</summary>
+    /// <param name="returnUrl">The return URL.</param>
+    public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
+        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var alert = user.PhoneNumberConfirmed && _userManager.StateProvider.CurrentState == UserState.RequiresMfaOnboarding
+            ? _localizer["Your phone number is already confirmed. Continue to enable MFA."]
+            : _localizer["Please select your phone number so we can verify it before we continue."];
+        TempData.Put(TempDataKey, AlertModel.Info(alert));
+        Input = View = new EnableMfaSmsViewModel {
+            PhoneNumber = user.PhoneNumber,
+            PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+            ReturnUrl = returnUrl
+        };
+        return Page();
+    }
+
+    /// <summary>MFA onboarding add phone page POST handler.</summary>
+    [ValidateAntiForgeryToken]
+    public virtual async Task<IActionResult> OnPostAsync() {
+        if (!ModelState.IsValid) {
+            return Page();
+        }
+        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        IdentityResult result;
+        if (!user.PhoneNumberConfirmed) {
+            result = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            if (!result.Succeeded) {
+                AddModelErrors(result);
+                return Page();
+            }
+            await SendVerificationSmsAsync(user, Input.PhoneNumber!);
+            return RedirectToPage("MfaOnboardingVerifyPhoneModel", routeValues: new { Input.ReturnUrl });
+        }
+        result = await _userManager.SetTwoFactorEnabledAsync(user, true);
+        if (!result.Succeeded) {
+        }
+        TempData.Put(TempDataKey, AlertModel.Success(_localizer["You have successfully enabled MFA for your account. Login to access your account."]));
+        View.NextStepUrl = Url.PageLink("Login", values: new { Input.ReturnUrl });
+        View.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
+        return Page();
+    }
+}
+
+internal class MfaOnboardingAddPhoneModel : BaseMfaOnboardingAddPhoneModel
+{
+    public MfaOnboardingAddPhoneModel(
+        ExtendedUserManager<User> userManager,
+        IStringLocalizer<MfaOnboardingAddPhoneModel> localizer
+    ) : base(userManager, localizer) { }
+}
