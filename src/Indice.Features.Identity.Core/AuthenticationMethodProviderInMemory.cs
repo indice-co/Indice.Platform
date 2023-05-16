@@ -15,10 +15,10 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
     /// <exception cref="ArgumentNullException"></exception>
     public AuthenticationMethodProviderInMemory(
         IEnumerable<AuthenticationMethod> authenticationMethods,
-        IHubContext<MultiFactorAuthenticationHub> multiFactorAuthenticationHub
+        IEnumerable<IHubContext<MultiFactorAuthenticationHub>> multiFactorAuthenticationHub
     ) {
         _authenticationMethods = authenticationMethods ?? throw new ArgumentNullException(nameof(authenticationMethods));
-        HubContext = multiFactorAuthenticationHub ?? throw new ArgumentNullException(nameof(multiFactorAuthenticationHub));
+        HubContext = multiFactorAuthenticationHub?.FirstOrDefault() ?? throw new ArgumentNullException(nameof(multiFactorAuthenticationHub));
     }
 
     /// <inheritdoc />
