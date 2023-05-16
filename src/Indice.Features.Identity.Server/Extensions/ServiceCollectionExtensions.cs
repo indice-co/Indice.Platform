@@ -2,11 +2,11 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using IdentityModel;
 using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Options;
 using Indice.Security;
@@ -77,10 +77,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                        .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                        .AddExtendedUserManager()
                        .AddExtendedSignInManager<User>()
-                       .AddAuthenticationMethodProvider(
-                          new BiometricsAuthenticationMethod("Push notification using Indice app", "Provide a push notification using Indice app."),
-                          new SmsAuthenticationMethod("SMS", "Users will receive a text message containing a verification code.")
-                        )
                        .AddDefaultPasswordValidators()
                        .AddClaimsPrincipalFactory<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                        .AddDefaultTokenProviders()
@@ -249,6 +245,11 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                 policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
                       .RequireAuthenticatedUser()
                       .RequireAssertion(x => x.User.HasScope(IdentityEndpoints.SubScopes.Logs) && x.User.CanWriteUsers());
+            });
+            authOptions.AddPolicy(IdentityEndpoints.Policies.BeDeviceAuthenticated, policy => {
+                policy.AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+                      .RequireAuthenticatedUser()
+                      .RequireAssertion(context => context.User.HasScope(IdentityEndpoints.Scope) && (context.User.HasClaim(JwtClaimTypes.AuthenticationMethod, CustomGrantTypes.DeviceAuthentication) || context.User.IsAdmin()));
             });
         });
         // Register the authentication handler, using a custom scheme name, for local APIs.

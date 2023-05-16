@@ -394,8 +394,8 @@ internal static class MyAccountHandlers
         IPersistedGrantStore persistedGrantStore,
         IPersistentGrantSerializer serializer,
         ClaimsPrincipal currentUser,
-        [AsParameters]ListOptions options,
-        [AsParameters]UserConsentsListFilter filter) {
+        [AsParameters] ListOptions options,
+        [AsParameters] UserConsentsListFilter filter) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
             return TypedResults.NotFound();
@@ -403,6 +403,7 @@ internal static class MyAccountHandlers
         var consents = await persistedGrantStore.GetPersistedGrantsAsync(serializer, user.Id, filter?.ClientId, filter?.ConsentType.ToConstantName());
         return TypedResults.Ok(consents.AsQueryable().ToResultSet(options));
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> DeleteAccount(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser) {
@@ -410,12 +411,13 @@ internal static class MyAccountHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result =  await userManager.DeleteAsync(user);
+        var result = await userManager.DeleteAsync(user);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
         return TypedResults.NoContent();
     }
+
     internal static Results<Ok<PasswordOptions>, NotFound> GetPasswordOptions(
         IOptionsSnapshot<IdentityOptions> identityOptions) {
         if (identityOptions.Value == null) {
@@ -423,6 +425,7 @@ internal static class MyAccountHandlers
         }
         return TypedResults.Ok(identityOptions.Value.Password);
     }
+
     internal static async Task<Ok<CredentialsValidationInfo>> ValidatePassword(
         ExtendedUserManager<User> userManager,
         ValidatePasswordRequest request) {
@@ -451,6 +454,7 @@ internal static class MyAccountHandlers
         }
         return TypedResults.Ok(new CredentialsValidationInfo { PasswordRules = availableRules.Values.ToList() });
     }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> Register(
         ExtendedUserManager<User> userManager,
         ExtendedConfigurationDbContext configurationDbContext,
@@ -489,6 +493,7 @@ internal static class MyAccountHandlers
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<NoContent, StatusCodeHttpResult, NotFound, ValidationProblem>> CheckUserNameExists(
         ExtendedUserManager<User> userManager,
         IConfiguration configuration,

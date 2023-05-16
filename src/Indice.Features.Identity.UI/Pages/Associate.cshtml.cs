@@ -81,22 +81,14 @@ public abstract class BaseAssociateModel : BasePageModel
         });
     }
 
-    /// <summary>
-    /// Will be called each time a new user is going to be provisioned.
-    /// Can implement custom input model or Temp Data model form an OnBoarding process 
-    /// to drive the additional claims needed.
-    /// </summary>
+    /// <summary>Will be called each time a new user is going to be provisioned. Can implement custom input model or Temp Data model form an OnBoarding process to drive the additional claims needed.</summary>
     /// <param name="userClaims">The collection of claims on the user.</param>
-    /// <returns></returns>
     public abstract Task AddExtraClaims(List<Claim> userClaims);
 
-    /// <summary>
-    /// Provision External user
-    /// </summary>
-    /// <param name="userName">The username</param>
-    /// <param name="phoneNumber">The phone number</param>
-    /// <param name="claims">Additional claims</param>
-    /// <returns></returns>
+    /// <summary>Provision external user.</summary>
+    /// <param name="userName">The username.</param>
+    /// <param name="phoneNumber">The phone number.</param>
+    /// <param name="claims">Additional claims.</param>
     /// <exception cref="Exception"></exception>
     [NonAction]
     protected async Task<User> FindOrCreateUser(string? userName, string? phoneNumber, List<Claim> claims) {
@@ -112,7 +104,7 @@ public abstract class BaseAssociateModel : BasePageModel
         var familyNameClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName);
         var email = emailClaim?.Value;
         if (!string.IsNullOrWhiteSpace(email)) {
-            // try find existing user 
+            // Try find existing user.
             var user = await _userManager.FindByEmailAsync(email);
             if (user is not null) {
                 if (!user.EmailConfirmed) {
@@ -122,7 +114,7 @@ public abstract class BaseAssociateModel : BasePageModel
                 return user;
             }
         }
-        // new user flow
+        // New user flow.
         var userId = Guid.NewGuid().ToString();
         var newUser = new User(userName, userId) {
             Email = email,
@@ -157,10 +149,7 @@ internal class AssociateModel : BaseAssociateModel
     public AssociateModel(
         ExtendedSignInManager<User> signInManager,
         ExtendedUserManager<User> userManager
-    ) : base(signInManager, userManager) {
+    ) : base(signInManager, userManager) { }
 
-    }
-
-    public override Task AddExtraClaims(List<Claim> userClaims)
-        => Task.CompletedTask; // nothing todo.
+    public override Task AddExtraClaims(List<Claim> userClaims) => Task.CompletedTask;
 }

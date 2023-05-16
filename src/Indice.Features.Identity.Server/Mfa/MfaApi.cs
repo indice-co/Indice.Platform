@@ -11,7 +11,7 @@ public static class MfaApi
 {
     /// <summary>Map MFA login endpoints.</summary>
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    public static IEndpointRouteBuilder MapMfa(this IEndpointRouteBuilder builder) {
+    public static IEndpointRouteBuilder MapMultiFactorAuthentication(this IEndpointRouteBuilder builder) {
         var group = builder
             .MapGroup("")
             .WithGroupName("identity")
@@ -29,6 +29,18 @@ public static class MfaApi
                  .AddAuthenticationSchemes(ExtendedIdentityConstants.TwoFactorUserIdScheme)
              )
              .ValidateAntiforgery();
+
+        // POST: /login/mfa/approve
+        group.MapPost("login/mfa/approve", MfaApiHandlers.ApproveMfaLogin)
+             .WithName("MfaApproveLogin")
+             .WithSummary("Must be called when the MFA login was approved by the client.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeDeviceAuthenticated);
+
+        // POST: /login/mfa/reject
+        group.MapPost("login/mfa/reject", MfaApiHandlers.RejectMfaLogin)
+             .WithName("MfaRejectLogin")
+             .WithSummary("Must be called when the MFA login was rejected by the client.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeDeviceAuthenticated);
 
         return builder;
     }

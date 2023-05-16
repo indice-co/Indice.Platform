@@ -1,6 +1,5 @@
 ﻿using Indice.AspNetCore.Filters;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 

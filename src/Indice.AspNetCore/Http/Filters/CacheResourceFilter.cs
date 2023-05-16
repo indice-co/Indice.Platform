@@ -1,9 +1,7 @@
 ﻿#if NET7_0_OR_GREATER
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Indice.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -15,67 +13,58 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Http.Filters;
 
-/// <summary>Endpoint memory caching extensions</summary>
+/// <summary>Endpoint memory caching extensions.</summary>
 public static class CacheResourceFilterExtensions
 {
-    /// <summary>
-    /// Adds the ability to cache the responses.
-    /// </summary>
+    /// <summary>Adds the ability to cache the responses.</summary>
     /// <typeparam name="TBuilder"></typeparam>
-    /// <param name="builder">the builder</param>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
     /// <param name="expiration">The absolute expiration in minutes of the cache item, expressed as an <see cref="int"/>. Defaults to 60 minutes.</param>
     /// <param name="varyByClaimType">The claim to use which value is included in the cache key.</param>
-    /// <returns>The builder</returns>
-    public static TBuilder CacheOutputMemory<TBuilder>(this TBuilder builder, int expiration = 60, string[] varyByClaimType = null) 
+    /// <returns>The builder.</returns>
+    public static TBuilder CacheOutputMemory<TBuilder>(this TBuilder builder, int expiration = 60, string[] varyByClaimType = null)
         where TBuilder : IEndpointConventionBuilder {
-        builder.Add(eb => {
-            var cacheResourceFilterOptions = eb.ApplicationServices.GetService<IOptions<CacheResourceFilterOptions>>()?.Value ?? new CacheResourceFilterOptions();
-            if (cacheResourceFilterOptions?.DisableCache == true)
+        builder.Add(endpointBuilder => {
+            var cacheResourceFilterOptions = endpointBuilder.ApplicationServices.GetService<IOptions<CacheResourceFilterOptions>>()?.Value ?? new CacheResourceFilterOptions();
+            if (cacheResourceFilterOptions?.DisableCache == true) {
                 return;
+            }
             varyByClaimType ??= Array.Empty<string>();
-            eb.FilterFactories.Add((context, next) => {
-                var noCache = eb.Metadata.OfType<NoCacheMetadata>().Any();
+            endpointBuilder.FilterFactories.Add((context, next) => {
+                var noCache = endpointBuilder.Metadata.OfType<NoCacheMetadata>().Any();
                 if (noCache)
                     return next;
-                return new EndpointFilterDelegate(async (efic) => {
-                    var request = efic.HttpContext.Request; 
+                return new EndpointFilterDelegate(async invocationContext => {
+                    var request = invocationContext.HttpContext.Request;
                     var requestMethod = request.Method;
-
-                    var cache = efic.HttpContext.RequestServices.GetRequiredService<IDistributedCache>();
+                    var cache = invocationContext.HttpContext.RequestServices.GetRequiredService<IDistributedCache>();
                     var cacheKey = $"{request.Path}{(request.QueryString.HasValue ? request.QueryString.Value : string.Empty)}";
-                    cacheKey = await AddCacheKeyDiscriminatorAsync(efic.HttpContext, varyByClaimType, cacheKey);
+                    cacheKey = await AddCacheKeyDiscriminatorAsync(invocationContext.HttpContext, varyByClaimType, cacheKey);
                     var cachedValue = cache.GetString(cacheKey);
                     // If there is a cached response for this path and the request method is of type 'GET', then break the pipeline and send the cached response.
                     if (!string.IsNullOrEmpty(cachedValue) && (requestMethod == HttpMethod.Get.Method || requestMethod == HttpMethod.Head.Method)) {
                         return Results.Ok(JsonDocument.Parse(cachedValue).RootElement);
                     }
-
-                    var result = await next(efic);
-
+                    var result = await next(invocationContext);
                     // Check if the cache key has been properly set, which is crucial for interacting with the cache.
                     if (string.IsNullOrEmpty(cacheKey)) {
                         return result;
                     }
-                    // If request method is of type 'GET' then we can cache the response.
-                    // Check if we already have a cached value for this cache key
-                    // and also that response status code is 200 OK.
-                    // and also that response has a value attached to it.
+                    // If request method is of type 'GET' then we can cache the response. Check if we already have a cached value for this cache key and also that response status code is 200 OK.
+                    // Also that response has a value attached to it.
                     if ((requestMethod == HttpMethod.Get.Method || requestMethod == HttpMethod.Head.Method) &&
                         string.IsNullOrEmpty(cachedValue)) {
                         object value;
                         switch (result) {
-                            case INestedHttpResult nestedHttpResult when nestedHttpResult.Result is IStatusCodeHttpResult httpResult && 
-                                                                         httpResult.StatusCode == StatusCodes.Status200OK && 
-                                                                         httpResult is IValueHttpResult okResult:
+                            case INestedHttpResult nestedHttpResult when nestedHttpResult.Result is IStatusCodeHttpResult httpResult && httpResult.StatusCode == StatusCodes.Status200OK && httpResult is IValueHttpResult okResult:
                                 value = okResult.Value;
                                 break;
-                            case IStatusCodeHttpResult httpResult2 when httpResult2.StatusCode == StatusCodes.Status200OK && 
-                                                                        result is IValueHttpResult okResult2:
+                            case IStatusCodeHttpResult httpResult2 when httpResult2.StatusCode == StatusCodes.Status200OK && result is IValueHttpResult okResult2:
                                 value = okResult2.Value;
                                 break;
                             default: return result;
                         };
-                        var jsonOptions = eb.ApplicationServices.GetRequiredService<IOptions<JsonOptions>>().Value;
+                        var jsonOptions = endpointBuilder.ApplicationServices.GetRequiredService<IOptions<JsonOptions>>().Value;
                         cache.SetString(cacheKey, JsonSerializer.Serialize(value, jsonOptions.SerializerOptions), new DistributedCacheEntryOptions {
                             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(expiration)
                         });
@@ -84,87 +73,75 @@ public static class CacheResourceFilterExtensions
                 });
             });
         });
-
         return builder;
     }
 
-    /// <summary>
-    /// Adds the ability to cache the responses.
-    /// </summary>
+    /// <summary>Adds the ability to invalidate cache for responses.</summary>
     /// <typeparam name="TBuilder"></typeparam>
-    /// <param name="builder">the builder</param>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
     /// <param name="dependentRoute">Parent RouteName of the current method that must be invalidated. Path template variables must match by name.</param>
-    /// <returns>The builder</returns>
-    public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string dependentRoute)
-        where TBuilder : IEndpointConventionBuilder {
+    /// <returns>The builder.</returns>
+    public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string dependentRoute) where TBuilder : IEndpointConventionBuilder {
         ArgumentException.ThrowIfNullOrEmpty(dependentRoute, nameof(dependentRoute));
         InvalidateCache(builder, dependentRoutes: new[] { dependentRoute }, varyByClaimType: null);
         return builder;
     }
 
-    /// <summary>
-    /// Adds the ability to cache the responses.
-    /// </summary>
+    /// <summary>Adds the ability to invalidate cache for responses.</summary>
     /// <typeparam name="TBuilder"></typeparam>
-    /// <param name="builder">the builder</param>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
     /// <param name="dependentRoute">Parent RouteName of the current method that must be invalidated. Path template variables must match by name.</param>
     /// <param name="varyByClaimType">The claim to use which value is included in the cache key.</param>
-    /// <returns>The builder</returns>
-    public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string dependentRoute, string varyByClaimType)
-        where TBuilder : IEndpointConventionBuilder {
+    /// <returns>The builder.</returns>
+    public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string dependentRoute, string varyByClaimType) where TBuilder : IEndpointConventionBuilder {
         ArgumentException.ThrowIfNullOrEmpty(dependentRoute, nameof(dependentRoute));
         ArgumentException.ThrowIfNullOrEmpty(varyByClaimType, nameof(varyByClaimType));
-
-        InvalidateCache(builder, dependentRoutes: new[] { dependentRoute }, varyByClaimType: new[] { varyByClaimType } );
+        InvalidateCache(builder, dependentRoutes: new[] { dependentRoute }, varyByClaimType: new[] { varyByClaimType });
         return builder;
     }
 
-    /// <summary>
-    /// Adds the ability to cache the responses.
-    /// </summary>
+    /// <summary>Adds the ability to invalidate cache for responses.</summary>
     /// <typeparam name="TBuilder"></typeparam>
-    /// <param name="builder">the builder</param>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
     /// <param name="dependentRoutes">Parent paths of the current method that must be invalidated. Path template variables must match by name.</param>
     /// <param name="varyByClaimType">The claim to use which value is included in the cache key.</param>
-    /// <returns>The builder</returns>
-    public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string[] dependentRoutes, string[] varyByClaimType = null)
-        where TBuilder : IEndpointConventionBuilder {
+    /// <returns>The builder.</returns>
+    public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string[] dependentRoutes, string[] varyByClaimType = null) where TBuilder : IEndpointConventionBuilder {
         ArgumentNullException.ThrowIfNull(dependentRoutes, nameof(dependentRoutes));
-        builder.Add(eb => {
-            var cacheResourceFilterOptions = eb.ApplicationServices.GetService<IOptions<CacheResourceFilterOptions>>()?.Value ?? new CacheResourceFilterOptions();
-            if (cacheResourceFilterOptions?.DisableCache == true)
+        builder.Add(endpointBuilder => {
+            var cacheResourceFilterOptions = endpointBuilder.ApplicationServices.GetService<IOptions<CacheResourceFilterOptions>>()?.Value ?? new CacheResourceFilterOptions();
+            if (cacheResourceFilterOptions?.DisableCache == true) {
                 return;
+            }
             dependentRoutes ??= Array.Empty<string>();
             varyByClaimType ??= Array.Empty<string>();
-            eb.FilterFactories.Add((context, next) => {
-                return new EndpointFilterDelegate(async (efic) => {
-                    var request = efic.HttpContext.Request;
+            endpointBuilder.FilterFactories.Add((context, next) => {
+                return new EndpointFilterDelegate(async invocationContext => {
+                    var request = invocationContext.HttpContext.Request;
                     var requestMethod = request.Method;
-
-                    var cache = efic.HttpContext.RequestServices.GetRequiredService<IDistributedCache>();
+                    var cache = invocationContext.HttpContext.RequestServices.GetRequiredService<IDistributedCache>();
                     var cacheKey = $"{request.Path}{(request.QueryString.HasValue ? request.QueryString.Value : string.Empty)}";
-                    cacheKey = await AddCacheKeyDiscriminatorAsync(efic.HttpContext, varyByClaimType, cacheKey);
-                    
-                    var result = await next(efic);
-
+                    cacheKey = await AddCacheKeyDiscriminatorAsync(invocationContext.HttpContext, varyByClaimType, cacheKey);
+                    var result = await next(invocationContext);
                     // Check if the cache key has been properly set, which is crucial for interacting with the cache.
                     if (string.IsNullOrEmpty(cacheKey)) {
                         return result;
                     }
-                    // Handle cache invalidation
+                    // Handle cache invalidation.
                     if (requestMethod == HttpMethod.Post.Method || requestMethod == HttpMethod.Put.Method || requestMethod == HttpMethod.Patch.Method || requestMethod == HttpMethod.Delete.Method) {
                         cache.Remove(cacheKey);
-                        var linkGenerator = efic.HttpContext.RequestServices.GetRequiredService<LinkGenerator>();
+                        var linkGenerator = invocationContext.HttpContext.RequestServices.GetRequiredService<LinkGenerator>();
                         foreach (var routeName in dependentRoutes) {
                             var url = linkGenerator.GetPathByRouteValues(
-                                efic.HttpContext,
+                                invocationContext.HttpContext,
                                 routeName,
-                                efic.HttpContext.GetRouteData().Values,
-                                fragment: FragmentString.Empty);
+                                invocationContext.HttpContext.GetRouteData().Values,
+                                fragment: FragmentString.Empty
+                            );
                             if (url is null) {
                                 continue;
                             }
-                            cache.Remove(await AddCacheKeyDiscriminatorAsync(efic.HttpContext, varyByClaimType, url));
+                            cache.Remove(await AddCacheKeyDiscriminatorAsync(invocationContext.HttpContext, varyByClaimType, url));
                         }
                     }
 
@@ -176,11 +153,9 @@ public static class CacheResourceFilterExtensions
     }
 
 
-    /// <summary>
-    /// Adds No cache metadata to the current operation <see cref="RouteHandlerBuilder"/>.
-    /// </summary>
-    /// <param name="builder"></param>
-    /// <returns>The builder</returns>
+    /// <summary>Adds No cache metadata to the current operation <see cref="RouteHandlerBuilder"/>.</summary>
+    /// <param name="builder">Builds conventions that will be used for customization of MapAction <see cref="EndpointBuilder"/> instances.</param>
+    /// <returns>The builder.</returns>
     public static RouteHandlerBuilder NoCache(this RouteHandlerBuilder builder) {
         builder.Add(eb => eb.Metadata.Add(new NoCacheMetadata()));
         return builder;
@@ -203,9 +178,7 @@ public static class CacheResourceFilterExtensions
         return keyMainPart;
     }
 
-    /// <summary>
-    /// NoCache metadata that will override the cache behavior
-    /// </summary>
+    /// <summary>NoCache metadata that will override the cache behavior.</summary>
     private sealed record NoCacheMetadata();
 }
 #endif

@@ -35,7 +35,7 @@ public abstract class BaseAddEmailModel : BasePageModel
     public AddEmailInputModel Input { get; set; } = new AddEmailInputModel();
 
     /// <summary>Key used for setting and retrieving temp data.</summary>
-    public static string TempDataKey => "info_message";
+    public static string TempDataKey => "add_email_info_message";
 
     /// <summary>Extended validation add email page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>

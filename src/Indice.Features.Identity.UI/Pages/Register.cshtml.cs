@@ -95,12 +95,24 @@ public abstract class BaseRegisterModel : BasePageModel
         return RedirectToPage("Login");
     }
 
-    private async Task<RegisterViewModel> BuildRegisterViewModelAsync(string? returnUrl) {
+    /// <summary>
+    /// Creates the default view model. 
+    /// </summary>
+    /// <param name="returnUrl"></param>
+    /// <returns></returns>
+    protected Task<RegisterViewModel> BuildRegisterViewModelAsync(string? returnUrl) => BuildRegisterViewModelAsync<RegisterViewModel>(returnUrl);
+
+    /// <summary>
+    /// Creates the view model
+    /// </summary>
+    /// <param name="returnUrl"></param>
+    /// <returns></returns>
+    protected async Task<TViewModel> BuildRegisterViewModelAsync<TViewModel>(string? returnUrl) where TViewModel : RegisterViewModel, new() {
         var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
         if (context?.IdP is not null && await _schemeProvider.GetSchemeAsync(context.IdP) is not null) {
             var local = context.IdP == IdentityServerConstants.LocalIdentityProvider;
             // This is meant to short circuit the UI and only trigger the one external IdP.
-            var viewModel = new RegisterViewModel {
+            var viewModel = new TViewModel {
                 ReturnUrl = returnUrl,
                 UserName = context.LoginHint,
             };
@@ -131,7 +143,7 @@ public abstract class BaseRegisterModel : BasePageModel
                 }
             }
         }
-        return new RegisterViewModel {
+        return new TViewModel() {
             ReturnUrl = returnUrl,
             UserName = context?.LoginHint ?? string.Empty,
             ExternalProviders = providers.ToArray(),
@@ -139,7 +151,12 @@ public abstract class BaseRegisterModel : BasePageModel
         };
     }
 
-    private User CreateUserFromInput(RegisterInputModel input) {
+    /// <summary>
+    /// Creates the user from Input model
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    protected virtual User CreateUserFromInput(RegisterInputModel input) {
         var user = new User {
             UserName = input.UserName,
             Email = input.Email,

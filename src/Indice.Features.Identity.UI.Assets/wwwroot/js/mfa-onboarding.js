@@ -6,7 +6,7 @@
             self: undefined,
             init: function () {
                 self = this;
-                self.selectedMethodType(viewModelParams.authenticationMethods[0].type);
+                self.selectedMethodType(null);
                 self.authenticationMethods(viewModelParams.authenticationMethods.map(function (method, index) {
                     return new self.authenticationMethod(method.displayName, method.description, method.type, index === 0);
                 }));
