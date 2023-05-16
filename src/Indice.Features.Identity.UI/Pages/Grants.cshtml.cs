@@ -52,7 +52,7 @@ public abstract class BaseGrantsModel : PageModel
     public virtual async Task<IActionResult> OnPostRevokeAsync(string clientId) {
         await _interaction.RevokeUserConsentAsync(clientId);
         await _events.RaiseAsync(new GrantsRevokedEvent(User.GetSubjectId(), clientId));
-        return RedirectToPage("Grants");
+        return RedirectToPage("/Grants");
     }
 
     private async Task<GrantsViewModel> BuildViewModelAsync() {

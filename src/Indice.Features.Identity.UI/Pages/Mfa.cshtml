@@ -17,7 +17,7 @@
     @if (Model.View.DeliveryChannel == TotpDeliveryChannel.Sms && !string.IsNullOrWhiteSpace(maskedPhoneNumber))
     {
         <div class="alert alert-primary" role="alert">@Localizer["We texted your phone {0}. Please enter the code to sign in.", maskedPhoneNumber]</div>
-        <form id="mfa-form" asp-page="Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" method="POST">
+        <form id="mfa-form" asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" method="POST">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.DeviceId" />
             <div class="form-group">
@@ -39,7 +39,7 @@
     }
     @if (Model.View.DeliveryChannel == TotpDeliveryChannel.PushNotification)
     {
-        <form id="mfa-form" asp-page="Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" method="POST">
+        <form id="mfa-form" asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" method="POST">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.OtpCode" />
             <input type="hidden" asp-for="Input.DeviceId" />
@@ -62,7 +62,7 @@
                 </div>
             </div>
             <p indice-if="Model.View.AllowMfaChannelDowngrade">
-                <a asp-page="Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" asp-route-dc="true">@Localizer["I can't use my app right now"]</a>
+                <a asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" asp-route-dc="true">@Localizer["I can't use my app right now"]</a>
             </p>
         </form>
         <form id="mfa-form-reject" class="d-none">
@@ -72,7 +72,7 @@
             <h2>@Localizer["Request denied"]</h2>
             <p>@Localizer["We sent an identity verification request to your mobile device, but you denied it."]</p>
             <p>
-                <a asp-page="Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl">@Localizer["Send another request to my app"]</a>
+                <a asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl">@Localizer["Send another request to my app"]</a>
             </p>
         </form>
     }

@@ -28,7 +28,7 @@
             </div>
             @await Html.PartialAsync("_ServiceDeck", Model.Services)
             <p class="lead" indice-if="@Environment.IsDevelopment()">
-                @Localizer["Please login to the application"] <a asp-page="Login">@Localizer["here"]</a>.
+                @Localizer["Please login to the application"] <a asp-page="/Login">@Localizer["here"]</a>.
             </p>
         }
         else
@@ -43,7 +43,7 @@
             <div class="paragraph-block text-left">
                 <h4>@Localizer["Manage your grants"]</h4>
                 <p class="lead">
-                    @Localizer["Check and revoke your"] <a asp-page="Grants" class="reference external">@Localizer["authorized applications"]</a>
+                    @Localizer["Check and revoke your"] <a asp-page="/Grants" class="reference external">@Localizer["authorized applications"]</a>
                 </p>
             </div>
         }

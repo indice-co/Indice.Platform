@@ -45,7 +45,7 @@ public abstract class BaseAssociateModel : BasePageModel
         // This following view will help to review the data coming in before proceeding with the user provisioning.
         var associateViewModel = TempData.Peek<AssociateViewModel>("UserDetails");
         if (associateViewModel is null) {
-            return RedirectToPage("Login");
+            return RedirectToPage("/Login");
         }
         Input = View = associateViewModel;
         if (UiOptions.AutoProvisionExternalUsers) {
@@ -76,7 +76,7 @@ public abstract class BaseAssociateModel : BasePageModel
         await AddExtraClaims(claims);
         var user = await FindOrCreateUser(Input.UserName, Input.PhoneNumber, claims);
         await _userManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.ProviderDisplayName ?? externalLoginInfo.LoginProvider));
-        return RedirectToPage("Challenge", "Callback", new {
+        return RedirectToPage("/Challenge", "Callback", new {
             returnUrl = Input.ReturnUrl
         });
     }

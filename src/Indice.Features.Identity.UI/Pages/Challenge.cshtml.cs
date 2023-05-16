@@ -82,7 +82,7 @@ public abstract class BaseChallengeModel : BasePageModel
         if (context is not null) {
             if (context.IsNativeClient()) {
                 // The client is native, so this change in how to return the response is for better UX for the end user.
-                return this.LoadingPage("Redirect", returnUrl);
+                return this.LoadingPage("/Redirect", returnUrl);
             }
         }
         return Redirect(returnUrl);
@@ -104,7 +104,7 @@ public abstract class BaseChallengeModel : BasePageModel
             Provider = externalLoginInfo.LoginProvider,
             ReturnUrl = returnUrl
         });
-        return RedirectToPage("Associate");
+        return RedirectToPage("/Associate");
     }
 }
 

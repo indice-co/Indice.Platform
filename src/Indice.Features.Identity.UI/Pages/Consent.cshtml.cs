@@ -55,7 +55,7 @@ public abstract class BaseConsentModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync(string returnUrl) {
         View = await BuildViewModelAsync(returnUrl);
         if (View is null) {
-            return RedirectToPage("Error");
+            return RedirectToPage("/Error");
         }
         Input = new ConsentInputModel {
             ReturnUrl = returnUrl,
@@ -71,7 +71,7 @@ public abstract class BaseConsentModel : BasePageModel
             result.RedirectUri ??= "/";
             var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
             if (context?.IsNativeClient() == true) {
-                return this.LoadingPage("Redirect", result.RedirectUri);
+                return this.LoadingPage("/Redirect", result.RedirectUri);
             }
             return Redirect(result.RedirectUri);
         }
@@ -82,7 +82,7 @@ public abstract class BaseConsentModel : BasePageModel
             View = result.ViewModel;
             return Page();
         }
-        return RedirectToPage("Error");
+        return RedirectToPage("/Error");
     }
 
     private async Task<ProcessConsentResult> ProcessConsent(ConsentInputModel inputModel) {

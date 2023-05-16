@@ -50,7 +50,7 @@ public abstract class BaseChangePasswordModel : BasePageModel
         if (await UserManager.HasPasswordAsync(user)) {
             return Page();
         }
-        return RedirectToPage("Error40X", routeValues: new { statusCode = 404 });
+        return RedirectToPage("/Error40X", routeValues: new { statusCode = 404 });
     }
 
     /// <summary>Change password page POST handler.</summary>

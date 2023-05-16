@@ -72,13 +72,13 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
                 return Page();
             }
             await SendVerificationSmsAsync(user, Input.PhoneNumber!);
-            return RedirectToPage("MfaOnboardingVerifyPhone", routeValues: new { Input.ReturnUrl });
+            return RedirectToPage("/MfaOnboardingVerifyPhone", routeValues: new { Input.ReturnUrl });
         }
         result = await _userManager.SetTwoFactorEnabledAsync(user, true);
         if (!result.Succeeded) {
         }
         TempData.Put(TempDataKey, AlertModel.Success(_localizer["You have successfully enabled MFA for your account. Login to access your account."]));
-        View.NextStepUrl = Url.PageLink("Login", values: new { Input.ReturnUrl });
+        View.NextStepUrl = Url.PageLink("/Login", values: new { Input.ReturnUrl });
         View.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
         return Page();
     }

@@ -64,7 +64,7 @@ public abstract class BaseRegisterModel : BasePageModel
         }
         View = await BuildRegisterViewModelAsync(returnUrl);
         if (View.IsExternalRegistrationOnly) {
-            return RedirectToPage("External", new {
+            return RedirectToPage("/Challenge", new {
                 provider = View.ExternalRegistrationScheme,
                 returnUrl
             });
@@ -90,9 +90,9 @@ public abstract class BaseRegisterModel : BasePageModel
         await SendConfirmationEmail(user, Input.ReturnUrl);
         _logger.LogInformation(3, "User created a new account with password.");
         if (_interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
-            return RedirectToPage("Login", new { returnUrl = Input.ReturnUrl });
+            return RedirectToPage("/Login", new { returnUrl = Input.ReturnUrl });
         }
-        return RedirectToPage("Login");
+        return RedirectToPage("/Login");
     }
 
     /// <summary>

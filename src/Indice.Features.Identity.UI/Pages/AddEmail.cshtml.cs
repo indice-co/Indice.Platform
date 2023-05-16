@@ -80,7 +80,7 @@ public abstract class BaseAddEmailModel : BasePageModel
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Success(_localizer["A confirmation email has been sent to the address bellow."]),
             DisableForm = true,
-            NextStepUrl = Url.PageLink("AddEmail", values: new { returnUrl })
+            NextStepUrl = Url.PageLink("/AddEmail", values: new { returnUrl })
         });
         return Page();
     }

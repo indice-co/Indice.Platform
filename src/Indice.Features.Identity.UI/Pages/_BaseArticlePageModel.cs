@@ -50,7 +50,7 @@ public abstract class BaseArticlePageModel : PageModel
         if (raw.HasValue && raw == true) {
             var markdownProcessor = ServiceProvider.GetRequiredService<IMarkdownProcessor>();
             if (!file.Exists) {
-                return RedirectToPage("Error40X", new { statusCode = 404 });
+                return RedirectToPage("/Error40X", new { statusCode = 404 });
             }
             var markdownText = string.Empty;
             using (var streamReader = new StreamReader(file.CreateReadStream())) {

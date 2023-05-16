@@ -88,13 +88,13 @@ public abstract class BaseLogoutModel : BasePageModel
                 // We need to see if the provider supports external logout.
                 if (!"Apple".Equals(idp) && await HttpContext.GetSchemeSupportsSignOutAsync(idp)) {
                     // Build a return URL so the upstream provider will redirect back to us after the user has logged out. This allows us to then complete our single sign-out processing.
-                    var url = Url.Page("LoggedOut", new { logoutId = LogoutId });
+                    var url = Url.Page("/LoggedOut", new { logoutId = LogoutId });
                     // This triggers a redirect to the external provider for sign-out.
                     return SignOut(new AuthenticationProperties { RedirectUri = url }, idp);
                 }
             }
         }
-        return RedirectToPage("LoggedOut", new { logoutId = LogoutId });
+        return RedirectToPage("/LoggedOut", new { logoutId = LogoutId });
     }
 }
 

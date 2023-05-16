@@ -67,7 +67,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
             return Page();
         }
         await SendVerificationSmsAsync(user, Input.PhoneNumber ?? throw new ArgumentNullException(nameof(Input.PhoneNumber), "Phone number cannot be null."));
-        return RedirectToPage("VerifyPhone");
+        return RedirectToPage("/VerifyPhone");
     }
 }
 
