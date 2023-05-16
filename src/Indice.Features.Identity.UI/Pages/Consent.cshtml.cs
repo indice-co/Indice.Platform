@@ -71,7 +71,7 @@ public abstract class BaseConsentModel : BasePageModel
             result.RedirectUri ??= "/";
             var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
             if (context?.IsNativeClient() == true) {
-                return this.LoadingPage("/Redirect", result.RedirectUri);
+                return this.LoadingPage("Redirect", result.RedirectUri);
             }
             return Redirect(result.RedirectUri);
         }

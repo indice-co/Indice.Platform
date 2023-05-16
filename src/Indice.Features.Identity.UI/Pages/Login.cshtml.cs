@@ -113,7 +113,7 @@ public abstract class BaseLoginModel : BasePageModel
                 // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
                 if (context.IsNativeClient()) {
                     // The client is native, so this change in how to return the response is for better UX for the end user.
-                    return this.LoadingPage("/Redirect", Input.ReturnUrl ?? "/");
+                    return this.LoadingPage("Redirect", Input.ReturnUrl ?? "/");
                 }
                 return Redirect(Input.ReturnUrl ?? "/");
             } else {
@@ -131,7 +131,7 @@ public abstract class BaseLoginModel : BasePageModel
                 if (context is not null) {
                     if (context.IsNativeClient()) {
                         // The client is native, so this change in how to return the response is for better UX for the end user.
-                        return this.LoadingPage("/Redirect", Input.ReturnUrl ?? "/");
+                        return this.LoadingPage("Redirect", Input.ReturnUrl ?? "/");
                     }
                     // We can trust model.ReturnUrl since GetAuthorizationContextAsync returned non-null.
                     return Redirect(Input.ReturnUrl ?? "/");
