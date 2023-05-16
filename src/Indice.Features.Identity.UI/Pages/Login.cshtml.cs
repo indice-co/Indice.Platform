@@ -23,6 +23,8 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseLoginModel : BasePageModel
 {
+    private readonly IStringLocalizer<BaseLoginModel> _localizer;
+
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
@@ -50,7 +52,7 @@ public abstract class BaseLoginModel : BasePageModel
         Events = events ?? throw new ArgumentNullException(nameof(events));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Retrieval of client configuration.</summary>
@@ -59,8 +61,6 @@ public abstract class BaseLoginModel : BasePageModel
     protected IEventService Events { get; }
     /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
     protected IIdentityServerInteractionService Interaction { get; }
-    /// <summary>Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="LoginModel"/>.</summary>
-    protected IStringLocalizer<BaseLoginModel> Localizer { get; }
     /// <summary>A generic interface for logging.</summary>
     protected ILogger<BaseLoginModel> Logger { get; }
     /// <summary>Responsible for managing what authentication schemes are supported.</summary>
@@ -159,9 +159,9 @@ public abstract class BaseLoginModel : BasePageModel
             }
             Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", UserName);
             await Events.RaiseAsync(new UserLoginFailureEvent(Input.UserName, "Invalid credentials."));
-            ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
+            ModelState.AddModelError(string.Empty, _localizer["Please check your credentials."]);
         } else {
-            ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
+            ModelState.AddModelError(string.Empty, _localizer["Please check your credentials."]);
         }
         // Something went wrong, show form with error.
         View = await BuildLoginViewModelAsync(Input);

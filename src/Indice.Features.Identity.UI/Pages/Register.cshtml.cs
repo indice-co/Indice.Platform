@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -22,13 +21,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [ValidateAntiForgeryToken]
 public abstract class BaseRegisterModel : BasePageModel
 {
-    private readonly ExtendedUserManager<User> _userManager;
-    private readonly IAuthenticationSchemeProvider _schemeProvider;
-    private readonly IClientStore _clientStore;
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly ILogger<BaseRegisterModel> _logger;
-
-    /// <summary></summary>
+    /// <summary>Creates a new instance of <see cref="BaseRegisterModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="schemeProvider">Responsible for managing what authentication schemes are supported.</param>
     /// <param name="clientStore">Retrieval of client configuration.</param>
@@ -42,12 +35,23 @@ public abstract class BaseRegisterModel : BasePageModel
         IIdentityServerInteractionService interaction,
         ILogger<BaseRegisterModel> logger
     ) {
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
-        _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
-        _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        SchemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
+        ClientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
+        Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
+
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+    protected ExtendedUserManager<User> UserManager { get; }
+    /// <summary>Responsible for managing what authentication schemes are supported.</summary>
+    protected IAuthenticationSchemeProvider SchemeProvider { get; }
+    /// <summary>Retrieval of client configuration.</summary>
+    protected IClientStore ClientStore { get; }
+    /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
+    protected IIdentityServerInteractionService Interaction { get; }
+    /// <summary>A generic interface for logging.</summary>
+    protected ILogger<BaseRegisterModel> Logger { get; }
 
     /// <summary>The view model for registration page.</summary>
     public RegisterViewModel View { get; set; } = new RegisterViewModel();
@@ -81,15 +85,15 @@ public abstract class BaseRegisterModel : BasePageModel
             return Page();
         }
         var user = CreateUserFromInput(Input);
-        var result = await _userManager.CreateAsync(user, Input.Password ?? throw new InvalidOperationException("User password cannot be null."));
+        var result = await UserManager.CreateAsync(user, Input.Password ?? throw new InvalidOperationException("User password cannot be null."));
         if (!result.Succeeded) {
             View = await BuildRegisterViewModelAsync(Input.ReturnUrl);
             AddModelErrors(result);
             return Page();
         }
         await SendConfirmationEmail(user, Input.ReturnUrl);
-        _logger.LogInformation(3, "User created a new account with password.");
-        if (_interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
+        Logger.LogInformation(3, "User created a new account with password.");
+        if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
             return RedirectToPage("/Login", new { returnUrl = Input.ReturnUrl });
         }
         return RedirectToPage("/Login");
@@ -108,8 +112,8 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <param name="returnUrl"></param>
     /// <returns></returns>
     protected async Task<TViewModel> BuildRegisterViewModelAsync<TViewModel>(string? returnUrl) where TViewModel : RegisterViewModel, new() {
-        var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-        if (context?.IdP is not null && await _schemeProvider.GetSchemeAsync(context.IdP) is not null) {
+        var context = await Interaction.GetAuthorizationContextAsync(returnUrl);
+        if (context?.IdP is not null && await SchemeProvider.GetSchemeAsync(context.IdP) is not null) {
             var local = context.IdP == IdentityServerConstants.LocalIdentityProvider;
             // This is meant to short circuit the UI and only trigger the one external IdP.
             var viewModel = new TViewModel {
@@ -125,7 +129,7 @@ public abstract class BaseRegisterModel : BasePageModel
             }
             return viewModel;
         }
-        var schemes = await _schemeProvider.GetAllSchemesAsync();
+        var schemes = await SchemeProvider.GetAllSchemesAsync();
         var providers = schemes
             .Where(x => x.DisplayName != null)
             .Select(x => new ExternalProviderModel {
@@ -135,7 +139,7 @@ public abstract class BaseRegisterModel : BasePageModel
             .ToList();
         var allowLocal = AccountOptions.AllowLocalLogin;
         if (context?.Client.ClientId is not null) {
-            var client = await _clientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
+            var client = await ClientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
             if (client is not null) {
                 allowLocal = client.EnableLocalLogin;
                 if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {

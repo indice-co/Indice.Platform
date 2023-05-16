@@ -11,14 +11,14 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
 
     /// <summary>Creates a new instance of <see cref="AuthenticationMethodProviderInMemory"/>.</summary>
     /// <param name="authenticationMethods">The authentication methods to apply in the identity system.</param>
-    /// <param name="multiFactorAuthenticationHub"></param>
+    /// <param name="multiFactorAuthenticationHubs"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public AuthenticationMethodProviderInMemory(
         IEnumerable<AuthenticationMethod> authenticationMethods,
-        IEnumerable<IHubContext<MultiFactorAuthenticationHub>> multiFactorAuthenticationHub
+        IEnumerable<IHubContext<MultiFactorAuthenticationHub>> multiFactorAuthenticationHubs
     ) {
         _authenticationMethods = authenticationMethods ?? throw new ArgumentNullException(nameof(authenticationMethods));
-        HubContext = multiFactorAuthenticationHub?.FirstOrDefault() ?? throw new ArgumentNullException(nameof(multiFactorAuthenticationHub));
+        HubContext = multiFactorAuthenticationHubs?.FirstOrDefault() ?? throw new ArgumentNullException(nameof(multiFactorAuthenticationHubs));
     }
 
     /// <inheritdoc />

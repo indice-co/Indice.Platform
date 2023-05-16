@@ -15,7 +15,6 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
 {
-    private readonly ExtendedUserManager<User> _userManager;
     private readonly IStringLocalizer<BaseMfaOnboardingVerifyPhoneModel> _localizer;
 
     /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingVerifyPhoneModel"/> class.</summary>
@@ -26,9 +25,12 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         ExtendedUserManager<User> userManager,
         IStringLocalizer<BaseMfaOnboardingVerifyPhoneModel> localizer
     ) {
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
+
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+    protected ExtendedUserManager<User> UserManager { get; }
 
     /// <summary></summary>
     [BindProperty]
@@ -40,7 +42,7 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
     /// <summary>MFA onboarding verify phone page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Success(_localizer["Please enter the code that you have received at your mobile phone."]),
             NextStepUrl = string.Empty
@@ -57,16 +59,16 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
             return Page();
         }
         var tempDataModel = new ExtendedValidationTempDataModel();
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         Input.PhoneNumber = user.PhoneNumber;
-        var result = await _userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, Input.Code);
+        var result = await UserManager.ChangePhoneNumberAsync(user, user.PhoneNumber, Input.Code);
         if (result.Succeeded) {
-            await _userManager.SetTwoFactorEnabledAsync(user, true);
+            await UserManager.SetTwoFactorEnabledAsync(user, true);
             tempDataModel.Alert = AlertModel.Success(_localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."]);
         } else {
             tempDataModel.Alert = AlertModel.Error(_localizer["Please enter the code that you have received at your mobile phone."]);
         }
-        tempDataModel.NextStepUrl = GetRedirectUrl(_userManager.StateProvider.CurrentState, Input.ReturnUrl) ?? "/";
+        tempDataModel.NextStepUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, Input.ReturnUrl) ?? "/";
         TempData.Put(TempDataKey, tempDataModel);
         return Page();
     }

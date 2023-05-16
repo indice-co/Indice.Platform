@@ -16,7 +16,6 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
 {
-    private readonly ExtendedUserManager<User> _userManager;
     private readonly IStringLocalizer<BaseMfaOnboardingAddPhoneModel> _localizer;
 
     /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingAddPhoneModel"/> class.</summary>
@@ -27,9 +26,12 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
         ExtendedUserManager<User> userManager,
         IStringLocalizer<BaseMfaOnboardingAddPhoneModel> localizer
     ) {
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
+
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+    protected ExtendedUserManager<User> UserManager { get; }
 
     /// <summary>MFA onboarding add phone view model.</summary>
     public EnableMfaSmsViewModel View { get; set; } = new EnableMfaSmsViewModel();
@@ -44,8 +46,8 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
     /// <summary>MFA onboarding add phone page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var alert = user.PhoneNumberConfirmed && _userManager.StateProvider.CurrentState == UserState.RequiresMfaOnboarding
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var alert = user.PhoneNumberConfirmed && UserManager.StateProvider.CurrentState == UserState.RequiresMfaOnboarding
             ? _localizer["Your phone number is already confirmed. Continue to enable MFA."]
             : _localizer["Please select your phone number so we can verify it before we continue."];
         TempData.Put(TempDataKey, AlertModel.Info(alert));
@@ -63,10 +65,10 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         IdentityResult result;
         if (!user.PhoneNumberConfirmed) {
-            result = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            result = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
             if (!result.Succeeded) {
                 AddModelErrors(result);
                 return Page();
@@ -74,7 +76,7 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
             await SendVerificationSmsAsync(user, Input.PhoneNumber!);
             return RedirectToPage("/MfaOnboardingVerifyPhone", routeValues: new { Input.ReturnUrl });
         }
-        result = await _userManager.SetTwoFactorEnabledAsync(user, true);
+        result = await UserManager.SetTwoFactorEnabledAsync(user, true);
         if (!result.Succeeded) {
         }
         TempData.Put(TempDataKey, AlertModel.Success(_localizer["You have successfully enabled MFA for your account. Login to access your account."]));

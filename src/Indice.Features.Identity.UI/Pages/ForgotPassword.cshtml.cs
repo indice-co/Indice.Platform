@@ -19,6 +19,8 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseForgotPasswordModel : BasePageModel
 {
+    private readonly IStringLocalizer<BaseForgotPasswordModel> _localizer;
+
     /// <summary>Creates a new instance of <see cref="BaseForgotPasswordModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
@@ -34,7 +36,7 @@ public abstract class BaseForgotPasswordModel : BasePageModel
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         EmailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
-        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -43,8 +45,6 @@ public abstract class BaseForgotPasswordModel : BasePageModel
     protected ILogger<BaseForgotPasswordModel> Logger { get; }
     /// <summary>Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</summary>
     protected IEmailService EmailService { get; }
-    /// <summary>Represents a service that provides localized strings.</summary>
-    public IStringLocalizer<BaseForgotPasswordModel> Localizer { get; }
 
     /// <summary>Forgot password input model data.</summary>
     [BindProperty]
@@ -82,7 +82,7 @@ public abstract class BaseForgotPasswordModel : BasePageModel
         Logger.LogDebug("{PageTitle}: Confirmation token is {Token}", "Forgot password", token);
         await EmailService.SendAsync(builder =>
             builder.To(user.Email)
-                   .WithSubject(Localizer["Please confirm your account"])
+                   .WithSubject(_localizer["Please confirm your account"])
                    .UsingTemplate("EmailForgotPassword")
                    .WithData(new {
                        UserName = User.FindDisplayName() ?? user.UserName,

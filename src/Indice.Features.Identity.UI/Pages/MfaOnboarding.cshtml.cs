@@ -14,13 +14,14 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseMfaOnboardingModel : BasePageModel
 {
-    private readonly IAuthenticationMethodProvider _authenticationMethodProvider;
-
     /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingModel"/> class.</summary>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseMfaOnboardingModel(IAuthenticationMethodProvider authenticationMethodProvider) {
-        _authenticationMethodProvider = authenticationMethodProvider ?? throw new ArgumentNullException(nameof(authenticationMethodProvider));
+        AuthenticationMethodProvider = authenticationMethodProvider ?? throw new ArgumentNullException(nameof(authenticationMethodProvider));
     }
+
+    /// <summary>Abstracts interaction with system's various authentication methods.</summary>
+    protected IAuthenticationMethodProvider AuthenticationMethodProvider { get; }
 
     /// <summary>MFA onboarding Login view model.</summary>
     public MfaOnboardingViewModel View { get; set; } = new MfaOnboardingViewModel();
@@ -37,7 +38,7 @@ public abstract class BaseMfaOnboardingModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         Input.ReturnUrl = returnUrl;
         View.ReturnUrl = returnUrl;
-        View.AuthenticationMethods = await _authenticationMethodProvider.GetAllMethodsAsync();
+        View.AuthenticationMethods = await AuthenticationMethodProvider.GetAllMethodsAsync();
         return Page();
     }
 
@@ -45,7 +46,7 @@ public abstract class BaseMfaOnboardingModel : BasePageModel
     [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
         if (!ModelState.IsValid) {
-            View.AuthenticationMethods = await _authenticationMethodProvider.GetAllMethodsAsync();
+            View.AuthenticationMethods = await AuthenticationMethodProvider.GetAllMethodsAsync();
             return Page();
         }
         await Task.CompletedTask;

@@ -21,9 +21,6 @@ namespace Indice.Features.Identity.UI.Pages;
 public abstract class BaseConsentModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseConsentModel> _localizer;
-    private readonly IEventService _eventService;
-    private readonly ILogger<BaseConsentModel> _logger;
-    private readonly IIdentityServerInteractionService _interaction;
 
     /// <summary>Creates a new instance of <see cref="BaseConsentModel"/> class.</summary>
     /// <param name="logger">A generic interface for logging.</param>
@@ -37,11 +34,18 @@ public abstract class BaseConsentModel : BasePageModel
         IEventService eventService,
         IIdentityServerInteractionService interaction
     ) {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-        _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
-        _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+        EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+        Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
     }
+
+    /// <summary>Interface for the event service.</summary>
+    protected IEventService EventService { get; }
+    /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
+    protected IIdentityServerInteractionService Interaction { get; }
+    /// <summary>A generic interface for logging.</summary>
+    protected ILogger<BaseConsentModel> Logger { get; }
 
     /// <summary>View-model class for the consent page.</summary>
     public ConsentViewModel View { get; set; } = new ConsentViewModel();
@@ -69,7 +73,7 @@ public abstract class BaseConsentModel : BasePageModel
         var result = await ProcessConsent(Input);
         if (result.IsRedirect) {
             result.RedirectUri ??= "/";
-            var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
+            var context = await Interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
             if (context?.IsNativeClient() == true) {
                 return this.LoadingPage("Redirect", result.RedirectUri);
             }
@@ -90,7 +94,7 @@ public abstract class BaseConsentModel : BasePageModel
             throw new ArgumentNullException(nameof(inputModel), "Input model cannot be null.");
         }
         var result = new ProcessConsentResult();
-        var request = await _interaction.GetAuthorizationContextAsync(inputModel.ReturnUrl);
+        var request = await Interaction.GetAuthorizationContextAsync(inputModel.ReturnUrl);
         if (request is null) {
             return result;
         }
@@ -99,7 +103,7 @@ public abstract class BaseConsentModel : BasePageModel
             grantedConsent = new ConsentResponse {
                 Error = AuthorizationError.AccessDenied
             };
-            await _eventService.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues));
+            await EventService.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues));
         } else if (inputModel.Button == "yes") {
             if (inputModel.ScopesConsented.Any()) {
                 var scopes = inputModel.ScopesConsented;
@@ -111,7 +115,7 @@ public abstract class BaseConsentModel : BasePageModel
                     ScopesValuesConsented = scopes.ToArray(),
                     Description = inputModel.Description
                 };
-                await _eventService.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues, grantedConsent.ScopesValuesConsented, grantedConsent.RememberConsent));
+                await EventService.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues, grantedConsent.ScopesValuesConsented, grantedConsent.RememberConsent));
             } else {
                 result.ValidationError = ConsentOptions.MustChooseOneErrorMessage;
             }
@@ -119,7 +123,7 @@ public abstract class BaseConsentModel : BasePageModel
             result.ValidationError = ConsentOptions.InvalidSelectionErrorMessage;
         }
         if (grantedConsent is not null) {
-            await _interaction.GrantConsentAsync(request, grantedConsent);
+            await Interaction.GrantConsentAsync(request, grantedConsent);
             result.RedirectUri = inputModel.ReturnUrl;
             result.Client = request.Client;
         } else {
@@ -129,11 +133,11 @@ public abstract class BaseConsentModel : BasePageModel
     }
 
     private async Task<ConsentViewModel> BuildViewModelAsync(string returnUrl, ConsentInputModel? model = null) {
-        var request = await _interaction.GetAuthorizationContextAsync(returnUrl);
+        var request = await Interaction.GetAuthorizationContextAsync(returnUrl);
         if (request is not null) {
             return CreateConsentViewModel(model, returnUrl, request);
         } else {
-            _logger.LogError("No consent request matching request: {ReturnUrl}", returnUrl);
+            Logger.LogError("No consent request matching request: {ReturnUrl}", returnUrl);
         }
         return new ConsentViewModel();
     }

@@ -17,9 +17,6 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseAssociateModel : BasePageModel
 {
-    private readonly ExtendedSignInManager<User> _signInManager;
-    private readonly ExtendedUserManager<User> _userManager;
-
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
@@ -28,9 +25,14 @@ public abstract class BaseAssociateModel : BasePageModel
         ExtendedSignInManager<User> signInManager,
         ExtendedUserManager<User> userManager
     ) : base() {
-        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
+
+    /// <summary>Provides the APIs for user sign in.</summary>
+    protected ExtendedSignInManager<User> SignInManager { get; }
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+    protected ExtendedUserManager<User> UserManager { get; }
 
     /// <summary>The view model that backs the external provider association page.</summary>
     public AssociateViewModel View { get; set; } = new AssociateViewModel();
@@ -59,7 +61,7 @@ public abstract class BaseAssociateModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
-        var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync();
+        var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();
         var claims = externalLoginInfo.Principal.Claims.ToList();
         claims.RemoveAll(x => x.Type == JwtClaimTypes.Subject);
         claims.RemoveAll(x => x.Type == JwtClaimTypes.GivenName);
@@ -75,7 +77,7 @@ public abstract class BaseAssociateModel : BasePageModel
         claims.Add(new Claim(BasicClaimTypes.ConsentCommencialDate, $"{DateTime.UtcNow:O}"));
         await AddExtraClaims(claims);
         var user = await FindOrCreateUser(Input.UserName, Input.PhoneNumber, claims);
-        await _userManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.ProviderDisplayName ?? externalLoginInfo.LoginProvider));
+        await UserManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.ProviderDisplayName ?? externalLoginInfo.LoginProvider));
         return RedirectToPage("/Challenge", "Callback", new {
             returnUrl = Input.ReturnUrl
         });
@@ -105,7 +107,7 @@ public abstract class BaseAssociateModel : BasePageModel
         var email = emailClaim?.Value;
         if (!string.IsNullOrWhiteSpace(email)) {
             // Try find existing user.
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await UserManager.FindByEmailAsync(email);
             if (user is not null) {
                 if (!user.EmailConfirmed) {
                     await SendConfirmationEmail(user);
@@ -129,7 +131,7 @@ public abstract class BaseAssociateModel : BasePageModel
                 UserId = userId
             });
         }
-        var result = await _userManager.CreateAsync(newUser);
+        var result = await UserManager.CreateAsync(newUser);
         if (!result.Succeeded) {
             var errors = new StringBuilder();
             foreach (var error in result.Errors) {

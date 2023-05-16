@@ -16,7 +16,6 @@ namespace Indice.Features.Identity.UI.Pages;
 public abstract class BaseAddEmailModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseAddEmailModel> _localizer;
-    private readonly ExtendedUserManager<User> _userManager;
 
     /// <summary>Creates a new instance of <see cref="BaseAddEmailModel"/> class.</summary>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseAddEmailModel"/>.</param>
@@ -27,8 +26,11 @@ public abstract class BaseAddEmailModel : BasePageModel
         ExtendedUserManager<User> userManager
     ) : base() {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
+
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+    protected ExtendedUserManager<User> UserManager { get; }
 
     /// <summary>The input model that backs the add email page.</summary>
     [BindProperty]
@@ -40,12 +42,12 @@ public abstract class BaseAddEmailModel : BasePageModel
     /// <summary>Extended validation add email page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        if (_userManager.StateProvider.CurrentState == UserState.LoggedIn) {
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
             await AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
         }
-        if (_userManager.StateProvider.CurrentState != UserState.RequiresEmailVerification) {
-            return Redirect(GetRedirectUrl(_userManager.StateProvider.CurrentState, returnUrl) ?? "/");
+        if (UserManager.StateProvider.CurrentState != UserState.RequiresEmailVerification) {
+            return Redirect(GetRedirectUrl(UserManager.StateProvider.CurrentState, returnUrl) ?? "/");
         }
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Info(_localizer["Please enter your email address so we can verify it before we continue."])
@@ -67,10 +69,10 @@ public abstract class BaseAddEmailModel : BasePageModel
         } else {
             Input.ReturnUrl = returnUrl;
         }
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         if (user.Email?.Equals(Input.Email) == false) {
             user.Email = Input.Email;
-            var result = await _userManager.SetEmailAsync(user, Input.Email);
+            var result = await UserManager.SetEmailAsync(user, Input.Email);
             if (!result.Succeeded) {
                 AddModelErrors(result);
                 return Page();

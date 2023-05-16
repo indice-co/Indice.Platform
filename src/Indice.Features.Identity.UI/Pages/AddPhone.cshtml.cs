@@ -16,19 +16,21 @@ namespace Indice.Features.Identity.UI.Pages;
 public abstract class BaseAddPhoneModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseAddPhoneModel> _localizer;
-    private readonly ExtendedUserManager<User> _userManager;
 
     /// <summary>Creates a new instance of <see cref="BaseAddEmailModel"/> class.</summary>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseAddEmailModel"/>.</param>
-    /// <param name="userManager"></param>
+    /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseAddPhoneModel(
         IStringLocalizer<BaseAddPhoneModel> localizer,
         ExtendedUserManager<User> userManager
     ) : base() {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
+
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+    protected ExtendedUserManager<User> UserManager { get; }
 
     /// <summary>The input model that backs the add phone page.</summary>
     [BindProperty]
@@ -40,9 +42,9 @@ public abstract class BaseAddPhoneModel : BasePageModel
     /// <summary>Extended validation add phone page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        if (_userManager.StateProvider.CurrentState != UserState.RequiresPhoneNumberVerification) {
-            var redirectUrl = GetRedirectUrl(_userManager.StateProvider.CurrentState, returnUrl);
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (UserManager.StateProvider.CurrentState != UserState.RequiresPhoneNumberVerification) {
+            var redirectUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, returnUrl);
             return Redirect(redirectUrl ?? "/");
         }
         TempData.Put(TempDataKey, new AlertModel {
@@ -60,8 +62,8 @@ public abstract class BaseAddPhoneModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var result = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();
