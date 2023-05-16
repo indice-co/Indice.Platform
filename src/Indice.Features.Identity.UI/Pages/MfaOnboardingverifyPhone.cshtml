@@ -16,6 +16,7 @@
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="infoMessage?.Alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+        <input type="hidden" asp-for="Input.PhoneNumber" />
         <div class="form-group">
             <label asp-for="Input.Code" class="sr-only">@Localizer["Code"]</label>
             <input class="form-control" type="text" placeholder="@Localizer["Code"]" asp-for="Input.Code" disabled="@displayNext" />

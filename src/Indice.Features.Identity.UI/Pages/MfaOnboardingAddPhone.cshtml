@@ -18,7 +18,6 @@
         <div class="form-group">
             <label asp-for="Input.PhoneNumber" class="sr-only">@Localizer["Phone number"]</label>
             <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-            <input type="hidden" asp-for="Input.PhoneNumber" />
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" disabled="@Model.View.DisablePhoneNumberInput" />
             <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>

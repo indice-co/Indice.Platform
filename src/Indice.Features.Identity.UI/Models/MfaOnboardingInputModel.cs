@@ -8,5 +8,5 @@ public class MfaOnboardingInputModel
     /// <summary>The return URL.</summary>
     public string? ReturnUrl { get; set; }
     /// <summary>The selected authentication method.</summary>
-    public AuthenticationMethodType SelectedAuthenticationMethod { get; set; }
+    public AuthenticationMethodType? SelectedAuthenticationMethod { get; set; }
 }

@@ -19,12 +19,11 @@ public static class MyAccountApi
         var group = routes.MapGroup($"{options.ApiPrefix}");
         group.WithTags("MyAccount");
         group.WithGroupName("identity");
-        // Add security requirements, all incoming requests to this API *must*
-        // be authenticated with a valid user.
-        var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
-        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme));
-        
+        var allowedScopes = new[] { options.ApiScope }.Where(x => x is not null).Cast<string>().ToArray();
+        group.RequireAuthorization(builder => builder
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
+        );
         group.WithOpenApi();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);

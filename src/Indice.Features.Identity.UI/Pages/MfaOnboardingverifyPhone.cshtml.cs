@@ -4,7 +4,6 @@ using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -12,7 +11,7 @@ namespace Indice.Features.Identity.UI.Pages;
 
 /// <summary>Page model for the MFA onboarding verify phone screen.</summary>
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.MfaOnboardingScheme)]
-[IdentityUI(typeof(BaseMfaOnboardingVerifyPhoneModel))]
+[IdentityUI(typeof(MfaOnboardingVerifyPhoneModel))]
 [SecurityHeaders]
 public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
 {
@@ -46,10 +45,8 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
             Alert = AlertModel.Success(_localizer["Please enter the code that you have received at your mobile phone."]),
             NextStepUrl = string.Empty
         });
-        Input = new VerifyPhoneInputModel {
-            PhoneNumber = user.PhoneNumber,
-            ReturnUrl = returnUrl
-        };
+        Input.PhoneNumber = user.PhoneNumber;
+        Input.ReturnUrl = returnUrl;
         return Page();
     }
 
@@ -59,24 +56,18 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
-        string infoMessage;
+        var tempDataModel = new ExtendedValidationTempDataModel();
         var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        Input.PhoneNumber = user.PhoneNumber;
         var result = await _userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, Input.Code);
         if (result.Succeeded) {
-            infoMessage = _localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."];
-            result = await _userManager.SetTwoFactorEnabledAsync(user, true);
-            var redirectUrl = GetRedirectUrl(_userManager.StateProvider.CurrentState, Input.ReturnUrl);
-            TempData.Put(nameof(infoMessage), new ExtendedValidationTempDataModel {
-                Alert = AlertModel.Success(infoMessage),
-                NextStepUrl = redirectUrl ?? "/"
-            });
+            await _userManager.SetTwoFactorEnabledAsync(user, true);
+            tempDataModel.Alert = AlertModel.Success(_localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."]);
         } else {
-            infoMessage = _localizer["Please enter the code that you have received at your mobile phone."];
-            TempData.Put(nameof(infoMessage), new ExtendedValidationTempDataModel {
-                Alert = AlertModel.Error(infoMessage),
-                NextStepUrl = string.Empty
-            });
+            tempDataModel.Alert = AlertModel.Error(_localizer["Please enter the code that you have received at your mobile phone."]);
         }
+        tempDataModel.NextStepUrl = GetRedirectUrl(_userManager.StateProvider.CurrentState, Input.ReturnUrl) ?? "/";
+        TempData.Put(TempDataKey, tempDataModel);
         return Page();
     }
 }
