@@ -176,7 +176,7 @@
         $(document).ready(function () {
             $('#resend-email-link').click(function () {
                 $.ajax({
-                    url: '@Url.PageLink(pageName: "ConfirmEmail", pageHandler: "Resend"))',
+                    url: '@Url.PageLink(pageName: "/ConfirmEmail", pageHandler: "Resend"))',
                     type: 'GET',
                     dataType: 'json',
                     statusCode: {

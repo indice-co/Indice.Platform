@@ -6,26 +6,35 @@ using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.TokenProviders;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-/// <summary>Extensions on <see cref="IdentityBuilder"/></summary>
+/// <summary>Extensions on <see cref="IdentityBuilder"/>.</summary>
 public static class IdentityBuilderExtensions
 {
     /// <summary>Registers an instance of <see cref="ExtendedSignInManager{TUser}"/> along with required dependencies.</summary>
     /// <typeparam name="TUser">The type of <see cref="User"/> used by the identity system.</typeparam>
     /// <param name="builder">The type of builder for configuring identity services.</param>
     public static IdentityBuilder AddExtendedSignInManager<TUser>(this IdentityBuilder builder) where TUser : User {
-        builder.Services.AddAuthentication().AddCookie(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, options => {
-            options.Cookie.Name = ExtendedIdentityConstants.ExtendedValidationUserIdScheme;
+        static Action<CookieAuthenticationOptions> AuthCookie(string cookieName) => options => {
+            options.Cookie.Name = cookieName;
             options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-        });
-        builder.Services.AddAuthentication().AddCookie(ExtendedIdentityConstants.MfaOnboardingScheme, options => {
-            options.Cookie.Name = ExtendedIdentityConstants.MfaOnboardingScheme;
-            options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+            options.LoginPath = new PathString("/login");
+            options.LogoutPath = new PathString("/logout");
+            options.AccessDeniedPath = new PathString("/403");
+        };
+        builder.Services
+               .AddAuthentication()
+               .AddCookie(ExtendedIdentityConstants.ExtendedValidationUserIdScheme, AuthCookie(ExtendedIdentityConstants.ExtendedValidationUserIdScheme))
+               .AddCookie(ExtendedIdentityConstants.MfaOnboardingScheme, AuthCookie(ExtendedIdentityConstants.MfaOnboardingScheme));
+        builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFactorUserIdScheme, options => {
+            AuthCookie(IdentityConstants.TwoFactorUserIdScheme)(options);
+            options.LoginPath = new PathString("/login-with-2fa");
         });
         builder.Services.AddTransient<IMfaDeviceIdResolver, MfaDeviceIdResolverHttpContext>();
         builder.Services.TryAddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();

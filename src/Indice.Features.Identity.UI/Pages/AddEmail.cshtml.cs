@@ -88,6 +88,7 @@ public abstract class BaseAddEmailModel : BasePageModel
     }
 }
 
+[Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
 internal class AddEmailModel : BaseAddEmailModel
 {
     public AddEmailModel(

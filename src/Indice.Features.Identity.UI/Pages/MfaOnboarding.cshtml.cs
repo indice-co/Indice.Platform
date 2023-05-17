@@ -51,7 +51,7 @@ public abstract class BaseMfaOnboardingModel : BasePageModel
         }
         await Task.CompletedTask;
         var redirectUrl = Input.SelectedAuthenticationMethod switch {
-            AuthenticationMethodType.PhoneNumber => Url.PageLink("MfaOnboardingAddPhone", values: new { returnUrl = Input.ReturnUrl }),
+            AuthenticationMethodType.PhoneNumber => Url.PageLink("/MfaOnboardingAddPhone", values: new { returnUrl = Input.ReturnUrl }),
             _ => throw new NotImplementedException("Only SMS authentication method as second factor is currently supported."),
         };
         TempData.Put(TempDataKey, new MfaOnboardingTempDataModel {
