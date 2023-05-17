@@ -99,18 +99,12 @@ public abstract class BaseRegisterModel : BasePageModel
         return RedirectToPage("/Login");
     }
 
-    /// <summary>
-    /// Creates the default view model. 
-    /// </summary>
-    /// <param name="returnUrl"></param>
-    /// <returns></returns>
+    /// <summary>Creates the default view model. </summary>
+    /// <param name="returnUrl">The return URL.</param>
     protected Task<RegisterViewModel> BuildRegisterViewModelAsync(string? returnUrl) => BuildRegisterViewModelAsync<RegisterViewModel>(returnUrl);
 
-    /// <summary>
-    /// Creates the view model
-    /// </summary>
-    /// <param name="returnUrl"></param>
-    /// <returns></returns>
+    /// <summary>Creates the view model.</summary>
+    /// <param name="returnUrl">The return URL.</param>
     protected async Task<TViewModel> BuildRegisterViewModelAsync<TViewModel>(string? returnUrl) where TViewModel : RegisterViewModel, new() {
         var context = await Interaction.GetAuthorizationContextAsync(returnUrl);
         if (context?.IdP is not null && await SchemeProvider.GetSchemeAsync(context.IdP) is not null) {
@@ -155,11 +149,8 @@ public abstract class BaseRegisterModel : BasePageModel
         };
     }
 
-    /// <summary>
-    /// Creates the user from Input model
-    /// </summary>
-    /// <param name="input"></param>
-    /// <returns></returns>
+    /// <summary>Creates the user from input model.</summary>
+    /// <param name="input">The input model.</param>
     protected virtual User CreateUserFromInput(RegisterInputModel input) {
         var user = new User {
             UserName = input.UserName,
