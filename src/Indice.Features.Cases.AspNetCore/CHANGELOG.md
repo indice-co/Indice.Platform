@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Changed
+- The `CaseApiOptions` are now separated for each endpoint group. Use `MyCasesApiOptions` or `AdminCasesApiOptions` accordingly.
+### Bugfix
+- `GroupName` and `ApiPrefix` can be configured properly for each endpoint group (admin or my-cases). Resolves #225.
+### Migrations
+- at `AddCasesApiEndpoints` Replace `CasesApiOptions` with `MyCasesApiOptions`.
+- at `AddAdminCasesApiEndpoints` Replace `CasesApiOptions` with `AdminCasesApiOptions`.
+
+## [7.1.6] - 2023-05-09
+### Changed
 - `IncludeDrafts` option to return draft cases.
 
 ## [7.1.1] - 2023-04-19

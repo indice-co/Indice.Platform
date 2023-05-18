@@ -32,7 +32,7 @@ public static class CasesApiFeatureExtensions
     /// <summary>Add case management Api endpoints for Customer (api/my prefix).</summary>
     /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
     /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
-    public static IMvcBuilder AddCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions> configureAction = null) {
+    public static IMvcBuilder AddCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<MyCasesApiOptions> configureAction = null) {
         // Add
         mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProviderMyCases()));
         var services = mvcBuilder.Services;
@@ -49,21 +49,22 @@ public static class CasesApiFeatureExtensions
             .AddNewtonsoftJson(x => x.SerializerSettings.Converters.Add(new SystemTextConverter()));
 
         // Configure options given by the consumer.
-        var casesApiOptions = new CasesApiOptions();
+        var casesApiOptions = new MyCasesApiOptions();
         configureAction?.Invoke(casesApiOptions);
-        services.Configure<CasesApiOptions>(options => {
+        services.Configure<MyCasesApiOptions>(options => {
             options.ApiPrefix = casesApiOptions.ApiPrefix;
             options.ConfigureDbContext = casesApiOptions.ConfigureDbContext;
             options.DatabaseSchema = casesApiOptions.DatabaseSchema;
             options.ExpectedScope = casesApiOptions.ExpectedScope;
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
+            options.GroupName = casesApiOptions.GroupName;
         }).AddSingleton(casesApiOptions);
 
         // Post configure MVC options.
         services.PostConfigure<MvcOptions>(options => {
-            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CasesApiTemplatePrefixPlaceholder, casesApiOptions.ApiPrefix ?? "api"));
-            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CasesApiGroupNamePlaceholder, casesApiOptions.GroupName));
+            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.MyCasesApiTemplatePrefixPlaceholder, casesApiOptions.ApiPrefix ?? "api"));
+            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.MyCasesApiGroupNamePlaceholder, casesApiOptions.GroupName));
         });
 
         // Register framework services.
@@ -102,7 +103,7 @@ public static class CasesApiFeatureExtensions
     /// <summary>Add case management Api endpoints for manage cases from back-office (api/manage prefix).</summary>
     /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
     /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
-    public static IMvcBuilder AddAdminCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<CasesApiOptions> configureAction = null) {
+    public static IMvcBuilder AddAdminCasesApiEndpoints(this IMvcBuilder mvcBuilder, Action<AdminCasesApiOptions> configureAction = null) {
         // Add
         mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new CasesApiFeatureProviderAdminCases()));
         var services = mvcBuilder.Services;
@@ -115,15 +116,16 @@ public static class CasesApiFeatureExtensions
         services.AddGeneralSettings(configuration);
 
         // Configure options given by the consumer.
-        var casesApiOptions = new CasesApiOptions();
+        var casesApiOptions = new AdminCasesApiOptions();
         configureAction?.Invoke(casesApiOptions);
-        services.Configure<CasesApiOptions>(options => {
+        services.Configure<AdminCasesApiOptions>(options => {
             options.ApiPrefix = casesApiOptions.ApiPrefix;
             options.ConfigureDbContext = casesApiOptions.ConfigureDbContext;
             options.DatabaseSchema = casesApiOptions.DatabaseSchema;
             options.ExpectedScope = casesApiOptions.ExpectedScope;
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
+            options.GroupName = casesApiOptions.GroupName;
         }).AddSingleton(casesApiOptions);
 
         // Post configure MVC options.

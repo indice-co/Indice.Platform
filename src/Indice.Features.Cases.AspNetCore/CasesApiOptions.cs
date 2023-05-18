@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Indice.Features.Cases;
 
 /// <summary>The options for the initialization of the Case Api.</summary>
-public class CasesApiOptions
+public abstract class CasesApiOptions
 {
     /// <summary>
     /// Configuration <see cref="Action"/> for internal <see cref="DbContext"/>. 
@@ -29,4 +29,20 @@ public class CasesApiOptions
 
     /// <summary>The claim type groupid name</summary>
     public string GroupIdClaimType { get; set; } = CasesApiConstants.DefaultGroupIdClaimType;
+}
+
+/// <summary>
+/// The Admin case options, specific for the admin Api.
+/// </summary>
+public class AdminCasesApiOptions: CasesApiOptions
+{
+
+}
+
+/// <summary>
+/// The My-Cases options, specific for the my-cases Api.
+/// </summary>
+public class MyCasesApiOptions: CasesApiOptions
+{
+
 }
