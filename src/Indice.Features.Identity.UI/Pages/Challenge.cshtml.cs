@@ -52,7 +52,7 @@ public abstract class BaseChallengeModel : BasePageModel
         if (Url.IsLocalUrl(returnUrl) == false && Interaction.IsValidReturnUrl(returnUrl) == false) {
             throw new Exception("Invalid return URL.");
         }
-        var authenticationProperties = SignInManager.ConfigureExternalAuthenticationProperties(provider, Url.PageLink("Challenge", "Callback", new { returnUrl }));
+        var authenticationProperties = SignInManager.ConfigureExternalAuthenticationProperties(provider, Url.PageLink("/Challenge", "Callback", new { returnUrl }));
         authenticationProperties.Items.Add(nameof(returnUrl), returnUrl);
         if (!string.IsNullOrWhiteSpace(prompt) && (prompt.Equals(OidcConstants.PromptModes.Login) || prompt.Equals(OidcConstants.PromptModes.SelectAccount))) {
             authenticationProperties.Items.Add(OidcConstants.AuthorizeRequest.Prompt, prompt);

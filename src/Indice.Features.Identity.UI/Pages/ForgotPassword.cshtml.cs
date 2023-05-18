@@ -78,7 +78,7 @@ public abstract class BaseForgotPasswordModel : BasePageModel
             return Page();
         }
         var token = await UserManager.GeneratePasswordResetTokenAsync(user);
-        var callbackUrl = Url.PageLink("ForgotPasswordConfirmation", values: new { email = user.Email, token });
+        var callbackUrl = Url.PageLink("/ForgotPasswordConfirmation", values: new { email = user.Email, token });
         Logger.LogDebug("{PageTitle}: Confirmation token is {Token}", "Forgot password", token);
         await EmailService.SendAsync(builder =>
             builder.To(user.Email)

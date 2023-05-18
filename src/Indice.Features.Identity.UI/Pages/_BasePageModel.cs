@@ -1,10 +1,8 @@
-﻿using System.Diagnostics;
-using IdentityModel;
+﻿using IdentityModel;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +10,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -39,15 +36,15 @@ public abstract class BasePageModel : PageModel
     public string? GetRedirectUrl(SignInResult result, string? returnUrl = null) {
         string? url = null;
         if (result.RequiresPasswordChange()) {
-            url = Url.PageLink("PasswordExpired", values: new { returnUrl });
+            url = Url.PageLink("/PasswordExpired", values: new { returnUrl });
         } else if (result.RequiresEmailConfirmation()) {
-            url = Url.PageLink("AddEmail", values: new { returnUrl });
+            url = Url.PageLink("/AddEmail", values: new { returnUrl });
         } else if (result.RequiresPhoneNumberConfirmation()) {
-            url = Url.PageLink("AddPhone", values: new { returnUrl });
+            url = Url.PageLink("/AddPhone", values: new { returnUrl });
         } else if (result.RequiresTwoFactor) {
-            url = Url.PageLink("Mfa", values: new { returnUrl });
+            url = Url.PageLink("/Mfa", values: new { returnUrl });
         } else if (result.RequiresMfaOnboarding()) {
-            url = Url.PageLink("MfaOnboarding", values: new { returnUrl });
+            url = Url.PageLink("/MfaOnboarding", values: new { returnUrl });
         }
         return url;
     }
@@ -57,11 +54,11 @@ public abstract class BasePageModel : PageModel
     /// <param name="returnUrl">The return URL.</param>
     public string? GetRedirectUrl(UserState loginState, string? returnUrl = null) => loginState switch {
         UserState.LoggedOut or UserState.LoggedIn => "/",
-        UserState.RequiresPhoneNumberVerification => Url.PageLink("AddPhone", values: new { returnUrl }),
-        UserState.RequiresEmailVerification => Url.PageLink("AddEmail", values: new { returnUrl }),
-        UserState.RequiresPasswordChange => Url.PageLink("PasswordExpired", values: new { returnUrl }),
-        UserState.RequiresMfa => Url.PageLink("Mfa", values: new { returnUrl }),
-        UserState.RequiresMfaOnboarding => Url.PageLink("MfaOnboarding", values: new { returnUrl }),
+        UserState.RequiresPhoneNumberVerification => Url.PageLink("/AddPhone", values: new { returnUrl }),
+        UserState.RequiresEmailVerification => Url.PageLink("/AddEmail", values: new { returnUrl }),
+        UserState.RequiresPasswordChange => Url.PageLink("/PasswordExpired", values: new { returnUrl }),
+        UserState.RequiresMfa => Url.PageLink("/Mfa", values: new { returnUrl }),
+        UserState.RequiresMfaOnboarding => Url.PageLink("/MfaOnboarding", values: new { returnUrl }),
         _ => default
     };
 
@@ -84,24 +81,19 @@ public abstract class BasePageModel : PageModel
     public virtual async Task SendConfirmationEmail(User user, string? returnUrl = null) {
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        var callbackUrl = Url.PageLink("ConfirmEmail", values: new { userId = user.Id, token, returnUrl }, protocol: HttpContext.Request.Scheme ?? null);
-        var hostingEnvironment = ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-        if (!hostingEnvironment.IsDevelopment()) {
-            var emailService = ServiceProvider.GetRequiredService<IEmailService>();
-            await emailService.SendAsync(message =>
-                message.To(user.Email)
-                       .WithSubject("Account confirmation")
-                       .UsingTemplate("EmailRegister")
-                       .WithData(new {
-                           user.UserName,
-                           Url = callbackUrl
-                       })
-            );
-            var logger = ServiceProvider.GetRequiredService<ILogger<BasePageModel>>();
-            logger.LogInformation("Sending a confirmation email to {Email} with callback URL: {CallbackUrl}.", user.Email, callbackUrl);
-        } else {
-            Debug.WriteLine($"Link to confirm account: {callbackUrl}");
-        }
+        var callbackUrl = Url.PageLink("/ConfirmEmail", values: new { userId = user.Id, token, returnUrl }, protocol: HttpContext.Request.Scheme ?? null);
+        var emailService = ServiceProvider.GetRequiredService<IEmailService>();
+        await emailService.SendAsync(message =>
+            message.To(user.Email)
+                   .WithSubject("Account confirmation")
+                   .UsingTemplate("EmailRegister")
+                   .WithData(new {
+                       user.UserName,
+                       Url = callbackUrl
+                   })
+        );
+        var logger = ServiceProvider.GetRequiredService<ILogger<BasePageModel>>();
+        logger.LogInformation("Sending a confirmation email to {Email} with callback URL: {CallbackUrl}.", user.Email, callbackUrl);
     }
 
     /// <summary>Generates a change email confirmation link and sends it to the email of the specified user.</summary>
@@ -113,24 +105,19 @@ public abstract class BasePageModel : PageModel
         var token = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
         var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
         var generalSettings = configuration.GetGeneralSettings();
-        var callbackUrl = $"{generalSettings.Host}{Url.PageLink("ChangeEmail", values: new { userId = user.Id, token, email = newEmail, returnUrl })}";
+        var callbackUrl = $"{generalSettings.Host}{Url.PageLink("/ChangeEmail", values: new { userId = user.Id, token, email = newEmail, returnUrl })}";
         var claims = await userManager.GetClaimsAsync(user);
-        var hostingEnvironment = ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-        if (!hostingEnvironment.IsDevelopment()) {
-            var emailService = ServiceProvider.GetRequiredService<IEmailService>();
-            var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
-            await emailService.SendAsync(message =>
-                message.To(user.Email)
-                       .WithSubject(localizer["Account confirmation"])
-                       .UsingTemplate("EmailRegister")
-                       .WithData(new {
-                           UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? user.UserName,
-                           Url = callbackUrl
-                       })
-            );
-        } else {
-            Debug.WriteLine($"Link to confirm account: {callbackUrl}");
-        }
+        var emailService = ServiceProvider.GetRequiredService<IEmailService>();
+        var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
+        await emailService.SendAsync(message =>
+            message.To(user.Email)
+                   .WithSubject(localizer["Account confirmation"])
+                   .UsingTemplate("EmailRegister")
+                   .WithData(new {
+                       UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? user.UserName,
+                       Url = callbackUrl
+                   })
+        );
     }
 
     /// <summary>Generates a TOTP code and sends it to the phone number of the specified user.</summary>
@@ -139,14 +126,9 @@ public abstract class BasePageModel : PageModel
     public virtual async Task SendVerificationSmsAsync(User user, string phoneNumber) {
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var code = await userManager.GenerateChangePhoneNumberTokenAsync(user, phoneNumber);
-        var hostingEnvironment = ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-        if (!hostingEnvironment.IsDevelopment()) {
-            var smsService = ServiceProvider.GetRequiredService<ISmsService>();
-            var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
-            await smsService.SendAsync(phoneNumber, localizer["Verify phone number"], localizer["OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES.", code]);
-        } else {
-            Debug.WriteLine($"OTP Code: {code}");
-        }
+        var smsService = ServiceProvider.GetRequiredService<ISmsService>();
+        var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
+        await smsService.SendAsync(phoneNumber, localizer["Verify phone number"], localizer["OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES.", code]);
     }
 
     /// <summary>Automatically signs in the given user.</summary>
