@@ -4,7 +4,7 @@
 public class LogoutInputModel
 {
     /// <summary>The logout id.</summary>
-    public string LogoutId { get; set; }
+    public string? LogoutId { get; set; }
     /// <summary>The id of the current client in the request. </summary>
-    public string ClientId { get; set; }
+    public string? ClientId { get; set; }
 }

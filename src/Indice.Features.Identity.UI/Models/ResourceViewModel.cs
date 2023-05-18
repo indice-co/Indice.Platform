@@ -4,7 +4,7 @@
 public class ResourceViewModel
 {
     /// <summary>Name of the resource.</summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
     /// <summary>Display name of the resource.</summary>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
 }
