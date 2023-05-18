@@ -42,21 +42,21 @@
                         <li class="nav-item">
                             @if (user is not null && await UserManager.HasPasswordAsync(user))
                             {
-                                <a class="nav-link" asp-page="ChangePassword">@Localizer["Change Password"]</a>
+                                <a class="nav-link" asp-page="/ChangePassword">@Localizer["Change Password"]</a>
                             }
                             else
                             {
-                                <a class="nav-link" asp-page="AddPassword">@Localizer["Add Password"]</a>
+                                <a class="nav-link" asp-page="/AddPassword">@Localizer["Add Password"]</a>
                             }
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="Profile">@Localizer["Profile"]</a>
+                            <a class="nav-link" asp-page="/Profile">@Localizer["Profile"]</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="Grants">@Localizer["Grants"]</a>
+                            <a class="nav-link" asp-page="/Grants">@Localizer["Grants"]</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-page="Logout">@Localizer["Log out"]</a>
+                            <a class="nav-link" asp-page="/Logout">@Localizer["Log out"]</a>
                         </li>
                     </ul>
                 </div>
@@ -82,24 +82,24 @@
                                                 <div class="account-links">
                                                     @if (user is not null && await UserManager.HasPasswordAsync(user))
                                                     {
-                                                        <a class="account-link" asp-page="ChangePassword">@Localizer["Change Password"]</a>
+                                                        <a class="account-link" asp-page="/ChangePassword">@Localizer["Change Password"]</a>
                                                     }
                                                     else
                                                     {
-                                                        <a class="account-link" asp-page="AddPassword">@Localizer["Add Password"]</a>
+                                                        <a class="account-link" asp-page="/AddPassword">@Localizer["Add Password"]</a>
                                                     }
-                                                    <a class="account-link" asp-page="Profile">@Localizer["Profile"]</a>
-                                                    <a class="account-link" asp-page="Grants">@Localizer["Grants"]</a>
+                                                    <a class="account-link" asp-page="/Profile">@Localizer["Profile"]</a>
+                                                    <a class="account-link" asp-page="/Grants">@Localizer["Grants"]</a>
                                                 </div>
                                             </div>
                                         </div>
-                                        <a class="account-sign-out text-truncate" asp-page="Logout" target="_top">@Localizer["Log out"]</a>
+                                        <a class="account-sign-out text-truncate" asp-page="/Logout" target="_top">@Localizer["Log out"]</a>
                                     </div>
                                     <div class="account-list-container">
                                         <ul class="account-list">
                                             <li>
                                                 <div class="account-item">
-                                                    <a class="sign-in-item" asp-page="/login">
+                                                    <a class="sign-in-item" asp-page="/Login">
                                                         <div class="account-item-icon">
                                                             <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' stroke='currentColor'>
                                                                 <g stroke-width='1.9' fill='none'>

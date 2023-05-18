@@ -16,11 +16,6 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseGrantsModel : PageModel
 {
-    private readonly IClientStore _clients;
-    private readonly IEventService _events;
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly IResourceStore _resources;
-
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="clients">Retrieval of client configuration.</param>
     /// <param name="events">Interface for the event service.</param>
@@ -33,11 +28,20 @@ public abstract class BaseGrantsModel : PageModel
         IIdentityServerInteractionService interaction,
         IResourceStore resources
     ) {
-        _clients = clients ?? throw new ArgumentNullException(nameof(clients));
-        _events = events ?? throw new ArgumentNullException(nameof(events));
-        _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
-        _resources = resources ?? throw new ArgumentNullException(nameof(resources));
+        Clients = clients ?? throw new ArgumentNullException(nameof(clients));
+        Events = events ?? throw new ArgumentNullException(nameof(events));
+        Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+        Resources = resources ?? throw new ArgumentNullException(nameof(resources));
     }
+
+    /// <summary>Retrieval of client configuration.</summary>
+    protected IClientStore Clients { get; }
+    /// <summary>Interface for the event service.</summary>
+    protected IEventService Events { get; }
+    /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
+    protected IIdentityServerInteractionService Interaction { get; }
+    /// <summary>Resource retrieval.</summary>
+    protected IResourceStore Resources { get; }
 
     /// <summary></summary>
     public GrantsViewModel View { get; set; } = new GrantsViewModel();
@@ -50,18 +54,18 @@ public abstract class BaseGrantsModel : PageModel
 
     /// <summary>Grants page GET handler.</summary>
     public virtual async Task<IActionResult> OnPostRevokeAsync(string clientId) {
-        await _interaction.RevokeUserConsentAsync(clientId);
-        await _events.RaiseAsync(new GrantsRevokedEvent(User.GetSubjectId(), clientId));
-        return RedirectToPage("Grants");
+        await Interaction.RevokeUserConsentAsync(clientId);
+        await Events.RaiseAsync(new GrantsRevokedEvent(User.GetSubjectId(), clientId));
+        return RedirectToPage("/Grants");
     }
 
     private async Task<GrantsViewModel> BuildViewModelAsync() {
-        var grants = await _interaction.GetAllUserGrantsAsync();
+        var grants = await Interaction.GetAllUserGrantsAsync();
         var list = new List<GrantModel>();
         foreach (var grant in grants) {
-            var client = await _clients.FindClientByIdAsync(grant.ClientId);
+            var client = await Clients.FindClientByIdAsync(grant.ClientId);
             if (client != null) {
-                var resources = await _resources.FindResourcesByScopeAsync(grant.Scopes);
+                var resources = await Resources.FindResourcesByScopeAsync(grant.Scopes);
                 var item = new GrantModel {
                     ApiGrantNames = resources.ApiScopes.Select(x => x.DisplayName ?? x.Name).ToArray(),
                     ClientId = client.ClientId,

@@ -14,6 +14,8 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseChangePasswordModel : BasePageModel
 {
+    private readonly IStringLocalizer<BaseChangePasswordModel> _localizer;
+
     /// <summary>Creates a new instance of <see cref="BaseChangePasswordModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
@@ -26,15 +28,13 @@ public abstract class BaseChangePasswordModel : BasePageModel
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>Represents a type used to perform logging.</summary>
     protected ILogger<BaseChangePasswordModel> Logger { get; }
-    /// <summary>Represents a service that provides localized strings.</summary>
-    public IStringLocalizer<BaseChangePasswordModel> Localizer { get; }
 
     /// <summary>Forgot password input model data.</summary>
     [BindProperty]
@@ -50,7 +50,7 @@ public abstract class BaseChangePasswordModel : BasePageModel
         if (await UserManager.HasPasswordAsync(user)) {
             return Page();
         }
-        return RedirectToPage("Error40X", routeValues: new { statusCode = 404 });
+        return RedirectToPage("/Error40X", routeValues: new { statusCode = 404 });
     }
 
     /// <summary>Change password page POST handler.</summary>

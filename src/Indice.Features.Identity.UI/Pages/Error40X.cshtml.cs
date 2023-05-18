@@ -12,14 +12,15 @@ namespace Indice.Features.Identity.UI.Pages;
 [IdentityUI(typeof(Error40XModel))]
 public abstract class BaseError40XModel : PageModel
 {
-    private readonly ILogger<BaseError40XModel> _logger;
-
     /// <summary>Creates a new instance of <see cref="BaseError40XModel"/> class.</summary>
     /// <param name="logger">Represents a type used to perform logging.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseError40XModel(ILogger<BaseError40XModel> logger) {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
+
+    /// <summary>Represents a type used to perform logging.</summary>
+    protected ILogger<BaseError40XModel> Logger { get; }
 
     /// <summary>Will propagate to body class.</summary>
     [ViewData]

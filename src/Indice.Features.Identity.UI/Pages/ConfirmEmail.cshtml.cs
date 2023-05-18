@@ -11,6 +11,8 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseConfirmEmailModel : BasePageModel
 {
+    private readonly IStringLocalizer<BaseConfirmEmailModel> _localizer;
+
     /// <summary>Creates a new instance of <see cref="BaseConfirmEmailModel"/> class.</summary>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseConfirmEmailModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
@@ -19,12 +21,10 @@ public abstract class BaseConfirmEmailModel : BasePageModel
         IStringLocalizer<BaseConfirmEmailModel> localizer,
         ExtendedUserManager<User> userManager
     ) {
-        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
-    /// <summary>Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseConfirmEmailModel"/>.</summary>
-    protected IStringLocalizer<BaseConfirmEmailModel> Localizer { get; }
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>The URL to return to.</summary>

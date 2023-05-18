@@ -21,16 +21,11 @@ namespace Indice.Features.Identity.UI.Pages;
 public abstract class BaseMfaModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseMfaModel> _localizer;
-    private readonly ExtendedUserManager<User> _userManager;
-    private readonly ExtendedSignInManager<User> _signInManager;
-    private readonly TotpServiceFactory _totpServiceFactory;
-    private readonly IConfiguration _configuration;
-    private readonly IIdentityServerInteractionService _interaction;
 
     /// <summary>Creates a new instance of <see cref="BaseMfaModel"/> class.</summary>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseMfaModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-    /// <param name="signInManager"></param>
+    /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="totpServiceFactory">A factory service that contains methods to create various TOTP services, based on <see cref="TotpServiceBase"/>.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
@@ -44,12 +39,23 @@ public abstract class BaseMfaModel : BasePageModel
         IIdentityServerInteractionService interaction
     ) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-        _totpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+        TotpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
+        Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
     }
+
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+    protected ExtendedUserManager<User> UserManager { get; }
+    /// <summary>Provides the APIs for user sign in.</summary>
+    protected ExtendedSignInManager<User> SignInManager { get; }
+    /// <summary>A factory service that contains methods to create various TOTP services, based on <see cref="TotpServiceBase"/>.</summary>
+    protected TotpServiceFactory TotpServiceFactory { get; }
+    /// <summary>Represents a set of key/value application configuration properties.</summary>
+    protected IConfiguration Configuration { get; }
+    /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
+    protected IIdentityServerInteractionService Interaction { get; }
 
     /// <summary>Login view model.</summary>
     public MfaLoginViewModel View { get; set; } = new MfaLoginViewModel();
@@ -63,7 +69,7 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="downgradeChannel">Allows the user to select a channel with lower security.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl, [FromQuery(Name = "dc")] bool? downgradeChannel) {
         Input = View = await BuildMfaLoginViewModelAsync(returnUrl, downgradeChannel);
-        var totpService = _totpServiceFactory.Create<User>();
+        var totpService = TotpServiceFactory.Create<User>();
         if (View.DeliveryChannel == TotpDeliveryChannel.Sms) {
             await totpService.SendAsync(message =>
                 message.ToUser(View.User)
@@ -80,12 +86,12 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
-        var totpService = _totpServiceFactory.Create<User>();
-        var signInResult = await _signInManager.TwoFactorSignInAsync(totpService.TokenProvider, Input.OtpCode, Input.RememberMe, Input.RememberClient);
+        var totpService = TotpServiceFactory.Create<User>();
+        var signInResult = await SignInManager.TwoFactorSignInAsync(totpService.TokenProvider, Input.OtpCode, Input.RememberMe, Input.RememberClient);
         if (signInResult.Succeeded) {
             if (string.IsNullOrEmpty(Input.ReturnUrl)) {
                 return Redirect("/");
-            } else if (_interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
+            } else if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
                 return Redirect(Input.ReturnUrl);
             } else {
                 throw new Exception("Invalid return URL.");
@@ -109,8 +115,8 @@ public abstract class BaseMfaModel : BasePageModel
     }
 
     private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, bool? downgradeMfaChannel = false, TotpDeliveryChannel? mfaChannel = null) {
-        var user = await _signInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
-        var allowMfaChannelDowngrade = _configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowChannelDowngrade") ?? false;
+        var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
+        var allowMfaChannelDowngrade = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowChannelDowngrade") ?? false;
         if ((downgradeMfaChannel ??= false) && allowMfaChannelDowngrade) {
             return new MfaLoginViewModel {
                 DeliveryChannel = mfaChannel ?? TotpDeliveryChannel.Sms,
@@ -119,13 +125,13 @@ public abstract class BaseMfaModel : BasePageModel
                 AllowMfaChannelDowngrade = true
             };
         }
-        var trustedDevices = await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
+        var trustedDevices = await UserManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
         var deliveryChannel = TotpDeliveryChannel.None;
         if (trustedDevices.Count > 0) {
             deliveryChannel = TotpDeliveryChannel.PushNotification;
         } else {
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            var phoneNumberConfirmed = !string.IsNullOrWhiteSpace(phoneNumber) && await _userManager.IsPhoneNumberConfirmedAsync(user);
+            var phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+            var phoneNumberConfirmed = !string.IsNullOrWhiteSpace(phoneNumber) && await UserManager.IsPhoneNumberConfirmedAsync(user);
             if (phoneNumberConfirmed) {
                 deliveryChannel = mfaChannel ?? TotpDeliveryChannel.Sms;
             }

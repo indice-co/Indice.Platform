@@ -196,7 +196,7 @@ public class CountryInfo
             { new CountryInfo("AF", "NG", "NGA", 566, "Nigeria", "Abuja", "bin,en,ff,ha,ibb,ig,kr,yo", "234") },
             { new CountryInfo("OC", "NU", "NIU", 570, "Niue", "Alofi", "en", "683") },
             { new CountryInfo("OC", "NF", "NFK", 574, "Norfolk Island", "Kingston", "en", "672-3") },
-            { new CountryInfo("AS", "KP", "PRK", 408, " Democratic People's Republic of Korea", "Pyongyang", "ko", "850") },
+            { new CountryInfo("AS", "KP", "PRK", 408, "Democratic People's Republic of Korea", "Pyongyang", "ko", "850") },
             { new CountryInfo("OC", "MP", "MNP", 580, "Northern Mariana Islands", "Saipan", "en", "1-670") },
             { new CountryInfo("EU", "NO", "NOR", 578, "Norway", "Oslo", "nb,nn,se,sma,smj", "47") },
             { new CountryInfo("AS", "OM", "OMN", 512, "Oman", "Muscat", "ar", "968") },

@@ -9,7 +9,6 @@ using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -19,10 +18,6 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseLogoutModel : BasePageModel
 {
-    private readonly ExtendedSignInManager<User> _signInManager;
-    private readonly IEventService _events;
-    private readonly IIdentityServerInteractionService _interaction;
-
     /// <summary>Creates a new instance of <see cref="BaseLogoutModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="events">Interface for the event service.</param>
@@ -33,10 +28,17 @@ public abstract class BaseLogoutModel : BasePageModel
         IEventService events,
         IIdentityServerInteractionService interaction
     ) {
-        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-        _events = events ?? throw new ArgumentNullException(nameof(events));
-        _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+        SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+        Events = events ?? throw new ArgumentNullException(nameof(events));
+        Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
     }
+
+    /// <summary>Provides the APIs for user sign in.</summary>
+    protected ExtendedSignInManager<User> SignInManager { get; }
+    /// <summary>Interface for the event service.</summary>
+    protected IEventService Events { get; }
+    /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
+    protected IIdentityServerInteractionService Interaction { get; }
 
     /// <summary>The logout id.</summary>
     [BindProperty]
@@ -57,7 +59,7 @@ public abstract class BaseLogoutModel : BasePageModel
             // if the user is not authenticated, then just show logged out page.
             showLogoutPrompt = false;
         } else {
-            var context = await _interaction.GetLogoutContextAsync(LogoutId);
+            var context = await Interaction.GetLogoutContextAsync(LogoutId);
             ClientId = context?.ClientId;
             if (context?.ShowSignoutPrompt == false) {
                 // It's safe to automatically sign-out.
@@ -76,11 +78,11 @@ public abstract class BaseLogoutModel : BasePageModel
     public virtual async Task<IActionResult> OnPostAsync() {
         if (User?.Identity?.IsAuthenticated == true) {
             // If there's no current logout context, we need to create one this captures necessary info from the current logged in user. This can still return null if there is no context needed.
-            LogoutId ??= await _interaction.CreateLogoutContextAsync();
+            LogoutId ??= await Interaction.CreateLogoutContextAsync();
             // Delete local authentication cookie.
-            await _signInManager.SignOutAsync();
+            await SignInManager.SignOutAsync();
             // Raise the logout event.
-            await _events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
+            await Events.RaiseAsync(new UserLogoutSuccessEvent(User.GetSubjectId(), User.GetDisplayName()));
             // See if we need to trigger federated logout.
             var idp = User.FindFirst(JwtClaimTypes.IdentityProvider)?.Value;
             // If it's a local login we can ignore this workflow.
@@ -88,13 +90,13 @@ public abstract class BaseLogoutModel : BasePageModel
                 // We need to see if the provider supports external logout.
                 if (!"Apple".Equals(idp) && await HttpContext.GetSchemeSupportsSignOutAsync(idp)) {
                     // Build a return URL so the upstream provider will redirect back to us after the user has logged out. This allows us to then complete our single sign-out processing.
-                    var url = Url.Page("LoggedOut", new { logoutId = LogoutId });
+                    var url = Url.Page("/LoggedOut", new { logoutId = LogoutId });
                     // This triggers a redirect to the external provider for sign-out.
                     return SignOut(new AuthenticationProperties { RedirectUri = url }, idp);
                 }
             }
         }
-        return RedirectToPage("LoggedOut", new { logoutId = LogoutId });
+        return RedirectToPage("/LoggedOut", new { logoutId = LogoutId });
     }
 }
 

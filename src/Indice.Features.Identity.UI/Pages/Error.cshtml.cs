@@ -14,9 +14,6 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseErrorModel : PageModel
 {
-    private readonly ILogger<BaseErrorModel> _logger;
-    private readonly IIdentityServerInteractionService _interaction;
-
     /// <summary>Creates a new instance of <see cref="BaseErrorModel"/> class.</summary>
     /// <param name="logger">Represents a type used to perform logging.</param>
     /// <param name="interactionService">Provide services be used by the user interface to communicate with IdentityServer.</param>
@@ -25,9 +22,14 @@ public abstract class BaseErrorModel : PageModel
         ILogger<BaseErrorModel> logger,
         IIdentityServerInteractionService interactionService
     ) {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _interaction = interactionService ?? throw new ArgumentNullException(nameof(interactionService));
+        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        Interaction = interactionService ?? throw new ArgumentNullException(nameof(interactionService));
     }
+
+    /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
+    protected IIdentityServerInteractionService Interaction { get; }
+    /// <summary>Represents a type used to perform logging.</summary>
+    protected ILogger<BaseErrorModel> Logger { get; }
 
     /// <summary>Will propagate to body class.</summary>
     [ViewData]
@@ -44,7 +46,7 @@ public abstract class BaseErrorModel : PageModel
     public virtual async Task<IActionResult> OnGetAsync(string errorId) {
         RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
         if (!string.IsNullOrEmpty(errorId)) {
-            Message = (await _interaction.GetErrorContextAsync(errorId))?.ErrorDescription;
+            Message = (await Interaction.GetErrorContextAsync(errorId))?.ErrorDescription;
         }
         return Page();
     }

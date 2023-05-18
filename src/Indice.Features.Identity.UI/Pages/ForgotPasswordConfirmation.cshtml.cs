@@ -16,6 +16,8 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseForgotPasswordConfirmationModel : PageModel
 {
+    private readonly IStringLocalizer<BaseForgotPasswordConfirmationModel> _localizer;
+
     /// <summary>Creates a new instance of <see cref="BaseForgotPasswordConfirmationModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
@@ -28,15 +30,13 @@ public abstract class BaseForgotPasswordConfirmationModel : PageModel
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        Localizer = localizer;
+        _localizer = localizer;
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>Represents a type used to perform logging.</summary>
     protected ILogger<BaseForgotPasswordConfirmationModel> Logger { get; }
-    /// <summary>Represents a service that provides localized strings.</summary>
-    public IStringLocalizer<BaseForgotPasswordConfirmationModel> Localizer { get; }
 
     /// <summary>Forgot password confirmation input model data.</summary>
     [BindProperty]
@@ -63,7 +63,7 @@ public abstract class BaseForgotPasswordConfirmationModel : PageModel
         var user = await UserManager.FindByEmailAsync(Input.Email ?? throw new InvalidOperationException("Email cannot be null."));
         if (user is null) {
             // Don't inform the user what went wrong! This is for security reasons.
-            ModelState.AddModelError(string.Empty, Localizer["Something went wrong."]);
+            ModelState.AddModelError(string.Empty, _localizer["Something went wrong."]);
             return Page();
         }
         var result = await UserManager.ResetPasswordAsync(user, Input.Token, Input.NewPassword);

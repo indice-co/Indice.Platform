@@ -1,5 +1,4 @@
 ﻿#nullable enable
-
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Microsoft.AspNetCore.Http;
 
@@ -38,12 +37,12 @@ public class MfaDeviceIdResolverHttpContext : IMfaDeviceIdResolver
     }
 }
 
-/// <summary></summary>
-/// <param name="Value"></param>
-/// <param name="RegistrationId"></param>
+/// <summary>Models an MFA device identifier.</summary>
+/// <param name="Value">The device id.</param>
+/// <param name="RegistrationId">The device registration id.</param>
 public record MfaDeviceIdentifier(string? Value, Guid? RegistrationId = null)
 {
-    /// <summary></summary>
+    /// <summary>Determines if there is a value for <see cref="RegistrationId"/>.</summary>
     public bool HasRegistrationId => RegistrationId.HasValue;
 }
 

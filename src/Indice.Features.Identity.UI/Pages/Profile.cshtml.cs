@@ -16,10 +16,6 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseProfileModel : BasePageModel
 {
-    private readonly ExtendedUserManager<User> _userManager;
-    private readonly ExtendedSignInManager<User> _signInManager;
-    private readonly IConfiguration _configuration;
-
     /// <summary>Creates a new instance of <see cref="BaseProfileModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
@@ -30,10 +26,17 @@ public abstract class BaseProfileModel : BasePageModel
         ExtendedSignInManager<User> signInManager,
         IConfiguration configuration
     ) : base() {
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+        Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
+
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+    protected ExtendedUserManager<User> UserManager { get; }
+    /// <summary>Provides the APIs for user sign in.</summary>
+    protected ExtendedSignInManager<User> SignInManager { get; }
+    /// <summary>Represents a set of key/value application configuration properties.</summary>
+    protected IConfiguration Configuration { get; }
 
     /// <summary>Manage profile page view model.</summary>
     public ProfileViewModel View { get; set; } = new ProfileViewModel();
@@ -62,33 +65,33 @@ public abstract class BaseProfileModel : BasePageModel
             View = await BuildProfileViewModelAsync(Input);
             return Page();
         }
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await _userManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName);
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName);
         AddModelErrors(result);
-        result = await _userManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName);
+        result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName);
         AddModelErrors(result);
-        result = await _userManager.ReplaceClaimAsync(user, BasicClaimTypes.Tin, Input.Tin ?? string.Empty);
+        result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.Tin, Input.Tin ?? string.Empty);
         AddModelErrors(result);
-        result = await _userManager.ReplaceClaimAsync(user, JwtClaimTypes.BirthDate, Input.BirthDate.HasValue ? $"{Input.BirthDate:yyyy-MM-dd}" : string.Empty);
+        result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.BirthDate, Input.BirthDate.HasValue ? $"{Input.BirthDate:yyyy-MM-dd}" : string.Empty);
         AddModelErrors(result);
-        result = await _userManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommencial, Input.ConsentCommercial ? bool.TrueString.ToLower() : bool.FalseString.ToLower());
+        result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommencial, Input.ConsentCommercial ? bool.TrueString.ToLower() : bool.FalseString.ToLower());
         AddModelErrors(result);
-        result = await _userManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommencialDate, $"{DateTime.UtcNow:O}");
+        result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommencialDate, $"{DateTime.UtcNow:O}");
         AddModelErrors(result);
         if (user.NormalizedEmail != Input.Email?.Trim().ToUpper()) {
             EmailChangeRequested = true;
             user.EmailConfirmed = false;
-            await _userManager.SetEmailAsync(user, Input.Email);
+            await UserManager.SetEmailAsync(user, Input.Email);
             if (!string.IsNullOrWhiteSpace(Input.Email)) {
                 await SendChangeEmailConfirmationEmail(user, Input.Email);
             }
         }
         user.PhoneNumber = Input.PhoneNumber;
         if (user.UserName != Input.UserName) {
-            result = await _userManager.SetUserNameAsync(user, Input.UserName);
+            result = await UserManager.SetUserNameAsync(user, Input.UserName);
             AddModelErrors(result);
         }
-        result = await _userManager.UpdateAsync(user);
+        result = await UserManager.UpdateAsync(user);
         AddModelErrors(result);
         ProfileSuccessfullyChanged = ModelState.ErrorCount == 0;
         View = await BuildProfileViewModelAsync(Input);
@@ -96,16 +99,16 @@ public abstract class BaseProfileModel : BasePageModel
     }
 
     private async Task<ProfileViewModel> BuildProfileViewModelAsync() {
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var roles = await _userManager.GetRolesAsync(user);
-        var claims = await _userManager.GetClaimsAsync(user);
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var roles = await UserManager.GetRolesAsync(user);
+        var claims = await UserManager.GetClaimsAsync(user);
         var birthDate = default(DateTime?);
         var birthDateText = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.BirthDate)?.Value;
         if (birthDateText != null && DateTime.TryParse(birthDateText, out var date)) {
             birthDate = date;
         }
-        var currentLogins = await _userManager.GetLoginsAsync(user);
-        var otherLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync())
+        var currentLogins = await UserManager.GetLoginsAsync(user);
+        var otherLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync())
             .Where(scheme => currentLogins.All(loginInfo => scheme.Name != loginInfo.LoginProvider))
             .ToList();
         var consentDateText = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ConsentCommencialDate)?.Value;
@@ -115,15 +118,15 @@ public abstract class BaseProfileModel : BasePageModel
         }
         return new ProfileViewModel {
             BirthDate = birthDate,
-            CanRemoveProvider = await _userManager.HasPasswordAsync(user) || currentLogins.Count > 1,
+            CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
             ConsentCommercial = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ConsentCommencial)?.Value == bool.TrueString.ToLower(),
             ConsentCommercialDate = consentDate,
             CurrentLogins = currentLogins,
             DeveloperTotp = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.DeveloperTotp)?.Value,
             Email = user.Email ?? string.Empty,
-            EmailChangePending = !await _userManager.IsEmailConfirmedAsync(user),
+            EmailChangePending = !await UserManager.IsEmailConfirmedAsync(user),
             FirstName = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value,
-            HasDeveloperTotp = _configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
+            HasDeveloperTotp = Configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
             LastName = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value,
             OtherLogins = otherLogins,
             PhoneNumber = user.PhoneNumber,
@@ -133,23 +136,23 @@ public abstract class BaseProfileModel : BasePageModel
     }
 
     private async Task<ProfileViewModel> BuildProfileViewModelAsync(ProfileInputModel model) {
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var roles = await _userManager.GetRolesAsync(user);
-        var currentLogins = await _userManager.GetLoginsAsync(user);
-        var otherLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync())
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var roles = await UserManager.GetRolesAsync(user);
+        var currentLogins = await UserManager.GetLoginsAsync(user);
+        var otherLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync())
             .Where(scheme => currentLogins.All(loginInfo => scheme.Name != loginInfo.LoginProvider))
             .ToList();
         return new ProfileViewModel {
             BirthDate = model.BirthDate,
-            CanRemoveProvider = await _userManager.HasPasswordAsync(user) || currentLogins.Count > 1,
+            CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
             ConsentCommercial = model.ConsentCommercial,
             ConsentCommercialDate = model.ConsentCommercialDate,
             CurrentLogins = currentLogins,
             DeveloperTotp = model.DeveloperTotp,
             Email = model.Email,
-            EmailChangePending = !await _userManager.IsEmailConfirmedAsync(user),
+            EmailChangePending = !await UserManager.IsEmailConfirmedAsync(user),
             FirstName = model.FirstName,
-            HasDeveloperTotp = _configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
+            HasDeveloperTotp = Configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
             LastName = model.LastName,
             OtherLogins = otherLogins,
             PhoneNumber = model.PhoneNumber,

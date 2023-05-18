@@ -4,5 +4,5 @@
 public class GrantsViewModel
 {
     /// <summary>The given grants list</summary>
-    public IEnumerable<GrantModel> Grants { get; set; }
+    public IEnumerable<GrantModel>? Grants { get; set; }
 }

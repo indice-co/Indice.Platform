@@ -18,7 +18,7 @@
                 @foreach (var provider in Model.View.VisibleExternalProviders)
                 {
                     <li class="idp idp-@provider.AuthenticationScheme.ToLower()">
-                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="External" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
                             @Localizer[provider.DisplayName]
                         </a>
                     </li>
@@ -116,7 +116,7 @@
                     <label class="checkbox">
                         <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
                         @Localizer["I consent to the registration and processing of the above personal details for my contact and service as they are defined"]
-                        <a style="font-weight:bold" asp-page="/privacy" target="_blank">@Localizer["here"]</a>.
+                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Localizer["here"]</a>.
                     </label>
                     <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
                 </div>
@@ -125,7 +125,7 @@
         <div class="row align-items-center">
             <div class="col-md-6 col-12">
                 <div class="form-group">
-                    <a class="btn btn-link btn-block" asp-page="Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer["Already have an account?"]</a>
+                    <a class="btn btn-link btn-block" asp-page="/Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer["Already have an account?"]</a>
                 </div>
             </div>
             <div class="col-md-6 col-12">

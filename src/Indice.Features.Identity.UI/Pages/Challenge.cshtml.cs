@@ -17,11 +17,6 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseChallengeModel : BasePageModel
 {
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly ExtendedSignInManager<User> _signInManager;
-    private readonly ExtendedUserManager<User> _userManager;
-    private readonly IEventService _events;
-
     /// <summary>Creates a new instance of <see cref="BaseChallengeModel"/> class.</summary>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
@@ -34,21 +29,30 @@ public abstract class BaseChallengeModel : BasePageModel
         ExtendedUserManager<User> userManager,
         IEventService events
     ) : base() {
-        _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
-        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _events = events ?? throw new ArgumentNullException(nameof(events));
+        Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+        SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        Events = events ?? throw new ArgumentNullException(nameof(events));
     }
+
+    /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
+    protected IIdentityServerInteractionService Interaction { get; }
+    /// <summary>Provides the APIs for user sign in.</summary>
+    protected ExtendedSignInManager<User> SignInManager { get; }
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+    protected ExtendedUserManager<User> UserManager { get; }
+    /// <summary>Interface for the event service.</summary>
+    protected IEventService Events { get; }
 
     /// <summary>Challenge page GET handler.</summary>
     public IActionResult OnGet(string provider, string returnUrl, string prompt) {
         if (string.IsNullOrEmpty(returnUrl)) {
             returnUrl = "/";
         }
-        if (Url.IsLocalUrl(returnUrl) == false && _interaction.IsValidReturnUrl(returnUrl) == false) {
+        if (Url.IsLocalUrl(returnUrl) == false && Interaction.IsValidReturnUrl(returnUrl) == false) {
             throw new Exception("Invalid return URL.");
         }
-        var authenticationProperties = _signInManager.ConfigureExternalAuthenticationProperties(provider, Url.PageLink("Challenge", "Callback", new { returnUrl }));
+        var authenticationProperties = SignInManager.ConfigureExternalAuthenticationProperties(provider, Url.PageLink("/Challenge", "Callback", new { returnUrl }));
         authenticationProperties.Items.Add(nameof(returnUrl), returnUrl);
         if (!string.IsNullOrWhiteSpace(prompt) && (prompt.Equals(OidcConstants.PromptModes.Login) || prompt.Equals(OidcConstants.PromptModes.SelectAccount))) {
             authenticationProperties.Items.Add(OidcConstants.AuthorizeRequest.Prompt, prompt);
@@ -61,24 +65,24 @@ public abstract class BaseChallengeModel : BasePageModel
         if (string.IsNullOrEmpty(returnUrl)) {
             returnUrl = "/";
         };
-        if (!Url.IsLocalUrl(returnUrl) && !_interaction.IsValidReturnUrl(returnUrl)) {
+        if (!Url.IsLocalUrl(returnUrl) && !Interaction.IsValidReturnUrl(returnUrl)) {
             throw new Exception("Invalid return URL.");
         }
-        var externalLoginInfo = await _signInManager.GetExternalLoginInfoAsync() ?? throw new Exception($"Cannot read external login information from external provider.");
-        var user = await _userManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
+        var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync() ?? throw new Exception($"Cannot read external login information from external provider.");
+        var user = await UserManager.FindByLoginAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey);
         if (user is null) {
             return await UserNotFound(externalLoginInfo, returnUrl);
         }
-        await _events.RaiseAsync(new UserLoginSuccessEvent(externalLoginInfo.LoginProvider, externalLoginInfo.Principal.GetSubjectId(), user.Id, user.UserName));
+        await Events.RaiseAsync(new UserLoginSuccessEvent(externalLoginInfo.LoginProvider, externalLoginInfo.Principal.GetSubjectId(), user.Id, user.UserName));
         // Save user tokes retrieved from external provider.
-        await _signInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
-        var result = await _signInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, isPersistent: true);
+        await SignInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
+        var result = await SignInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, isPersistent: true);
         var redirectUrl = GetRedirectUrl(result, returnUrl);
         if (redirectUrl is not null) {
             return Redirect(redirectUrl);
         }
         // Check if external login is in the context of an OIDC request.
-        var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+        var context = await Interaction.GetAuthorizationContextAsync(returnUrl);
         if (context is not null) {
             if (context.IsNativeClient()) {
                 // The client is native, so this change in how to return the response is for better UX for the end user.
@@ -104,7 +108,7 @@ public abstract class BaseChallengeModel : BasePageModel
             Provider = externalLoginInfo.LoginProvider,
             ReturnUrl = returnUrl
         });
-        return RedirectToPage("Associate");
+        return RedirectToPage("/Associate");
     }
 }
 

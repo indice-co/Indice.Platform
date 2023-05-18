@@ -16,7 +16,6 @@ namespace Indice.Features.Identity.UI.Pages;
 public abstract class BasePasswordExpiredModel : BasePageModel
 {
     private readonly IStringLocalizer<BasePasswordExpiredModel> _localizer;
-    private readonly ExtendedUserManager<User> _userManager;
 
     /// <summary>Creates a new instance of <see cref="BasePasswordExpiredModel"/> class.</summary>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BasePasswordExpiredModel"/>.</param>
@@ -27,8 +26,11 @@ public abstract class BasePasswordExpiredModel : BasePageModel
         ExtendedUserManager<User> userManager
     ) : base() {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
+
+    /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
+    protected ExtendedUserManager<User> UserManager { get; }
 
     /// <summary>The input model that backs the password expired page.</summary>
     [BindProperty]
@@ -41,8 +43,8 @@ public abstract class BasePasswordExpiredModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         await Task.CompletedTask;
-        if (_userManager.StateProvider.CurrentState != UserState.RequiresPasswordChange) {
-            return Redirect(GetRedirectUrl(_userManager.StateProvider.CurrentState, returnUrl) ?? "/");
+        if (UserManager.StateProvider.CurrentState != UserState.RequiresPasswordChange) {
+            return Redirect(GetRedirectUrl(UserManager.StateProvider.CurrentState, returnUrl) ?? "/");
         }
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Info(_localizer["Your password has expired. Please choose a new password."])
@@ -57,17 +59,17 @@ public abstract class BasePasswordExpiredModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
-        var user = await _userManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await _userManager.ResetPasswordAsync(user, Input.NewPassword);
+        var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        var result = await UserManager.ResetPasswordAsync(user, Input.NewPassword);
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();
         }
-        await _userManager.SetPasswordExpiredAsync(user, false);
-        if (_userManager.StateProvider.CurrentState == UserState.LoggedIn) {
+        await UserManager.SetPasswordExpiredAsync(user, false);
+        if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
             await AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
         }
-        var redirectUrl = GetRedirectUrl(_userManager.StateProvider.CurrentState, Input.ReturnUrl);
+        var redirectUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, Input.ReturnUrl);
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Success(_localizer["Your password has been changed successfully. Please press the 'Next' button to continue."]),
             DisableForm = true,

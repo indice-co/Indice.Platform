@@ -1,5 +1,6 @@
 ﻿using IdentityServer4.Models;
 using IdentityServer4.Stores;
+using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,10 +29,11 @@ public static class UiExtensions
         !context.RedirectUri.StartsWith("http", StringComparison.Ordinal);
 
     /// <summary>Renders a loading page that is used to redirect back to the redirectUri.</summary>
-    public static IActionResult LoadingPage(this PageModel page, string pageName, string redirectUri) {
+    public static IActionResult LoadingPage(this PageModel page, string partialViewName, string redirectUri) {
         page.HttpContext.Response.StatusCode = 200;
         page.HttpContext.Response.Headers["Location"] = string.Empty;
-        return page.RedirectToPage(pageName, new { RedirectUri = redirectUri });
+        //return page.RedirectToPage(pageName, new { RedirectUri = redirectUri });
+        return page.Partial(partialViewName, new RedirectViewModel { RedirectUri = redirectUri });
     }
 
     /// <summary>Determines if the authentication scheme support sign out.</summary>

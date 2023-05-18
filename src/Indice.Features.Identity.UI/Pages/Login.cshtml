@@ -18,7 +18,7 @@
                 @foreach (var provider in Model.View.VisibleExternalProviders)
                 {
                     <li class="idp idp-@provider.AuthenticationScheme.ToLower()">
-                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
                             @Localizer[provider.DisplayName]
                         </a>
                     </li>
@@ -55,7 +55,7 @@
                 }
                 @if (Model.UiOptions.EnableForgotPasswordPage)
                 {
-                    <a class="btn btn-link p-0 text-md float-right text-blue" asp-page="ForgotPassword">@Localizer["Forgot password?"]</a>
+                    <a class="btn btn-link p-0 text-md float-right text-blue" asp-page="/ForgotPassword">@Localizer["Forgot password?"]</a>
                 }
             </div>
             <div class="form-group">
@@ -63,7 +63,7 @@
                     @if (Model.UiOptions.EnableRegisterPage)
                     {
                         <div class="col-sm-6 col-12 py-1">
-                            <a class="btn btn-link btn-block" asp-page="Register" asp-route-returnUrl="@Model.View.ReturnUrl">
+                            <a class="btn btn-link btn-block" asp-page="/Register" asp-route-returnUrl="@Model.View.ReturnUrl">
                                 @Localizer["Join us"]
                             </a>
                         </div>
