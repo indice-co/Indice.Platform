@@ -68,6 +68,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         MfaRememberDurationInDays = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS;
         RememberTrustedBrowserAcrossSessions = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberTrustedBrowserAcrossSessions)) == true;
         RememberExpirationType = configuration.GetIdentityOption<MfaExpirationType?>($"{nameof(IdentityOptions.SignIn)}:Mfa", nameof(RememberExpirationType)) ?? default;
+        RequireMfaWhenUserHasTrustedBrowserButExpiredPassword = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa:RequireWhen", "UserHasTrustedBrowserButExpiredPassword") ?? true;
     }
 
     private ExtendedUserManager<TUser> ExtendedUserManager => (ExtendedUserManager<TUser>)UserManager;
@@ -87,6 +88,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     public bool RememberTrustedBrowserAcrossSessions { get; }
     /// <summary>Type of expiration for <see cref="IdentityConstants.TwoFactorRememberMeScheme"/> cookie.</summary>
     public MfaExpirationType RememberExpirationType { get; }
+    /// <summary>Quite self-explanatory property name. Defaults to true.</summary>
+    public bool RequireMfaWhenUserHasTrustedBrowserButExpiredPassword { get; set; }
     /// <summary>Describes the state of the current principal.</summary>
     public IUserStateProvider<TUser> StateProvider { get; }
 
@@ -274,7 +277,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var deviceId = await _mfaDeviceIdResolver.Resolve();
         if (!string.IsNullOrWhiteSpace(deviceId.Value) && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
-            isRemembered = device is not null && device.MfaSessionExpirationDate.HasValue && device.MfaSessionExpirationDate.Value > DateTimeOffset.UtcNow;
+            isRemembered = device is not null && 
+                           device.MfaSessionExpirationDate.HasValue && 
+                           device.MfaSessionExpirationDate.Value > DateTimeOffset.UtcNow;
+            if (RequireMfaWhenUserHasTrustedBrowserButExpiredPassword) {
+                isRemembered = isRemembered && !user.HasExpiredPassword();
+            }
         }
         if (isRemembered) {
             StateProvider.ChangeState(user, UserAction.MultiFactorAuthenticated);
@@ -285,8 +293,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     #region Custom Methods
     /// <summary>Revokes all sessions for user browsers.</summary>
-    /// <param name="user"></param>
-    /// <returns></returns>
+    /// <param name="user">The user instance.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public Task<IdentityResult> RevokeMfaSessionsAsync(TUser user) {
         if (user is null) {
