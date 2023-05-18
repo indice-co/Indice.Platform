@@ -14,7 +14,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// Builder extension methods for IdentityServer4 forwarfing the method calls without loosing the reference to <see cref="IExtendedIdentityServerBuilder"/>
 /// </summary>
-public static class IdentityServerBuilderAddapterExtensions
+public static class IdentityServerBuilderAdapterExtensions
 {
 
 
