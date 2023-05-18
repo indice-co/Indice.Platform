@@ -20,8 +20,8 @@ internal class SchemaValidator : ISchemaValidator
             _ => JsonDocument.Parse(JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings())).RootElement
         };
 
-        var validate = mySchema.Validate(jsonElement, new ValidationOptions {
-            OutputFormat = OutputFormat.Verbose
+        var validate = mySchema.Evaluate(jsonElement, new EvaluationOptions {
+            OutputFormat = OutputFormat.List
         });
 
         return validate.IsValid;
