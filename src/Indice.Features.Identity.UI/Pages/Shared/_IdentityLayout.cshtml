@@ -4,6 +4,7 @@
 @inject IConfiguration Configuration
 @inject JavaScriptSnippet JavaScriptSnippet
 @inject IOptions<ApplicationInsightsServiceOptions> AppInsightsOptions
+@inject IOptions<IdentityUIOptions> UiOptions
 @inject SignInManager<User> SignInManager
 
 @{
@@ -34,7 +35,7 @@
     <link rel="preconnect" href="https://storage.googleapis.com" />
     <script type="text/javascript" csp-nonce="true">@Html.Raw(JavaScriptSnippet.ScriptBody)</script>
 </head>
-<body route-styles class="@authClass @bgClass">
+<body route-styles class="@authClass @UiOptions.Value.HtmlBodyBackgroundCssClass">
     <link rel="stylesheet" href="/css/bootstrap.css" asp-append-version="true" />
     <link rel="stylesheet" href="/css/identity.css" asp-append-version="true" />
     <link rel="stylesheet" type="text/css" href="/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />
