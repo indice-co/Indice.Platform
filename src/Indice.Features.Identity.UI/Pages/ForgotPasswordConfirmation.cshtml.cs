@@ -4,7 +4,6 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +13,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [AllowAnonymous]
 [IdentityUI(typeof(ForgotPasswordConfirmationModel))]
 [SecurityHeaders]
-public abstract class BaseForgotPasswordConfirmationModel : PageModel
+public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseForgotPasswordConfirmationModel> _localizer;
 
@@ -27,7 +26,7 @@ public abstract class BaseForgotPasswordConfirmationModel : PageModel
         ExtendedUserManager<User> userManager,
         ILogger<BaseForgotPasswordConfirmationModel> logger,
         IStringLocalizer<BaseForgotPasswordConfirmationModel> localizer
-    ) {
+    ) : base() {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _localizer = localizer;

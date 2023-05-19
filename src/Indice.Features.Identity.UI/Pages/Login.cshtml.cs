@@ -81,6 +81,7 @@ public abstract class BaseLoginModel : BasePageModel
     /// <summary>Login page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync(string? returnUrl = null) {
+        UserManager.StateProvider.ClearState();
         // Build a model so we know what to show on the login page.
         Input = View = await BuildLoginViewModelAsync(returnUrl);
         if (View.PromptRegister()) {
@@ -139,7 +140,7 @@ public abstract class BaseLoginModel : BasePageModel
                 // Request for a local page.
                 if (string.IsNullOrEmpty(Input.ReturnUrl)) {
                     return Redirect("/");
-                } else if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
+                } else if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl) || UiOptions.IsValidReturnUrl(Input.ReturnUrl)) {
                     return Redirect(Input.ReturnUrl);
                 } else {
                     // User might have clicked on a malicious link - should be logged.

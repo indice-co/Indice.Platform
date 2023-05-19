@@ -46,8 +46,12 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         var options = new ExtendedIdentityServerOptions();
         setupAction?.Invoke(options);
         services.AddSingleton(options);
-        services.AddTransient(sp => new ExtendedIdentityDbContextSeedOptions<User> { InitialUsers = sp.GetRequiredService<ExtendedIdentityServerOptions>().InitialUsers });
-        services.AddTransient(sp => new ExtendedConfigurationDbContextSeedOptions { CustomClaims = sp.GetRequiredService<ExtendedIdentityServerOptions>().CustomClaims });
+        services.TryAddTransient(serviceProvider => new ExtendedIdentityDbContextSeedOptions<User> { 
+            InitialUsers = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().InitialUsers 
+        });
+        services.AddTransient(serviceProvider => new ExtendedConfigurationDbContextSeedOptions { 
+            CustomClaims = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().CustomClaims 
+        });
         var identityBuilder = services.AddIdentityDefaults(configuration);
         var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
         services.AddAuthenticationDefaults();
@@ -153,7 +157,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction"></param>
     public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder, Action<ExtendedEndpointOptions>? configureAction = null) {
-        
         builder.Services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName); // Configure anti-forgery token options.
         builder.Services.Configure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, builder.Configuration);
         builder.Services.PostConfigure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, options => configureAction?.Invoke(options));

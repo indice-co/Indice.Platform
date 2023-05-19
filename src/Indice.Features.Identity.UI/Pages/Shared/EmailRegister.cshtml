@@ -1,5 +1,6 @@
 ﻿@inject IIdentityViewLocalizer Localizer
 @inject IOptions<GeneralSettings> GeneralSettings
+@inject IOptions<IdentityUIOptions> UIOptions
 @inject UserManager<User> UserManager
 
 @{
@@ -15,7 +16,7 @@
 }
 
 @section preheader {
-    @Localizer["We need you to verify your email. Please click"] <a style="color:#007ac3" href="@confirmationLink">@Localizer["here"]</a> @Localizer["to get verified"]!
+    @Localizer["We need you to verify your email. Please click"] <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer["here"]</a> @Localizer["to get verified"]!
 }
 
 @section subject {
@@ -28,7 +29,7 @@
     <br />
     <br />
     <br />
-    @Localizer["We need you to verify your email. Please click"] <a style="color:#007ac3" href="@confirmationLink">@Localizer["here"]</a> @Localizer["to get verified"]
+    @Localizer["We need you to verify your email. Please click"] <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer["here"]</a> @Localizer["to get verified"]
     <br />
     <br />
     @Localizer["Thanks"].

@@ -1,4 +1,5 @@
 ﻿using IdentityModel;
+using Indice.AspNetCore.Identity;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
@@ -81,7 +82,7 @@ public abstract class BasePageModel : PageModel
     public virtual async Task SendConfirmationEmail(User user, string? returnUrl = null) {
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        var callbackUrl = Url.PageLink("/ConfirmEmail", values: new { userId = user.Id, token, returnUrl }, protocol: HttpContext.Request.Scheme ?? null);
+        var callbackUrl = Url.PageLink("/ConfirmEmail", values: new { userId = user.Id, token, returnUrl, client_id = HttpContext.GetClientIdFromReturnUrl() }, protocol: HttpContext.Request.Scheme ?? null);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
         await emailService.SendAsync(message =>
             message.To(user.Email)
@@ -105,7 +106,7 @@ public abstract class BasePageModel : PageModel
         var token = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
         var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
         var generalSettings = configuration.GetGeneralSettings();
-        var callbackUrl = $"{generalSettings.Host}{Url.PageLink("/ChangeEmail", values: new { userId = user.Id, token, email = newEmail, returnUrl })}";
+        var callbackUrl = Url.PageLink("/ChangeEmail", values: new { userId = user.Id, token, email = newEmail, returnUrl, client_id = HttpContext.GetClientIdFromReturnUrl() });
         var claims = await userManager.GetClaimsAsync(user);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
         var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();

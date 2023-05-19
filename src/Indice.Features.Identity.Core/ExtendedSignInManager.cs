@@ -7,6 +7,9 @@ using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.Types;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
@@ -140,7 +143,14 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
-        StateProvider.ChangeState(user, UserAction.Login);
+        var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) &&
+            (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
+        if (isExternalLogin) {
+            StateProvider.ChangeState(user, UserAction.ExternalLogin);
+            bypassTwoFactor = true;
+        } else {
+            StateProvider.ChangeState(user, UserAction.Login);
+        }
         if (ShouldSignInPartially()) {
             return await DoPartialSignInAsync(user);
         }
@@ -277,8 +287,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var deviceId = await _mfaDeviceIdResolver.Resolve();
         if (!string.IsNullOrWhiteSpace(deviceId.Value) && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
-            isRemembered = device is not null && 
-                           device.MfaSessionExpirationDate.HasValue && 
+            isRemembered = device is not null &&
+                           device.MfaSessionExpirationDate.HasValue &&
                            device.MfaSessionExpirationDate.Value > DateTimeOffset.UtcNow;
             if (RequireMfaWhenUserHasTrustedBrowserButExpiredPassword) {
                 isRemembered = isRemembered && !user.HasExpiredPassword();
