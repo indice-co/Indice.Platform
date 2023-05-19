@@ -9,73 +9,81 @@ using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.UI.Pages;
 
-/// <summary>Page model for the change password screen.</summary>
+/// <summary>Page model for the add password screen.</summary>
 [Authorize]
-[IdentityUI(typeof(ChangePasswordModel))]
+[IdentityUI(typeof(AddPasswordModel))]
 [SecurityHeaders]
-public abstract class BaseChangePasswordModel : BasePageModel
+public abstract class BaseAddPasswordModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseChangePasswordModel> _localizer;
+    private readonly IStringLocalizer<BaseAddPasswordModel> _localizer;
 
-    /// <summary>Creates a new instance of <see cref="BaseChangePasswordModel"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="BaseAddPasswordModel"/> class.</summary>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+    /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
     /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public BaseChangePasswordModel(
+    public BaseAddPasswordModel(
         ExtendedUserManager<User> userManager,
-        ILogger<BaseChangePasswordModel> logger,
-        IStringLocalizer<BaseChangePasswordModel> localizer
+        ExtendedSignInManager<User> signInManager,
+        ILogger<BaseAddPasswordModel> logger,
+        IStringLocalizer<BaseAddPasswordModel> localizer
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        SignInManager = signInManager;
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
+    /// <summary>Provides the APIs for user sign in.</summary>
+    protected ExtendedSignInManager<User> SignInManager { get; }
+
     /// <summary>Represents a type used to perform logging.</summary>
-    protected ILogger<BaseChangePasswordModel> Logger { get; }
+    protected ILogger<BaseAddPasswordModel> Logger { get; }
 
     /// <summary>Forgot password input model data.</summary>
     [BindProperty]
-    public ChangePasswordInputModel Input { get; set; } = new ChangePasswordInputModel();
+    public AddPasswordInputModel Input { get; set; } = new AddPasswordInputModel();
 
     /// <summary>Determines whether the request is sent once.</summary>
     [ViewData]
-    public bool PasswordSuccessfullyChanged { get; set; }
+    public bool PasswordSuccessfullyAdded { get; set; }
 
-    /// <summary>Change password page GET handler.</summary>
+    /// <summary>Add password page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        if (!await UserManager.HasPasswordAsync(user)) {
-            return RedirectToPage("/AddPassword");
+        if (await UserManager.HasPasswordAsync(user)) {
+            return RedirectToPage("/ChangePassword");
         }
         return Page();
     }
 
-    /// <summary>Change password page POST handler.</summary>
+    /// <summary>Add password page POST handler.</summary>
     [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
         if (!ModelState.IsValid) {
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.ChangePasswordAsync(user, Input.OldPassword, Input.NewPassword);
-        if (!result.Succeeded) {
-            AddModelErrors(result);
+        var addPasswordResult = await UserManager.AddPasswordAsync(user, Input.NewPassword!);
+        if (!addPasswordResult.Succeeded) {
+            AddModelErrors(addPasswordResult);
             return Page();
         }
-        PasswordSuccessfullyChanged = true;
+        await SignInManager.RefreshSignInAsync(user);
+        PasswordSuccessfullyAdded = true;
         return Page();
     }
 }
 
-internal class ChangePasswordModel : BaseChangePasswordModel
+internal class AddPasswordModel : BaseAddPasswordModel
 {
-    public ChangePasswordModel(
+    public AddPasswordModel(
         ExtendedUserManager<User> userManager,
-        ILogger<ChangePasswordModel> logger,
-        IStringLocalizer<ChangePasswordModel> localizer
-    ) : base(userManager, logger, localizer) { }
+        ExtendedSignInManager<User> signInManager,
+        ILogger<BaseAddPasswordModel> logger,
+        IStringLocalizer<BaseAddPasswordModel> localizer
+    ) : base(userManager, signInManager, logger, localizer) { }
 }

@@ -44,7 +44,7 @@ public class UserDevice
     public dynamic Data { get; set; }
     /// <summary>Platform notification service handle.</summary>
     public string PnsHandle { get; set; }
-    /// <summary>Device tags</summary>
+    /// <summary>Device tags.</summary>
     public string[] Tags { get; set; }
     /// <summary>Indicates whether the device is blocked.</summary>
     public bool RequiresPassword { get; set; }

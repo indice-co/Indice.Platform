@@ -35,20 +35,22 @@ public enum UserState
 }
 
 /// <summary>Describes the action taken by the principal that changes the state.</summary>
-public enum UserAction
+public enum UserAction : byte
 {
     /// <summary>Login</summary>
     Login,
-    /// <summary>Verified phone number.</summary>
+    /// <summary>Verified phone number</summary>
     VerifiedPhoneNumber,
-    /// <summary>Verified email.</summary>
+    /// <summary>Verified email</summary>
     VerifiedEmail,
-    /// <summary>Passed MFA.</summary>
+    /// <summary>Passed MFA</summary>
     MultiFactorAuthenticated,
-    /// <summary>Changed password.</summary>
+    /// <summary>Changed password</summary>
     PasswordChanged,
-    /// <summary>MFA enabled.</summary>
+    /// <summary>MFA enabled</summary>
     MfaEnabled,
-    /// <summary>Logout.</summary>
-    Logout
+    /// <summary>Logout</summary>
+    Logout,
+    /// <summary>External login</summary>
+    ExternalLogin
 }

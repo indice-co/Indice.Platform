@@ -15,6 +15,8 @@ public class UserDeviceListFilter
     public DeviceClientType? ClientType { get; set; }
     /// <summary>Determines whether the device is pending trust activation.</summary>
     public bool? IsPendingTrustActivation { get; set; }
+    /// <summary>Determines whether the MFA session has been </summary>
+    public bool? IsMfaSessionExpired { get; set; }
 
     /// <summary>Filter trusted devices.</summary>
     public static UserDeviceListFilter TrustedNativeDevices() => new() {

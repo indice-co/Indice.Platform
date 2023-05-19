@@ -81,6 +81,7 @@ public abstract class BaseLoginModel : BasePageModel
     /// <summary>Login page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync(string? returnUrl = null) {
+        UserManager.StateProvider.ClearState();
         // Build a model so we know what to show on the login page.
         Input = View = await BuildLoginViewModelAsync(returnUrl);
         if (View.PromptRegister()) {
