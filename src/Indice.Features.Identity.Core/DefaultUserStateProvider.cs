@@ -13,8 +13,7 @@ public class DefaultUserStateProvider : DefaultUserStateProvider<User>
     /// <summary>Creates a new instance of <see cref="DefaultUserStateProvider{User}"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
-    public DefaultUserStateProvider(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
-        : base(configuration, httpContextAccessor) { }
+    public DefaultUserStateProvider(IConfiguration configuration, IHttpContextAccessor httpContextAccessor) : base(configuration, httpContextAccessor) { }
 }
 
 /// <summary>A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</summary>
@@ -54,6 +53,7 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
     /// <inheritdoc />
     public void ClearState() => _httpContext.Session.Clear();
 
+    /* Note for future self: Never change the order of the combinations in the method below. It does matter. */
     private UserState GetNextState(TUser user, UserAction action) => (CurrentState, action) switch {
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true && user.PhoneNumberConfirmed == false => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false && _mfaPolicy == MfaPolicy.Enforced => UserState.RequiresMfaOnboarding,
@@ -62,6 +62,11 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
         (UserState.LoggedOut, UserAction.Login) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
         (UserState.LoggedOut, UserAction.Login) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
         (UserState.LoggedOut, UserAction.Login) => UserState.LoggedIn,
+        (UserState.LoggedOut, UserAction.ExternalLogin) when user.TwoFactorEnabled == true && user.PhoneNumberConfirmed == false => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
+        (UserState.LoggedOut, UserAction.ExternalLogin) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
+        (UserState.LoggedOut, UserAction.ExternalLogin) when user.EmailConfirmed == false && _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.LoggedOut, UserAction.ExternalLogin) when user.PhoneNumberConfirmed == false && _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
+        (UserState.LoggedOut, UserAction.ExternalLogin) => UserState.LoggedIn,
         (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.TwoFactorEnabled == true => UserState.RequiresMfa,
         (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.RequiresMfaOnboarding, UserAction.VerifiedPhoneNumber) => UserState.LoggedOut,
@@ -77,6 +82,6 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
         (UserState.RequiresPasswordChange, UserAction.PasswordChanged) => UserState.LoggedIn,
         (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) => UserState.LoggedIn,
         (UserState.LoggedIn, UserAction.Logout) => UserState.LoggedOut,
-        _ => CurrentState
+        _ => throw new InvalidOperationException($"Cannot calculate next state transition: Current state = '{CurrentState}' - User Action = '{action}'.")
     };
 }
