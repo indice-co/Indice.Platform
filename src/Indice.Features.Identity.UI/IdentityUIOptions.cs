@@ -28,6 +28,10 @@ public class IdentityUIOptions
     public string AvatarColorHex { get; set; } = "1abc9c";
     /// <summary>RGB color to be used with email default templates for links.</summary>
     public string EmailLinkColorHex { get; set; } = "1abc9c";
+    /// <summary>RGB color to be used with email default templates for links.</summary>
+    public string HtmlBodyBackgroundCssClass { get; set; } = "gradient-bg";
+    /// <summary>Contains additional valid return urls. Its used in the login page</summary>
+    public HashSet<string> ValidReturnUrls { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Services shown in the homepage.</summary>
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
@@ -44,6 +48,10 @@ public class IdentityUIOptions
         HomepageLinks.Add(new HomePageLink(displayName, link, cssClass, imageSrc, visibilityPredicate));
         return this;
     }
+
+    /// <summary>Check against <see cref="ValidReturnUrls"/> for any valid uri.</summary>
+    /// <returns>True if contained in the list.</returns>
+    public bool IsValidReturnUrl(string url) => Uri.TryCreate(url, UriKind.Absolute, out var _) && ValidReturnUrls.Contains(url);
 
     /// <summary>Gateway service definition. Will be visible in the homepage.</summary>
     /// <param name="DisplayName">The label.</param>
