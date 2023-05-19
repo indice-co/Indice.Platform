@@ -139,7 +139,7 @@ public abstract class BaseLoginModel : BasePageModel
                 // Request for a local page.
                 if (string.IsNullOrEmpty(Input.ReturnUrl)) {
                     return Redirect("/");
-                } else if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
+                } else if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl) || UiOptions.IsValidReturnUrl(Input.ReturnUrl)) {
                     return Redirect(Input.ReturnUrl);
                 } else {
                     // User might have clicked on a malicious link - should be logged.
