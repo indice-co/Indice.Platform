@@ -46,7 +46,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         var options = new ExtendedIdentityServerOptions();
         setupAction?.Invoke(options);
         services.AddSingleton(options);
-        services.AddTransient(sp => new ExtendedIdentityDbContextSeedOptions<User> { InitialUsers = sp.GetRequiredService<ExtendedIdentityServerOptions>().InitialUsers });
+        services.TryAddTransient(sp => new ExtendedIdentityDbContextSeedOptions<User> { InitialUsers = sp.GetRequiredService<ExtendedIdentityServerOptions>().InitialUsers });
         services.AddTransient(sp => new ExtendedConfigurationDbContextSeedOptions { CustomClaims = sp.GetRequiredService<ExtendedIdentityServerOptions>().CustomClaims });
         var identityBuilder = services.AddIdentityDefaults(configuration);
         var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
