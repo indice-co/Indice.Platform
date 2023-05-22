@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using IdentityModel;
+using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
 using Indice.AspNetCore.Identity.Api.Configuration;
@@ -17,7 +15,6 @@ using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Security;
 using Indice.Services;
@@ -60,6 +57,7 @@ internal class MyAccountController : ControllerBase
     private readonly ExtendedConfigurationDbContext _configurationDbContext;
     private readonly IPersistedGrantStore _persistedGrantStore;
     private readonly IPersistentGrantSerializer _serializer;
+    //private readonly IPersistedGrantService _persistedGrantService;
 
     /// <summary>The name of the controller.</summary>
     public const string Name = "MyAccount";
@@ -224,6 +222,38 @@ internal class MyAccountController : ControllerBase
         var result = await _userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, request.Token);
         if (!result.Succeeded) {
             return BadRequest(result.Errors.ToValidationProblemDetails());
+        }
+        return NoContent();
+    }
+
+    /// <summary>Self-service user blocking endpoint.</summary>
+    /// <param name="request">Contains info about whether to block the user or not.</param>
+    /// <response code="204">No Content</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="404">Not Found</response>
+    [FeatureGate(IdentityServerApiFeatures.SetBlock)]
+    [HttpPut("my/account/set-block")]
+    [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+    public async Task<IActionResult> SetBlock([FromBody] SetUserBlockRequest request) {
+        var userId = User.FindFirstValue(JwtClaimTypes.Subject);
+        var user = await _userManager
+            .Users
+            .SingleOrDefaultAsync(x => x.Id == userId);
+        if (user == null) {
+            return NotFound();
+        }
+        user.Blocked = request.Blocked;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded) {
+            return BadRequest(result.Errors.ToValidationProblemDetails());
+        }
+        if (request.Blocked) {
+            // When blocking a user we need to make sure we also revoke all of his tokens.
+            await _persistedGrantStore.RemoveAllAsync(new PersistedGrantFilter {
+                SubjectId = userId
+            });
         }
         return NoContent();
     }
