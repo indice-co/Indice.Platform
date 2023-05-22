@@ -85,9 +85,7 @@
 </section>
 
 @section scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScripts");
-    }
+    <partial name="_ValidationScripts" />
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
             el.onclick = function (link) {
