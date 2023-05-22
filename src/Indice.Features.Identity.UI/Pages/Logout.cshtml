@@ -12,7 +12,7 @@
     <article class="text-center">
         <partial name="_PageHeader" model="title" />
         <p>@Localizer["Would you like to logout?"]</p>
-        <form asp-page="logout">
+        <form asp-page="/Logout">
             <input type="hidden" name="logoutId" value="@Model.LogoutId" />
             <fieldset>
                 <div class="form-group">
