@@ -2,6 +2,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.RateLimiting;
 using IdentityModel;
 using Indice.Configuration;
 using Indice.Features.Identity.Core;
@@ -15,10 +16,12 @@ using Indice.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -46,11 +49,11 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         var options = new ExtendedIdentityServerOptions();
         setupAction?.Invoke(options);
         services.AddSingleton(options);
-        services.TryAddTransient(serviceProvider => new ExtendedIdentityDbContextSeedOptions<User> { 
-            InitialUsers = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().InitialUsers 
+        services.TryAddTransient(serviceProvider => new ExtendedIdentityDbContextSeedOptions<User> {
+            InitialUsers = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().InitialUsers
         });
-        services.AddTransient(serviceProvider => new ExtendedConfigurationDbContextSeedOptions { 
-            CustomClaims = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().CustomClaims 
+        services.AddTransient(serviceProvider => new ExtendedConfigurationDbContextSeedOptions {
+            CustomClaims = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().CustomClaims
         });
         var identityBuilder = services.AddIdentityDefaults(configuration);
         var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
@@ -188,7 +191,18 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         builder.Services.AddProblemDetails();
         builder.Services.AddOutputCache();
         builder.Services.AddDistributedMemoryCache();
-        builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+        var rateLimitingOptions = new RateLimitingOptions();
+        builder.Configuration.GetSection(RateLimitingOptions.SectionName).Bind(rateLimitingOptions);
+        builder.Services
+               .AddRateLimiter(rateLimiterOptions => {
+                   rateLimiterOptions.AddFixedWindowLimiter(IdentityEndpoints.RateLimiting.PolicyName, fixedWindowOptions => {
+                       fixedWindowOptions.PermitLimit = rateLimitingOptions.FixedWindow.PermitLimit.GetValueOrDefault();
+                       fixedWindowOptions.QueueLimit = rateLimitingOptions.FixedWindow.QueueLimit.GetValueOrDefault();
+                       fixedWindowOptions.QueueProcessingOrder = rateLimitingOptions.FixedWindow.QueueProcessingOrder.GetValueOrDefault();
+                       fixedWindowOptions.Window = rateLimitingOptions.FixedWindow.Window.GetValueOrDefault();
+                   });
+                   rateLimiterOptions.RejectionStatusCode = rateLimitingOptions.RejectionStatusCode.GetValueOrDefault();
+               });
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("IdentityServer:Features"));
         builder.Services.AddPushNotificationServiceNoop();
         // Invoke action provided by developer to override default options.
