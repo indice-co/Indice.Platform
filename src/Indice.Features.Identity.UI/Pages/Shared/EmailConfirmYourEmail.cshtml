@@ -1,7 +1,7 @@
 ﻿@inject IIdentityViewLocalizer Localizer
 @inject IOptions<GeneralSettings> GeneralSettings
-@inject UserManager<User> UserManager
 @inject IOptions<IdentityUIOptions> UIOptions
+@inject UserManager<User> UserManager
 
 @{
     Layout = "_LayoutEmail.cshtml";
@@ -25,8 +25,6 @@
 
 <p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
     @Localizer["Hi"] @(userName ?? string.Empty),
-    <br />
-    <br />
     <br />
     <br />
     @Localizer["We need you to verify your email. Please click"] <a style="color:#@UIOptions.Value.EmailLinkColorHex" href="@confirmationLink">@Localizer["here"]</a> @Localizer["to get verified"]

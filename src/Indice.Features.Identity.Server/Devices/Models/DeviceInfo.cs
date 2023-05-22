@@ -3,6 +3,7 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Types;
 
 namespace Indice.Features.Identity.Server.Devices.Models;
+
 /// <summary>Models a user device.</summary>
 public class DeviceInfo
 {
