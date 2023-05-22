@@ -23,7 +23,8 @@ public static class TotpApi
                            )
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
                            .ProducesProblem(StatusCodes.Status403Forbidden)
-                           .ProducesProblem(StatusCodes.Status500InternalServerError);
+                           .ProducesProblem(StatusCodes.Status500InternalServerError)
+                           .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
         var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 

@@ -113,7 +113,7 @@ public abstract class BasePageModel : PageModel
         await emailService.SendAsync(message =>
             message.To(user.Email)
                    .WithSubject(localizer["Account confirmation"])
-                   .UsingTemplate("EmailRegister")
+                   .UsingTemplate("EmailConfirmYourEmail")
                    .WithData(new {
                        UserName = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value ?? user.UserName,
                        Url = callbackUrl

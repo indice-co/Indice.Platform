@@ -32,8 +32,9 @@ public static class CacheResourceFilterExtensions
             varyByClaimType ??= Array.Empty<string>();
             endpointBuilder.FilterFactories.Add((context, next) => {
                 var noCache = endpointBuilder.Metadata.OfType<NoCacheMetadata>().Any();
-                if (noCache)
+                if (noCache) {
                     return next;
+                }
                 return new EndpointFilterDelegate(async invocationContext => {
                     var request = invocationContext.HttpContext.Request;
                     var requestMethod = request.Method;

@@ -82,6 +82,6 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
         (UserState.RequiresPasswordChange, UserAction.PasswordChanged) => UserState.LoggedIn,
         (UserState.RequiresPhoneNumberVerification, UserAction.VerifiedPhoneNumber) => UserState.LoggedIn,
         (UserState.LoggedIn, UserAction.Logout) => UserState.LoggedOut,
-        _ => throw new InvalidOperationException($"Cannot calculate next state transition: Current state = '{CurrentState}' - User Action = '{action}'.")
+        _ => CurrentState
     };
 }

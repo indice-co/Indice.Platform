@@ -48,4 +48,11 @@ public static partial class IdentityEndpoints
         /// <summary>Enables API for public registration API.</summary>
         public const string DashboardMetrics = nameof(DashboardMetrics);
     }
+
+    /// <summary>Rate limiting config for Identity Server API.</summary>
+    public static partial class RateLimiting 
+    {
+        /// <summary>The policy name.</summary>
+        public const string PolicyName = "identity-api-rate-limiting-policy";
+    }
 }
