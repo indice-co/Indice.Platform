@@ -1,9 +1,7 @@
 ﻿using System.Net.Mime;
 using System.Security.Claims;
 using IdentityModel;
-using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
-using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
 using Indice.AspNetCore.Identity.Api.Configuration;
@@ -57,7 +55,6 @@ internal class MyAccountController : ControllerBase
     private readonly ExtendedConfigurationDbContext _configurationDbContext;
     private readonly IPersistedGrantStore _persistedGrantStore;
     private readonly IPersistentGrantSerializer _serializer;
-    //private readonly IPersistedGrantService _persistedGrantService;
 
     /// <summary>The name of the controller.</summary>
     public const string Name = "MyAccount";
