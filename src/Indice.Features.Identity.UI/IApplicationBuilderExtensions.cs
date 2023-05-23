@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Indice.AspNetCore.Identity;
 using Indice.Features.Identity.UI;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -22,9 +21,8 @@ public static class IApplicationBuilderExtensions
                 var attribute = descriptor.ModelTypeInfo?.GetCustomAttribute<ClientThemeAttribute>();
                 if (attribute is not null) {
                     var requestClientId = httpContext.GetClientIdFromReturnUrl();
-                    var pageClientId = attribute.ClientId;
-                    var clientIdsAreEqual = requestClientId?.Equals(pageClientId, StringComparison.OrdinalIgnoreCase);
-                    var shouldSwapEndpoint = !clientIdsAreEqual.HasValue || clientIdsAreEqual.Value == false;
+                    var pageClientIds = attribute.ClientIds;
+                    var shouldSwapEndpoint = string.IsNullOrWhiteSpace(requestClientId) || !pageClientIds.Contains(requestClientId, StringComparer.OrdinalIgnoreCase);
                     if (shouldSwapEndpoint) {
                         var endpointDataSources = httpContext.RequestServices.GetService<IEnumerable<EndpointDataSource>>();
                         var availableEndpoints = endpointDataSources?.SelectMany(x => x.Endpoints);

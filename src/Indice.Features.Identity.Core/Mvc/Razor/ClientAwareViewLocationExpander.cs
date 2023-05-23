@@ -1,5 +1,4 @@
 ﻿using IdentityModel;
-using Indice.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.WebUtilities;
@@ -40,7 +39,7 @@ namespace Indice.Features.Identity.Core.Mvc.Razor
     }
 }
 
-namespace Indice.AspNetCore.Identity
+namespace Microsoft.AspNetCore.Http
 {
     /// <summary>Extension methods for customizing views.</summary>
     public static class ViewCustomizationExtensions

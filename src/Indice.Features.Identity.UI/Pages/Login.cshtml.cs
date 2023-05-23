@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -34,6 +35,7 @@ public abstract class BaseLoginModel : BasePageModel
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="logger">A generic interface for logging.</param>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseLoginModel"/>.</param>
+    /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseLoginModel(
         ExtendedSignInManager<User> signInManager,
@@ -43,7 +45,8 @@ public abstract class BaseLoginModel : BasePageModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<BaseLoginModel> logger,
-        IStringLocalizer<BaseLoginModel> localizer
+        IStringLocalizer<BaseLoginModel> localizer,
+        IOptions<IdentityUIOptions> identityUiOptions
     ) : base() {
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -52,6 +55,7 @@ public abstract class BaseLoginModel : BasePageModel
         Events = events ?? throw new ArgumentNullException(nameof(events));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
@@ -69,11 +73,13 @@ public abstract class BaseLoginModel : BasePageModel
     protected ExtendedSignInManager<User> SignInManager { get; }
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
+    /// <summary>Configuration options for Identity UI.</summary>
+    protected IdentityUIOptions IdentityUIOptions { get; set; }
     /// <summary>The current principal's username.</summary>
     public string? UserName => User.FindFirstValue(JwtClaimTypes.Name);
     /// <summary>Login view model.</summary>
     public LoginViewModel View { get; set; } = new LoginViewModel();
-    
+
     /// <summary>Login input model data.</summary>
     [BindProperty]
     public LoginInputModel Input { get; set; } = new LoginInputModel();
@@ -81,6 +87,7 @@ public abstract class BaseLoginModel : BasePageModel
     /// <summary>Login page GET handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync(string? returnUrl = null) {
+        UserManager.StateProvider.ClearState();
         // Build a model so we know what to show on the login page.
         Input = View = await BuildLoginViewModelAsync(returnUrl);
         if (View.PromptRegister()) {
@@ -123,7 +130,7 @@ public abstract class BaseLoginModel : BasePageModel
         }
         if (ModelState.IsValid) {
             // Validate username/password against database.
-            var result = await SignInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, AccountOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
+            var result = await SignInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, IdentityUIOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
             var user = await UserManager.FindByNameAsync(Input.UserName!);
             if (result.Succeeded && user is not null) {
                 await Events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
@@ -139,7 +146,7 @@ public abstract class BaseLoginModel : BasePageModel
                 // Request for a local page.
                 if (string.IsNullOrEmpty(Input.ReturnUrl)) {
                     return Redirect("/");
-                } else if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl)) {
+                } else if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl) || UiOptions.IsValidReturnUrl(Input.ReturnUrl)) {
                     return Redirect(Input.ReturnUrl);
                 } else {
                     // User might have clicked on a malicious link - should be logged.
@@ -206,9 +213,9 @@ public abstract class BaseLoginModel : BasePageModel
             }
         }
         return new LoginViewModel {
-            AllowRememberLogin = AccountOptions.AllowRememberLogin,
+            AllowRememberLogin = IdentityUIOptions.AllowRememberLogin,
             ClientId = context?.Client?.ClientId,
-            EnableLocalLogin = allowLocal && AccountOptions.AllowLocalLogin,
+            EnableLocalLogin = allowLocal && IdentityUIOptions.EnableLocalLogin,
             ExternalProviders = providers.ToArray(),
             GenerateDeviceId = true,
             Operation = context?.Parameters?.AllKeys?.Contains(ExtraQueryParamNames.Operation) == true
@@ -237,6 +244,7 @@ internal class LoginModel : BaseLoginModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<LoginModel> logger,
-        IStringLocalizer<LoginModel> localizer
-    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, localizer) { }
+        IStringLocalizer<LoginModel> localizer,
+        IOptions<IdentityUIOptions> identityUiOptions
+    ) : base(signInManager, userManager, schemeProvider, clientStore, events, interaction, logger, localizer, identityUiOptions) { }
 }

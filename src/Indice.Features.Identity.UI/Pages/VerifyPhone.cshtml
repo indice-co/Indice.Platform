@@ -15,7 +15,7 @@
     <partial name="_PageHeader" model="title" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData?.Alert" />
-    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="POST">
+    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
         <input type="hidden" asp-for="Input.PhoneNumber" />
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <div class="form-group">

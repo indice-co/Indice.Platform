@@ -5,11 +5,10 @@ using Indice.Features.Identity.UI.Models;
 using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -78,7 +77,7 @@ public abstract class BaseForgotPasswordModel : BasePageModel
             return Page();
         }
         var token = await UserManager.GeneratePasswordResetTokenAsync(user);
-        var callbackUrl = Url.PageLink("/ForgotPasswordConfirmation", values: new { email = user.Email, token });
+        var callbackUrl = Url.PageLink("/ForgotPasswordConfirmation", values: new { email = user.Email, token, client_id = HttpContext.GetClientIdFromReturnUrl() });
         Logger.LogDebug("{PageTitle}: Confirmation token is {Token}", "Forgot password", token);
         await EmailService.SendAsync(builder =>
             builder.To(user.Email)

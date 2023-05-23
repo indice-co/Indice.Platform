@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Types;
 
@@ -8,6 +7,8 @@ namespace Indice.AspNetCore.Identity.Api.Models;
 /// <summary>Models a user device.</summary>
 public class DeviceInfo
 {
+    /// <summary>The primary key.</summary>
+    public Guid RegistrationId { get; set; }
     /// <summary>Device id.</summary>
     public string DeviceId { get; set; }
     /// <summary>Device operating system.</summary>
@@ -35,16 +36,23 @@ public class DeviceInfo
     /// <summary>Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios).</summary>
     public bool IsTrusted { get; set; }
     /// <summary>Indicates whether the user can activate device trust after waiting for the specified delay.</summary>
-    public bool CanActivateDeviceTrust => TrustActivationDate.HasValue && TrustActivationDate.Value <= DateTimeOffset.UtcNow && !IsTrusted;
+    public bool CanActivateDeviceTrust => TrustActivationDate is not null && TrustActivationDate <= DateTimeOffset.UtcNow && !IsTrusted;
     /// <summary>Extra metadata for the device.</summary>
     public dynamic Data { get; set; }
     /// <summary>Describes the type of a user device.</summary>
     public DeviceClientType? ClientType { get; set; }
+    /// <summary>The date until the client is remembered by the system and MFA is not asked.</summary>
+    public DateTimeOffset? MfaSessionExpirationDate { get; set; }
+    /// <summary>Indicates whether device is blocked for any action.</summary>
+    public bool Blocked { get; set; }
+    /// <summary>Device tags.</summary>
+    public string[] Tags { get; set; } = Array.Empty<string>();
 }
 
 internal static class DeviceInfoExtensions
 {
     public static Expression<Func<UserDevice, DeviceInfo>> ToDeviceInfo = (UserDevice device) => new DeviceInfo {
+        Blocked = device.Blocked,
         ClientType = device.ClientType,
         Data = device.Data,
         DateCreated = device.DateCreated,
@@ -52,13 +60,16 @@ internal static class DeviceInfoExtensions
         IsPushNotificationsEnabled = device.IsPushNotificationsEnabled,
         IsTrusted = device.IsTrusted,
         LastSignInDate = device.LastSignInDate,
+        MfaSessionExpirationDate = device.MfaSessionExpirationDate,
         Model = device.Model,
         Name = device.Name,
         OsVersion = device.OsVersion,
         Platform = device.Platform,
+        RegistrationId = device.Id,
         RequiresPassword = device.RequiresPassword,
         SupportsFingerprintLogin = device.SupportsFingerprintLogin,
         SupportsPinLogin = device.SupportsPinLogin,
+        Tags = device.Tags,
         TrustActivationDate = device.TrustActivationDate
     };
 }

@@ -35,7 +35,6 @@ public static class ExtendedIdentityDbContextExtensions
         if (!dbContext.Database.CanConnect()) {
             return;
         }
-        //var options = dbContext.GetService<ExtendedIdentityDbContextSeedOptions<TUser>>() ?? new ExtendedIdentityDbContextSeedOptions<TUser>();
         const string adminEmail = "company@indice.gr";
         var adminAccount = dbContext.Users.SingleOrDefault(user => user.UserName == adminEmail);
         if (adminAccount is not null) {
@@ -73,9 +72,6 @@ public static class ExtendedIdentityDbContextExtensions
             ClaimValue = "123456",
             UserId = admin.Id
         });
-
-        //dbContext.Users.AddRange(options.InitialUsers);
-
         var rolesExist = dbContext.Roles.Any();
         if (rolesExist) {
             return;

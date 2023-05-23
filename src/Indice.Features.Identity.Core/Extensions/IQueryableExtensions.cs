@@ -13,14 +13,20 @@ public static class IQueryableExtensions
         if (filter is not null) {
             query = query.Where(device =>
                 (filter.IsPushNotificationEnabled == null || device.IsPushNotificationsEnabled == filter.IsPushNotificationEnabled) &&
-                (filter.IsTrusted == null || device.IsTrusted == filter.IsTrusted ||
-                
+                (
+                    filter.IsTrusted == null || 
+                    device.IsTrusted == filter.IsTrusted ||
                     filter.IsPendingTrustActivation == null ||
-                    filter.IsPendingTrustActivation.Value && device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow ||
-                    !filter.IsPendingTrustActivation.Value && device.TrustActivationDate.HasValue && device.TrustActivationDate.Value < DateTimeOffset.UtcNow
+                    (filter.IsPendingTrustActivation.Value && device.TrustActivationDate.HasValue && device.TrustActivationDate.Value > DateTimeOffset.UtcNow) ||
+                    (!filter.IsPendingTrustActivation.Value && device.TrustActivationDate.HasValue && device.TrustActivationDate.Value < DateTimeOffset.UtcNow)
                 ) &&
                 (filter.Blocked == null || device.Blocked == filter.Blocked) &&
-                (filter.ClientType == null || device.ClientType == filter.ClientType)
+                (filter.ClientType == null || device.ClientType == filter.ClientType) &&
+                (
+                    filter.IsMfaSessionExpired == null || 
+                    (filter.IsMfaSessionExpired.Value && device.MfaSessionExpirationDate < DateTimeOffset.UtcNow) ||
+                    (!filter.IsMfaSessionExpired.Value && (device.MfaSessionExpirationDate == null || device.MfaSessionExpirationDate > DateTimeOffset.UtcNow))
+                )
             );
         }
         return query;

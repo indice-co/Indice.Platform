@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Identity.UI;
+﻿namespace Indice.AspNetCore.Identity;
 
 /// <summary>Account options used to configure account behavior.</summary>
 public class AccountOptions

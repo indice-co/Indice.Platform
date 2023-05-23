@@ -140,7 +140,14 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
-        StateProvider.ChangeState(user, UserAction.Login);
+        var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) &&
+            (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
+        if (isExternalLogin) {
+            StateProvider.ChangeState(user, UserAction.ExternalLogin);
+            bypassTwoFactor = true;
+        } else {
+            StateProvider.ChangeState(user, UserAction.Login);
+        }
         if (ShouldSignInPartially()) {
             return await DoPartialSignInAsync(user);
         }
@@ -277,8 +284,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var deviceId = await _mfaDeviceIdResolver.Resolve();
         if (!string.IsNullOrWhiteSpace(deviceId.Value) && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
-            isRemembered = device is not null && 
-                           device.MfaSessionExpirationDate.HasValue && 
+            isRemembered = device is not null &&
+                           device.MfaSessionExpirationDate.HasValue &&
                            device.MfaSessionExpirationDate.Value > DateTimeOffset.UtcNow;
             if (RequireMfaWhenUserHasTrustedBrowserButExpiredPassword) {
                 isRemembered = isRemembered && !user.HasExpiredPassword();
@@ -328,7 +335,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var isPasswordExpired = user.HasExpiredPassword();
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var returnUrl = Context.Request.Query["ReturnUrl"];
-        await Context.SignInAsync(scheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName), new AuthenticationProperties {
+        await Context.SignInAsync(scheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName, user.UserName), new AuthenticationProperties {
             RedirectUri = returnUrl,
             IsPersistent = false
         });
@@ -338,12 +345,13 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private async Task<bool> IsTfaEnabled(TUser user)
         => ExtendedUserManager.SupportsUserTwoFactor && await ExtendedUserManager.GetTwoFactorEnabledAsync(user) && (await ExtendedUserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
 
-    private static ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName) {
+    private static ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName, string userName) {
         var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
         identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
         identity.AddClaim(new Claim(JwtClaimTypes.EmailVerified, isEmailConfirmed.ToString().ToLower()));
         identity.AddClaim(new Claim(JwtClaimTypes.PhoneNumberVerified, isPhoneConfirmed.ToString().ToLower()));
         identity.AddClaim(new Claim(ExtendedIdentityConstants.PasswordExpiredClaimType, isPasswordExpired.ToString().ToLower()));
+        identity.AddClaim(new Claim(JwtClaimTypes.Name, userName));
         if (!string.IsNullOrWhiteSpace(firstName)) {
             identity.AddClaim(new Claim(JwtClaimTypes.GivenName, firstName));
         }

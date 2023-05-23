@@ -12,7 +12,6 @@ internal static class ExtendedConfigurationDbContextExtensions
     }
 
     public static void SeedInitialClaimTypes(this ExtendedConfigurationDbContext configurationDbContext) {
-
         var options = configurationDbContext.GetService<ExtendedConfigurationDbContextSeedOptions>() ?? new ExtendedConfigurationDbContextSeedOptions();
         configurationDbContext.AddRange(InitialClaimTypes.Get());
         configurationDbContext.AddRange(options.CustomClaims);

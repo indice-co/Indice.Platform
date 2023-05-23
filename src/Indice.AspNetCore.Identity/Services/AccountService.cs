@@ -7,7 +7,6 @@ using Indice.AspNetCore.Identity.Models;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Models;
-using Indice.Features.Identity.UI;
 using Indice.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;

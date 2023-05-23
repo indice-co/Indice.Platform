@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using Indice.AspNetCore.Identity;
 using Indice.Features.Identity.Core.Data;
 using Indice.Serialization;
 using Microsoft.AspNetCore.Http;

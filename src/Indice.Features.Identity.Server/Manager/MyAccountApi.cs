@@ -68,13 +68,15 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.ForgotPassword))
              .WithSummary("Generates a password reset token and sends it to the user via email.")
              .WithParameterValidation<ForgotPasswordRequest>()
-             .AllowAnonymous();
+             .AllowAnonymous()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
 
         group.MapPut("account/forgot-password/confirmation", MyAccountHandlers.ForgotPasswordConfirmation)
              .WithName(nameof(MyAccountHandlers.ForgotPasswordConfirmation))
              .WithSummary("Changes the password of the user confirming the code received during forgot password process.")
              .WithParameterValidation<ForgotPasswordConfirmationRequest>()
-             .AllowAnonymous();
+             .AllowAnonymous()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
 
         group.MapPut("my/account/password-expiration-policy", MyAccountHandlers.UpdatePasswordExpirationPolicy)
              .WithName(nameof(MyAccountHandlers.UpdatePasswordExpirationPolicy))
@@ -124,20 +126,23 @@ public static class MyAccountApi
         group.MapGet("account/password-options", MyAccountHandlers.GetPasswordOptions)
              .WithName(nameof(MyAccountHandlers.GetPasswordOptions))
              .WithSummary("Gets the password options that are applied when the user creates an account.")
-             .AllowAnonymous();
+             .AllowAnonymous()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
 
         group.MapPost("account/username-exists", MyAccountHandlers.CheckUserNameExists)
              .WithName(nameof(MyAccountHandlers.CheckUserNameExists))
              .WithSummary("Checks if a username already exists in the database.")
              .WithParameterValidation<ValidateUserNameRequest>()
              .ProducesProblem(StatusCodes.Status410Gone)
-             .AllowAnonymous();
+             .AllowAnonymous()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
 
         group.MapPost("account/validate-password", MyAccountHandlers.ValidatePassword)
              .WithName(nameof(MyAccountHandlers.ValidatePassword))
              .WithSummary($"Validates a user's password against one or more configured {nameof(IPasswordValidator<User>)}.")
              .WithParameterValidation<ValidatePasswordRequest>()
-             .AllowAnonymous();
+             .AllowAnonymous()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
 
         group.MapPost("account/register", MyAccountHandlers.Register)
              .WithName(nameof(MyAccountHandlers.Register))
