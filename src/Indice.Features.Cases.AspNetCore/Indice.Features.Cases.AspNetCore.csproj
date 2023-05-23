@@ -6,7 +6,6 @@
     <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
     <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
-    <UserSecretsId>65249bb0-ca05-41e1-b070-e1eb79fa638d</UserSecretsId>
     <!--<Version>6.4.1</Version>-->
   </PropertyGroup>
   <ItemGroup>
