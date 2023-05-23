@@ -12,20 +12,20 @@
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Elsa" Version="2.9.2" />
-    <PackageReference Include="Elsa.Activities.Email" Version="2.9.2" />    
-    <PackageReference Include="Elsa.Activities.Http" Version="2.9.2" />
-    <PackageReference Include="Elsa.Activities.Temporal.Quartz" Version="2.9.2" />
-    <PackageReference Include="Elsa.Activities.UserTask" Version="2.9.2" />
-    <PackageReference Include="Elsa.Designer.Components.Web" Version="2.9.2" />
-    <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.9.2" />
-    <PackageReference Include="Elsa.Server.Api" Version="2.9.2" />
+    <PackageReference Include="Elsa" Version="2.11.1" />
+    <PackageReference Include="Elsa.Activities.Email" Version="2.11.1" />    
+    <PackageReference Include="Elsa.Activities.Http" Version="2.11.1" />
+    <PackageReference Include="Elsa.Activities.Temporal.Quartz" Version="2.11.1" />
+    <PackageReference Include="Elsa.Activities.UserTask" Version="2.11.1" />
+    <PackageReference Include="Elsa.Designer.Components.Web" Version="2.11.1" />
+    <PackageReference Include="Elsa.Persistence.EntityFramework.SqlServer" Version="2.11.1" />
+    <PackageReference Include="Elsa.Server.Api" Version="2.11.1" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
-    <PackageReference Include="JsonSchema.Net" Version="3.3.2" />
+    <PackageReference Include="JsonSchema.Net" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.12" />

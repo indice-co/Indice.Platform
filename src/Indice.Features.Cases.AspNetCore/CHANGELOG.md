@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] - 2023-05-09
 ### Added
 - `GetMyCases` now returns case metadata.
-
-## [7.1.6] - 2023-05-09
 ### Changed
+- Elsa updates to `2.11.1`.
+- JsonSchema.Net to `4.1.1`.
 - The `CaseApiOptions` are now separated for each endpoint group. Use `MyCasesApiOptions` or `AdminCasesApiOptions` accordingly.
 ### Bugfix
 - `GroupName` and `ApiPrefix` can be configured properly for each endpoint group (admin or my-cases). Resolves #225.
