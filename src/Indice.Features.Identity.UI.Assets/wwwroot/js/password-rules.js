@@ -13,7 +13,7 @@ var indice = indice || {};
                 var request = {
                     token: viewModelParams.userId,
                     password: password,
-                    userName: viewModelParams.userName
+                    userName: viewModelParams.userName || viewModelParams.userNameInputSelector.val()
                 };
                 $.ajax({
                     url: '/api/account/validate-password',
@@ -41,7 +41,8 @@ $(document).ready(function () {
     var form = document.getElementsByTagName('form')[0];
     var viewModelParameters = {
         userId: form.getAttribute('data-token'),
-        userName: form.getAttribute('data-userName')
+        userName: form.getAttribute('data-userName'),
+        userNameInputSelector: $('#Input_UserName')
     };
     debugger
     var viewModel = new indice.PasswordRulesViewModelFactory(viewModelParameters);
