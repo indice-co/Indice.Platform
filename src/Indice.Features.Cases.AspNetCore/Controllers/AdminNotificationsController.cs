@@ -20,11 +20,11 @@ namespace Indice.Features.Cases.Controllers;
 internal class AdminNotificationsController : ControllerBase
 {
     private readonly INotificationSubscriptionService _service;
-    private readonly CasesApiOptions _casesApiOptions;
+    private readonly AdminCasesApiOptions _casesApiOptions;
 
     public AdminNotificationsController(
         INotificationSubscriptionService service,
-        CasesApiOptions casesApiOptions) {
+        AdminCasesApiOptions casesApiOptions) {
         _service = service ?? throw new ArgumentNullException(nameof(service));
         _casesApiOptions = casesApiOptions ?? throw new ArgumentNullException(nameof(casesApiOptions));
     }
