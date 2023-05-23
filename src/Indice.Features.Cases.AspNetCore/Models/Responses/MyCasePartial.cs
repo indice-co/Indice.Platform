@@ -24,6 +24,9 @@ public class MyCasePartial
     /// <summary>The checkpoint name of the case.</summary>
     public string Checkpoint { get; set; }
 
+    /// <summary>The case metadata.</summary>
+    public Dictionary<string, string> Metadata { get; set; }   
+
     /// <summary>The message that has been submitted from the backoffice.</summary>
     public string Message { get; set; }
     /// <summary>Translations.</summary>
