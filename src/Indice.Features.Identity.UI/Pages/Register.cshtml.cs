@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -27,19 +28,22 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <param name="clientStore">Retrieval of client configuration.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="logger">A generic interface for logging.</param>
+    /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseRegisterModel(
         ExtendedUserManager<User> userManager,
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
-        ILogger<BaseRegisterModel> logger
+        ILogger<BaseRegisterModel> logger,
+        IOptions<IdentityUIOptions> identityUiOptions
     ) {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SchemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
         ClientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -52,6 +56,8 @@ public abstract class BaseRegisterModel : BasePageModel
     protected IIdentityServerInteractionService Interaction { get; }
     /// <summary>A generic interface for logging.</summary>
     protected ILogger<BaseRegisterModel> Logger { get; }
+    /// <summary>Configuration options for Identity UI.</summary>
+    protected IdentityUIOptions IdentityUIOptions { get; set; }
 
     /// <summary>The view model for registration page.</summary>
     public RegisterViewModel View { get; set; } = new RegisterViewModel();
@@ -131,11 +137,11 @@ public abstract class BaseRegisterModel : BasePageModel
                 AuthenticationScheme = x.Name
             })
             .ToList();
-        var allowLocal = AccountOptions.AllowLocalLogin;
+        var enableLocalLogin = IdentityUIOptions.EnableLocalLogin;
         if (context?.Client.ClientId is not null) {
             var client = await ClientStore.FindEnabledClientByIdAsync(context.Client.ClientId);
             if (client is not null) {
-                allowLocal = client.EnableLocalLogin;
+                enableLocalLogin = client.EnableLocalLogin;
                 if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any()) {
                     providers = providers.Where(provider => !client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
                 }
@@ -212,6 +218,7 @@ internal class RegisterModel : BaseRegisterModel
         IAuthenticationSchemeProvider schemeProvider,
         IClientStore clientStore,
         IIdentityServerInteractionService interaction,
-        ILogger<RegisterModel> logger
-    ) : base(userManager, schemeProvider, clientStore, interaction, logger) { }
+        ILogger<RegisterModel> logger,
+        IOptions<IdentityUIOptions> identityUiOptions
+    ) : base(userManager, schemeProvider, clientStore, interaction, logger, identityUiOptions) { }
 }

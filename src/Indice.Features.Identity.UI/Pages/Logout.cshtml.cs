@@ -9,6 +9,7 @@ using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -22,15 +23,18 @@ public abstract class BaseLogoutModel : BasePageModel
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="events">Interface for the event service.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
+    /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseLogoutModel(
         ExtendedSignInManager<User> signInManager,
         IEventService events,
-        IIdentityServerInteractionService interaction
+        IIdentityServerInteractionService interaction,
+        IOptions<IdentityUIOptions> identityUiOptions
     ) {
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         Events = events ?? throw new ArgumentNullException(nameof(events));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+        IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
     }
 
     /// <summary>Provides the APIs for user sign in.</summary>
@@ -39,6 +43,8 @@ public abstract class BaseLogoutModel : BasePageModel
     protected IEventService Events { get; }
     /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
     protected IIdentityServerInteractionService Interaction { get; }
+    /// <summary>Configuration options for Identity UI.</summary>
+    protected IdentityUIOptions IdentityUIOptions { get; set; }
 
     /// <summary>The logout id.</summary>
     [BindProperty]
@@ -54,7 +60,7 @@ public abstract class BaseLogoutModel : BasePageModel
     /// <summary>Logout page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync(string logoutId) {
         LogoutId = logoutId;
-        var showLogoutPrompt = AccountOptions.ShowLogoutPrompt;
+        var showLogoutPrompt = IdentityUIOptions.ShowLogoutPrompt;
         if (User?.Identity?.IsAuthenticated != true) {
             // if the user is not authenticated, then just show logged out page.
             showLogoutPrompt = false;
@@ -105,6 +111,7 @@ internal class LogoutModel : BaseLogoutModel
     public LogoutModel(
         ExtendedSignInManager<User> signInManager,
         IEventService events,
-        IIdentityServerInteractionService interaction
-    ) : base(signInManager, events, interaction) { }
+        IIdentityServerInteractionService interaction,
+        IOptions<IdentityUIOptions> identityUiOptions
+    ) : base(signInManager, events, interaction, identityUiOptions) { }
 }

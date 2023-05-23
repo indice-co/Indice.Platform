@@ -12,7 +12,8 @@ var indice = indice || {};
                 var password = event.currentTarget.value;
                 var request = {
                     token: viewModelParams.userId,
-                    password: password
+                    password: password,
+                    userName: viewModelParams.userName
                 };
                 $.ajax({
                     url: '/api/account/validate-password',
@@ -37,9 +38,12 @@ var indice = indice || {};
 })();
 
 $(document).ready(function () {
+    var form = document.getElementsByTagName('form')[0];
     var viewModelParameters = {
-        userId: document.getElementsByTagName('form')[0].getAttribute('data-token')
+        userId: form.getAttribute('data-token'),
+        userName: form.getAttribute('data-userName')
     };
+    debugger
     var viewModel = new indice.PasswordRulesViewModelFactory(viewModelParameters);
     viewModel.init();
     ko.bindingProvider.instance = new ko.secureBindingsProvider();

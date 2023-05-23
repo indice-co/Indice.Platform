@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Indice.AspNetCore.Identity;
 using Indice.Features.Identity.UI;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;

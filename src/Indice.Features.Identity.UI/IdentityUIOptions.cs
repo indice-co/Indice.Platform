@@ -32,6 +32,12 @@ public class IdentityUIOptions
     public string HtmlBodyBackgroundCssClass { get; set; } = "gradient-bg";
     /// <summary>Contains additional valid return urls. Its used in the login page</summary>
     public HashSet<string> ValidReturnUrls { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    /// <summary>Remember me duration.</summary>
+    public TimeSpan RememberMeLoginDuration { get; set; } = TimeSpan.FromDays(30);
+    /// <summary>Should show the logout prompt or logout immediately.</summary>
+    public bool ShowLogoutPrompt { get; set; } = true;
+    /// <summary>Automatic redirect after sign out.</summary>
+    public bool AutomaticRedirectAfterSignOut { get; set; } = false;
 
     /// <summary>Services shown in the homepage.</summary>
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {

@@ -1,5 +1,4 @@
 ﻿using IdentityModel;
-using Indice.AspNetCore.Identity;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
