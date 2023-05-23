@@ -32,7 +32,7 @@
     }
     <partial name="_Alert" model="alert" />
     <partial name="_ValidationSummary" />
-    <form method="POST">
+    <form method="post">
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
@@ -192,9 +192,7 @@
             });
         });
     </script>
-    @{
-        await Html.RenderPartialAsync("_ValidationScripts");
-    }
+    <partial name="_ValidationScripts" />
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
             el.onclick = function (link) {

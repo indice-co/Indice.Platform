@@ -13,7 +13,7 @@
     <partial name="_PageHeader" model="title" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="tempData.Alert" />
-    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="POST">
+    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
         <div class="form-group">
             <label asp-for="Input.Email" class="sr-only">@Localizer["Email"]</label>
             <input class="form-control" type="text" placeholder="@Localizer["Email"]" asp-for="Input.Email" disabled="@tempData.DisableForm" />

@@ -5,7 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [Unreleased] - 2023-05-09
+### Added
+- `GetMyCases` now returns case metadata.
+### Changed
+- Elsa updates to `2.11.1`.
+- JsonSchema.Net to `4.1.1`.
+- The `CaseApiOptions` are now separated for each endpoint group. Use `MyCasesApiOptions` or `AdminCasesApiOptions` accordingly.
+### Bugfix
+- `GroupName` and `ApiPrefix` can be configured properly for each endpoint group (admin or my-cases). Resolves #225.
+### Migrations
+- at `AddCasesApiEndpoints` Replace `CasesApiOptions` with `MyCasesApiOptions`.
+- at `AddAdminCasesApiEndpoints` Replace `CasesApiOptions` with `AdminCasesApiOptions`.
+
+## [7.1.6] - 2023-05-09
 ### Changed
 - `IncludeDrafts` option to return draft cases.
 

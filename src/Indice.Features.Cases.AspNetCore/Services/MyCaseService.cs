@@ -177,18 +177,18 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             dbCaseQueryable = dbCaseQueryable.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
         }
 
-
         var myCasePartialQueryable = from c in dbCaseQueryable
                                      let reason = c.Approvals.OrderByDescending(a => a.CreatedBy.When).FirstOrDefault()
                                      let reasonMessage = reason != null && reason.Committed && reason.Action == Approval.Reject
-                                     ? _caseSharedResourceService.GetLocalizedHtmlString(reason.Reason)
-                                     : string.Empty
+                                         ? _caseSharedResourceService.GetLocalizedHtmlString(reason.Reason)
+                                         : string.Empty
                                      select new MyCasePartial {
                                          Id = c.Id,
                                          Created = c.CreatedBy.When,
                                          CaseTypeCode = c.CaseType.Code,
                                          Status = c.PublicCheckpoint.CheckpointType.Status,
                                          Checkpoint = c.PublicCheckpoint.CheckpointType.Code,
+                                         Metadata = c.Metadata,
                                          Message = reasonMessage,
                                          Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(c.CaseType.Translations)
                                      };

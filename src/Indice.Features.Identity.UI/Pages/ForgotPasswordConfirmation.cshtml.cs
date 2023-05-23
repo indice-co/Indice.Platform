@@ -2,6 +2,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -41,15 +42,24 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
     [BindProperty]
     public ForgotPasswordConfirmationInputModel Input { get; set; } = new ForgotPasswordConfirmationInputModel();
 
+    /// <summary>View model for forgot password confirmation model.</summary>
+    public ForgotPasswordConfirmationViewModel View { get; set; } = new ForgotPasswordConfirmationViewModel();
+
     /// <summary></summary>
     [ViewData]
     public bool PasswordSuccessfullyChanged { get; set; }
 
     /// <summary>Forgot password confirmation page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string email, [FromQuery] string token) {
-        await Task.CompletedTask;
         Input.Email = email;
         Input.Token = token;
+        if (!string.IsNullOrWhiteSpace(email)) {
+            var user = await UserManager.FindByEmailAsync(email);
+            if (user is not null) {
+                View.UserId = user.Id;
+                View.UserName = user.UserName;
+            }
+        }
         return Page();
     }
 
@@ -67,9 +77,7 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
         }
         var result = await UserManager.ResetPasswordAsync(user, Input.Token, Input.NewPassword);
         if (!result.Succeeded) {
-            foreach (var error in result.Errors) {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
+            AddModelErrors(result);
             return Page();
         }
         PasswordSuccessfullyChanged = true;

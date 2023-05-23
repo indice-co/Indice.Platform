@@ -14,7 +14,7 @@
     <partial name="_PageHeader" model="title" />
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="alert" />
-    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="POST">
+    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
         <div class="form-group">
             <label asp-for="Input.PhoneNumber" class="sr-only">@Localizer["Phone number"]</label>
             <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
