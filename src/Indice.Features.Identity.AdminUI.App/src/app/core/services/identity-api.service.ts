@@ -247,6 +247,11 @@ export interface IIdentityApiService {
      */
     deleteAccount(): Observable<void>;
     /**
+     * Blocks a user account.
+     * @return No Content
+     */
+    blockAccount(body: SetUserBlockRequest): Observable<void>;
+    /**
      * Gets the claims of the user.
      * @return OK
      */
@@ -328,9 +333,10 @@ export interface IIdentityApiService {
      * @param blocked (optional) 
      * @param clientType (optional) 
      * @param isPendingTrustActivation (optional) 
+     * @param isMfaSessionExpired (optional) 
      * @return OK
      */
-    getDevices(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isPushNotificationEnabled?: boolean | undefined, isTrusted?: boolean | undefined, blocked?: boolean | undefined, clientType?: string | undefined, isPendingTrustActivation?: boolean | undefined): Observable<DeviceInfoResultSet>;
+    getDevices(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isPushNotificationEnabled?: boolean | undefined, isTrusted?: boolean | undefined, blocked?: boolean | undefined, clientType?: string | undefined, isPendingTrustActivation?: boolean | undefined, isMfaSessionExpired?: boolean | undefined): Observable<DeviceInfoResultSet>;
     /**
      * Creates a new device and optionally registers for push notifications.
      * @return Created
@@ -369,9 +375,11 @@ export interface IIdentityApiService {
      * @param search (optional) 
      * @param from (optional) 
      * @param to (optional) 
+     * @param applicationId (optional) 
+     * @param signInType (optional) 
      * @return OK
      */
-    getMySignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined): Observable<SignInLogEntryResultSet>;
+    getMySignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, signInType?: string | undefined): Observable<SignInLogEntryResultSet>;
     /**
      * Returns a list of IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided ListOptions.
      * @param page (optional) 
@@ -529,16 +537,16 @@ export interface IIdentityApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
+     * @param subjectId (optional) 
+     * @param sessionId (optional) 
+     * @param markForReview (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param applicationId (optional) 
-     * @param subjectId (optional) 
-     * @param sessionId (optional) 
      * @param signInType (optional) 
-     * @param markForReview (optional) 
      * @return OK
      */
-    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, signInType?: string | undefined, markForReview?: boolean | undefined): Observable<SignInLogEntryResultSet>;
+    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, signInType?: string | undefined): Observable<SignInLogEntryResultSet>;
     /**
      * Patches the specified log entry by updating the properties given in the request.
      * @return No Content
@@ -593,6 +601,11 @@ export interface IIdentityApiService {
      */
     getUserApplications(userId: string): Observable<UserClientInfoResultSet>;
     /**
+     * Toggles user block state.
+     * @return No Content
+     */
+    setUserBlock(userId: string, body: SetUserBlockRequest): Observable<void>;
+    /**
      * Adds a claim for the specified user.
      * @return Created
      */
@@ -642,11 +655,6 @@ export interface IIdentityApiService {
      * @return No Content
      */
     deleteUserRole(userId: string, roleId: string): Observable<void>;
-    /**
-     * Toggles user block state.
-     * @return No Content
-     */
-    setUserBlock(userId: string, body: SetUserBlockRequest): Observable<void>;
     /**
      * Sets the password for a given user.
      * @return No Content
@@ -3955,6 +3963,83 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Blocks a user account.
+     * @return No Content
+     */
+    blockAccount(body: SetUserBlockRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/my/account/block";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processBlockAccount(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processBlockAccount(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processBlockAccount(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Gets the claims of the user.
      * @return OK
      */
@@ -4996,9 +5081,10 @@ export class IdentityApiService implements IIdentityApiService {
      * @param blocked (optional) 
      * @param clientType (optional) 
      * @param isPendingTrustActivation (optional) 
+     * @param isMfaSessionExpired (optional) 
      * @return OK
      */
-    getDevices(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isPushNotificationEnabled?: boolean | undefined, isTrusted?: boolean | undefined, blocked?: boolean | undefined, clientType?: string | undefined, isPendingTrustActivation?: boolean | undefined): Observable<DeviceInfoResultSet> {
+    getDevices(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isPushNotificationEnabled?: boolean | undefined, isTrusted?: boolean | undefined, blocked?: boolean | undefined, clientType?: string | undefined, isPendingTrustActivation?: boolean | undefined, isMfaSessionExpired?: boolean | undefined): Observable<DeviceInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/devices?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -5036,6 +5122,10 @@ export class IdentityApiService implements IIdentityApiService {
             throw new Error("The parameter 'isPendingTrustActivation' cannot be null.");
         else if (isPendingTrustActivation !== undefined)
             url_ += "IsPendingTrustActivation=" + encodeURIComponent("" + isPendingTrustActivation) + "&";
+        if (isMfaSessionExpired === null)
+            throw new Error("The parameter 'isMfaSessionExpired' cannot be null.");
+        else if (isMfaSessionExpired !== undefined)
+            url_ += "IsMfaSessionExpired=" + encodeURIComponent("" + isMfaSessionExpired) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -5567,9 +5657,11 @@ export class IdentityApiService implements IIdentityApiService {
      * @param search (optional) 
      * @param from (optional) 
      * @param to (optional) 
+     * @param applicationId (optional) 
+     * @param signInType (optional) 
      * @return OK
      */
-    getMySignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined): Observable<SignInLogEntryResultSet> {
+    getMySignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, signInType?: string | undefined): Observable<SignInLogEntryResultSet> {
         let url_ = this.baseUrl + "/api/my/sign-in-logs?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -5590,11 +5682,19 @@ export class IdentityApiService implements IIdentityApiService {
         if (from === null)
             throw new Error("The parameter 'from' cannot be null.");
         else if (from !== undefined)
-            url_ += "from=" + encodeURIComponent("" + from) + "&";
+            url_ += "From=" + encodeURIComponent("" + from) + "&";
         if (to === null)
             throw new Error("The parameter 'to' cannot be null.");
         else if (to !== undefined)
-            url_ += "to=" + encodeURIComponent("" + to) + "&";
+            url_ += "To=" + encodeURIComponent("" + to) + "&";
+        if (applicationId === null)
+            throw new Error("The parameter 'applicationId' cannot be null.");
+        else if (applicationId !== undefined)
+            url_ += "ApplicationId=" + encodeURIComponent("" + applicationId) + "&";
+        if (signInType === null)
+            throw new Error("The parameter 'signInType' cannot be null.");
+        else if (signInType !== undefined)
+            url_ += "SignInType=" + encodeURIComponent("" + signInType) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -5653,6 +5753,13 @@ export class IdentityApiService implements IIdentityApiService {
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = SignInLogEntryResultSet.fromJS(resultData200);
             return _observableOf(result200);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 404) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -7777,16 +7884,16 @@ export class IdentityApiService implements IIdentityApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
+     * @param subjectId (optional) 
+     * @param sessionId (optional) 
+     * @param markForReview (optional) 
      * @param from (optional) 
      * @param to (optional) 
      * @param applicationId (optional) 
-     * @param subjectId (optional) 
-     * @param sessionId (optional) 
      * @param signInType (optional) 
-     * @param markForReview (optional) 
      * @return OK
      */
-    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, signInType?: string | undefined, markForReview?: boolean | undefined): Observable<SignInLogEntryResultSet> {
+    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, signInType?: string | undefined): Observable<SignInLogEntryResultSet> {
         let url_ = this.baseUrl + "/api/sign-in-logs?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -7804,6 +7911,18 @@ export class IdentityApiService implements IIdentityApiService {
             throw new Error("The parameter 'search' cannot be null.");
         else if (search !== undefined)
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
+        if (subjectId === null)
+            throw new Error("The parameter 'subjectId' cannot be null.");
+        else if (subjectId !== undefined)
+            url_ += "SubjectId=" + encodeURIComponent("" + subjectId) + "&";
+        if (sessionId === null)
+            throw new Error("The parameter 'sessionId' cannot be null.");
+        else if (sessionId !== undefined)
+            url_ += "SessionId=" + encodeURIComponent("" + sessionId) + "&";
+        if (markForReview === null)
+            throw new Error("The parameter 'markForReview' cannot be null.");
+        else if (markForReview !== undefined)
+            url_ += "MarkForReview=" + encodeURIComponent("" + markForReview) + "&";
         if (from === null)
             throw new Error("The parameter 'from' cannot be null.");
         else if (from !== undefined)
@@ -7816,22 +7935,10 @@ export class IdentityApiService implements IIdentityApiService {
             throw new Error("The parameter 'applicationId' cannot be null.");
         else if (applicationId !== undefined)
             url_ += "ApplicationId=" + encodeURIComponent("" + applicationId) + "&";
-        if (subjectId === null)
-            throw new Error("The parameter 'subjectId' cannot be null.");
-        else if (subjectId !== undefined)
-            url_ += "SubjectId=" + encodeURIComponent("" + subjectId) + "&";
-        if (sessionId === null)
-            throw new Error("The parameter 'sessionId' cannot be null.");
-        else if (sessionId !== undefined)
-            url_ += "SessionId=" + encodeURIComponent("" + sessionId) + "&";
         if (signInType === null)
             throw new Error("The parameter 'signInType' cannot be null.");
         else if (signInType !== undefined)
             url_ += "SignInType=" + encodeURIComponent("" + signInType) + "&";
-        if (markForReview === null)
-            throw new Error("The parameter 'markForReview' cannot be null.");
-        else if (markForReview !== undefined)
-            url_ += "MarkForReview=" + encodeURIComponent("" + markForReview) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -8029,14 +8136,7 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
@@ -8049,6 +8149,13 @@ export class IdentityApiService implements IIdentityApiService {
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8116,14 +8223,7 @@ export class IdentityApiService implements IIdentityApiService {
             (response as any).error instanceof Blob ? (response as any).error : undefined;
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 401) {
+        if (status === 401) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
@@ -8136,6 +8236,13 @@ export class IdentityApiService implements IIdentityApiService {
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -8674,6 +8781,93 @@ export class IdentityApiService implements IIdentityApiService {
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = UserClientInfoResultSet.fromJS(resultData200);
             return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Toggles user block state.
+     * @return No Content
+     */
+    setUserBlock(userId: string, body: SetUserBlockRequest): Observable<void> {
+        let url_ = this.baseUrl + "/api/users/{userId}/block";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSetUserBlock(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSetUserBlock(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSetUserBlock(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = HttpValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -9466,93 +9660,6 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     protected processDeleteUserRole(response: HttpResponseBase): Observable<void> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result401: any = null;
-            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result401 = ProblemDetails.fromJS(resultData401);
-            return throwException("Unauthorized", status, _responseText, _headers, result401);
-            }));
-        } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result403: any = null;
-            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result403 = ProblemDetails.fromJS(resultData403);
-            return throwException("Forbidden", status, _responseText, _headers, result403);
-            }));
-        } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result500: any = null;
-            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result500 = ProblemDetails.fromJS(resultData500);
-            return throwException("Internal Server Error", status, _responseText, _headers, result500);
-            }));
-        } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return _observableOf(null as any);
-            }));
-        } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("Not Found", status, _responseText, _headers);
-            }));
-        } else if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result400: any = null;
-            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result400 = HttpValidationProblemDetails.fromJS(resultData400);
-            return throwException("Bad Request", status, _responseText, _headers, result400);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * Toggles user block state.
-     * @return No Content
-     */
-    setUserBlock(userId: string, body: SetUserBlockRequest): Observable<void> {
-        let url_ = this.baseUrl + "/api/users/{userId}/set-block";
-        if (userId === undefined || userId === null)
-            throw new Error("The parameter 'userId' must be defined.");
-        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(body);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-            })
-        };
-
-        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processSetUserBlock(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processSetUserBlock(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<void>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<void>;
-        }));
-    }
-
-    protected processSetUserBlock(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -10447,6 +10554,52 @@ export class BlogItemInfoResultSet implements IBlogItemInfoResultSet {
 export interface IBlogItemInfoResultSet {
     count?: number;
     items?: BlogItemInfo[] | undefined;
+}
+
+/** Certificate upload request with optional password. */
+export class CertificateUploadRequest implements ICertificateUploadRequest {
+    /** File data */
+    file!: string;
+    /** Optional password in case this is a application/x-pkcs12 */
+    password?: string | undefined;
+
+    constructor(data?: ICertificateUploadRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.file = _data["file"];
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): CertificateUploadRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CertificateUploadRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["file"] = this.file;
+        data["password"] = this.password;
+        return data;
+    }
+}
+
+/** Certificate upload request with optional password. */
+export interface ICertificateUploadRequest {
+    /** File data */
+    file: string;
+    /** Optional password in case this is a application/x-pkcs12 */
+    password?: string | undefined;
 }
 
 /** Models a password change request by the user. */
@@ -12003,6 +12156,8 @@ export enum DeviceClientType {
 
 /** Models a user device. */
 export class DeviceInfo implements IDeviceInfo {
+    /** The primary key. */
+    registrationId?: string;
     /** Device id. */
     deviceId?: string | undefined;
     platform?: DevicePlatform;
@@ -12033,6 +12188,12 @@ export class DeviceInfo implements IDeviceInfo {
     /** Extra metadata for the device. */
     data?: any | undefined;
     clientType?: DeviceClientType;
+    /** The date until the client is remembered by the system and MFA is not asked. */
+    mfaSessionExpirationDate?: Date | undefined;
+    /** Indicates whether device is blocked for any action. */
+    blocked?: boolean;
+    /** Device tags. */
+    tags?: string[] | undefined;
 
     constructor(data?: IDeviceInfo) {
         if (data) {
@@ -12045,6 +12206,7 @@ export class DeviceInfo implements IDeviceInfo {
 
     init(_data?: any) {
         if (_data) {
+            this.registrationId = _data["registrationId"];
             this.deviceId = _data["deviceId"];
             this.platform = _data["platform"];
             this.name = _data["name"];
@@ -12061,6 +12223,13 @@ export class DeviceInfo implements IDeviceInfo {
             (<any>this).canActivateDeviceTrust = _data["canActivateDeviceTrust"];
             this.data = _data["data"];
             this.clientType = _data["clientType"];
+            this.mfaSessionExpirationDate = _data["mfaSessionExpirationDate"] ? new Date(_data["mfaSessionExpirationDate"].toString()) : <any>undefined;
+            this.blocked = _data["blocked"];
+            if (Array.isArray(_data["tags"])) {
+                this.tags = [] as any;
+                for (let item of _data["tags"])
+                    this.tags!.push(item);
+            }
         }
     }
 
@@ -12073,6 +12242,7 @@ export class DeviceInfo implements IDeviceInfo {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["registrationId"] = this.registrationId;
         data["deviceId"] = this.deviceId;
         data["platform"] = this.platform;
         data["name"] = this.name;
@@ -12089,12 +12259,21 @@ export class DeviceInfo implements IDeviceInfo {
         data["canActivateDeviceTrust"] = this.canActivateDeviceTrust;
         data["data"] = this.data;
         data["clientType"] = this.clientType;
+        data["mfaSessionExpirationDate"] = this.mfaSessionExpirationDate ? this.mfaSessionExpirationDate.toISOString() : <any>undefined;
+        data["blocked"] = this.blocked;
+        if (Array.isArray(this.tags)) {
+            data["tags"] = [];
+            for (let item of this.tags)
+                data["tags"].push(item);
+        }
         return data;
     }
 }
 
 /** Models a user device. */
 export interface IDeviceInfo {
+    /** The primary key. */
+    registrationId?: string;
     /** Device id. */
     deviceId?: string | undefined;
     platform?: DevicePlatform;
@@ -12125,6 +12304,12 @@ export interface IDeviceInfo {
     /** Extra metadata for the device. */
     data?: any | undefined;
     clientType?: DeviceClientType;
+    /** The date until the client is remembered by the system and MFA is not asked. */
+    mfaSessionExpirationDate?: Date | undefined;
+    /** Indicates whether device is blocked for any action. */
+    blocked?: boolean;
+    /** Device tags. */
+    tags?: string[] | undefined;
 }
 
 export class DeviceInfoResultSet implements IDeviceInfoResultSet {
@@ -13480,8 +13665,7 @@ export class SignInLogEntry implements ISignInLogEntry {
     grantType?: string | undefined;
     /** The approximate location of the operation. */
     coordinates?: string | undefined;
-    /** Additional information about the user's sign in log entry. */
-    extraData?: any | undefined;
+    extraData?: SignInLogEntryExtraData;
 
     constructor(data?: ISignInLogEntry) {
         if (data) {
@@ -13515,7 +13699,7 @@ export class SignInLogEntry implements ISignInLogEntry {
             this.deviceId = _data["deviceId"];
             this.grantType = _data["grantType"];
             this.coordinates = _data["coordinates"];
-            this.extraData = _data["extraData"];
+            this.extraData = _data["extraData"] ? SignInLogEntryExtraData.fromJS(_data["extraData"]) : <any>undefined;
         }
     }
 
@@ -13549,7 +13733,7 @@ export class SignInLogEntry implements ISignInLogEntry {
         data["deviceId"] = this.deviceId;
         data["grantType"] = this.grantType;
         data["coordinates"] = this.coordinates;
-        data["extraData"] = this.extraData;
+        data["extraData"] = this.extraData ? this.extraData.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -13597,8 +13781,161 @@ export interface ISignInLogEntry {
     grantType?: string | undefined;
     /** The approximate location of the operation. */
     coordinates?: string | undefined;
-    /** Additional information about the user's sign in log entry. */
-    extraData?: any | undefined;
+    extraData?: SignInLogEntryExtraData;
+}
+
+/** Models a user agent (browser) type. */
+export class SignInLogEntryDevice implements ISignInLogEntryDevice {
+    /** The device model. */
+    model?: string | undefined;
+    platform?: DevicePlatform;
+    /** The raw value of the 'UserAgent' header. */
+    userAgent?: string | undefined;
+    /** Browser display name. */
+    displayName?: string | undefined;
+    /** The operating system name. */
+    os?: string | undefined;
+
+    constructor(data?: ISignInLogEntryDevice) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.model = _data["model"];
+            this.platform = _data["platform"];
+            this.userAgent = _data["userAgent"];
+            this.displayName = _data["displayName"];
+            this.os = _data["os"];
+        }
+    }
+
+    static fromJS(data: any): SignInLogEntryDevice {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInLogEntryDevice();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["model"] = this.model;
+        data["platform"] = this.platform;
+        data["userAgent"] = this.userAgent;
+        data["displayName"] = this.displayName;
+        data["os"] = this.os;
+        return data;
+    }
+}
+
+/** Models a user agent (browser) type. */
+export interface ISignInLogEntryDevice {
+    /** The device model. */
+    model?: string | undefined;
+    platform?: DevicePlatform;
+    /** The raw value of the 'UserAgent' header. */
+    userAgent?: string | undefined;
+    /** Browser display name. */
+    displayName?: string | undefined;
+    /** The operating system name. */
+    os?: string | undefined;
+}
+
+/** Additional information about the user's sign in log entry. */
+export class SignInLogEntryExtraData implements ISignInLogEntryExtraData {
+    /** Gets the server process identifier. */
+    processId?: number;
+    /** Gets the redirect URI. */
+    redirectUri?: string | undefined;
+    /** Gets the requested scopes. */
+    scope?: string | undefined;
+    /** Gets the tokens. */
+    tokens?: SignInLogEntryToken[] | undefined;
+    /** Gets the error. */
+    error?: string | undefined;
+    /** Gets the error description. */
+    errorDescription?: string | undefined;
+    /** Gets the provider. */
+    provider?: string | undefined;
+    device?: SignInLogEntryDevice;
+    userDevice?: SignInLogEntryUserDevice;
+
+    constructor(data?: ISignInLogEntryExtraData) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.processId = _data["processId"];
+            this.redirectUri = _data["redirectUri"];
+            this.scope = _data["scope"];
+            if (Array.isArray(_data["tokens"])) {
+                this.tokens = [] as any;
+                for (let item of _data["tokens"])
+                    this.tokens!.push(SignInLogEntryToken.fromJS(item));
+            }
+            this.error = _data["error"];
+            this.errorDescription = _data["errorDescription"];
+            this.provider = _data["provider"];
+            this.device = _data["device"] ? SignInLogEntryDevice.fromJS(_data["device"]) : <any>undefined;
+            this.userDevice = _data["userDevice"] ? SignInLogEntryUserDevice.fromJS(_data["userDevice"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): SignInLogEntryExtraData {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInLogEntryExtraData();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["processId"] = this.processId;
+        data["redirectUri"] = this.redirectUri;
+        data["scope"] = this.scope;
+        if (Array.isArray(this.tokens)) {
+            data["tokens"] = [];
+            for (let item of this.tokens)
+                data["tokens"].push(item.toJSON());
+        }
+        data["error"] = this.error;
+        data["errorDescription"] = this.errorDescription;
+        data["provider"] = this.provider;
+        data["device"] = this.device ? this.device.toJSON() : <any>undefined;
+        data["userDevice"] = this.userDevice ? this.userDevice.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+/** Additional information about the user's sign in log entry. */
+export interface ISignInLogEntryExtraData {
+    /** Gets the server process identifier. */
+    processId?: number;
+    /** Gets the redirect URI. */
+    redirectUri?: string | undefined;
+    /** Gets the requested scopes. */
+    scope?: string | undefined;
+    /** Gets the tokens. */
+    tokens?: SignInLogEntryToken[] | undefined;
+    /** Gets the error. */
+    error?: string | undefined;
+    /** Gets the error description. */
+    errorDescription?: string | undefined;
+    /** Gets the provider. */
+    provider?: string | undefined;
+    device?: SignInLogEntryDevice;
+    userDevice?: SignInLogEntryUserDevice;
 }
 
 /** Request model for updating a Indice.Features.Identity.SignInLogs.Models.SignInLogEntry instance. */
@@ -13693,6 +14030,204 @@ export class SignInLogEntryResultSet implements ISignInLogEntryResultSet {
 export interface ISignInLogEntryResultSet {
     count?: number;
     items?: SignInLogEntry[] | undefined;
+}
+
+/** Data structure for issued tokens. */
+export class SignInLogEntryToken implements ISignInLogEntryToken {
+    /** Gets the type of the token. */
+    tokenType?: string | undefined;
+    /** Gets the token value. */
+    tokenValue?: string | undefined;
+
+    constructor(data?: ISignInLogEntryToken) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tokenType = _data["tokenType"];
+            this.tokenValue = _data["tokenValue"];
+        }
+    }
+
+    static fromJS(data: any): SignInLogEntryToken {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInLogEntryToken();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tokenType"] = this.tokenType;
+        data["tokenValue"] = this.tokenValue;
+        return data;
+    }
+}
+
+/** Data structure for issued tokens. */
+export interface ISignInLogEntryToken {
+    /** Gets the type of the token. */
+    tokenType?: string | undefined;
+    /** Gets the token value. */
+    tokenValue?: string | undefined;
+}
+
+/** User devices representation. */
+export class SignInLogEntryUserDevice implements ISignInLogEntryUserDevice {
+    /** The primary key. */
+    id?: string;
+    platform?: DevicePlatform;
+    /** Device name. */
+    name?: string | undefined;
+    /** Device model. */
+    model?: string | undefined;
+    /** Device OS version. */
+    osVersion?: string | undefined;
+    /** The date this device was created. */
+    dateCreated?: Date;
+    /** Gets or sets the date and time, in UTC, when the device last signed in. */
+    lastSignInDate?: Date | undefined;
+    /** Flag that determines if push notifications are enabled for this device. */
+    isPushNotificationsEnabled?: boolean;
+    /** Flag for pin support. */
+    supportsPinLogin?: boolean;
+    /** Flag for fingerprint support. */
+    supportsFingerprintLogin?: boolean;
+    /** Extra metadata for the device. */
+    data?: any | undefined;
+    /** Device tags */
+    tags?: string[] | undefined;
+    /** Indicates whether the device is blocked. */
+    requiresPassword?: boolean;
+    /** Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios). */
+    isTrusted?: boolean;
+    /** The date that the device can be activated for trust. */
+    trustActivationDate?: Date | undefined;
+    /** Determines whether the device is pending trust activation. */
+    isPendingTrustActivation?: boolean;
+    /** Indicates whether device is blocked for any action. */
+    blocked?: boolean;
+    clientType?: DeviceClientType;
+    /** The date until the client is remembered by the system and MFA is not asked. */
+    mfaSessionExpirationDate?: Date | undefined;
+
+    constructor(data?: ISignInLogEntryUserDevice) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.platform = _data["platform"];
+            this.name = _data["name"];
+            this.model = _data["model"];
+            this.osVersion = _data["osVersion"];
+            this.dateCreated = _data["dateCreated"] ? new Date(_data["dateCreated"].toString()) : <any>undefined;
+            this.lastSignInDate = _data["lastSignInDate"] ? new Date(_data["lastSignInDate"].toString()) : <any>undefined;
+            this.isPushNotificationsEnabled = _data["isPushNotificationsEnabled"];
+            this.supportsPinLogin = _data["supportsPinLogin"];
+            this.supportsFingerprintLogin = _data["supportsFingerprintLogin"];
+            this.data = _data["data"];
+            if (Array.isArray(_data["tags"])) {
+                this.tags = [] as any;
+                for (let item of _data["tags"])
+                    this.tags!.push(item);
+            }
+            this.requiresPassword = _data["requiresPassword"];
+            this.isTrusted = _data["isTrusted"];
+            this.trustActivationDate = _data["trustActivationDate"] ? new Date(_data["trustActivationDate"].toString()) : <any>undefined;
+            this.isPendingTrustActivation = _data["isPendingTrustActivation"];
+            this.blocked = _data["blocked"];
+            this.clientType = _data["clientType"];
+            this.mfaSessionExpirationDate = _data["mfaSessionExpirationDate"] ? new Date(_data["mfaSessionExpirationDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): SignInLogEntryUserDevice {
+        data = typeof data === 'object' ? data : {};
+        let result = new SignInLogEntryUserDevice();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["platform"] = this.platform;
+        data["name"] = this.name;
+        data["model"] = this.model;
+        data["osVersion"] = this.osVersion;
+        data["dateCreated"] = this.dateCreated ? this.dateCreated.toISOString() : <any>undefined;
+        data["lastSignInDate"] = this.lastSignInDate ? this.lastSignInDate.toISOString() : <any>undefined;
+        data["isPushNotificationsEnabled"] = this.isPushNotificationsEnabled;
+        data["supportsPinLogin"] = this.supportsPinLogin;
+        data["supportsFingerprintLogin"] = this.supportsFingerprintLogin;
+        data["data"] = this.data;
+        if (Array.isArray(this.tags)) {
+            data["tags"] = [];
+            for (let item of this.tags)
+                data["tags"].push(item);
+        }
+        data["requiresPassword"] = this.requiresPassword;
+        data["isTrusted"] = this.isTrusted;
+        data["trustActivationDate"] = this.trustActivationDate ? this.trustActivationDate.toISOString() : <any>undefined;
+        data["isPendingTrustActivation"] = this.isPendingTrustActivation;
+        data["blocked"] = this.blocked;
+        data["clientType"] = this.clientType;
+        data["mfaSessionExpirationDate"] = this.mfaSessionExpirationDate ? this.mfaSessionExpirationDate.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+/** User devices representation. */
+export interface ISignInLogEntryUserDevice {
+    /** The primary key. */
+    id?: string;
+    platform?: DevicePlatform;
+    /** Device name. */
+    name?: string | undefined;
+    /** Device model. */
+    model?: string | undefined;
+    /** Device OS version. */
+    osVersion?: string | undefined;
+    /** The date this device was created. */
+    dateCreated?: Date;
+    /** Gets or sets the date and time, in UTC, when the device last signed in. */
+    lastSignInDate?: Date | undefined;
+    /** Flag that determines if push notifications are enabled for this device. */
+    isPushNotificationsEnabled?: boolean;
+    /** Flag for pin support. */
+    supportsPinLogin?: boolean;
+    /** Flag for fingerprint support. */
+    supportsFingerprintLogin?: boolean;
+    /** Extra metadata for the device. */
+    data?: any | undefined;
+    /** Device tags */
+    tags?: string[] | undefined;
+    /** Indicates whether the device is blocked. */
+    requiresPassword?: boolean;
+    /** Indicates whether the device is a trusted device (i.e. capable of strong customer authentication scenarios). */
+    isTrusted?: boolean;
+    /** The date that the device can be activated for trust. */
+    trustActivationDate?: Date | undefined;
+    /** Determines whether the device is pending trust activation. */
+    isPendingTrustActivation?: boolean;
+    /** Indicates whether device is blocked for any action. */
+    blocked?: boolean;
+    clientType?: DeviceClientType;
+    /** The date until the client is remembered by the system and MFA is not asked. */
+    mfaSessionExpirationDate?: Date | undefined;
 }
 
 /** Describes the user sign in type in terms of user presence. */

@@ -1,9 +1,12 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using IdentityModel;
+using IdentityServer4.Extensions;
+using IdentityServer4.Models;
 using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -188,21 +191,20 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
-        builder.Services.AddProblemDetails();
+        builder.Services.AddProblemDetails(options => {
+            options.CustomizeProblemDetails = ctx => {
+                if (ctx.HttpContext.Response.StatusCode == 429) {
+                    ctx.ProblemDetails.Title = "Too many requests.";
+                    ctx.ProblemDetails.Detail = "Please try again later.";
+                    if (ctx.HttpContext.Items.TryGetValue("retry-after", out var retryAfter)) {
+                        ctx.ProblemDetails.Detail = $"Please try again after {retryAfter} second(s).";
+                    }
+                }
+            };
+        });
         builder.Services.AddOutputCache();
         builder.Services.AddDistributedMemoryCache();
-        var rateLimitingOptions = new RateLimitingOptions();
-        builder.Configuration.GetSection(RateLimitingOptions.SectionName).Bind(rateLimitingOptions);
-        builder.Services
-               .AddRateLimiter(rateLimiterOptions => {
-                   rateLimiterOptions.AddFixedWindowLimiter(IdentityEndpoints.RateLimiting.PolicyName, fixedWindowOptions => {
-                       fixedWindowOptions.PermitLimit = rateLimitingOptions.FixedWindow.PermitLimit.GetValueOrDefault();
-                       fixedWindowOptions.QueueLimit = rateLimitingOptions.FixedWindow.QueueLimit.GetValueOrDefault();
-                       fixedWindowOptions.QueueProcessingOrder = rateLimitingOptions.FixedWindow.QueueProcessingOrder.GetValueOrDefault();
-                       fixedWindowOptions.Window = rateLimitingOptions.FixedWindow.Window.GetValueOrDefault();
-                   });
-                   rateLimiterOptions.RejectionStatusCode = rateLimitingOptions.RejectionStatusCode.GetValueOrDefault();
-               });
+        builder.Services.AddIdentityRateLimiter(builder.Configuration);
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("IdentityServer:Features"));
         builder.Services.AddPushNotificationServiceNoop();
         // Invoke action provided by developer to override default options.
@@ -290,8 +292,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         };
         configureAction?.Invoke(options);
         options.Services = null;
-        services.Configure<DeviceOptions>(x => {
-            x.DefaultTotpDeliveryChannel = options.DefaultTotpDeliveryChannel;
+        services.Configure<DeviceOptions>(deviceOptions => {
+            deviceOptions.DefaultTotpDeliveryChannel = options.DefaultTotpDeliveryChannel;
         });
         services.AddPushNotificationServiceNoop();
         services.TryAddTransient<IPlatformEventService, PlatformEventService>();
@@ -312,6 +314,30 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.ApiScope = settingsApiOptions.ApiScope;
         });
         return builder;
+    }
+
+    private static IServiceCollection AddIdentityRateLimiter(this IServiceCollection services, IConfiguration configuration) {
+        var identityRateLimiterOptions = new IdentityRateLimiterOptions();
+        configuration.GetSection(IdentityRateLimiterOptions.SectionName).Bind(identityRateLimiterOptions);
+        services.AddRateLimiter(rateLimiterOptions => {
+            foreach (var endpoint in IdentityEndpoints.RateLimiter.Endpoints) {
+                var endpointOptions = identityRateLimiterOptions.Rules.FirstOrDefault(rule => rule.Endpoint == endpoint) ?? RateLimiterEndpointRule.Default();
+                rateLimiterOptions.AddFixedWindowLimiter(endpoint, fixedWindowOptions => {
+                    fixedWindowOptions.PermitLimit = endpointOptions.PermitLimit.GetValueOrDefault();
+                    fixedWindowOptions.QueueLimit = endpointOptions.QueueLimit.GetValueOrDefault();
+                    fixedWindowOptions.QueueProcessingOrder = endpointOptions.QueueProcessingOrder.GetValueOrDefault();
+                    fixedWindowOptions.Window = endpointOptions.Window.GetValueOrDefault();
+                });
+            }
+            rateLimiterOptions.RejectionStatusCode = identityRateLimiterOptions.RejectionStatusCode.GetValueOrDefault();
+            rateLimiterOptions.OnRejected = (context, cancellationToken) => {
+                if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter)) {
+                    context.HttpContext.Items.Add("retry-after", retryAfter.TotalSeconds);
+                }
+                return ValueTask.CompletedTask;
+            };
+        });
+        return services;
     }
 }
 

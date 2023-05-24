@@ -170,7 +170,7 @@ internal class MyAccountController : ControllerBase
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
     public async Task<IActionResult> UpdatePhoneNumber([FromBody] UpdateUserPhoneNumberRequest request) {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null) {
+        if (user is null) {
             return NotFound();
         }
         var currentPhoneNumber = user.PhoneNumber ?? string.Empty;
@@ -204,12 +204,8 @@ internal class MyAccountController : ControllerBase
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
     public async Task<IActionResult> ConfirmPhoneNumber([FromBody] ConfirmPhoneNumberRequest request) {
-        var userId = User.FindFirstValue(JwtClaimTypes.Subject);
-        var user = await _userManager
-            .Users
-            .Include(x => x.Claims)
-            .SingleOrDefaultAsync(x => x.Id == userId);
-        if (user == null) {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null) {
             return NotFound();
         }
         if (user.PhoneNumberConfirmed) {
@@ -229,28 +225,18 @@ internal class MyAccountController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     [FeatureGate(IdentityServerApiFeatures.SetBlock)]
-    [HttpPut("my/account/set-block")]
+    [HttpPut("my/account/block")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
     public async Task<IActionResult> SetBlock([FromBody] SetUserBlockRequest request) {
-        var userId = User.FindFirstValue(JwtClaimTypes.Subject);
-        var user = await _userManager
-            .Users
-            .SingleOrDefaultAsync(x => x.Id == userId);
-        if (user == null) {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null) {
             return NotFound();
         }
-        user.Blocked = request.Blocked;
-        var result = await _userManager.UpdateAsync(user);
+        var result = await _userManager.SetBlockedAsync(user, request.Blocked);
         if (!result.Succeeded) {
             return BadRequest(result.Errors.ToValidationProblemDetails());
-        }
-        if (request.Blocked) {
-            // When blocking a user we need to make sure we also revoke all of his tokens.
-            await _persistedGrantStore.RemoveAllAsync(new PersistedGrantFilter {
-                SubjectId = userId
-            });
         }
         return NoContent();
     }

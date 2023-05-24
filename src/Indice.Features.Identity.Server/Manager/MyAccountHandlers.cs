@@ -150,13 +150,33 @@ internal static class MyAccountHandlers
         return TypedResults.NoContent();
     }
 
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> BlockAccount(
+        ExtendedUserManager<User> userManager,
+        IFeatureManager featureManager,
+        ClaimsPrincipal currentUser,
+        SetUserBlockRequest request
+    ) {
+        if (!await featureManager.IsEnabledAsync(IdentityEndpoints.Features.PublicRegistration)) {
+            return TypedResults.NotFound();
+        }
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user is null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.SetBlockedAsync(user, request.Blocked);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        return TypedResults.NoContent();
+    }
+
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateUserName(
         ExtendedUserManager<User> userManager,
         ClaimsPrincipal currentUser,
         UpdateUserNameRequest request
     ) {
         var user = await userManager.GetUserAsync(currentUser);
-        if (user == null) {
+        if (user is null) {
             return TypedResults.NotFound();
         }
         var result = await userManager.SetUserNameAsync(user, request.UserName);

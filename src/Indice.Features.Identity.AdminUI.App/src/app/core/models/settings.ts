@@ -49,7 +49,7 @@ function createAppSettings(): IAppSettings {
                     environment.auth_settings.redirect_uri
                 ].filter(x => x?.length > 0).join('/'),
             response_type: environment.auth_settings.response_type,
-            scope: `${environment.auth_settings.scope} ${scopes}`,
+            scope: `${environment.auth_settings.scope || ''} ${scopes || ''}`,
             silent_redirect_uri: !isTemplate 
                 ? environment.auth_settings.silent_redirect_uri 
                 : [

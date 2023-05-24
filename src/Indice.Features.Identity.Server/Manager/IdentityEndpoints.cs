@@ -50,9 +50,25 @@ public static partial class IdentityEndpoints
     }
 
     /// <summary>Rate limiting config for Identity Server API.</summary>
-    public static partial class RateLimiting 
+    internal static partial class RateLimiter 
     {
-        /// <summary>The policy name.</summary>
-        public const string PolicyName = "identity-api-rate-limiting-policy";
+        public static IReadOnlyList<string> Endpoints { get; } = new List<string> {
+            "account/forgot-password",
+            "account/forgot-password/confirmation",
+            "account/password-options",
+            "account/username-exists",
+            "account/validate-password",
+            "totp"
+        };
+
+        public static class Policies 
+        {
+            public static readonly string ForgotPassword = Endpoints[0];
+            public static readonly string ForgotPasswordConfirmation = Endpoints[1];
+            public static readonly string PasswordOptions = Endpoints[2];
+            public static readonly string UserNameExists = Endpoints[3];
+            public static readonly string ValidatePassword = Endpoints[4];
+            public static readonly string Totp = Endpoints[5];
+        }
     }
 }

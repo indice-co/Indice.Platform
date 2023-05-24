@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -18,7 +14,6 @@ using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Extensions;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
@@ -656,23 +651,18 @@ internal class UsersController : ControllerBase
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
     [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
-    [HttpPut("{userId}/set-block")]
+    [HttpPut("{userId}/block")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
     public async Task<IActionResult> SetUserBlock([FromRoute] string userId, [FromBody] SetUserBlockRequest request) {
-        var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == userId);
-        if (user == null) {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user is null) {
             return NotFound();
         }
-        user.Blocked = request.Blocked;
-        var result = await _userManager.UpdateAsync(user);
+        var result = await _userManager.SetBlockedAsync(user, request.Blocked);
         if (!result.Succeeded) {
             return BadRequest(result.Errors.ToValidationProblemDetails());
-        }
-        if (request.Blocked) {
-            // When blocking a user we need to make sure we also revoke all of his tokens.
-            await _persistedGrantService.RemoveAllGrantsAsync(userId);
         }
         return NoContent();
     }
