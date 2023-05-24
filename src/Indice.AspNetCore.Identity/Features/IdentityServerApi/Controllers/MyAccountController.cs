@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mime;
+﻿using System.Net.Mime;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
@@ -17,7 +13,6 @@ using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Security;
 using Indice.Services;
@@ -175,7 +170,7 @@ internal class MyAccountController : ControllerBase
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
     public async Task<IActionResult> UpdatePhoneNumber([FromBody] UpdateUserPhoneNumberRequest request) {
         var user = await _userManager.GetUserAsync(User);
-        if (user == null) {
+        if (user is null) {
             return NotFound();
         }
         var currentPhoneNumber = user.PhoneNumber ?? string.Empty;
@@ -209,12 +204,8 @@ internal class MyAccountController : ControllerBase
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
     public async Task<IActionResult> ConfirmPhoneNumber([FromBody] ConfirmPhoneNumberRequest request) {
-        var userId = User.FindFirstValue(JwtClaimTypes.Subject);
-        var user = await _userManager
-            .Users
-            .Include(x => x.Claims)
-            .SingleOrDefaultAsync(x => x.Id == userId);
-        if (user == null) {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null) {
             return NotFound();
         }
         if (user.PhoneNumberConfirmed) {
@@ -222,6 +213,28 @@ internal class MyAccountController : ControllerBase
             return BadRequest(new ValidationProblemDetails(ModelState));
         }
         var result = await _userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, request.Token);
+        if (!result.Succeeded) {
+            return BadRequest(result.Errors.ToValidationProblemDetails());
+        }
+        return NoContent();
+    }
+
+    /// <summary>Self-service user blocking endpoint.</summary>
+    /// <param name="request">Contains info about whether to block the user or not.</param>
+    /// <response code="204">No Content</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="404">Not Found</response>
+    [FeatureGate(IdentityServerApiFeatures.SetBlock)]
+    [HttpPut("my/account/block")]
+    [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
+    [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
+    [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
+    public async Task<IActionResult> SetBlock([FromBody] SetUserBlockRequest request) {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null) {
+            return NotFound();
+        }
+        var result = await _userManager.SetBlockedAsync(user, request.Blocked);
         if (!result.Succeeded) {
             return BadRequest(result.Errors.ToValidationProblemDetails());
         }

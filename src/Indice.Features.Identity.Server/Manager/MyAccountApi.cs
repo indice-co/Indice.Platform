@@ -52,6 +52,12 @@ public static class MyAccountApi
              .WithParameterValidation<ConfirmPhoneNumberRequest>()
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
+        group.MapPut("my/account/block", MyAccountHandlers.BlockAccount)
+             .WithName(nameof(MyAccountHandlers.BlockAccount))
+             .WithSummary("Blocks a user account.")
+             .WithParameterValidation<SetUserBlockRequest>()
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
         group.MapPut("my/account/username", MyAccountHandlers.UpdateUserName)
              .WithName(nameof(MyAccountHandlers.UpdateUserName))
              .WithSummary("Changes the username for the current user.")
@@ -69,14 +75,14 @@ public static class MyAccountApi
              .WithSummary("Generates a password reset token and sends it to the user via email.")
              .WithParameterValidation<ForgotPasswordRequest>()
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ForgotPassword);
 
         group.MapPut("account/forgot-password/confirmation", MyAccountHandlers.ForgotPasswordConfirmation)
              .WithName(nameof(MyAccountHandlers.ForgotPasswordConfirmation))
              .WithSummary("Changes the password of the user confirming the code received during forgot password process.")
              .WithParameterValidation<ForgotPasswordConfirmationRequest>()
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ForgotPasswordConfirmation);
 
         group.MapPut("my/account/password-expiration-policy", MyAccountHandlers.UpdatePasswordExpirationPolicy)
              .WithName(nameof(MyAccountHandlers.UpdatePasswordExpirationPolicy))
@@ -127,7 +133,7 @@ public static class MyAccountApi
              .WithName(nameof(MyAccountHandlers.GetPasswordOptions))
              .WithSummary("Gets the password options that are applied when the user creates an account.")
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.PasswordOptions);
 
         group.MapPost("account/username-exists", MyAccountHandlers.CheckUserNameExists)
              .WithName(nameof(MyAccountHandlers.CheckUserNameExists))
@@ -135,14 +141,14 @@ public static class MyAccountApi
              .WithParameterValidation<ValidateUserNameRequest>()
              .ProducesProblem(StatusCodes.Status410Gone)
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UserNameExists);
 
         group.MapPost("account/validate-password", MyAccountHandlers.ValidatePassword)
              .WithName(nameof(MyAccountHandlers.ValidatePassword))
              .WithSummary($"Validates a user's password against one or more configured {nameof(IPasswordValidator<User>)}.")
              .WithParameterValidation<ValidatePasswordRequest>()
              .AllowAnonymous()
-             .RequireRateLimiting(IdentityEndpoints.RateLimiting.PolicyName);
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.ValidatePassword);
 
         group.MapPost("account/register", MyAccountHandlers.Register)
              .WithName(nameof(MyAccountHandlers.Register))

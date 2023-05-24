@@ -124,7 +124,7 @@ public static class UsersApi
              .WithSummary("Permanently deletes a specified login provider association from a user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
-        group.MapPut("{userId}/set-block", UserHandlers.SetUserBlock)
+        group.MapPut("{userId}/block", UserHandlers.SetUserBlock)
              .WithName(nameof(UserHandlers.SetUserBlock))
              .WithSummary("Toggles user block state.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)

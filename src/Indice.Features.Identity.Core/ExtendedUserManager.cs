@@ -1,4 +1,6 @@
 ﻿using System.Security.Claims;
+using IdentityServer4.Services;
+using IdentityServer4.Stores;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
@@ -18,6 +20,7 @@ namespace Indice.Features.Identity.Core;
 public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 {
     private readonly IPlatformEventService _eventService;
+    private readonly IPersistedGrantService _persistedGrantService;
 
     /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
     /// <param name="userStore">The persistence store the manager will operate over.</param>
@@ -33,6 +36,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="userStateProvider">A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</param>
+    /// <param name="persistedGrantService">Implements persisted grant logic.</param>
     public ExtendedUserManager(
         IUserStore<TUser> userStore,
         IOptionsSnapshot<IdentityOptions> optionsAccessor,
@@ -46,9 +50,11 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         IdentityMessageDescriber identityMessageDescriber,
         IPlatformEventService eventService,
         IConfiguration configuration,
-        IUserStateProvider<TUser> userStateProvider
+        IUserStateProvider<TUser> userStateProvider,
+        IPersistedGrantService persistedGrantService
     ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+        _persistedGrantService = persistedGrantService ?? throw new ArgumentNullException(nameof(persistedGrantService));
         StateProvider = userStateProvider ?? throw new ArgumentNullException(nameof(userStateProvider));
         MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
         DefaultAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(DefaultAllowedRegisteredDevices));
@@ -296,7 +302,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <summary>Replaces any claims with the same claim type on the specified user with the newClaim.</summary>
     /// <param name="user">The user to replace the claim on.</param>
     /// <param name="claimType">The claim type to replace.</param>
-    /// <param name="claimValue"></param>
+    /// <param name="claimValue">The claim value.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
     /// <remarks>This overload will purge any other instances of the claim type so that the added claim is has a single instance in the claims list. For example the 'given_name' claim that is commonly used as the FirstName</remarks>
     public async Task<IdentityResult> ReplaceClaimAsync(TUser user, string claimType, string claimValue) {
@@ -321,6 +327,25 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
             result = await base.AddClaimAsync(user, newClaim);
         }
         return result;
+    }
+
+    /// <summary>Blocks the user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="blocked">The value that indicated if user should be blocked.</param>
+    /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public async Task<IdentityResult> SetBlockedAsync(TUser user, bool blocked, CancellationToken cancellationToken = default) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        if (user is null) {
+            throw new ArgumentNullException(nameof(user));
+        }
+        user.Blocked = blocked;
+        if (blocked) {
+            // When blocking a user we need to make sure we also revoke all of his tokens.
+            await _persistedGrantService.RemoveAllGrantsAsync(user.Id);
+        }
+        return await UpdateAsync(user);
     }
     #endregion
 

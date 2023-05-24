@@ -18,7 +18,8 @@ public static class MfaApi
             .WithTags("Mfa")
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .ExcludeFromDescription();
 
         // POST: /login/mfa/notify
         group.MapPost("login/mfa/notify", MfaApiHandlers.SendPushNotification)

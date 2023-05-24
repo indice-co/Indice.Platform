@@ -3,7 +3,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.AspNetCore.Features.Avatar;
 
@@ -13,11 +12,9 @@ public static class AvatarsApi
     /// <summary>Maps the sign in logs endpoints.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static IEndpointRouteBuilder MapAvatars(this IEndpointRouteBuilder routes) {
-        var group = routes.MapGroup("avatar");
-
+        var group = routes.MapGroup("avatar").ExcludeFromDescription();
         group.WithTags("Avatar");
         group.AllowAnonymous();
-
         group.MapGet("{fullname}", AvatarsHandlers.GetAvatar1);
         group.MapGet("{fullname}.{ext?}", AvatarsHandlers.GetAvatar1);
         group.MapGet("{fullname}/{size?}", AvatarsHandlers.GetAvatar2);
