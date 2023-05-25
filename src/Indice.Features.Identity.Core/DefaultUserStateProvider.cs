@@ -13,7 +13,12 @@ public class DefaultUserStateProvider : DefaultUserStateProvider<User>
     /// <summary>Creates a new instance of <see cref="DefaultUserStateProvider{User}"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
-    public DefaultUserStateProvider(IConfiguration configuration, IHttpContextAccessor httpContextAccessor) : base(configuration, httpContextAccessor) { }
+    /// <param name="signInManager">Provides the APIs for user sign in.</param>
+    public DefaultUserStateProvider(
+        IConfiguration configuration, 
+        IHttpContextAccessor httpContextAccessor,
+        ExtendedSignInManager<User> signInManager
+    ) : base(configuration, httpContextAccessor, signInManager) { }
 }
 
 /// <summary>A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</summary>
@@ -23,18 +28,22 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
     private readonly bool _requirePostSignInConfirmedPhoneNumber;
     private readonly MfaPolicy _mfaPolicy;
     private readonly HttpContext _httpContext;
+    private readonly ExtendedSignInManager<TUser> _signInManager;
     private const string USER_LOGIN_STATE_SESSION_KEY = "user_login_state";
 
     /// <summary>Creates a new instance of <see cref="DefaultUserStateProvider{TUser}"/>.</summary>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
+    /// <param name="signInManager"></param>
     public DefaultUserStateProvider(
         IConfiguration configuration,
-        IHttpContextAccessor httpContextAccessor
+        IHttpContextAccessor httpContextAccessor,
+        ExtendedSignInManager<TUser> signInManager
     ) {
         _requirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) == true;
         _requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) == true;
         _mfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
+        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _httpContext = httpContextAccessor?.HttpContext;
         if (_httpContext is not null && _httpContext.Session.TryGetValue(USER_LOGIN_STATE_SESSION_KEY, out var bytes) == true) {
             CurrentState = Enum.Parse<UserState>(Encoding.UTF8.GetString(bytes));
@@ -55,7 +64,9 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
 
     /* Note for future self: Never change the order of the combinations in the method below. It does matter. */
     private UserState GetNextState(TUser user, UserAction action) => (CurrentState, action) switch {
-        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true && user.PhoneNumberConfirmed == false => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
+        (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true && 
+                                                     user.PhoneNumberConfirmed == false && 
+                                                     !_signInManager.IsTwoFactorClientRememberedAsync(user).ConfigureAwait(false).GetAwaiter().GetResult() => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false && _mfaPolicy == MfaPolicy.Enforced => UserState.RequiresMfaOnboarding,
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true => UserState.RequiresMfa,
         (UserState.LoggedOut, UserAction.Login) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,

@@ -24,7 +24,7 @@ public class ConnectionString
     }
 
     /// <summary>The character used to separate connection string properties.</summary>
-    public char Delimeter { get; }
+    public char Delimiter { get; }
 
     /// <summary>Gets the property associated with the specified key.</summary>
     /// <param name="key">The key whose value to get.</param>

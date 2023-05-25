@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using IdentityServer4.Services;
-using IdentityServer4.Stores;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;

@@ -29,6 +29,7 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="totpServiceFactory">A factory service that contains methods to create various TOTP services, based on <see cref="TotpServiceBase"/>.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
+    /// <param name="authenticationMethodProvider">Abstracts interaction with system's various authentication methods.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseMfaModel(
         IStringLocalizer<BaseMfaModel> localizer,
@@ -36,7 +37,8 @@ public abstract class BaseMfaModel : BasePageModel
         ExtendedSignInManager<User> signInManager,
         TotpServiceFactory totpServiceFactory,
         IConfiguration configuration,
-        IIdentityServerInteractionService interaction
+        IIdentityServerInteractionService interaction,
+        IAuthenticationMethodProvider authenticationMethodProvider
     ) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -44,6 +46,7 @@ public abstract class BaseMfaModel : BasePageModel
         TotpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+        AuthenticationMethodProvider = authenticationMethodProvider ?? throw new ArgumentNullException(nameof(authenticationMethodProvider));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -56,6 +59,8 @@ public abstract class BaseMfaModel : BasePageModel
     protected IConfiguration Configuration { get; }
     /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
     protected IIdentityServerInteractionService Interaction { get; }
+    /// <summary>Abstracts interaction with system's various authentication methods.</summary>
+    protected IAuthenticationMethodProvider AuthenticationMethodProvider { get; }
 
     /// <summary>Login view model.</summary>
     public MfaLoginViewModel View { get; set; } = new MfaLoginViewModel();
@@ -114,32 +119,14 @@ public abstract class BaseMfaModel : BasePageModel
         return viewModel;
     }
 
-    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, bool? downgradeMfaChannel = false, TotpDeliveryChannel? mfaChannel = null) {
+    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, bool? tryDowngradeAuthenticationMethod = false, TotpDeliveryChannel? mfaChannel = null) {
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
-        var allowMfaChannelDowngrade = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowChannelDowngrade") ?? false;
-        if ((downgradeMfaChannel ??= false) && allowMfaChannelDowngrade) {
-            return new MfaLoginViewModel {
-                DeliveryChannel = mfaChannel ?? TotpDeliveryChannel.Sms,
-                ReturnUrl = returnUrl,
-                User = user,
-                AllowMfaChannelDowngrade = true
-            };
-        }
-        var trustedDevices = await UserManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
-        var deliveryChannel = TotpDeliveryChannel.None;
-        if (trustedDevices.Count > 0) {
-            deliveryChannel = TotpDeliveryChannel.PushNotification;
-        } else {
-            var phoneNumber = await UserManager.GetPhoneNumberAsync(user);
-            var phoneNumberConfirmed = !string.IsNullOrWhiteSpace(phoneNumber) && await UserManager.IsPhoneNumberConfirmedAsync(user);
-            if (phoneNumberConfirmed) {
-                deliveryChannel = mfaChannel ?? TotpDeliveryChannel.Sms;
-            }
-        }
+        var authenticationMethod = await AuthenticationMethodProvider.GetRequiredAuthenticationMethod(user, tryDowngradeAuthenticationMethod) ?? throw new InvalidOperationException("MFA must be applied but no suitable authentication method was found.");
+        var allowDowngradeAuthenticationMethod = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
         return new MfaLoginViewModel {
-            AllowMfaChannelDowngrade = allowMfaChannelDowngrade,
-            DeliveryChannel = deliveryChannel,
-            DeviceNames = trustedDevices.Select(x => x.Name),
+            AllowDowngradeAuthenticationMethod = allowDowngradeAuthenticationMethod,
+            DeliveryChannel = authenticationMethod.SupportsDeliveryChannel() ? ((IAuthenticationMethodWithChannel)authenticationMethod).DeliveryChannel  : null,
+            DeviceNames = authenticationMethod.SupportsDevices() ? ((IAuthenticationMethodWithDevices)authenticationMethod).Devices.Select(x => x.Name) : Array.Empty<string>(),
             ReturnUrl = returnUrl,
             User = user
         };
@@ -154,6 +141,7 @@ internal class MfaModel : BaseMfaModel
         ExtendedSignInManager<User> signInManager,
         TotpServiceFactory totpServiceFactory,
         IConfiguration configuration,
-        IIdentityServerInteractionService interaction
-    ) : base(localizer, userManager, signInManager, totpServiceFactory, configuration, interaction) { }
+        IIdentityServerInteractionService interaction,
+        IAuthenticationMethodProvider authenticationMethodProvider
+    ) : base(localizer, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider) { }
 }

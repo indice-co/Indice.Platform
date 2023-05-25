@@ -1,4 +1,7 @@
-﻿namespace Indice.Features.Identity.Core.Models;
+﻿using Indice.Features.Identity.Core.Data.Models;
+using Indice.Services;
+
+namespace Indice.Features.Identity.Core.Models;
 
 /// <summary>Describes the various authentication methods for multi-factor authentication.</summary>
 public abstract class AuthenticationMethod
@@ -23,10 +26,30 @@ public abstract class AuthenticationMethod
     public AuthenticationMethodType Type { get; protected set; }
     /// <summary>Authentication method security level.</summary>
     public AuthenticationMethodSecurityLevel SecurityLevel { get; protected set; }
+
+    /// <summary>Determines whether the authentication method supports the use of a delivery channel.</summary>
+    public bool SupportsDeliveryChannel() => typeof(IAuthenticationMethodWithChannel).IsAssignableFrom(GetType());
+
+    /// <summary>Determines whether the authentication method supports the use of trusted devices.</summary>
+    public bool SupportsDevices() => typeof(IAuthenticationMethodWithDevices).IsAssignableFrom(GetType());
+}
+
+/// <summary>Authentication method that contains a delivery channel.</summary>
+public interface IAuthenticationMethodWithChannel 
+{
+    /// <summary>The delivery channel that can be used by the authentication method.</summary>
+    public TotpDeliveryChannel DeliveryChannel { get; set; }
+}
+
+/// <summary>Authentication method that supports a delivery channel.</summary>
+public interface IAuthenticationMethodWithDevices 
+{
+    /// <summary>The devices that are supported by the authentication method.</summary>
+    public IEnumerable<UserDevice> Devices { get; set; }
 }
 
 /// <summary>SMS authentication method.</summary>
-public class SmsAuthenticationMethod : AuthenticationMethod
+public class SmsAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithChannel
 {
     /// <summary>Creates a new instance of <see cref="SmsAuthenticationMethod"/> class.</summary>
     /// <param name="displayName">The name for the UI.</param>
@@ -36,6 +59,9 @@ public class SmsAuthenticationMethod : AuthenticationMethod
         Type = AuthenticationMethodType.PhoneNumber;
         SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
     }
+
+    /// <summary>The delivery channel that can be used by the authentication method.</summary>
+    public TotpDeliveryChannel DeliveryChannel { get; set; } = TotpDeliveryChannel.Sms;
 }
 
 /// <summary>FIDO2 authentication method.</summary>
@@ -65,7 +91,7 @@ public class MicrosoftAuthenticatorAuthenticationMethod : AuthenticationMethod
 }
 
 /// <summary>Biometrics authentication method.</summary>
-public class BiometricsAuthenticationMethod : AuthenticationMethod
+public class BiometricsAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithChannel, IAuthenticationMethodWithDevices
 {
     /// <summary>Creates a new instance of <see cref="BiometricsAuthenticationMethod"/> class.</summary>
     /// <param name="displayName">The name for the UI.</param>
@@ -75,6 +101,11 @@ public class BiometricsAuthenticationMethod : AuthenticationMethod
         Type = AuthenticationMethodType.Biometrics;
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
+
+    /// <summary>The delivery channel that can be used by the authentication method.</summary>
+    public TotpDeliveryChannel DeliveryChannel { get; set; } = TotpDeliveryChannel.PushNotification;
+    /// <summary>The devices that are supported by the authentication method.</summary>
+    public IEnumerable<UserDevice> Devices { get; set; } = new List<UserDevice>();
 }
 
 /// <summary>Email authentication method.</summary>
