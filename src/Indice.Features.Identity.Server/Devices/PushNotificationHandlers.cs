@@ -9,13 +9,16 @@ internal static class PushNotificationHandlers
 {
     internal static async Task<Results<NoContent, ValidationProblem>> SendPushNotification(
         IPushNotificationService pushNotificationService,
-        SendPushNotificationRequest request) {
+        SendPushNotificationRequest request
+    ) {
         var errors = ValidationErrors.Create();
-        if (string.IsNullOrWhiteSpace(request.Title))
+        if (string.IsNullOrWhiteSpace(request.Title)) {
             errors.AddError(nameof(request.Title).Camelize(), "Please provide a message title.");
+        }
         var broadcast = request.Broadcast.GetValueOrDefault();
-        if (!broadcast && string.IsNullOrWhiteSpace(request.UserTag))
+        if (!broadcast && string.IsNullOrWhiteSpace(request.UserTag)) {
             errors.AddError(nameof(request.Title).Camelize(), "Please provide a user tag.");
+        }
         if (errors.Count > 0) {
             TypedResults.ValidationProblem(errors, detail: "Model validation failed");
         }

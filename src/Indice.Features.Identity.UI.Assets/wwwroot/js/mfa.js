@@ -28,6 +28,7 @@
                 });
             },
             onConnected: function (connection) {
+                console.log('SignalR connection id for MFA approval: ' + connection.connectionId);
                 self.sendPushNotification(connection.connectionId);
             },
             sendPushNotification: function (connectionId) {

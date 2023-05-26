@@ -142,10 +142,10 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
         var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) && (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
         if (isExternalLogin) {
-            StateProvider.ChangeState(user, UserAction.ExternalLogin);
+            await StateProvider.ChangeStateAsync(user, UserAction.ExternalLogin);
             bypassTwoFactor = true;
         } else {
-            StateProvider.ChangeState(user, UserAction.Login);
+            await StateProvider.ChangeStateAsync(user, UserAction.Login);
         }
         if (ShouldSignInPartially()) {
             return await DoPartialSignInAsync(user);
@@ -203,7 +203,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return error;
         }
         if (await ExtendedUserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
-            StateProvider.ChangeState(user, UserAction.MultiFactorAuthenticated);
+            await StateProvider.ChangeStateAsync(user, UserAction.MultiFactorAuthenticated);
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
             if (ShouldSignInPartially()) {
                 return await DoPartialSignInAsync(user);
@@ -291,7 +291,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             }
         }
         if (isRemembered) {
-            StateProvider.ChangeState(user, UserAction.MultiFactorAuthenticated);
+            await StateProvider.ChangeStateAsync(user, UserAction.MultiFactorAuthenticated);
         }
         return isRemembered;
     }

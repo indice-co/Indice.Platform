@@ -136,7 +136,7 @@ public abstract class BaseMfaModel : BasePageModel
 internal class MfaModel : BaseMfaModel
 {
     public MfaModel(
-        IStringLocalizer<BaseMfaModel> localizer,
+        IStringLocalizer<MfaModel> localizer,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         TotpServiceFactory totpServiceFactory,
