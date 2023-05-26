@@ -282,7 +282,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
       }
     }
 
-    layout.forEach((element: any) => {
+    layout?.forEach((element: any) => {
       activateElement(element);
       if (element.hasOwnProperty('items')) {
         this.removeReadonlyProperties(element.items);;

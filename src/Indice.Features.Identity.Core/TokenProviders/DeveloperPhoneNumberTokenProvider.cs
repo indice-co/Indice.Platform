@@ -15,7 +15,11 @@ public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberToken
     /// <param name="rfc6238AuthenticationService">Time-Based One-Time Password Algorithm service.</param>
     /// <param name="options"></param>
     /// <param name="environment"></param>
-    public DeveloperPhoneNumberTokenProvider(Rfc6238AuthenticationService rfc6238AuthenticationService, TotpOptions options, IHostEnvironment environment) : base(rfc6238AuthenticationService) {
+    public DeveloperPhoneNumberTokenProvider(
+        Rfc6238AuthenticationService rfc6238AuthenticationService, 
+        TotpOptions options, 
+        IHostEnvironment environment
+    ) : base(rfc6238AuthenticationService) {
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _environment = environment ?? throw new ArgumentNullException(nameof(environment));
     }

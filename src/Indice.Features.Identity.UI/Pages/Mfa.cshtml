@@ -61,7 +61,7 @@
                     </label>
                 </div>
             </div>
-            <p indice-if="Model.View.AllowMfaChannelDowngrade">
+            <p indice-if="Model.View.AllowDowngradeAuthenticationMethod">
                 <a asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" asp-route-dc="true">@Localizer["I can't use my app right now"]</a>
             </p>
         </form>

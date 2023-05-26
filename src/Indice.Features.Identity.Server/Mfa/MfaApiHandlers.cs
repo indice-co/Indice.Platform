@@ -24,7 +24,7 @@ internal static class MfaApiHandlers
                    .UsingPushNotification()
                    .WithSubject("OTP login")
                    .WithData(new { request.ConnectionId })
-                   .WithPurpose(TotpConstants.TokenGenerationPurpose.MultiFactorAuthentication)
+                   .WithPurpose("TwoFactor")
                    .WithClassification("MFA-Approval")
         );
         return TypedResults.NoContent();

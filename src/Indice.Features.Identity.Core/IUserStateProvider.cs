@@ -10,7 +10,7 @@ public interface IUserStateProvider<TUser> where TUser : User
     /// <summary></summary>
     /// <param name="user"></param>
     /// <param name="action"></param>
-    void ChangeState(TUser user, UserAction action);
+    Task ChangeStateAsync(TUser user, UserAction action);
     /// <summary>Clears the current state.</summary>
     void ClearState();
 }

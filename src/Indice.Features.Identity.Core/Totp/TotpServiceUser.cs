@@ -129,9 +129,9 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
         }
-        if (string.IsNullOrEmpty(user.PhoneNumber) || !user.PhoneNumberConfirmed) {
-            return TotpResult.ErrorResult(_localizer["User's phone number does not exist or is not verified."]);
-        }
+        //if (string.IsNullOrEmpty(user.PhoneNumber) || !user.PhoneNumberConfirmed) {
+        //    return TotpResult.ErrorResult(_localizer["User's phone number does not exist or is not verified."]);
+        //}
         purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
         var token = await UserManager.GenerateUserTokenAsync(user, TokenProvider, purpose);
         message = _localizer[message, token];
