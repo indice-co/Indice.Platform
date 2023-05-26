@@ -108,7 +108,7 @@ public class AccountService : IAccountService
         if (user is null) {
             return default;
         }
-        var allowMfaChannelDowngrade = _configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowChannelDowngrade") ?? false;
+        var allowMfaChannelDowngrade = _configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
         if (downgradeMfaChannel && allowMfaChannelDowngrade) {
             return new MfaLoginViewModel {
                 DeliveryChannel = mfaChannel ?? TotpDeliveryChannel.Sms,

@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Hubs;
+﻿using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Hubs;
 using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.SignalR;
 
@@ -13,4 +14,8 @@ public interface IAuthenticationMethodProvider
     IHubContext<MultiFactorAuthenticationHub> HubContext { get; }
     /// <summary>Gets a list of all available authentication methods supported by the identity system.</summary>
     Task<IEnumerable<AuthenticationMethod>> GetAllMethodsAsync();
+    /// <summary>Get the authentication method that must be applied to the user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="tryDowngradeAuthenticationMethod"></param>
+    Task<AuthenticationMethod> GetRequiredAuthenticationMethod(User user, bool? tryDowngradeAuthenticationMethod = false);
 }

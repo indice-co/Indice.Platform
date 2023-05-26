@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using IdentityServer4.Services;
-using IdentityServer4.Stores;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
@@ -170,7 +169,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
             await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
-            StateProvider.ChangeState(user, UserAction.VerifiedPhoneNumber);
+            await StateProvider.ChangeStateAsync(user, UserAction.VerifiedPhoneNumber);
         }
         return result;
     }
@@ -180,7 +179,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var result = await base.ConfirmEmailAsync(user, token);
         if (result.Succeeded) {
             await _eventService.Publish(new EmailConfirmedEvent(user));
-            StateProvider.ChangeState(user, UserAction.VerifiedEmail);
+            await StateProvider.ChangeStateAsync(user, UserAction.VerifiedEmail);
         }
         return result;
     }
@@ -189,7 +188,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public override async Task<IdentityResult> SetTwoFactorEnabledAsync(TUser user, bool enabled) {
         var result = await base.SetTwoFactorEnabledAsync(user, enabled);
         if (result.Succeeded) {
-            StateProvider.ChangeState(user, UserAction.MfaEnabled);
+            await StateProvider.ChangeStateAsync(user, UserAction.MfaEnabled);
         }
         return result;
     }
@@ -280,7 +279,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         if (!result.Succeeded) {
             return result;
         }
-        StateProvider.ChangeState(user, UserAction.PasswordChanged);
+        await StateProvider.ChangeStateAsync(user, UserAction.PasswordChanged);
         await _eventService.Publish(new PasswordChangedEvent(user));
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);
