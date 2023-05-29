@@ -5,9 +5,9 @@ namespace Indice.Features.Identity.Tests;
 
 internal class UserStateProviderNoop : IUserStateProvider<User>
 {
-    public UserState CurrentState => UserState.LoggedIn;
+    public UserState CurrentState => UserState.LoggedOut;
 
-    public void ChangeState(User user, UserAction action) { }
+    public Task ChangeStateAsync(User user, UserAction action) => Task.CompletedTask;
 
     public void ClearState() { }
 }
