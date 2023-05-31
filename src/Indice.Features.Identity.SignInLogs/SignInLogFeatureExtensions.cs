@@ -80,8 +80,27 @@ public static class SignInLogFeatureExtensions
         throw new NotImplementedException();
     }
 
+    /// <summary>Adds all enrichers contained in an assembly enrichers.</summary>
+    /// <typeparam name="TEnricher">The type that is contained in the assembly to scan.</typeparam>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddSignInLogEnricher<TEnricher>(this IServiceCollection services) where TEnricher : class, ISignInLogEntryEnricher {
+        services.AddTransient<ISignInLogEntryEnricher, TEnricher>();
+        return services;
+    }
+
+    /// <summary>Adds all enrichers contained in an assembly enrichers.</summary>
+    /// <typeparam name="T">The type that is contained in the assembly to scan</typeparam>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddSignInLogEnrichersFromAssembly<T>(this IServiceCollection services) {
+        var enrichers = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryEnricher>(typeof(T).Assembly);
+        foreach (var enricher in enrichers) {
+            services.AddTransient(typeof(ISignInLogEntryEnricher), enricher);
+        }
+        return services;
+    }
+
     private static IServiceCollection AddDefaultEnrichers(this IServiceCollection services) {
-        var enrichers = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryEnricher>();
+        var enrichers = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryEnricher>(Assembly.GetExecutingAssembly());
         foreach (var enricher in enrichers) {
             services.AddTransient(typeof(ISignInLogEntryEnricher), enricher);
         }
@@ -89,7 +108,7 @@ public static class SignInLogFeatureExtensions
     }
 
     private static IServiceCollection AddDefaultFilters(this IServiceCollection services) {
-        var filters = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryFilter>();
+        var filters = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryFilter>(Assembly.GetExecutingAssembly());
         foreach (var filter in filters) {
             services.AddTransient(typeof(ISignInLogEntryFilter), filter);
         }

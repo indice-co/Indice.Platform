@@ -12,9 +12,9 @@ internal class DeviceIdEnricher : ISignInLogEntryEnricher
         _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
     }
 
-    public int Priority => 1;
+    public int Order => 1;
 
-    public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
+    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Synchronous;
 
     public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
         var device = await _mfaDeviceIdResolver.Resolve();

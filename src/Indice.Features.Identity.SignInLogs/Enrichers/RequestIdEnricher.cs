@@ -12,8 +12,8 @@ internal class RequestIdEnricher : ISignInLogEntryEnricher
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
-    public int Priority => 2;
-    public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
+    public int Order => 2;
+    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Synchronous;
 
     public ValueTask EnrichAsync(SignInLogEntry logEntry) {
         logEntry.RequestId = _httpContextAccessor.HttpContext.TraceIdentifier;

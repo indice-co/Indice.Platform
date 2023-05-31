@@ -10,8 +10,8 @@ internal class DeviceEnricher : ISignInLogEntryEnricher
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public int Priority => 4;
-    public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
+    public int Order => 4;
+    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Synchronous;
 
     public DeviceEnricher(IHttpContextAccessor httpContextAccessor) {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
