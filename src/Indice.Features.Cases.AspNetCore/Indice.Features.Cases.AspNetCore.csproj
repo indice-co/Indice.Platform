@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
+    <InternalsVisibleTo Include="Indice.Features.Cases.Server" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Elsa" Version="2.11.1" />
