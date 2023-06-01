@@ -292,7 +292,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
 
   private addReadonlyProperties(layout: any): void {
     // form is view-only -> add readonly property to all objects of layout object!
-    layout.forEach((element: any) => {
+    layout?.forEach((element: any) => {
       element.readonly = "true";
       if (element.hasOwnProperty('items')) { // ajsf sections may have items, which may be flex containers, which may have items...
         this.addReadonlyProperties(element.items);
