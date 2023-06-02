@@ -10,13 +10,13 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace Indice.Features.Cases.Services;
 
-internal class RoleCaseTypeService : ICaseAuthorizationService
+internal class MemberAuthorizationService : ICaseAuthorizationService
 {
     private readonly CasesDbContext _dbContext;
     private readonly IDistributedCache _distributedCache;
-    private readonly string _roleCaseTypesCacheKey = $"{nameof(RoleCaseTypeService)}.roleCaseTypes";
+    private const string MembersCacheKey = $"{nameof(MemberAuthorizationService)}.members";
 
-    public RoleCaseTypeService(
+    public MemberAuthorizationService(
         CasesDbContext dbContext,
         IDistributedCache distributedCache
         ) {
@@ -42,16 +42,16 @@ internal class RoleCaseTypeService : ICaseAuthorizationService
             return filter;
         }
 
-        var roleClaims = GetRoleClaims(user);
-        var roleCaseTypes = await GetRoleCaseTypes();
+        var roleClaims = GetUserRoles(user);
+        var members = await GetMembers();
 
-        filter.CheckpointTypeIds = ApplyCheckpointTypeFilter(filter.CheckpointTypeCodes, roleClaims, roleCaseTypes);
-        filter.CaseTypeCodes = ApplyCaseTypeFilter(filter.CaseTypeCodes, roleClaims, roleCaseTypes);
-        
+        filter.CheckpointTypeIds = ApplyCheckpointTypeFilter(filter.CheckpointTypeCodes, roleClaims, members);
+        filter.CaseTypeCodes = ApplyCaseTypeFilter(filter.CaseTypeCodes, roleClaims, members);
+
         if ((filter.CaseTypeCodes is null || filter.CaseTypeCodes.Count == 0) ||
             (filter.CheckpointTypeIds is null || filter.CheckpointTypeIds.Count == 0)) {
             // if the (non-admin) user comes with no available caseTypes or CheckpointTypes to see, tough luck!
-            throw new ResourceUnauthorizedException("User has access to no cases");
+            throw new ResourceUnauthorizedException("User does not has access to cases");
         }
 
         return filter;
@@ -61,31 +61,30 @@ internal class RoleCaseTypeService : ICaseAuthorizationService
     /// <param name="user"></param>
     /// <param name="case"></param>
     public async Task<bool> IsValid(ClaimsPrincipal user, Case @case) {
-        if (@case == null) throw new ArgumentNullException(nameof(@case));
         if (user is null) throw new ArgumentNullException(nameof(user));
+        if (@case is null) throw new ArgumentNullException(nameof(@case));
 
         // if client is systemic, then bypass checks
         if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, @case)) {
             return true;
         }
 
-        var roleClaims = GetRoleClaims(user);
-        var roleCaseTypes = await GetRoleCaseTypes();
+        var roles = GetUserRoles(user);
+        var members = await GetMembers();
 
-        var allowedIdCombinations = roleCaseTypes
-            .Where(c => roleClaims.Contains(c.RoleName!))
+        var memberships = members
+            .Where(c => roles.Contains(c.RoleName!))
             .ToList();
 
-        return allowedIdCombinations
+        return memberships
             .Any(x => x.CaseTypeId == @case.CaseType!.Id && x.CheckpointTypeId == @case.CheckpointTypeId);
     }
 
     /// <summary>Determines whether user is Owner of a Case</summary>
     /// <param name="user">The user.</param>
     /// <param name="case">The case.</param>
-    private bool IsOwnerOfCase(ClaimsPrincipal user, Case @case) {
-        return user.FindSubjectId().Equals(@case.CreatedById);
-    }
+    private bool IsOwnerOfCase(ClaimsPrincipal user, Case @case) =>
+        user.FindSubjectId().Equals(@case.CreatedById);
 
     /// <summary>Gets the list of allowed and filtered CheckpointType Ids for admin users</summary>
     /// <param name="checkpointTypeCodes"></param>
@@ -143,25 +142,25 @@ internal class RoleCaseTypeService : ICaseAuthorizationService
     }
 
     /// <summary>Gets the list of RoleCaseTypes</summary>
-    private async Task<List<RoleCaseType>> GetRoleCaseTypes() {
+    private async Task<List<RoleCaseType>> GetMembers() {
         return await _distributedCache.TryGetAndSetAsync(
-            cacheKey: $"{_roleCaseTypesCacheKey}",
+            cacheKey: $"{MembersCacheKey}",
             getSourceAsync: async () => await _dbContext.Members
                 .AsQueryable()
                 .Select(c => new RoleCaseType {
-                   Id = c.Id,
-                   RoleName = c.RoleName,
-                   CaseTypeId = c.CaseTypeId,
-                   CheckpointTypeId = c.CheckpointTypeId,
-                   CaseTypePartial = new CaseTypePartial {
-                       Id = c.CaseTypeId,
-                       Code = c.CaseType!.Code
-                   },
-                   CheckpointType = new CheckpointType {
-                       Id = c.CheckpointTypeId,
-                       Code = c.CheckpointType!.Code
-                   }
-                 })
+                    Id = c.Id,
+                    RoleName = c.RoleName,
+                    CaseTypeId = c.CaseTypeId,
+                    CheckpointTypeId = c.CheckpointTypeId,
+                    CaseTypePartial = new CaseTypePartial {
+                        Id = c.CaseTypeId,
+                        Code = c.CaseType!.Code
+                    },
+                    CheckpointType = new CheckpointType {
+                        Id = c.CheckpointTypeId,
+                        Code = c.CheckpointType!.Code
+                    }
+                })
                 .ToListAsync(),
             options: new DistributedCacheEntryOptions {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
@@ -170,10 +169,9 @@ internal class RoleCaseTypeService : ICaseAuthorizationService
 
     /// <summary>Gets user's list of Role Claims</summary>
     /// <param name="user"></param>
-    private List<string> GetRoleClaims(ClaimsPrincipal user) {
-        return user.Claims
-                .Where(c => c.Type == BasicClaimTypes.Role)
-                .Select(c => c.Value)
-                .ToList();
-    }
+    private List<string> GetUserRoles(ClaimsPrincipal user) =>
+        user.Claims
+            .Where(c => c.Type == BasicClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList();
 }

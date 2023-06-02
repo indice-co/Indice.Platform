@@ -141,7 +141,7 @@ public static class CasesApiFeatureExtensions
         services.AddTransient<IAdminCaseService, AdminCaseService>();
         services.AddTransient<IAdminReportService, AdminReportService>();
         services.AddTransient<IQueryService, QueryService>();
-        services.AddTransient<ICaseAuthorizationService, RoleCaseTypeService>();
+        services.AddTransient<ICaseAuthorizationService, MemberAuthorizationService>();
         services.AddTransient<ICaseActionsService, CaseActionsService>();
         services.AddTransient<IAdminCaseMessageService, AdminCaseMessageService>();
         services.AddTransient<ISchemaValidator, SchemaValidator>();
