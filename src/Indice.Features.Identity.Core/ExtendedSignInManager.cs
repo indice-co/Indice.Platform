@@ -27,7 +27,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private const string XSRF_KEY = "XsrfId";
     private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
     private readonly IUserStore<TUser> _userStore;
-    private readonly IMfaDeviceIdResolver _mfaDeviceIdResolver;
+    private readonly IDeviceIdResolver _mfaDeviceIdResolver;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>Creates a new instance of <see cref="SignInManager{TUser}" /></summary>
     /// <param name="userManager">An instance of <see cref="ExtendedUserManager{TUser}"/> used to retrieve users from and persist users.</param>
@@ -53,12 +54,13 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         IConfiguration configuration,
         IAuthenticationSchemeProvider authenticationSchemeProvider,
         IUserStore<TUser> userStore,
-        IMfaDeviceIdResolver mfaDeviceIdResolver,
+        IDeviceIdResolver mfaDeviceIdResolver,
         IUserStateProvider<TUser> userStateProvider
     ) : base(userManager, httpContextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
         _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
         _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(_httpContextAccessor));
         StateProvider = userStateProvider ?? throw new ArgumentNullException(nameof(userStateProvider));
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
@@ -148,20 +150,24 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await StateProvider.ChangeStateAsync(user, UserAction.Login);
         }
         if (ShouldSignInPartially()) {
-            return await DoPartialSignInAsync(user);
+            return await DoPartialSignInAsync(user, new string[] { "pwd" });
         }
+        var mfaImplicitlyPassed = false;
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {
             if (!await IsTwoFactorClientRememberedAsync(user)) {
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
                 await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(userId, loginProvider));
                 return SignInResult.TwoFactorRequired;
+            } else {
+                mfaImplicitlyPassed = true;
             }
         }
+        MfaDeviceIdentifier deviceId = null;
         if (user is User) {
             var now = DateTime.UtcNow;
             user.LastSignInDate = now;
             await ExtendedUserManager.UpdateAsync(user);
-            var deviceId = await _mfaDeviceIdResolver.Resolve();
+            deviceId = await _mfaDeviceIdResolver.Resolve();
             var userDevice = deviceId?.Value is not null ? user.Devices?.FirstOrDefault(x => x.DeviceId == deviceId.Value) : null;
             if (userDevice is not null) {
                 userDevice.LastSignInDate = now;
@@ -175,14 +181,25 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             }
         }
         if (ShouldSignInPartially()) {
-            return await DoPartialSignInAsync(user);
-        }
-        if (loginProvider is not null) {
-            await Context.SignOutAsync(IdentityConstants.ExternalScheme);
+            var authenticationMethods = new List<string> { "pwd" };
+            if (mfaImplicitlyPassed) {
+                authenticationMethods.Add("mfa");
+            }
+            return await DoPartialSignInAsync(user, authenticationMethods.ToArray());
         }
         if (loginProvider is null) {
-            await SignInWithClaimsAsync(user, isPersistent, new Claim[] { new Claim("amr", "pwd") });
+            var additionalClaims = new List<Claim> {
+                new Claim(JwtClaimTypes.AuthenticationMethod, "pwd")
+            };
+            if (string.IsNullOrWhiteSpace(deviceId?.Value)) {
+                additionalClaims.Add(new Claim(BasicClaimTypes.DeviceId, deviceId.Value));
+            }
+            if (mfaImplicitlyPassed) {
+                additionalClaims.Add(new Claim(JwtClaimTypes.AuthenticationMethod, "mfa"));
+            }
+            await SignInWithClaimsAsync(user, isPersistent, additionalClaims);
         } else {
+            await Context.SignOutAsync(IdentityConstants.ExternalScheme);
             await SignInAsync(user, isPersistent, loginProvider);
         }
         return SignInResult.Success;
@@ -206,7 +223,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await StateProvider.ChangeStateAsync(user, UserAction.MultiFactorAuthenticated);
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
             if (ShouldSignInPartially()) {
-                return await DoPartialSignInAsync(user);
+                return await DoPartialSignInAsync(user, new string[] { "pwd", "mfa" });
             }
             return new ExtendedSignInResult(StateProvider.CurrentState);
         }
@@ -320,7 +337,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     private bool ShouldSignInPartially() => ShouldSignInForExtendedValidation() || ShouldSignInForMfaOnboarding();
 
-    private async Task<ExtendedSignInResult> DoPartialSignInAsync(TUser user) {
+    private async Task<ExtendedSignInResult> DoPartialSignInAsync(TUser user, string[] authenticationMethods) {
         var scheme = ShouldSignInForExtendedValidation()
             ? ExtendedIdentityConstants.ExtendedValidationUserIdScheme
             : ShouldSignInForMfaOnboarding()
@@ -334,7 +351,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var isPasswordExpired = user.HasExpiredPassword();
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var returnUrl = Context.Request.Query["ReturnUrl"];
-        await Context.SignInAsync(scheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName, user.UserName), new AuthenticationProperties {
+        await Context.SignInAsync(scheme, StoreValidationInfo(userId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName, user.UserName, authenticationMethods), new AuthenticationProperties {
             RedirectUri = returnUrl,
             IsPersistent = false
         });
@@ -344,7 +361,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private async Task<bool> IsTfaEnabled(TUser user)
         => ExtendedUserManager.SupportsUserTwoFactor && await ExtendedUserManager.GetTwoFactorEnabledAsync(user) && (await ExtendedUserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
 
-    private static ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName, string userName) {
+    private static ClaimsPrincipal StoreValidationInfo(string userId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName, string userName, string[] authenticationMethods) {
         var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
         identity.AddClaim(new Claim(JwtClaimTypes.Subject, userId));
         identity.AddClaim(new Claim(JwtClaimTypes.EmailVerified, isEmailConfirmed.ToString().ToLower()));
@@ -357,12 +374,16 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         if (!string.IsNullOrWhiteSpace(lastName)) {
             identity.AddClaim(new Claim(JwtClaimTypes.FamilyName, lastName));
         }
+        foreach (var method in authenticationMethods) {
+            identity.AddClaim(new Claim(JwtClaimTypes.AuthenticationMethod, method));
+        }
         return new ClaimsPrincipal(identity);
     }
 
     private static ClaimsPrincipal StoreTwoFactorInfo(string userId, string loginProvider) {
         var identity = new ClaimsIdentity(IdentityConstants.TwoFactorUserIdScheme);
         identity.AddClaim(new Claim(ClaimTypes.Name, userId));
+        identity.AddClaim(new Claim(JwtClaimTypes.AuthenticationMethod, "pwd"));
         if (loginProvider != null) {
             identity.AddClaim(new Claim(ClaimTypes.AuthenticationMethod, loginProvider));
         }
@@ -401,13 +422,13 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             }
         }
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
-        var rememberBrowserIdentity = new ClaimsIdentity(IdentityConstants.TwoFactorRememberMeScheme);
-        rememberBrowserIdentity.AddClaim(new Claim(JwtClaimTypes.Name, userId));
+        var deviceIdentity = new ClaimsIdentity(IdentityConstants.TwoFactorRememberMeScheme);
+        deviceIdentity.AddClaim(new Claim(JwtClaimTypes.Name, userId));
         if (ExtendedUserManager.SupportsUserSecurityStamp) {
             var stamp = await ExtendedUserManager.GetSecurityStampAsync(user);
-            rememberBrowserIdentity.AddClaim(new Claim(Options.ClaimsIdentity.SecurityStampClaimType, stamp));
+            deviceIdentity.AddClaim(new Claim(Options.ClaimsIdentity.SecurityStampClaimType, stamp));
         }
-        return new ClaimsPrincipal(rememberBrowserIdentity);
+        return new ClaimsPrincipal(deviceIdentity);
     }
 
     private async Task<TwoFactorAuthenticationInfo> RetrieveTwoFactorInfoAsync() {
@@ -435,7 +456,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         await ResetLockout(user);
         var claims = new List<Claim> {
-            new Claim("amr", "mfa")
+            new Claim(JwtClaimTypes.AuthenticationMethod, "pwd"),
+            new Claim(JwtClaimTypes.AuthenticationMethod, "mfa")
         };
         if (twoFactorInfo.LoginProvider is not null) {
             claims.Add(new Claim(ClaimTypes.AuthenticationMethod, twoFactorInfo.LoginProvider));
