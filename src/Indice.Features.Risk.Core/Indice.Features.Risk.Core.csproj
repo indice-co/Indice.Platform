@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>AspNetCore;Risk;RulesEngine;</PackageTags>
+    <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+  </ItemGroup>
+</Project>
