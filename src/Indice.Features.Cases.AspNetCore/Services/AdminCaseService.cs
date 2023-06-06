@@ -115,7 +115,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         // filter CustomerId
         if (options.Filter.CustomerId != null) {
-            query = query.Where(c => c.CustomerId.ToLower().Contains(options.Filter.CustomerId.ToLower()));
+            query = query.Where(c => c.CustomerId.Equals(options.Filter.CustomerId));
         }
         // filter CustomerName
         if (options.Filter.CustomerName != null) {
