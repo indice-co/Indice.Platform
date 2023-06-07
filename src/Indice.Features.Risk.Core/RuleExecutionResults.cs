@@ -36,6 +36,8 @@ public class RuleExecutionResult
     public RiskLevel? RiskLevel { get; }
     /// <summary>A possible reason usually when we have a <see cref="RiskLevel.High"/> or <see cref="RiskLevel.Medium"/> risk rule.</summary>
     public string? Reason { get; }
+    /// <summary>The name of the rule.</summary>
+    public string RuleName { get; internal set; } = string.Empty;
 
     /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.High"/> risk level.</summary>
     /// <param name="reason">A possible reason usually when we have a <see cref="RiskLevel.High"/> or <see cref="RiskLevel.Medium"/> risk rule.</param>

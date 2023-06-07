@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <PackageReleaseNotes></PackageReleaseNotes>
@@ -9,10 +9,15 @@
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.16"></PackageReference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.5"></PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.Risk.Server" />
   </ItemGroup>
 </Project>
