@@ -13,8 +13,8 @@ internal class SubjectNameEnricher : ISignInLogEntryEnricher
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
-    public int Priority => 8;
-    public EnricherDependencyType DependencyType => EnricherDependencyType.OnDataStore;
+    public int Order => 8;
+    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Asynchronous;
 
     public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
         logEntry.User ??= (!string.IsNullOrWhiteSpace(logEntry.SubjectId) ? await _userManager.FindByIdAsync(logEntry.SubjectId) : default);

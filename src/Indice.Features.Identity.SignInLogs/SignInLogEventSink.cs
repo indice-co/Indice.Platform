@@ -29,7 +29,7 @@ internal class SignInLogEventSink : IEventSink
         if (logEntry is null) {
             return;
         }
-        await _signInLogEntryEnricherAggregator.EnrichAsync(logEntry, EnricherDependencyType.OnRequest);
+        await _signInLogEntryEnricherAggregator.EnrichAsync(logEntry, SignInLogEnricherRunType.Synchronous);
         await _signInLogEntryQueue.EnqueueAsync(logEntry);
     }
 }

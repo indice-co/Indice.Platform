@@ -33,7 +33,7 @@ internal class PersistLogsHostedService : BackgroundService
             var signInLogStore = serviceScope.ServiceProvider.GetRequiredService<ISignInLogStore>();
             var enricherAggregator = serviceScope.ServiceProvider.GetRequiredService<SignInLogEntryEnricherAggregator>();
             await foreach (var logEntry in _signInLogEntryQueue.DequeueAllAsync().WithCancellation(stoppingToken)) {
-                var enrichResult = await enricherAggregator.EnrichAsync(logEntry, EnricherDependencyType.Default | EnricherDependencyType.OnDataStore);
+                var enrichResult = await enricherAggregator.EnrichAsync(logEntry, SignInLogEnricherRunType.Default | SignInLogEnricherRunType.Asynchronous);
                 if (enrichResult.Succeeded) {
                     await signInLogStore.CreateAsync(logEntry, stoppingToken);
                     await _eventService.Publish(new SignInLogCreatedEvent(logEntry));

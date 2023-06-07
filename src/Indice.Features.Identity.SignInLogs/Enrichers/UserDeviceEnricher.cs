@@ -14,9 +14,9 @@ internal class UserDeviceEnricher : ISignInLogEntryEnricher
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
-    public int Priority => 5;
+    public int Order => 5;
 
-    public EnricherDependencyType DependencyType => EnricherDependencyType.OnDataStore;
+    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Asynchronous;
 
     public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
         var success = await EnrichFromDeviceId(logEntry);

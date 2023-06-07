@@ -16,7 +16,7 @@ internal class SignInLogEntryEnricherAggregator
         _filters = filters ?? throw new ArgumentNullException(nameof(filters));
     }
 
-    public async Task<EnrichResult> EnrichAsync(SignInLogEntry logEntry, EnricherDependencyType? dependencyType = null) {
+    public async Task<EnrichResult> EnrichAsync(SignInLogEntry logEntry, SignInLogEnricherRunType? dependencyType = null) {
         var discard = false;
         if (logEntry is null) {
             return EnrichResult.Failed;
@@ -26,7 +26,7 @@ internal class SignInLogEntryEnricherAggregator
             return EnrichResult.MustDiscard;
         }
         if (dependencyType.HasValue) {
-            _enrichers = _enrichers.Where(enricher => dependencyType.Value.HasFlag(enricher.DependencyType));
+            _enrichers = _enrichers.Where(enricher => dependencyType.Value.HasFlag(enricher.RunType));
         }
         foreach (var enricher in _enrichers) {
             await enricher.EnrichAsync(logEntry);

@@ -62,7 +62,7 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
     private async Task<UserState> GetNextStateAsync(TUser user, UserAction action) => (CurrentState, action) switch {
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true &&
                                                      user.PhoneNumberConfirmed == false &&
-                                                     (await _httpContext.RequestServices.GetRequiredService<IAuthenticationMethodProvider>().GetRequiredAuthenticationMethod(user)).GetType() == typeof(SmsAuthenticationMethod) &&
+                                                     (await _httpContext.RequestServices.GetRequiredService<IAuthenticationMethodProvider>().GetRequiredAuthenticationMethod(user))?.GetType() == typeof(SmsAuthenticationMethod) &&
                                                      (await _httpContext.RequestServices.GetRequiredService<ExtendedSignInManager<TUser>>().IsTwoFactorClientRememberedAsync(user)) => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false && 
                                                     _mfaPolicy == MfaPolicy.Enforced => UserState.RequiresMfaOnboarding,

@@ -76,6 +76,13 @@ public static class BasicClaimTypes
     public const string MaxDevicesCount = "max_devices_count";
     /// <summary>Marks a client as a mobile client.</summary>
     public const string MobileClient = "mobile_client";
+    /// <summary>The scopes.</summary>
+    public const string Scope = "scope";
+    /// <summary>User's device identifier.</summary>
+    public const string DeviceId = "device_id";
+    /// <summary>User's IP address.</summary>
+    public const string IPAddress = "ipaddr";
+
     /// <summary>All possible user related claims.</summary>
     public static readonly string[] UserClaims = {
         "sub",
@@ -90,6 +97,4 @@ public static class BasicClaimTypes
         Admin,
         PasswordExpirationDate
     };
-    /// <summary>The scopes.</summary>
-    public const string Scope = "scope";
 }

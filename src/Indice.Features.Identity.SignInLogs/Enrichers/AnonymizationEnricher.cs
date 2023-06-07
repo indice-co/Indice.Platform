@@ -13,8 +13,8 @@ internal class AnonymizationEnricher : ISignInLogEntryEnricher
         _signInLogOptions = signInLogOptions?.Value ?? throw new ArgumentNullException(nameof(signInLogOptions));
     }
 
-    public int Priority => int.MaxValue;
-    public EnricherDependencyType DependencyType => EnricherDependencyType.Default;
+    public int Order => int.MaxValue;
+    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Default;
 
     public ValueTask EnrichAsync(SignInLogEntry logEntry) {
         if (!_signInLogOptions.AnonymizePersonalData) {

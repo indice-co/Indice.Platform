@@ -6,15 +6,15 @@ namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
 internal class DeviceIdEnricher : ISignInLogEntryEnricher
 {
-    private readonly IMfaDeviceIdResolver _mfaDeviceIdResolver;
+    private readonly IDeviceIdResolver _mfaDeviceIdResolver;
 
-    public DeviceIdEnricher(IMfaDeviceIdResolver mfaDeviceIdResolver) {
+    public DeviceIdEnricher(IDeviceIdResolver mfaDeviceIdResolver) {
         _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
     }
 
-    public int Priority => 1;
+    public int Order => 1;
 
-    public EnricherDependencyType DependencyType => EnricherDependencyType.OnRequest;
+    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Synchronous;
 
     public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
         var device = await _mfaDeviceIdResolver.Resolve();

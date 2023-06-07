@@ -50,7 +50,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
             return;
         }
         var isError = false;
-        foreach (var filter in _filters) {
+        foreach (var filter in _filters.OrderBy(x => x.Order)) {
             await filter.ValidateAsync(extendedContext);
             // If any of the filter results in an error, then we should break out of the loop.
             if (extendedContext.Result.IsError) {
@@ -95,6 +95,8 @@ public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwner
 /// <typeparam name="TUser">The type of the user.</typeparam>
 public interface IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
 {
+    /// <summary>The order used to run the filter.</summary>
+    public int Order { get; }
     /// <summary>Validates the resource owner password credential.</summary>
     /// <param name="context">Class describing the resource owner password validation context.</param>
     Task ValidateAsync(ResourceOwnerPasswordValidationFilterContext<TUser> context);
@@ -115,17 +117,24 @@ public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwner
     }
 
     /// <inheritdoc />
+    public int Order => 1;
+
+    /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
         var client = context.Request.Client;
         var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];
         var subject = await _userManager.GetUserIdAsync(context.User);
-        if (!client.AllowedGrantTypes.Contains(CustomGrantTypes.DeviceAuthentication) || string.IsNullOrWhiteSpace(deviceId)) {
+        if (string.IsNullOrWhiteSpace(deviceId)) {
             context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
             return;
         }
         var device = await _userManager.GetDeviceByIdAsync(context.User, deviceId);
-        if (device is not null && device.RequiresPassword) {
-            await _userManager.SetDeviceRequiresPasswordAsync(context.User, device, requiresPassword: false);
+        if (device is not null) {
+            if (device.RequiresPassword) {
+                await _userManager.SetDeviceRequiresPasswordAsync(context.User, device, requiresPassword: false);
+            }
+            device.LastSignInDate = DateTimeOffset.UtcNow;
+            await _userManager.UpdateDeviceAsync(context.User, device);
         }
         context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
     }
@@ -148,6 +157,9 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
     }
+
+    /// <inheritdoc />
+    public int Order => 0;
 
     /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationFilterContext<TUser> context) {

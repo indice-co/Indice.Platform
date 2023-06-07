@@ -6,8 +6,8 @@ namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
 internal class LocationEnricher : ISignInLogEntryEnricher
 {
-    public int Priority => 6;
-    public EnricherDependencyType DependencyType => EnricherDependencyType.Default;
+    public int Order => 6;
+    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Default;
 
     public ValueTask EnrichAsync(SignInLogEntry logEntry) {
         if (string.IsNullOrWhiteSpace(logEntry?.IpAddress)) {

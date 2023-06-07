@@ -125,10 +125,13 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.TokenCleanupBatchSize = 250;
             options.ConfigureDbContext = configurePersistedGrantDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("OperationalDb"));
         })
-        .AddDelegationGrantValidator()
         .AddJwtBearerClientAuthentication()
         .AddAspNetIdentity<User>()
         .AddAppAuthRedirectUriValidator()
+        .AddOtpAuthenticateGrantValidator()
+        .AddDelegationGrantValidator()
+        .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
+        .AddExtendedResourceOwnerPasswordValidator()
         .AddDotnet7CompatibleStores();
         if (webHostEnvironment.IsDevelopment()) {
             IdentityModelEventSource.ShowPII = true;
