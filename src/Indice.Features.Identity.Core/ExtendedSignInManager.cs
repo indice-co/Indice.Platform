@@ -191,7 +191,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             var additionalClaims = new List<Claim> {
                 new Claim(JwtClaimTypes.AuthenticationMethod, "pwd")
             };
-            if (string.IsNullOrWhiteSpace(deviceId?.Value)) {
+            if (!string.IsNullOrWhiteSpace(deviceId?.Value)) {
                 additionalClaims.Add(new Claim(BasicClaimTypes.DeviceId, deviceId.Value));
             }
             if (mfaImplicitlyPassed) {
