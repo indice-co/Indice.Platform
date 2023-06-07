@@ -65,7 +65,9 @@ internal class AdminCaseMessageService : BaseCaseMessageService, IAdminCaseMessa
                 Id = @case.CaseTypeId
             },
             GroupId = @case.GroupId,
-            CheckpointTypeId = @case.Checkpoint.CheckpointTypeId,
+            CheckpointType = new CheckpointType {
+                Id= @case.Checkpoint.CheckpointTypeId,
+            },
             CreatedById = @case.CreatedBy.Id
         };
 

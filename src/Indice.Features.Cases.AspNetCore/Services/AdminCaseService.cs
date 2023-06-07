@@ -108,8 +108,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 },
                 Metadata = @case.Metadata,
                 GroupId = @case.GroupId,
-                CheckpointTypeId = @case.Checkpoint.CheckpointTypeId,
-                CheckpointTypeCode = @case.Checkpoint.CheckpointType.Code,
+                CheckpointType = new CheckpointType {
+                    Id = @case.Checkpoint.CheckpointType.Id,
+                    Code = @case.Checkpoint.CheckpointType.Code,
+                    Title = @case.Checkpoint.CheckpointType.Title,
+                    Description = @case.Checkpoint.CheckpointType.Description,
+                    Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
+                },
                 AssignedToName = @case.AssignedTo.Name
             });
 
@@ -133,7 +138,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
         // also: filter CheckpointTypeIds
         if (options.Filter.CheckpointTypeIds is not null && options.Filter.CheckpointTypeIds.Any()) {
-            query = query.Where(c => options.Filter.CheckpointTypeIds.Contains(c.CheckpointTypeId.ToString()));
+            query = query.Where(c => options.Filter.CheckpointTypeIds.Contains(c.CheckpointType.Id.ToString()));
         }
         // filter by group ID, if it is present
         if (options.Filter.GroupIds != null && options.Filter.GroupIds.Any()) {
@@ -147,6 +152,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         // translate case types
         foreach (var item in result.Items) {
             item.CaseType = item.CaseType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            item.CheckpointType = item.CheckpointType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         }
         return result;
     }

@@ -77,7 +77,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
             .ToList();
 
         return memberships
-            .Any(x => x.CaseTypeId == @case.CaseType!.Id && x.CheckpointTypeId == @case.CheckpointTypeId);
+            .Any(x => x.CaseTypeId == @case.CaseType!.Id && x.CheckpointTypeId == @case.CheckpointType.Id);
     }
 
     /// <summary>Determines whether user is Owner of a Case</summary>

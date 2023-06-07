@@ -42,7 +42,7 @@
             <ng-template let-item>{{ item.caseType.title }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ">
-            <ng-template let-item>{{ item.checkpointTypeCode }}</ng-template>
+            <ng-template let-item>{{ item.checkpointType?.title ?? item.checkpointType?.code }}</ng-template>
         </lib-list-column>
         <lib-list-column title="ΑΝΑΘΕΣΗ ΣΕ">
             <ng-template let-item>{{ item.assignedToName || ' - '}}</ng-template>
