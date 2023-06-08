@@ -1,18 +1,14 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
+using Indice.Features.Risk.Core.Data.Models;
 
 namespace Indice.Features.Risk.Core;
 
-internal class RuleExecutionService<TTransaction> : IRuleExecutionService<TTransaction> where TTransaction : TransactionBase
+internal class RuleExecutionService<TTransaction> : IRuleExecutionService<TTransaction> where TTransaction : Transaction
 {
     private readonly IEnumerable<IRule<TTransaction>> _rules;
-    private readonly ITransactionStore<TTransaction> _transactionStore;
 
-    public RuleExecutionService(
-        IEnumerable<IRule<TTransaction>> rules,
-        ITransactionStore<TTransaction> transactionStore
-    ) {
+    public RuleExecutionService(IEnumerable<IRule<TTransaction>> rules) {
         _rules = rules ?? throw new ArgumentNullException(nameof(rules));
-        _transactionStore = transactionStore ?? throw new ArgumentNullException(nameof(transactionStore));
     }
 
     public async Task<OverallRuleExecutionResult> ExecuteAsync(TTransaction transaction) {
@@ -22,7 +18,6 @@ internal class RuleExecutionService<TTransaction> : IRuleExecutionService<TTrans
             result.RuleName = rule.Name;
             results.Add(result);
         }
-        await _transactionStore.CreateAsync(transaction);
         return new OverallRuleExecutionResult(_rules.Count(), results);
     }
 }

@@ -1,4 +1,4 @@
-﻿using Indice.Features.Risk.Core;
+﻿using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -14,7 +14,7 @@ public static class RiskApi
     /// <typeparam name="TTransaction">The type of transaction that the engine manages.</typeparam>
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
-    public static IEndpointRouteBuilder MapRisk<TTransaction>(this IEndpointRouteBuilder builder) where TTransaction : TransactionBase {
+    public static IEndpointRouteBuilder MapRisk<TTransaction>(this IEndpointRouteBuilder builder) where TTransaction : Transaction {
         var options = builder.ServiceProvider.GetService<IOptions<RiskApiOptions>>()?.Value ?? new RiskApiOptions();
         var group = builder.MapGroup($"{options.ApiPrefix}/risk")
                            .WithGroupName("risk")
@@ -36,5 +36,5 @@ public static class RiskApi
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
     public static IEndpointRouteBuilder MapRisk(this IEndpointRouteBuilder builder) => 
-        builder.MapRisk<TransactionBase>();
+        builder.MapRisk<Transaction>();
 }

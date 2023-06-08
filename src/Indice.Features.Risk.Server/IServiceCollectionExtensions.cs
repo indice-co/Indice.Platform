@@ -1,4 +1,4 @@
-﻿using Indice.Features.Risk.Core;
+﻿using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Server;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -14,7 +14,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddRiskEndpoints<TTransaction>(
         this IServiceCollection services,
         Action<RiskApiOptions>? configureAction = null
-    ) where TTransaction : TransactionBase {
+    ) where TTransaction : Transaction {
         var riskApiOptions = new RiskApiOptions {
             Services = services,
             TransactionType = typeof(TTransaction)
@@ -34,5 +34,5 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddRiskEndpoints(
         this IServiceCollection services,
         Action<RiskApiOptions>? configureAction = null
-    ) => services.AddRiskEndpoints<TransactionBase>(configureAction);
+    ) => services.AddRiskEndpoints<Transaction>(configureAction);
 }

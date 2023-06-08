@@ -1,4 +1,4 @@
-﻿using Indice.Features.Risk.Core;
+﻿using Indice.Features.Risk.Core.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +10,7 @@ public class RiskApiOptions
     private string _apiPrefix = "/api";
 
     internal IServiceCollection? Services { get; set; }
-    internal Type TransactionType { get; set; } = typeof(TransactionBase);
+    internal Type TransactionType { get; set; } = typeof(Transaction);
 
     /// <summary>Specifies a prefix for the risk API endpoints.</summary>
     public PathString ApiPrefix {

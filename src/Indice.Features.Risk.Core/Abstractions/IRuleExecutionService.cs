@@ -1,6 +1,8 @@
-﻿namespace Indice.Features.Risk.Core.Abstractions;
+﻿using Indice.Features.Risk.Core.Data.Models;
 
-internal interface IRuleExecutionService<TTransaction> where TTransaction : TransactionBase
+namespace Indice.Features.Risk.Core.Abstractions;
+
+internal interface IRuleExecutionService<TTransaction> where TTransaction : Transaction
 {
     Task<OverallRuleExecutionResult> ExecuteAsync(TTransaction transaction);
 }

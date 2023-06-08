@@ -1,8 +1,9 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
+using Indice.Features.Risk.Core.Data.Models;
 
 namespace Indice.Features.Risk.Core;
 
-internal class GenericRule<TTransaction> : IRule<TTransaction> where TTransaction : TransactionBase
+internal class GenericRule<TTransaction> : IRule<TTransaction> where TTransaction : Transaction
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly Func<IServiceProvider, TTransaction, ValueTask<RuleExecutionResult>> _ruleDelegate;
