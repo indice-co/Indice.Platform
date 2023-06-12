@@ -1,5 +1,4 @@
-﻿#nullable enable
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Indice.Configuration;
 using Indice.Features.Risk.Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +20,7 @@ public class RiskDbContext<TTransaction> : DbContext where TTransaction : Transa
     /// <summary>Transactions table.</summary>
     public DbSet<TTransaction> Transactions => Set<TTransaction>();
     /// <summary>Transaction events table.</summary>
-    public DbSet<TransactionEvent> TransactionEvents { get; set; }
+    public DbSet<TransactionEvent> TransactionEvents { get; set; } = null!;
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
@@ -33,10 +32,9 @@ public class RiskDbContext<TTransaction> : DbContext where TTransaction : Transa
         modelBuilder.Entity<TTransaction>().Property(x => x.Amount).HasColumnType("money");
         modelBuilder.Entity<TTransaction>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
         modelBuilder.Entity<TTransaction>().HasMany(x => x.Events).WithOne(x => (TTransaction)x.Transaction).HasForeignKey(x => x.TransactionId);
-        // Event configuration.
+        // TransactionEvent configuration.
         modelBuilder.Entity<TransactionEvent>().ToTable(nameof(TransactionEvent));
         modelBuilder.Entity<TransactionEvent>().HasKey(x => x.Id);
         modelBuilder.Entity<TransactionEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired();
     }
 }
-#nullable disable

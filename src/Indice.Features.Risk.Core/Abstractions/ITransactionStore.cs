@@ -5,6 +5,7 @@ namespace Indice.Features.Risk.Core.Abstractions;
 internal interface ITransactionStore<TTransaction> where TTransaction : Transaction
 {
     Task<int> CreateAsync(IEnumerable<TTransaction> transactions);
+    Task<TTransaction?> GetByIdAsync(Guid transactionId);
 }
 
 internal static class ITransactionStoreExtensions

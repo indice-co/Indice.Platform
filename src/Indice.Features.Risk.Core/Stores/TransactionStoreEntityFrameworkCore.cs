@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data;
 using Indice.Features.Risk.Core.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Risk.Core.Stores;
 
@@ -16,4 +17,7 @@ internal class TransactionStoreEntityFrameworkCore<TTransaction> : ITransactionS
         _dbContext.AddRange(transactions);
         return await _dbContext.SaveChangesAsync();
     }
+
+    public Task<TTransaction?> GetByIdAsync(Guid transactionId) => 
+        _dbContext.Transactions.FirstOrDefaultAsync(x => x.Id == transactionId);
 }

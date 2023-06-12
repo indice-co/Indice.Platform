@@ -1,7 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data.Models;
 
-namespace Indice.Features.Risk.Core;
+namespace Indice.Features.Risk.Core.Rules;
 
 internal class GenericRule<TTransaction> : IRule<TTransaction> where TTransaction : Transaction
 {
@@ -10,15 +10,11 @@ internal class GenericRule<TTransaction> : IRule<TTransaction> where TTransactio
 
     public GenericRule(
         IServiceProvider serviceProvider,
-        string ruleName,
         Func<IServiceProvider, TTransaction, ValueTask<RuleExecutionResult>> ruleDelegate
     ) {
-        Name = ruleName;
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         _ruleDelegate = ruleDelegate ?? throw new ArgumentNullException(nameof(ruleDelegate));
     }
-
-    public string Name { get; }
 
     public ValueTask<RuleExecutionResult> ExecuteAsync(TTransaction transaction) =>
         _ruleDelegate.Invoke(_serviceProvider, transaction);

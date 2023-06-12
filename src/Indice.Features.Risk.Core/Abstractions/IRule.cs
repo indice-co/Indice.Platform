@@ -6,8 +6,6 @@ namespace Indice.Features.Risk.Core.Abstractions;
 /// <typeparam name="TTransaction">The type of transaction that the engine manages.</typeparam>
 public interface IRule<TTransaction> where TTransaction : Transaction
 {
-    /// <summary>The name of the rule.</summary>
-    public string Name { get; }
     /// <summary>Executes the rule asynchronously.</summary>
     /// <param name="transaction">The transaction occurred.</param>
     /// <returns>The result after rule execution.</returns>

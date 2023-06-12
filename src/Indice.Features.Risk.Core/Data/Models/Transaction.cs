@@ -1,5 +1,4 @@
-﻿#nullable disable
-namespace Indice.Features.Risk.Core.Data.Models;
+﻿namespace Indice.Features.Risk.Core.Data.Models;
 
 /// <summary>Models an transaction that occurred in the system.</summary>
 public class Transaction
@@ -15,6 +14,5 @@ public class Transaction
     /// <summary>Timestamp regarding transaction creation.</summary>
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>Events associated with the transaction.</summary>
-    public virtual ICollection<TransactionEvent> Events { get; set; }
+    public virtual ICollection<TransactionEvent> Events { get; set; } = new List<TransactionEvent>();
 }
-#nullable enable

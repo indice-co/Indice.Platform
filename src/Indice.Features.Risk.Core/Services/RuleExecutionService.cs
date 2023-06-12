@@ -1,7 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data.Models;
 
-namespace Indice.Features.Risk.Core;
+namespace Indice.Features.Risk.Core.Services;
 
 internal class RuleExecutionService<TTransaction> : IRuleExecutionService<TTransaction> where TTransaction : Transaction
 {
@@ -15,7 +15,6 @@ internal class RuleExecutionService<TTransaction> : IRuleExecutionService<TTrans
         var results = new List<RuleExecutionResult>();
         foreach (var rule in _rules) {
             var result = await rule.ExecuteAsync(transaction);
-            result.RuleName = rule.Name;
             results.Add(result);
         }
         return new OverallRuleExecutionResult(_rules.Count(), results);

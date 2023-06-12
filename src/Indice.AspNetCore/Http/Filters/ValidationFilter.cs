@@ -68,10 +68,10 @@ public static partial class ValidationFilterExtensions
             }
             // Track the indicies of validatable parameters.
             List<ValidationDescriptor> parametersToValidate = null;
-            foreach (var p in methodInfo.GetParameters()) {
-                if (typeToValidate.Equals(p.ParameterType) || (otherTypesToValidate is not null && otherTypesToValidate.Contains(p.ParameterType))) {
+            foreach (var parameter in methodInfo.GetParameters()) {
+                if (typeToValidate.Equals(parameter.ParameterType) || (otherTypesToValidate is not null && otherTypesToValidate.Contains(parameter.ParameterType))) {
                     parametersToValidate ??= new();
-                    parametersToValidate.Add(new(p.Position, p.ParameterType));
+                    parametersToValidate.Add(new(parameter.Position, parameter.ParameterType));
                 }
             }
             if (parametersToValidate is null) {
@@ -82,12 +82,12 @@ public static partial class ValidationFilterExtensions
             endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json"));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
-                    var validator = context.ApplicationServices.GetService<IEndpointParameterValidator>();
+                    var validator = context.ApplicationServices.GetRequiredService<IEndpointParameterValidator>();
                     foreach (var descriptor in parametersToValidate) {
                         if (invocationContext.Arguments[descriptor.ArgumentIndex] is { } arg) {
-                            var (isValid, errors) = await (validator?.TryValidateAsync(descriptor.ArgumentType, arg) ?? MiniValidator.TryValidateAsync(arg));
-                            if (!isValid) {
-                                return Results.ValidationProblem(errors, detail: "Model state validation", extensions: new Dictionary<string, object>() { ["code"] = "MODEL_STATE" });
+                            var (IsValid, Errors) = await validator.TryValidateAsync(descriptor.ArgumentType, arg);
+                            if (!IsValid) {
+                                return Results.ValidationProblem(Errors, detail: "Model state validation", extensions: new Dictionary<string, object>() { ["code"] = "MODEL_STATE" });
                             }
                         }
                     }
@@ -137,11 +137,11 @@ public static partial class ValidationFilterExtensions
                     var validator = context.ApplicationServices.GetService<IEndpointParameterValidator>();
                     try {
                         return await next(invocationContext);
-                    } catch (TException ex) {
-                        if (ex is BusinessException bex) {
-                            return Results.ValidationProblem(bex.Errors, detail: ex.Message, extensions: new Dictionary<string, object>() { ["code"] = bex.Code });
+                    } catch (TException exception) {
+                        if (exception is BusinessException businessException) {
+                            return Results.ValidationProblem(businessException.Errors, detail: exception.Message, extensions: new Dictionary<string, object>() { ["code"] = businessException.Code });
                         } else {
-                            return Results.Problem(detail: ex.Message, statusCode: statusCode, extensions: new Dictionary<string, object>() { ["code"] = typeof(TException).Name });
+                            return Results.Problem(detail: exception.Message, statusCode: statusCode, extensions: new Dictionary<string, object>() { ["code"] = typeof(TException).Name });
                         }
                     }
                 });

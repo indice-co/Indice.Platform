@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Server;
+using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,13 +22,25 @@ public static class RiskApi
                            .WithTags("Risk")
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
                            .ProducesProblem(StatusCodes.Status403Forbidden)
-                           .ProducesProblem(StatusCodes.Status500InternalServerError);
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", new[] { options.ApiScope }.Where(x => x is not null).Cast<string>().ToArray());
+                           .ProducesProblem(StatusCodes.Status500InternalServerError)
+                           .RequireAuthorization(policy => policy
+                              .AddAuthenticationSchemes(options.AuthenticationScheme)
+                              .RequireAuthenticatedUser()
+                              .RequireAssertion(context => context.User.HasScope(options.ApiScope) || context.User.IsSystemClient())
+                           );
+        var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
+        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
         // POST: /api/risk/calculate
-        group.MapPost("calculate", RiskApiHandlers.GetRisk<TTransaction>)
-             .WithName(nameof(RiskApiHandlers.GetRisk))
-             .WithSummary("Calculates the risk given the latest transaction presented in the system.");
+        group.MapPost("calculate", RiskApiHandlers.GetTransactionRisk<TTransaction>)
+             .WithName(nameof(RiskApiHandlers.GetTransactionRisk))
+             .WithSummary("Calculates the risk given a transaction presented in the system.");
+
+        // POST: /api/risk/events
+        group.MapPost("events", RiskApiHandlers.AddEvent)
+             .WithName(nameof(RiskApiHandlers.AddEvent))
+             .WithSummary("Accepts and stores an event.");
+             //.WithParameterValidation<CreateTransactionEventCommand>();
 
         return builder;
     }
@@ -35,6 +48,6 @@ public static class RiskApi
     /// <summary>Registers the endpoints for the risk engine.</summary>
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
-    public static IEndpointRouteBuilder MapRisk(this IEndpointRouteBuilder builder) => 
+    public static IEndpointRouteBuilder MapRisk(this IEndpointRouteBuilder builder) =>
         builder.MapRisk<Transaction>();
 }
