@@ -140,7 +140,7 @@ public abstract class BasePageModel : PageModel
         if (authenticateResult.Succeeded) {
             authenticationProperties = authenticateResult.Properties;
             var signInManager = ServiceProvider.GetRequiredService<ExtendedSignInManager<User>>();
-            await signInManager.SignInAsync(user, isPersistent: authenticationProperties.IsPersistent);
+            await signInManager.SignInWithClaimsAsync(user, authenticationProperties, authenticateResult.Principal.Claims);
         }
         return authenticationProperties;
     }

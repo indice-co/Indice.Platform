@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
+using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Security;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
@@ -11,10 +13,18 @@ namespace Indice.Features.Identity.Core;
 public class ExtendedUserClaimsPrincipalFactory : ExtendedUserClaimsPrincipalFactory<User, IdentityRole>
 {
     /// <summary>Constructor for the extender user claims principal factory.</summary>
-    /// <param name="userManager">The <see cref="UserManager{TUser}"/> to retrieve user information from.</param>
+    /// <param name="userManager">The <see cref="ExtendedUserManager{TUser}"/> to retrieve user information from.</param>
     /// <param name="roleManager">The <see cref="RoleManager{TRole}"/> to retrieve a user's roles from.</param>
     /// <param name="optionsAccessor">The configured <see cref="IdentityOptions"/>.</param>
-    public ExtendedUserClaimsPrincipalFactory(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IOptions<IdentityOptions> optionsAccessor) : base(userManager, roleManager, optionsAccessor) { }
+    /// <param name="deviceIdResolver">An abstraction used to specify the way to resolve the device identifier using various ways.</param>
+    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
+    public ExtendedUserClaimsPrincipalFactory(
+        ExtendedUserManager<User> userManager,
+        RoleManager<IdentityRole> roleManager,
+        IOptions<IdentityOptions> optionsAccessor,
+        IDeviceIdResolver deviceIdResolver,
+        IHttpContextAccessor httpContextAccessor
+    ) : base(userManager, roleManager, optionsAccessor, deviceIdResolver, httpContextAccessor) { }
 
     /// <summary>Generates the claims for a user.</summary>
     /// <param name="user">The user to create a <see cref="ClaimsIdentity"/> from.</param>
@@ -28,12 +38,25 @@ public class ExtendedUserClaimsPrincipalFactory<TUser, TRole> : UserClaimsPrinci
     where TRole : IdentityRole
 {
     const string ISOFORMAT = "yyyy-MM-dd\\THH:mm:ss.fffK"; //ISO-8601 used by JavaScript (ALWAYS UTC)
+    private readonly IDeviceIdResolver _deviceIdResolver;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>Constructor for the extender user claims principal factory.</summary>
     /// <param name="userManager">The <see cref="UserManager{TUser}"/> to retrieve user information from.</param>
     /// <param name="roleManager">The <see cref="RoleManager{TRole}"/> to retrieve a user's roles from.</param>
     /// <param name="optionsAccessor">The configured <see cref="IdentityOptions"/>.</param>
-    public ExtendedUserClaimsPrincipalFactory(UserManager<TUser> userManager, RoleManager<TRole> roleManager, IOptions<IdentityOptions> optionsAccessor) : base(userManager, roleManager, optionsAccessor) { }
+    /// <param name="deviceIdResolver">An abstraction used to specify the way to resolve the device identifier using various ways.</param>
+    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
+    public ExtendedUserClaimsPrincipalFactory(
+        ExtendedUserManager<TUser> userManager,
+        RoleManager<TRole> roleManager,
+        IOptions<IdentityOptions> optionsAccessor,
+        IDeviceIdResolver deviceIdResolver,
+        IHttpContextAccessor httpContextAccessor
+    ) : base(userManager, roleManager, optionsAccessor) {
+        _deviceIdResolver = deviceIdResolver ?? throw new ArgumentNullException(nameof(deviceIdResolver));
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+    }
 
     /// <summary>Generates the claims for a user.</summary>
     /// <param name="user">The user to create a <see cref="ClaimsIdentity"/> from.</param>
@@ -62,6 +85,14 @@ public class ExtendedUserClaimsPrincipalFactory<TUser, TRole> : UserClaimsPrinci
         }
         if (!identity.HasClaim(x => x.Type == BasicClaimTypes.PasswordExpirationPolicy) && user.PasswordExpirationPolicy.HasValue) {
             additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpirationPolicy, user.PasswordExpirationPolicy.ToString()));
+        }
+        var deviceId = await _deviceIdResolver.Resolve();
+        if (!string.IsNullOrWhiteSpace(deviceId.Value)) {
+            additionalClaims.Add(new Claim(BasicClaimTypes.DeviceId, deviceId.Value));
+        }
+        var ipAddress = _httpContextAccessor.HttpContext.GetClientIpAddress()?.ToString();
+        if (!string.IsNullOrWhiteSpace(ipAddress)) {
+            additionalClaims.Add(new Claim(BasicClaimTypes.IPAddress, ipAddress));
         }
         identity.AddClaims(additionalClaims);
         return identity;
