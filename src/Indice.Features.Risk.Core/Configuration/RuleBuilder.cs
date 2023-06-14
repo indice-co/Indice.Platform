@@ -22,7 +22,7 @@ public class RuleBuilder<TTransaction> where TTransaction : Transaction
     /// <param name="builder">Action for configuring the change of score calculation based incoming events.</param>
     /// <returns>The instance of <see cref="RuleBuilder{TTransaction}"/>.</returns>
     public RuleBuilder<TTransaction> AddRule<TRule>(string name, Action<RuleConfigBuilder<TTransaction>>? builder = null) where TRule : class, IRule<TTransaction> {
-        CheckRuleName(name);
+        CheckAndAddRuleName(name);
         ConfigureRules(name, builder);
         _services.AddTransient<IRule<TTransaction>, TRule>();
         return this;
@@ -38,7 +38,7 @@ public class RuleBuilder<TTransaction> where TTransaction : Transaction
         Func<IServiceProvider, TTransaction, ValueTask<RuleExecutionResult>> ruleDelegate,
         Action<RuleConfigBuilder<TTransaction>>? builder = null
     ) {
-        CheckRuleName(name);
+        CheckAndAddRuleName(name);
         ConfigureRules(name, builder);
         _services.AddTransient<IRule<TTransaction>>(serviceProvider => new GenericRule<TTransaction>(serviceProvider, ruleDelegate));
         return this;
@@ -62,7 +62,7 @@ public class RuleBuilder<TTransaction> where TTransaction : Transaction
         _services.AddSingleton(ruleConfig);
     }
 
-    private void CheckRuleName(string ruleName) {
+    private void CheckAndAddRuleName(string ruleName) {
         if (_ruleNames.Contains(ruleName, StringComparer.OrdinalIgnoreCase)) {
             throw new InvalidOperationException($"A rule with name {ruleName} is already configured in the risk engine.");
         }

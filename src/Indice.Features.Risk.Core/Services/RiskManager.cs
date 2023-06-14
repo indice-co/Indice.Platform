@@ -16,4 +16,13 @@ internal class RiskManager<TTransaction> where TTransaction : Transaction
 
     public IEnumerable<IRule<TTransaction>> Rules { get; }
     public IEnumerable<RuleConfig> RuleConfigurations { get; }
+
+    public async Task<OverallRuleExecutionResult> ExecuteRulesAsync(TTransaction transaction) {
+        var results = new List<RuleExecutionResult>();
+        foreach (var rule in Rules) {
+            var result = await rule.ExecuteAsync(transaction);
+            results.Add(result);
+        }
+        return new OverallRuleExecutionResult(Rules.Count(), results);
+    }
 }

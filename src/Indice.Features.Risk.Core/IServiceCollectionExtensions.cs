@@ -1,5 +1,4 @@
-﻿using Indice.Features.Risk.Core.Abstractions;
-using Indice.Features.Risk.Core.Configuration;
+﻿using Indice.Features.Risk.Core.Configuration;
 using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Services;
 
@@ -11,17 +10,19 @@ public static class IServiceCollectionExtensions
     /// <summary>Adds the required services for configuring the risk engine, using the provided type <typeparamref name="TTransaction"/>.</summary>
     /// <typeparam name="TTransaction">The type of transaction that the engine manages.</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configAction">Options for configuring the <b>Risk Engine</b> feature.</param>
     /// <returns>The <see cref="StoreBuilder{TTransaction}"/> instance used to configure the risk engine.</returns>
-    public static StoreBuilder<TTransaction> AddRiskEngine<TTransaction>(this IServiceCollection services) where TTransaction : Transaction {
+    public static StoreBuilder<TTransaction> AddRiskEngine<TTransaction>(this IServiceCollection services, Action<RiskEngineOptions>? configAction = null) where TTransaction : Transaction {
         var builder = new StoreBuilder<TTransaction>(services);
         // Add core services.
-        services.AddTransient<IRuleExecutionService<TTransaction>, RuleExecutionService<TTransaction>>();
+        services.AddTransient<RiskManager<TTransaction>>();
         return builder;
     }
 
     /// <summary>Adds the required services for configuring the risk engine, using the default type <see cref="Transaction"/>.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configAction">Options for configuring the <b>Risk Engine</b> feature.</param>
     /// <returns>The <see cref="RuleBuilder{TTransaction}"/> instance used to configure the risk engine.</returns>
-    public static StoreBuilder<Transaction> AddRiskEngine(this IServiceCollection services) =>
-        services.AddRiskEngine<Transaction>();
+    public static StoreBuilder<Transaction> AddRiskEngine(this IServiceCollection services, Action<RiskEngineOptions>? configAction = null) =>
+        services.AddRiskEngine<Transaction>(configAction);
 }

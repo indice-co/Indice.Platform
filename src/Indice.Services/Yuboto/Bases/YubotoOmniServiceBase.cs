@@ -48,9 +48,9 @@ public class YubotoOmniServiceBase
         // Yuboto doc: Use country code without + or 00
         recipients = recipients.Select(phoneNumber => {
             if (phoneNumber.StartsWith("+")) {
-                return phoneNumber.Substring(1);
+                return phoneNumber[1..];
             } else if (phoneNumber.StartsWith("00")) {
-                return phoneNumber.Substring(2);
+                return phoneNumber[2..];
             }
             return phoneNumber;
         })

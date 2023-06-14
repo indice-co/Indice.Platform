@@ -2,6 +2,7 @@
 using Indice.Features.Risk.Core;
 using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Services;
 using Indice.Features.Risk.Server.Commands;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -13,14 +14,14 @@ namespace Indice.Features.Risk.Server;
 internal static class RiskApiHandlers
 {
     internal static async Task<Ok<OverallRuleExecutionResult>> GetTransactionRisk<TTransaction>(
-        [FromServices] IRuleExecutionService<TTransaction> ruleExecutionService,
+        [FromServices] RiskManager<TTransaction> ruleExecutionService,
         [FromServices] ITransactionStore<TTransaction> transactionStore,
         [FromServices] ILoggerFactory loggerFactory,
         [FromBody] TTransaction transaction
     ) where TTransaction : Transaction {
         var logger = loggerFactory.CreateLogger(nameof(RiskApiHandlers));
         // Calculate the result based on the incoming transaction.
-        var result = await ruleExecutionService.ExecuteAsync(transaction);
+        var result = await ruleExecutionService.ExecuteRulesAsync(transaction);
         // Persist incoming transaction to the store.
         var numberOfRowsAffected = await transactionStore.CreateAsync(transaction);
         // Log success or failure.
