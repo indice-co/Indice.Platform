@@ -72,7 +72,7 @@ public abstract class BaseLogoutModel : BasePageModel
                 showLogoutPrompt = false;
             }
         }
-        if (showLogoutPrompt == false) {
+        if (!showLogoutPrompt) {
             // If the request for logout was properly authenticated from IdentityServer, then we don't need to show the prompt and can just log the user out directly.
             return await OnPostAsync();
         }

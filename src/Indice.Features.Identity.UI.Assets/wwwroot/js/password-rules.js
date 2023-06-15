@@ -44,7 +44,6 @@ $(document).ready(function () {
         userName: form.getAttribute('data-userName'),
         userNameInputSelector: $('#Input_UserName')
     };
-    debugger
     var viewModel = new indice.PasswordRulesViewModelFactory(viewModelParameters);
     viewModel.init();
     ko.bindingProvider.instance = new ko.secureBindingsProvider();
