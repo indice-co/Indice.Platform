@@ -1,5 +1,4 @@
 ﻿#nullable enable
-using System.Text;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -34,9 +33,11 @@ public class DeviceIdResolverHttpContext : IDeviceIdResolver
                             request.Form.TryGetValue("Input.DeviceId", out deviceId) ||
                             request.Form.TryGetValue(RegistrationRequestParameters.DeviceId, out deviceId)
                           );
-        if (_httpContextAccessor.HttpContext is not null && !hasDeviceId) {
-            hasDeviceId = _httpContextAccessor.HttpContext.Session.TryGetValue("deviceId", out var deviceIdObject);
-            deviceId = deviceIdObject is not null ? Encoding.UTF8.GetString(deviceIdObject) : null;
+        if (_httpContextAccessor.HttpContext is not null) {
+            if (!hasDeviceId) {
+                hasDeviceId = _httpContextAccessor.HttpContext.Items.TryGetValue("deviceId", out var deviceIdObject);
+                deviceId = deviceIdObject?.ToString();
+            }
         }
         return await Task.FromResult(hasDeviceId ? deviceId.ToString() : null);
     }
