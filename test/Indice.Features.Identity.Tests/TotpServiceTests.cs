@@ -22,8 +22,8 @@ public class TotpServiceTests
     public TotpServiceTests() {
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new List<KeyValuePair<string, string>> {
-                new KeyValuePair<string, string>("Totp:EnableDeveloperTotp", "true")
+            builder.AddInMemoryCollection(new Dictionary<string, string> {
+                ["Totp:EnableDeveloperTotp"] = "true"
             });
         });
         builder.ConfigureServices(services => {
