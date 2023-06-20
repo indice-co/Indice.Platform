@@ -13,12 +13,11 @@ public class CreateTransactionRequestBase<TTransaction> where TTransaction : Tra
     public string? SubjectId { get; set; }
 
     /// <summary>Converts a <see cref="CreateTransactionRequestBase{TTransaction}"/> instance to a <see cref="Transaction"/> instance.</summary>
-    /// <returns></returns>
-    public virtual TTransaction ToTransaction() => new TTransaction {
+    public virtual TTransaction ToTransaction() => new() {
         Amount = Amount,
-        IpAddress = IpAddress,
-        SubjectId = SubjectId,
         CreatedAt = DateTimeOffset.UtcNow,
-        Id = Guid.NewGuid()
+        Id = Guid.NewGuid(),
+        IpAddress = IpAddress,
+        SubjectId = SubjectId
     };
 }

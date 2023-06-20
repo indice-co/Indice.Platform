@@ -19,5 +19,5 @@ internal class TransactionStoreEntityFrameworkCore<TTransaction> : ITransactionS
     }
 
     public Task<TTransaction?> GetByIdAsync(Guid transactionId) => 
-        _dbContext.Transactions.FirstOrDefaultAsync(x => x.Id == transactionId);
+        _dbContext.Transactions.Include(x => x.Events).FirstOrDefaultAsync(x => x.Id == transactionId);
 }

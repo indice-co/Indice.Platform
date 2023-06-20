@@ -15,17 +15,17 @@ namespace Indice.Features.Risk.Server;
 internal static class RiskApiHandlers
 {
     internal static async Task<Ok<OverallRuleExecutionResult>> GetTransactionRisk<TTransaction, TTransactionRequest>(
-        [FromServices] RiskManager<TTransaction> ruleExecutionService,
+        [FromServices] RiskManager<TTransaction> riskManager,
         [FromServices] ITransactionStore<TTransaction> transactionStore,
         [FromServices] ILoggerFactory loggerFactory,
         [FromBody] TTransactionRequest transactionRequest
-    ) where TTransaction : Transaction
-      where TTransactionRequest : CreateTransactionRequestBase {
+    ) where TTransaction : Transaction, new()
+      where TTransactionRequest : CreateTransactionRequestBase<TTransaction> {
         var logger = loggerFactory.CreateLogger(nameof(RiskApiHandlers));
         // Calculate the result based on the incoming transaction.
-        var result = await ruleExecutionService.ExecuteRulesAsync(transactionRequest);
+        var result = await riskManager.ExecuteRulesAsync(transactionRequest.ToTransaction());
         // Persist incoming transaction to the store.
-        var numberOfRowsAffected = await transactionStore.CreateAsync(transactionRequest);
+        var numberOfRowsAffected = await transactionStore.CreateAsync(transactionRequest.ToTransaction());
         // Log success or failure.
         if (numberOfRowsAffected == 1) {
             logger.LogInformation("A transaction was created successfully.");

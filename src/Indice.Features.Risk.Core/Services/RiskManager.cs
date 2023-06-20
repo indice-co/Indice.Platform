@@ -6,12 +6,16 @@ namespace Indice.Features.Risk.Core.Services;
 
 internal class RiskManager<TTransaction> where TTransaction : Transaction
 {
+    private readonly IEventStore _eventStore;
+
     public RiskManager(
         IEnumerable<IRule<TTransaction>> rules,
-        IEnumerable<RuleConfig> ruleConfigurations
+        IEnumerable<RuleConfig> ruleConfigurations,
+        IEventStore eventStore
     ) {
         Rules = rules ?? throw new ArgumentNullException(nameof(rules));
         RuleConfigurations = ruleConfigurations ?? throw new ArgumentNullException(nameof(ruleConfigurations));
+        _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
     }
 
     public IEnumerable<IRule<TTransaction>> Rules { get; }
