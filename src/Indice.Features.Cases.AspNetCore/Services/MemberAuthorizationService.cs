@@ -7,6 +7,7 @@ using Indice.Features.Cases.Models.Responses;
 using Indice.Security;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Services;
 
@@ -14,14 +15,17 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
 {
     private readonly CasesDbContext _dbContext;
     private readonly IDistributedCache _distributedCache;
+    private readonly AdminCasesApiOptions _options;
     private const string MembersCacheKey = $"{nameof(MemberAuthorizationService)}.members";
 
     public MemberAuthorizationService(
         CasesDbContext dbContext,
-        IDistributedCache distributedCache
+        IDistributedCache distributedCache,
+        IOptions<AdminCasesApiOptions> options
         ) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     /// <summary>Applies Filters in relation to user's role(s)</summary>
@@ -65,7 +69,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         if (@case is null) throw new ArgumentNullException(nameof(@case));
 
         // if client is systemic, then bypass checks
-        if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, @case)) {
+        if ((user.HasClaim(BasicClaimTypes.Scope, _options.ExpectedScope ?? CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, @case)) {
             return true;
         }
 
