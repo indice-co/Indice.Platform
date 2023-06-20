@@ -4,6 +4,7 @@ using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Services;
 using Indice.Features.Risk.Server.Commands;
+using Indice.Features.Risk.Server.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -13,17 +14,18 @@ namespace Indice.Features.Risk.Server;
 
 internal static class RiskApiHandlers
 {
-    internal static async Task<Ok<OverallRuleExecutionResult>> GetTransactionRisk<TTransaction>(
+    internal static async Task<Ok<OverallRuleExecutionResult>> GetTransactionRisk<TTransaction, TTransactionRequest>(
         [FromServices] RiskManager<TTransaction> ruleExecutionService,
         [FromServices] ITransactionStore<TTransaction> transactionStore,
         [FromServices] ILoggerFactory loggerFactory,
-        [FromBody] TTransaction transaction
-    ) where TTransaction : Transaction {
+        [FromBody] TTransactionRequest transactionRequest
+    ) where TTransaction : Transaction
+      where TTransactionRequest : CreateTransactionRequestBase {
         var logger = loggerFactory.CreateLogger(nameof(RiskApiHandlers));
         // Calculate the result based on the incoming transaction.
-        var result = await ruleExecutionService.ExecuteRulesAsync(transaction);
+        var result = await ruleExecutionService.ExecuteRulesAsync(transactionRequest);
         // Persist incoming transaction to the store.
-        var numberOfRowsAffected = await transactionStore.CreateAsync(transaction);
+        var numberOfRowsAffected = await transactionStore.CreateAsync(transactionRequest);
         // Log success or failure.
         if (numberOfRowsAffected == 1) {
             logger.LogInformation("A transaction was created successfully.");

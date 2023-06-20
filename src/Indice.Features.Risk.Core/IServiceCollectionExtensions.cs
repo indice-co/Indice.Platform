@@ -14,6 +14,15 @@ public static class IServiceCollectionExtensions
     /// <returns>The <see cref="StoreBuilder{TTransaction}"/> instance used to configure the risk engine.</returns>
     public static StoreBuilder<TTransaction> AddRiskEngine<TTransaction>(this IServiceCollection services, Action<RiskEngineOptions>? configAction = null) where TTransaction : Transaction {
         var builder = new StoreBuilder<TTransaction>(services);
+        var options = new RiskEngineOptions();
+        configAction?.Invoke(options);
+        var result = options.Validate();
+        if (!result.Succeeded) {
+            throw new InvalidOperationException($"Options of type {nameof(RiskEngineOptions)} have the following error: {result.ErrorMessage}");
+        }
+        services.Configure<RiskEngineOptions>(riskOptions => {
+            riskOptions.RiskLevelRangeMapping = options.RiskLevelRangeMapping;
+        });
         // Add core services.
         services.AddTransient<RiskManager<TTransaction>>();
         return builder;

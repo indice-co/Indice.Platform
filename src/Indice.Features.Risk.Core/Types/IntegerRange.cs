@@ -17,12 +17,20 @@ public class IntegerRange
     /// <summary>Lower limit of range.</summary>
     public int LowerLimit {
         get => _lowerLimit;
-        set => _lowerLimit = value < _upperLimit ? value : throw new InvalidOperationException("Lower limit of range cannot be grater than the upper limit");
+        set => _lowerLimit = value < _upperLimit ? value : throw new InvalidOperationException($"Lower limit ({value}) of range cannot be grater than the upper limit ({_upperLimit})");
     }
 
     /// <summary>Upper limit of range.</summary>
     public int UpperLimit {
         get => _upperLimit;
-        set => _upperLimit = value > _lowerLimit ? value : throw new InvalidOperationException("Upper limit of range cannot be lower than the lower limit");
+        set => _upperLimit = value > _lowerLimit ? value : throw new InvalidOperationException($"Upper limit ({value}) of range cannot be lower than the lower limit ({_lowerLimit}).");
     }
+
+    /// <summary>Check if the current range is overlapped by another given range.</summary>
+    /// <param name="other">The range to compare to.</param>
+    public bool IsOverlapped(IntegerRange other) => 
+        LowerLimit.CompareTo(other.UpperLimit) < 0 && other.LowerLimit.CompareTo(UpperLimit) < 0;
+
+    /// <inheritdoc />
+    public override string ToString() => $"[{LowerLimit} - {UpperLimit}]";
 }
