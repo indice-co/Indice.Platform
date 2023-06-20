@@ -126,8 +126,9 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
     }
 
     loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
-        let customerId = this.filters?.find(f => f.member === 'customerId')?.value;
-        let customerName = this.filters?.find(f => f.member === 'customerName')?.value;
+        // TODO: More properties will be added. For now it's just a POC form the customerId and customerName.
+        let caseListData: string[] = [];
+        this.filters?.filter(f => f.member === 'customerId' || f.member === 'customerName')?.forEach(f => caseListData?.push(`caseListData.${f.member}::${f.operator}::(${f.dataType})${f.value}`))
         let groupIds: string[] = [];
         this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(f.value));
         let from = this.filters?.find(f => f.member === 'from')?.value;
@@ -149,8 +150,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         });
         return this._api
             .getCases(
-                customerId,
-                customerName,
+                caseListData,
                 from ? new Date(from) : undefined,
                 to ? new Date(to) : undefined,
                 caseTypeCodes,

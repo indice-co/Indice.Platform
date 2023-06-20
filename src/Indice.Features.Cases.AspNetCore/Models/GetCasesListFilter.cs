@@ -9,11 +9,10 @@ namespace Indice.Features.Cases.Models;
 /// </summary>
 public class GetCasesListFilter
 {
-    /// <summary>The Id of the customer to filter.</summary>
-    public string CustomerId { get; set; }
-
-    /// <summary>The name of the customer to filter.</summary>
-    public string CustomerName { get; set; }
+    /// <summary>
+    /// A collection of properties to filter the cases by. It's list of FilterClause
+    /// </summary>
+    public List<FilterClause> CaseListData { get; set; } = new List<FilterClause>();
 
     /// <summary>The created date of the case, starting from, to filter.</summary>
     public DateTimeOffset? From { get; set; }

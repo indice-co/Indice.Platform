@@ -114,12 +114,37 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             });
 
         // filter CustomerId
-        if (options.Filter.CustomerId != null) {
-            query = query.Where(c => c.CustomerId.Equals(options.Filter.CustomerId));
+        if (options.Filter.CaseListData.Where(x => x.Member == "caseListData.customerId").Count() != 0) {
+            foreach (var clientId in options.Filter.CaseListData.Where(x => x.Member == "caseListData.customerId")) {
+                switch (clientId.Operator) {
+                    case (FilterOperator.Eq):
+                        query = query.Where(c => c.CustomerId.Equals(clientId.Value));
+                        break;
+                    case (FilterOperator.Neq):
+                        query = query.Where(c => !c.CustomerId.Equals(clientId.Value));
+                        break;
+                    case (FilterOperator.Contains):
+                        query = query.Where(c => c.CustomerId.Contains(clientId.Value));
+                        break;
+                }
+            }
+
         }
         // filter CustomerName
-        if (options.Filter.CustomerName != null) {
-            query = query.Where(c => c.CustomerName.ToLower().Contains(options.Filter.CustomerName.ToLower()));
+        if(options.Filter.CaseListData.Where(x => x.Member == "caseListData.customerName").Count() != 0) {
+            foreach(var customerName in options.Filter.CaseListData.Where(x => x.Member == "caseListData.customerName")) {
+                switch (customerName.Operator) {
+                    case (FilterOperator.Eq):
+                        query = query.Where(c => c.CustomerName.ToLower().Equals(customerName.Value.ToLower()));
+                        break;
+                    case (FilterOperator.Neq):
+                        query = query.Where(c => !c.CustomerName.ToLower().Equals(customerName.Value.ToLower()));
+                        break;
+                    case (FilterOperator.Contains):
+                        query = query.Where(c => c.CustomerName.ToLower().Contains(customerName.Value.ToLower()));
+                        break;
+                }
+            }
         }
         if (options.Filter.From != null) {
             query = query.Where(c => c.CreatedByWhen >= options.Filter.From.Value.Date);
@@ -127,6 +152,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Filter.To != null) {
             query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
         }
+        // TODO What has been done for customerId and customerName will also be done for the bellow properties.
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
         if (options.Filter.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Any()) {
             query = query.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
