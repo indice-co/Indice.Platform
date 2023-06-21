@@ -57,11 +57,11 @@ public static class BasicClaimTypes
     /// <summary>Defines a standard OTP code used for bypassing OTP verification for development environment.</summary>
     public const string DeveloperTotp = "developer_totp";
     /// <summary>Commercial consent.</summary>
-    public const string ConsentCommencial = "consent_commencial";
+    public const string ConsentCommercial = "consent_commercial";
     /// <summary>Terms of service consent.</summary>
     public const string ConsentTerms = "consent_terms";
     /// <summary>Commercial consent date.</summary>
-    public const string ConsentCommencialDate = "consent_commencial_date";
+    public const string ConsentCommercialDate = "consent_commercial_date";
     /// <summary>Terms of service consent date.</summary>
     public const string ConsentTermsDate = "consent_terms_date";
     /// <summary>Trusted device authorized client.</summary>
