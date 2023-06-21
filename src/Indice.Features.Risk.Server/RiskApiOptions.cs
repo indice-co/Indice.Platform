@@ -9,7 +9,7 @@ namespace Indice.Features.Risk.Server;
 public class RiskApiOptions
 {
     private string _apiPrefix = "/api";
-    private string _apiScope = RiskApiEndpoints.DefaultScope;
+    private string _apiScope = RiskApiEndpoints.Scope;
     private string _authenticationScheme = RiskApiEndpoints.AuthenticationScheme;
 
     internal IServiceCollection? Services { get; set; }

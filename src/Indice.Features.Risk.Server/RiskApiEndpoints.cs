@@ -6,5 +6,5 @@ public static class RiskApiEndpoints
     /// <summary>API Authentication scheme.</summary>
     public const string AuthenticationScheme = "Bearer";
     /// <summary>Default API scope.</summary>
-    public const string DefaultScope = "risk";
+    public const string Scope = "risk";
 }
