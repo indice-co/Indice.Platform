@@ -5,7 +5,7 @@ namespace Indice.Features.Risk.Core.Configuration;
 /// <summary>Options used to configure the core risk engine.</summary>
 public class RiskEngineOptions
 {
-    private IDictionary<RiskLevel, IntegerRange> _riskLevelRangeMapping = new Dictionary<RiskLevel, IntegerRange> {
+    internal static IDictionary<RiskLevel, IntegerRange> RiskLevelRangeMappingInternal = new Dictionary<RiskLevel, IntegerRange> {
         { RiskLevel.VeryLow, new IntegerRange(0, 200) },
         { RiskLevel.Low, new IntegerRange(201, 400) },
         { RiskLevel.Medium, new IntegerRange(401, 600) },
@@ -15,8 +15,8 @@ public class RiskEngineOptions
 
     /// <summary>Contains the mapping between the risk level and the score.</summary>
     public IDictionary<RiskLevel, IntegerRange> RiskLevelRangeMapping {
-        get => _riskLevelRangeMapping;
-        set => _riskLevelRangeMapping = value?.Any() == true ? value.OrderBy(x => (int)x.Key).ToDictionary(x => x.Key, y => y.Value) : throw new ArgumentNullException($"{RiskLevelRangeMapping} options must be configured.");
+        get => RiskLevelRangeMappingInternal;
+        set => RiskLevelRangeMappingInternal = value?.Any() == true ? value.OrderBy(x => (int)x.Key).ToDictionary(x => x.Key, y => y.Value) : throw new ArgumentNullException($"{RiskLevelRangeMapping} options must be configured.");
     }
 
     /// <summary></summary>

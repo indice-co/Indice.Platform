@@ -5,6 +5,8 @@ namespace Indice.Features.Risk.Server.Models;
 /// <summary>Models the request model used to create a transaction.</summary>
 public class CreateTransactionRequestBase<TTransaction> where TTransaction : Transaction, new()
 {
+    /// <summary>The unique id of the transaction.</summary>
+    public Guid? Id { get; set; }
     /// <summary>An amount relative to the transaction.</summary>
     public decimal? Amount { get; set; }
     /// <summary>The user IP address related to the transaction occurred.</summary>
@@ -16,7 +18,7 @@ public class CreateTransactionRequestBase<TTransaction> where TTransaction : Tra
     public virtual TTransaction ToTransaction() => new() {
         Amount = Amount,
         CreatedAt = DateTimeOffset.UtcNow,
-        Id = Guid.NewGuid(),
+        Id = Id ?? Guid.NewGuid(),
         IpAddress = IpAddress,
         SubjectId = SubjectId
     };

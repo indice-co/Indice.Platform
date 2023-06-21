@@ -21,7 +21,7 @@ public static class RiskApi
         where TTransaction : Transaction, new()
         where TTransactionRequest : CreateTransactionRequestBase<TTransaction> {
         var options = builder.ServiceProvider.GetService<IOptions<RiskApiOptions>>()?.Value ?? new RiskApiOptions();
-        var group = builder.MapGroup($"{options.ApiPrefix}/risk")
+        var group = builder.MapGroup($"{options.ApiPrefix}")
                            .WithGroupName("risk")
                            .WithTags("Risk")
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -35,8 +35,8 @@ public static class RiskApi
         var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
-        // POST: /api/risk/calculate
-        group.MapPost("calculate", RiskApiHandlers.GetTransactionRisk<TTransaction, TTransactionRequest>)
+        // POST: /api/transactions/risk
+        group.MapPost("transactions/risk", RiskApiHandlers.GetTransactionRisk<TTransaction, TTransactionRequest>)
              .WithName(nameof(RiskApiHandlers.GetTransactionRisk))
              .WithSummary("Calculates the risk given a transaction presented in the system.");
 
@@ -44,7 +44,7 @@ public static class RiskApi
         group.MapPost("events", RiskApiHandlers.AddEvent)
              .WithName(nameof(RiskApiHandlers.AddEvent))
              .WithSummary("Accepts and stores an event.");
-        //.WithParameterValidation<CreateTransactionEventCommand>();
+             //.WithParameterValidation<CreateTransactionEventCommand>();
 
         return builder;
     }
