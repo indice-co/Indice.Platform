@@ -1,11 +1,7 @@
 ﻿#nullable enable
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
-using Indice.Security;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Primitives;
-using System.Security.Claims;
 
 namespace Indice.Features.Identity.Core;
 
@@ -37,23 +33,18 @@ public class DeviceIdResolverHttpContext : IDeviceIdResolver
                             request.Form.TryGetValue("Input.DeviceId", out deviceId) ||
                             request.Form.TryGetValue(RegistrationRequestParameters.DeviceId, out deviceId)
                           );
-        if (!hasDeviceId && _httpContextAccessor.HttpContext is not null) {
-            hasDeviceId = _httpContextAccessor.HttpContext.Items.TryGetValue("deviceId", out var deviceIdObject);
-            deviceId = deviceIdObject?.ToString();
+        if (_httpContextAccessor.HttpContext is not null) {
             if (!hasDeviceId) {
-                var result = await _httpContextAccessor.HttpContext.AuthenticateAsync(IdentityConstants.ApplicationScheme);
-                if (result.Succeeded) {
-                    deviceId = result.Principal?.FindFirstValue(BasicClaimTypes.DeviceId);
-                    hasDeviceId = !string.IsNullOrWhiteSpace(deviceId);
-                }
+                hasDeviceId = _httpContextAccessor.HttpContext.Items.TryGetValue("deviceId", out var deviceIdObject);
+                deviceId = deviceIdObject?.ToString();
             }
         }
-        return hasDeviceId ? deviceId.ToString() : null;
+        return await Task.FromResult(hasDeviceId ? deviceId.ToString() : null);
     }
 
     private static Guid? GetRegistrationId(HttpRequest request) {
         var registrationId = default(Guid);
-        var hasRegistrationId = request.HasFormContentType && 
+        var hasRegistrationId = request.HasFormContentType &&
                                 request.Form.TryGetValue(RegistrationRequestParameters.RegistrationId, out var registrationIdText) &&
                                 Guid.TryParse(registrationIdText, out registrationId);
         return hasRegistrationId ? registrationId : null;
