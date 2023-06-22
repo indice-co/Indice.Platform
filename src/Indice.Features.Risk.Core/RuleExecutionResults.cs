@@ -5,11 +5,14 @@ namespace Indice.Features.Risk.Core;
 /// <summary>Describes the result that was created after executing all the rules registered in the system.</summary>
 public class AggregateRuleExecutionResult
 {
-    internal AggregateRuleExecutionResult(int numberOfRulesExecuted, IEnumerable<RuleExecutionResult>? results) {
+    internal AggregateRuleExecutionResult(Guid transactionId, int numberOfRulesExecuted, IEnumerable<RuleExecutionResult>? results) {
+        TransactionId = transactionId;
         NumberOfRulesExecuted = numberOfRulesExecuted;
         Results = results ?? new List<RuleExecutionResult>();
     }
 
+    /// <summary>The id of the transaction.</summary>
+    public Guid TransactionId { get; }
     /// <summary>The total number of rules executed.</summary>
     public int NumberOfRulesExecuted { get; }
     /// <summary>The result of each individual rule run by the engine.</summary>
@@ -24,6 +27,18 @@ public class RuleExecutionResult
     /// <param name="riskScore">The risk score that came up after a rule run by the engine.</param>
     /// <param name="reason">A reason accompanying the provided risk level.</param>
     internal RuleExecutionResult(RiskLevel riskLevel, int? riskScore, string? reason) {
+        if (riskScore.HasValue) {
+            var expectedRiskLevel = RiskEngineOptions.RiskLevelRangeMappingInternal.Where(x => x.Value.LowerLimit <= riskScore && riskScore <= x.Value.UpperLimit);
+            if (expectedRiskLevel is null || !expectedRiskLevel.Any()) {
+                throw new InvalidOperationException($"Risk score '{riskScore}' is not valid. Please choose a value between '{RiskEngineOptions.RiskLevelRangeMappingInternal[RiskLevel.VeryLow].LowerLimit}' " +
+                    $"and '{RiskEngineOptions.RiskLevelRangeMappingInternal[RiskLevel.VeryHigh].UpperLimit}'.");
+            }
+            if (expectedRiskLevel.First().Key != riskLevel) {
+                throw new InvalidOperationException($"Risk score '{riskScore}' is not in the range of risk level '{riskLevel}'.");
+            }
+        } else {
+            riskScore = RiskEngineOptions.RiskLevelRangeMappingInternal[riskLevel].UpperLimit;
+        }
         RiskLevel = riskLevel;
         RiskScore = riskScore;
         Reason = reason;
