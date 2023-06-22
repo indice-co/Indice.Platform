@@ -682,7 +682,7 @@ internal class MyAccountController : ControllerBase
             });
         }
         user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.ConsentCommencial,
+            ClaimType = BasicClaimTypes.ConsentCommercial,
             ClaimValue = request.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
             UserId = user.Id
         });
@@ -697,7 +697,7 @@ internal class MyAccountController : ControllerBase
             UserId = user.Id
         });
         user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.ConsentCommencialDate,
+            ClaimType = BasicClaimTypes.ConsentCommercialDate,
             ClaimValue = $"{DateTime.UtcNow:O}",
             UserId = user.Id
         });

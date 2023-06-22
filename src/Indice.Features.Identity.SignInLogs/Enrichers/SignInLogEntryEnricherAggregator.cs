@@ -28,7 +28,7 @@ internal class SignInLogEntryEnricherAggregator
         if (dependencyType.HasValue) {
             _enrichers = _enrichers.Where(enricher => dependencyType.Value.HasFlag(enricher.RunType));
         }
-        foreach (var enricher in _enrichers) {
+        foreach (var enricher in _enrichers.OrderBy(x => x.Order)) {
             await enricher.EnrichAsync(logEntry);
         }
         return EnrichResult.Success;

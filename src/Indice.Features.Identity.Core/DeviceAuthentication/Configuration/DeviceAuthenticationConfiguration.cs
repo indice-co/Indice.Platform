@@ -92,8 +92,8 @@ public static class DeviceAuthenticationConfiguration
 
     private static void RegisterEvents(this DeviceAuthenticationOptions options) {
         var requirePasswordAfterUserUpdate = options.Configuration.GetValue<bool?>("IdentityOptions:User:Devices:RequirePasswordAfterUserUpdate") ??
-                                                options.Configuration.GetValue<bool?>("User:Devices:RequirePasswordAfterUserUpdate") ??
-                                                false;
+                                             options.Configuration.GetValue<bool?>("User:Devices:RequirePasswordAfterUserUpdate") ??
+                                             false;
         if (requirePasswordAfterUserUpdate) {
             options.Services.AddPlatformEventHandler<UserNameChangedEvent, UserNameOrPasswordChangedEventHandler>();
             options.Services.AddPlatformEventHandler<PasswordChangedEvent, UserNameOrPasswordChangedEventHandler>();
