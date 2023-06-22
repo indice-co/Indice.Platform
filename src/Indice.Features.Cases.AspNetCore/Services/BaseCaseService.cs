@@ -6,7 +6,6 @@ using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
-using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
@@ -61,6 +60,8 @@ internal abstract class BaseCaseService
                     Code = isCustomer ? c.PublicCheckpoint.CheckpointType.Code : c.Checkpoint.CheckpointType.Code,
                     Title = isCustomer ? c.PublicCheckpoint.CheckpointType.Title : c.Checkpoint.CheckpointType.Title,
                     Description = isCustomer ? c.PublicCheckpoint.CheckpointType.Description : c.Checkpoint.CheckpointType.Description,
+                    Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(
+                        isCustomer ? c.PublicCheckpoint.CheckpointType.Translations : c.Checkpoint.CheckpointType.Translations),
                 },
                 CreatedByWhen = c.CreatedBy.When,
                 CreatedById = c.CreatedBy.Id,
