@@ -31,8 +31,8 @@ internal class AdminReportService : IAdminReportService
         List<GroupByReportResult> query = await _dbContext.Cases
         .AsNoTracking()
             .Where(x => (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
-                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Select(f => f.Value).Contains(x.CaseType.Code))) &&
+                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Select(f => f.Value).Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
             .Where(x => !x.Draft)
             .GroupBy(x => x.CaseType.Code)
             .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
@@ -45,8 +45,8 @@ internal class AdminReportService : IAdminReportService
             .AsNoTracking()
             .Where(x => x.Channel == Channels.Agent &&
                             (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
-                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Select(f => f.Value).Contains(x.CaseType.Code))) &&
+                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Select(f => f.Value).Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
             .Where(x => !x.Draft)
             .GroupBy(x => x.CaseType.Code)
             .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
@@ -59,8 +59,8 @@ internal class AdminReportService : IAdminReportService
             .AsNoTracking()
             .Where(x => x.Channel == Channels.Customer &&
                             (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
-                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Select(f => f.Value).Contains(x.CaseType.Code))) &&
+                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Select(f => f.Value).Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
             .Where(x => !x.Draft)
             .GroupBy(x => x.CaseType.Code)
             .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })
@@ -72,8 +72,8 @@ internal class AdminReportService : IAdminReportService
         List<GroupByReportResult> query = await _dbContext.Cases
             .AsNoTracking()
             .Where(x => (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
-                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Select(f => f.Value).Contains(x.CaseType.Code))) &&
+                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Select(f => f.Value).Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
             .Where(x => !x.Draft)
             .GroupBy(x => x.Checkpoint.CheckpointType.Status)
             .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
@@ -85,8 +85,8 @@ internal class AdminReportService : IAdminReportService
             .AsNoTracking()
             .Where(x => x.Channel == Channels.Agent &&
                             (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
-                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Select(f => f.Value).Contains(x.CaseType.Code))) &&
+                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Select(f => f.Value).Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
             .Where(x => !x.Draft)
             .GroupBy(x => x.Checkpoint.CheckpointType.Status)
             .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
@@ -99,8 +99,8 @@ internal class AdminReportService : IAdminReportService
             .AsNoTracking()
             .Where(x => x.Channel == Channels.Customer &&
                             (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
-                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Select(f => f.Value).Contains(x.CaseType.Code))) &&
+                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Select(f => f.Value).Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
             .Where(x => !x.Draft)
             .GroupBy(x => x.Checkpoint.CheckpointType.Status)
             .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
@@ -112,8 +112,8 @@ internal class AdminReportService : IAdminReportService
         List<GroupByReportResult> query = await _dbContext.Cases
             .AsNoTracking()
             .Where(x => (filter.GroupIds == null || (filter.GroupIds != null && filter.GroupIds.Any() && filter.GroupIds.Contains(x.GroupId))) &&
-                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Contains(x.CaseType.Code))) &&
-                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
+                            (filter.CaseTypeCodes == null || (filter.CaseTypeCodes != null && filter.CaseTypeCodes.Any() && filter.CaseTypeCodes.Select(f => f.Value).Contains(x.CaseType.Code))) &&
+                            (filter.CheckpointTypeIds == null || (filter.CheckpointTypeIds != null && filter.CheckpointTypeIds.Any() && filter.CheckpointTypeIds.Select(f => f.Value).Contains(x.Checkpoint.CheckpointType.Id.ToString()))))
             .Where(x => !x.Draft)
             .GroupBy(x => x.GroupId)
             .Select(group => new GroupByReportResult { Label = group.Key, Count = group.Count() })

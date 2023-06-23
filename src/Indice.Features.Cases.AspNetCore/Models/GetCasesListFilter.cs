@@ -9,10 +9,11 @@ namespace Indice.Features.Cases.Models;
 /// </summary>
 public class GetCasesListFilter
 {
-    /// <summary>
-    /// A collection of properties to filter the cases by. It's list of FilterClause
-    /// </summary>
-    public List<FilterClause> CaseListData { get; set; } = new List<FilterClause>();
+    /// <summary>The Id of the customer to filter.</summary>
+    public List<FilterClause> CustomerIds { get; set; } = new List<FilterClause>();
+
+    /// <summary>The name of the customer to filter.</summary>
+    public List<FilterClause> CustomerNames { get; set; } = new List<FilterClause>();
 
     /// <summary>The created date of the case, starting from, to filter.</summary>
     public DateTimeOffset? From { get; set; }
@@ -21,13 +22,13 @@ public class GetCasesListFilter
     public DateTimeOffset? To { get; set; }
 
     /// <summary>The list of case type codes to filter.</summary>
-    public List<string> CaseTypeCodes { get; set; }
+    public List<FilterClause> CaseTypeCodes { get; set; } = new List<FilterClause>();
 
     /// <summary>The list of checkpoint type Ids to filter.</summary>
-    internal List<string> CheckpointTypeIds { get; set; }
+    internal List<FilterClause> CheckpointTypeIds { get; set; } = new List<FilterClause>();
 
     /// <summary>The list of checkpoint type codes to filter.</summary>
-    public List<string> CheckpointTypeCodes { get; set; }
+    public List<FilterClause> CheckpointTypeCodes { get; set; } = new List<FilterClause>();
 
     /// <summary>The list of groupIds to filter.</summary>
     public List<string> GroupIds { get; set; }

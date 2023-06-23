@@ -65,7 +65,8 @@ export interface ICasesApiService {
     createDraftAdminCase(api_version?: string | undefined, body?: CreateDraftCaseRequest | undefined): Observable<string>;
     /**
      * Gets the list of all cases using the provided Indice.Types.ListOptions.
-     * @param filter_CaseListData (optional) A collection of properties to filter the cases by. It's list of FilterClause
+     * @param filter_CustomerIds (optional) The Id of the customer to filter.
+     * @param filter_CustomerNames (optional) The name of the customer to filter.
      * @param filter_From (optional) The created date of the case, starting from, to filter.
      * @param filter_To (optional) The create date of the case, ending to, to filter.
      * @param filter_CaseTypeCodes (optional) The list of case type codes to filter.
@@ -79,7 +80,7 @@ export interface ICasesApiService {
      * @param api_version (optional) 
      * @return OK
      */
-    getCases(filter_CaseListData?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet>;
+    getCases(filter_CustomerIds?: string[] | undefined, filter_CustomerNames?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet>;
     /**
      * Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
      * @param caseId The Id of the case.
@@ -1019,7 +1020,8 @@ export class CasesApiService implements ICasesApiService {
 
     /**
      * Gets the list of all cases using the provided Indice.Types.ListOptions.
-     * @param filter_CaseListData (optional) A collection of properties to filter the cases by. It's list of FilterClause
+     * @param filter_CustomerIds (optional) The Id of the customer to filter.
+     * @param filter_CustomerNames (optional) The name of the customer to filter.
      * @param filter_From (optional) The created date of the case, starting from, to filter.
      * @param filter_To (optional) The create date of the case, ending to, to filter.
      * @param filter_CaseTypeCodes (optional) The list of case type codes to filter.
@@ -1033,12 +1035,16 @@ export class CasesApiService implements ICasesApiService {
      * @param api_version (optional) 
      * @return OK
      */
-    getCases(filter_CaseListData?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet> {
+    getCases(filter_CustomerIds?: string[] | undefined, filter_CustomerNames?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet> {
         let url_ = this.baseUrl + "/api/manage/cases?";
-        if (filter_CaseListData === null)
-            throw new Error("The parameter 'filter_CaseListData' cannot be null.");
-        else if (filter_CaseListData !== undefined)
-            filter_CaseListData && filter_CaseListData.forEach(item => { url_ += "Filter.CaseListData=" + encodeURIComponent("" + item) + "&"; });
+        if (filter_CustomerIds === null)
+            throw new Error("The parameter 'filter_CustomerIds' cannot be null.");
+        else if (filter_CustomerIds !== undefined)
+            filter_CustomerIds && filter_CustomerIds.forEach(item => { url_ += "Filter.CustomerIds=" + encodeURIComponent("" + item) + "&"; });
+        if (filter_CustomerNames === null)
+            throw new Error("The parameter 'filter_CustomerNames' cannot be null.");
+        else if (filter_CustomerNames !== undefined)
+            filter_CustomerNames && filter_CustomerNames.forEach(item => { url_ += "Filter.CustomerNames=" + encodeURIComponent("" + item) + "&"; });
         if (filter_From === null)
             throw new Error("The parameter 'filter_From' cannot be null.");
         else if (filter_From !== undefined)

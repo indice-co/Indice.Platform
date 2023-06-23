@@ -1,4 +1,6 @@
 ﻿using System.Globalization;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
@@ -114,25 +116,25 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             });
 
         // filter CustomerId
-        if (options.Filter.CaseListData.Where(x => x.Member == "caseListData.customerId").Count() != 0) {
-            foreach (var clientId in options.Filter.CaseListData.Where(x => x.Member == "caseListData.customerId")) {
-                switch (clientId.Operator) {
+        if (options.Filter.CustomerIds.Any()) {
+            foreach (var customerId in options.Filter.CustomerIds) {
+                switch (customerId.Operator) {
                     case (FilterOperator.Eq):
-                        query = query.Where(c => c.CustomerId.Equals(clientId.Value));
+                        query = query.Where(c => c.CustomerId.Equals(customerId.Value));
                         break;
                     case (FilterOperator.Neq):
-                        query = query.Where(c => !c.CustomerId.Equals(clientId.Value));
+                        query = query.Where(c => !c.CustomerId.Equals(customerId.Value));
                         break;
                     case (FilterOperator.Contains):
-                        query = query.Where(c => c.CustomerId.Contains(clientId.Value));
+                        query = query.Where(c => c.CustomerId.Contains(customerId.Value));
                         break;
                 }
             }
 
         }
         // filter CustomerName
-        if(options.Filter.CaseListData.Where(x => x.Member == "caseListData.customerName").Count() != 0) {
-            foreach(var customerName in options.Filter.CaseListData.Where(x => x.Member == "caseListData.customerName")) {
+        if (options.Filter.CustomerNames.Any()) {
+            foreach (var customerName in options.Filter.CustomerNames) {
                 switch (customerName.Operator) {
                     case (FilterOperator.Eq):
                         query = query.Where(c => c.CustomerName.ToLower().Equals(customerName.Value.ToLower()));
@@ -152,16 +154,49 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         if (options.Filter.To != null) {
             query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
         }
-        // TODO What has been done for customerId and customerName will also be done for the bellow properties.
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
-        if (options.Filter.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Any()) {
-            query = query.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
+        if (options.Filter.CaseTypeCodes.Any()) {
+            foreach (var caseTypeCode in options.Filter.CaseTypeCodes) {
+                switch (caseTypeCode.Operator) {
+                    case (FilterOperator.Eq):
+                        query = query.Where(c => c.CaseType.Code.Equals(caseTypeCode.Value));
+                        break;
+                    case (FilterOperator.Neq):
+                        query = query.Where(c => !c.CaseType.Code.Equals(caseTypeCode.Value));
+                        break;
+                }
+            }
+
         }
+
         // also: filter CheckpointTypeIds
-        if (options.Filter.CheckpointTypeIds is not null && options.Filter.CheckpointTypeIds.Any()) {
-            query = query.Where(c => options.Filter.CheckpointTypeIds.Contains(c.CheckpointTypeId.ToString()));
+        if (options.Filter.CheckpointTypeIds.Any()) {
+            // Create a different expression based on the filter operator
+            var expressionsEq = options.Filter.CheckpointTypeIds
+                .Where(x => x.Operator == FilterOperator.Eq)
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointTypeId.ToString() == f.Value));
+            var expressionsNeq = options.Filter.CheckpointTypeIds
+                .Where(x => x.Operator == FilterOperator.Neq)
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointTypeId.ToString() != f.Value));
+            if (expressionsEq.Any()) {
+                // Aggregate the expressions with OR in SQL
+                var aggregatedExpressionEq = expressionsEq.Aggregate((expression, next) => {
+                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<CasePartial, bool>>(orExp, expression.Parameters);
+                });
+                query = query.Where(aggregatedExpressionEq);
+            }
+            if (expressionsNeq.Any()) {
+                // Aggregate the expression with AND in SQL
+                var aggregatedExpressionNeq = expressionsNeq.Aggregate((expression, next) => {
+                    var andExp = Expression.AndAlso(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<CasePartial, bool>>(andExp, expression.Parameters);
+                });
+                query = query.Where(aggregatedExpressionNeq);
+            }
         }
         // filter by group ID, if it is present
+        // TODO in same PR: Same filtering like the above.
         if (options.Filter.GroupIds != null && options.Filter.GroupIds.Any()) {
             query = query.Where(c => options.Filter.GroupIds.Contains(c.GroupId));
         }

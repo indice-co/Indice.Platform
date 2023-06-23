@@ -127,18 +127,20 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
 
     loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
         // TODO: More properties will be added. For now it's just a POC form the customerId and customerName.
-        let caseListData: string[] = [];
-        this.filters?.filter(f => f.member === 'customerId' || f.member === 'customerName')?.forEach(f => caseListData?.push(`caseListData.${f.member}::${f.operator}::(${f.dataType})${f.value}`))
+        let customerIds: string[] = [];
+        this.filters?.filter(f => f.member === 'customerId')?.forEach(f => customerIds.push(this.stringifyFilterClause(f)));
+        let customerNames: string[] = [];
+        this.filters?.filter(f => f.member === 'customerName')?.forEach(f => customerNames.push(this.stringifyFilterClause(f)));
         let groupIds: string[] = [];
         this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(f.value));
         let from = this.filters?.find(f => f.member === 'from')?.value;
         let to = this.filters?.find(f => f.member === 'to')?.value;
         let caseTypeCodes: string[] = [];
-        this.filters?.filter(f => f.member === 'caseTypeCodes')?.forEach(f => caseTypeCodes?.push(f.value));
+        this.filters?.filter(f => f.member === 'caseTypeCodes')?.forEach(f => caseTypeCodes?.push(this.stringifyFilterClause(f)));
         let checkpointTypeCodes: string[] = [];
-        this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(f.value));
+        this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(this.stringifyFilterClause(f)));
         let filterMetadata: string[] = [];
-        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${f.member}::eq::(${f.dataType})${f.value}`)); // this is the form that the server accepts
+        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${f.member}::${f.operator}::(${f.dataType})${f.value}`)); // this is the form that the server accepts
         this._paramsService.setParams({
             view: this.view,
             page: this.page,
@@ -150,7 +152,8 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         });
         return this._api
             .getCases(
-                caseListData,
+                customerIds,
+                customerNames,
                 from ? new Date(from) : undefined,
                 to ? new Date(to) : undefined,
                 caseTypeCodes,
@@ -179,4 +182,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         }).join(',');
     }
 
+    private stringifyFilterClause(filter: FilterClause): string {
+        return `${filter.member}::${filter.operator}::${filter.value}`;
+    }
 }
