@@ -1,0 +1,115 @@
+﻿using Indice.Features.Risk.Core.Configuration;
+
+namespace Indice.Features.Risk.Core;
+
+/// <summary>Describes the result that was created after executing all the rules registered in the system.</summary>
+public class AggregateRuleExecutionResult
+{
+    internal AggregateRuleExecutionResult(Guid transactionId, int numberOfRulesExecuted, IEnumerable<RuleExecutionResult>? results) {
+        TransactionId = transactionId;
+        NumberOfRulesExecuted = numberOfRulesExecuted;
+        Results = results ?? new List<RuleExecutionResult>();
+    }
+
+    /// <summary>The id of the transaction.</summary>
+    public Guid TransactionId { get; }
+    /// <summary>The total number of rules executed.</summary>
+    public int NumberOfRulesExecuted { get; }
+    /// <summary>The result of each individual rule run by the engine.</summary>
+    public IEnumerable<RuleExecutionResult> Results { get; } = new List<RuleExecutionResult>();
+}
+
+/// <summary>Describes the result that was calculated after executing an individual rule registered in the system.</summary>
+public class RuleExecutionResult
+{
+    /// <summary>Creates a new instance of <see cref="RuleExecutionResult"/> class.</summary>
+    /// <param name="riskLevel">The risk level that came up after a rule run by the engine.</param>
+    /// <param name="riskScore">The risk score that came up after a rule run by the engine.</param>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    internal RuleExecutionResult(RiskLevel riskLevel, int? riskScore, string? reason) {
+        if (riskScore.HasValue) {
+            var expectedRiskLevel = RiskEngineOptions.RiskLevelRangeMappingInternal.Where(x => x.Value.LowerLimit <= riskScore && riskScore <= x.Value.UpperLimit);
+            if (expectedRiskLevel is null || !expectedRiskLevel.Any()) {
+                throw new InvalidOperationException($"Risk score '{riskScore}' is not valid. Please choose a value between '{RiskEngineOptions.RiskLevelRangeMappingInternal[RiskLevel.VeryLow].LowerLimit}' " +
+                    $"and '{RiskEngineOptions.RiskLevelRangeMappingInternal[RiskLevel.VeryHigh].UpperLimit}'.");
+            }
+            if (expectedRiskLevel.First().Key != riskLevel) {
+                throw new InvalidOperationException($"Risk score '{riskScore}' is not in the range of risk level '{riskLevel}'.");
+            }
+        } else {
+            riskScore = RiskEngineOptions.RiskLevelRangeMappingInternal[riskLevel].UpperLimit;
+        }
+        RiskLevel = riskLevel;
+        RiskScore = riskScore;
+        Reason = reason;
+    }
+
+    /// <summary>The risk level that came up after a rule run by the engine.</summary>
+    public RiskLevel RiskLevel { get; }
+    /// <summary>The risk score that came up after a rule run by the engine.</summary>
+    public int? RiskScore { get; }
+    /// <summary>A reason accompanying the provided risk level.</summary>
+    public string? Reason { get; }
+    /// <summary>The name of the rule.</summary>
+    public string RuleName { get; internal set; } = string.Empty;
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryLow"/> risk level.</summary>
+    /// <param name="exactRiskScore">The risk score that came up after a rule run by the engine.</param>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult VeryLowRisk(int? exactRiskScore, string? reason) => new(RiskLevel.VeryLow, exactRiskScore, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryLow"/> risk level.</summary>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult VeryLowRisk(string? reason) => VeryLowRisk(null, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryLow"/> risk level.</summary>
+    public static RuleExecutionResult VeryLowRisk() => VeryLowRisk(null, null);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.Low"/> risk level.</summary>
+    /// <param name="exactRiskScore">The risk score that came up after a rule run by the engine.</param>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult LowRisk(int? exactRiskScore, string? reason) => new(RiskLevel.Low, exactRiskScore, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.Low"/> risk level.</summary>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult LowRisk(string? reason) => LowRisk(null, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.Low"/> risk level.</summary>
+    public static RuleExecutionResult LowRisk() => LowRisk(null, null);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.Medium"/> risk level.</summary>
+    /// <param name="exactRiskScore">The risk score that came up after a rule run by the engine.</param>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult MediumRisk(int? exactRiskScore, string? reason) => new(RiskLevel.Medium, exactRiskScore, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.Medium"/> risk level.</summary>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult MediumRisk(string? reason) => MediumRisk(null, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.Medium"/> risk level.</summary>
+    public static RuleExecutionResult MediumRisk() => MediumRisk(null, null);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.High"/> risk level.</summary>
+    /// <param name="exactRiskScore">The risk score that came up after a rule run by the engine.</param>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult HighRisk(int? exactRiskScore, string? reason) => new(RiskLevel.High, exactRiskScore, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.High"/> risk level.</summary>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult HighRisk(string? reason) => HighRisk(null, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.High"/> risk level.</summary>
+    public static RuleExecutionResult HighRisk() => HighRisk(null, null);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryHigh"/> risk level.</summary>
+    /// <param name="exactRiskScore">The risk score that came up after a rule run by the engine.</param>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult VeryHighRisk(int? exactRiskScore, string? reason) => new(RiskLevel.VeryHigh, exactRiskScore, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryHigh"/> risk level.</summary>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult VeryHighRisk(string? reason) => VeryHighRisk(null, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryHigh"/> risk level.</summary>
+    public static RuleExecutionResult VeryHighRisk() => VeryHighRisk(null, null);
+}

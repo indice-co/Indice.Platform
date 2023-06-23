@@ -149,6 +149,9 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.LoginPath = new PathString("/login");
             options.LogoutPath = new PathString("/logout");
             options.AccessDeniedPath = new PathString("/403");
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SameSite = SameSiteMode.None;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         };
         services.ConfigureApplicationCookie(AuthCookie());
         services.ConfigureExtendedValidationCookie(AuthCookie());

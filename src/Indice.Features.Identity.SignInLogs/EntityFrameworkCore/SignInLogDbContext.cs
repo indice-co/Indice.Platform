@@ -11,7 +11,7 @@ internal class SignInLogDbContext : DbContext
 {
     /// <summary>Constructs the <see cref="SignInLogDbContext"/> passing the configured options.</summary>
     /// <param name="options">The options to be used by a <see cref="SignInLogDbContext"/>.</param>
-    public SignInLogDbContext(DbContextOptions options) : base(options) {
+    public SignInLogDbContext(DbContextOptions<SignInLogDbContext> options) : base(options) {
         if (Debugger.IsAttached) {
             Database.EnsureCreated();
         }

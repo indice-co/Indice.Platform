@@ -22,7 +22,7 @@ public class ExtendedEndpointOptions
     /// <summary>Specifies a prefix for the API endpoints.</summary>
     public PathString ApiPrefix {
         get => _apiPrefix;
-        set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? "" : value; }
+        set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? string.Empty : value; }
     }
     /// <summary>Options for the SMS sent when a user updates his phone number.</summary>
     public PhoneNumberOptions PhoneNumber { get; set; } = new PhoneNumberOptions();
