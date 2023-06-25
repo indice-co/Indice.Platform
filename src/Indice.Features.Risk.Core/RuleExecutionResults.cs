@@ -19,6 +19,17 @@ public class AggregateRuleExecutionResult
     public IEnumerable<RuleExecutionResult> Results { get; } = new List<RuleExecutionResult>();
 }
 
+/// <summary>Models an event of a transaction.</summary>
+public class TransactionEventModel
+{
+    /// <summary>The unique id of the event.</summary>
+    public Guid Id { get; set; }
+    /// <summary>The name of the event.</summary>
+    public string Name { get; set; } = null!;
+    /// <summary>Timestamp regarding transaction creation.</summary>
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
 /// <summary>Describes the result that was calculated after executing an individual rule registered in the system.</summary>
 public class RuleExecutionResult
 {
@@ -28,12 +39,8 @@ public class RuleExecutionResult
     /// <param name="reason">A reason accompanying the provided risk level.</param>
     internal RuleExecutionResult(RiskLevel riskLevel, int? riskScore, string? reason) {
         if (riskScore.HasValue) {
-            var expectedRiskLevel = RiskEngineOptions.RiskLevelRangeMappingInternal.Where(x => x.Value.LowerLimit <= riskScore && riskScore <= x.Value.UpperLimit);
-            if (expectedRiskLevel is null || !expectedRiskLevel.Any()) {
-                throw new InvalidOperationException($"Risk score '{riskScore}' is not valid. Please choose a value between '{RiskEngineOptions.RiskLevelRangeMappingInternal[RiskLevel.VeryLow].LowerLimit}' " +
-                    $"and '{RiskEngineOptions.RiskLevelRangeMappingInternal[RiskLevel.VeryHigh].UpperLimit}'.");
-            }
-            if (expectedRiskLevel.First().Key != riskLevel) {
+            var expectedRiskLevel = RiskEngineOptions.RiskLevelRangeMappingInternal.GetRiskLevel(riskScore.Value);
+            if (riskLevel != expectedRiskLevel) {
                 throw new InvalidOperationException($"Risk score '{riskScore}' is not in the range of risk level '{riskLevel}'.");
             }
         } else {
@@ -45,9 +52,9 @@ public class RuleExecutionResult
     }
 
     /// <summary>The risk level that came up after a rule run by the engine.</summary>
-    public RiskLevel RiskLevel { get; }
+    public RiskLevel RiskLevel { get; internal set; }
     /// <summary>The risk score that came up after a rule run by the engine.</summary>
-    public int? RiskScore { get; }
+    public int? RiskScore { get; internal set; }
     /// <summary>A reason accompanying the provided risk level.</summary>
     public string? Reason { get; }
     /// <summary>The name of the rule.</summary>

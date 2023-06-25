@@ -164,13 +164,10 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         MfaDeviceIdentifier deviceId = null;
         if (user is User) {
-            var now = DateTime.UtcNow;
-            user.LastSignInDate = now;
-            await ExtendedUserManager.UpdateAsync(user);
             deviceId = await _mfaDeviceIdResolver.Resolve();
             var userDevice = deviceId?.Value is not null ? user.Devices?.FirstOrDefault(x => x.DeviceId == deviceId.Value) : null;
             if (userDevice is not null) {
-                userDevice.LastSignInDate = now;
+                userDevice.LastSignInDate = DateTimeOffset.UtcNow;
                 await ExtendedUserManager.UpdateDeviceAsync(user, userDevice);
             }
             if (RememberExpirationType == MfaExpirationType.Sliding) {
@@ -203,6 +200,13 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await SignInAsync(user, isPersistent, loginProvider);
         }
         return SignInResult.Success;
+    }
+
+    /// <inheritdoc/>
+    public override async Task SignInWithClaimsAsync(TUser user, AuthenticationProperties authenticationProperties, IEnumerable<Claim> additionalClaims) {
+        user.LastSignInDate = DateTimeOffset.UtcNow;
+        await ExtendedUserManager.UpdateAsync(user);
+        await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
     }
 
     /// <inheritdoc/>

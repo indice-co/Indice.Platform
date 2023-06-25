@@ -5,31 +5,26 @@ namespace Indice.Features.Risk.Core.Configuration;
 /// <summary>Options used to configure the core risk engine.</summary>
 public class RiskEngineOptions
 {
-    internal static IDictionary<RiskLevel, IntegerRange> RiskLevelRangeMappingInternal = new Dictionary<RiskLevel, IntegerRange> {
-        { RiskLevel.VeryLow, new IntegerRange(0, 200) },
-        { RiskLevel.Low, new IntegerRange(201, 400) },
-        { RiskLevel.Medium, new IntegerRange(401, 600) },
-        { RiskLevel.High, new IntegerRange(601, 800) },
-        { RiskLevel.VeryHigh, new IntegerRange(801, 1000) }
-    };
+    internal static RiskLevelRangeDictionary RiskLevelRangeMappingInternal = new(new Dictionary<RiskLevel, IntegerRange> {
+        [RiskLevel.VeryLow] = new IntegerRange(0, 200),
+        [RiskLevel.Low] = new IntegerRange(201, 400),
+        [RiskLevel.Medium] = new IntegerRange(401, 600),
+        [RiskLevel.High] = new IntegerRange(601, 800),
+        [RiskLevel.VeryHigh] = new IntegerRange(801, 1000)
+    });
 
     /// <summary>Contains the mapping between the risk level and the score.</summary>
-    public IDictionary<RiskLevel, IntegerRange> RiskLevelRangeMapping {
+    public RiskLevelRangeDictionary RiskLevelRangeMapping {
         get => RiskLevelRangeMappingInternal;
-        set => RiskLevelRangeMappingInternal = value?.Any() == true ? value.OrderBy(x => (int)x.Key).ToDictionary(x => x.Key, y => y.Value) : throw new ArgumentNullException($"{RiskLevelRangeMapping} options must be configured.");
+        set => RiskLevelRangeMappingInternal = value is not null && value.Any()
+            ? new RiskLevelRangeDictionary(value.OrderBy(x => (int)x.Key).ToDictionary(x => x.Key, y => y.Value))
+            : throw new ArgumentNullException($"{RiskLevelRangeMapping} options must be configured.");
     }
 
-    /// <summary></summary>
+    /// <summary>Validates the current instance of <see cref="RiskEngineOptions"/>.</summary>
     public RiskEngineOptionsValidationResult Validate() {
-        for (var i = 0; i < RiskLevelRangeMapping.Count; i++) {
-            if (i + 1 < RiskLevelRangeMapping.Count) {
-                var currentRange = RiskLevelRangeMapping.ElementAt(i);
-                var nextRange = RiskLevelRangeMapping.ElementAt(i + 1);
-                var isOverlapped = currentRange.Value.IsOverlapped(nextRange.Value);
-                if (isOverlapped) {
-                    return RiskEngineOptionsValidationResult.Failed($"Risk level '{currentRange}' is overlapped with '{nextRange}'.");
-                }
-            }
+        if (RiskLevelRangeMapping.ContainsOverlappingRanges(out var errorMessage)) {
+            return RiskEngineOptionsValidationResult.Failed(errorMessage);
         }
         return RiskEngineOptionsValidationResult.Success;
     }
