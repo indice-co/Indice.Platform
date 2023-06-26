@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Indice.Features.Identity.UI.Models;
+﻿namespace Indice.Features.Identity.UI.Models;
 /// <summary>Request input model for the Adding an external provider link to the profile page.</summary>
 public class LoginLinkInputModel
 {
