@@ -120,4 +120,7 @@
   <data name="The external login was added." xml:space="preserve">
     <value>Ο εξωτερικός λογαριασμός προστέθηκε στο προφίλ με επιτυχία</value>
   </data>
+  <data name="The external login was removed." xml:space="preserve">
+    <value>Ο εξωτερικός λογαριασμός αποσυνδέθηκε από το προφίλ.</value>
+  </data>
 </root>
