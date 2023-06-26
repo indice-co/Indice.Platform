@@ -74,9 +74,9 @@ public abstract class BaseProfileModel : BasePageModel
         AddModelErrors(result);
         result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.BirthDate, Input.BirthDate.HasValue ? $"{Input.BirthDate:yyyy-MM-dd}" : string.Empty);
         AddModelErrors(result);
-        result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommencial, Input.ConsentCommercial ? bool.TrueString.ToLower() : bool.FalseString.ToLower());
+        result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommercial, Input.ConsentCommercial ? bool.TrueString.ToLower() : bool.FalseString.ToLower());
         AddModelErrors(result);
-        result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommencialDate, $"{DateTime.UtcNow:O}");
+        result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommercialDate, $"{DateTime.UtcNow:O}");
         AddModelErrors(result);
         if (user.NormalizedEmail != Input.Email?.Trim().ToUpper()) {
             EmailChangeRequested = true;
@@ -111,7 +111,7 @@ public abstract class BaseProfileModel : BasePageModel
         var otherLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync())
             .Where(scheme => currentLogins.All(loginInfo => scheme.Name != loginInfo.LoginProvider))
             .ToList();
-        var consentDateText = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ConsentCommencialDate)?.Value;
+        var consentDateText = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ConsentCommercialDate)?.Value;
         var consentDate = new DateTime?();
         if (consentDateText != null && DateTime.TryParse(consentDateText, out date)) {
             consentDate = date;
@@ -119,7 +119,7 @@ public abstract class BaseProfileModel : BasePageModel
         return new ProfileViewModel {
             BirthDate = birthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
-            ConsentCommercial = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ConsentCommencial)?.Value == bool.TrueString.ToLower(),
+            ConsentCommercial = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.ConsentCommercial)?.Value == bool.TrueString.ToLower(),
             ConsentCommercialDate = consentDate,
             CurrentLogins = currentLogins,
             DeveloperTotp = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.DeveloperTotp)?.Value,

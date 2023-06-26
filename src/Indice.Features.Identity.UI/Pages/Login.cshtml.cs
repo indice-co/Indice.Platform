@@ -146,7 +146,7 @@ public abstract class BaseLoginModel : BasePageModel
                 // Request for a local page.
                 if (string.IsNullOrEmpty(Input.ReturnUrl)) {
                     return Redirect("/");
-                } else if (Interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl) || UiOptions.IsValidReturnUrl(Input.ReturnUrl)) {
+                } else if (IsValidReturnUrl(Input.ReturnUrl)) {
                     return Redirect(Input.ReturnUrl);
                 } else {
                     // User might have clicked on a malicious link - should be logged.
@@ -155,7 +155,7 @@ public abstract class BaseLoginModel : BasePageModel
                 }
             }
             if (result.IsLockedOut) {
-                Logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsAttemts} unsuccessful login attempts.", UserName, user?.AccessFailedCount);
+                Logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsAttempts} unsuccessful login attempts.", UserName, user?.AccessFailedCount);
                 await Events.RaiseAsync(new UserLoginFailureEvent(Input.UserName, "User locked out."));
                 ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
             }

@@ -3,7 +3,7 @@ using MiniValidation;
 
 namespace Indice.AspNetCore.Http.Validation;
 
-/// <summary>An abstraction over the endpoint input validation. (used to be called ModelState validation)</summary>
+/// <summary>An abstraction over the endpoint input validation (used to be called ModelState validation).</summary>
 public interface IEndpointParameterValidator
 {
     /// <summary>Validates a given parameter.</summary>
