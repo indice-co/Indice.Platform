@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Server;
-using Indice.Features.Risk.Server.Commands;
+using Indice.Features.Risk.Server.Models;
 using Indice.Features.Risk.Server.Validators;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -29,7 +29,7 @@ public static class IServiceCollectionExtensions
             options.AuthenticationScheme = riskApiOptions.AuthenticationScheme;
         });
         services.AddEndpointParameterFluentValidation();
-        services.AddScoped<IValidator<CreateTransactionEventCommand>, CreateTransactionEventCommandValidator<TTransaction>>();
+        services.AddScoped<IValidator<CreateTransactionEventRequest>, CreateTransactionEventCommandValidator<TTransaction>>();
         return services;
     }
 
