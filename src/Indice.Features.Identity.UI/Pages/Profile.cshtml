@@ -144,8 +144,8 @@
                     </div>
                     <div class="col-sm-3">
                         <form asp-page-handler="RemoveLogin" method="post" class="inline">
-                            <input asp-for="@provider.LoginProvider" name="@nameof(provider.LoginProvider)" type="hidden" />
-                            <input asp-for="@provider.ProviderKey" name="@nameof(provider.ProviderKey)" type="hidden" />
+                            <input asp-for="InputLoginLink.LoginProvider" type="hidden" />
+                            <input asp-for="InputLoginLink.ProviderKey" type="hidden" />
                             <button type="submit" class="btn btn-remove remove-idp btn-md" disabled="@(!Model.View.CanRemoveProvider)">@Localizer["Remove"]</button>
                         </form>
                     </div>

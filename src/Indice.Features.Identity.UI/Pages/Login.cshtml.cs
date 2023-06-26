@@ -24,7 +24,6 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseLoginModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseLoginModel> _localizer;
 
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
@@ -45,7 +44,7 @@ public abstract class BaseLoginModel : BasePageModel
         IEventService events,
         IIdentityServerInteractionService interaction,
         ILogger<BaseLoginModel> logger,
-        IStringLocalizer<BaseLoginModel> localizer,
+        IStringLocalizer localizer,
         IOptions<IdentityUIOptions> identityUiOptions
     ) : base() {
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
@@ -56,7 +55,7 @@ public abstract class BaseLoginModel : BasePageModel
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
     }
 
     /// <summary>Retrieval of client configuration.</summary>
@@ -74,7 +73,9 @@ public abstract class BaseLoginModel : BasePageModel
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
     /// <summary>Configuration options for Identity UI.</summary>
-    protected IdentityUIOptions IdentityUIOptions { get; set; }
+    protected IdentityUIOptions IdentityUIOptions { get; }
+    /// <summary>Login String Localizer.</summary>
+    protected IStringLocalizer Localizer { get; }
     /// <summary>The current principal's username.</summary>
     public string? UserName => User.FindFirstValue(JwtClaimTypes.Name);
     /// <summary>Login view model.</summary>
@@ -166,9 +167,9 @@ public abstract class BaseLoginModel : BasePageModel
             }
             Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", UserName);
             await Events.RaiseAsync(new UserLoginFailureEvent(Input.UserName, "Invalid credentials."));
-            ModelState.AddModelError(string.Empty, _localizer["Please check your credentials."]);
+            ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
         } else {
-            ModelState.AddModelError(string.Empty, _localizer["Please check your credentials."]);
+            ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
         }
         // Something went wrong, show form with error.
         View = await BuildLoginViewModelAsync(Input);
