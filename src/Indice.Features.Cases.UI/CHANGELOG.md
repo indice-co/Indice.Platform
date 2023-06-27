@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Example to ovveride default el.json file
 ```cs
 app.UseCasesUI(options => {
-    // This is the absolute path to the folder tha contains the el.json
+    // This is the absolute path to the folder that contains the el.json
     options.I18nAssets = "/assets/cases/i18n";
 });
 ```
