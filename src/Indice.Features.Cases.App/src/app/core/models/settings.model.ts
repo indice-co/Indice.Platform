@@ -5,6 +5,7 @@ export interface IAppSettings {
     isTemplate: boolean,
     production: boolean;
     version: string;
+    canvases: string;
 }
 
 export interface IAuthSettings {

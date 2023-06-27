@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '';
+    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '', canvases = '';
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -14,6 +14,7 @@ function createAppSettings(): IAppSettings {
         version = appRoot.getAttribute('version') || '';
         scopes = appRoot.getAttribute('scopes') || '';
         apiUrl = appRoot.getAttribute('apiUrl') || '';
+        canvases = appRoot.getAttribute('canvases') || '';
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -25,6 +26,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('version');
         appRoot.attributes.removeNamedItem('scopes');
         appRoot.attributes.removeNamedItem('apiUrl');
+        appRoot.attributes.removeNamedItem('canvases');
     }
     return {
         api_url: !isTemplate ? environment.api_url : apiUrl,
@@ -50,7 +52,8 @@ function createAppSettings(): IAppSettings {
         culture: !isTemplate ? environment.culture : culture,
         isTemplate: environment.isTemplate,
         production: environment.production,
-        version: version || '1.0.0'
+        version: version || '1.0.0',
+        canvases: !isTemplate ? environment.canvases : canvases
     };
 }
 

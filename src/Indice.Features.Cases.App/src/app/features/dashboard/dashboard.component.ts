@@ -3,6 +3,7 @@ import { AuthService } from '@indice/ng-auth';
 import { HeaderMetaItem } from '@indice/ng-components';
 import { User } from 'oidc-client';
 import { Subscription } from 'rxjs';
+import { settings } from 'src/app/core/models/settings';
 import { ReportTag } from 'src/app/core/services/cases-api.service';
 
 @Component({
@@ -15,6 +16,7 @@ export class DashboardComponent implements OnInit {
     public isAdmin: boolean | undefined;
     public userSub$: Subscription | null = null;
     public reportTag = ReportTag;
+    public canvases: string[] = [];
 
     constructor(@Inject(AuthService) private authService: AuthService) { }
 
@@ -31,6 +33,12 @@ export class DashboardComponent implements OnInit {
             this.isAdmin = this.authService.isAdmin();
         });
         this.metaItems = [];
+        this.canvases = settings.canvases.split(',');
     }
 
+    showCanvas(id: string) {
+        return settings.canvases === ''
+            ? true
+            : this.canvases.find(canvas => canvas === id);
+    }
 }
