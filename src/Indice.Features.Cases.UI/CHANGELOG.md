@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- Added the ability to control which canvases should be enabled for the dashboard
+> Example enabling only two canvases
+```cs
+app.UseCasesUI(options => {
+    options.Canvases = new List<string>() {
+        "GroupedByCasetype",
+        "GroupedByStatus"
+    };
+});
+```
+
 ## [7.1.8] - 2023-05-26
 ## Bugfix
 - CaseForm now allows empty layout and shows json schema correctly
