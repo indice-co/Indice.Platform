@@ -6,7 +6,7 @@
                 {{title}}
             </h3>
             <p class="text-s leading-none text-grey-dark mb-2"
-               *ngFor="let model of keyValuePairs | keyvalue">{{model.key}} {{ model.value }}</p>
+               *ngFor="let model of keyValuePairs | keyvalue">{{model.key | translate}} {{ model.value }}</p>
         </div>
     </div>
 </div>

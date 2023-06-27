@@ -1,0 +1,38 @@
+{
+  "dashboard": {
+    "groupedByCasetype": "Συνολικες Αιτησεις ανα Τυπο Αιτησης",
+    "agentGroupedByCasetype": "Αιτησεις απο Καταστημα ανα Τυπο Αιτησης",
+    "customerGroupedByCasetype": "Αιτησεις μεσω eBanking ανα Τυπο Αιτησης",
+    "groupedByStatus": "Συνολικες Αιτησεις ανα Status",
+    "agentGroupedByStatus": "Αιτησεις απο Καταστημα ανα Status",
+    "customerGroupedByStatus": "Αιτησεις μεσω eBanking ανα Status",
+    "groupedByGroupId": "Συνολικες Αιτησεις ανα Καταστημα"
+  },
+  "cases": {
+    "customerId": "ΑΡΙΘΜΟΣ ΠΕΛΑΤΗ",
+    "customerName": "ΟΝΟΜΑ ΠΕΛΑΤΗ",
+    "taxId": "Α.Φ.Μ.",
+    "groupId": "ΚΑΤΑΣΤΗΜΑ",
+    "caseType": "ΤΥΠΟΣ ΑΙΤΗΣΗΣ",
+    "checkpoint": "ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ",
+    "assignedTo": "ΑΝΑΘΕΣΗ ΣΕ",
+    "submitDate": "ΗΜ. ΥΠΟΒΟΛΗΣ",
+    "choose": "Επιλογή"
+  },
+  "caseDetails": {
+    "caseId": "Κωδικός Αίτησης:",
+    "submitDate": "Ημ. Υποβολής:",
+    "caseType": "Τύπος Αίτησης:",
+    "channel": "Κανάλι:",
+    "checkpoint": "Τρέχον Σημείο Ελέγχου:",
+    "assignedTo": "Ανάθεση σε:",
+    "customerId": "Κωδικός Πελάτη:",
+    "customerName": "Όνομα Πελάτη:",
+    "taxId": "Α.Φ.Μ. Πελάτη:",
+    "groupId": "Κατάστημα Πελάτη:",
+    "userSurname": "Επώνυμο Χρήστη:",
+    "userFirstName": "Όνομα Χρήστη:",
+    "userRole": "Ρόλος Χρήστη:",
+    "userCustomerId": "ΑΠ Χρήστη:"
+  }
+}
