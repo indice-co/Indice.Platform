@@ -26,6 +26,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('version');
         appRoot.attributes.removeNamedItem('scopes');
         appRoot.attributes.removeNamedItem('apiUrl');
+        appRoot.attributes.removeNamedItem('i18nAssets');
     }
     return {
         api_url: !isTemplate ? environment.api_url : apiUrl,
