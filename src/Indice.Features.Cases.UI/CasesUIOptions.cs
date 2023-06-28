@@ -20,7 +20,7 @@ public class CasesUIOptions : SpaUIOptions
         ConfigureIndexParameters = args => {
             args[$"%({nameof(ApiUrl)})"] = ApiUrl;
             args[$"%({nameof(Lang)})"] = Lang;
-            args[$"%({nameof(DashboardTags)})"] = DashboardTags?.Count is 0 ? null : string.Join(',', DashboardTags);
+            args[$"%({nameof(DashboardTags)})"] = DashboardTags?.Count > 0 ? string.Join(',', DashboardTags) : null;
         };
     }
 }

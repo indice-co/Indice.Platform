@@ -16,7 +16,15 @@ export class DashboardComponent implements OnInit {
     public isAdmin: boolean | undefined;
     public userSub$: Subscription | null = null;
     public reportTag = ReportTag;
-    public dashboardTags: string[] = [];
+    public tiles = new Map<string, boolean>([
+        [ReportTag.GroupedByCasetype, true],
+        [ReportTag.AgentGroupedByCasetype, true],
+        [ReportTag.CustomerGroupedByCasetype, true],
+        [ReportTag.GroupedByStatus, true],
+        [ReportTag.AgentGroupedByStatus, true],
+        [ReportTag.CustomerGroupedByStatus, true],
+        [ReportTag.GroupedByGroupId, true],
+    ]);
 
     constructor(@Inject(AuthService) private authService: AuthService) { }
 
@@ -33,12 +41,10 @@ export class DashboardComponent implements OnInit {
             this.isAdmin = this.authService.isAdmin();
         });
         this.metaItems = [];
-        this.dashboardTags = settings.dashboardTags.split(',');
-    }
 
-    showCanvas(id: string) {
-        return settings.dashboardTags === ''
-            ? true
-            : this.dashboardTags.find(canvas => canvas === id);
+        if (settings.dashboardTags !== '') {
+            this.tiles.forEach((value, tag) => this.tiles.set(tag, false));
+            settings.dashboardTags.split(',').forEach(tag => this.tiles.set(tag, true));
+        }
     }
 }
