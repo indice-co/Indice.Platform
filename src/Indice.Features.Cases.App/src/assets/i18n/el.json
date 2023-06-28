@@ -20,19 +20,19 @@
     "choose": "Επιλογή"
   },
   "caseDetails": {
-    "caseId": "Κωδικός Αίτησης:",
-    "submitDate": "Ημ. Υποβολής:",
-    "caseType": "Τύπος Αίτησης:",
-    "channel": "Κανάλι:",
-    "checkpoint": "Τρέχον Σημείο Ελέγχου:",
-    "assignedTo": "Ανάθεση σε:",
-    "customerId": "Κωδικός Πελάτη:",
-    "customerName": "Όνομα Πελάτη:",
-    "taxId": "Α.Φ.Μ. Πελάτη:",
-    "groupId": "Κατάστημα Πελάτη:",
-    "userSurname": "Επώνυμο Χρήστη:",
-    "userFirstName": "Όνομα Χρήστη:",
-    "userRole": "Ρόλος Χρήστη:",
-    "userCustomerId": "ΑΠ Χρήστη:"
+    "caseId": "Κωδικός Αίτησης",
+    "submitDate": "Ημ. Υποβολής",
+    "caseType": "Τύπος Αίτησης",
+    "channel": "Κανάλι",
+    "checkpoint": "Τρέχον Σημείο Ελέγχου",
+    "assignedTo": "Ανάθεση σε",
+    "customerId": "Κωδικός Πελάτη",
+    "customerName": "Όνομα Πελάτη",
+    "taxId": "Α.Φ.Μ. Πελάτη",
+    "groupId": "Κατάστημα Πελάτη",
+    "userSurname": "Επώνυμο Χρήστη",
+    "userFirstName": "Όνομα Χρήστη",
+    "userRole": "Ρόλος Χρήστη",
+    "userCustomerId": "ΑΠ Χρήστη"
   }
 }
