@@ -14,7 +14,7 @@
     "taxId": "Α.Φ.Μ.",
     "groupId": "ΚΑΤΑΣΤΗΜΑ",
     "caseType": "ΤΥΠΟΣ ΑΙΤΗΣΗΣ",
-    "checkpoint": "ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ",
+    "checkpointType": "ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ",
     "assignedTo": "ΑΝΑΘΕΣΗ ΣΕ",
     "submitDate": "ΗΜ. ΥΠΟΒΟΛΗΣ",
     "choose": "Επιλογή"
