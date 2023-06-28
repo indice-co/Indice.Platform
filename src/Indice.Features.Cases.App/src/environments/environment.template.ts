@@ -18,5 +18,5 @@ export const environment = {
     culture: '',
     isTemplate: true,
     production: true,
-    canvases: ''
+    dashboardTags: ''
 };

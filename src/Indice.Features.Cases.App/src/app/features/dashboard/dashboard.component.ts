@@ -16,7 +16,7 @@ export class DashboardComponent implements OnInit {
     public isAdmin: boolean | undefined;
     public userSub$: Subscription | null = null;
     public reportTag = ReportTag;
-    public canvases: string[] = [];
+    public dashboardTags: string[] = [];
 
     constructor(@Inject(AuthService) private authService: AuthService) { }
 
@@ -33,12 +33,12 @@ export class DashboardComponent implements OnInit {
             this.isAdmin = this.authService.isAdmin();
         });
         this.metaItems = [];
-        this.canvases = settings.canvases.split(',');
+        this.dashboardTags = settings.dashboardTags.split(',');
     }
 
     showCanvas(id: string) {
-        return settings.canvases === ''
+        return settings.dashboardTags === ''
             ? true
-            : this.canvases.find(canvas => canvas === id);
+            : this.dashboardTags.find(canvas => canvas === id);
     }
 }

@@ -5,7 +5,7 @@ export interface IAppSettings {
     isTemplate: boolean,
     production: boolean;
     version: string;
-    canvases: string;
+    dashboardTags: string;
 }
 
 export interface IAuthSettings {

@@ -19,5 +19,5 @@ export const environment = {
   culture: 'el-GR',
   isTemplate: false,
   production: true,
-  canvases: ''
+  dashboardTags: ''
 };

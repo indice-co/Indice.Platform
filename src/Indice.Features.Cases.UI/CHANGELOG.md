@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Added the ability to control which canvases should be enabled for the dashboard
+- Added the ability to control which canvases (dashboardTags) should be enabled for the dashboard
 > Example enabling only two canvases
 ```cs
 app.UseCasesUI(options => {
-    options.Canvases = new List<string>() {
+    options.DashboardTags = new List<string>() {
         "GroupedByCasetype",
         "GroupedByStatus"
     };

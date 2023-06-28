@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '', canvases = '';
+    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '', dashboardTags = '';
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -14,7 +14,7 @@ function createAppSettings(): IAppSettings {
         version = appRoot.getAttribute('version') || '';
         scopes = appRoot.getAttribute('scopes') || '';
         apiUrl = appRoot.getAttribute('apiUrl') || '';
-        canvases = appRoot.getAttribute('canvases') || '';
+        dashboardTags = appRoot.getAttribute('dashboardTags') || '';
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -26,7 +26,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('version');
         appRoot.attributes.removeNamedItem('scopes');
         appRoot.attributes.removeNamedItem('apiUrl');
-        appRoot.attributes.removeNamedItem('canvases');
+        appRoot.attributes.removeNamedItem('dashboardTags');
     }
     return {
         api_url: !isTemplate ? environment.api_url : apiUrl,
@@ -53,7 +53,7 @@ function createAppSettings(): IAppSettings {
         isTemplate: environment.isTemplate,
         production: environment.production,
         version: version || '1.0.0',
-        canvases: !isTemplate ? environment.canvases : canvases
+        dashboardTags: !isTemplate ? environment.dashboardTags : dashboardTags
     };
 }
 
