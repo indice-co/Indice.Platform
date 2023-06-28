@@ -9,14 +9,14 @@
     "groupedByGroupId": "Συνολικες Αιτησεις ανα Καταστημα"
   },
   "cases": {
-    "customerId": "ΑΡΙΘΜΟΣ ΠΕΛΑΤΗ",
-    "customerName": "ΟΝΟΜΑ ΠΕΛΑΤΗ",
+    "customerId": "Αριθμός Πελάτη",
+    "customerName": "Όνομα Πελάτη",
     "taxId": "Α.Φ.Μ.",
-    "groupId": "ΚΑΤΑΣΤΗΜΑ",
-    "caseType": "ΤΥΠΟΣ ΑΙΤΗΣΗΣ",
-    "checkpointType": "ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ",
-    "assignedTo": "ΑΝΑΘΕΣΗ ΣΕ",
-    "submitDate": "ΗΜ. ΥΠΟΒΟΛΗΣ",
+    "groupId": "Κατάστημα",
+    "caseType": "Τύπος Αίτησης",
+    "checkpointType": "Σημείο Ελέγχου",
+    "assignedTo": "Ανάθεση σε",
+    "submitDate": "Ημ. Υποβολής",
     "choose": "Επιλογή"
   },
   "caseDetails": {
