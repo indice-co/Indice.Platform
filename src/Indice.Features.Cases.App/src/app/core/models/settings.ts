@@ -14,7 +14,7 @@ function createAppSettings(): IAppSettings {
         version = appRoot.getAttribute('version') || '';
         scopes = appRoot.getAttribute('scopes') || '';
         apiUrl = appRoot.getAttribute('apiUrl') || '';
-        i18nAssets = appRoot.getAttribute('i18nAssets') || '/assets/i18n/';
+        i18nAssets = appRoot.getAttribute('i18nAssets') || baseHref + '/assets/i18n/';
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }

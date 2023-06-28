@@ -10,11 +10,11 @@
                             <app-case-detail-info [title]="'Βασικά στοιχεία αίτησης'"
                                                   [keyValuePairs]="{
                                                     'caseDetails.caseId': model?.id,
-                                                    'caseDetails.submitDate`': model?.createdByWhen | date:'dd/MM/YYYY',
-                                                    'caseDetails.caseType`':model?.caseType?.title,
-                                                    'caseDetails.channel`':model?.channel,
-                                                    'caseDetails.checkpoint`':model?.checkpointTypeCode,
-                                                    'caseDetails.assignedTo`':model?.assignedToName || ' - '}">
+                                                    'caseDetails.submitDate': model?.createdByWhen | date:'dd/MM/YYYY',
+                                                    'caseDetails.caseType':model?.caseType?.title,
+                                                    'caseDetails.channel':model?.channel,
+                                                    'caseDetails.checkpoint':model?.checkpointTypeCode,
+                                                    'caseDetails.assignedTo':model?.assignedToName || ' - '}">
                             </app-case-detail-info>
 
                             <app-case-detail-info [title]="'Στοιχεία Πελάτη'"
