@@ -132,7 +132,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         let customerNames: string[] = [];
         this.filters?.filter(f => f.member === 'customerName')?.forEach(f => customerNames.push(this.stringifyFilterClause(f)));
         let groupIds: string[] = [];
-        this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(f.value));
+        this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(this.stringifyFilterClause(f)));
         let from = this.filters?.find(f => f.member === 'from')?.value;
         let to = this.filters?.find(f => f.member === 'to')?.value;
         let caseTypeCodes: string[] = [];

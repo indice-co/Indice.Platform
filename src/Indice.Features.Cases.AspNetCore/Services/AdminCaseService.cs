@@ -82,16 +82,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<ResultSet<CasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetCasesListFilter> options) {
-        // TODO: not crazy about this one
-        // if a CaseAuthorizationService down the line wants to 
-        // not allow a user to see the list of case, it throws a ResourceUnauthorizedException
-        // which we catch and return an empty resultset. 
-        try {
-            options.Filter = await _roleCaseTypeProvider.Filter(user, options.Filter);
-        } catch (ResourceUnauthorizedException) {
-            return new List<CasePartial>().ToResultSet();
-        }
-
         var query = _dbContext.Cases
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
@@ -114,6 +104,16 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 CheckpointTypeCode = @case.Checkpoint.CheckpointType.Code,
                 AssignedToName = @case.AssignedTo.Name
             });
+
+        // TODO: not crazy about this one
+        // if a CaseAuthorizationService down the line wants to 
+        // not allow a user to see the list of case, it throws a ResourceUnauthorizedException
+        // which we catch and return an empty resultset. 
+        try {
+            query = await _roleCaseTypeProvider.GetCaseMembership(query, user);
+        } catch (ResourceUnauthorizedException) {
+            return new List<CasePartial>().ToResultSet();
+        }
 
         // filter CustomerId
         if (options.Filter.CustomerIds.Any()) {
@@ -156,17 +156,34 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
         if (options.Filter.CaseTypeCodes.Any()) {
-            foreach (var caseTypeCode in options.Filter.CaseTypeCodes) {
-                switch (caseTypeCode.Operator) {
-                    case (FilterOperator.Eq):
-                        query = query.Where(c => c.CaseType.Code.Equals(caseTypeCode.Value));
-                        break;
-                    case (FilterOperator.Neq):
-                        query = query.Where(c => !c.CaseType.Code.Equals(caseTypeCode.Value));
-                        break;
-                }
+            // Create a different expression based on the filter operator
+            var expressionsEq = options.Filter.CaseTypeCodes
+                .Where(x => x.Operator == FilterOperator.Eq)
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CaseType.Code == f.Value));
+            var expressionsNeq = options.Filter.CaseTypeCodes
+                .Where(x => x.Operator == FilterOperator.Neq)
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CaseType.Code != f.Value));
+            if (expressionsEq.Any()) {
+                // Aggregate the expressions with OR in SQL
+                var aggregatedExpressionEq = expressionsEq.Aggregate((expression, next) => {
+                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<CasePartial, bool>>(orExp, expression.Parameters);
+                });
+                query = query.Where(aggregatedExpressionEq);
             }
+            if (expressionsNeq.Any()) {
+                // Aggregate the expression with AND in SQL
+                var aggregatedExpressionNeq = expressionsNeq.Aggregate((expression, next) => {
+                    var andExp = Expression.AndAlso(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<CasePartial, bool>>(andExp, expression.Parameters);
+                });
+                query = query.Where(aggregatedExpressionNeq);
+            }
+        }
 
+        // if we have Filter.CheckpointTypeCodes from the client, we have to map them to the correct checkpoint types for the filter to work
+        if (options.Filter.CheckpointTypeCodes.Any()) {
+            options.Filter.CheckpointTypeIds = await MapCheckpointTypeCodeToId(options.Filter.CheckpointTypeCodes);
         }
 
         // also: filter CheckpointTypeIds
@@ -196,9 +213,20 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             }
         }
         // filter by group ID, if it is present
-        // TODO in same PR: Same filtering like the above.
-        if (options.Filter.GroupIds != null && options.Filter.GroupIds.Any()) {
-            query = query.Where(c => options.Filter.GroupIds.Contains(c.GroupId));
+        if (options.Filter.GroupIds.Any()) {
+            foreach (var groupId in options.Filter.GroupIds) {
+                switch (groupId.Operator) {
+                    case (FilterOperator.Eq):
+                        query = query.Where(c => c.GroupId.Equals(groupId.Value));
+                        break;
+                    case (FilterOperator.Neq):
+                        query = query.Where(c => !c.GroupId.Equals(groupId.Value));
+                        break;
+                    case (FilterOperator.Contains):
+                        query = query.Where(c => c.GroupId.Contains(groupId.Value));
+                        break;
+                }
+            }
         }
         // sorting option
         if (string.IsNullOrEmpty(options?.Sort)) {
@@ -362,4 +390,24 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         return timeline;
     }
+
+    private async Task<List<FilterClause>> MapCheckpointTypeCodeToId(List<FilterClause> checkpointTypeCodeFilterClauses) {
+        var checkpointTypeCodes = checkpointTypeCodeFilterClauses.Select(f => f.Value).ToList();
+        var checkpointTypeIds = new List<FilterClause>();
+        var filteredCheckpointTypesList = await _dbContext.CheckpointTypes
+                .AsQueryable()
+                .Where(checkpointType => checkpointTypeCodes.Contains(checkpointType.Code))
+                .ToListAsync();
+        foreach (var checkpointType in filteredCheckpointTypesList) {
+            // find the checkpoint type that matches the checkpoint type code given in the parameters
+            if (checkpointTypeCodeFilterClauses.Select(f => f.Value).Contains(checkpointType.Code)) {
+                var checkpointTypeOperator = checkpointTypeCodeFilterClauses.FirstOrDefault(f => f.Value == checkpointType.Code).Operator;
+                // create a new FilterClause object that holds the Id but also the operator
+                var newCheckpointTypeIdFilterClause = new FilterClause("checkpointTypeId", checkpointType.Id.ToString(), checkpointTypeOperator, JsonDataType.String);
+                checkpointTypeIds.Add(newCheckpointTypeIdFilterClause);
+            }
+        }
+        return checkpointTypeIds;
+    }
+
 }

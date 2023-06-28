@@ -19,11 +19,19 @@ internal interface ICaseAuthorizationProvider
     /// <param name="user">The user.</param>
     /// <param name="filter">The filter to apply.</param>
     /// <returns></returns>
-    public Task<GetCasesListFilter> Filter(ClaimsPrincipal user, GetCasesListFilter filter);
+    public Task<GetCasesListFilter> FilterReport(ClaimsPrincipal user, GetCasesListFilter filter);
 
     /// <summary>Validates that a user is authorized against a list of <see cref="ICaseAuthorizationService"/> for a <see cref="Case"/>.</summary>
     /// <param name="user">The user.</param>
     /// <param name="case">The case.</param>
     /// <returns></returns>
     public Task<bool> IsValid(ClaimsPrincipal user, Case @case);
+
+    /// <summary>
+    /// Return an IQueryable of CasePartials based on the role of the user
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="queryable"></param>
+    /// <returns></returns>
+    public Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> queryable, ClaimsPrincipal user);
 }

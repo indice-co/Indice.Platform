@@ -31,7 +31,7 @@ public class GetCasesListFilter
     public List<FilterClause> CheckpointTypeCodes { get; set; } = new List<FilterClause>();
 
     /// <summary>The list of groupIds to filter.</summary>
-    public List<string> GroupIds { get; set; }
+    public List<FilterClause> GroupIds { get; set; } = new List<FilterClause>();
 
     /// <summary>Construct filter clauses based on the metadata you are adding to the cases in your installation.</summary>
     public List<FilterClause> Metadata { get; set; }

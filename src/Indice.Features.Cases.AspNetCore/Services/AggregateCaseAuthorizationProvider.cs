@@ -13,11 +13,18 @@ internal class AggregateCaseAuthorizationProvider : ICaseAuthorizationProvider
         _caseAuthorizationServices = listOfServices ?? throw new ArgumentNullException(nameof(listOfServices));
     }
 
-    public async Task<GetCasesListFilter> Filter(ClaimsPrincipal user, GetCasesListFilter filter) {
+    public async Task<GetCasesListFilter> FilterReport(ClaimsPrincipal user, GetCasesListFilter filter) {
         foreach (var authorizationService in _caseAuthorizationServices) {
-            filter = await authorizationService.ApplyFilterFor(user, filter);
+            filter = await authorizationService.ApplyFilterForReport(user, filter);
         }
         return filter;
+    }
+
+    public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> queryable, ClaimsPrincipal user) {
+        foreach (var authorizationService in _caseAuthorizationServices) {
+            queryable = await authorizationService.GetCaseMembership(queryable, user);
+        }
+        return queryable;
     }
 
     public async Task<bool> IsValid(ClaimsPrincipal user, Case @case) {

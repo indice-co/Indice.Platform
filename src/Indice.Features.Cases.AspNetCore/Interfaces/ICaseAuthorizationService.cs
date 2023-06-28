@@ -17,7 +17,7 @@ public interface ICaseAuthorizationService
     /// <param name="user"></param>
     /// <param name="filter"></param>
     /// <returns></returns>
-    public Task<GetCasesListFilter> ApplyFilterFor(ClaimsPrincipal user, GetCasesListFilter filter);
+    public Task<GetCasesListFilter> ApplyFilterForReport(ClaimsPrincipal user, GetCasesListFilter filter);
 
     /// <summary>
     /// When a caseId is requested, it must return true in order to reach the 
@@ -27,4 +27,12 @@ public interface ICaseAuthorizationService
     /// <param name="case">The case.</param>
     /// <returns></returns>
     public Task<bool> IsValid(ClaimsPrincipal user, Case @case);
+
+    /// <summary>
+    /// Return an IQueryable of CasePartials based on the role of the user
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="queryable"></param>
+    /// <returns></returns>
+    public Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> queryable, ClaimsPrincipal user);
 }
