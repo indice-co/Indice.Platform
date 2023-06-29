@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 
 namespace Indice.Features.Cases.Services;
@@ -13,18 +12,11 @@ internal class AggregateCaseAuthorizationProvider : ICaseAuthorizationProvider
         _caseAuthorizationServices = listOfServices ?? throw new ArgumentNullException(nameof(listOfServices));
     }
 
-    public async Task<GetCasesListFilter> FilterReport(ClaimsPrincipal user, GetCasesListFilter filter) {
+    public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, ClaimsPrincipal user) {
         foreach (var authorizationService in _caseAuthorizationServices) {
-            filter = await authorizationService.ApplyFilterForReport(user, filter);
+            cases = await authorizationService.GetCaseMembership(cases, user);
         }
-        return filter;
-    }
-
-    public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> queryable, ClaimsPrincipal user) {
-        foreach (var authorizationService in _caseAuthorizationServices) {
-            queryable = await authorizationService.GetCaseMembership(queryable, user);
-        }
-        return queryable;
+        return cases;
     }
 
     public async Task<bool> IsValid(ClaimsPrincipal user, Case @case) {

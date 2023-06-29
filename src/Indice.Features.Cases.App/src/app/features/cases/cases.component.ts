@@ -126,7 +126,6 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
     }
 
     loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
-        // TODO: More properties will be added. For now it's just a POC form the customerId and customerName.
         let customerIds: string[] = [];
         this.filters?.filter(f => f.member === 'customerId')?.forEach(f => customerIds.push(this.stringifyFilterClause(f)));
         let customerNames: string[] = [];
@@ -140,7 +139,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         let checkpointTypeCodes: string[] = [];
         this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(this.stringifyFilterClause(f)));
         let filterMetadata: string[] = [];
-        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${f.member}::${f.operator}::(${f.dataType})${f.value}`)); // this is the form that the server accepts
+        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`)); // this is the form that the server accepts
         this._paramsService.setParams({
             view: this.view,
             page: this.page,

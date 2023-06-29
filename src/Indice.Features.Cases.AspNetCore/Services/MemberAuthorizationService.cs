@@ -25,36 +25,32 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
     }
-
-    /// <summary>Applies Filters to the Dashboard menu in relation to user's role(s)</summary>
+    /// <summary>
+    /// In the case of a non admin user. Apply extra Where clauses to the IQueryable based on their roles.
+    /// </summary>
+    /// <param name="cases"></param>
     /// <param name="user"></param>
-    /// <param name="filter"></param>
-    public async Task<GetCasesListFilter> ApplyFilterForReport(ClaimsPrincipal user, GetCasesListFilter filter) {
-        if (filter is null) {
-            throw new ArgumentNullException(nameof(filter));
-        }
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
-
-        // if client is systemic or admin, then bypass checks
+    /// <returns></returns>
+    public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, ClaimsPrincipal user) {
+        // if client is systemic or admin, then bypass checks since no filtering is required.
         if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
-            return filter;
+            return cases;
         }
 
+        // if the user is not systemic or admin then based on their role they have access to specific checkpoint types and case type codes.
         var roleClaims = GetUserRoles(user);
         var members = await GetMembers();
 
-        // apply specific filteres based on the role of the user.
-        filter.CheckpointTypeIds = ApplyCheckpointTypeFilter(roleClaims, members);
-        filter.CaseTypeCodes = ApplyCaseTypeFilter(roleClaims, members);
+        var allowedCheckpointTypeIds = GetAllowedCheckpointTypes(roleClaims, members);
+        var allowedCaseTypeCodes = GetAllowedCaseTypeCodes(roleClaims, members);
 
-        if (filter.CaseTypeCodes.Count == 0 || filter.CheckpointTypeIds.Count == 0) {
-            // if the (non-admin) user comes with no available caseTypes or CheckpointTypes to see, tough luck!
-            throw new ResourceUnauthorizedException("User does not has access to cases");
+        if (allowedCheckpointTypeIds is not null && allowedCheckpointTypeIds.Any()) {
+            cases = cases.Where(cp => allowedCheckpointTypeIds.Contains(cp.CheckpointTypeId.ToString()));
         }
-
-        return filter;
+        if (allowedCaseTypeCodes is not null && allowedCaseTypeCodes.Any()) {
+            cases = cases.Where(cp => allowedCaseTypeCodes.Contains(cp.CaseType.Code));
+        }
+        return cases;
     }
 
     /// <summary>Determines whether user can see a Case in relation to i) user's role(s) and ii) case's CaseType and CheckpointType</summary>
@@ -78,34 +74,6 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
 
         return memberships
             .Any(x => x.CaseTypeId == @case.CaseType!.Id && x.CheckpointTypeId == @case.CheckpointTypeId);
-    }
-
-    /// <summary>
-    /// In the case of a non admin user. Apply extra Where clauses to the IQueryable based on their roles.
-    /// </summary>
-    /// <param name="queryable"></param>
-    /// <param name="user"></param>
-    /// <returns></returns>
-    public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> queryable, ClaimsPrincipal user) {
-        // if client is systemic or admin, then bypass checks since no filtering is required.
-        if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
-            return queryable;
-        }
-
-        // if the user is not systemic or admin then based on their role they have access to specific checkpoint types and case type codes.
-        var roleClaims = GetUserRoles(user);
-        var members = await GetMembers();
-
-        var allowedCheckpointTypeIds = GetAllowedCheckpointTypes(roleClaims, members);
-        var allowedCaseTypeCodes = GetAllowedCaseTypeCodes(roleClaims, members);
-
-        if (allowedCheckpointTypeIds is not null && allowedCheckpointTypeIds.Any()) {
-            queryable = queryable.Where(cp => allowedCheckpointTypeIds.Contains(cp.CheckpointTypeId.ToString()));
-        }
-        if (allowedCaseTypeCodes is not null && allowedCaseTypeCodes.Any()) {
-            queryable = queryable.Where(cp => allowedCaseTypeCodes.Contains(cp.CaseType.Code));
-        }
-        return queryable;
     }
 
     /// <summary>Determines whether user is Owner of a Case</summary>
@@ -169,7 +137,6 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     }
 
     /// <summary>Gets the list of allowed and filtered CaseType Codes for non-admin users</summary>
-    /// <param name="caseTypeCodes"></param>
     /// <param name="roleClaims"></param>
     /// <param name="roleCaseTypes"></param>
     private List<FilterClause> ApplyCaseTypeFilter(List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
