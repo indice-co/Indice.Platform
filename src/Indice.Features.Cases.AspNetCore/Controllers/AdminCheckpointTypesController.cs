@@ -30,6 +30,6 @@ internal class AdminCheckpointTypesController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<CheckpointType>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> GetDistinctCheckpointCodes() =>
+    public async Task<IActionResult> GetDistinctCheckpointTypes() =>
         Ok(await _checkpointTypeService.GetDistinctCheckpointTypes(User));
 }

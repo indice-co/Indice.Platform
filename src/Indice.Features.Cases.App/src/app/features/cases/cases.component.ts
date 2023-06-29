@@ -48,7 +48,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         });
         forkJoin({
             caseTypes: this._api.getCaseTypes(),
-            checkpointTypes: this._api.getDistinctCheckpointCodes()
+            checkpointTypes: this._api.getDistinctCheckpointTypes()
         }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
             const caseTypeSearchOption: SearchOption = {
                 field: 'caseTypeCodes',

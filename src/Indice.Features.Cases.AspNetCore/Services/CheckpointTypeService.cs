@@ -20,7 +20,7 @@ internal class CheckpointTypeService : ICheckpointTypeService
 
     public async Task<IEnumerable<CheckpointType>> GetDistinctCheckpointTypes(ClaimsPrincipal user) {
         if (user.IsAdmin()) {
-            return await GetAdminDistinctCheckpoints();
+            return await GetAdminDistinctCheckpointsTypes();
         }
 
         var roleClaims = user.Claims
@@ -34,27 +34,40 @@ internal class CheckpointTypeService : ICheckpointTypeService
             .Select(c => c.CheckpointTypeId)
             .ToListAsync();
 
+        /*
+         * The logic behind this query is:
+         * Fetch all checkpoint types grouped by Code (eg Submitted, Completed).                  
+         *
+         * The BO will show the grouped codes and will query against those codes.
+         *
+         * If, for "reasons", the business will require different Translations for, eg, "Completed",
+         * the case types MUST be created with different Codes (eg Completed and Completed_B).
+         * This way, the filter will be clear to the back-officer and to the query and will have
+         * both values shown and filtered.
+         */
         var checkpointTypes = await (
                 from c in _dbContext.CheckpointTypes
                 where checkpointTypeIds.Contains(c.Id)
-                group c by new { c.Code, c.Title } into grouped
+                group c by c.Code into grouped
                 select grouped.FirstOrDefault()
             ).ToListAsync();
 
-        return TranslateCheckpoints(checkpointTypes);
+        return TranslateCheckpointTypes(checkpointTypes);
     }
 
-    private async Task<IEnumerable<CheckpointType>> GetAdminDistinctCheckpoints() {
+    private async Task<IEnumerable<CheckpointType>> GetAdminDistinctCheckpointsTypes() {
+
+        // Please check the comments above regarding the logic behind this query 
         var checkpointTypes = await (
             from c in _dbContext.CheckpointTypes
-            group c by new { c.Code, c.Title } into grouped
+            group c by c.Code into grouped
             select grouped.FirstOrDefault()
         ).ToListAsync();
 
-        return TranslateCheckpoints(checkpointTypes);
+        return TranslateCheckpointTypes(checkpointTypes);
     }
 
-    private static IEnumerable<CheckpointType> TranslateCheckpoints(IEnumerable<DbCheckpointType> checkpointTypes) {
+    private static IEnumerable<CheckpointType> TranslateCheckpointTypes(IEnumerable<DbCheckpointType> checkpointTypes) {
         var translated = checkpointTypes
             .Select(c => new CheckpointType {
                 Id = c.Id,

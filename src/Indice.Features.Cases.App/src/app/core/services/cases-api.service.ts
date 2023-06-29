@@ -190,11 +190,11 @@ export interface ICasesApiService {
      */
     triggerAction(caseId: string, api_version?: string | undefined, body?: ActionRequest | undefined): Observable<void>;
     /**
-     * Get distinct checkpoint types
+     * Get the distinct checkpoint types grouped by code
      * @param api_version (optional) 
      * @return Success
      */
-    getDistinctCheckpointCodes(api_version?: string | undefined): Observable<CheckpointType[]>;
+    getDistinctCheckpointTypes(api_version?: string | undefined): Observable<CheckpointType[]>;
     /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
@@ -2607,11 +2607,11 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Get distinct checkpoint types
+     * Get the distinct checkpoint types grouped by code
      * @param api_version (optional) 
      * @return Success
      */
-    getDistinctCheckpointCodes(api_version?: string | undefined): Observable<CheckpointType[]> {
+    getDistinctCheckpointTypes(api_version?: string | undefined): Observable<CheckpointType[]> {
         let url_ = this.baseUrl + "/api/manage/checkpoint-types?";
         if (api_version === null)
             throw new Error("The parameter 'api_version' cannot be null.");
@@ -2628,11 +2628,11 @@ export class CasesApiService implements ICasesApiService {
         };
 
         return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetDistinctCheckpointCodes(response_);
+            return this.processGetDistinctCheckpointTypes(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processGetDistinctCheckpointCodes(response_ as any);
+                    return this.processGetDistinctCheckpointTypes(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<CheckpointType[]>;
                 }
@@ -2641,7 +2641,7 @@ export class CasesApiService implements ICasesApiService {
         }));
     }
 
-    protected processGetDistinctCheckpointCodes(response: HttpResponseBase): Observable<CheckpointType[]> {
+    protected processGetDistinctCheckpointTypes(response: HttpResponseBase): Observable<CheckpointType[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -5948,18 +5948,18 @@ export interface ICheckpoint {
     dueDate?: Date | undefined;
 }
 
-/** The checkpoint model. */
+/** The checkpoint type model. */
 export class CheckpointType implements ICheckpointType {
     /** The Id of the <b>checkpoint type</b>. */
     id?: string;
-    /** The code of the checkpoint. */
+    /** The code of the <b>checkpoint type</b>. */
     code?: string | undefined;
-    /** The title of the checkpoint. */
+    /** The title of the <b>checkpoint type</b>. */
     title?: string | undefined;
-    /** The description of the checkpoint. */
+    /** The description of the <b>checkpoint type</b>. */
     description?: string | undefined;
     status?: CaseStatus;
-    /** Indicates if the checkpoint is private, which means not visible to the customer. */
+    /** Indicates if the checkpoint type is private, which means not visible to the customer. */
     private?: boolean | undefined;
     /** A type that models the translation of an object. */
     translations?: { [key: string]: CheckpointTypeTranslation; } | undefined;
@@ -6017,18 +6017,18 @@ export class CheckpointType implements ICheckpointType {
     }
 }
 
-/** The checkpoint model. */
+/** The checkpoint type model. */
 export interface ICheckpointType {
     /** The Id of the <b>checkpoint type</b>. */
     id?: string;
-    /** The code of the checkpoint. */
+    /** The code of the <b>checkpoint type</b>. */
     code?: string | undefined;
-    /** The title of the checkpoint. */
+    /** The title of the <b>checkpoint type</b>. */
     title?: string | undefined;
-    /** The description of the checkpoint. */
+    /** The description of the <b>checkpoint type</b>. */
     description?: string | undefined;
     status?: CaseStatus;
-    /** Indicates if the checkpoint is private, which means not visible to the customer. */
+    /** Indicates if the checkpoint type is private, which means not visible to the customer. */
     private?: boolean | undefined;
     /** A type that models the translation of an object. */
     translations?: { [key: string]: CheckpointTypeTranslation; } | undefined;

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `CheckpointType` Translations
 ### Migrations
-- Ingregrations at `My Endpoint` that uses `CasePartial` with direct access to `string CheckpointTypeCode` will have to use `CheckpointType` instead.
+- Integregrations at `My Endpoint` that uses `CasePartial` with direct access to `string CheckpointTypeCode` will have to use `CheckpointType` instead.
 
 ## [7.2.2] - 2023-06-06
 ### Bugfix
