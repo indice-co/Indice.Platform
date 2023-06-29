@@ -24,6 +24,8 @@ app.UseCasesUI(options => {
         "GroupedByStatus"
     };
 ```
+### Added 
+- Not equals and contains operators were added when filtering the cases.
 
 ## [7.1.8] - 2023-05-26
 ### Bugfix
