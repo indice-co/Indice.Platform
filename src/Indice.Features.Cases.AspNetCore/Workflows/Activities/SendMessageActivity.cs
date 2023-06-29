@@ -36,14 +36,28 @@ internal class SendMessageActivity : BaseCaseActivity
     )]
     public Message Message { get; set; }
 
+
+    [ActivityInput(
+        Label = nameof(RunAsSystemUser),
+        Hint =
+            "Select this option if you want to override the user context and log the message as system user. This is useful to override Membership Authorization for checkpoint movements.",
+        UIHint = ActivityInputUIHints.Checkbox,
+        DefaultWorkflowStorageProvider = TransientWorkflowStorageProvider.ProviderName
+    )]
+    public bool RunAsSystemUser { get; set; } = false;
+
     [ActivityOutput]
     public object Output { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> ExecuteAsync(ActivityExecutionContext context) {
-        var user = context.TryGetUser();
-        if (user == null || !user.Identity.IsAuthenticated) {
+        var user = RunAsSystemUser 
+            ? Cases.Extensions.PrincipalExtensions.SystemUser() 
+            : context.TryGetUser();
+
+        if (user is null || !user.Identity!.IsAuthenticated) {
             throw new Exception("User not found or not authenticated");
         }
+
         CaseId ??= Guid.Parse(context.CorrelationId); // Because we are not triggering base.TryExecuteAsync we need to declare it again.
 
         try {
