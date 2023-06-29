@@ -1,8 +1,9 @@
 ﻿namespace Indice.Features.Cases.Models.Responses;
 
 /// <summary>The role case type model.</summary>
-internal class RoleCaseType
+internal class Member
 {
+ 
     /// <summary>The Id of the role case type.</summary>
     public Guid Id { get; set; }
 

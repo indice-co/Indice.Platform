@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Cases.Data;
+using Indice.Features.Cases.Exceptions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Security;
@@ -47,6 +48,11 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         if (allowedCaseTypeCodes is not null && allowedCaseTypeCodes.Any()) {
             cases = cases.Where(cp => allowedCaseTypeCodes.Contains(cp.CaseType.Code));
         }
+        if ((allowedCheckpointTypeIds is null || allowedCheckpointTypeIds.Count == 0) ||
+            (allowedCaseTypeCodes is null || allowedCaseTypeCodes.Count == 0)) {
+            // if the (non-admin) user comes with no available caseTypes or CheckpointTypes to see, tough luck!
+            throw new ResourceUnauthorizedException("User does not has access to cases");
+        }
         return cases;
     }
 
@@ -79,13 +85,13 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     private bool IsOwnerOfCase(ClaimsPrincipal user, Case @case) =>
         user.FindSubjectId().Equals(@case.CreatedById);
 
-    /// <summary>Gets the list of RoleCaseTypes</summary>
-    private async Task<List<RoleCaseType>> GetMembers() {
+    /// <summary>Gets the list of Members</summary>
+    private async Task<List<Member>> GetMembers() {
         return await _distributedCache.TryGetAndSetAsync(
             cacheKey: $"{MembersCacheKey}",
             getSourceAsync: async () => await _dbContext.Members
                 .AsQueryable()
-                .Select(c => new RoleCaseType {
+                .Select(c => new Member {
                     Id = c.Id,
                     RoleName = c.RoleName,
                     CaseTypeId = c.CaseTypeId,
@@ -113,18 +119,18 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
             .Select(c => c.Value)
             .ToList();
 
-    private List<string> GetAllowedCheckpointTypes(List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
+    private List<string> GetAllowedCheckpointTypes(List<string> roleClaims, List<Member> members) {
         // what CheckpointTypes can the user see based on their ROLE(S)?
-        return roleCaseTypes
-            .Where(roleCaseType => roleClaims.Contains(roleCaseType.RoleName!))
-            .Select(roleCaseType => roleCaseType.CheckpointTypeId.ToString())
+        return members
+            .Where(members => roleClaims.Contains(members.RoleName!))
+            .Select(members => members.CheckpointTypeId.ToString())
             .Distinct() // Avoid duplicates: it is possible that user has >1 roles and those roles can "see" common CheckpointTypes
             .ToList();
     }
-    private List<string> GetAllowedCaseTypeCodes(List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
+    private List<string> GetAllowedCaseTypeCodes(List<string> roleClaims, List<Member> members) {
         // what CaseType codes can the user see based on their ROLE(S)?
-        return roleCaseTypes
-            .Where(roleCaseType => roleClaims.Contains(roleCaseType.RoleName!))
+        return members
+            .Where(members => roleClaims.Contains(members.RoleName!))
             .Select(x => x.CaseTypePartial.Code)
             .Distinct()
             .ToList();

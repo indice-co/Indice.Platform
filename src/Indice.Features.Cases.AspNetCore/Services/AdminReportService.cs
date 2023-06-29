@@ -14,16 +14,16 @@ namespace Indice.Features.Cases.Services;
 internal class AdminReportService : IAdminReportService
 {
     private readonly CasesDbContext _dbContext;
-    private readonly ICaseAuthorizationProvider _memberAuthorizationService;
+    private readonly ICaseAuthorizationProvider _memberAuthorizationProvider;
     private readonly ICaseTypeService _caseTypeService;
 
     public AdminReportService(
         CasesDbContext dbContext,
-        ICaseAuthorizationProvider memberAuthorizationService,
+        ICaseAuthorizationProvider memberAuthorizationProvider,
         ICaseTypeService caseTypeService
         ) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _memberAuthorizationService = memberAuthorizationService ?? throw new ArgumentNullException(nameof(memberAuthorizationService));
+        _memberAuthorizationProvider = memberAuthorizationProvider ?? throw new ArgumentNullException(nameof(memberAuthorizationProvider));
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
     }
 
@@ -51,7 +51,7 @@ internal class AdminReportService : IAdminReportService
         // not allow a user to see the list of case, it throws a ResourceUnauthorizedException
         // which we catch and return an empty resultset.
         try {
-            query = await _memberAuthorizationService.GetCaseMembership(query, user);
+            query = await _memberAuthorizationProvider.GetCaseMembership(query, user);
         } catch (ResourceUnauthorizedException) {
             return new List<GroupByReportResult>();
         }

@@ -139,7 +139,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         let checkpointTypeCodes: string[] = [];
         this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(this.stringifyFilterClause(f)));
         let filterMetadata: string[] = [];
-        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`)); // this is the form that the server accepts
+        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
         this._paramsService.setParams({
             view: this.view,
             page: this.page,
