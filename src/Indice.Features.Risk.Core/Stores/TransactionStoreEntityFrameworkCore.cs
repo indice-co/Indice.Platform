@@ -13,11 +13,11 @@ internal class TransactionStoreEntityFrameworkCore<TTransaction> : ITransactionS
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<int> CreateAsync(IEnumerable<TTransaction> transactions) {
+    public async Task CreateAsync(IEnumerable<TTransaction> transactions) {
         _dbContext.AddRange(transactions);
-        return await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
     }
 
-    public Task<TTransaction?> GetByIdAsync(Guid transactionId) => 
+    public Task<TTransaction?> GetByIdAsync(Guid transactionId) =>
         _dbContext.Transactions.Include(x => x.Events).FirstOrDefaultAsync(x => x.Id == transactionId);
 }

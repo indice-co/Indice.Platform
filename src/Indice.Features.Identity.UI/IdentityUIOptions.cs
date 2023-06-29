@@ -6,7 +6,7 @@ namespace Indice.Features.Identity.UI;
 /// <summary>Configuration options for Identity UI.</summary>
 public class IdentityUIOptions
 {
-    /// <summary>Affects the ui framewok that the views will be based upon. Defaults to bootstrap5</summary>
+    /// <summary>Affects the ui framework that the views will be based upon. Defaults to Bootstrap 5.</summary>
     public string? UiFramework { get; set; }
     /// <summary>An absolute URL to the <strong>terms and conditions</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>./legal/terms.md</strong> will be used. If populated it will do a redirect to this URL</remarks>
@@ -20,7 +20,7 @@ public class IdentityUIOptions
     public bool AutoAssociateExternalUsers { get; set; } = true;
     /// <summary>Controls whether The self service /register page is accessible.</summary>
     public bool EnableRegisterPage { get; set; } = true;
-    /// <summary>Controls whether The self service /forgot-password page is accessible</summary>
+    /// <summary>Controls whether The self service /forgot-password page is accessible.</summary>
     public bool EnableForgotPasswordPage { get; set; } = true;
     /// <summary>Allow remember login.</summary>
     public bool AllowRememberLogin { get; set; } = true;
@@ -32,7 +32,7 @@ public class IdentityUIOptions
     public string EmailLinkColorHex { get; set; } = "1abc9c";
     /// <summary>RGB color to be used with email default templates for links.</summary>
     public string HtmlBodyBackgroundCssClass { get; set; } = "gradient-bg";
-    /// <summary>Contains additional valid return urls. Its used in the login page</summary>
+    /// <summary>Contains additional valid return URLs. It's used in the login page.</summary>
     public HashSet<string> ValidReturnUrls { get; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     /// <summary>Remember me duration.</summary>
     public TimeSpan RememberMeLoginDuration { get; set; } = TimeSpan.FromDays(30);

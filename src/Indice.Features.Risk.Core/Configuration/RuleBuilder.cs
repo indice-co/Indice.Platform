@@ -40,7 +40,9 @@ public class RuleBuilder<TTransaction> where TTransaction : Transaction
     ) {
         CheckAndAddRuleName(name);
         ConfigureRules(name, builder);
-        _services.AddTransient<IRule<TTransaction>>(serviceProvider => new GenericRule<TTransaction>(serviceProvider, ruleDelegate));
+        _services.AddTransient<IRule<TTransaction>>(serviceProvider => new GenericRule<TTransaction>(serviceProvider, ruleDelegate) {
+            Name = name
+        });
         return this;
     }
 

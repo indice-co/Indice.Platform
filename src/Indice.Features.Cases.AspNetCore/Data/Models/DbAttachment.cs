@@ -15,7 +15,7 @@ public class DbAttachment
     public DbAttachment(string fileName, Stream dataStream, bool saveData = false) : this() => PopulateFrom(fileName, CaseId, dataStream, saveData);
 
     public Guid Id { get; set; }
-    public DateTimeOffset LastModified { get; set; }
+    public DateTimeOffset LastModified { get; set; } = DateTimeOffset.Now;
     public Guid CaseId { get; set; }
     public Guid Guid { get; set; }
     public string Name { get; set; }

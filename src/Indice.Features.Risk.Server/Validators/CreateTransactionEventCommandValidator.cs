@@ -2,11 +2,11 @@
 using Indice.Configuration;
 using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data.Models;
-using Indice.Features.Risk.Server.Commands;
+using Indice.Features.Risk.Server.Models;
 
 namespace Indice.Features.Risk.Server.Validators;
 
-internal class CreateTransactionEventCommandValidator<TTransaction> : AbstractValidator<CreateTransactionEventCommand> where TTransaction : Transaction
+internal class CreateTransactionEventCommandValidator<TTransaction> : AbstractValidator<CreateTransactionEventRequest> where TTransaction : Transaction
 {
     private readonly ITransactionStore<TTransaction> _transactionStore;
 

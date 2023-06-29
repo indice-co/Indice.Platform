@@ -5,5 +5,7 @@ namespace Indice.Features.Risk.Core.Abstractions;
 /// <summary>Store for risk engine events.</summary>
 public interface IEventStore
 {
-    Task<int> CreateAsync(TransactionEvent @event);
+    /// <summary></summary>
+    /// <param name="event"></param>
+    Task CreateAsync(TransactionEvent @event);
 }

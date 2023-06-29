@@ -16,9 +16,9 @@
     <partial name="_Alert" model="alert" />
     <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
         <div class="form-group">
+            <input type="hidden" asp-for="Input.ReturnUrl" />
             <label asp-for="Input.PhoneNumber" class="sr-only">@Localizer["Phone number"]</label>
             <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-            <input type="hidden" asp-for="Input.ReturnUrl" />
             <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" disabled="@Model.View.DisablePhoneNumberInput" />
             <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
         </div>

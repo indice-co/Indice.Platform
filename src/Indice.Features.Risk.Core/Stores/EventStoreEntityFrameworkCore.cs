@@ -12,8 +12,8 @@ internal class EventStoreEntityFrameworkCore<TTransaction> : IEventStore where T
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<int> CreateAsync(TransactionEvent @event) {
+    public async Task CreateAsync(TransactionEvent @event) {
         _dbContext.TransactionEvents.Add(@event);
-        return await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();
     }
 }

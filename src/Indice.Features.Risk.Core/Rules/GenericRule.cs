@@ -16,6 +16,8 @@ internal class GenericRule<TTransaction> : IRule<TTransaction> where TTransactio
         _ruleDelegate = ruleDelegate ?? throw new ArgumentNullException(nameof(ruleDelegate));
     }
 
+    public string Name { get; internal set; } = null!;
+
     public ValueTask<RuleExecutionResult> ExecuteAsync(TTransaction transaction) =>
         _ruleDelegate.Invoke(_serviceProvider, transaction);
 }

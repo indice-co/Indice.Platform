@@ -28,6 +28,7 @@ import { DisplayCaseTypesComponent } from './components/select-case-type/display
 import { QuillModule } from 'ngx-quill';
 import { WysiwygWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
 import { DeleteQueryModalComponent } from './components/delete-query-modal/delete-query-modal.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 
@@ -77,7 +78,8 @@ import { DeleteQueryModalComponent } from './components/delete-query-modal/delet
           ['clean'],
         ]
       }
-    })
+    }),
+    TranslateModule
   ],
   exports: [
     // components
@@ -92,7 +94,8 @@ import { DeleteQueryModalComponent } from './components/delete-query-modal/delet
     // ajsf
     TailwindFrameworkComponent,
     // pipes
-    BeautifyBooleanPipe
+    BeautifyBooleanPipe,
+    TranslateModule
   ]
 })
 export class SharedModule { }

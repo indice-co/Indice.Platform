@@ -44,7 +44,7 @@ public abstract class BaseMfaOnboardingModel : BasePageModel
 
     /// <summary>MFA onboarding page POST handler.</summary>
     [ValidateAntiForgeryToken]
-    public virtual async Task<IActionResult> OnPostAsync() {
+    public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
             View.AuthenticationMethods = await AuthenticationMethodProvider.GetAllMethodsAsync();
             return Page();
