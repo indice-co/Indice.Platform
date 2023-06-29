@@ -13,7 +13,7 @@
                                                     'caseDetails.submitDate': model?.createdByWhen | date:'dd/MM/YYYY',
                                                     'caseDetails.caseType':model?.caseType?.title,
                                                     'caseDetails.channel':model?.channel,
-                                                    'caseDetails.checkpoint':model?.checkpointTypeCode,
+                                                    'caseDetails.checkpoint':model?.checkpointType?.title ??model?.checkpointType?.code,
                                                     'caseDetails.assignedTo':model?.assignedToName || ' - '}">
                             </app-case-detail-info>
 
