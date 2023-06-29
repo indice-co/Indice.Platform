@@ -16,15 +16,7 @@ export class DashboardComponent implements OnInit {
     public isAdmin: boolean | undefined;
     public userSub$: Subscription | null = null;
     public reportTag = ReportTag;
-    public tiles = new Map<string, boolean>([
-        [ReportTag.GroupedByCasetype, true],
-        [ReportTag.AgentGroupedByCasetype, true],
-        [ReportTag.CustomerGroupedByCasetype, true],
-        [ReportTag.GroupedByStatus, true],
-        [ReportTag.AgentGroupedByStatus, true],
-        [ReportTag.CustomerGroupedByStatus, true],
-        [ReportTag.GroupedByGroupId, true],
-    ]);
+    public tiles: Tiles = new Tiles();
 
     constructor(@Inject(AuthService) private authService: AuthService) { }
 
@@ -42,9 +34,27 @@ export class DashboardComponent implements OnInit {
         });
         this.metaItems = [];
 
-        if (settings.dashboardTags !== '') {
-            this.tiles.forEach((value, tag) => this.tiles.set(tag, false));
-            settings.dashboardTags.split(',').forEach(tag => this.tiles.set(tag, true));
-        }
+        let tileTags = settings.dashboardTags.split(',');
+        this.tiles.GroupedByCasetype = this.showTile(tileTags, this.reportTag.GroupedByCasetype);
+        this.tiles.AgentGroupedByCasetype = this.showTile(tileTags, this.reportTag.AgentGroupedByCasetype);
+        this.tiles.CustomerGroupedByCasetype = this.showTile(tileTags, this.reportTag.CustomerGroupedByCasetype);
+        this.tiles.GroupedByStatus = this.showTile(tileTags, this.reportTag.GroupedByStatus);
+        this.tiles.AgentGroupedByStatus = this.showTile(tileTags, this.reportTag.AgentGroupedByStatus);
+        this.tiles.CustomerGroupedByStatus = this.showTile(tileTags, this.reportTag.CustomerGroupedByStatus);
+        this.tiles.GroupedByGroupId = this.showTile(tileTags, this.reportTag.GroupedByGroupId);
     }
+
+    showTile(tags: string[], tagId: string): boolean {
+        return settings.dashboardTags === '' || tags.some(tag => tag === tagId);
+    }
+}
+
+class Tiles {
+    GroupedByCasetype: boolean = true;
+    AgentGroupedByCasetype: boolean = true;
+    CustomerGroupedByCasetype: boolean = true;
+    GroupedByStatus: boolean = true;
+    AgentGroupedByStatus: boolean = true;
+    CustomerGroupedByStatus: boolean = true;
+    GroupedByGroupId: boolean = true;
 }
