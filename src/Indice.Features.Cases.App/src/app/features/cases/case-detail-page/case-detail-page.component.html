@@ -9,29 +9,29 @@
                         <div class="bg-white shadow rounded-sm">
                             <app-case-detail-info [title]="'Βασικά στοιχεία αίτησης'"
                                                   [keyValuePairs]="{
-                                                    'Κωδικός Αίτησης:': model?.id,
-                                                    'Ημ. Υποβολής:': model?.createdByWhen | date:'dd/MM/YYYY',
-                                                    'Τύπος Αίτησης:':model?.caseType?.title,
-                                                    'Κανάλι:':model?.channel,
-                                                    'Τρέχον Σημείο Ελέγχου:':model?.checkpointTypeCode,
-                                                    'Ανάθεση σε:':model?.assignedToName || ' - '}">
+                                                    'caseDetails.caseId': model?.id,
+                                                    'caseDetails.submitDate': model?.createdByWhen | date:'dd/MM/YYYY',
+                                                    'caseDetails.caseType':model?.caseType?.title,
+                                                    'caseDetails.channel':model?.channel,
+                                                    'caseDetails.checkpoint':model?.checkpointTypeCode,
+                                                    'caseDetails.assignedTo':model?.assignedToName || ' - '}">
                             </app-case-detail-info>
 
                             <app-case-detail-info [title]="'Στοιχεία Πελάτη'"
                                                   [keyValuePairs]="{
-                                                    'Κωδικός Πελάτη:': model?.customerId,
-                                                    'Όνομα Πελάτη:': model?.customerName,
-                                                    'Α.Φ.Μ. Πελάτη:':model?.metadata?.TaxId,
-                                                    'Κατάστημα Πελάτη:':model?.groupId}">
+                                                    'caseDetails.customerId': model?.customerId,
+                                                    'caseDetails.customerName': model?.customerName,
+                                                    'caseDetails.taxId':model?.metadata?.TaxId,
+                                                    'caseDetails.groupId':model?.groupId}">
                             </app-case-detail-info>
 
                             <app-case-detail-info *ngIf="model?.metadata?.UserRole"
                                                   [title]="'Στοιχεία Χρήστη'"
                                                   [keyValuePairs]="{
-                                                    'Επώνυμο Χρήστη:': model?.metadata?.UserSurname,
-                                                    'Όνομα Χρήστη:': model?.metadata?.UserFirstName,
-                                                    'Ρόλος Χρήστη:':model?.metadata?.UserRole,
-                                                    'ΑΠ Χρήστη:':model?.metadata?.UserCustomerId}">
+                                                    'caseDetails.userSurname': model?.metadata?.UserSurname,
+                                                    'caseDetails.userFirstName': model?.metadata?.UserFirstName,
+                                                    'caseDetails.userRole':model?.metadata?.UserRole,
+                                                    'caseDetails.userCustomerId':model?.metadata?.UserCustomerId}">
                             </app-case-detail-info>
                         </div>
                         <div class="bg-white shadow rounded-sm"

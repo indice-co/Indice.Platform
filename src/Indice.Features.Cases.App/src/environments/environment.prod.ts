@@ -17,6 +17,7 @@ export const environment = {
     useRefreshToken: true
   },
   culture: 'el-GR',
+  i18n_assets: '/assets/i18n/',
   isTemplate: false,
   production: true,
   dashboardTags: ''
