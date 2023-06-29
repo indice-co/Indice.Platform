@@ -15,6 +15,15 @@ app.UseCasesUI(options => {
     options.I18nAssets = "/assets/cases/i18n";
 });
 ```
+- Added the ability to control which canvases (dashboardTags) should be enabled for the dashboard
+> Example enabling only two canvases
+```cs
+app.UseCasesUI(options => {
+    options.DashboardTags = new List<string>() {
+        "GroupedByCasetype",
+        "GroupedByStatus"
+    };
+```
 
 ## [7.1.8] - 2023-05-26
 ### Bugfix

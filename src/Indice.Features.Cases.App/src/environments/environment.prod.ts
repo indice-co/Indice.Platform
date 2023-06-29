@@ -19,5 +19,6 @@ export const environment = {
   culture: 'el-GR',
   i18n_assets: '/assets/i18n/',
   isTemplate: false,
-  production: true
+  production: true,
+  dashboardTags: ''
 };
