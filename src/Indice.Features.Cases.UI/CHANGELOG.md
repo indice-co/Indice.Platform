@@ -24,6 +24,7 @@ app.UseCasesUI(options => {
         "GroupedByStatus"
     };
 ```
+- `CheckpointType` Translations to cases list, checkpointtype filter, case details and timeline.
 
 ## [7.1.8] - 2023-05-26
 ### Bugfix
