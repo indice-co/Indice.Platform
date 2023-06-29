@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '';
+    let authority: string = '', clientId: string = '', host: string = '', baseHref: string = '', culture: string = '', version: string = '', scopes = '', apiUrl = '', i18nAssets = '';
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -14,6 +14,7 @@ function createAppSettings(): IAppSettings {
         version = appRoot.getAttribute('version') || '';
         scopes = appRoot.getAttribute('scopes') || '';
         apiUrl = appRoot.getAttribute('apiUrl') || '';
+        i18nAssets = appRoot.getAttribute('i18nAssets') || baseHref + '/assets/i18n/';
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -25,6 +26,7 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('version');
         appRoot.attributes.removeNamedItem('scopes');
         appRoot.attributes.removeNamedItem('apiUrl');
+        appRoot.attributes.removeNamedItem('i18nAssets');
     }
     return {
         api_url: !isTemplate ? environment.api_url : apiUrl,
@@ -48,6 +50,7 @@ function createAppSettings(): IAppSettings {
                                                                                                 .join('/')
         } as IAuthSettings,
         culture: !isTemplate ? environment.culture : culture,
+        i18n_assets: !isTemplate ?  environment.i18n_assets : i18nAssets,
         isTemplate: environment.isTemplate,
         production: environment.production,
         version: version || '1.0.0'
