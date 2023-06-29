@@ -18,19 +18,19 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 {
     private const string SchemaKey = "backoffice";
     private readonly CasesDbContext _dbContext;
-    private readonly ICaseAuthorizationProvider _roleCaseTypeProvider;
+    private readonly ICaseAuthorizationProvider _memberAuthorizationService;
     private readonly ICaseTypeService _caseTypeService;
     private readonly IAdminCaseMessageService _adminCaseMessageService;
     private readonly ICaseEventService _caseEventService;
 
     public AdminCaseService(
         CasesDbContext dbContext,
-        ICaseAuthorizationProvider roleCaseTypeProv,
+        ICaseAuthorizationProvider memberAuthorizationService,
         ICaseTypeService caseTypeService,
         IAdminCaseMessageService adminCaseMessageService,
         ICaseEventService caseEventService) : base(dbContext) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _roleCaseTypeProvider = roleCaseTypeProv ?? throw new ArgumentNullException(nameof(roleCaseTypeProv));
+        _memberAuthorizationService = memberAuthorizationService ?? throw new ArgumentNullException(nameof(memberAuthorizationService));
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
@@ -109,7 +109,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         // not allow a user to see the list of case, it throws a ResourceUnauthorizedException
         // which we catch and return an empty resultset. 
         try {
-            query = await _roleCaseTypeProvider.GetCaseMembership(query, user);
+            query = await _memberAuthorizationService.GetCaseMembership(query, user);
         } catch (ResourceUnauthorizedException) {
             return new List<CasePartial>().ToResultSet();
         }
@@ -248,7 +248,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var @case = await query.FirstOrDefaultAsync();
 
         // Check that user role can view this case at this checkpoint.
-        if (!await _roleCaseTypeProvider.IsValid(user, @case)) {
+        if (!await _memberAuthorizationService.IsValid(user, @case)) {
             throw new ResourceUnauthorizedException();
         }
         @case.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);

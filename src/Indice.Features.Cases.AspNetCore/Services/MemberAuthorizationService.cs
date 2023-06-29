@@ -1,9 +1,6 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Cases.Data;
-using Indice.Features.Cases.Data.Models;
-using Indice.Features.Cases.Exceptions;
 using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Security;
 using Indice.Types;
@@ -81,79 +78,6 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     /// <param name="case">The case.</param>
     private bool IsOwnerOfCase(ClaimsPrincipal user, Case @case) =>
         user.FindSubjectId().Equals(@case.CreatedById);
-
-    /// <summary>Gets the list of allowed and filtered CheckpointType Ids for admin users</summary>
-    /// <param name="checkpointTypeCodesFilterClause"></param>
-    private async Task<List<FilterClause>> ApplyAdminCheckpointTypeFilter(List<FilterClause> checkpointTypeCodesFilterClause) {
-        // get only the values of the codes
-        var checkpointTypeCodes = checkpointTypeCodesFilterClause.Select(f => f.Value).ToList();
-        var filteredCheckpointTypesList = new List<DbCheckpointType>();
-        // admin didn't select checkpointTypeCode filters -> get all checkpointTypeIds
-        if (checkpointTypeCodes is null || checkpointTypeCodes.Count == 0) {
-            filteredCheckpointTypesList = await _dbContext.CheckpointTypes
-            .AsQueryable()
-            .ToListAsync();
-        } else {
-            // admin selected checkpointTypeCode filters
-            filteredCheckpointTypesList = await _dbContext.CheckpointTypes
-            .AsQueryable()
-            .Where(checkpointType => checkpointTypeCodes.Contains(checkpointType.Code))
-            .ToListAsync();
-        }
-        // create a new list of checkpoint type ids of type FilterClause to include the operator.
-        var filteredCheckpointTypeFilterClauses = new List<FilterClause>();
-        if (filteredCheckpointTypesList is not null || filteredCheckpointTypesList.Any()) {
-            foreach (var checkpointType in filteredCheckpointTypesList) {
-                // find the checkpoint type that matches the checkpoint type code given in the parameters
-                if (checkpointTypeCodesFilterClause.Select(f => f.Value).Contains(checkpointType.Code)) {
-                    var checkpointTypeOperator = checkpointTypeCodesFilterClause.FirstOrDefault(f => f.Value == checkpointType.Code).Operator;
-                    // create a new FilterClause object that holds the Id but also the operator
-                    var newCheckpointTypeIdFilterClause = new FilterClause("checkpointTypeId", checkpointType.Id.ToString(), checkpointTypeOperator, JsonDataType.String);
-                    filteredCheckpointTypeFilterClauses.Add(newCheckpointTypeIdFilterClause);
-                }
-            }
-        }
-        return filteredCheckpointTypeFilterClauses;
-    }
-
-    /// <summary>Gets the list of allowed and filtered CheckpointType Ids for non-admin users</summary>
-    /// <param name="roleClaims"></param>
-    /// <param name="roleCaseTypes"></param>
-    private List<FilterClause> ApplyCheckpointTypeFilter(List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
-        // what CheckpointTypes can the user see based on their ROLE(S)?
-        var roleBasedAllowedCheckpointTypes = roleCaseTypes
-            .Where(roleCaseType => roleClaims.Contains(roleCaseType.RoleName!))
-            .Select(roleCaseType => new { CheckpointTypeId = roleCaseType.CheckpointTypeId.ToString(), CheckpointTypeCode = roleCaseType.CheckpointType.Code })
-            .Distinct() // Avoid duplicates: it is possible that user has >1 roles and those roles can "see" common CheckpointTypes
-            .ToList();
-
-        var filteredCheckpointTypeFilterClauses = new List<FilterClause>();
-        foreach (var checkpointType in roleBasedAllowedCheckpointTypes) {
-            // create a new FilterClause object that holds the Id of the checkpoint type.
-            filteredCheckpointTypeFilterClauses.Add(new FilterClause("checkpointTypeId", checkpointType.CheckpointTypeId, FilterOperator.Eq, JsonDataType.String));
-        }
-        return filteredCheckpointTypeFilterClauses;
-
-    }
-
-    /// <summary>Gets the list of allowed and filtered CaseType Codes for non-admin users</summary>
-    /// <param name="roleClaims"></param>
-    /// <param name="roleCaseTypes"></param>
-    private List<FilterClause> ApplyCaseTypeFilter(List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
-        // A list of allowed case type codes based on the users role
-        var roleBasedAllowedCaseTypeCodes = roleCaseTypes
-            .Where(roleCaseType => roleClaims.Contains(roleCaseType.RoleName!))
-            .Select(x => x.CaseTypePartial.Code)
-            .Distinct()
-            .ToList();
-
-        var caseTypeCodeFilterClauses = new List<FilterClause>();
-        // map the case type code to a new FilterClause
-        foreach (var allowedCaseTypeCode in roleBasedAllowedCaseTypeCodes) {
-            caseTypeCodeFilterClauses.Add(new FilterClause("caseTypeCode", allowedCaseTypeCode, FilterOperator.Eq, JsonDataType.String));
-        }
-        return caseTypeCodeFilterClauses;
-    }
 
     /// <summary>Gets the list of RoleCaseTypes</summary>
     private async Task<List<RoleCaseType>> GetMembers() {
