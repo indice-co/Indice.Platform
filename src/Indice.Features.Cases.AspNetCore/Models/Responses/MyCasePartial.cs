@@ -17,18 +17,19 @@ public class MyCasePartial
 
     /// <summary>The case type code of the case.</summary>
     public string CaseTypeCode { get; set; }
-    
+
     /// <summary>The case type title of the case.</summary>
     public string Title { get; set; }
 
-    /// <summary>The checkpoint name of the case.</summary>
-    public string Checkpoint { get; set; }
+    /// <summary>The checkpoint type of the case.</summary>    
+    public CheckpointType CheckpointType { get; set; }
 
     /// <summary>The case metadata.</summary>
-    public Dictionary<string, string> Metadata { get; set; }   
+    public Dictionary<string, string> Metadata { get; set; }
 
     /// <summary>The message that has been submitted from the backoffice.</summary>
     public string Message { get; set; }
+
     /// <summary>Translations.</summary>
     public TranslationDictionary<MyCasePartialTranslation> Translations { get; set; }
 
@@ -46,6 +47,12 @@ public class MyCasePartial
         if (!includeTranslations) {
             type.Translations = default;
         }
+
+        if (!string.IsNullOrEmpty(culture) && CheckpointType.Translations != null && CheckpointType.Translations.TryGetValue(culture, out var checkpointTypeTranslation)) {
+            type.CheckpointType.Title = checkpointTypeTranslation.Title;
+            type.CheckpointType.Description = checkpointTypeTranslation.Description;
+        }
+
         return type;
     }
 
@@ -57,4 +64,7 @@ public class MyCasePartialTranslation
 {
     /// <summary>The title of the case type.</summary>
     public string Title { get; set; }
+
+    /// <summary>The checkpoint type.</summary>
+    public CheckpointType CheckpointType { get; set; }
 }

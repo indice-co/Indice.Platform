@@ -1,7 +1,7 @@
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { AuthHttpInterceptor, AuthService, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
@@ -20,6 +20,8 @@ import { CasesModule } from './features/cases/cases.module';
 import { NotificationsModule } from './features/notifications/notifications.module';
 import { CaseTypesModule } from './features/case-types/case-types.module';
 import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-http-interceptor.service';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 @NgModule({
   declarations: [
@@ -40,7 +42,14 @@ import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-h
     CasesModule,
     CaseTypesModule,
     NotificationsModule,
-    JsonSchemaFormModule
+    JsonSchemaFormModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    })
   ],
   providers: [
     ModalService,
@@ -55,3 +64,11 @@ import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-h
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+  let assets = app.settings.i18n_assets;
+  if (!assets.endsWith('/')) {
+    assets += '/';
+  }
+  return new TranslateHttpLoader(http, assets, '.json');
+}

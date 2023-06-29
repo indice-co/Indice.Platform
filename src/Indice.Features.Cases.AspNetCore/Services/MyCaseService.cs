@@ -9,7 +9,6 @@ using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Features.Cases.Resources;
-using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
@@ -187,7 +186,12 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                          Created = c.CreatedBy.When,
                                          CaseTypeCode = c.CaseType.Code,
                                          Status = c.PublicCheckpoint.CheckpointType.Status,
-                                         Checkpoint = c.PublicCheckpoint.CheckpointType.Code,
+                                         CheckpointType = new CheckpointType {
+                                             Code = c.PublicCheckpoint.CheckpointType.Code,
+                                             Title = c.PublicCheckpoint.CheckpointType.Title,
+                                             Description = c.PublicCheckpoint.CheckpointType.Description,
+                                             Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(c.PublicCheckpoint.CheckpointType.Translations)
+                                         },
                                          Metadata = c.Metadata,
                                          Message = reasonMessage,
                                          Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(c.CaseType.Translations)
@@ -217,7 +221,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
         // translate
         for (var i = 0; i < result.Items.Length; i++) {
-            result.Items[i] = result.Items[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            result.Items[i] = result.Items[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);            
         }
 
         return result;
