@@ -14,6 +14,16 @@ app.UseCasesUI(options => {
     // This is the absolute path to the folder that contains the el.json
     options.I18nAssets = "/assets/cases/i18n";
 });
+```
+- Added the ability to control which canvases (dashboardTags) should be enabled for the dashboard
+> Example enabling only two canvases
+```cs
+app.UseCasesUI(options => {
+    options.DashboardTags = new List<string>() {
+        "GroupedByCasetype",
+        "GroupedByStatus"
+    };
+```
 - `CheckpointType` Translations to cases list, checkpointtype filter, case details and timeline.
 
 ## [7.1.8] - 2023-05-26

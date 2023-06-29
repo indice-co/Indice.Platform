@@ -6,6 +6,7 @@ export interface IAppSettings {
     isTemplate: boolean,
     production: boolean;
     version: string;
+    dashboardTags: string;
 }
 
 export interface IAuthSettings {

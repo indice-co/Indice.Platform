@@ -3,6 +3,7 @@ import { AuthService } from '@indice/ng-auth';
 import { HeaderMetaItem } from '@indice/ng-components';
 import { User } from 'oidc-client';
 import { Subscription } from 'rxjs';
+import { settings } from 'src/app/core/models/settings';
 import { ReportTag } from 'src/app/core/services/cases-api.service';
 
 @Component({
@@ -15,6 +16,7 @@ export class DashboardComponent implements OnInit {
     public isAdmin: boolean | undefined;
     public userSub$: Subscription | null = null;
     public reportTag = ReportTag;
+    public tiles: Tiles = new Tiles();
 
     constructor(@Inject(AuthService) private authService: AuthService) { }
 
@@ -31,6 +33,28 @@ export class DashboardComponent implements OnInit {
             this.isAdmin = this.authService.isAdmin();
         });
         this.metaItems = [];
+
+        let tileTags = settings.dashboardTags.split(',');
+        this.tiles.GroupedByCasetype = this.showTile(tileTags, this.reportTag.GroupedByCasetype);
+        this.tiles.AgentGroupedByCasetype = this.showTile(tileTags, this.reportTag.AgentGroupedByCasetype);
+        this.tiles.CustomerGroupedByCasetype = this.showTile(tileTags, this.reportTag.CustomerGroupedByCasetype);
+        this.tiles.GroupedByStatus = this.showTile(tileTags, this.reportTag.GroupedByStatus);
+        this.tiles.AgentGroupedByStatus = this.showTile(tileTags, this.reportTag.AgentGroupedByStatus);
+        this.tiles.CustomerGroupedByStatus = this.showTile(tileTags, this.reportTag.CustomerGroupedByStatus);
+        this.tiles.GroupedByGroupId = this.showTile(tileTags, this.reportTag.GroupedByGroupId);
     }
 
+    showTile(tags: string[], tagId: string): boolean {
+        return settings.dashboardTags === '' || tags.some(tag => tag === tagId);
+    }
+}
+
+class Tiles {
+    GroupedByCasetype: boolean = true;
+    AgentGroupedByCasetype: boolean = true;
+    CustomerGroupedByCasetype: boolean = true;
+    GroupedByStatus: boolean = true;
+    AgentGroupedByStatus: boolean = true;
+    CustomerGroupedByStatus: boolean = true;
+    GroupedByGroupId: boolean = true;
 }

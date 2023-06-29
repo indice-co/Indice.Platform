@@ -18,5 +18,6 @@ export const environment = {
     culture: '',
     i18n_assets: '/assets/i18n/',
     isTemplate: true,
-    production: true
+    production: true,
+    dashboardTags: ''
 };
