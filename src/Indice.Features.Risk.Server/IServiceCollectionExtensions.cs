@@ -10,17 +10,18 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class IServiceCollectionExtensions
 {
     /// <summary>Registers the endpoints for the risk engine.</summary>
-    /// <typeparam name="TTransaction">The model type of the transaction.</typeparam>
+    /// <typeparam name="TRiskEvent">The type of risk event.</typeparam>
+    /// <typeparam name="TRiskRequest">The type of risk request model.</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configureAction">Options for configuring the API for risk engine.</param>
     /// <returns>The <see cref="IServiceCollection"/> instance.</returns>
-    public static IServiceCollection AddRiskEndpoints<TTransaction>(
+    public static IServiceCollection AddRiskEndpoints<TRiskEvent, TRiskRequest>(
         this IServiceCollection services,
         Action<RiskApiOptions>? configureAction = null
-    ) where TTransaction : Transaction {
+    ) where TRiskEvent : DbRiskEvent, new()
+      where TRiskRequest : RiskRequestBase<TRiskEvent> {
         var riskApiOptions = new RiskApiOptions {
-            Services = services,
-            TransactionType = typeof(TTransaction)
+            Services = services
         };
         configureAction?.Invoke(riskApiOptions);
         services.Configure<RiskApiOptions>(options => {
@@ -29,7 +30,7 @@ public static class IServiceCollectionExtensions
             options.AuthenticationScheme = riskApiOptions.AuthenticationScheme;
         });
         services.AddEndpointParameterFluentValidation();
-        services.AddScoped<IValidator<CreateTransactionEventRequest>, CreateTransactionEventCommandValidator<TTransaction>>();
+        services.AddScoped<IValidator<TRiskRequest>, GetRiskRequestValidator<TRiskEvent, TRiskRequest>>();
         return services;
     }
 
@@ -40,5 +41,5 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddRiskEndpoints(
         this IServiceCollection services,
         Action<RiskApiOptions>? configureAction = null
-    ) => services.AddRiskEndpoints<Transaction>(configureAction);
+    ) => services.AddRiskEndpoints<DbRiskEvent, RiskRequestBase<DbRiskEvent>>(configureAction);
 }

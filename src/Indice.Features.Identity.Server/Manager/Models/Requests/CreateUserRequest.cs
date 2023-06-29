@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using Indice.Features.Identity.Core.Data.Models;
 
 namespace Indice.Features.Identity.Server.Manager.Models;

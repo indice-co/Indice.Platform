@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Indice.Features.Risk.Core.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,7 +12,6 @@ public class RiskApiOptions
     private string _authenticationScheme = RiskApiEndpoints.AuthenticationScheme;
 
     internal IServiceCollection? Services { get; set; }
-    internal Type TransactionType { get; set; } = typeof(Transaction);
 
     /// <summary>Specifies a prefix for the risk API endpoints.</summary>
     public PathString ApiPrefix {

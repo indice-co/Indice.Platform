@@ -1,16 +1,14 @@
 ﻿namespace Indice.Features.Risk.Core;
 
-/// <summary>Describes the risk level that came up after a rule run by the engine.</summary>
+/// <summary>Describes the risk level that was calculated after a rule one or more rules were run by the engine.</summary>
 public enum RiskLevel : byte
 {
-    /// <summary>Very low</summary>
-    VeryLow,
-    /// <summary>Low</summary>
+    /// <summary>Zero risk</summary>
+    None,
+    /// <summary>Low risk</summary>
     Low,
-    /// <summary>Medium</summary>
+    /// <summary>Medium risk</summary>
     Medium,
-    /// <summary>High</summary>
-    High,
-    /// <summary>Very high</summary>
-    VeryHigh
+    /// <summary>High risk</summary>
+    High
 }

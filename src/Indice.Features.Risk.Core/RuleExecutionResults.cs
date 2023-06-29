@@ -60,18 +60,6 @@ public class RuleExecutionResult
     /// <summary>The name of the rule.</summary>
     public string RuleName { get; internal set; } = string.Empty;
 
-    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryLow"/> risk level.</summary>
-    /// <param name="exactRiskScore">The risk score that came up after a rule run by the engine.</param>
-    /// <param name="reason">A reason accompanying the provided risk level.</param>
-    public static RuleExecutionResult VeryLowRisk(int? exactRiskScore, string? reason) => new(RiskLevel.VeryLow, exactRiskScore, reason);
-
-    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryLow"/> risk level.</summary>
-    /// <param name="reason">A reason accompanying the provided risk level.</param>
-    public static RuleExecutionResult VeryLowRisk(string? reason) => VeryLowRisk(null, reason);
-
-    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryLow"/> risk level.</summary>
-    public static RuleExecutionResult VeryLowRisk() => VeryLowRisk(null, null);
-
     /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.Low"/> risk level.</summary>
     /// <param name="exactRiskScore">The risk score that came up after a rule run by the engine.</param>
     /// <param name="reason">A reason accompanying the provided risk level.</param>
@@ -107,16 +95,4 @@ public class RuleExecutionResult
 
     /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.High"/> risk level.</summary>
     public static RuleExecutionResult HighRisk() => HighRisk(null, null);
-
-    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryHigh"/> risk level.</summary>
-    /// <param name="exactRiskScore">The risk score that came up after a rule run by the engine.</param>
-    /// <param name="reason">A reason accompanying the provided risk level.</param>
-    public static RuleExecutionResult VeryHighRisk(int? exactRiskScore, string? reason) => new(RiskLevel.VeryHigh, exactRiskScore, reason);
-
-    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryHigh"/> risk level.</summary>
-    /// <param name="reason">A reason accompanying the provided risk level.</param>
-    public static RuleExecutionResult VeryHighRisk(string? reason) => VeryHighRisk(null, reason);
-
-    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.VeryHigh"/> risk level.</summary>
-    public static RuleExecutionResult VeryHighRisk() => VeryHighRisk(null, null);
 }
