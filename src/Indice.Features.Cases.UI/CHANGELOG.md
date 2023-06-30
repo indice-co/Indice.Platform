@@ -5,8 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.3.2] - 2023-06-29
+### Added
+- Overridable translation support for `dashboard`, `cases`, `case-details` pages using `@ngx-translate`.
+> Example to ovveride default el.json file
+```cs
+app.UseCasesUI(options => {
+    // This is the absolute path to the folder that contains the el.json
+    options.I18nAssets = "/assets/cases/i18n";
+});
+```
+- Added the ability to control which canvases (dashboardTags) should be enabled for the dashboard
+> Example enabling only two canvases
+```cs
+app.UseCasesUI(options => {
+    options.DashboardTags = new List<string>() {
+        "GroupedByCasetype",
+        "GroupedByStatus"
+    };
+```
+- `CheckpointType` Translations to cases list, checkpointtype filter, case details and timeline.
+
 ## [7.1.8] - 2023-05-26
-## Bugfix
+### Bugfix
 - CaseForm now allows empty layout and shows json schema correctly
 
 ## [7.0.5] - 2023-03-30

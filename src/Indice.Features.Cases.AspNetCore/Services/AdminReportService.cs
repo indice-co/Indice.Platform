@@ -42,8 +42,10 @@ internal class AdminReportService : IAdminReportService
                 },
                 Channel = @case.Channel,
                 GroupId = @case.GroupId,
-                CheckpointTypeId = @case.Checkpoint.CheckpointTypeId,
-                CheckpointTypeCode = @case.Checkpoint.CheckpointType.Code
+                CheckpointType = new CheckpointType {
+                    Id = @case.Checkpoint.CheckpointType.Id,
+                    Code = @case.Checkpoint.CheckpointType.Code
+                }
             });
 
         // TODO: not crazy about this one

@@ -1,4 +1,5 @@
 ﻿using IdentityModel;
+using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
@@ -20,15 +21,25 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Base model class for pages containing some common utility methods.</summary>
 public abstract class BasePageModel : PageModel
 {
+    private IdentityUIOptions? _uiOptions;
+
     /// <summary>Will propagate to body class</summary>
     [ViewData]
     public string BodyCssClass { get; set; } = "identity-page";
     /// <summary>Defines a mechanism for retrieving a service object.</summary>
     protected IServiceProvider ServiceProvider => HttpContext.RequestServices;
-
-    private IdentityUIOptions? _UiOptions;
     /// <summary>UI Options</summary>
-    public IdentityUIOptions UiOptions => _UiOptions ??= ServiceProvider.GetRequiredService<IOptions<IdentityUIOptions>>().Value;
+    public IdentityUIOptions UiOptions => _uiOptions ??= ServiceProvider.GetRequiredService<IOptions<IdentityUIOptions>>().Value;
+
+    /// <summary>Checks if the given return URL is safe for redirection.</summary>
+    /// <param name="returnUrl">The URL to validate.</param>
+    public bool IsValidReturnUrl(string? returnUrl) {
+        if (string.IsNullOrWhiteSpace(returnUrl)) {
+            return false;
+        }
+        var interaction = ServiceProvider.GetRequiredService<IIdentityServerInteractionService>();
+        return interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl) || UiOptions.IsValidReturnUrl(returnUrl);
+    }
 
     /// <summary>Gets the page to redirect based on the <see cref="SignInResult"/>.</summary>
     /// <param name="result">Represents the result of a sign-in operation.</param>
@@ -53,7 +64,7 @@ public abstract class BasePageModel : PageModel
     /// <param name="loginState">The current user state.</param>
     /// <param name="returnUrl">The return URL.</param>
     public string? GetRedirectUrl(UserState loginState, string? returnUrl = null) => loginState switch {
-        UserState.LoggedOut or UserState.LoggedIn => "/",
+        UserState.LoggedOut or UserState.LoggedIn => IsValidReturnUrl(returnUrl) ? returnUrl : "/",
         UserState.RequiresPhoneNumberVerification => Url.PageLink("/AddPhone", values: new { returnUrl }),
         UserState.RequiresEmailVerification => Url.PageLink("/AddEmail", values: new { returnUrl }),
         UserState.RequiresPasswordChange => Url.PageLink("/PasswordExpired", values: new { returnUrl }),

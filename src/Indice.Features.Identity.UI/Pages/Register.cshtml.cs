@@ -178,7 +178,7 @@ public abstract class BaseRegisterModel : BasePageModel
             });
         }
         user.Claims.Add(new() {
-            ClaimType = BasicClaimTypes.ConsentCommencial,
+            ClaimType = BasicClaimTypes.ConsentCommercial,
             ClaimValue = input.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower(),
             UserId = user.Id
         });
@@ -193,7 +193,7 @@ public abstract class BaseRegisterModel : BasePageModel
             UserId = user.Id
         });
         user.Claims.Add(new() {
-            ClaimType = BasicClaimTypes.ConsentCommencialDate,
+            ClaimType = BasicClaimTypes.ConsentCommercialDate,
             ClaimValue = $"{DateTime.UtcNow:O}",
             UserId = user.Id
         });

@@ -58,7 +58,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
 
     /// <summary>Extended validation add phone page POST handler.</summary>
     [ValidateAntiForgeryToken]
-    public virtual async Task<IActionResult> OnPostAsync() {
+    public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
             return Page();
         }
@@ -69,7 +69,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
             return Page();
         }
         await SendVerificationSmsAsync(user, Input.PhoneNumber ?? throw new ArgumentNullException(nameof(Input.PhoneNumber), "Phone number cannot be null."));
-        return RedirectToPage("/VerifyPhone");
+        return RedirectToPage("/VerifyPhone", new { returnUrl });
     }
 }
 

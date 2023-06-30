@@ -14,14 +14,16 @@
     %(HeadContent)
 </head>
 <body class="fixed-left fixed-left-void">
-    <app-root host="%(Host)" 
-              authority="%(Authority)" 
-              clientId="%(ClientId)" 
-              baseHref="%(Path)" 
-              culture="%(Culture)" 
-              version="%(ProductVersion)" 
+    <app-root host="%(Host)"
+              authority="%(Authority)"
+              clientId="%(ClientId)"
+              baseHref="%(Path)"
+              culture="%(Culture)"
+              version="%(ProductVersion)"
               scopes="%(Scopes)"
-              apiUrl="%(ApiUrl)">
+              apiUrl="%(ApiUrl)"
+              i18nAssets="%(I18nAssets)"
+              dashboardTags="%(DashboardTags)">
     </app-root>
     <script src="%(Path)/runtime.js" defer></script>
     <script src="%(Path)/polyfills.js" defer></script>

@@ -99,8 +99,13 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 },
                 Metadata = @case.Metadata,
                 GroupId = @case.GroupId,
-                CheckpointTypeId = @case.Checkpoint.CheckpointTypeId,
-                CheckpointTypeCode = @case.Checkpoint.CheckpointType.Code,
+                CheckpointType = new CheckpointType {
+                    Id = @case.Checkpoint.CheckpointType.Id,
+                    Code = @case.Checkpoint.CheckpointType.Code,
+                    Title = @case.Checkpoint.CheckpointType.Title,
+                    Description = @case.Checkpoint.CheckpointType.Description,
+                    Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
+                },
                 AssignedToName = @case.AssignedTo.Name
             });
 
@@ -190,10 +195,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             // Create a different expression based on the filter operator
             var expressionsEq = options.Filter.CheckpointTypeIds
                 .Where(x => x.Operator == FilterOperator.Eq)
-                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointTypeId.ToString() == f.Value));
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointType.Id.ToString() == f.Value));
             var expressionsNeq = options.Filter.CheckpointTypeIds
                 .Where(x => x.Operator == FilterOperator.Neq)
-                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointTypeId.ToString() != f.Value));
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointType.Id.ToString() != f.Value));
             if (expressionsEq.Any()) {
                 // Aggregate the expressions with OR in SQL
                 var aggregatedExpressionEq = expressionsEq.Aggregate((expression, next) => {
@@ -235,6 +240,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         // translate case types
         foreach (var item in result.Items) {
             item.CaseType = item.CaseType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+            item.CheckpointType = item.CheckpointType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         }
         return result;
     }
@@ -252,6 +258,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             throw new ResourceUnauthorizedException();
         }
         @case.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+        @case.CheckpointType = @case.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         return @case;
     }
 
@@ -377,15 +384,25 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 CreatedBy = c.CreatedBy,
                 Checkpoint = new Checkpoint {
                     Id = c.Id,
-                    Private = c.CheckpointType.Private,
-                    CheckpointTypeCode = c.CheckpointType.Code,
+                    CheckpointType = new CheckpointType {
+                        Id = c.CheckpointType.Id,
+                        Code = c.CheckpointType.Code,
+                        Description = c.CheckpointType.Description,
+                        Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(c.CheckpointType.Translations),
+                        Private = c.CheckpointType.Private,
+                        Status = c.CheckpointType.Status
+                    },
                     CompletedDate = c.CompletedDate,
-                    DueDate = c.DueDate,
-                    Status = c.CheckpointType.Status
+                    DueDate = c.DueDate
                 }
             }))
             .OrderByDescending(c => c.Timestamp)
-            .ThenBy(c => c.IsCheckpoint);
+            .ThenBy(c => c.IsCheckpoint)
+            .ToList();
+
+        foreach (var timelineEntry in timeline.Where(x => x.Checkpoint is not null)) {
+            timelineEntry.Checkpoint.CheckpointType = timelineEntry.Checkpoint.CheckpointType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
+        }
 
         return timeline;
     }

@@ -7,6 +7,7 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Services;
 
@@ -14,14 +15,17 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
 {
     private readonly CasesDbContext _dbContext;
     private readonly IDistributedCache _distributedCache;
+    private readonly AdminCasesApiOptions _options;
     private const string MembersCacheKey = $"{nameof(MemberAuthorizationService)}.members";
 
     public MemberAuthorizationService(
         CasesDbContext dbContext,
-        IDistributedCache distributedCache
+        IDistributedCache distributedCache,
+        IOptions<AdminCasesApiOptions> options
         ) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
     /// <summary>
     /// In the case of a non admin user. Apply extra Where clauses to the IQueryable based on their roles.
@@ -43,7 +47,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         var allowedCaseTypeCodes = GetAllowedCaseTypeCodes(roleClaims, members);
 
         if (allowedCheckpointTypeIds is not null && allowedCheckpointTypeIds.Any()) {
-            cases = cases.Where(cp => allowedCheckpointTypeIds.Contains(cp.CheckpointTypeId.ToString()));
+            cases = cases.Where(cp => allowedCheckpointTypeIds.Contains(cp.CheckpointType.Id.ToString()));
         }
         if (allowedCaseTypeCodes is not null && allowedCaseTypeCodes.Any()) {
             cases = cases.Where(cp => allowedCaseTypeCodes.Contains(cp.CaseType.Code));
@@ -64,7 +68,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         if (@case is null) throw new ArgumentNullException(nameof(@case));
 
         // if client is systemic, then bypass checks
-        if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, @case)) {
+        if ((user.HasClaim(BasicClaimTypes.Scope, _options.ExpectedScope ?? CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, @case)) {
             return true;
         }
 
@@ -76,7 +80,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
             .ToList();
 
         return memberships
-            .Any(x => x.CaseTypeId == @case.CaseType!.Id && x.CheckpointTypeId == @case.CheckpointTypeId);
+            .Any(x => x.CaseTypeId == @case.CaseType!.Id && x.CheckpointTypeId == @case.CheckpointType.Id);
     }
 
     /// <summary>Determines whether user is Owner of a Case</summary>

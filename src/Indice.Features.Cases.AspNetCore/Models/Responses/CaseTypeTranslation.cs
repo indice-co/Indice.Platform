@@ -8,3 +8,4 @@ public class CaseTypeTranslation
     /// <summary>The case type description.</summary>
     public string Description { get; set; }
 }
+

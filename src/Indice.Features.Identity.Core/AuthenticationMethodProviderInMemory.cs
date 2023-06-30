@@ -29,7 +29,7 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
         _authenticationMethods = authenticationMethods ?? throw new ArgumentNullException(nameof(authenticationMethods));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        HubContext = multiFactorAuthenticationHubs?.FirstOrDefault() ?? throw new ArgumentNullException(nameof(multiFactorAuthenticationHubs));
+        HubContext = multiFactorAuthenticationHubs?.FirstOrDefault();
     }
 
     /// <inheritdoc />

@@ -71,10 +71,10 @@ public abstract class BaseAssociateModel : BasePageModel
         claims.RemoveAll(x => x.Type == JwtClaimTypes.PhoneNumberVerified);
         claims.Add(new Claim(JwtClaimTypes.GivenName, Input.FirstName ?? string.Empty));
         claims.Add(new Claim(JwtClaimTypes.FamilyName, Input.LastName ?? string.Empty));
-        claims.Add(new Claim(BasicClaimTypes.ConsentCommencial, Input.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower()));
+        claims.Add(new Claim(BasicClaimTypes.ConsentCommercial, Input.HasAcceptedTerms ? bool.TrueString.ToLower() : bool.FalseString.ToLower()));
         claims.Add(new Claim(BasicClaimTypes.ConsentTerms, Input.HasReadPrivacyPolicy ? bool.TrueString.ToLower() : bool.FalseString.ToLower()));
         claims.Add(new Claim(BasicClaimTypes.ConsentTermsDate, $"{DateTime.UtcNow:O}"));
-        claims.Add(new Claim(BasicClaimTypes.ConsentCommencialDate, $"{DateTime.UtcNow:O}"));
+        claims.Add(new Claim(BasicClaimTypes.ConsentCommercialDate, $"{DateTime.UtcNow:O}"));
         await AddExtraClaims(claims);
         var user = await FindOrCreateUser(Input.UserName, Input.PhoneNumber, claims);
         await UserManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.ProviderDisplayName ?? externalLoginInfo.LoginProvider));

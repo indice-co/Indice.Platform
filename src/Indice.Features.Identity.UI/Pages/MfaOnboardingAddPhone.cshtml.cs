@@ -61,7 +61,7 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
 
     /// <summary>MFA onboarding add phone page POST handler.</summary>
     [ValidateAntiForgeryToken]
-    public virtual async Task<IActionResult> OnPostAsync() {
+    public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
             return Page();
         }

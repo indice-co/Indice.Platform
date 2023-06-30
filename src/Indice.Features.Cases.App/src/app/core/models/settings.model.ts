@@ -2,9 +2,11 @@ export interface IAppSettings {
     api_url: string;
     auth_settings: IAuthSettings;
     culture: string;
+    i18n_assets: string;
     isTemplate: boolean,
     production: boolean;
     version: string;
+    dashboardTags: string;
 }
 
 export interface IAuthSettings {
