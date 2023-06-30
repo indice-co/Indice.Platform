@@ -1,25 +1,27 @@
 <lib-view-layout title="Καλώς ήλθατε, {{ user?.profile?.name }}!"
                  [meta-items]="metaItems">
     <div class="cards-deck-1 mb-4">
-        <div class="cards-deck-3">
-            <app-canvas-tile [title]="'Συνολικες Αιτησεις ανα Τυπο Αιτησης'"
+        <div class="grid grid-cols-3 gap-x-5 gap-y-0">
+            <app-canvas-tile *ngIf="tiles.GroupedByCasetype"
+                             [title]="'dashboard.groupedByCasetype' | translate"
                              [canvasId]="reportTag.GroupedByCasetype"></app-canvas-tile>
-            <app-canvas-tile [title]="'Αιτησεις απο Καταστημα ανα Τυπο Αιτησης'"
+            <app-canvas-tile *ngIf="tiles.AgentGroupedByCasetype" 
+                             [title]="'dashboard.agentGroupedByCasetype' | translate"
                              [canvasId]="reportTag.AgentGroupedByCasetype"></app-canvas-tile>
-            <app-canvas-tile [title]="'Αιτησεις μεσω eBanking ανα Τυπο Αιτησης'"
+            <app-canvas-tile *ngIf="tiles.CustomerGroupedByCasetype" 
+                             [title]="'dashboard.customerGroupedByCasetype' | translate"
                              [canvasId]="reportTag.CustomerGroupedByCasetype"></app-canvas-tile>
-        </div>
-        <div class="cards-deck-3">
-            <app-canvas-tile [title]="'Συνολικες Αιτησεις ανα Status'"
+            <app-canvas-tile *ngIf="tiles.GroupedByStatus" 
+                             [title]="'dashboard.groupedByStatus' | translate"
                              [canvasId]="reportTag.GroupedByStatus"></app-canvas-tile>
-            <app-canvas-tile [title]="'Αιτησεις απο Καταστημα ανα Status'"
+            <app-canvas-tile *ngIf="tiles.AgentGroupedByStatus" 
+                             [title]="'dashboard.agentGroupedByStatus' | translate"
                              [canvasId]="reportTag.AgentGroupedByStatus"></app-canvas-tile>
-            <app-canvas-tile [title]="'Αιτησεις μεσω eBanking ανα Status'"
+            <app-canvas-tile *ngIf="tiles.CustomerGroupedByStatus" 
+                             [title]="'dashboard.customerGroupedByStatus' | translate"
                              [canvasId]="reportTag.CustomerGroupedByStatus"></app-canvas-tile>
-        </div>
-        <div *ngIf="isAdmin"
-             class="cards-deck-3">
-            <app-canvas-tile [title]="'Συνολικες Αιτησεις ανα Καταστημα'"
+            <app-canvas-tile *ngIf="isAdmin && tiles.GroupedByGroupId"
+                             [title]="'dashboard.groupedByGroupId' | translate"
                              [canvasId]="reportTag.GroupedByGroupId"></app-canvas-tile>
         </div>
     </div>

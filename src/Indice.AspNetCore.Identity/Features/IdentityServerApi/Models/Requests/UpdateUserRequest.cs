@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Features.Identity.Core.Data.Models;
 
 namespace Indice.AspNetCore.Identity.Api.Models;
 

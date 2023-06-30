@@ -13,13 +13,13 @@ namespace Microsoft.AspNetCore.Builder;
 public static class RiskApi
 {
     /// <summary>Registers the endpoints for the risk engine.</summary>
-    /// <typeparam name="TTransaction">The type of transaction that the engine manages.</typeparam>
-    /// <typeparam name="TTransactionRequest">The type of transaction that the engine manages.</typeparam>
+    /// <typeparam name="TRiskEvent">The type of transaction that the engine manages.</typeparam>
+    /// <typeparam name="TRiskRequest">The type of transaction that the engine manages.</typeparam>
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
-    public static IEndpointRouteBuilder MapRisk<TTransaction, TTransactionRequest>(this IEndpointRouteBuilder builder)
-        where TTransaction : Transaction, new()
-        where TTransactionRequest : CreateTransactionRequestBase<TTransaction> {
+    public static IEndpointRouteBuilder MapRisk<TRiskEvent, TRiskRequest>(this IEndpointRouteBuilder builder)
+        where TRiskEvent : DbRiskEvent, new()
+        where TRiskRequest : RiskRequestBase<TRiskEvent> {
         var options = builder.ServiceProvider.GetService<IOptions<RiskApiOptions>>()?.Value ?? new RiskApiOptions();
         var group = builder.MapGroup($"{options.ApiPrefix}")
                            .WithGroupName("risk")
@@ -35,16 +35,10 @@ public static class RiskApi
         var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
-        // POST: /api/transactions/risk
-        group.MapPost("transactions/risk", RiskApiHandlers.GetTransactionRisk<TTransaction, TTransactionRequest>)
-             .WithName(nameof(RiskApiHandlers.GetTransactionRisk))
+        // POST: /api/risk
+        group.MapPost("risk", RiskApiHandlers.GetRisk<TRiskEvent, TRiskRequest>)
+             .WithName(nameof(RiskApiHandlers.GetRisk))
              .WithSummary("Calculates the risk given a transaction presented in the system.");
-
-        // POST: /api/risk/events
-        group.MapPost("events", RiskApiHandlers.AddEvent)
-             .WithName(nameof(RiskApiHandlers.AddEvent))
-             .WithSummary("Accepts and stores an event.");
-             //.WithParameterValidation<CreateTransactionEventCommand>();
 
         return builder;
     }
@@ -53,5 +47,5 @@ public static class RiskApi
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
     public static IEndpointRouteBuilder MapRisk(this IEndpointRouteBuilder builder) =>
-        builder.MapRisk<Transaction, CreateTransactionRequestBase<Transaction>>();
+        builder.MapRisk<DbRiskEvent, RiskRequestBase<DbRiskEvent>>();
 }

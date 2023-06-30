@@ -6,8 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.Risk.Core.Configuration;
 
 /// <summary>Builder class used to configure the risk engine feature.</summary>
-/// <typeparam name="TTransaction">The type of transaction that the engine manages.</typeparam>
-public class RuleBuilder<TTransaction> where TTransaction : Transaction
+/// <typeparam name="TRiskEvent">The type of risk event.</typeparam>
+public class RuleBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
 {
     private readonly List<string> _ruleNames = new();
     private readonly IServiceCollection _services;
@@ -16,31 +16,29 @@ public class RuleBuilder<TTransaction> where TTransaction : Transaction
         _services = services ?? throw new ArgumentNullException(nameof(services));
     }
 
-    /// <summary>Adds a new rule to the risk engine by providing an implementation of <see cref="IRule{TTransaction}"/>.</summary>
+    /// <summary>Adds a new rule to the risk engine by providing an implementation of <see cref="IRule{TRiskEvent}"/>.</summary>
     /// <typeparam name="TRule">The implementation type.</typeparam>
     /// <param name="name">The name of the rule.</param>
-    /// <param name="builder">Action for configuring the change of score calculation based incoming events.</param>
-    /// <returns>The instance of <see cref="RuleBuilder{TTransaction}"/>.</returns>
-    public RuleBuilder<TTransaction> AddRule<TRule>(string name, Action<RuleConfigBuilder<TTransaction>>? builder = null) where TRule : class, IRule<TTransaction> {
+    /// <param name="builder">Action for configuring the change of score calculation based on incoming events.</param>
+    /// <returns>The instance of <see cref="RuleBuilder{TRiskEvent}"/>.</returns>
+    public RuleBuilder<TRiskEvent> AddRule<TRule>(string name, Action<EventConfigBuilder<TRiskEvent>>? builder = null) where TRule : class, IRule<TRiskEvent> {
         CheckAndAddRuleName(name);
         ConfigureRules(name, builder);
-        _services.AddTransient<IRule<TTransaction>, TRule>();
+        _services.AddTransient<IRule<TRiskEvent>, TRule>();
         return this;
     }
 
     /// <summary>Adds a new rule to the risk engine by providing a lambda expression.</summary>
     /// <param name="name">The name of the rule.</param>
-    /// <param name="ruleDelegate">The delegate method to when a new transaction occurs.</param>
-    /// <param name="builder">Action for configuring the change of score calculation based incoming events.</param>
-    /// <returns>The instance of <see cref="RuleBuilder{TTransaction}"/>.</returns>
-    public RuleBuilder<TTransaction> AddRule(
+    /// <param name="ruleDelegate">The delegate method to when a new event occurs.</param>
+    /// <returns>The instance of <see cref="RuleBuilder{TRiskEvent}"/>.</returns>
+    public RuleBuilder<TRiskEvent> AddRule(
         string name,
-        Func<IServiceProvider, TTransaction, ValueTask<RuleExecutionResult>> ruleDelegate,
-        Action<RuleConfigBuilder<TTransaction>>? builder = null
+        Func<IServiceProvider, TRiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
     ) {
         CheckAndAddRuleName(name);
-        ConfigureRules(name, builder);
-        _services.AddTransient<IRule<TTransaction>>(serviceProvider => new GenericRule<TTransaction>(serviceProvider, ruleDelegate) {
+        ConfigureRules(name);
+        _services.AddTransient<IRule<TRiskEvent>>(serviceProvider => new GenericRule<TRiskEvent>(serviceProvider, ruleDelegate) {
             Name = name
         });
         return this;
@@ -48,17 +46,20 @@ public class RuleBuilder<TTransaction> where TTransaction : Transaction
 
     /// <summary>Adds a new rule to the risk engine by providing a lambda expression.</summary>
     /// <param name="name">The name of the rule.</param>
-    /// <param name="ruleDelegate">The delegate method to when a new transaction occurs.</param>
-    /// <param name="builder">Action for configuring the change of score calculation based incoming events.</param>
-    /// <returns>The instance of <see cref="RuleBuilder{TTransaction}"/>.</returns>
-    public RuleBuilder<TTransaction> AddRule(
+    /// <param name="ruleDelegate">The delegate method to when a new event occurs.</param>
+    /// <returns>The instance of <see cref="RuleBuilder{TRiskEvent}"/>.</returns>
+    public RuleBuilder<TRiskEvent> AddRule(
         string name,
-        Func<TTransaction, ValueTask<RuleExecutionResult>> ruleDelegate,
-        Action<RuleConfigBuilder<TTransaction>>? builder = null
-    ) => AddRule(name, (serviceProvider, transaction) => ruleDelegate(transaction), builder);
+        Func<TRiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
+    ) => AddRule(name, (serviceProvider, @event) => ruleDelegate(@event));
 
-    private void ConfigureRules(string name, Action<RuleConfigBuilder<TTransaction>>? builder = null) {
-        var ruleConfigBuilder = new RuleConfigBuilder<TTransaction>(name);
+    /// <summary></summary>
+    /// <param name="eventsConfigAction"></param>
+    public void ConfigureEvents(Action<EventConfigBuilder<TRiskEvent>> eventsConfigAction) {
+    }
+
+    private void ConfigureRules(string name, Action<EventConfigBuilder<TRiskEvent>>? builder = null) {
+        var ruleConfigBuilder = new EventConfigBuilder<TRiskEvent>(name);
         builder?.Invoke(ruleConfigBuilder);
         var ruleConfig = ruleConfigBuilder.Build();
         _services.AddSingleton(ruleConfig);

@@ -3,5 +3,5 @@
 public class RuleConfig
 {
     public string RuleName { get; set; } = null!;
-    public List<RuleEvent> Events { get; set; } = new List<RuleEvent>();
+    public List<RiskEventModel> Events { get; set; } = new List<RiskEventModel>();
 }

@@ -35,11 +35,11 @@ public class RiskLevelRangeDictionary : Dictionary<RiskLevel, IntegerRange>
         if (!value.HasValue) {
             return default;
         }
-        if (value < this[RiskLevel.VeryLow].LowerLimit) {
-            return RiskLevel.VeryLow;
+        if (value < this[RiskLevel.None].LowerLimit) {
+            return RiskLevel.None;
         }
-        if (value > this[RiskLevel.VeryHigh].UpperLimit) {
-            return RiskLevel.VeryHigh;
+        if (value > this[RiskLevel.High].UpperLimit) {
+            return RiskLevel.High;
         }
         return this.Where(x => x.Value.LowerLimit <= value && value <= x.Value.UpperLimit).First().Key;
     }

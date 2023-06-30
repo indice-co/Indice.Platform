@@ -8,10 +8,7 @@ namespace Indice.Features.Cases.Models.Responses;
 public class CasePartial
 {
     /// <summary>The Id of the case.</summary>
-    public Guid Id { get; set; }
-
-    /// <summary>The current checkpoint of the case.</summary>
-    public Guid CheckpointTypeId { get; set; }
+    public Guid Id { get; set; }    
 
     /// <summary>The current status of the case.</summary>
     public CaseStatus Status { get; set; }
@@ -46,8 +43,8 @@ public class CasePartial
     /// <summary>The Id of the group the case belongs.</summary>
     public string GroupId { get; set; }
 
-    /// <summary>The current checkpoint type code for the case.</summary>
-    public string CheckpointTypeCode { get; set; }
+    /// <summary>The current checkpoint type for the case.</summary>
+    public CheckpointType CheckpointType { get; set; }
 
     /// <summary>The json data of the case.</summary>
     public dynamic Data { get; set; }

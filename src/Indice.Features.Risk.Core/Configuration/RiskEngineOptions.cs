@@ -6,11 +6,10 @@ namespace Indice.Features.Risk.Core.Configuration;
 public class RiskEngineOptions
 {
     internal static RiskLevelRangeDictionary RiskLevelRangeMappingInternal = new(new Dictionary<RiskLevel, IntegerRange> {
-        [RiskLevel.VeryLow] = new IntegerRange(0, 200),
-        [RiskLevel.Low] = new IntegerRange(201, 400),
-        [RiskLevel.Medium] = new IntegerRange(401, 600),
-        [RiskLevel.High] = new IntegerRange(601, 800),
-        [RiskLevel.VeryHigh] = new IntegerRange(801, 1000)
+        [RiskLevel.None] = new IntegerRange(0, 1),
+        [RiskLevel.Low] = new IntegerRange(2, 333),
+        [RiskLevel.Medium] = new IntegerRange(334, 666),
+        [RiskLevel.High] = new IntegerRange(667, 1000)
     });
 
     /// <summary>Contains the mapping between the risk level and the score.</summary>

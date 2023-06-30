@@ -5,36 +5,32 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Risk.Core.Data;
 
-/// <summary>A <see cref="DbContext"/> for persisting transactions and it's related data.</summary>
-/// <typeparam name="TTransaction">The type of transaction.</typeparam>
-public class RiskDbContext<TTransaction> : DbContext where TTransaction : Transaction
+/// <summary>A <see cref="DbContext"/> for persisting events and it's related data.</summary>
+/// <typeparam name="TRiskEvent">The type of risk event.</typeparam>
+public class RiskDbContext<TRiskEvent> : DbContext where TRiskEvent : DbRiskEvent
 {
-    /// <summary>Creates a new instance of <see cref="RiskDbContext{TTransaction}"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="RiskDbContext{TRiskEvent}"/> class.</summary>
     /// <param name="dbContextOptions"></param>
-    public RiskDbContext(DbContextOptions<RiskDbContext<TTransaction>> dbContextOptions) : base(dbContextOptions) {
+    public RiskDbContext(DbContextOptions<RiskDbContext<TRiskEvent>> dbContextOptions) : base(dbContextOptions) {
         if (Debugger.IsAttached) {
             Database.EnsureCreated();
         }
     }
 
-    /// <summary>Transactions table.</summary>
-    public DbSet<TTransaction> Transactions => Set<TTransaction>();
-    /// <summary>Transaction events table.</summary>
-    public DbSet<TransactionEvent> TransactionEvents { get; set; } = null!;
+    /// <summary>Risk events table.</summary>
+    public DbSet<TRiskEvent> RiskEvents => Set<TRiskEvent>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
-        // Transaction configuration.
-        modelBuilder.Entity<TTransaction>().ToTable(nameof(Transaction));
-        modelBuilder.Entity<TTransaction>().HasKey(x => x.Id);
-        modelBuilder.Entity<TTransaction>().HasIndex(x => x.SubjectId);
-        modelBuilder.Entity<TTransaction>().Property(x => x.Amount).HasColumnType("money");
-        modelBuilder.Entity<TTransaction>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
-        modelBuilder.Entity<TTransaction>().HasMany(x => x.Events).WithOne(x => (TTransaction)x.Transaction).HasForeignKey(x => x.TransactionId);
-        // TransactionEvent configuration.
-        modelBuilder.Entity<TransactionEvent>().ToTable(nameof(TransactionEvent));
-        modelBuilder.Entity<TransactionEvent>().HasKey(x => x.Id);
-        modelBuilder.Entity<TransactionEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired();
+        // Risk event configuration.
+        modelBuilder.Entity<TRiskEvent>().ToTable("RiskEvent");
+        modelBuilder.Entity<TRiskEvent>().HasKey(x => x.Id);
+        modelBuilder.Entity<TRiskEvent>().HasIndex(x => x.CreatedAt);
+        modelBuilder.Entity<TRiskEvent>().HasIndex(x => x.SubjectId);
+        modelBuilder.Entity<TRiskEvent>().Property(x => x.Amount).HasColumnType("money");
+        modelBuilder.Entity<TRiskEvent>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
+        modelBuilder.Entity<TRiskEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired();
+        modelBuilder.Entity<TRiskEvent>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
     }
 }
