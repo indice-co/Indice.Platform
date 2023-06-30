@@ -55,7 +55,8 @@ public class RuleBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
 
     /// <summary></summary>
     /// <param name="eventsConfigAction"></param>
-    public void ConfigureEvents(Action<EventConfigBuilder<TRiskEvent>> eventsConfigAction) { }
+    public void ConfigureEvents(Action<EventConfigBuilder<TRiskEvent>> eventsConfigAction) {
+    }
 
     private void ConfigureRules(string name, Action<EventConfigBuilder<TRiskEvent>>? builder = null) {
         var ruleConfigBuilder = new EventConfigBuilder<TRiskEvent>(name);

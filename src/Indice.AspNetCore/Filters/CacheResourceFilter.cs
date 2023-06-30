@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Indice.AspNetCore.Http.Filters;
 using Indice.Configuration;
+using Indice.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
@@ -15,11 +16,11 @@ namespace Indice.AspNetCore.Filters;
 /// <summary>A resource filter used to short-circuit most of the pipeline if the response is already cached.</summary>
 public sealed class CacheResourceFilter : IAsyncResourceFilter
 {
-    private readonly IDistributedCache _cache;
     // Invoke the same JSON serializer settings that are used by the output formatter, so we can save objects in the cache in the exact same manner.
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly CacheResourceFilterOptions _cacheResourceFilterOptions;
     private readonly ICacheResourceFilterKeyExtensionResolver _keyExtensionResolver;
+    private readonly CacheResourceKeysManager _cacheResourceKeysManager;
     private readonly string[] _dependentPaths;
     private readonly string[] _dependentStaticPaths;
     private readonly int _expiration;
@@ -27,7 +28,7 @@ public sealed class CacheResourceFilter : IAsyncResourceFilter
     private string _cacheKey;
 
     /// <summary>Constructs a <see cref="CacheResourceFilter"/>.</summary>
-    /// <param name="cache">Represents a distributed cache of serialized values.</param>
+    /// <param name="cacheResourceKeysManager">A simple service class for managing cache operations for <see cref="CacheResourceFilter"/>.</param>
     /// <param name="jsonOptions">Provides programmatic configuration for JSON in the MVC framework.</param>
     /// <param name="cacheResourceFilterOptions">Options for the <see cref="CacheResourceFilter"/>.</param>
     /// <param name="keyExtensionResolver">An optional extension to the cache key discriminator that will be created inside on th <see cref="CacheResourceFilter"/>.</param>
@@ -36,7 +37,7 @@ public sealed class CacheResourceFilter : IAsyncResourceFilter
     /// <param name="expiration">The absolute expiration in minutes of the cache item, expressed as an <see cref="int"/>. Defaults to 60 minutes.</param>
     /// <param name="varyByClaimType">The claim to use which value is included in the cache key.</param>
     public CacheResourceFilter(
-        IDistributedCache cache,
+        CacheResourceKeysManager cacheResourceKeysManager,
         IOptions<JsonOptions> jsonOptions,
         IOptions<CacheResourceFilterOptions> cacheResourceFilterOptions,
         IEnumerable<ICacheResourceFilterKeyExtensionResolver> keyExtensionResolver,
@@ -45,10 +46,10 @@ public sealed class CacheResourceFilter : IAsyncResourceFilter
         int expiration,
         string[] varyByClaimType
     ) {
-        _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _jsonSerializerOptions = jsonOptions?.Value?.JsonSerializerOptions ?? throw new ArgumentNullException(nameof(jsonOptions));
         _cacheResourceFilterOptions = cacheResourceFilterOptions?.Value ?? throw new ArgumentNullException(nameof(cacheResourceFilterOptions));
         _keyExtensionResolver = keyExtensionResolver?.FirstOrDefault(); // this is optional do not throw argument null exception!
+        _cacheResourceKeysManager = cacheResourceKeysManager ?? throw new ArgumentNullException(nameof(cacheResourceKeysManager));
         _dependentPaths = dependentPaths ?? Array.Empty<string>();
         _dependentStaticPaths = dependentStaticPaths ?? Array.Empty<string>();
         _expiration = expiration;
@@ -66,7 +67,7 @@ public sealed class CacheResourceFilter : IAsyncResourceFilter
         _cacheKey = $"{request.Path}{(request.QueryString.HasValue ? request.QueryString.Value : string.Empty)}";
         _cacheKey = await AddCacheKeyDiscriminatorAsync(context.HttpContext, _cacheKey);
         var requestMethod = request.Method;
-        var cachedValue = _cache.GetString(_cacheKey);
+        var cachedValue = _cacheResourceKeysManager.GetString(_cacheKey);
         // If there is a cached response for this path and the request method is of type 'GET', then break the pipeline and send the cached response.
         if (!string.IsNullOrEmpty(cachedValue) && (requestMethod == HttpMethod.Get.Method || requestMethod == HttpMethod.Head.Method)) {
             context.Result = new OkObjectResult(JsonDocument.Parse(cachedValue).RootElement);
@@ -83,7 +84,7 @@ public sealed class CacheResourceFilter : IAsyncResourceFilter
         var requestMethod = request.Method;
         var basePath = string.Empty;
         if (context.ActionDescriptor is ControllerActionDescriptor actionDescriptor) {
-            var isCacheable = actionDescriptor.MethodInfo.GetCustomAttributes(inherit: false).Count(x => x.GetType() == typeof(NoCacheAttribute)) == 0;
+            var isCacheable = !actionDescriptor.MethodInfo.GetCustomAttributes(inherit: false).Any(x => x.GetType() == typeof(NoCacheAttribute));
             var controllerRoute = actionDescriptor.ControllerTypeInfo.GetCustomAttributes(inherit: false).SingleOrDefault(x => x.GetType() == typeof(RouteAttribute));
             if (controllerRoute != null) {
                 basePath = $"/{(controllerRoute as RouteAttribute).Template}";
@@ -96,16 +97,16 @@ public sealed class CacheResourceFilter : IAsyncResourceFilter
         if (!string.IsNullOrEmpty(_cacheKey)) {
             // If request method is of type 'GET' then we can cache the response.
             if (requestMethod == HttpMethod.Get.Method || requestMethod == HttpMethod.Head.Method) {
-                var cachedValue = _cache.GetString(_cacheKey);
+                var cachedValue = _cacheResourceKeysManager.GetString(_cacheKey);
                 // Check if we already have a cached value for this cache key and also that response status code is 200 OK.
                 if (string.IsNullOrEmpty(cachedValue) && (context.Result is OkObjectResult result)) {
-                    _cache.SetString(_cacheKey, JsonSerializer.Serialize(result.Value, _jsonSerializerOptions), new DistributedCacheEntryOptions {
+                    _cacheResourceKeysManager.SetString(_cacheKey, JsonSerializer.Serialize(result.Value, _jsonSerializerOptions), new DistributedCacheEntryOptions {
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_expiration)
                     });
                 }
             }
             if (requestMethod == HttpMethod.Post.Method || requestMethod == HttpMethod.Put.Method || requestMethod == HttpMethod.Patch.Method || requestMethod == HttpMethod.Delete.Method) {
-                _cache.Remove(_cacheKey);
+                _cacheResourceKeysManager.Remove(_cacheKey);
                 foreach (var path in _dependentPaths) {
                     var dependentKey = $"{basePath}/{path}";
                     var regex = new Regex("{(.*?)}");
@@ -126,11 +127,11 @@ public sealed class CacheResourceFilter : IAsyncResourceFilter
                         nextMatch = nextMatch.NextMatch();
                         hasNextMatch = nextMatch.Success;
                     }
-                    _cache.Remove(await AddCacheKeyDiscriminatorAsync(context.HttpContext, dependentKey));
+                    _cacheResourceKeysManager.Remove(await AddCacheKeyDiscriminatorAsync(context.HttpContext, dependentKey));
                 }
                 foreach (var path in _dependentStaticPaths) {
                     var dependentKey = path.StartsWith("/") ? path : $"/{path}";
-                    _cache.Remove(await AddCacheKeyDiscriminatorAsync(context.HttpContext, dependentKey));
+                    _cacheResourceKeysManager.Remove(await AddCacheKeyDiscriminatorAsync(context.HttpContext, dependentKey));
                 }
             }
         }

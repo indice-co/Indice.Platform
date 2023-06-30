@@ -15,16 +15,22 @@ public class CreateUserRequest
     public string UserName { get; set; } = string.Empty;
     /// <summary>The email of the user.</summary>
     public string? Email { get; set; }
+    /// <summary>Gets or sets a flag indicating if a user has confirmed their email address.</summary>
+    public bool? EmailConfirmed { get; set; }
     /// <summary>The initial password of the user.</summary>
     public string? Password { get; set; }
     /// <summary>User's phone number.</summary>
     public string? PhoneNumber { get; set; }
+    /// <summary>Gets or sets a flag indicating if a user has confirmed their telephone address.</summary>
+    public bool? PhoneNumberConfirmed { get; set; }
     /// <summary>Represents the password expiration policy the value is measured in days.</summary>
     public PasswordExpirationPolicy? PasswordExpirationPolicy { get; set; }
     /// <summary>Forces the user to change his password after created by the system admin.</summary>
     public bool? ChangePasswordAfterFirstSignIn { get; set; }
     /// <summary>Bypasses all password validation rules.</summary>
     public bool? BypassPasswordValidation { get; set; }
+    /// <summary>Gets or sets a flag indicating if two factor authentication is enabled for this user.</summary>
+    public bool? TwoFactorEnabled { get; set; }
     /// <summary>Dynamic claims that have been marked as required.</summary>
     public List<BasicClaimInfo> Claims { get; set; } = new List<BasicClaimInfo>();
 }

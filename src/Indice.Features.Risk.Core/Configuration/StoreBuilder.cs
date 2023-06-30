@@ -29,7 +29,7 @@ public class StoreBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
 
     /// <summary>Registers an implementation of <see cref="IRiskEventStore{TRiskEvent}"/> where Entity Framework Core is used as a persistent mechanism.</summary>
     /// <param name="dbContextOptionsAction">The builder being used to configure the context.</param>
-    /// <returns>An instance of <see cref="RuleBuilder{TTransaction}"/> for further configuration.</returns>
+    /// <returns>An instance of <see cref="RuleBuilder{TRiskEvent}"/> for further configuration.</returns>
     public RuleBuilder<TRiskEvent> WithEntityFrameworkCoreStore(Action<DbContextOptionsBuilder> dbContextOptionsAction) =>
         WithEntityFrameworkCoreStore<RiskDbContext<TRiskEvent>>(dbContextOptionsAction);
 }

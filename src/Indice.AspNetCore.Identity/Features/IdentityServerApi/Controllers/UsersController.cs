@@ -219,12 +219,15 @@ internal class UsersController : ControllerBase
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request) {
         var user = new User {
-            Id = $"{Guid.NewGuid()}",
-            UserName = request.UserName,
-            Email = request.Email,
             CreateDate = DateTime.UtcNow,
+            Email = request.Email,
+            EmailConfirmed = request.EmailConfirmed ?? false,
+            Id = $"{Guid.NewGuid()}",
+            PasswordExpirationPolicy = request.PasswordExpirationPolicy,
             PhoneNumber = request.PhoneNumber,
-            PasswordExpirationPolicy = request.PasswordExpirationPolicy
+            PhoneNumberConfirmed = request.PhoneNumberConfirmed ?? false,
+            TwoFactorEnabled = request.TwoFactorEnabled ?? false,
+            UserName = request.UserName
         };
         IdentityResult result = null;
         if (string.IsNullOrEmpty(request.Password)) {

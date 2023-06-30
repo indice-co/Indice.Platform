@@ -9,7 +9,7 @@ namespace Indice.Features.Risk.Core.Data;
 /// <typeparam name="TRiskEvent">The type of risk event.</typeparam>
 public class RiskDbContext<TRiskEvent> : DbContext where TRiskEvent : DbRiskEvent
 {
-    /// <summary>Creates a new instance of <see cref="RiskDbContext{TTransaction}"/> class.</summary>
+    /// <summary>Creates a new instance of <see cref="RiskDbContext{TRiskEvent}"/> class.</summary>
     /// <param name="dbContextOptions"></param>
     public RiskDbContext(DbContextOptions<RiskDbContext<TRiskEvent>> dbContextOptions) : base(dbContextOptions) {
         if (Debugger.IsAttached) {

@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class IServiceCollectionExtensions
 {
     /// <summary>Adds the required services for configuring the risk engine, using the provided type <typeparamref name="TRiskEvent"/>.</summary>
-    /// <typeparam name="TRiskEvent">The type of transaction that the engine manages.</typeparam>
+    /// <typeparam name="TRiskEvent">The type of risk event.</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configAction">Options for configuring the <b>Risk Engine</b> feature.</param>
     /// <returns>The <see cref="StoreBuilder{TRiskEvent}"/> instance used to configure the risk engine.</returns>
@@ -23,7 +23,6 @@ public static class IServiceCollectionExtensions
         services.Configure<RiskEngineOptions>(riskOptions => {
             riskOptions.RiskLevelRangeMapping = options.RiskLevelRangeMapping;
         });
-        // Add core services.
         services.AddTransient<RiskManager<TRiskEvent>>();
         return builder;
     }
