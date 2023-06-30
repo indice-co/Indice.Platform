@@ -6,7 +6,7 @@
       <VersionPrefixCore>$(VersionPrefixBase).1</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).1</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).1</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).2</VersionPrefixCases>
+      <VersionPrefixCases>$(VersionPrefixBase).3</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).1</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
