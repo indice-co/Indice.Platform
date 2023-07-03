@@ -8,8 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - "not-equals" and "contains" operators to GetCases list filters.
+- `CheckpointType.Status` to `CasePartial`.
 ### Changed
 - General refactoring in case filtering based on role/member.
+### Removed
+- `CaseStatus` from `CasePartial`. 
 
 ## [7.3.2] - 2023-06-29
 ### Added
