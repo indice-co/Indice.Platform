@@ -185,8 +185,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                          Id = c.Id,
                                          Created = c.CreatedBy.When,
                                          CaseTypeCode = c.CaseType.Code,
-                                         Status = c.PublicCheckpoint.CheckpointType.Status,
                                          CheckpointType = new CheckpointType {
+                                             Status = c.PublicCheckpoint.CheckpointType.Status,
                                              Code = c.PublicCheckpoint.CheckpointType.Code,
                                              Title = c.PublicCheckpoint.CheckpointType.Title,
                                              Description = c.PublicCheckpoint.CheckpointType.Description,

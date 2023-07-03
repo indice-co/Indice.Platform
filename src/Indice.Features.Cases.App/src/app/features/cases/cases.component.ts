@@ -126,18 +126,20 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
     }
 
     loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
-        let customerId = this.filters?.find(f => f.member === 'customerId')?.value;
-        let customerName = this.filters?.find(f => f.member === 'customerName')?.value;
+        let customerIds: string[] = [];
+        this.filters?.filter(f => f.member === 'customerId')?.forEach(f => customerIds.push(this.stringifyFilterClause(f)));
+        let customerNames: string[] = [];
+        this.filters?.filter(f => f.member === 'customerName')?.forEach(f => customerNames.push(this.stringifyFilterClause(f)));
         let groupIds: string[] = [];
-        this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(f.value));
+        this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(this.stringifyFilterClause(f)));
         let from = this.filters?.find(f => f.member === 'from')?.value;
         let to = this.filters?.find(f => f.member === 'to')?.value;
         let caseTypeCodes: string[] = [];
-        this.filters?.filter(f => f.member === 'caseTypeCodes')?.forEach(f => caseTypeCodes?.push(f.value));
+        this.filters?.filter(f => f.member === 'caseTypeCodes')?.forEach(f => caseTypeCodes?.push(this.stringifyFilterClause(f)));
         let checkpointTypeCodes: string[] = [];
-        this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(f.value));
+        this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(this.stringifyFilterClause(f)));
         let filterMetadata: string[] = [];
-        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${f.member}::eq::(${f.dataType})${f.value}`)); // this is the form that the server accepts
+        this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
         this._paramsService.setParams({
             view: this.view,
             page: this.page,
@@ -149,8 +151,8 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         });
         return this._api
             .getCases(
-                customerId,
-                customerName,
+                customerIds,
+                customerNames,
                 from ? new Date(from) : undefined,
                 to ? new Date(to) : undefined,
                 caseTypeCodes,
@@ -179,4 +181,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         }).join(',');
     }
 
+    private stringifyFilterClause(filter: FilterClause): string {
+        return `${filter.member}::${filter.operator}::${filter.value}`;
+    }
 }

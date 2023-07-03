@@ -2,9 +2,9 @@
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Exceptions;
 using Indice.Features.Cases.Interfaces;
-using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Security;
+using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
@@ -18,6 +18,9 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     private readonly AdminCasesApiOptions _options;
     private const string MembersCacheKey = $"{nameof(MemberAuthorizationService)}.members";
 
+    /// <summary>
+    /// A service that determines which cases can the user access based on their role.
+    /// </summary>
     public MemberAuthorizationService(
         CasesDbContext dbContext,
         IDistributedCache distributedCache,
@@ -27,44 +30,41 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
         _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
-
-    /// <summary>Applies Filters in relation to user's role(s)</summary>
+    /// <summary>
+    /// In the case of a non admin user. Apply extra Where clauses to the IQueryable based on their roles.
+    /// </summary>
+    /// <param name="cases"></param>
     /// <param name="user"></param>
-    /// <param name="filter"></param>
-    public async Task<GetCasesListFilter> ApplyFilterFor(ClaimsPrincipal user, GetCasesListFilter filter) {
-        if (filter is null) {
-            throw new ArgumentNullException(nameof(filter));
-        }
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
-
-        // if client is systemic or admin, then bypass checks
+    /// <returns></returns>
+    public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, ClaimsPrincipal user) {
+        // if client is systemic or admin, then bypass checks since no filtering is required.
         if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
-            filter.CheckpointTypeIds = await ApplyAdminCheckpointTypeFilter(filter.CheckpointTypeCodes);
-            // no need to do anything for CaseType codes if user is systemic or admin!
-            return filter;
+            return cases;
         }
 
+        // if the user is not systemic or admin then based on their role they have access to specific checkpoint types and case type codes.
         var roleClaims = GetUserRoles(user);
         var members = await GetMembers();
 
-        filter.CheckpointTypeIds = ApplyCheckpointTypeFilter(filter.CheckpointTypeCodes, roleClaims, members);
-        filter.CaseTypeCodes = ApplyCaseTypeFilter(filter.CaseTypeCodes, roleClaims, members);
-
-        if ((filter.CaseTypeCodes is null || filter.CaseTypeCodes.Count == 0) ||
-            (filter.CheckpointTypeIds is null || filter.CheckpointTypeIds.Count == 0)) {
+        if (GetAllowedCheckpointTypes(roleClaims, members) is not { } allowedCheckpointTypeIds ||
+            GetAllowedCaseTypeCodes(roleClaims, members) is not { } allowedCaseTypeCodes) {
             // if the (non-admin) user comes with no available caseTypes or CheckpointTypes to see, tough luck!
             throw new ResourceUnauthorizedException("User does not has access to cases");
         }
 
-        return filter;
+        if (allowedCheckpointTypeIds.Any()) {
+            cases = cases.Where(cp => allowedCheckpointTypeIds.Contains(cp.CheckpointType.Id.ToString()));
+        }
+        if (allowedCaseTypeCodes.Any()) {
+            cases = cases.Where(cp => allowedCaseTypeCodes.Contains(cp.CaseType.Code));
+        }
+        return cases;
     }
 
     /// <summary>Determines whether user can see a Case in relation to i) user's role(s) and ii) case's CaseType and CheckpointType</summary>
     /// <param name="user"></param>
     /// <param name="case"></param>
-    public async Task<bool> IsValid(ClaimsPrincipal user, Case @case) {
+    public async Task<bool> IsMember(ClaimsPrincipal user, Case @case) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (@case is null) throw new ArgumentNullException(nameof(@case));
 
@@ -90,68 +90,13 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     private bool IsOwnerOfCase(ClaimsPrincipal user, Case @case) =>
         user.FindSubjectId().Equals(@case.CreatedById);
 
-    /// <summary>Gets the list of allowed and filtered CheckpointType Ids for admin users</summary>
-    /// <param name="checkpointTypeCodes"></param>
-    private async Task<List<string>> ApplyAdminCheckpointTypeFilter(List<string> checkpointTypeCodes) {
-        // admin didn't select checkpointTypeCode filters -> get all checkpointTypeIds
-        if (checkpointTypeCodes is null || checkpointTypeCodes.Count == 0) {
-            return await _dbContext.CheckpointTypes
-            .AsQueryable()
-            .Select(checkpointType => checkpointType.Id.ToString())
-            .ToListAsync();
-        }
-        // admin selected checkpointTypeCode filters
-        return await _dbContext.CheckpointTypes
-            .AsQueryable()
-            .Where(checkpointType => checkpointTypeCodes.Contains(checkpointType.Code))
-            .Select(checkpointType => checkpointType.Id.ToString())
-            .ToListAsync();
-    }
-
-    /// <summary>Gets the list of allowed and filtered CheckpointType Ids for non-admin users</summary>
-    /// <param name="checkpointTypeCodes"></param>
-    /// <param name="roleClaims"></param>
-    /// <param name="roleCaseTypes"></param>
-    private List<string> ApplyCheckpointTypeFilter(List<string> checkpointTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
-        // what CheckpointTypes can the user see based on his/her ROLE(S)?
-        var roleBasedAllowedCheckpointTypes = roleCaseTypes
-            .Where(roleCaseType => roleClaims.Contains(roleCaseType.RoleName!))
-            .Select(roleCaseType => new { CheckpointTypeId = roleCaseType.CheckpointTypeId.ToString(), CheckpointTypeCode = roleCaseType.CheckpointType.Code })
-            .Distinct() // Avoid duplicates: it is possible that user has >1 roles and those roles can "see" common CheckpointTypes
-            .ToList();
-
-        return
-            checkpointTypeCodes is not null // did user selected a checkpointTypeCode filter?
-            ? roleBasedAllowedCheckpointTypes
-                .Where(x => checkpointTypeCodes.Contains(x.CheckpointTypeCode))
-                .Select(x => x.CheckpointTypeId)
-                .ToList()
-            : roleBasedAllowedCheckpointTypes
-                .Select(x => x.CheckpointTypeId)
-                .ToList();
-    }
-
-    /// <summary>Gets the list of allowed and filtered CaseType Codes for non-admin users</summary>
-    /// <param name="caseTypeCodes"></param>
-    /// <param name="roleClaims"></param>
-    /// <param name="roleCaseTypes"></param>
-    private List<string> ApplyCaseTypeFilter(List<string> caseTypeCodes, List<string> roleClaims, List<RoleCaseType> roleCaseTypes) {
-        var allowedCaseTypeCodes = roleCaseTypes
-            .Where(roleCaseType => roleClaims.Contains(roleCaseType.RoleName!))
-            .Select(x => x.CaseTypePartial.Code)
-            .Distinct()
-            .ToList();
-
-        return caseTypeCodes is null ? allowedCaseTypeCodes : allowedCaseTypeCodes.Intersect(caseTypeCodes).ToList();
-    }
-
-    /// <summary>Gets the list of RoleCaseTypes</summary>
-    private async Task<List<RoleCaseType>> GetMembers() {
+    /// <summary>Gets the list of Members</summary>
+    private async Task<List<Member>> GetMembers() {
         return await _distributedCache.TryGetAndSetAsync(
             cacheKey: $"{MembersCacheKey}",
             getSourceAsync: async () => await _dbContext.Members
                 .AsQueryable()
-                .Select(c => new RoleCaseType {
+                .Select(c => new Member {
                     Id = c.Id,
                     RoleName = c.RoleName,
                     CaseTypeId = c.CaseTypeId,
@@ -178,4 +123,21 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
             .Where(c => c.Type == BasicClaimTypes.Role)
             .Select(c => c.Value)
             .ToList();
+
+    private List<string> GetAllowedCheckpointTypes(List<string> roleClaims, List<Member> members) {
+        // what CheckpointTypes can the user see based on their ROLE(S)?
+        return members
+            .Where(members => roleClaims.Contains(members.RoleName!))
+            .Select(members => members.CheckpointTypeId.ToString())
+            .Distinct() // Avoid duplicates: it is possible that user has >1 roles and those roles can "see" common CheckpointTypes
+            .ToList();
+    }
+    private List<string> GetAllowedCaseTypeCodes(List<string> roleClaims, List<Member> members) {
+        // what CaseType codes can the user see based on their ROLE(S)?
+        return members
+            .Where(members => roleClaims.Contains(members.RoleName!))
+            .Select(x => x.CaseTypePartial.Code)
+            .Distinct()
+            .ToList();
+    }
 }
