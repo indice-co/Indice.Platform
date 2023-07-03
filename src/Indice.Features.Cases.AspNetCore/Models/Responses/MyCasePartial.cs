@@ -12,9 +12,6 @@ public class MyCasePartial
     /// <summary>The date the case was created.</summary>
     public DateTimeOffset? Created { get; set; }
 
-    /// <summary>The current status of the case.</summary>
-    public CaseStatus Status { get; set; }
-
     /// <summary>The case type code of the case.</summary>
     public string CaseTypeCode { get; set; }
 

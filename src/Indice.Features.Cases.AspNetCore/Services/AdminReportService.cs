@@ -33,7 +33,6 @@ internal class AdminReportService : IAdminReportService
             .Where(c => !c.Draft) // filter out draft cases
             .Select(@case => new CasePartial {
                 Id = @case.Id,
-                Status = @case.Checkpoint.CheckpointType.Status,
                 CreatedByWhen = @case.CreatedBy.When,
                 CaseType = new CaseTypePartial {
                     Id = @case.CaseType.Id,
@@ -44,7 +43,8 @@ internal class AdminReportService : IAdminReportService
                 GroupId = @case.GroupId,
                 CheckpointType = new CheckpointType {
                     Id = @case.Checkpoint.CheckpointType.Id,
-                    Code = @case.Checkpoint.CheckpointType.Code
+                    Code = @case.Checkpoint.CheckpointType.Code,
+                    Status = @case.Checkpoint.CheckpointType.Status
                 }
             });
 
@@ -117,14 +117,14 @@ internal class AdminReportService : IAdminReportService
 
     private async Task<List<GroupByReportResult>> GetCasesGroupedByStatus(IQueryable<CasePartial> cases) {
         return await cases
-            .GroupBy(x => x.Status)
+            .GroupBy(x => x.CheckpointType.Status)
             .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
             .ToListAsync();
     }
     private async Task<List<GroupByReportResult>> GetAgentCasesGroupedByStatus(IQueryable<CasePartial> cases) {
         return await cases
             .Where(x => x.Channel == Channels.Agent)
-            .GroupBy(x => x.Status)
+            .GroupBy(x => x.CheckpointType.Status)
             .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
             .ToListAsync();
     }
@@ -132,7 +132,7 @@ internal class AdminReportService : IAdminReportService
     private async Task<List<GroupByReportResult>> GetCustomerCasesGroupedByStatus(IQueryable<CasePartial> cases) {
         return await cases
             .Where(x => x.Channel == Channels.Customer)
-            .GroupBy(x => x.Status)
+            .GroupBy(x => x.CheckpointType.Status)
             .Select(group => new GroupByReportResult { Label = group.Key.ToString(), Count = group.Count() })
             .ToListAsync();
     }

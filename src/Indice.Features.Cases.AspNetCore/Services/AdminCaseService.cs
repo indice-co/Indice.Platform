@@ -89,7 +89,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 Id = @case.Id,
                 CustomerId = @case.Customer.CustomerId,
                 CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
-                Status = @case.Checkpoint.CheckpointType.Status,
                 CreatedByWhen = @case.CreatedBy.When,
                 CaseType = new CaseTypePartial {
                     Id = @case.CaseType.Id,
@@ -101,6 +100,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 GroupId = @case.GroupId,
                 CheckpointType = new CheckpointType {
                     Id = @case.Checkpoint.CheckpointType.Id,
+                    Status = @case.Checkpoint.CheckpointType.Status,
                     Code = @case.Checkpoint.CheckpointType.Code,
                     Title = @case.Checkpoint.CheckpointType.Title,
                     Description = @case.Checkpoint.CheckpointType.Description,
