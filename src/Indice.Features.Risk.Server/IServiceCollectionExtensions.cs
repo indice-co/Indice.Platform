@@ -18,7 +18,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddRiskEndpoints<TRiskEvent, TRiskRequest>(this IServiceCollection services, Action<RiskApiOptions>? configureAction = null)
         where TRiskEvent : DbRiskEvent, new()
         where TRiskRequest : RiskRequestBase<TRiskEvent> {
-        var riskApiOptions = new RiskApiOptions(services);
+        var riskApiOptions = new RiskApiOptions { 
+            Services = services
+        };
         configureAction?.Invoke(riskApiOptions);
         services.Configure<RiskApiOptions>(options => {
             options.ApiPrefix = riskApiOptions.ApiPrefix;
