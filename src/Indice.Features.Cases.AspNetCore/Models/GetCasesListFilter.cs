@@ -10,10 +10,10 @@ namespace Indice.Features.Cases.Models;
 public class GetCasesListFilter
 {
     /// <summary>The Id of the customer to filter.</summary>
-    public string CustomerId { get; set; }
+    public List<FilterClause> CustomerIds { get; set; } = new List<FilterClause>();
 
     /// <summary>The name of the customer to filter.</summary>
-    public string CustomerName { get; set; }
+    public List<FilterClause> CustomerNames { get; set; } = new List<FilterClause>();
 
     /// <summary>The created date of the case, starting from, to filter.</summary>
     public DateTimeOffset? From { get; set; }
@@ -22,16 +22,16 @@ public class GetCasesListFilter
     public DateTimeOffset? To { get; set; }
 
     /// <summary>The list of case type codes to filter.</summary>
-    public List<string> CaseTypeCodes { get; set; }
+    public List<FilterClause> CaseTypeCodes { get; set; } = new List<FilterClause>();
 
     /// <summary>The list of checkpoint type Ids to filter.</summary>
-    internal List<string> CheckpointTypeIds { get; set; }
+    internal List<FilterClause> CheckpointTypeIds { get; set; } = new List<FilterClause>();
 
     /// <summary>The list of checkpoint type codes to filter.</summary>
-    public List<string> CheckpointTypeCodes { get; set; }
+    public List<FilterClause> CheckpointTypeCodes { get; set; } = new List<FilterClause>();
 
     /// <summary>The list of groupIds to filter.</summary>
-    public List<string> GroupIds { get; set; }
+    public List<FilterClause> GroupIds { get; set; } = new List<FilterClause>();
 
     /// <summary>Construct filter clauses based on the metadata you are adding to the cases in your installation.</summary>
     public List<FilterClause> Metadata { get; set; }
