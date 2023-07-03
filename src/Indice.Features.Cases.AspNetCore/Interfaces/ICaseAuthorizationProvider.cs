@@ -18,7 +18,7 @@ internal interface ICaseAuthorizationProvider
     /// <param name="user">The user.</param>
     /// <param name="case">The case.</param>
     /// <returns></returns>
-    public Task<bool> IsValid(ClaimsPrincipal user, Case @case);
+    public Task<bool> IsMember(ClaimsPrincipal user, Case @case);
 
     /// <summary>
     /// Return an IQueryable of CasePartials based on the role of the user

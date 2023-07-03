@@ -18,6 +18,9 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     private readonly AdminCasesApiOptions _options;
     private const string MembersCacheKey = $"{nameof(MemberAuthorizationService)}.members";
 
+    /// <summary>
+    /// A service that determines which cases can the user access based on their role.
+    /// </summary>
     public MemberAuthorizationService(
         CasesDbContext dbContext,
         IDistributedCache distributedCache,
@@ -43,19 +46,17 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         var roleClaims = GetUserRoles(user);
         var members = await GetMembers();
 
-        var allowedCheckpointTypeIds = GetAllowedCheckpointTypes(roleClaims, members);
-        var allowedCaseTypeCodes = GetAllowedCaseTypeCodes(roleClaims, members);
-
-        if (allowedCheckpointTypeIds is not null && allowedCheckpointTypeIds.Any()) {
-            cases = cases.Where(cp => allowedCheckpointTypeIds.Contains(cp.CheckpointType.Id.ToString()));
-        }
-        if (allowedCaseTypeCodes is not null && allowedCaseTypeCodes.Any()) {
-            cases = cases.Where(cp => allowedCaseTypeCodes.Contains(cp.CaseType.Code));
-        }
-        if ((allowedCheckpointTypeIds is null || allowedCheckpointTypeIds.Count == 0) ||
-            (allowedCaseTypeCodes is null || allowedCaseTypeCodes.Count == 0)) {
+        if (GetAllowedCheckpointTypes(roleClaims, members) is not { } allowedCheckpointTypeIds ||
+            GetAllowedCaseTypeCodes(roleClaims, members) is not { } allowedCaseTypeCodes) {
             // if the (non-admin) user comes with no available caseTypes or CheckpointTypes to see, tough luck!
             throw new ResourceUnauthorizedException("User does not has access to cases");
+        }
+
+        if (allowedCheckpointTypeIds.Any()) {
+            cases = cases.Where(cp => allowedCheckpointTypeIds.Contains(cp.CheckpointType.Id.ToString()));
+        }
+        if (allowedCaseTypeCodes.Any()) {
+            cases = cases.Where(cp => allowedCaseTypeCodes.Contains(cp.CaseType.Code));
         }
         return cases;
     }
@@ -63,7 +64,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     /// <summary>Determines whether user can see a Case in relation to i) user's role(s) and ii) case's CaseType and CheckpointType</summary>
     /// <param name="user"></param>
     /// <param name="case"></param>
-    public async Task<bool> IsValid(ClaimsPrincipal user, Case @case) {
+    public async Task<bool> IsMember(ClaimsPrincipal user, Case @case) {
         if (user is null) throw new ArgumentNullException(nameof(user));
         if (@case is null) throw new ArgumentNullException(nameof(@case));
 

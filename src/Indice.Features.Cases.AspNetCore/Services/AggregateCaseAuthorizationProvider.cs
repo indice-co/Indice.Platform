@@ -19,9 +19,9 @@ internal class AggregateCaseAuthorizationProvider : ICaseAuthorizationProvider
         return cases;
     }
 
-    public async Task<bool> IsValid(ClaimsPrincipal user, Case @case) {
+    public async Task<bool> IsMember(ClaimsPrincipal user, Case @case) {
         foreach (var authorizationService in _caseAuthorizationServices) {
-            if (!await authorizationService.IsValid(user, @case)) {
+            if (!await authorizationService.IsMember(user, @case)) {
                 return false;
             }
         }

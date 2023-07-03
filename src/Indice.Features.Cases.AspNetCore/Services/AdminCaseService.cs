@@ -254,7 +254,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var @case = await query.FirstOrDefaultAsync();
 
         // Check that user role can view this case at this checkpoint.
-        if (!await _memberAuthorizationProvider.IsValid(user, @case)) {
+        if (!await _memberAuthorizationProvider.IsMember(user, @case)) {
             throw new ResourceUnauthorizedException();
         }
         @case.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
