@@ -1,6 +1,6 @@
-<ng-container>
+<ng-container *ngIf="enabled">
     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
-        Ανάθεση
+        Ανάθεση σε εμένα
     </h3>
     <div class="mt-auto pt-1 space-y-1 mb-4">
         <p class="text-s mb-4">Εφόσον η αίτηση ανατεθεί, δεν θα μπορεί να διεκπεραιωθεί από άλλον χρήστη του συστήματος.
@@ -16,10 +16,7 @@
                 <path stroke-linecap="round"
                       stroke-linejoin="round"
                       d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
-            </svg> Ανάθεση
+            </svg> Ανάθεση σε εμένα
         </button>
-        <lib-drop-down-menu [options]="assignees"
-                            [show-icons]="true"
-                            (selectedChanged)="selectedAssigneeChanged($event)"></lib-drop-down-menu>
     </div>
 </ng-container>

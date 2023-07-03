@@ -233,6 +233,7 @@ public static class CasesApiFeatureExtensions
         services.AddScoped<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
         services.AddScoped<IAwaitEditInvoker, AwaitEditInvoker>();
         services.AddScoped<IAwaitAssignmentInvoker, AwaitAssignmentInvoker>();
+        services.AddScoped<IAwaitAssignmentVol2Invoker, AwaitAssignmentVol2Invoker>();
         services.AddScoped<IAwaitActionInvoker, AwaitActionInvoker>();
     }
 

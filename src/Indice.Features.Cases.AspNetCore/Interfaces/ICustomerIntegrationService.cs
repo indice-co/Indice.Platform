@@ -15,4 +15,5 @@ public interface ICustomerIntegrationService
     /// <param name="caseTypeCode">The case type code.</param>
     /// <returns></returns>
     Task<CustomerData> GetCustomerData(string customerId, string caseTypeCode);
+    Task<IEnumerable<Assignee>> GetAssignees(string caseId);
 }

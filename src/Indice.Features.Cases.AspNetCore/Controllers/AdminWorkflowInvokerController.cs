@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Indice.Features.Cases.Data.Models;
+using Elsa.Services.Models;
+using Indice.Features.Cases.Workflows.Services;
 
 namespace Indice.Features.Cases.Controllers;
 
@@ -20,16 +22,19 @@ internal class AdminWorkflowInvokerController : ControllerBase
 {
     private readonly IAwaitApprovalInvoker _approvalInvoker;
     private readonly IAwaitAssignmentInvoker _awaitAssignmentInvoker;
+    private readonly IAwaitAssignmentVol2Invoker _awaitAssignmentVol2Invoker;
     private readonly IAwaitEditInvoker _awaitEditInvoker;
     private readonly IAwaitActionInvoker _awaitActionInvoker;
 
     public AdminWorkflowInvokerController(
-        IAwaitApprovalInvoker approvalInvoker, 
-        IAwaitAssignmentInvoker awaitAssignmentInvoker, 
-        IAwaitEditInvoker awaitEditInvoker, 
+        IAwaitApprovalInvoker approvalInvoker,
+        IAwaitAssignmentInvoker awaitAssignmentInvoker,
+        IAwaitAssignmentVol2Invoker awaitAssignmentVol2Invoker,
+        IAwaitEditInvoker awaitEditInvoker,
         IAwaitActionInvoker awaitActionInvoker) {
         _approvalInvoker = approvalInvoker ?? throw new ArgumentNullException(nameof(approvalInvoker));
         _awaitAssignmentInvoker = awaitAssignmentInvoker ?? throw new ArgumentNullException(nameof(awaitAssignmentInvoker));
+        _awaitAssignmentVol2Invoker = awaitAssignmentVol2Invoker ?? throw new ArgumentNullException(nameof(awaitAssignmentVol2Invoker));
         _awaitEditInvoker = awaitEditInvoker ?? throw new ArgumentNullException(nameof(awaitEditInvoker));
         _awaitActionInvoker = awaitActionInvoker ?? throw new ArgumentNullException(nameof(awaitActionInvoker));
     }
@@ -52,18 +57,23 @@ internal class AdminWorkflowInvokerController : ControllerBase
 
     /// <summary>Invoke the assign activity to assign the case to the caller user.</summary>
     /// <param name="caseId">The Id of the case.</param>
+    /// <param name="auditMeta">auditMeta.</param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     [HttpPost("cases/{caseId:guid}/assign")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> AssignCase(Guid caseId) {
-        var input = new AwaitAssignmentInvokerInput {
-            // Get the current user for self-assign
-            // todo support admin assignments [in future user-story]
-            User = AuditMeta.Create(HttpContext.User)
-        };
-        var executedWorkflow = await _awaitAssignmentInvoker.ExecuteWorkflowsAsync(caseId, input);
+    public async Task<IActionResult> AssignCase(Guid caseId, [FromBody] AuditMeta auditMeta) {
+        var input = new AwaitAssignmentInvokerInput();
+        IEnumerable<CollectedWorkflow> executedWorkflow;
+        if (auditMeta == null) {
+            input.User = AuditMeta.Create(HttpContext.User);
+            executedWorkflow = await _awaitAssignmentInvoker.ExecuteWorkflowsAsync(caseId, input);
+
+        } else {
+            input.User = auditMeta;
+            executedWorkflow = await _awaitAssignmentVol2Invoker.ExecuteWorkflowsAsync(caseId, input);
+        }
         if (!executedWorkflow.Any()) {
             throw new Exception("Case is already assigned.");
         }

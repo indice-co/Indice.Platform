@@ -8,7 +8,7 @@ import { RouterModule } from "@angular/router";
 import { IndiceComponentsModule } from "@indice/ng-components";
 import { SharedModule } from "src/app/shared/shared.module";
 import { CasesComponent } from "./cases.component";
-import { CaseAssignmentComponent } from "./case-detail-page/case-assignment/case-assignment.component";
+import { CaseSelfAssignmentComponent } from "./case-detail-page/case-self-assignment/case-self-assignment.component";
 import { CaseTimelineComponent } from "./case-detail-page/case-timeline/case-timeline.component";
 import { CaseUnassignmentComponent } from "./case-detail-page/case-unassignment/case-unassignment.component";
 import { CaseDetailPageComponent } from './case-detail-page/case-detail-page.component';
@@ -19,10 +19,12 @@ import { CasePrintPdfComponent } from './case-detail-page/case-print-pdf/case-pr
 import { CaseWarningModalComponent } from "../../shared/components/case-warning-modal/case-warning-modal.component";
 import { QueriesModalComponent } from "src/app/shared/components/query-modal/query-modal.component";
 import { QueriesPageComponent } from "./queries-page/queries-page.component";
+import { CaseAssignmentComponent } from "./case-detail-page/case-assignment/case-assignment.component";
 
 @NgModule({
     declarations: [
         CasesComponent,
+        CaseSelfAssignmentComponent,
         CaseAssignmentComponent,
         CaseUnassignmentComponent,
         CaseTimelineComponent,
@@ -47,7 +49,7 @@ import { QueriesPageComponent } from "./queries-page/queries-page.component";
     ],
     exports: [
         CasesComponent,
-        CaseAssignmentComponent,
+        CaseSelfAssignmentComponent,
         CaseUnassignmentComponent,
         CaseTimelineComponent,
         CaseDetailPageComponent

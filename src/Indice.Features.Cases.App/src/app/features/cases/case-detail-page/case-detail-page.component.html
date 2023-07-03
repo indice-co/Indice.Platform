@@ -37,9 +37,9 @@
                         <div class="bg-white shadow rounded-sm"
                              *ngIf="caseActions.hasAssignment || model.draft">
                             <div class="mt-2 px-4 py-4 flow-root">
-                                <app-case-assignment [caseId]="model.id"
-                                                     [enabled]="caseActions.hasAssignment"
-                                                     (caseAssigned)="onActionsChanged()"></app-case-assignment>
+                                <app-case-self-assignment [caseId]="model.id"
+                                                          [enabled]="caseActions.hasAssignment"
+                                                          (caseAssigned)="onActionsChanged()"></app-case-self-assignment>
 
                                 <!-- TODO: will we add unassignment button? -->
                                 <!-- <app-case-unassignment [enabled]="caseActions.hasUnassignment"></app-case-unassignment> -->
@@ -47,6 +47,14 @@
                                                         [enabled]="model.draft"
                                                         (caseDiscarded)="onCaseDiscarded()">
                                 </app-case-discard-draft>
+                            </div>
+                        </div>
+                        <div class="bg-white shadow rounded-sm"
+                             *ngIf="caseActions.hasAssignmentVol2">
+                            <div class="mt-2 px-4 py-4 flow-root">
+                                <app-case-assignment [caseId]="model.id"
+                                                     [enabled]="caseActions.hasAssignmentVol2"
+                                                     (caseAssigned)="onActionsChanged()"></app-case-assignment>
                             </div>
                         </div>
                         <div class="bg-white shadow rounded-sm">

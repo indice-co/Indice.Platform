@@ -11,4 +11,8 @@ internal class NoOpCustomerIntegrationService : ICustomerIntegrationService
 
     public Task<CustomerData> GetCustomerData(string customerId, string caseTypeCode) =>
         throw new NotImplementedException("Implement this interface with your own data sources.");
+
+    public Task<IEnumerable<Assignee>> GetAssignees(string caseId) {
+        throw new NotImplementedException("Implement this interface with your own data sources.");
+    }
 }

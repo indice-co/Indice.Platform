@@ -43,4 +43,13 @@ public class AdminIntegrationController : ControllerBase
     public async Task<IActionResult> GetCustomerData([FromRoute] string customerId, [FromRoute] string caseTypeCode) {
         return Ok(await _customerIntegrationService.GetCustomerData(customerId, caseTypeCode));
     }
+
+    /// <summary>Fetch the candidate Assignee for current case.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <returns></returns>
+    [HttpGet("assignees")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Assignee>))]
+    public async Task<IActionResult> GetAssignees([FromQuery] string caseId) {
+        return Ok(await _customerIntegrationService.GetAssignees(caseId));
+    }
 }
