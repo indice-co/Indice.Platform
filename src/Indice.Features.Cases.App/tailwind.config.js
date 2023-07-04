@@ -21,6 +21,7 @@ module.exports = {
       }
     },
   },
+  darkMode: 'class',
   variants: {
     extend: {
       border: ['focus'],
