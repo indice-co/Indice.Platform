@@ -1,4 +1,5 @@
-﻿using IdentityModel;
+﻿using System.Globalization;
+using IdentityModel;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
@@ -6,6 +7,7 @@ using Indice.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -22,6 +24,7 @@ namespace Indice.Features.Identity.UI.Pages;
 public abstract class BasePageModel : PageModel
 {
     private IdentityUIOptions? _uiOptions;
+    private RequestCulture? _requestCulture;
 
     /// <summary>Will propagate to body class</summary>
     [ViewData]
@@ -30,6 +33,8 @@ public abstract class BasePageModel : PageModel
     protected IServiceProvider ServiceProvider => HttpContext.RequestServices;
     /// <summary>UI Options</summary>
     public IdentityUIOptions UiOptions => _uiOptions ??= ServiceProvider.GetRequiredService<IOptions<IdentityUIOptions>>().Value;
+    /// <summary>Request Culture</summary>
+    public RequestCulture RequestCulture => _requestCulture ??= Request.HttpContext.Features.Get<IRequestCultureFeature>()!.RequestCulture;
 
     /// <summary>Checks if the given return URL is safe for redirection.</summary>
     /// <param name="returnUrl">The URL to validate.</param>
