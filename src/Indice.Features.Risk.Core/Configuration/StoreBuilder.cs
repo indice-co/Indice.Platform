@@ -20,16 +20,16 @@ public class StoreBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
     /// <summary>Registers an implementation of <see cref="IRiskEventStore{TRiskEvent}"/> where Entity Framework Core is used as a persistent mechanism.</summary>
     /// <typeparam name="TContext">The type of <see cref="DbContext"/>.</typeparam>
     /// <param name="dbContextOptionsAction">The builder being used to configure the context.</param>
-    /// <returns>An instance of <see cref="RuleBuilder{TRiskEvent}"/> for further configuration.</returns>
-    public RuleBuilder<TRiskEvent> WithEntityFrameworkCoreStore<TContext>(Action<DbContextOptionsBuilder> dbContextOptionsAction) where TContext : DbContext {
+    /// <returns>An instance of <see cref="RiskRuleBuilder{TRiskEvent}"/> for further configuration.</returns>
+    public RiskRuleBuilder<TRiskEvent> WithEntityFrameworkCoreStore<TContext>(Action<DbContextOptionsBuilder> dbContextOptionsAction) where TContext : DbContext {
         Services.AddDbContext<TContext>(dbContextOptionsAction);
         Services.AddTransient<IRiskEventStore<TRiskEvent>, RiskEventStoreEntityFrameworkCore<TRiskEvent>>();
-        return new RuleBuilder<TRiskEvent>(Services);
+        return new RiskRuleBuilder<TRiskEvent>(Services);
     }
 
     /// <summary>Registers an implementation of <see cref="IRiskEventStore{TRiskEvent}"/> where Entity Framework Core is used as a persistent mechanism.</summary>
     /// <param name="dbContextOptionsAction">The builder being used to configure the context.</param>
-    /// <returns>An instance of <see cref="RuleBuilder{TRiskEvent}"/> for further configuration.</returns>
-    public RuleBuilder<TRiskEvent> WithEntityFrameworkCoreStore(Action<DbContextOptionsBuilder> dbContextOptionsAction) =>
+    /// <returns>An instance of <see cref="RiskRuleBuilder{TRiskEvent}"/> for further configuration.</returns>
+    public RiskRuleBuilder<TRiskEvent> WithEntityFrameworkCoreStore(Action<DbContextOptionsBuilder> dbContextOptionsAction) =>
         WithEntityFrameworkCoreStore<RiskDbContext<TRiskEvent>>(dbContextOptionsAction);
 }

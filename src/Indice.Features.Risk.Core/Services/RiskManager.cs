@@ -18,21 +18,21 @@ public class RiskManager<TRiskEvent> where TRiskEvent : DbRiskEvent
     /// <param name="riskEngineOptions">Options used to configure the core risk engine.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public RiskManager(
-        IEnumerable<IRule<TRiskEvent>> rules,
-        IEnumerable<RuleConfig> rulesConfiguration,
+        IEnumerable<RiskRuleBase<TRiskEvent>> rules,
+        IEnumerable<RiskEventModel> rulesConfiguration,
         IRiskEventStore<TRiskEvent> eventStore,
         IOptions<RiskEngineOptions> riskEngineOptions
     ) {
         Rules = rules ?? throw new ArgumentNullException(nameof(rules));
-        RulesConfiguration = rulesConfiguration ?? throw new ArgumentNullException(nameof(rulesConfiguration));
+        EventsConfiguration = rulesConfiguration ?? throw new ArgumentNullException(nameof(rulesConfiguration));
         RiskEngineOptions = riskEngineOptions.Value ?? throw new ArgumentNullException(nameof(riskEngineOptions));
         _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
     }
 
     /// <summary>The collection of rules registered in the risk engine.</summary>
-    public IEnumerable<IRule<TRiskEvent>> Rules { get; }
+    public IEnumerable<RiskRuleBase<TRiskEvent>> Rules { get; }
     /// <summary>The collection of rule configuration provided in the risk engine.</summary>
-    public IEnumerable<RuleConfig> RulesConfiguration { get; }
+    public IEnumerable<RiskEventModel> EventsConfiguration { get; }
     /// <summary>Options used to configure the core risk engine.</summary>
     public RiskEngineOptions RiskEngineOptions { get; }
 
@@ -43,14 +43,8 @@ public class RiskManager<TRiskEvent> where TRiskEvent : DbRiskEvent
         foreach (var rule in Rules) {
             var result = await rule.ExecuteAsync(@event);
             result.RuleName = rule.Name;
-            var configuredEvents = RulesConfiguration
-                .Where(ruleConfig => ruleConfig.RuleName == rule.Name)
-                .SelectMany(ruleConfig => ruleConfig.Events);
+            var configuredEvents = EventsConfiguration;
             var finalRiskScore = result.RiskScore;
-            //foreach (var @event in @event.Events) {
-            //    var eventScore = configuredEvents.FirstOrDefault(x => x.EventName == @event.Name)?.Amount ?? 0;
-            //    finalRiskScore += eventScore;
-            //}
             result.RiskScore = finalRiskScore;
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;
             results.Add(result);

@@ -10,7 +10,7 @@ internal class GetRiskRequestValidator<TRiskEvent, TRiskRequest> : AbstractValid
     where TRiskRequest : RiskRequestBase<TRiskEvent>
 {
     public GetRiskRequestValidator() {
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(TextSizePresets.M256);
+        RuleFor(x => x.Name).MaximumLength(TextSizePresets.M256);
         RuleFor(x => x.SubjectId).NotEmpty().MaximumLength(TextSizePresets.M256);
     }
 }
