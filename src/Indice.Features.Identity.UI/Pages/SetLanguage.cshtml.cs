@@ -20,15 +20,19 @@ public abstract class BaseSetLanguageModel : BasePageModel
         _requestLocalizationOptions = requestLocalizationOptions.Value;
     }
 
+    /// <summary>The submitted culture to change</summary>
+    [BindProperty]
+    public string Culture { get; set; }
+
     /// <summary>Challenge callback page GET handler.</summary>
-    public IActionResult OnPost([FromQuery] string culture, [FromQuery] string returnUrl) {
+    public virtual IActionResult OnPost(string returnUrl) {
         var supportedCultures = (_requestLocalizationOptions.SupportedCultures ?? new List<CultureInfo>()).Select(x => x.TwoLetterISOLanguageName).ToHashSet();
-        if (!supportedCultures.Contains(culture)) {
-            culture = _requestLocalizationOptions.DefaultRequestCulture.Culture.TwoLetterISOLanguageName;
+        if (!supportedCultures.Contains(Culture)) {
+            Culture = _requestLocalizationOptions.DefaultRequestCulture.Culture.TwoLetterISOLanguageName;
         }
         Response.Cookies.Append(
             CookieRequestCultureProvider.DefaultCookieName,
-            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)), new CookieOptions {
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(Culture)), new CookieOptions {
                 Expires = DateTimeOffset.UtcNow.AddYears(1),
                 IsEssential = true, // Critical setting to apply new culture.
                 Path = "/",
