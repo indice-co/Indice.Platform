@@ -1,18 +1,19 @@
 ﻿namespace Indice.Features.Cases.Models.Responses;
 
 /// <summary>The role case type model.</summary>
-internal class RoleCaseType
+internal class Member
 {
-    /// <summary>The Id of the role case type.</summary>
+ 
+    /// <summary>The Id of the member.</summary>
     public Guid Id { get; set; }
 
-    /// <summary>The user role that relates with this case type.</summary>
+    /// <summary>The user role that relates with this member.</summary>
     public string RoleName { get; set; }
 
-    /// <summary>The Id of the case type that relates with this role.</summary>
+    /// <summary>The Id of the case type that relates with this member.</summary>
     public Guid CaseTypeId { get; set; }
 
-    /// <summary>The Id of the case type that relates with this role.</summary>
+    /// <summary>The Id of the case type that relates with this member.</summary>
     public Guid CheckpointTypeId { get; set; }
 
     /// <summary>The <see cref="CaseTypePartial"/> model.</summary>

@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
@@ -17,19 +18,19 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 {
     private const string SchemaKey = "backoffice";
     private readonly CasesDbContext _dbContext;
-    private readonly ICaseAuthorizationProvider _roleCaseTypeProvider;
+    private readonly ICaseAuthorizationProvider _memberAuthorizationProvider;
     private readonly ICaseTypeService _caseTypeService;
     private readonly IAdminCaseMessageService _adminCaseMessageService;
     private readonly ICaseEventService _caseEventService;
 
     public AdminCaseService(
         CasesDbContext dbContext,
-        ICaseAuthorizationProvider roleCaseTypeProv,
+        ICaseAuthorizationProvider memberAuthorizationProvider,
         ICaseTypeService caseTypeService,
         IAdminCaseMessageService adminCaseMessageService,
         ICaseEventService caseEventService) : base(dbContext) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _roleCaseTypeProvider = roleCaseTypeProv ?? throw new ArgumentNullException(nameof(roleCaseTypeProv));
+        _memberAuthorizationProvider = memberAuthorizationProvider ?? throw new ArgumentNullException(nameof(memberAuthorizationProvider));
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
@@ -80,16 +81,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<ResultSet<CasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetCasesListFilter> options) {
-        // TODO: not crazy about this one
-        // if a CaseAuthorizationService down the line wants to 
-        // not allow a user to see the list of case, it throws a ResourceUnauthorizedException
-        // which we catch and return an empty resultset. 
-        try {
-            options.Filter = await _roleCaseTypeProvider.Filter(user, options.Filter);
-        } catch (ResourceUnauthorizedException) {
-            return new List<CasePartial>().ToResultSet();
-        }
-
         var query = _dbContext.Cases
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
@@ -98,7 +89,6 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 Id = @case.Id,
                 CustomerId = @case.Customer.CustomerId,
                 CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
-                Status = @case.Checkpoint.CheckpointType.Status,
                 CreatedByWhen = @case.CreatedBy.When,
                 CaseType = new CaseTypePartial {
                     Id = @case.CaseType.Id,
@@ -110,6 +100,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 GroupId = @case.GroupId,
                 CheckpointType = new CheckpointType {
                     Id = @case.Checkpoint.CheckpointType.Id,
+                    Status = @case.Checkpoint.CheckpointType.Status,
                     Code = @case.Checkpoint.CheckpointType.Code,
                     Title = @case.Checkpoint.CheckpointType.Title,
                     Description = @case.Checkpoint.CheckpointType.Description,
@@ -118,13 +109,48 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 AssignedToName = @case.AssignedTo.Name
             });
 
+        // TODO: not crazy about this one
+        // if a CaseAuthorizationService down the line wants to 
+        // not allow a user to see the list of case, it throws a ResourceUnauthorizedException
+        // which we catch and return an empty resultset. 
+        try {
+            query = await _memberAuthorizationProvider.GetCaseMembership(query, user);
+        } catch (ResourceUnauthorizedException) {
+            return new List<CasePartial>().ToResultSet();
+        }
+
         // filter CustomerId
-        if (options.Filter.CustomerId != null) {
-            query = query.Where(c => c.CustomerId.Equals(options.Filter.CustomerId));
+        if (options.Filter.CustomerIds.Any()) {
+            foreach (var customerId in options.Filter.CustomerIds) {
+                switch (customerId.Operator) {
+                    case (FilterOperator.Eq):
+                        query = query.Where(c => c.CustomerId.Equals(customerId.Value));
+                        break;
+                    case (FilterOperator.Neq):
+                        query = query.Where(c => !c.CustomerId.Equals(customerId.Value));
+                        break;
+                    case (FilterOperator.Contains):
+                        query = query.Where(c => c.CustomerId.Contains(customerId.Value));
+                        break;
+                }
+            }
+
         }
         // filter CustomerName
-        if (options.Filter.CustomerName != null) {
-            query = query.Where(c => c.CustomerName.ToLower().Contains(options.Filter.CustomerName.ToLower()));
+        if (options.Filter.CustomerNames.Any()) {
+            foreach (var customerName in options.Filter.CustomerNames) {
+                switch (customerName.Operator) {
+                    case (FilterOperator.Eq):
+                        query = query.Where(c => c.CustomerName.ToLower().Equals(customerName.Value.ToLower()));
+                        break;
+                    case (FilterOperator.Neq):
+                        query = query.Where(c => !c.CustomerName.ToLower().Equals(customerName.Value.ToLower()));
+                        break;
+                    case (FilterOperator.Contains):
+                        query = query.Where(c => c.CustomerName.ToLower().Contains(customerName.Value.ToLower()));
+                        break;
+                }
+            }
         }
         if (options.Filter.From != null) {
             query = query.Where(c => c.CreatedByWhen >= options.Filter.From.Value.Date);
@@ -133,16 +159,78 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
         }
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
-        if (options.Filter.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Any()) {
-            query = query.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
+        if (options.Filter.CaseTypeCodes.Any()) {
+            // Create a different expression based on the filter operator
+            var expressionsEq = options.Filter.CaseTypeCodes
+                .Where(x => x.Operator == FilterOperator.Eq)
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CaseType.Code == f.Value));
+            var expressionsNeq = options.Filter.CaseTypeCodes
+                .Where(x => x.Operator == FilterOperator.Neq)
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CaseType.Code != f.Value));
+            if (expressionsEq.Any()) {
+                // Aggregate the expressions with OR in SQL
+                var aggregatedExpressionEq = expressionsEq.Aggregate((expression, next) => {
+                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<CasePartial, bool>>(orExp, expression.Parameters);
+                });
+                query = query.Where(aggregatedExpressionEq);
+            }
+            if (expressionsNeq.Any()) {
+                // Aggregate the expression with AND in SQL
+                var aggregatedExpressionNeq = expressionsNeq.Aggregate((expression, next) => {
+                    var andExp = Expression.AndAlso(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<CasePartial, bool>>(andExp, expression.Parameters);
+                });
+                query = query.Where(aggregatedExpressionNeq);
+            }
         }
+
+        // if we have Filter.CheckpointTypeCodes from the client, we have to map them to the correct checkpoint types for the filter to work
+        if (options.Filter.CheckpointTypeCodes.Any()) {
+            options.Filter.CheckpointTypeIds = await MapCheckpointTypeCodeToId(options.Filter.CheckpointTypeCodes);
+        }
+
         // also: filter CheckpointTypeIds
-        if (options.Filter.CheckpointTypeIds is not null && options.Filter.CheckpointTypeIds.Any()) {
-            query = query.Where(c => options.Filter.CheckpointTypeIds.Contains(c.CheckpointType.Id.ToString()));
+        if (options.Filter.CheckpointTypeIds.Any()) {
+            // Create a different expression based on the filter operator
+            var expressionsEq = options.Filter.CheckpointTypeIds
+                .Where(x => x.Operator == FilterOperator.Eq)
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointType.Id.ToString() == f.Value));
+            var expressionsNeq = options.Filter.CheckpointTypeIds
+                .Where(x => x.Operator == FilterOperator.Neq)
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointType.Id.ToString() != f.Value));
+            if (expressionsEq.Any()) {
+                // Aggregate the expressions with OR in SQL
+                var aggregatedExpressionEq = expressionsEq.Aggregate((expression, next) => {
+                    var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<CasePartial, bool>>(orExp, expression.Parameters);
+                });
+                query = query.Where(aggregatedExpressionEq);
+            }
+            if (expressionsNeq.Any()) {
+                // Aggregate the expression with AND in SQL
+                var aggregatedExpressionNeq = expressionsNeq.Aggregate((expression, next) => {
+                    var andExp = Expression.AndAlso(expression.Body, Expression.Invoke(next, expression.Parameters));
+                    return Expression.Lambda<Func<CasePartial, bool>>(andExp, expression.Parameters);
+                });
+                query = query.Where(aggregatedExpressionNeq);
+            }
         }
         // filter by group ID, if it is present
-        if (options.Filter.GroupIds != null && options.Filter.GroupIds.Any()) {
-            query = query.Where(c => options.Filter.GroupIds.Contains(c.GroupId));
+        if (options.Filter.GroupIds.Any()) {
+            foreach (var groupId in options.Filter.GroupIds) {
+                switch (groupId.Operator) {
+                    case (FilterOperator.Eq):
+                        query = query.Where(c => c.GroupId.Equals(groupId.Value));
+                        break;
+                    case (FilterOperator.Neq):
+                        query = query.Where(c => !c.GroupId.Equals(groupId.Value));
+                        break;
+                    case (FilterOperator.Contains):
+                        query = query.Where(c => c.GroupId.Contains(groupId.Value));
+                        break;
+                }
+            }
         }
         // sorting option
         if (string.IsNullOrEmpty(options?.Sort)) {
@@ -166,7 +254,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var @case = await query.FirstOrDefaultAsync();
 
         // Check that user role can view this case at this checkpoint.
-        if (!await _roleCaseTypeProvider.IsValid(user, @case)) {
+        if (!await _memberAuthorizationProvider.IsMember(user, @case)) {
             throw new ResourceUnauthorizedException();
         }
         @case.CaseType = @case.CaseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
@@ -318,4 +406,24 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
         return timeline;
     }
+
+    private async Task<List<FilterClause>> MapCheckpointTypeCodeToId(List<FilterClause> checkpointTypeCodeFilterClauses) {
+        var checkpointTypeCodes = checkpointTypeCodeFilterClauses.Select(f => f.Value).ToList();
+        var checkpointTypeIds = new List<FilterClause>();
+        var filteredCheckpointTypesList = await _dbContext.CheckpointTypes
+                .AsQueryable()
+                .Where(checkpointType => checkpointTypeCodes.Contains(checkpointType.Code))
+                .ToListAsync();
+        foreach (var checkpointType in filteredCheckpointTypesList) {
+            // find the checkpoint type that matches the checkpoint type code given in the parameters
+            if (checkpointTypeCodeFilterClauses.Select(f => f.Value).Contains(checkpointType.Code)) {
+                var checkpointTypeOperator = checkpointTypeCodeFilterClauses.FirstOrDefault(f => f.Value == checkpointType.Code).Operator;
+                // create a new FilterClause object that holds the Id but also the operator
+                var newCheckpointTypeIdFilterClause = new FilterClause("checkpointTypeId", checkpointType.Id.ToString(), checkpointTypeOperator, JsonDataType.String);
+                checkpointTypeIds.Add(newCheckpointTypeIdFilterClause);
+            }
+        }
+        return checkpointTypeIds;
+    }
+
 }

@@ -4,16 +4,16 @@
 public class FileServiceNoop : IFileService
 {
     /// <inheritdoc/>
-    public Task<bool> DeleteAsync(string filepath, bool isDirectory = false) => Task.FromResult(false);
+    public Task<bool> DeleteAsync(string filePath, bool isDirectory = false) => Task.FromResult(false);
 
     /// <inheritdoc/>
-    public Task<byte[]> GetAsync(string filepath) => Task.FromResult(Array.Empty<byte>());
+    public Task<byte[]> GetAsync(string filePath) => Task.FromResult(Array.Empty<byte>());
 
     /// <inheritdoc/>
-    public Task<FileProperties> GetPropertiesAsync(string filepath) => Task.FromResult(default(FileProperties));
+    public Task<FileProperties> GetPropertiesAsync(string filePath) => Task.FromResult(default(FileProperties));
 
     /// <inheritdoc/>
-    public Task SaveAsync(string filepath, Stream stream) => Task.CompletedTask;
+    public Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions) => Task.CompletedTask;
 
     /// <inheritdoc/>
     public Task<IEnumerable<string>> SearchAsync(string path) => Task.FromResult(Enumerable.Empty<string>());

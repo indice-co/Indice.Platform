@@ -1,25 +1,29 @@
-﻿namespace Indice.Services;
+﻿using System.Net.Mime;
+using System.Text.Json;
+
+namespace Indice.Services;
 
 /// <summary>File storage abstraction.</summary>
 public interface IFileService
 {
     /// <summary>Saves a file.</summary>
-    /// <param name="filepath">The file path.</param>
+    /// <param name="filePath">The file path.</param>
     /// <param name="stream">The file content as a <see cref="Stream"/>.</param>
-    Task SaveAsync(string filepath, Stream stream);
+    /// <param name="saveOptions">Options when saving a stream through <see cref="IFileService"/>.</param>
+    Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions);
     /// <summary>Retrieves a file using a path.</summary>
-    /// <param name="filepath">The file path.</param>
-    Task<byte[]> GetAsync(string filepath);
+    /// <param name="filePath">The file path.</param>
+    Task<byte[]> GetAsync(string filePath);
     /// <summary>Gets a path list. For a given folder.</summary>
     /// <param name="path">The file path.</param>
     Task<IEnumerable<string>> SearchAsync(string path);
     /// <summary>Gets the file properties.</summary>
-    /// <param name="filepath">The file path.</param>
-    Task<FileProperties> GetPropertiesAsync(string filepath);
+    /// <param name="filePath">The file path.</param>
+    Task<FileProperties> GetPropertiesAsync(string filePath);
     /// <summary>Removes the file from storage. In case of a folder or virtual path prefix it will remove all files recursive.</summary>
-    /// <param name="filepath">The file path.</param>
+    /// <param name="filePath">The file path.</param>
     /// <param name="isDirectory">Indicates that the path is a directory.</param>
-    Task<bool> DeleteAsync(string filepath, bool isDirectory = false);
+    Task<bool> DeleteAsync(string filePath, bool isDirectory = false);
 }
 
 /// <summary>Exception class for <see cref="IFileService"/> related exceptions.</summary>
@@ -74,12 +78,50 @@ public class FileProperties
 /// <summary>Extensions for <see cref="IFileService"/>.</summary>
 public static class FileServiceExtensions
 {
-    /// <summary>Save file data given a byte array instead of a stream.</summary>
+    /// <summary>Saves file data given a byte array instead of a stream.</summary>
     /// <param name="fileService">File storage abstraction.</param>
-    /// <param name="filepath">The file path.</param>
+    /// <param name="filePath">The file path.</param>
     /// <param name="bytes">The file content as a <see cref="byte"/> array.</param>
-    public static async Task SaveAsync(this IFileService fileService, string filepath, byte[] bytes) {
+    public static async Task SaveAsync(this IFileService fileService, string filePath, byte[] bytes) {
         using var stream = new MemoryStream(bytes);
-        await fileService.SaveAsync(filepath, stream);
+        await fileService.SaveAsync(filePath, stream, saveOptions: null);
     }
+
+    /// <summary>Saves file data with no options.</summary>
+    /// <param name="fileService">File storage abstraction.</param>
+    /// <param name="filePath">The file path.</param>
+    /// <param name="stream">The file content as a <see cref="Stream"/>.</param>
+    public static async Task SaveAsync(this IFileService fileService, string filePath, Stream stream) => 
+        await fileService.SaveAsync(filePath, stream, saveOptions: null);
+
+    /// <summary>Saves file data using a specified content type.</summary>
+    /// <param name="fileService">File storage abstraction.</param>
+    /// <param name="filePath">The file path.</param>
+    /// <param name="stream">The file content as a <see cref="Stream"/>.</param>
+    /// <param name="contentType">The MIME content type of the blob.</param>
+    public static async Task SaveAsync(this IFileService fileService, string filePath, Stream stream, string contentType) =>
+        await fileService.SaveAsync(filePath, stream, new FileServiceSaveOptions { 
+            ContentType = contentType
+        });
+
+    /// <summary>Saves file data as serialized json.</summary>
+    /// <typeparam name="T">The type of data to save.</typeparam>
+    /// <param name="fileService">File storage abstraction.</param>
+    /// <param name="path">The file path.</param>
+    /// <param name="payload">The object to save.</param>
+    /// <param name="jsonOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
+    public static async Task SaveAsync<T>(this IFileService fileService, string path, T payload, JsonSerializerOptions jsonOptions) where T : class {
+        using (var stream = new MemoryStream()) {
+            await JsonSerializer.SerializeAsync(stream, payload, jsonOptions);
+            stream.Seek(0, SeekOrigin.Begin);
+            await fileService.SaveAsync(path, stream, MediaTypeNames.Application.Json);
+        }
+    }
+}
+
+/// <summary>Options when saving a stream through <see cref="IFileService"/>.</summary>
+public class FileServiceSaveOptions 
+{
+    /// <summary>The MIME content type of the blob.</summary>
+    public string ContentType { get; set; }
 }

@@ -3,6 +3,7 @@ using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Server;
 using Indice.Features.Risk.Server.Models;
 using Indice.Features.Risk.Server.Validators;
+using Microsoft.AspNetCore.Builder;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -18,15 +19,17 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddRiskEndpoints<TRiskEvent, TRiskRequest>(this IServiceCollection services, Action<RiskApiOptions>? configureAction = null)
         where TRiskEvent : DbRiskEvent, new()
         where TRiskRequest : RiskRequestBase<TRiskEvent> {
-        var riskApiOptions = new RiskApiOptions(services);
+        var riskApiOptions = new RiskApiOptions { 
+            Services = services
+        };
         configureAction?.Invoke(riskApiOptions);
         services.Configure<RiskApiOptions>(options => {
             options.ApiPrefix = riskApiOptions.ApiPrefix;
             options.ApiScope = riskApiOptions.ApiScope;
             options.AuthenticationScheme = riskApiOptions.AuthenticationScheme;
         });
-        services.AddEndpointParameterFluentValidation();
-        services.AddScoped<IValidator<TRiskRequest>, GetRiskRequestValidator<TRiskEvent, TRiskRequest>>();
+        services.AddEndpointParameterFluentValidation(typeof(RiskApi).Assembly);
+        services.AddTransient(typeof(IValidator<TRiskRequest>), typeof(GetRiskRequestValidator<TRiskEvent, TRiskRequest>));
         return services;
     }
 

@@ -44,9 +44,6 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
         if (_authenticationMethods?.Count() == 0) {
             throw new InvalidOperationException("No authentication methods have been configured.");
         }
-        if (_authenticationMethods?.Count() == 1) {
-            return _authenticationMethods.Single();
-        }
         var selectedAuthenticationMethod = _authenticationMethods.FirstOrDefault(x => x.Type == AuthenticationMethodType.PhoneNumber);
         var allowMfaChannelDowngrade = _configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
         if ((tryDowngradeAuthenticationMethod ??= false) && allowMfaChannelDowngrade) {

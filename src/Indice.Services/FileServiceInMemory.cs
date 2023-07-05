@@ -5,31 +5,27 @@ namespace Indice.Services;
 /// <summary>In memory <see cref="IFileService"/> implementation. Used to mock a file storage.</summary>
 public class FileServiceInMemory : IFileService
 {
-    private readonly Dictionary<string, byte[]> Cache = new Dictionary<string, byte[]>();
+    private readonly Dictionary<string, byte[]> Cache = new();
 
-    /// <summary>Deletes a file from store.</summary>
-    /// <param name="filepath">The file path</param>
-    /// <param name="isDirectory"></param>
-    public Task<bool> DeleteAsync(string filepath, bool isDirectory = false) {
-        GuardExists(filepath);
+    /// <inheritdoc />
+    public Task<bool> DeleteAsync(string filePath, bool isDirectory = false) {
+        GuardExists(filePath);
         if (!isDirectory)
-            Cache.Remove(filepath);
+            Cache.Remove(filePath);
         else {
-            foreach (var path in Cache.Keys.Where(x => x.StartsWith(filepath)).ToArray())
+            foreach (var path in Cache.Keys.Where(x => x.StartsWith(filePath)).ToArray())
                 Cache.Remove(path);
         }
         return Task.FromResult(true);
     }
 
-    /// <summary>Gets the file data in bytes</summary>
-    /// <param name="filepath">The file path.</param>
-    public Task<byte[]> GetAsync(string filepath) {
-        GuardExists(filepath);
-        return Task.FromResult(Cache[filepath]);
+    /// <inheritdoc />
+    public Task<byte[]> GetAsync(string filePath) {
+        GuardExists(filePath);
+        return Task.FromResult(Cache[filePath]);
     }
 
-    /// <summary>Gets a path list. For a given folder</summary>
-    /// <param name="path">The file path.</param>
+    /// <inheritdoc />
     public Task<IEnumerable<string>> SearchAsync(string path) {
         if (string.IsNullOrWhiteSpace(path)) {
             return Task.FromResult(Cache.Keys.AsEnumerable());
@@ -37,31 +33,27 @@ public class FileServiceInMemory : IFileService
         return Task.FromResult(Cache.Keys.Where(x => x.ToLower().StartsWith(path.ToLower())));
     }
 
-    /// <summary>Gets metadata for a file.</summary>
-    /// <param name="filepath">The file path.</param>
-    public Task<FileProperties> GetPropertiesAsync(string filepath) {
-        GuardExists(filepath);
-        var data = Cache[filepath];
+    /// <inheritdoc />
+    public Task<FileProperties> GetPropertiesAsync(string filePath) {
+        GuardExists(filePath);
+        var data = Cache[filePath];
         var props = new FileProperties {
             Length = data.Length,
             LastModified = DateTime.UtcNow,
-            ContentType = FileExtensions.GetMimeType(Path.GetExtension(filepath)),
-            ContentDisposition = $"attachment; filename={Path.GetFileName(filepath)}",
+            ContentType = FileExtensions.GetMimeType(Path.GetExtension(filePath)),
+            ContentDisposition = $"attachment; filename={Path.GetFileName(filePath)}",
         };
         return Task.FromResult(props);
     }
 
-    /// <summary>Save a file to store. Update or create the resource.</summary>
-    /// <param name="filepath">The file path.</param>
-    /// <param name="stream"></param>
-    /// <returns></returns>
-    public Task SaveAsync(string filepath, Stream stream) {
-        if (!Cache.ContainsKey(filepath)) {
-            Cache[filepath] = null;
+    /// <inheritdoc />
+    public Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions) {
+        if (!Cache.ContainsKey(filePath)) {
+            Cache[filePath] = null;
         }
         using (var ms = new MemoryStream()) {
             stream.CopyTo(ms);
-            Cache[filepath] = ms.ToArray();
+            Cache[filePath] = ms.ToArray();
         }
 #if NET452
         return Task.FromResult(0);
@@ -70,9 +62,9 @@ public class FileServiceInMemory : IFileService
 #endif
     }
 
-    private void GuardExists(string filepath) {
-        if (!Cache.ContainsKey(filepath)) {
-            throw new Exception($"file '{filepath}' not found");
+    private void GuardExists(string filePath) {
+        if (!Cache.ContainsKey(filePath)) {
+            throw new Exception($"file '{filePath}' not found");
         }
     }
 }

@@ -29,20 +29,20 @@ public class FileServiceAzureStorage : IFileService
         _connectionString = connectionString;
     }
 
-    /// <summary>Save the file.</summary>
-    /// <param name="filepath">The path that the file is saved to.</param>
-    /// <param name="stream">The content of the file represented as a <see cref="Stream"/>.</param>
-    public async Task SaveAsync(string filepath, Stream stream) {
-        filepath = filepath.TrimStart('\\', '/');
-        var folder = _containerName ?? Path.GetDirectoryName(filepath);
-        var filename = _containerName == null ? filepath.Substring(folder.Length) : filepath;
+    /// <inheritdoc />
+    public async Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions) {
+        filePath = filePath.TrimStart('\\', '/');
+        var folder = _containerName ?? Path.GetDirectoryName(filePath);
+        var filename = _containerName == null ? filePath.Substring(folder.Length) : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         await container.CreateIfNotExistsAsync();
         var blob = container.GetBlobClient(filename);
-        var extension = Path.GetExtension(filepath);
+        var extension = Path.GetExtension(filePath);
         stream.Position = 0;
         if (!string.IsNullOrEmpty(extension)) {
-            await blob.UploadAsync(stream, new BlobHttpHeaders { ContentType = FileExtensions.GetMimeType(extension) });
+            await blob.UploadAsync(stream, new BlobHttpHeaders { 
+                ContentType = saveOptions?.ContentType ?? FileExtensions.GetMimeType(extension)
+            });
         } else {
             await blob.UploadAsync(stream, overwrite: true);
         }
@@ -51,11 +51,11 @@ public class FileServiceAzureStorage : IFileService
     // Instead of streaming the blob through your server, you could download it directly from the blob storage.
     // http://stackoverflow.com/questions/24312527/azure-blob-storage-downloadtobytearray-vs-downloadtostream
     /// <summary>Retrieve the data for a file.</summary>
-    /// <param name="filepath">The path to the file.</param>
-    public async Task<byte[]> GetAsync(string filepath) {
-        filepath = filepath.TrimStart('\\', '/');
-        var folder = _containerName ?? Path.GetDirectoryName(filepath);
-        var filename = _containerName == null ? filepath.Substring(folder.Length) : filepath;
+    /// <param name="filePath">The path to the file.</param>
+    public async Task<byte[]> GetAsync(string filePath) {
+        filePath = filePath.TrimStart('\\', '/');
+        var folder = _containerName ?? Path.GetDirectoryName(filePath);
+        var filename = _containerName == null ? filePath.Substring(folder.Length) : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         await container.CreateIfNotExistsAsync();
         var exists = await container.ExistsAsync();
@@ -79,11 +79,11 @@ public class FileServiceAzureStorage : IFileService
     }
 
     /// <summary>Gets a path list for a given folder.</summary>
-    /// <param name="filepath">The path to the file.</param>
-    public async Task<IEnumerable<string>> SearchAsync(string filepath) {
-        filepath = filepath.TrimStart('\\', '/');
-        var folder = _containerName ?? Path.GetDirectoryName(filepath);
-        var filename = _containerName == null ? filepath.Substring(folder.Length) : filepath;
+    /// <param name="filePath">The path to the file.</param>
+    public async Task<IEnumerable<string>> SearchAsync(string filePath) {
+        filePath = filePath.TrimStart('\\', '/');
+        var folder = _containerName ?? Path.GetDirectoryName(filePath);
+        var filename = _containerName == null ? filePath.Substring(folder.Length) : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         var exists = await container.ExistsAsync();
         if (!exists) {
@@ -111,11 +111,11 @@ public class FileServiceAzureStorage : IFileService
 
     // Instead of streaming the blob through your server, you could download it directly from the blob storage. http://stackoverflow.com/questions/24312527/azure-blob-storage-downloadtobytearray-vs-downloadtostream
     /// <summary>Get the file's properties (metadata).</summary>
-    /// <param name="filepath">The path to the file.</param>
-    public async Task<FileProperties> GetPropertiesAsync(string filepath) {
-        filepath = filepath.TrimStart('\\', '/');
-        var folder = _containerName ?? Path.GetDirectoryName(filepath);
-        var filename = _containerName == null ? filepath.Substring(folder.Length) : filepath;
+    /// <param name="filePath">The path to the file.</param>
+    public async Task<FileProperties> GetPropertiesAsync(string filePath) {
+        filePath = filePath.TrimStart('\\', '/');
+        var folder = _containerName ?? Path.GetDirectoryName(filePath);
+        var filename = _containerName == null ? filePath.Substring(folder.Length) : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         var exists = await container.ExistsAsync();
         if (!exists) {
@@ -140,12 +140,12 @@ public class FileServiceAzureStorage : IFileService
     }
 
     /// <summary>Deletes a file or folder.</summary>
-    /// <param name="filepath">The path to the file.</param>
-    /// <param name="isDirectory">Determines if the <paramref name="filepath"/> points to a single file or a directory.</param>
-    public async Task<bool> DeleteAsync(string filepath, bool isDirectory = false) {
-        filepath = filepath.TrimStart('\\', '/');
-        var folder = _containerName ?? Path.GetDirectoryName(filepath);
-        var filename = _containerName == null ? filepath.Substring(folder.Length) : filepath;
+    /// <param name="filePath">The path to the file.</param>
+    /// <param name="isDirectory">Determines if the <paramref name="filePath"/> points to a single file or a directory.</param>
+    public async Task<bool> DeleteAsync(string filePath, bool isDirectory = false) {
+        filePath = filePath.TrimStart('\\', '/');
+        var folder = _containerName ?? Path.GetDirectoryName(filePath);
+        var filename = _containerName == null ? filePath.Substring(folder.Length) : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         var exists = await container.ExistsAsync();
         if (!exists) {

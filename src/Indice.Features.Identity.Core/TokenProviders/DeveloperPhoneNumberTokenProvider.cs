@@ -29,8 +29,6 @@ public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberToken
 
     private bool EnableDeveloperTotp => _options.EnableDeveloperTotp && !_environment.IsProduction();
 
-
-
     /// <inheritdoc />
     public override async Task<bool> CanGenerateTwoFactorTokenAsync(UserManager<TUser> userManager, TUser user) {
         if (EnableDeveloperTotp) {

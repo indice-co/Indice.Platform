@@ -11,11 +11,7 @@ public class RiskApiOptions
     private string _apiScope = RiskApiEndpoints.Scope;
     private string _authenticationScheme = RiskApiEndpoints.AuthenticationScheme;
 
-    internal RiskApiOptions(IServiceCollection services) {
-        Services = services;
-    }
-
-    internal IServiceCollection? Services { get; }
+    internal IServiceCollection? Services { get; set; }
 
     /// <summary>Specifies a prefix for the risk API endpoints.</summary>
     public PathString ApiPrefix {

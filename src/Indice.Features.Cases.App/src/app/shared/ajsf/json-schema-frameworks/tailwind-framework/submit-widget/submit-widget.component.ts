@@ -9,7 +9,7 @@ import { hasOwn, JsonSchemaFormService } from '@ajsf-extended/core';
     <div
       [class]="options?.htmlClass || ''">
       <button
-       class="bg-blue-800 hover:bg-blue-700 text-white font-bold p-2 mt-2 inline-flex rounded"
+       class="btn-submit-form"
         [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
         [attr.readonly]="options?.readonly ? 'readonly' : null"
         [attr.required]="options?.required"
