@@ -12,7 +12,9 @@ public class RiskRequestBase<TRiskEvent> where TRiskEvent : DbRiskEvent, new()
     /// <summary>The unique identifier of the subject performed the event.</summary>
     public string SubjectId { get; set; } = string.Empty;
     /// <summary>The name of the event.</summary>
-    public string Name { get; set; } = string.Empty;
+    public string? Name { get; set; }
+    /// <summary>The type of the event.</summary>
+    public string Type { get; set; } = string.Empty;
 
     /// <summary></summary>
     public TRiskEvent ToDbRiskEvent() => new() {
@@ -21,6 +23,7 @@ public class RiskRequestBase<TRiskEvent> where TRiskEvent : DbRiskEvent, new()
         Id = Guid.NewGuid(),
         IpAddress = IpAddress,
         Name = Name,
-        SubjectId = SubjectId
+        SubjectId = SubjectId,
+        Type = Type
     };
 }

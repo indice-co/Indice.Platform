@@ -9,4 +9,7 @@ public interface IRiskEventStore<TRiskEvent> where TRiskEvent : DbRiskEvent
     /// <summary>Persists a new risk event in the store.</summary>
     /// <param name="event">The event occurred.</param>
     Task CreateAsync(TRiskEvent @event);
+    /// <summary></summary>
+    /// <param name="type"></param>
+    Task<IEnumerable<TRiskEvent>> GetListByType(string type);
 }

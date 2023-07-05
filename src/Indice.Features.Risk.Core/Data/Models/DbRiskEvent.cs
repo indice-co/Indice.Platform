@@ -15,4 +15,6 @@ public class DbRiskEvent
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>The name of the event.</summary>
     public string? Name { get; set; }
+    /// <summary>The type of the event.</summary>
+    public string Type { get; set; } = string.Empty;
 }

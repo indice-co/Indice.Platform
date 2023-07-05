@@ -37,11 +37,15 @@ public class FileServiceAzureStorage : IFileService
         var container = new BlobContainerClient(_connectionString, folder);
         await container.CreateIfNotExistsAsync();
         var blob = container.GetBlobClient(filename);
-        var extension = Path.GetExtension(filePath);
+        var contentType = saveOptions?.ContentType;
+        var fileExtension = Path.GetExtension(filePath);
+        if (string.IsNullOrWhiteSpace(contentType) && !string.IsNullOrWhiteSpace(fileExtension)) {
+            contentType = FileExtensions.GetMimeType(fileExtension);
+        }
         stream.Position = 0;
-        if (!string.IsNullOrEmpty(extension)) {
-            await blob.UploadAsync(stream, new BlobHttpHeaders { 
-                ContentType = saveOptions?.ContentType ?? FileExtensions.GetMimeType(extension)
+        if (!string.IsNullOrWhiteSpace(contentType)) {
+            await blob.UploadAsync(stream, new BlobHttpHeaders {
+                ContentType = contentType
             });
         } else {
             await blob.UploadAsync(stream, overwrite: true);
