@@ -22,12 +22,12 @@ public abstract class BaseSetLanguageModel : BasePageModel
 
     /// <summary>The submitted culture to change</summary>
     [BindProperty]
-    public string Culture { get; set; }
+    public string? Culture { get; set; }
 
     /// <summary>Challenge callback page GET handler.</summary>
     public virtual IActionResult OnPost(string returnUrl) {
         var supportedCultures = (_requestLocalizationOptions.SupportedCultures ?? new List<CultureInfo>()).Select(x => x.TwoLetterISOLanguageName).ToHashSet();
-        if (!supportedCultures.Contains(Culture)) {
+        if (string.IsNullOrWhiteSpace(Culture) || !supportedCultures.Contains(Culture)) {
             Culture = _requestLocalizationOptions.DefaultRequestCulture.Culture.TwoLetterISOLanguageName;
         }
         Response.Cookies.Append(
