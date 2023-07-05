@@ -4,13 +4,13 @@ namespace Indice.Features.Risk.Core.Configuration;
 
 /// <summary></summary>
 /// <typeparam name="TRiskEvent">The type of risk event.</typeparam>
-public class EventConfigScoreBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
+public class RiskEventConfigScoreBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
 {
-    private readonly EventConfigBuilder<TRiskEvent> _eventConfigBuilder;
+    private readonly RiskEventConfigBuilder<TRiskEvent> _eventConfigBuilder;
 
-    internal EventConfigScoreBuilder(
+    internal RiskEventConfigScoreBuilder(
         string eventName,
-        EventConfigBuilder<TRiskEvent> eventConfigBuilder
+        RiskEventConfigBuilder<TRiskEvent> eventConfigBuilder
     ) {
         EventName = eventName ?? throw new ArgumentNullException(nameof(eventName));
         _eventConfigBuilder = eventConfigBuilder ?? throw new ArgumentNullException(nameof(eventConfigBuilder));
@@ -21,7 +21,7 @@ public class EventConfigScoreBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
     /// <summary></summary>
     /// <param name="amount"></param>
     /// <returns></returns>
-    public EventConfigBuilder<TRiskEvent> IncreaseBy(int amount) {
+    public RiskEventConfigBuilder<TRiskEvent> IncreaseBy(int amount) {
         var @event = _eventConfigBuilder.Events.FirstOrDefault(x => x.EventName == EventName);
         if (@event is not null) {
             @event.Amount += amount;
@@ -32,7 +32,7 @@ public class EventConfigScoreBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
     /// <summary></summary>
     /// <param name="amount"></param>
     /// <returns></returns>
-    public EventConfigBuilder<TRiskEvent> ReduceBy(int amount) {
+    public RiskEventConfigBuilder<TRiskEvent> ReduceBy(int amount) {
         var @event = _eventConfigBuilder.Events.FirstOrDefault(x => x.EventName == EventName);
         if (@event is not null) {
             @event.Amount -= amount;

@@ -38,7 +38,8 @@ public static class RiskApi
         // POST: /api/risk
         group.MapPost("risk", RiskApiHandlers.GetRisk<TRiskEvent, TRiskRequest>)
              .WithName(nameof(RiskApiHandlers.GetRisk))
-             .WithSummary("Calculates the risk given a transaction presented in the system.");
+             .WithSummary("Calculates the risk given a transaction presented in the system.")
+             .WithParameterValidation<TRiskRequest>();
 
         return builder;
     }

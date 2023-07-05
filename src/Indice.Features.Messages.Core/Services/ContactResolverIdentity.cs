@@ -98,7 +98,7 @@ public class ContactResolverIdentity : IContactResolver
             return accessToken;
         }
         var response = await HttpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest {
-            Address = $"{Options.BaseAddress}/connect/token",
+            Address = $"{Options.BaseAddress}connect/token",
             ClientId = Options.ClientId,
             ClientSecret = Options.ClientSecret,
             Scope = "identity identity:users"

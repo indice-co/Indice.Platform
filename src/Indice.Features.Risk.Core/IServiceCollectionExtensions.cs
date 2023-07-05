@@ -30,7 +30,7 @@ public static class IServiceCollectionExtensions
     /// <summary>Adds the required services for configuring the risk engine, using the default type <see cref="DbRiskEvent"/>.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configAction">Options for configuring the <b>Risk Engine</b> feature.</param>
-    /// <returns>The <see cref="RuleBuilder{TRiskEvent}"/> instance used to configure the risk engine.</returns>
+    /// <returns>The <see cref="RiskRuleBuilder{TRiskEvent}"/> instance used to configure the risk engine.</returns>
     public static StoreBuilder<DbRiskEvent> AddRiskEngine(this IServiceCollection services, Action<RiskEngineOptions>? configAction = null) =>
         services.AddRiskEngine<DbRiskEvent>(configAction);
 }

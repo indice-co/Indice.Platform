@@ -10,9 +10,9 @@ public class DbRiskEvent
     /// <summary>The user IP address related to the event occurred.</summary>
     public string? IpAddress { get; set; }
     /// <summary>The unique identifier of the subject performed the event.</summary>
-    public string? SubjectId { get; set; }
+    public string SubjectId { get; set; } = string.Empty;
     /// <summary>Timestamp regarding event creation.</summary>
     public DateTimeOffset CreatedAt { get; set; }
     /// <summary>The name of the event.</summary>
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
 }
