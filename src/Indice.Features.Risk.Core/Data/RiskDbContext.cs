@@ -32,5 +32,6 @@ public class RiskDbContext<TRiskEvent> : DbContext where TRiskEvent : DbRiskEven
         modelBuilder.Entity<TRiskEvent>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
         modelBuilder.Entity<TRiskEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
         modelBuilder.Entity<TRiskEvent>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
+        modelBuilder.Entity<TRiskEvent>().Property(x => x.Type).HasMaxLength(TextSizePresets.M256).IsRequired();
     }
 }

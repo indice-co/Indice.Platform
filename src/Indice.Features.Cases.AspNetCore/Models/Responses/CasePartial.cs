@@ -10,10 +10,6 @@ public class CasePartial
     /// <summary>The Id of the case.</summary>
     public Guid Id { get; set; }
 
-    /// <summary>The current status of the case.</summary>
-    [Obsolete("Use CheckpointType.Status", true)]
-    public CaseStatus Status { get; set; }
-
     /// <summary>The Id of the customer as provided from integration services (core or 3rd party).</summary>
     public string CustomerId { get; set; }
 

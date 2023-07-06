@@ -59,6 +59,10 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (Input.OtpResend) {
+            await SendVerificationSmsAsync(user, Input.PhoneNumber!);
+            return Page();
+        }
         var result = await UserManager.ChangePhoneNumberAsync(user, Input.PhoneNumber, Input.Code);
         if (result.Succeeded) {
             if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {

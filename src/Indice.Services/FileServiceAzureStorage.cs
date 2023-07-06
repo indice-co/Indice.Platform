@@ -31,20 +31,25 @@ public class FileServiceAzureStorage : IFileService
 
     /// <inheritdoc />
     public async Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions) {
+        saveOptions ??= new FileServiceSaveOptions();
         filePath = filePath.TrimStart('\\', '/');
         var folder = _containerName ?? Path.GetDirectoryName(filePath);
-        var filename = _containerName == null ? filePath.Substring(folder.Length) : filePath;
+        var filename = _containerName == null ? filePath[folder.Length..] : filePath;
         var container = new BlobContainerClient(_connectionString, folder);
         await container.CreateIfNotExistsAsync();
-        var blob = container.GetBlobClient(filename);
-        var extension = Path.GetExtension(filePath);
+        var blobClient = container.GetBlobClient(filename);
+        var fileExtension = Path.GetExtension(filePath);
+        if (string.IsNullOrWhiteSpace(saveOptions.ContentType) && !string.IsNullOrEmpty(fileExtension)) {
+            saveOptions.ContentType = FileExtensions.GetMimeType(fileExtension);
+        }
         stream.Position = 0;
-        if (!string.IsNullOrEmpty(extension)) {
-            await blob.UploadAsync(stream, new BlobHttpHeaders { 
-                ContentType = saveOptions?.ContentType ?? FileExtensions.GetMimeType(extension)
+        if (!saveOptions.IsEmpty()) {
+            await blobClient.UploadAsync(stream, new BlobHttpHeaders {
+                ContentType = saveOptions.ContentType,
+                CacheControl = saveOptions.CacheControl
             });
         } else {
-            await blob.UploadAsync(stream, overwrite: true);
+            await blobClient.UploadAsync(stream, overwrite: true);
         }
     }
 

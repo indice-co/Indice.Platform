@@ -16,4 +16,8 @@ internal class RiskEventStoreEntityFrameworkCore<TRiskEvent> : IRiskEventStore<T
         _dbContext.RiskEvents.Add(@event);
         await _dbContext.SaveChangesAsync();
     }
+
+    public Task<IEnumerable<TRiskEvent>> GetListByType(string type) {
+        throw new NotImplementedException();
+    }
 }
