@@ -129,7 +129,7 @@
   <data name="Mobile phone" xml:space="preserve">
     <value>Κινητό τηλέφωνο</value>
   </data>
-  <data name="Mobile phone must start with '69' and have 10 digits." xml:space="preserve">
+  <data name="The field '{PropertyName}' has invalid format." xml:space="preserve">
     <value>Το κινητό τηλέφωνο πρέπει να ξεκινάει από '69' και να έχει 10 ψηφία.</value>
   </data>
   <data name="Password" xml:space="preserve">

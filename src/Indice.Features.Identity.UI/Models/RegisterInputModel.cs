@@ -27,6 +27,8 @@ public class RegisterInputModel
     public List<AttributeModel> Claims { get; set; } = new List<AttributeModel>();
     /// <summary>The id of the current client in the request. </summary>
     public string? ClientId { get; set; }
+    /// <summary>The users time zone info.</summary>
+    public string? ZoneInfo { get; set; }
 
     /// <summary>Replace claim.</summary>
     /// <param name="name">Claim name.</param>
