@@ -91,7 +91,7 @@ public static class FileServiceExtensions
     /// <param name="fileService">File storage abstraction.</param>
     /// <param name="filePath">The file path.</param>
     /// <param name="stream">The file content as a <see cref="Stream"/>.</param>
-    public static async Task SaveAsync(this IFileService fileService, string filePath, Stream stream) => 
+    public static async Task SaveAsync(this IFileService fileService, string filePath, Stream stream) =>
         await fileService.SaveAsync(filePath, stream, saveOptions: null);
 
     /// <summary>Saves file data using a specified content type.</summary>
@@ -100,7 +100,7 @@ public static class FileServiceExtensions
     /// <param name="stream">The file content as a <see cref="Stream"/>.</param>
     /// <param name="contentType">The MIME content type of the blob.</param>
     public static async Task SaveAsync(this IFileService fileService, string filePath, Stream stream, string contentType) =>
-        await fileService.SaveAsync(filePath, stream, new FileServiceSaveOptions { 
+        await fileService.SaveAsync(filePath, stream, new FileServiceSaveOptions {
             ContentType = contentType
         });
 
@@ -110,18 +110,30 @@ public static class FileServiceExtensions
     /// <param name="path">The file path.</param>
     /// <param name="payload">The object to save.</param>
     /// <param name="jsonOptions">Provides options to be used with <see cref="JsonSerializer"/>.</param>
-    public static async Task SaveAsync<T>(this IFileService fileService, string path, T payload, JsonSerializerOptions jsonOptions) where T : class {
+    /// <param name="saveOptions">Options when saving a stream through <see cref="IFileService"/>.</param>
+    public static async Task SaveAsync<T>(this IFileService fileService, string path, T payload, JsonSerializerOptions jsonOptions, FileServiceSaveOptions saveOptions = null) where T : class {
+        saveOptions ??= new FileServiceSaveOptions();
         using (var stream = new MemoryStream()) {
             await JsonSerializer.SerializeAsync(stream, payload, jsonOptions);
             stream.Seek(0, SeekOrigin.Begin);
-            await fileService.SaveAsync(path, stream, MediaTypeNames.Application.Json);
+            if (string.IsNullOrWhiteSpace(saveOptions.ContentType)) {
+                saveOptions.ContentType = MediaTypeNames.Application.Json;
+            }
+            await fileService.SaveAsync(path, stream, saveOptions);
         }
     }
 }
 
 /// <summary>Options when saving a stream through <see cref="IFileService"/>.</summary>
-public class FileServiceSaveOptions 
+public class FileServiceSaveOptions
 {
     /// <summary>The MIME content type of the blob.</summary>
     public string ContentType { get; set; }
+    /// <summary>Specify directives for caching mechanisms.</summary>
+    public string CacheControl { get; set; }
+
+    /// <summary>Check if options are empty.</summary>
+    /// <returns></returns>
+    public bool IsEmpty() => string.IsNullOrEmpty(ContentType) &&
+                             string.IsNullOrEmpty(CacheControl);
 }
