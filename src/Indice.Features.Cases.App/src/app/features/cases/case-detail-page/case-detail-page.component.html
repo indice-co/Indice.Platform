@@ -69,7 +69,7 @@
                                            (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
                             <app-case-print-pdf [caseId]="model.id"
                                                 [enabled]="caseTypeConfig?.checkpointsThatAllowDownload ? caseTypeConfig?.checkpointsThatAllowDownload.includes(model.checkpointType?.code)
-                                                : (model.status === caseStatus.Completed || model.status === caseStatus.InProgress)"
+                                                : (model.checkpointType?.status === caseStatus.Completed || model.checkpointType?.status === caseStatus.InProgress)"
                                                 [buttonDisabled]="!formValid || formUnSavedChanges"
                                                 (pdfButtonClicked)="onPdfButtonClicked($event)">
                             </app-case-print-pdf>
