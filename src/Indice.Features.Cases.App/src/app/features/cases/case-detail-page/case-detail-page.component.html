@@ -67,7 +67,6 @@
                                            (updateDataEvent)="updateData($event)"
                                            (formIsValid)="isValid($event)"
                                            (unSavedChanges)="formDataHasChanged($event)"></app-case-form>
-                                           {{ model.checkpointType?.status| json}}
                             <app-case-print-pdf [caseId]="model.id"
                                                 [enabled]="caseTypeConfig?.checkpointsThatAllowDownload ? caseTypeConfig?.checkpointsThatAllowDownload.includes(model.checkpointType?.code)
                                                 : (model.checkpointType?.status === caseStatus.Completed || model.checkpointType?.status === caseStatus.InProgress)"
