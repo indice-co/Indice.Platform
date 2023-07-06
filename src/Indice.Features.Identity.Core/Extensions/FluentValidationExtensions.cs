@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Indice.Validation;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace FluentValidation;
 
@@ -12,4 +14,18 @@ public static class FluentValidationExtensions
     public static IRuleBuilderOptions<T, string> UserName<T>(this IRuleBuilder<T, string> ruleBuilder, UserOptions userOptions) =>
         ruleBuilder.Matches($"^[{userOptions.AllowedUserNameCharacters.Replace("-", "\\-")}]*$")
                    .WithMessage($"The field '{{PropertyName}}' has some invalid characters. Allowed characters are \"{userOptions.AllowedUserNameCharacters}\"");
+
+    /// <summary>Checks the given property against the list of allowed characters in the username configuration for the ASP.NET identity <see cref="UserOptions"/>. </summary>
+    /// <typeparam name="T">The type of property.</typeparam>
+    /// <param name="ruleBuilder">Rule builder.</param>
+    /// <param name="configuration">The IConfiguration param to discover the <strong>User:PhoneNumberRegex</strong> setting.</param>
+    public static IRuleBuilderOptions<T, string> UserPhoneNumber<T>(this IRuleBuilder<T, string> ruleBuilder, IConfiguration configuration) {
+        var phoneNumberRegex = configuration.GetIdentityOption("User", "PhoneNumberRegex");
+        var phoneNumberRegexMessage = configuration.GetIdentityOption("User", "PhoneNumberRegexMessage");
+        if (string.IsNullOrEmpty(phoneNumberRegex)) {
+            return ruleBuilder.GreekPhoneNumber();
+        }
+        return ruleBuilder.Matches(phoneNumberRegex)
+           .WithMessage(phoneNumberRegexMessage ?? "The field '{PropertyName}' has invalid format.");
+    }
 }

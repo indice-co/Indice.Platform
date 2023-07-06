@@ -176,6 +176,13 @@ public abstract class BaseRegisterModel : BasePageModel
                 ClaimValue = input.LastName,
                 UserId = user.Id
             });
+        }        
+        if (!string.IsNullOrWhiteSpace(input.ZoneInfo)) {
+            user.Claims.Add(new() {
+                ClaimType = JwtClaimTypes.ZoneInfo,
+                ClaimValue = input.ZoneInfo,
+                UserId = user.Id
+            });
         }
         user.Claims.Add(new() {
             ClaimType = BasicClaimTypes.ConsentCommercial,

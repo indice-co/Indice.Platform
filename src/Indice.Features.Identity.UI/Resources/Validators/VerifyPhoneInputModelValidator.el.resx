@@ -120,7 +120,7 @@
   <data name="Code" xml:space="preserve">
     <value>Κωδικός</value>
   </data>
-  <data name="Mobile phone must start with '69' and have 10 digits." xml:space="preserve">
+  <data name="The field '{PropertyName}' has invalid format." xml:space="preserve">
     <value>Ο αριθμός τηλεφώνου πρέπει να ξεκινά με τα ψηφία '69' και να έχει μέγεθος 10 χαρακτήρων.</value>
   </data>
   <data name="Phone Number" xml:space="preserve">

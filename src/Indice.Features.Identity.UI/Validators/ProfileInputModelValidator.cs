@@ -25,7 +25,7 @@ public class ProfileInputModelValidator : AbstractValidator<ProfileInputModel>
         RuleFor(x => x.UserName).UserName(identityOptions.Value.User).WithName(_localizer["Username"]).WithMessage(_localizer["Field '{PropertyName}' can accept digits, uppercase or lowercase latin characters and the symbols -._@+"]);
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
         RuleFor(x => x.PhoneNumber).Length(10).WithName(_localizer["Mobile phone"]);
-        RuleFor(x => x.PhoneNumber).Must(phoneNumber => string.IsNullOrEmpty(phoneNumber) || phoneNumber.StartsWith("69")).WithMessage(_localizer["Mobile phone must start with '69' and have 10 digits."]);
+        RuleFor(x => x.PhoneNumber).Must(phoneNumber => string.IsNullOrEmpty(phoneNumber) || phoneNumber.StartsWith("69")).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
         RuleFor(x => x.Tin).TaxCode("GR").WithName(_localizer["Tin"]).WithMessage(_localizer["Invalid Tax Code."]);
     }
 }
