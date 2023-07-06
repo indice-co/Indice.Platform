@@ -20,11 +20,13 @@ internal class AwaitAssignmentBookmarkProvider : BookmarkProvider<AwaitAssignmen
     /// <returns></returns>
     public override async ValueTask<IEnumerable<BookmarkResult>> GetBookmarksAsync(BookmarkProviderContext<AwaitAssignmentActivity> context, CancellationToken cancellationToken) {
         var allowedRole = await context.ReadActivityPropertyAsync<AwaitAssignmentActivity, string>(x => x.AllowedRole!, cancellationToken) ?? string.Empty;
+        var assign = await context.ReadActivityPropertyAsync<AwaitAssignmentActivity, bool>(x => x.Assign, cancellationToken);
+        var selfAssign = await context.ReadActivityPropertyAsync<AwaitAssignmentActivity, bool>(x => x.SelfAssign, cancellationToken);
         return new[] {
             // Create a bookmark for the activity's input role (or "" if left black (that means bookmark will be triggered by an authenticated-only user))
-            Result(new AwaitAssignmentBookmark(context.ActivityExecutionContext.CorrelationId, allowedRole)),
+            Result(new AwaitAssignmentBookmark(context.ActivityExecutionContext.CorrelationId, allowedRole, assign, selfAssign)),
             // Always create a bookmark for the administrator
-            Result(new AwaitAssignmentBookmark(context.ActivityExecutionContext.CorrelationId, Indice.Security.BasicRoleNames.Administrator))
+            Result(new AwaitAssignmentBookmark(context.ActivityExecutionContext.CorrelationId, Security.BasicRoleNames.Administrator))
         };
     }
 }

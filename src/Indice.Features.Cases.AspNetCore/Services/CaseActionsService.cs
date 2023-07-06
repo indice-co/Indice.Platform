@@ -52,16 +52,13 @@ internal class CaseActionsService : ICaseActionsService
         }
 
         // Retrieve bookmarks for each blocking activity
-        var assignmentBookmarks = await _bookmarkFinder.FindBookmarksAsync(
+        var assignmentBookmarks = (await _bookmarkFinder.FindBookmarksAsync(
             activityType: nameof(AwaitAssignmentActivity),
             bookmarks: userRoles.Select(userRole => new AwaitAssignmentBookmark(caseId.ToString(), userRole)),
             correlationId: caseId.ToString()
-        );
-        var assignmentVol2Bookmarks = await _bookmarkFinder.FindBookmarksAsync(
-            activityType: nameof(AwaitAssignmentVol2Activity),
-            bookmarks: userRoles.Select(userRole => new AwaitAssignmentVol2Bookmark(caseId.ToString(), userRole)),
-            correlationId: caseId.ToString()
-        );
+        )).ToList();
+        var hasAssignment = assignmentBookmarks.Any(x => ((AwaitAssignmentBookmark)x.Bookmark).Assign);
+        var hasSelfAssignment = assignmentBookmarks.Any(x => ((AwaitAssignmentBookmark)x.Bookmark).SelfAssign);
         var editBookmarks = await _bookmarkFinder.FindBookmarksAsync(
             activityType: nameof(AwaitEditActivity),
             bookmarks: userRoles.Select(userRole => new AwaitEditBookmark(caseId.ToString(), userRole)),
@@ -93,8 +90,8 @@ internal class CaseActionsService : ICaseActionsService
 
         return user.IsAdmin()
             ? new CaseActions {
-                HasAssignment = assignmentBookmarks.Any() && !caseIsAssigned,
-                HasAssignmentVol2 = assignmentVol2Bookmarks.Any() && !caseIsAssigned,
+                HasSelfAssignment = hasSelfAssignment && !caseIsAssigned,
+                HasAssignment = hasAssignment && !caseIsAssigned,
                 HasApproval = approvalBookmarks.Any(),
                 HasUnassignment = caseIsAssigned,
                 HasEdit = editBookmarks.Any(),
@@ -102,8 +99,8 @@ internal class CaseActionsService : ICaseActionsService
             }
             : new CaseActions {
                 HasApproval = userCanApprove,
-                HasAssignment = assignmentBookmarks.Any() && !caseIsAssigned,
-                HasAssignmentVol2 = assignmentVol2Bookmarks.Any() && !caseIsAssigned,
+                HasSelfAssignment = hasSelfAssignment && !caseIsAssigned,
+                HasAssignment = hasAssignment && !caseIsAssigned,
                 HasEdit = editBookmarks.Any() && isAssignedToCurrentUser,
                 CustomActions = customCaseActions
             };

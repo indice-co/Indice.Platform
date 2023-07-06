@@ -4,8 +4,9 @@
 public class CaseActions
 {
     /// <summary>User can assign the case to himself.</summary>
+    public bool HasSelfAssignment { get; set; }
+    /// <summary>User can assign the case to others.</summary>
     public bool HasAssignment { get; set; }
-    public bool HasAssignmentVol2 { get; set; }
 
     /// <summary>User can remove the assignment of the case.</summary>
     public bool HasUnassignment { get; set; }

@@ -6,6 +6,7 @@ using Elsa.Expressions;
 using Elsa.Services.Models;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Workflows.Extensions;
 
 namespace Indice.Features.Cases.Workflows.Activities;
@@ -23,7 +24,7 @@ namespace Indice.Features.Cases.Workflows.Activities;
 internal class AwaitAssignmentActivity : BaseCaseActivity
 {
     private readonly IAdminCaseService _adminCaseService;
-    
+
     public AwaitAssignmentActivity(
         IAdminCaseMessageService caseMessageService,
         IAdminCaseService adminCaseService)
@@ -40,8 +41,22 @@ internal class AwaitAssignmentActivity : BaseCaseActivity
     )]
     public string AllowedRole { get; set; }
 
+    [ActivityInput(
+    Label = "SelfAssign",
+    Hint = "SelfAssign."
+    )]
+    public bool SelfAssign { get; set; }
+
+    [ActivityInput(
+    Label = "Assign",
+    Hint = "Assign."
+    )]
+    public bool Assign { get; set; }
+
     [ActivityOutput]
     public AuditMeta Output { get; set; }
+    [ActivityOutput]
+    public bool WasSelfAssign { get; set; }
 
     public override async ValueTask<IActivityExecutionResult> TryExecuteAsync(ActivityExecutionContext context) {
         return context.WorkflowExecutionContext.IsFirstPass ? await OnExecuteInternal(context) : Suspend();
@@ -53,15 +68,20 @@ internal class AwaitAssignmentActivity : BaseCaseActivity
 
     private async Task<IActivityExecutionResult> OnExecuteInternal(ActivityExecutionContext context) {
         CaseId ??= Guid.Parse(context.CorrelationId);
+        // Read received input.
+        var receivedInput = context.GetInput<AwaitAssignmentInvokerInput>();
         AuditMeta assignedTo;
         try {
-            assignedTo = await _adminCaseService.AssignCase(AuditMeta.Create(context.GetHttpContextUser()), CaseId!.Value);
+            assignedTo = receivedInput.SelfAssign ?
+                await _adminCaseService.AssignCase(AuditMeta.Create(context.GetHttpContextUser()), CaseId!.Value) :
+                await _adminCaseService.AssignCase(receivedInput.User, CaseId!.Value);
         } catch (Exception ex) {
             await LogCaseError(context, ex);
             return Outcome("Failed");
         }
 
         Output = assignedTo;
+        WasSelfAssign = receivedInput.SelfAssign;
         context.LogOutputProperty(this, "Output", Output);
         return Done();
     }

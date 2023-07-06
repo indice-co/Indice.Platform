@@ -5001,8 +5001,9 @@ export interface ICase {
 /** The available actions for a user, depending on his role and checkpoint of the case. */
 export class CaseActions implements ICaseActions {
     /** User can assign the case to himself. */
+    hasSelfAssignment?: boolean;
+    /** User can assign the case to others. */
     hasAssignment?: boolean;
-    hasAssignmentVol2?: boolean;
     /** User can remove the assignment of the case. */
     hasUnassignment?: boolean;
     /** User can edit the case data. */
@@ -5023,8 +5024,8 @@ export class CaseActions implements ICaseActions {
 
     init(_data?: any) {
         if (_data) {
+            this.hasSelfAssignment = _data["hasSelfAssignment"];
             this.hasAssignment = _data["hasAssignment"];
-            this.hasAssignmentVol2 = _data["hasAssignmentVol2"];
             this.hasUnassignment = _data["hasUnassignment"];
             this.hasEdit = _data["hasEdit"];
             this.hasApproval = _data["hasApproval"];
@@ -5045,8 +5046,8 @@ export class CaseActions implements ICaseActions {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["hasSelfAssignment"] = this.hasSelfAssignment;
         data["hasAssignment"] = this.hasAssignment;
-        data["hasAssignmentVol2"] = this.hasAssignmentVol2;
         data["hasUnassignment"] = this.hasUnassignment;
         data["hasEdit"] = this.hasEdit;
         data["hasApproval"] = this.hasApproval;
@@ -5062,8 +5063,9 @@ export class CaseActions implements ICaseActions {
 /** The available actions for a user, depending on his role and checkpoint of the case. */
 export interface ICaseActions {
     /** User can assign the case to himself. */
+    hasSelfAssignment?: boolean;
+    /** User can assign the case to others. */
     hasAssignment?: boolean;
-    hasAssignmentVol2?: boolean;
     /** User can remove the assignment of the case. */
     hasUnassignment?: boolean;
     /** User can edit the case data. */
