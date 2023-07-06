@@ -161,6 +161,8 @@ internal abstract class BaseCaseMessageService
             @case.CompletedBy = AuditMeta.Create(user);
             // fast-forward public data Id
             @case.PublicDataId = @case.DataId;
+            // force remove assignment (if any)
+            @case.AssignedTo = null;
         }
 
         @case.CheckpointId = nextCheckpoint.Id;
