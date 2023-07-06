@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,7 +32,7 @@ internal class ExtendedIdentityServerBuilder : IExtendedIdentityServerBuilder
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         Environment = environment ?? throw new ArgumentNullException(nameof(environment));
         IdentityServerBuilder.Services.AddEndpointsApiExplorer();
-        IdentityServerBuilder.Services.AddEndpointParameterFluentValidation(ServiceLifetime.Singleton);
+        IdentityServerBuilder.Services.AddEndpointParameterFluentValidation(typeof(MyAccountApi).Assembly);
     }
 
     public IIdentityServerBuilder IdentityServerBuilder { get; }

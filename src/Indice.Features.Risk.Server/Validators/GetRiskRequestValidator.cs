@@ -2,7 +2,6 @@
 using Indice.Configuration;
 using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Server.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Risk.Server.Validators;
 
