@@ -19,6 +19,6 @@ public class VerifyPhoneInputModelValidator : AbstractValidator<VerifyPhoneInput
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         RuleFor(x => x.PhoneNumber).NotEmpty().WithName(_localizer["Phone Number"]).UserPhoneNumber(_configuration).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
-        RuleFor(x => x.Code).NotEmpty().When(x => x.OtpResend).WithName(_localizer["Code"]);
+        RuleFor(x => x.Code).NotEmpty().When(x => !x.OtpResend).WithName(_localizer["Code"]);
     }
 }
