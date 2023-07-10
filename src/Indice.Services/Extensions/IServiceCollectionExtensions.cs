@@ -187,9 +187,11 @@ public static class IndiceServicesServiceCollectionExtensions
         var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceKapaTEL>()
                                         .ConfigureHttpClient(httpClient => {
                                             httpClient.BaseAddress = new Uri("https://api2.smsmobile.gr/receiver_rest.php");
-                                        }).SetHandlerLifetime(TimeSpan.FromMinutes(5));
+                                        })
+                                        .SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
     }
+
     /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
     private static readonly Func<IServiceProvider, Action<IServiceProvider, EventDispatcherAzureOptions>, EventDispatcherAzure> GetEventDispatcherAzure = (serviceProvider, configure) => {
         var options = new EventDispatcherAzureOptions {

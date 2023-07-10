@@ -9,14 +9,6 @@ namespace Indice.Services;
 /// <summary>SMS service implementation using the KapaTEL SMS service gateway.</summary>
 public class SmsServiceKapaTEL : ISmsService
 {
-
-    /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
-    protected HttpClient HttpClient;
-    /// <summary>The settings required to configure the service.</summary>
-    protected SmsServiceKapaTELSettings Settings;
-    /// <summary>Represents a type used to perform logging.</summary>
-    protected ILogger<SmsServiceKapaTEL> Logger;
-
     /// <summary>Constructs the <see cref="SmsServiceKapaTEL"/> using the <seealso cref="SmsServiceSettings"/>.</summary>
     /// <param name="settings">The settings required to configure the service.</param>
     /// <param name="httpClient">Injected <see cref="System.Net.Http.HttpClient"/> managed by the DI.</param>
@@ -26,6 +18,13 @@ public class SmsServiceKapaTEL : ISmsService
         Settings = settings ?? throw new ArgumentNullException(nameof(settings));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
+
+    /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
+    protected HttpClient HttpClient { get; }
+    /// <summary>The settings required to configure the service.</summary>
+    protected SmsServiceKapaTELSettings Settings { get; }
+    /// <summary>Represents a type used to perform logging.</summary>
+    protected ILogger<SmsServiceKapaTEL> Logger { get; }
 
     /// <inheritdoc/>
     public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
@@ -44,7 +43,6 @@ public class SmsServiceKapaTEL : ISmsService
         if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
-
         var param = Settings.GetType()
                             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                             .ToDictionary(prop => prop.Name.ToLower(), prop => (string)prop.GetValue(Settings, null));
@@ -74,8 +72,7 @@ public class SmsServiceKapaTEL : ISmsService
     }
 
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
-    /// <param name="deliveryChannel">A string representing the delivery channel. i.e 'SMS'</param>
-    /// <returns></returns>
+    /// <param name="deliveryChannel">A string representing the delivery channel. i.e 'SMS'.</param>
     public bool Supports(string deliveryChannel) => "SMS".Equals(deliveryChannel, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Get default JSON serializer options: CamelCase, ignore null values.</summary>
@@ -85,26 +82,16 @@ public class SmsServiceKapaTEL : ISmsService
     };
 }
 
-/// <summary>Extra settings class for configuring KapaTEL SMS service client. </summary>
+/// <summary>Extra settings class for configuring KapaTEL SMS service client.</summary>
 public class SmsServiceKapaTELSettings
 {
-    /// <summary>
-    /// Username of your account In Unicode URLencoded Format
-    /// </summary>
+    /// <summary>Username of your account in unicode URL-encoded format.</summary>
     public string Username { get; set; }
-    /// <summary>
-    /// SMPP/API password In Unicode URLencoded Format 
-    /// </summary>
+    /// <summary>Password In unicode URL-encoded format.</summary>
     public string Password { get; set; }
-    /// <summary>
-    /// Choose Between GSM7 encoding and UTF8 
-    /// </summary>
+    /// <summary>Choose Between GSM7 encoding and UTF8.</summary>
     public string Encoding { get; set; } = "utf8";
-    /// <summary>
-    /// Alphanumeric Sender ID from where to send the message
-    /// (max 11 characters.Allowed characters are latin alphabet and
-    /// characters “dot”, “space”, “hyphen”)
-    /// </summary>
+    /// <summary>Alphanumeric Sender ID from where to send the message (max 11 characters.Allowed characters are Latin alphabet and characters “dot”, “space”, “hyphen”).</summary>
     public string From { get; set; }
 }
 
