@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data;
 using Indice.Features.Risk.Core.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Risk.Core.Stores;
 
@@ -17,7 +18,8 @@ internal class RiskEventStoreEntityFrameworkCore<TRiskEvent> : IRiskEventStore<T
         await _dbContext.SaveChangesAsync();
     }
 
-    public Task<IEnumerable<TRiskEvent>> GetListByType(string type) {
-        throw new NotImplementedException();
+    public async Task<IEnumerable<TRiskEvent>> GetListByType(string subjectId, string type) {
+        var events = await _dbContext.RiskEvents.Where(x => x.SubjectId == subjectId && x.Type == type).ToListAsync();
+        return events;
     }
 }

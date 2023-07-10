@@ -43,8 +43,13 @@ public class RiskManager<TRiskEvent> where TRiskEvent : DbRiskEvent
         foreach (var rule in Rules) {
             var result = await rule.ExecuteAsync(@event);
             result.RuleName = rule.Name;
-            var configuredEvents = EventsConfiguration;
             var finalRiskScore = result.RiskScore;
+            if (!string.IsNullOrEmpty(@event.Name)) {
+                var configuredEvent = EventsConfiguration.FirstOrDefault(x => x.EventName == @event.Name);
+                if (configuredEvent is not null) {
+                    finalRiskScore += configuredEvent.Amount;
+                }
+            }
             result.RiskScore = finalRiskScore;
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;
             results.Add(result);

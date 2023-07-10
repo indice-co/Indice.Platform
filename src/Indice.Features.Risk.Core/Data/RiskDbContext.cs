@@ -28,6 +28,7 @@ public class RiskDbContext<TRiskEvent> : DbContext where TRiskEvent : DbRiskEven
         modelBuilder.Entity<TRiskEvent>().HasKey(x => x.Id);
         modelBuilder.Entity<TRiskEvent>().HasIndex(x => x.CreatedAt);
         modelBuilder.Entity<TRiskEvent>().HasIndex(x => x.SubjectId);
+        modelBuilder.Entity<TRiskEvent>().HasIndex(x => x.Type);
         modelBuilder.Entity<TRiskEvent>().Property(x => x.Amount).HasColumnType("money");
         modelBuilder.Entity<TRiskEvent>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
         modelBuilder.Entity<TRiskEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
