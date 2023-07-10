@@ -18,7 +18,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <typeparam name="TService">The service type to decorate.</typeparam>
     /// <typeparam name="TDecorator">The decorator.</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    public static IServiceCollection AddDecorator2<TService, TDecorator>(this IServiceCollection services)
+    public static IServiceCollection AddDecorator<TService, TDecorator>(this IServiceCollection services)
         where TService : class
         where TDecorator : class, TService {
         var serviceDescriptor = services.Where(x => x.ServiceType == typeof(TService)).LastOrDefault();
