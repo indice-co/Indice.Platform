@@ -18,7 +18,7 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <typeparam name="TService">The service type to decorate.</typeparam>
     /// <typeparam name="TDecorator">The decorator.</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    public static IServiceCollection AddDecorator<TService, TDecorator>(this IServiceCollection services)
+    public static IServiceCollection AddDecorator2<TService, TDecorator>(this IServiceCollection services)
         where TService : class
         where TDecorator : class, TService {
         var serviceDescriptor = services.Where(x => x.ServiceType == typeof(TService)).LastOrDefault();
@@ -26,17 +26,19 @@ public static class IndiceServicesServiceCollectionExtensions
             services.AddTransient<TService, TDecorator>();
             return services;
         }
-        services.TryAddTransient(serviceDescriptor.ImplementationType);
+        if (serviceDescriptor.ImplementationType is not null) {
+            services.TryAddTransient(serviceDescriptor.ImplementationType);
+        }
         return services.AddTransient<TService, TDecorator>(serviceProvider => {
             var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
             var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService))
-                ? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType)
+                ? serviceDescriptor.ImplementationFactory?.Invoke(serviceProvider) ?? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType)
                 : serviceProvider.GetService(x.ParameterType)).ToArray();
             return (TDecorator)Activator.CreateInstance(typeof(TDecorator), arguments);
         });
     }
 
-    /// <summary>Adds Indice's common services.</summary>
+    /// <summary>Adds Indice common services.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddGeneralSettings(this IServiceCollection services, IConfiguration configuration) {
@@ -169,6 +171,24 @@ public static class IndiceServicesServiceCollectionExtensions
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         services.AddHttpClient<ISmsService, ViberYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        return services;
+    }
+
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using KapaTEL.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddSmsServiceKapaTEL(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceKapaTELSettings> configure = null) {
+        services.Configure<SmsServiceKapaTELSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceKapaTELSettings>>().Value);
+        services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+        var options = new SmsServiceKapaTELSettings();
+        configure?.Invoke(options);
+        var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceKapaTEL>()
+                                        .ConfigureHttpClient(httpClient => {
+                                            httpClient.BaseAddress = new Uri("https://api2.smsmobile.gr/receiver_rest.php");
+                                        })
+                                        .SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
     }
 
