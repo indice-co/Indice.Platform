@@ -79,9 +79,6 @@ export class SignInLogsComponent implements OnInit {
     }
 
     public search() {
-        if (!this.filter.dateFrom && !this.filter.dateTo && !this.filter.subject && this.filter.succeeded === undefined) {
-            return;
-        }
         const params = {};
         params[QueryParameters.PAGE] = this.defaultPage;
         params[QueryParameters.PAGE_SIZE] = this.defaultPageSize;
