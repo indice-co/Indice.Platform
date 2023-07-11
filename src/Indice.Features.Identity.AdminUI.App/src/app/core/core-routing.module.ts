@@ -7,6 +7,8 @@ import { AuthRenewComponent } from './components/auth-renew/auth-renew.component
 import { PublicShellComponent } from '../layout/components/public-shell/public-shell.component';
 import { DashboardShellComponent } from '../layout/components/dashboard-shell/dashboard-shell.component';
 import { ErrorComponent } from './components/error/error.component';
+import { UiFeaturesGuardService } from './services/ui-features-guard.service';
+import { Features } from './models/features';
 
 const appRoutes: Routes = [
     { path: 'auth-callback', component: AuthCallbackComponent },
@@ -26,7 +28,7 @@ const appRoutes: Routes = [
             { path: 'clients', loadChildren: () => import('../features/clients/clients.module').then(x => x.ClientsModule) },
             { path: 'resources', loadChildren: () => import('../features/resources/resources.module').then(x => x.ResourcesModule) },
             { path: 'settings', loadChildren: () => import('../features/settings/settings.module').then(x => x.SettingsModule) },
-            { path: 'sign-in-logs', loadChildren: () => import('../features/sign-in-logs/sign-in-logs.module').then(x => x.SignInLogsModule) }
+            { path: 'sign-in-logs', canLoad: [UiFeaturesGuardService], data: { feature: Features.SignInLogs } , loadChildren: () => import('../features/sign-in-logs/sign-in-logs.module').then(x => x.SignInLogsModule) }
         ]
     },
     {

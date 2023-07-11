@@ -4,7 +4,8 @@ import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { MenuItem } from './models/menu-item';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { IdentityApiService, UiFeaturesInfo } from 'src/app/core/services/identity-api.service';
+import { UiFeaturesInfo } from 'src/app/core/services/identity-api.service';
+import { UiFeaturesService } from 'src/app/core/services/ui-features.service';
 
 @Injectable()
 export class MenuService {
@@ -15,7 +16,7 @@ export class MenuService {
     constructor(
         private router: Router,
         private authService: AuthService,
-        private identityService: IdentityApiService
+        private uiFeaturesService: UiFeaturesService
     ) {
         this._currentUrl = this.router.url;
         const isAdmin = this.authService.isAdmin();
@@ -51,7 +52,7 @@ export class MenuService {
                 new MenuItem('Add App Setting', '/app/settings/add', isAdmin)
             ]),
         ]);
-        this.identityService.getUiFeatures().subscribe((response: UiFeaturesInfo) => {
+        this.uiFeaturesService.getUiFeatures().subscribe((response: UiFeaturesInfo) => {
             if (response.signInLogsEnabled) {
                 this._menuItems.push(new MenuItem('Sign in Logs', '/app/sign-in-logs', isAdmin, 'book'));
             }

@@ -17,7 +17,7 @@ public class SignInLogStoreNoop : ISignInLogStore
     public Task CreateManyAsync(IEnumerable<SignInLogEntry> logEntries, CancellationToken cancellationToken = default) => Task.CompletedTask;
 
     /// <inheritdoc />
-    public Task<ResultSet<SignInLogEntry>> ListAsync(ListOptions options, CancellationToken cancellationToken = default) => Task.FromResult(new ResultSet<SignInLogEntry>(Enumerable.Empty<SignInLogEntry>(), 0));
+    public Task<ResultSet<SignInLogEntry>> ListAsync(ListOptions options, SignInLogEntryFilter filter, CancellationToken cancellationToken = default) => Task.FromResult(new ResultSet<SignInLogEntry>(Enumerable.Empty<SignInLogEntry>(), 0));
 
     /// <inheritdoc />
     public Task<int> UpdateAsync(Guid id, SignInLogEntryRequest model, CancellationToken cancellationToken = default) => Task.FromResult(0);
