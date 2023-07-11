@@ -35,6 +35,16 @@ export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {
         return null;
     }
 
+    public parseDate(value: Date): NgbDateStruct {
+        if (!value)
+            return null;
+
+        let year = value.getFullYear();
+        let month = (1 + value.getMonth()).toString().padStart(2, '0');
+        let day = value.getDate().toString().padStart(2, '0');
+        return this.parse(`${month}-${day}-${year}`);
+    }
+
     public format(date: NgbDateStruct): string {
         return date ? `${this.utilities.isNumber(date.month) ? this.utilities.padNumber(date.month) : ''}-${this.utilities.isNumber(date.day) ? this.utilities.padNumber(date.day) : ''}-${date.year}` : '';
     }

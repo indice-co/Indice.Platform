@@ -51,9 +51,9 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
     }
 
     /// <inheritdoc />
-    public async Task<ResultSet<SignInLogEntry>> ListAsync(ListOptions options, CancellationToken cancellationToken = default) {
+    public async Task<ResultSet<SignInLogEntry>> ListAsync(ListOptions<SignInLogEntryFilter> options, CancellationToken cancellationToken = default) {
         var query = _dbContext.SignInLogs;
-        return await query.Select(ObjectMapping.ToSignInLogEntry).ToResultSetAsync(options);
+        return await query.ApplyFilter(options?.Filter).Select(ObjectMapping.ToSignInLogEntry).ToResultSetAsync(options);
     }
 
     /// <inheritdoc />
