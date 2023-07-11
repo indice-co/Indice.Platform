@@ -50,7 +50,7 @@ public static class SignInLogApi
             if (!await featureManager.IsEnabledAsync(IdentityServerFeatures.SignInLogs)) {
                 return Results.NotFound();
             }
-            var signInLogs = await signInLogStore.ListAsync(ListOptions.Create(options, filter));
+            var signInLogs = await signInLogStore.ListAsync(options, filter);
             return TypedResults.Ok(signInLogs);
         })
         .Produces<ResultSet<SignInLogEntry>>(StatusCodes.Status200OK)
@@ -73,13 +73,13 @@ public static class SignInLogApi
             if (options.Size > 100) {
                 return TypedResults.ValidationProblem(ValidationErrors.AddError("size", "Max allowed value for page size is 100."));
             }
-            var signInLogs = await signInLogStore.ListAsync(ListOptions.Create(options, new SignInLogEntryFilter {
+            var signInLogs = await signInLogStore.ListAsync(options, new SignInLogEntryFilter {
                 From = filter.From,
                 To = filter.To,
                 ApplicationId = filter.ApplicationId,
                 SignInType = filter.SignInType,
                 SubjectId = currentUser.FindSubjectId()
-            }));
+            });
             return TypedResults.Ok(signInLogs);
         })
         .Produces<ResultSet<SignInLogEntry>>(StatusCodes.Status200OK)

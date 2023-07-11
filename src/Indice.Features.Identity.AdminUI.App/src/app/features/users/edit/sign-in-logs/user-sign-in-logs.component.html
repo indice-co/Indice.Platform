@@ -110,79 +110,26 @@
         </div>
     </div>
 </ng-template>
-<div class="row">
-    <div class="col-sm-12">
-        <div class="page-title-box">
+<div class="row row-cols-1">
+    <div class="row">
+        <div class="col">
             <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h4 class="page-title m-0">Sign in logs ({{ count }})</h4>
-                    <p class="text-muted font-14">Gets a list of all the sign in logs.</p>
-                </div>
+                <h6 class="page-title m-0">Sign in logs ({{ count }})</h6>
+                <p class="text-muted font-14">Gets a list of all the sign in logs.</p>
             </div>
         </div>
-    </div>
-</div>
-<div class="row mb-3 row-cols-1 row-cols-xl-2">
-    <div class="row mb-3 mb-xl-0 col-span row-cols-1 row-cols-md-4 g-3 gy-md-0">
-        <div class="col">
-            <label class="visually-hidden"
-                   for="sign-in-logs-success-select">
-                Attempt Outcome
-            </label>
-            <select class="form-control form-select"
-                    id="sign-in-logs-success-select"
-                    name="sign-in-logs-success-select"
-                    required
-                    [(ngModel)]="filter.succeeded">
-                <option [ngValue]="undefined" selected="selected">
-                    {{ 'All Attempts' }}
-                </option>
-                <option [ngValue]="true">
-                    {{ 'Succeeded' }}
-                </option>
-                <option [ngValue]="false">
-                    {{ 'Failed' }}
-                </option>
-            </select>
+        <div class="col text-end">
+            <button class="btn" (click)="refresh()" [disabled]="isLoading">
+                <i class="material-icons">refresh</i>
+            </button>
         </div>
-        <div class="col">
-            <label class="visually-hidden" for="date-from-filter">
-                From Date
-            </label>
-            <app-dynamic-input id="date-from-filter" name="date-from-filter" [(ngModel)]="filter.dateFrom" [modelType]="'DateTime'"
-                [placeholder]="'From Date'" required #value="ngModel">
-            </app-dynamic-input>
-        </div>
-        <div class="col">
-            <label class="visually-hidden" for="date-to-filter">
-                To Date
-            </label>
-            <app-dynamic-input id="date-to-filter" name="date-to-filter" [(ngModel)]="filter.dateTo" [modelType]="'DateTime'"
-                [placeholder]="'To Date'" required #value="ngModel">
-            </app-dynamic-input>
-        </div>
-        <div class="col">
-            <label class="visually-hidden" for="subject-filter">
-                Subject
-            </label>
-            <app-dynamic-input id="subject-filter" name="subject-filter" [(ngModel)]="filter.subject" [modelType]="'String'"
-                [placeholder]="'Subject'" required #value="ngModel">
-            </app-dynamic-input>
-        </div>
-    </div>
-    <div class="col">
-        <button class="btn btn-primary waves-effect waves-light" [disabled]="isLoading" (click)="search()">
-            <div class="d-flex align-items-center">
-                <i class="material-icons m-r-5">search</i>
-                <div>Search</div>
-            </div>
-        </button>
     </div>
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="defaultPageSize"
-            [defaultSortField]="defaultSortField" [defaultSortDirection]="defaultSortDirection" [filter]="filter" (search)="getLogs($event)"
+        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count"
+            [rowsPerPage]="defaultPageSize" [defaultSortField]="defaultSortField"
+            [defaultSortDirection]="defaultSortDirection" (search)="getUserSignInLogs($event)"
             #signInLogsList></app-list-view>
     </div>
 </div>

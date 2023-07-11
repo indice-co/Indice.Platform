@@ -15,11 +15,19 @@ import { SearchEvent } from './models/search-event';
 export class ListViewComponent extends ListView implements OnInit, OnDestroy {
     @ViewChild('filterInput', { static: true }) private _filterInput: ElementRef;
 
+    private _filter: any;
+
     constructor(private route: ActivatedRoute, private router: Router) {
         super();
     }
 
     public ngOnInit(): void {
+        if (this.filter) {
+            this._filter = {};
+            Object.keys(this.filter).forEach((key) => {
+                this._filter[key] = this.filter[key]
+            })
+        }
         this.queryParamsSubscription = this.route.queryParams.subscribe((params: Params) => {
             this.parseQueryParams(params);
             this.doSearch();
@@ -73,6 +81,7 @@ export class ListViewComponent extends ListView implements OnInit, OnDestroy {
             this.dataTable.sorts.push({ prop: this.sortField, dir: this.sortDirection.toLowerCase() || 'asc' });
         }
         this.searchTerm = params[QueryParameters.SEARCH_TERM] || undefined;
+        this.parseFilterParams(params)
     }
 
     private changeSearchLocation(): void {
@@ -82,6 +91,7 @@ export class ListViewComponent extends ListView implements OnInit, OnDestroy {
         params[QueryParameters.SORT_FIELD] = this.sortField || this.defaultSortField || undefined;
         params[QueryParameters.SORT_DIRECTION] = this.sortDirection;
         params[QueryParameters.SEARCH_TERM] = this.searchTerm;
+        this.appendFilterParams(params);
         this.router.navigate([], { relativeTo: this.route, queryParams: params });
     }
 
@@ -90,11 +100,32 @@ export class ListViewComponent extends ListView implements OnInit, OnDestroy {
             this.page,
             this.rowsPerPage,
             this.sortField ? `${this.sortField}${this.sortDirection === SortDirection.Asc ? '+' : '-'}` : undefined,
-            this.searchTerm || undefined
+            this.searchTerm || undefined,
+            this._filter
         ));
     }
 
     private isEmptyObject(object: any): boolean {
         return Object.entries(object).length === 0 && object.constructor === Object;
+    }
+
+    private parseFilterParams(params: Params) {
+        if (!this._filter) 
+            return;
+        Object.keys(this._filter).forEach(key => {
+            if (params[key] !== this._filter[key]) {
+                this._filter[key] = params[key]
+            }
+        })
+    }
+
+    private appendFilterParams(params: Params) {
+        if (!this._filter) 
+            return;
+        Object.keys(this._filter).forEach(key => {
+            if (this._filter[key]) {
+                params[key] = this._filter[key]
+            }
+        })
     }
 }

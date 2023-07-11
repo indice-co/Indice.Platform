@@ -22,4 +22,6 @@ public class SignInLogEntryFilter : SignInLogEntryFilterBase
     public string SessionId { get; set; }
     /// <summary>Indicates whether the specified log entry is marked for review.</summary>
     public bool? MarkForReview { get; set; }
+    /// <summary>Indicates whether the specified log entry represents a successful attempt or not.</summary>
+    public bool? Succeeded { get; set; }
 }

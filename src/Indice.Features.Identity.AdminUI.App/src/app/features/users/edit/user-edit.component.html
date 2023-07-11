@@ -21,7 +21,10 @@
                         <a class="nav-link" [routerLink]="['external-logins']" routerLinkActive="active" role="tab" id="user-logins-tab">External Logins</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" [routerLink]="['devices']" routerLinkActive="active" role="tab" id="user-logins-tab">Devices</a>
+                        <a class="nav-link" [routerLink]="['devices']" routerLinkActive="active" role="tab" id="user-devices-tab">Devices</a>
+                    </li>
+                    <li class="nav-item" *ngIf="signInLogsEnabled">
+                        <a class="nav-link" [routerLink]="['sign-in-logs']" routerLinkActive="active" role="tab" id="user-sign-in-logs-tab">Sign In Logs</a>
                     </li>
                 </ul>
                 <div class="tab-content">

@@ -16,6 +16,7 @@ import { UserLoginsComponent } from './edit/logins/user-logins.component';
 import { UserRolesComponent } from './edit/roles/user-roles.component';
 import { UsersComponent } from './users.component';
 import { UsersRoutingModule } from './users-routing.module';
+import { UserSignInLogsComponent } from './edit/sign-in-logs/user-sign-in-logs.component';
 
 @NgModule({
     declarations: [
@@ -28,7 +29,8 @@ import { UsersRoutingModule } from './users-routing.module';
         UserEditComponent,
         UserLoginsComponent,
         UserRolesComponent,
-        UsersComponent
+        UsersComponent,
+        UserSignInLogsComponent
     ],
     imports: [
         CommonModule,
