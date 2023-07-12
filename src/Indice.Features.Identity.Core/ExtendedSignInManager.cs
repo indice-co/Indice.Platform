@@ -149,7 +149,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         } else {
             await StateProvider.ChangeStateAsync(user, UserAction.Login);
         }
-        if (ShouldSignInPartially()) {
+        if (StateProvider.ShouldSignInPartially()) {
             return await DoPartialSignInAsync(user, new string[] { "pwd" });
         }
         var mfaImplicitlyPassed = false;
@@ -177,7 +177,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 }
             }
         }
-        if (ShouldSignInPartially()) {
+        if (StateProvider.ShouldSignInPartially()) {
             var authenticationMethods = new List<string> { "pwd" };
             if (mfaImplicitlyPassed) {
                 authenticationMethods.Add("mfa");
@@ -226,7 +226,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         if (await ExtendedUserManager.VerifyTwoFactorTokenAsync(user, provider, code)) {
             await StateProvider.ChangeStateAsync(user, UserAction.MultiFactorAuthenticated);
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
-            if (ShouldSignInPartially()) {
+            if (StateProvider.ShouldSignInPartially()) {
                 return await DoPartialSignInAsync(user, new string[] { "pwd", "mfa" });
             }
             return new ExtendedSignInResult(StateProvider.CurrentState);
@@ -329,22 +329,30 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var deviceStore = GetDeviceStore();
         return deviceStore.SetBrowsersMfaSessionExpirationDate(user, null);
     }
+
+    /// <summary>Automatically signs in the given user.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="scheme">Authenticates the current request using the specified scheme.</param>
+    public async Task<AuthenticationProperties> AutoSignIn(TUser user, string scheme) {
+        var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(scheme);
+        AuthenticationProperties? authenticationProperties = default;
+        if (authenticateResult.Succeeded) {
+            authenticationProperties = authenticateResult.Properties;
+            await SignInWithClaimsAsync(user, authenticationProperties, authenticateResult.Principal.Claims);
+        }
+        return authenticationProperties;
+    }
     #endregion
 
     #region Helper Methods
-    private bool ShouldSignInForExtendedValidation() =>
-        StateProvider.CurrentState == UserState.RequiresEmailVerification ||
-        StateProvider.CurrentState == UserState.RequiresPhoneNumberVerification ||
-        StateProvider.CurrentState == UserState.RequiresPasswordChange;
-
-    private bool ShouldSignInForMfaOnboarding() => StateProvider.CurrentState == UserState.RequiresMfaOnboarding;
-
-    private bool ShouldSignInPartially() => ShouldSignInForExtendedValidation() || ShouldSignInForMfaOnboarding();
-
-    private async Task<ExtendedSignInResult> DoPartialSignInAsync(TUser user, string[] authenticationMethods) {
-        var scheme = ShouldSignInForExtendedValidation()
+    /// <summary>Performs a partial sign in for the user based on his state.</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="authenticationMethods">The authentication methods used during login.</param>
+    /// <exception cref="InvalidOperationException"></exception>
+    public async Task<ExtendedSignInResult> DoPartialSignInAsync(TUser user, string[] authenticationMethods) {
+        var scheme = StateProvider.ShouldSignInForExtendedValidation()
             ? ExtendedIdentityConstants.ExtendedValidationUserIdScheme
-            : ShouldSignInForMfaOnboarding()
+            : StateProvider.ShouldSignInForMfaOnboarding()
                 ? ExtendedIdentityConstants.MfaOnboardingScheme
                 : throw new InvalidOperationException("Cannot partially sign in.");
         var userClaims = await ExtendedUserManager.GetClaimsAsync(user);

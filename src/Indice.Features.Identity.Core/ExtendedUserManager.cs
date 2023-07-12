@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using IdentityModel;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
@@ -8,6 +9,7 @@ using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -17,6 +19,7 @@ namespace Indice.Features.Identity.Core;
 /// <typeparam name="TUser"></typeparam>
 public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 {
+    private readonly IServiceProvider _serviceProvider;
     private readonly IPlatformEventService _eventService;
 
     /// <summary>Creates a new instance of <see cref="ExtendedUserManager{TUser}"/>.</summary>
@@ -28,7 +31,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <param name="passwordValidators">A collection of <see cref="IPasswordValidator{TUser}"/> to validate passwords against.</param>
     /// <param name="keyNormalizer">The <see cref="ILookupNormalizer"/> to use when generating index keys for users.</param>
     /// <param name="errors">The <see cref="IdentityErrorDescriber"/> used to provider error messages.</param>
-    /// <param name="services">The <see cref="IServiceProvider"/> used to resolve services.</param>
+    /// <param name="serviceProvider">The <see cref="IServiceProvider"/> used to resolve services.</param>
     /// <param name="logger">The logger used to log messages, warnings and errors.</param>
     /// <param name="eventService">Models the event mechanism used to raise events inside the IdentityServer API.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
@@ -41,15 +44,16 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         IEnumerable<IPasswordValidator<TUser>> passwordValidators,
         ILookupNormalizer keyNormalizer,
         IdentityErrorDescriber errors,
-        IServiceProvider services,
+        IServiceProvider serviceProvider,
         ILogger<ExtendedUserManager<TUser>> logger,
         IdentityMessageDescriber identityMessageDescriber,
         IPlatformEventService eventService,
         IConfiguration configuration,
         IUserStateProvider<TUser> userStateProvider
-    ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) {
+    ) : base(userStore, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, serviceProvider, logger) {
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         StateProvider = userStateProvider ?? throw new ArgumentNullException(nameof(userStateProvider));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         MessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
         DefaultAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(DefaultAllowedRegisteredDevices));
         MaxAllowedRegisteredDevices = configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.User)}:Devices", nameof(MaxAllowedRegisteredDevices));
@@ -182,8 +186,15 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <inheritdoc />
     public override async Task<IdentityResult> SetTwoFactorEnabledAsync(TUser user, bool enabled) {
         var result = await base.SetTwoFactorEnabledAsync(user, enabled);
-        if (result.Succeeded) {
+        if (enabled && result.Succeeded) {
             await StateProvider.ChangeStateAsync(user, UserAction.MfaEnabled);
+        }
+        var signInManager = _serviceProvider.GetRequiredService<ExtendedSignInManager<TUser>>();
+        if (StateProvider.ShouldSignInForExtendedValidation()) {
+            await signInManager.DoPartialSignInAsync(user, new string[] { "pwd" });
+        }
+        if (StateProvider.CurrentState == UserState.LoggedIn) {
+            await signInManager.SignInWithClaimsAsync(user, false, new List<Claim> { new Claim(JwtClaimTypes.AuthenticationMethod, "pwd") });
         }
         return result;
     }

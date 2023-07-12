@@ -146,18 +146,4 @@ public abstract class BasePageModel : PageModel
         var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
         await smsService.SendAsync(phoneNumber, localizer["Verify phone number"], localizer["OTP CODE: {0} FOR PHONE NUMBER VERIFICATION. IT WILL BE VALID FOR 2 MINUTES.", code]);
     }
-
-    /// <summary>Automatically signs in the given user.</summary>
-    /// <param name="user">The user instance.</param>
-    /// <param name="scheme">Authenticates the current request using the specified scheme.</param>
-    public async Task<AuthenticationProperties?> AutoSignIn(User user, string scheme) {
-        var authenticateResult = await HttpContext.AuthenticateAsync(scheme);
-        AuthenticationProperties? authenticationProperties = default;
-        if (authenticateResult.Succeeded) {
-            authenticationProperties = authenticateResult.Properties;
-            var signInManager = ServiceProvider.GetRequiredService<ExtendedSignInManager<User>>();
-            await signInManager.SignInWithClaimsAsync(user, authenticationProperties, authenticateResult.Principal.Claims);
-        }
-        return authenticationProperties;
-    }
 }
