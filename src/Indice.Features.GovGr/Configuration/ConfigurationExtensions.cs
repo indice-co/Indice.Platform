@@ -1,5 +1,6 @@
 ﻿using Indice.Features.GovGr;
 using Indice.Features.GovGr.Configuration;
+using Indice.Features.GovGr.Proxies.Gsis;
 using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -23,11 +24,16 @@ public static class GovGrKycConfigurationExtensions
             settings.Kyc = options.Kyc;
             settings.Wallet = options.Wallet;
             settings.Documents = options.Documents;
+            settings.BusinessRegistry = options.BusinessRegistry;
         });
         // Register custom services.
         services.AddLocalization();
         services.AddHttpClient();
         services.AddTransient<GovGrClient>();
+        services.AddTransient<RgWsPublic, RgWsPublicClient>(serviceProvider => {
+            var client = new RgWsPublicClient(options.BusinessRegistry);
+            return client;
+        });
         services.AddTransient<GovGrKycScopeDescriber>();
         return services;
     }
