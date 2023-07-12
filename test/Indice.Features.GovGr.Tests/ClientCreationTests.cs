@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using Indice.Extensions;
 using Indice.Features.GovGr.Models;
+using Indice.Features.GovGr.Proxies.Gsis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -18,6 +19,10 @@ public class ClientCreationTests : IDisposable
             ["GovGr:Kyc:ClientSecret"] = "secret",
             ["GovGr:Wallet:Sandbox"] = "true",
             ["GovGr:Wallet:Token"] = "XX",
+            ["GovGr:BusinessRegistry:BaseAddress"] = "https://www1.gsis.gr:443/webtax2/wsgsis/RgWsPublic/RgWsPublicPort",
+            ["GovGr:BusinessRegistry:Username"] = "USERxxxxxxxxx",
+            ["GovGr:BusinessRegistry:Password"] = "afmxxxxxxxxx",
+            ["GovGr:BusinessRegistry:CallersFiscalCode"] = "xxxxxxxxxx",
             ["TestGreekIdentityNumber"] = "000",
             ["TestOTP"] = "000000",
             //...populate as needed for the test
@@ -49,6 +54,13 @@ public class ClientCreationTests : IDisposable
         var govGR = ServiceProvider.GetRequiredService<GovGrClient>();
         //var data = await govGR.Kyc().GetDataAsync(configuration["GovGr:Kyc:Code"]);
         var data = govGR.Kyc().GetAvailableScopes();
+        Assert.NotNull(data);
+    }
+
+    [Fact(Skip = "Needs Creds")]
+    public async Task CreateBusinessRegistryClient() {
+        var govGR = ServiceProvider.GetRequiredService<GovGrClient>();
+        var data = await govGR.BusinessRegistry().GetBusinessRegistry("xxxxxxxxx");
         Assert.NotNull(data);
     }
 

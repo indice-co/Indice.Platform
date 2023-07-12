@@ -14,6 +14,8 @@ public class GovGrOptions
     public WalletOptions Wallet { get; set; } = new WalletOptions();
     /// <summary>Documents service options</summary>
     public DocumentsOptions Documents { get; set; } = new DocumentsOptions();
+    /// <summary>Business Registry service options</summary>
+    public BusinessRegistryOptions BusinessRegistry { get; set; } = new BusinessRegistryOptions();
 
 
     /// <summary>KYC service options</summary>
@@ -59,5 +61,18 @@ public class GovGrOptions
         public string ServiceName { get; set; }
         /// <summary>The service token. Api key</summary>
         public string Token { get; set; }
+    }
+
+    /// <summary>Business Registry settings</summary>
+    public class BusinessRegistryOptions
+    {
+        /// <summary>BaseAddress</summary>
+        public string BaseAddress { get; set; } = "https://www1.gsis.gr:443/webtax2/wsgsis/RgWsPublic/RgWsPublicPort";
+        /// <summary>Username</summary>
+        public string Username { get; set; }
+        /// <summary>Password</summary>
+        public string Password { get; set; }
+        /// <summary>Callers Fiscal Code</summary>
+        public string CallersFiscalCode { get; set; }
     }
 }
