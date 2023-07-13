@@ -80,11 +80,12 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
         (UserState.LoggedOut, UserAction.ExternalLogin) when user.PhoneNumberConfirmed == false &&
                                                              _requirePostSignInConfirmedPhoneNumber => UserState.RequiresPhoneNumberVerification,
         (UserState.LoggedOut, UserAction.ExternalLogin) => UserState.LoggedIn,
+        (UserState.RequiresMfaOnboarding, UserAction.VerifiedPhoneNumber) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.RequiresMfaOnboarding, UserAction.VerifiedPhoneNumber) when user.EmailConfirmed == false &&
-                                                                       _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+                                                               _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
+        (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.EmailConfirmed == false &&
                                                                       _requirePostSignInConfirmedEmail => UserState.RequiresEmailVerification,
-        (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.RequiresMfaOnboarding, UserAction.MfaEnabled) => UserState.LoggedIn,
         (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.HasExpiredPassword() == true => UserState.RequiresPasswordChange,
         (UserState.RequiresMfa, UserAction.MultiFactorAuthenticated) when user.EmailConfirmed == false &&
