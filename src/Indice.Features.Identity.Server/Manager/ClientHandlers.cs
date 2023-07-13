@@ -214,6 +214,7 @@ internal static class ClientHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<Ok<ClaimInfo>, NotFound, ValidationProblem>> AddClientClaim(ExtendedConfigurationDbContext configurationDbContext, string clientId, CreateClaimRequest request) {
         var client = await configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {

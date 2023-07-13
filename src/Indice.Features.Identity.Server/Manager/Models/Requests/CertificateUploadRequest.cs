@@ -23,8 +23,7 @@ public class CertificateUploadRequest
     /// <param name="context"></param>
     /// <param name="parameter"></param>
     /// <returns></returns>
-    public static async ValueTask<CertificateUploadRequest> BindAsync(HttpContext context,
-                                                   ParameterInfo parameter) {
+    public static async ValueTask<CertificateUploadRequest> BindAsync(HttpContext context, ParameterInfo parameter) {
         var form = await context.Request.ReadFormAsync();
         var file = form.Files[nameof(File)];
         var password = form[nameof(Password)];

@@ -22,25 +22,25 @@ public class ExtendedPhoneNumberTokenProvider<TUser> : PhoneNumberTokenProvider<
     public Rfc6238AuthenticationService Rfc6238AuthenticationService { get; set; }
 
     /// <inheritdoc />
-    public override async Task<string> GenerateAsync(string purpose, UserManager<TUser> manager, TUser user) {
-        if (manager == null) {
-            throw new ArgumentNullException(nameof(manager));
+    public override async Task<string> GenerateAsync(string purpose, UserManager<TUser> userManager, TUser user) {
+        if (userManager == null) {
+            throw new ArgumentNullException(nameof(userManager));
         }
-        var token = await manager.CreateSecurityTokenAsync(user);
-        var modifier = await GetUserModifierAsync(purpose, manager, user);
+        var token = await userManager.CreateSecurityTokenAsync(user);
+        var modifier = await GetUserModifierAsync(purpose, userManager, user);
         return Rfc6238AuthenticationService.GenerateCode(token, modifier).ToString("D6", CultureInfo.InvariantCulture);
     }
 
     /// <inheritdoc />
-    public override async Task<bool> ValidateAsync(string purpose, string token, UserManager<TUser> manager, TUser user) {
-        if (manager == null) {
-            throw new ArgumentNullException(nameof(manager));
+    public override async Task<bool> ValidateAsync(string purpose, string token, UserManager<TUser> userManager, TUser user) {
+        if (userManager == null) {
+            throw new ArgumentNullException(nameof(userManager));
         }
         if (!int.TryParse(token, out var code)) {
             return false;
         }
-        var securityToken = await manager.CreateSecurityTokenAsync(user);
-        var modifier = await GetUserModifierAsync(purpose, manager, user);
-        return securityToken != null && Rfc6238AuthenticationService.ValidateCode(securityToken, code, modifier);
+        var securityToken = await userManager.CreateSecurityTokenAsync(user);
+        var modifier = await GetUserModifierAsync(purpose, userManager, user);
+        return securityToken is not null && Rfc6238AuthenticationService.ValidateCode(securityToken, code, modifier);
     }
 }
