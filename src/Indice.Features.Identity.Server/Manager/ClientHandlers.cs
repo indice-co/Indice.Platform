@@ -27,6 +27,7 @@ using Client = IdentityServer4.EntityFramework.Entities.Client;
 using ClientClaim = IdentityServer4.EntityFramework.Entities.ClientClaim;
 
 namespace Indice.Features.Identity.Server.Manager;
+
 internal static class ClientHandlers
 {
     internal static async Task<Ok<ResultSet<ClientInfo>>> GetClients(ExtendedConfigurationDbContext configurationDbContext, [AsParameters] ListOptions options) {
@@ -214,6 +215,7 @@ internal static class ClientHandlers
         await configurationDbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
+
     internal static async Task<Results<Ok<ClaimInfo>, NotFound, ValidationProblem>> AddClientClaim(ExtendedConfigurationDbContext configurationDbContext, string clientId, CreateClaimRequest request) {
         var client = await configurationDbContext.Clients.SingleOrDefaultAsync(x => x.ClientId == clientId);
         if (client == null) {

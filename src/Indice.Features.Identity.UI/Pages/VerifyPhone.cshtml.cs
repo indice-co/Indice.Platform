@@ -20,17 +20,22 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
     /// <summary>Creates a new instance of <see cref="BaseAddEmailModel"/> class.</summary>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseVerifyPhoneModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+    /// <param name="signInManager"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseVerifyPhoneModel(
         IStringLocalizer<BaseVerifyPhoneModel> localizer,
-        ExtendedUserManager<User> userManager
+        ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager
     ) : base() {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
+    /// <summary>Provides the APIs for user sign in.</summary>
+    protected ExtendedSignInManager<User> SignInManager { get; }
 
     /// <summary>The input model that backs the verify phone page.</summary>
     [BindProperty]
@@ -66,7 +71,7 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
         var result = await UserManager.ChangePhoneNumberAsync(user, Input.PhoneNumber, Input.Code);
         if (result.Succeeded) {
             if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
-                await AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+                await SignInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
             }
             var redirectUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, Input.ReturnUrl) ?? "/";
             TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
@@ -87,6 +92,7 @@ internal class VerifyPhoneModel : BaseVerifyPhoneModel
 {
     public VerifyPhoneModel(
         IStringLocalizer<VerifyPhoneModel> localizer,
-        ExtendedUserManager<User> userManager
-    ) : base(localizer, userManager) { }
+        ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager
+    ) : base(localizer, userManager, signInManager) { }
 }

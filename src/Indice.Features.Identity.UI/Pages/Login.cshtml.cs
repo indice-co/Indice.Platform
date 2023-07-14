@@ -24,7 +24,6 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseLoginModel : BasePageModel
 {
-
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
@@ -134,6 +133,7 @@ public abstract class BaseLoginModel : BasePageModel
             var result = await SignInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, IdentityUIOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
             var user = await UserManager.FindByNameAsync(Input.UserName!);
             if (result.Succeeded && user is not null) {
+                var test = await UserManager.GenerateTwoFactorEmailOtpAsync(user);
                 await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
                 await Events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
                 Logger.LogInformation("User '{UserName}' with email {Email} was successfully logged in.", user.UserName, user.Email);
