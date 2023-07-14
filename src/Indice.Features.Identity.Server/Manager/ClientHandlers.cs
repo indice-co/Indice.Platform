@@ -27,6 +27,7 @@ using Client = IdentityServer4.EntityFramework.Entities.Client;
 using ClientClaim = IdentityServer4.EntityFramework.Entities.ClientClaim;
 
 namespace Indice.Features.Identity.Server.Manager;
+
 internal static class ClientHandlers
 {
     internal static async Task<Ok<ResultSet<ClientInfo>>> GetClients(ExtendedConfigurationDbContext configurationDbContext, [AsParameters] ListOptions options) {
