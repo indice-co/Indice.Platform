@@ -2,7 +2,7 @@
 
 namespace Indice.Features.Identity.Core;
 
-/// <summary></summary>
+/// <summary>Manages the user state during login process.</summary>
 public interface IUserStateProvider<TUser> where TUser : User
 {
     /// <summary>Current user login state value.</summary>
@@ -14,6 +14,28 @@ public interface IUserStateProvider<TUser> where TUser : User
     /// <summary>Clears the current state.</summary>
     void ClearState();
 }
+
+/// <summary>Extension methods on <see cref="IUserStateProvider{TUser}"/> interface.</summary>
+public static class IUserStateProviderExtensions 
+{
+    /// <summary>Checks whether the user should be redirected to extended validation.</summary>
+    /// <typeparam name="TUser">The type of user.</typeparam>
+    /// <param name="userStateProvider">Manages the user state during login process.</param>
+    public static bool ShouldSignInForExtendedValidation<TUser>(this IUserStateProvider<TUser> userStateProvider) where TUser : User =>
+        userStateProvider.CurrentState == UserState.RequiresEmailVerification ||
+        userStateProvider.CurrentState == UserState.RequiresPhoneNumberVerification ||
+        userStateProvider.CurrentState == UserState.RequiresPasswordChange;
+
+    /// <summary>Checks whether the user should be redirected to MFA on-boarding process.</summary>
+    /// <typeparam name="TUser">The type of user.</typeparam>
+    /// <param name="userStateProvider">Manages the user state during login process.</param>
+    public static bool ShouldSignInForMfaOnboarding<TUser>(this IUserStateProvider<TUser> userStateProvider) where TUser : User => userStateProvider.CurrentState == UserState.RequiresMfaOnboarding;
+
+    /// <summary>Encapsulates both <see cref="ShouldSignInForExtendedValidation{TUser}(IUserStateProvider{TUser})"/> and <see cref="ShouldSignInForMfaOnboarding{TUser}(IUserStateProvider{TUser})"/> methods.</summary>
+    /// <typeparam name="TUser">The type of user.</typeparam>
+    /// <param name="userStateProvider">Manages the user state during login process.</param>
+    public static bool ShouldSignInPartially<TUser>(this IUserStateProvider<TUser> userStateProvider) where TUser : User => userStateProvider.ShouldSignInForExtendedValidation() || userStateProvider.ShouldSignInForMfaOnboarding();
+} 
 
 /// <summary>Describes the state of the current principal.</summary>
 public enum UserState

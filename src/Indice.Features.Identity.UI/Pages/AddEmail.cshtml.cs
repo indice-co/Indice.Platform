@@ -20,17 +20,22 @@ public abstract class BaseAddEmailModel : BasePageModel
     /// <summary>Creates a new instance of <see cref="BaseAddEmailModel"/> class.</summary>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseAddEmailModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+    /// <param name="signInManager"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseAddEmailModel(
         IStringLocalizer<BaseAddEmailModel> localizer,
-        ExtendedUserManager<User> userManager
+        ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager
     ) : base() {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
+    /// <summary>Provides the APIs for user sign in.</summary>
+    protected ExtendedSignInManager<User> SignInManager { get; }
 
     /// <summary>The input model that backs the add email page.</summary>
     [BindProperty]
@@ -44,7 +49,7 @@ public abstract class BaseAddEmailModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
-            await AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
+            await SignInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
         }
         if (UserManager.StateProvider.CurrentState != UserState.RequiresEmailVerification) {
             return Redirect(GetRedirectUrl(UserManager.StateProvider.CurrentState, returnUrl) ?? "/");
@@ -93,6 +98,7 @@ internal class AddEmailModel : BaseAddEmailModel
 {
     public AddEmailModel(
         IStringLocalizer<AddEmailModel> localizer, 
-        ExtendedUserManager<User> userManager
-    ) : base(localizer, userManager) { }
+        ExtendedUserManager<User> userManager,
+        ExtendedSignInManager<User> signInManager
+    ) : base(localizer, userManager, signInManager) { }
 }
