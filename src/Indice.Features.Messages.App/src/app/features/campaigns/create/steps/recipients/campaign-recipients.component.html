@@ -25,6 +25,15 @@
                                class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
                         <label for="recipient-ids"
                                class="ml-3 block text-sm font-medium text-gray-700">Λίστα κωδικών</label>
+                        <input id="recipients"
+                               name="sendVia"
+                               type="radio"
+                               value="recipients"
+                               (change)="onSendViaChanged($event)"
+                               formControlName="sendVia"
+                               class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
+                        <label for="recipients"
+                               class="ml-3 block text-sm font-medium text-gray-700">Λίστα παραληπτών</label>
                         <input id="user-base"
                                name="sendVia"
                                type="radio"
@@ -66,6 +75,17 @@
                     </div>
                     <p class="field-info">{{ recipientsCount }} παραλήπτες</p>
                 </div>
+                <div class="col-span-2 sm:col-span-1"
+                     *ngIf="sendVia.value === 'recipients'">
+                     <div *ngIf="!recipients.value || recipients.value.length < 1" class="flex items-center space-x-5">
+                            <p class="field-info">Δεν έχετε προσθέσει παραλήπτες στη λίστα επαφών.</p>
+                            <button class="ms-Icon ms-Icon--Add" (click)="showSidePane=true"></button>
+                     </div>
+                     <div *ngIf="recipients.value && recipients.value.length > 0" class="flex items-center space-x-5">
+                            <p class="field-info">Έχετε προσθέσει {{ recipients.value.length }} παραλήπτες</p>
+                            <button class="ms-Icon ms-Icon--Edit" (click)="showSidePane=true"></button>
+                     </div>
+                </div>
                 <p *ngIf="distributionList.invalid && (distributionList.dirty || distributionList.touched)"
                    class="mt-2 text-sm text-red-600">
                     <span *ngIf="distributionList.errors!['required']">Παρακαλώ επιλέξτε μία λίστα διανομής.</span>
@@ -74,7 +94,25 @@
                    class="mt-2 text-sm text-red-600">
                     <span *ngIf="recipientIds.errors!['required']">Παρακαλώ εισάγετε τουλάχιστον ένα κωδικό.</span>
                 </p>
+                <p *ngIf="recipients.invalid && (recipients.dirty || recipients.touched)"
+                   class="mt-2 text-sm text-red-600">
+                    <span *ngIf="recipients.errors!['required']">Παρακαλώ προσθέστε τουλάχιστον ένα παραλήπτη.</span>
+                </p>
             </div>
         </fieldset>
     </div>
 </form>
+
+<lib-side-pane #rightPane [visible]="showSidePane">
+       <div class="mt-4 pb-4 h-screen flex flex-col justify-between">
+              <app-list-contact-create #contactCreateComponent (onSubmit)="setRecipients($event); showSidePane = false;" (onCancel)="setRecipients($event); showSidePane = false;"></app-list-contact-create>
+              <div class="side-view-layout-actions-container">
+                     <button type="button" class="side-view-layout-action-button-cancel" (click)="contactCreateComponent.cancel()">
+                            Κλείσιμο
+                     </button>
+                     <button class="side-view-layout-action-button-submit" (click)="contactCreateComponent.submit()">
+                            Προσθήκη
+                     </button>
+              </div>
+       </div>
+</lib-side-pane>

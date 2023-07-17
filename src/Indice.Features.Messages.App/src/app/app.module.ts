@@ -44,6 +44,7 @@ import { MessageTypeEditComponent } from './features/message-types/edit/message-
 import { MessageTypesComponent } from './features/message-types/message-types.component';
 import { PageIllustrationComponent } from './shared/components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
+import { ListContactCreateComponent } from './shared/components/list-contact-create/list-contact-create.component';
 import { SafePipe } from './shared/pipes/safe.pipe';
 import { ShellConfig } from './shell.config';
 import { TemplateContentEditComponent } from './features/templates/edit/content/template-edit-content.component';
@@ -125,7 +126,8 @@ if (app.settings.tenantId) {
     TemplateDetailsEditRightpaneComponent,
     TemplateEditComponent,
     TemplatesComponent,
-    HttpStatusComponent
+    HttpStatusComponent,
+    ListContactCreateComponent
   ],
   imports: [
     AppRoutingModule,

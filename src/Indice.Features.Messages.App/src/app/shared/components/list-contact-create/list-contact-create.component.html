@@ -1,0 +1,276 @@
+<form #distributionListContactForm="ngForm"
+              (ngSubmit)="submit()">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="col-span-4">
+                    <label for="distribution-list-contact-name"
+                           class="field-label">Όνομα (*)</label>
+                    <lib-combobox id="distribution-list-contact-name"
+                                  [items]="contacts"
+                                  [itemTemplate]="itemTemplate"
+                                  [selectedItemTemplate]="selectedItemTemplate"
+                                  [noResultsTemplate]="noResultsTemplate"
+                                  [busy]="isLoading"
+                                  (onSearch)="onContactsSearch($event)"
+                                  (onItemSelected)="onContactSelected($event)"
+                                  #contactsCombobox>
+                    </lib-combobox>
+                </div>
+            </div>
+            <button type="submit"
+                    [style.visibility]="'hidden'"
+                    #submitBtn>
+                Submit
+            </button>
+        </form>
+<ng-template #noResultsTemplate
+             let-searchTerm>
+    <p class="m-2">
+        Δεν βρέθηκαν αποτελέσματα για '<i>{{ searchTerm }}</i>'. Πατήστε
+        <a href="javascript:void(0)"
+           class="text-blue-500"
+           (click)="onAddNewContact(searchTerm);">
+            εδώ
+        </a> για να προσθέσετε την επαφή.
+    </p>
+</ng-template>
+<ng-template let-item
+             #itemTemplate>
+    <div class="hover:bg-gray-100 relative cursor-pointer select-none py-2 pl-3 pr-3 flex">
+        <span class="block truncate grow">
+            {{ item.fullName || ((item.firstName || '') + ' ' + (item.lastName || '')).trim() || item.email }}
+        </span>
+        <span [ngClass]="{ 'invisible': !item.phoneNumber }"
+              [title]="item.phoneNumber"
+              class="text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 20 20"
+                 fill="currentColor"
+                 class="w-4 h-4">
+                <path fill-rule="evenodd"
+                      d="M2 3.5A1.5 1.5 0 013.5 2h1.148a1.5 1.5 0 011.465 1.175l.716 3.223a1.5 1.5 0 01-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 006.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 011.767-1.052l3.223.716A1.5 1.5 0 0118 15.352V16.5a1.5 1.5 0 01-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 012.43 8.326 13.019 13.019 0 012 5V3.5z"
+                      clip-rule="evenodd" />
+            </svg>
+        </span>
+        <span [ngClass]="{ 'invisible': !item.email }"
+              [title]="item.email"
+              class="ml-1 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 20 20"
+                 fill="currentColor"
+                 class="w-4 h-4">
+                <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
+                <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
+            </svg>
+        </span>
+        <span [ngClass]="{ 'invisible': !item.recipientId }"
+              title="Can receive inbox"
+              class="ml-1 text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 20 20"
+                 fill="currentColor"
+                 class="w-4 h-4">
+                <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
+            </svg>
+        </span>
+    </div>
+</ng-template>
+<ng-template let-item
+             #selectedItemTemplate>
+    <div class="grid grid-cols-1"
+         (mouseenter)="item.hover = true"
+         (mouseleave)="item.hover = false">
+        <div class="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-start space-x-3 hover:border-gray-400">
+            <ng-container *ngIf="!item._edit">
+                <div class="flex-shrink-0">
+                    <img class="h-10 w-10 rounded-full"
+                         [src]="apiUrl + '/avatar/' + item.fullName + '?circular=true'"
+                         alt="">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="focus:outline-none">
+                        <span class="absolute"
+                              aria-hidden="true">
+                        </span>
+                        <p class="text-sm font-medium text-gray-900">
+                            {{ item.salutation }} {{ item.fullName || ((item.firstName || '') + ' ' + (item.lastName || '')).trim() || item.email }}
+                        </p>
+                        <p class="text-sm text-gray-500 truncate">
+                            <svg class="w-5 h-5 text-gray-500 inline"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 20 20"
+                                 fill="currentColor"
+                                 aria-hidden="true">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                            </svg>
+                            <span class="ml-2">{{ item.email || '-' }}</span>
+                        </p>
+                        <p class="text-sm text-gray-500 truncate">
+                            <svg class="w-5 h-5 text-gray-500 inline"
+                                 xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 20 20"
+                                 fill="currentColor"
+                                 aria-hidden="true">
+                                <path
+                                      d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                            </svg>
+                            <span class="ml-2">{{ item.phoneNumber || '-' }}</span>
+                        </p>
+                    </div>
+                </div>
+            </ng-container>
+            <ng-container *ngIf="item._edit">
+                <div class="flex-1 min-w-0">
+                    <div class="focus:outline-none">
+                        <form #contactForm="ngForm"
+                              (ngSubmit)="submit()">
+                            <div class="px-4 space-y-2 pb-4">
+                                <div class="grid grid-cols-4 gap-1">
+                                    <!-- Προσφώνηση -->
+                                    <div class="col-span-4">
+                                        <label [for]="'salutation-' + item._index"
+                                               class="field-label">
+                                            Προσφώνηση
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'salutation-' + item._index"
+                                                   [id]="'salutation-' + item._index"
+                                                   placeholder="Προσφώνηση..."
+                                                   [(ngModel)]="item.salutation"
+                                                   #salutation="ngModel">
+                                        </div>
+                                        <p class="field-info col-span-3">Η προσφώνηση (π.χ κύριε ή κ.).</p>
+                                    </div>
+                                    <!-- Όνομα -->
+                                    <div class="col-span-4">
+                                        <label [for]="'first-name-' + item._index"
+                                               class="field-label">
+                                            Όνομα
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'first-name-' + item._index"
+                                                   [id]="'first-name-' + item._index"
+                                                   placeholder="Όνομα..."
+                                                   [(ngModel)]="item.firstName"
+                                                   #firstName="ngModel">
+                                        </div>
+                                    </div>
+                                    <!-- Επώνυμο -->
+                                    <div class="col-span-4">
+                                        <label [for]="'last-name-' + item._index"
+                                               class="field-label">
+                                            Επώνυμο
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'last-name-' + item._index"
+                                                   [id]="'last-name-' + item._index"
+                                                   placeholder="Επώνυμο..."
+                                                   [(ngModel)]="item.lastName"
+                                                   #lastName="ngModel">
+                                        </div>
+                                    </div>
+                                    <!-- Όνομα Εμφάνισης -->
+                                    <div class="col-span-4">
+                                        <label [for]="'full-name-' + item._index"
+                                               class="field-label">
+                                            Όνομα Εμφάνισης
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'full-name-' + item._index"
+                                                   [id]="'full-name-' + item._index"
+                                                   placeholder="Όνομα Εμφάνισης..."
+                                                   [(ngModel)]="item.fullName"
+                                                   #fullName="ngModel">
+                                        </div>
+                                    </div>
+                                    <!-- Email -->
+                                    <div class="col-span-4">
+                                        <label [for]="'email-' + item._index"
+                                               class="field-label">
+                                            Email
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'email-' + item._index"
+                                                   [id]="'email-' + item._index"
+                                                   placeholder="Email..."
+                                                   [(ngModel)]="item.email"
+                                                   #email="ngModel">
+                                        </div>
+                                    </div>
+                                    <!-- Email -->
+                                    <div class="col-span-4">
+                                        <label [for]="'phone-number-' + item._index"
+                                               class="field-label">
+                                            Τηλέφωνο
+                                        </label>
+                                        <div class="flex rounded-sm">
+                                            <input type="text"
+                                                   [name]="'phone-number-' + item._index"
+                                                   [id]="'phone-number-' + item._index"
+                                                   placeholder="Τηλέφωνο..."
+                                                   [(ngModel)]="item.phoneNumber"
+                                                   #phoneNumber="ngModel">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit"
+                                        [style.visibility]="'hidden'"
+                                        #submitBtn>
+                                    Submit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </ng-container>
+            <div class="ml-4 flex-shrink-0 flex flex-col"
+                 [ngClass]="{ 'invisible': !item.hover && !item._edit }">
+                <button type="button"
+                        (click)="contactsCombobox.removeItem(item)"
+                        class="cursor-pointer bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 mb-1">
+                    <span class="sr-only">Remove</span>
+                    <svg class="w-4 h-4"
+                         xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 20 20"
+                         fill="currentColor"
+                         aria-hidden="true">
+                        <path fill-rule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <button type="button"
+                        (click)="item._edit = true"
+                        class="cursor-pointer bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500"
+                        *ngIf="!item._edit">
+                    <span class="sr-only">Edit</span>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 20 20"
+                         fill="currentColor"
+                         class="w-4 h-4">
+                        <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
+                    </svg>
+                </button>
+                <button type="button"
+                        (click)="onContactSaveChanges(item)"
+                        class="cursor-pointer bg-white rounded-md inline-flex text-green-400 hover:text-green-500"
+                        *ngIf="item._edit">
+                    <span class="sr-only">Save</span>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 20 20"
+                         fill="currentColor"
+                         class="w-4 h-4">
+                        <path fill-rule="evenodd"
+                              d="M17.776 3.294c.296.29.3.765.01 1.061a39.55 39.55 0 00-8.35 12.672.75.75 0 01-1.224.246L2.22 11.281a.75.75 0 111.06-1.061l5.208 5.207a41.072 41.072 0 018.227-12.122.75.75 0 011.061-.01z"
+                              clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</ng-template>
