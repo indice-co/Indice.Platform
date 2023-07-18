@@ -130,10 +130,10 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         if (!result.Succeeded) {
             return result;
         }
-        await _eventService.Publish(new PasswordChangedEvent(user));
         if (await IsLockedOutAsync(user)) {
             return await SetLockoutEndDateAsync(user, null);
         }
+        await _eventService.Publish(new PasswordChangedEvent(user));
         return result;
     }
 
@@ -286,10 +286,10 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
             return result;
         }
         await StateProvider.ChangeStateAsync(user, UserAction.PasswordChanged);
-        await _eventService.Publish(new PasswordChangedEvent(user));
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);
         }
+        await _eventService.Publish(new PasswordChangedEvent(user));
         return result;
     }
 

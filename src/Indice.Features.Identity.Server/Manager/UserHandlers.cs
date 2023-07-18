@@ -500,8 +500,7 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        user.Blocked = request.Blocked;
-        var result = await userManager.UpdateAsync(user);
+        var result = await userManager.SetBlockedAsync(user, request.Blocked);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
