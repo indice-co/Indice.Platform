@@ -40,7 +40,7 @@ public static class IdentityBuilderExtensions
         builder.Services.AddTransient<IDeviceIdResolver, DeviceIdResolverHttpContext>();
         builder.Services.TryAddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
-        builder.Services.TryAddTransient<IUserStateProvider<TUser>, DefaultUserStateProvider<TUser>>();
+        builder.Services.TryAddScoped<IUserStateProvider<TUser>, DefaultUserStateProvider<TUser>>();
         return builder;
     }
 

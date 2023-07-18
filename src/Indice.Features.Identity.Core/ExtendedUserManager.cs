@@ -130,10 +130,10 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         if (!result.Succeeded) {
             return result;
         }
-        await _eventService.Publish(new PasswordChangedEvent(user));
         if (await IsLockedOutAsync(user)) {
             return await SetLockoutEndDateAsync(user, null);
         }
+        await _eventService.Publish(new PasswordChangedEvent(user));
         return result;
     }
 
@@ -286,10 +286,10 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
             return result;
         }
         await StateProvider.ChangeStateAsync(user, UserAction.PasswordChanged);
-        await _eventService.Publish(new PasswordChangedEvent(user));
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);
         }
+        await _eventService.Publish(new PasswordChangedEvent(user));
         return result;
     }
 
@@ -346,11 +346,12 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
             throw new ArgumentNullException(nameof(user));
         }
         user.Blocked = blocked;
-        if (blocked) {
+        var result = await UpdateAsync(user);
+        if (result.Succeeded && blocked) {
             // When blocking a user we need to make sure we also revoke all of his tokens.
             await _eventService.Publish(new UserBlockedEvent(user));
         }
-        return await UpdateAsync(user);
+        return result;
     }
 
     /// <summary>Gets a two factor email OTP for the specified user.</summary>
