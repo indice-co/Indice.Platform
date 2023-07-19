@@ -170,10 +170,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <param name="configureAction"></param>
     public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder, Action<ExtendedEndpointOptions>? configureAction = null) {
         builder.Services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName); // Configure anti-forgery token options.
-        builder.Services.Configure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, builder.Configuration);
-        builder.Services.PostConfigure<ExtendedEndpointOptions>(ExtendedEndpointOptions.Name, options => configureAction?.Invoke(options));
-        builder.Services.Configure<CacheResourceFilterOptions>(ExtendedEndpointOptions.Name, builder.Configuration);// Configure options for CacheResourceFilter.
-        builder.Services.PostConfigure<CacheResourceFilterOptions>(ExtendedEndpointOptions.Name, options => {
+        builder.Services.Configure<ExtendedEndpointOptions>(options => builder.Configuration.GetSection(ExtendedEndpointOptions.Name).Bind(options));
+        builder.Services.PostConfigure<ExtendedEndpointOptions>(options => configureAction?.Invoke(options));
+        builder.Services.Configure<CacheResourceFilterOptions>(options => builder.Configuration.GetSection(CacheResourceFilterOptions.Name).Bind(options)); // Configure options for CacheResourceFilter.
+        builder.Services.PostConfigure<CacheResourceFilterOptions>(options => {
             var endpointOptions = new ExtendedEndpointOptions {
                 DisableCache = options.DisableCache
             };
@@ -191,7 +191,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.SerializerOptions.Converters.Add(new JsonAnyStringConverter());
             options.SerializerOptions.Converters.Add(new TypeConverterJsonAdapterFactory());
         });
-        // the following is unfortunately required in order to have consistent swagger generator.
+        // The following is unfortunately required in order to have consistent swagger generator.
         builder.Services.Configure<JsonOptions>(options => {
             options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
