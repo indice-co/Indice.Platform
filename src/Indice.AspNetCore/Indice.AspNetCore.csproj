@@ -23,7 +23,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.5" />
-    <PackageReference Include="Microsoft.OpenApi" Version="1.6.4-preview2" />
+    <PackageReference Include="Microsoft.OpenApi" Version="1.6.5" />
     <PackageReference Include="MiniValidation" Version="0.7.4" />
   </ItemGroup>
   <ItemGroup>
