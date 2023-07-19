@@ -10,24 +10,22 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class EndpointParameterValidationConfiguration
 {
     /// <summary>Adds support for fluent validation validators in Minimal APIs.</summary>
-    /// <param name="collection"></param>
-    /// <param name="scanAssemblies"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection collection, params Assembly[] scanAssemblies)
-        => AddEndpointParameterFluentValidation(collection, ServiceLifetime.Transient, scanAssemblies);
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="scanAssemblies">The assemblies to scan.</param>
+    public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection services, params Assembly[] scanAssemblies)
+        => AddEndpointParameterFluentValidation(services, ServiceLifetime.Transient, scanAssemblies);
 
     /// <summary>Adds support for fluent validation validators in Minimal APIs.</summary>
-    /// <param name="collection"></param>
-    /// <param name="lifetime"></param>
-    /// <param name="scanAssemblies"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection collection, ServiceLifetime lifetime, params Assembly[] scanAssemblies) {
-        collection.TryAddSingleton<IEndpointParameterValidator, EndpointParameterFluentValidator>();
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
+    /// <param name="scanAssemblies">The assemblies to scan.</param>
+    public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection services, ServiceLifetime lifetime, params Assembly[] scanAssemblies) {
+        services.TryAddSingleton<IEndpointParameterValidator, EndpointParameterFluentValidator>();
         if (scanAssemblies?.Length > 0) {
             AssemblyScanner.FindValidatorsInAssemblies(scanAssemblies)
-                           .ForEach(x => collection.TryAdd(ServiceDescriptor.Describe(x.InterfaceType, x.ValidatorType, lifetime)));
+                           .ForEach(x => services.TryAdd(ServiceDescriptor.Describe(x.InterfaceType, x.ValidatorType, lifetime)));
         }
-        return collection;
+        return services;
     }
 }
 #endif
