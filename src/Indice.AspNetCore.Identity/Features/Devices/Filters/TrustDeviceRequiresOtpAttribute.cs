@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Indice.Features.Identity.Core;
+﻿using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Mvc.Filters;
 using Indice.Types;
