@@ -59,7 +59,9 @@ export class SignInLogsComponent implements OnInit {
     }
 
     public getLogs(event: SearchEvent): void {
-        this._api.getSignInLogs(event.page , event.pageSize, event.sortField, event.searchTerm, event.filter.subject, undefined, undefined, event.filter.succeeded, event.filter.dateFrom, event.filter.dateTo)
+        let dateFrom = event.filter.dateFrom ? (new Date(event.filter.dateFrom)).toISOString() : undefined;
+        let dateTo = event.filter.dateFrom ? (new Date(event.filter.dateTo)).toISOString() : undefined;
+        this._api.getSignInLogs(event.page , event.pageSize, event.sortField, event.searchTerm, event.filter.subject, undefined, undefined, event.filter.succeeded, dateFrom, dateTo)
             .pipe(finalize(() => {
                 this.isLoading = false;
             }))
@@ -85,10 +87,10 @@ export class SignInLogsComponent implements OnInit {
         params[QueryParameters.SORT_FIELD] = this.defaultSortField;
         params[QueryParameters.SORT_DIRECTION] = this.defaultSortDirection;
         if (this.filter.dateFrom) {
-            params['dateFrom'] = (new Date(this._dateParser.format(this.filter.dateFrom as NgbDateStruct))).toISOString()
+            params['dateFrom'] = this._dateParser.format(this.filter.dateFrom as NgbDateStruct)
         }
         if (this.filter.dateTo) {
-            params['dateTo'] = (new Date(this._dateParser.format(this.filter.dateTo as NgbDateStruct))).toISOString()
+            params['dateTo'] = this._dateParser.format(this.filter.dateTo as NgbDateStruct)
         }
         if (this.filter.succeeded !== undefined) {
             params['succeeded'] = this.filter.succeeded
