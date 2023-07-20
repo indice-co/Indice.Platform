@@ -119,7 +119,7 @@ public abstract class BaseMfaModel : BasePageModel
         return viewModel;
     }
 
-    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, bool? tryDowngradeAuthenticationMethod = false, TotpDeliveryChannel? mfaChannel = null) {
+    private async Task<MfaLoginViewModel> BuildMfaLoginViewModelAsync(string? returnUrl, bool? tryDowngradeAuthenticationMethod = false) {
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
         var authenticationMethod = await AuthenticationMethodProvider.GetRequiredAuthenticationMethod(user, tryDowngradeAuthenticationMethod) ?? throw new InvalidOperationException("MFA must be applied but no suitable authentication method was found.");
         var allowDowngradeAuthenticationMethod = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
