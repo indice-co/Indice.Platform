@@ -78,7 +78,7 @@ public static class SignInLogApi
                 To = filter.To,
                 ApplicationId = filter.ApplicationId,
                 SignInType = filter.SignInType,
-                SubjectId = currentUser.FindSubjectId()
+                Subject = currentUser.FindSubjectId()
             });
             return TypedResults.Ok(signInLogs);
         })

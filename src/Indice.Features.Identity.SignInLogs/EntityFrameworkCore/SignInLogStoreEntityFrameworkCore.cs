@@ -58,13 +58,13 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
                 query = query.Where(l => l.CreatedAt >= filter.From.Value);
             }
             if (filter.To.HasValue) {
-                query = query.Where(l => l.CreatedAt <= filter.To.Value);
+                query = query.Where(l => l.CreatedAt < filter.To.Value.AddDays(1));
             }
             if (filter.Succeeded.HasValue) {
                 query = query.Where(l => l.Succeeded == filter.Succeeded.Value);
             }
-            if (!string.IsNullOrWhiteSpace(filter.SubjectId)) {
-                query = query.Where(l => l.SubjectId == filter.SubjectId);
+            if (!string.IsNullOrWhiteSpace(filter.Subject)) {
+                query = query.Where(l => l.SubjectId == filter.Subject || l.SubjectName == filter.Subject);
             }
         }
         return await query.Select(ObjectMapping.ToSignInLogEntry).ToResultSetAsync(options);
