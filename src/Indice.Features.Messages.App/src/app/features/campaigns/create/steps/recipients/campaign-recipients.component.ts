@@ -3,6 +3,7 @@ import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } fro
 
 import { MenuOption } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
+import { settings } from 'src/app/core/models/settings';
 import { Contact, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { ListContactCreateComponent } from 'src/app/shared/components/list-contact-create/list-contact-create.component';
 
@@ -27,6 +28,7 @@ export class CampaignRecipientsComponent implements OnInit {
     public distributionLists: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public form!: UntypedFormGroup;
     public showSidePane: boolean = false;
+    public apiUrl = settings.api_url;
 
     public ngOnInit(): void {
         this._initForm();
