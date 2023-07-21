@@ -12,6 +12,10 @@ public interface ICampaignAttachmentService
     /// <param name="campaignId">The id of the campaign.</param>
     /// <param name="attachmentId">The id of the attachment.</param>
     Task Associate(Guid campaignId, Guid attachmentId);
+    /// <summary>Deletes a campaign attachment.</summary>
+    /// <param name="campaignId">The id of the campaign.</param>
+    /// <param name="attachmentId">The id of the attachment.</param>
+    Task Delete(Guid campaignId, Guid attachmentId);
     /// <summary>Retrieves an attachment associated with a campaign.</summary>
     /// <param name="campaignId"></param>
     /// <param name="attachmentId"></param>

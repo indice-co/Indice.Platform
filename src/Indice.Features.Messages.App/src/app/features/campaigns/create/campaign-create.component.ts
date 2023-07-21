@@ -8,7 +8,10 @@ import { CampaignContentComponent } from './steps/content/campaign-content.compo
 import { CampaignPreview } from './steps/preview/campaign-preview';
 import { CampaignPreviewComponent } from './steps/preview/campaign-preview.component';
 import { CampaignRecipientsComponent } from './steps/recipients/campaign-recipients.component';
-import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, MessageContent, Template } from 'src/app/core/services/messages-api.service';
+import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, MessageContent, Template, AttachmentLink } from 'src/app/core/services/messages-api.service';
+import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attachments.component';
+import { map, mergeMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
 @Component({
     selector: 'app-campaign-create',
@@ -20,6 +23,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     @ViewChild('contentStep', { static: true }) private _contentStep!: CampaignContentComponent;
     @ViewChild('recipientsStep', { static: true }) private _recipientsStep!: CampaignRecipientsComponent;
     @ViewChild('previewStep', { static: true }) private _previewStep!: CampaignPreviewComponent;
+    @ViewChild('attachmentsStep', { static: true }) private _attachmentsStep!: CampaignAttachmentsComponent;
 
     constructor(
         private _api: MessagesApiClient,
@@ -67,6 +71,11 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         const data = this._prepareDataToSubmit();
         this._api
             .createCampaign(data)
+            .pipe(mergeMap((campaign: Campaign) => {
+                return this._attachmentsStep.attachment.value && campaign.id 
+                    ? this._api.uploadCampaignAttachment(campaign.id, this._attachmentsStep.attachment.value).pipe(map(() => campaign))
+                    : of(campaign)
+            }))
             .subscribe({
                 next: (campaign: Campaign) => {
                     this.submitInProgress = false;
