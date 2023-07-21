@@ -126,8 +126,8 @@
   <data name="Logout" xml:space="preserve">
     <value>Αποσύνδεση</value>
   </data>
-  <data name="to return to the application." xml:space="preserve">
-    <value>για να επιστρέψετε στην εφαρμογή.</value>
+  <data name="to return to the application" xml:space="preserve">
+    <value>για να επιστρέψετε στην εφαρμογή</value>
   </data>
   <data name="You are now logged out" xml:space="preserve">
     <value>Έχετε πλέον αποσυνδεθεί</value>
