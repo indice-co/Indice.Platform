@@ -537,7 +537,7 @@ export interface IIdentityApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param subjectId (optional) 
+     * @param subject (optional) 
      * @param sessionId (optional) 
      * @param markForReview (optional) 
      * @param succeeded (optional) 
@@ -547,7 +547,7 @@ export interface IIdentityApiService {
      * @param signInType (optional) 
      * @return OK
      */
-    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, succeeded?: boolean | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, signInType?: string | undefined): Observable<SignInLogEntryResultSet>;
+    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subject?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, succeeded?: boolean | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, signInType?: string | undefined): Observable<SignInLogEntryResultSet>;
     /**
      * Patches the specified log entry by updating the properties given in the request.
      * @return No Content
@@ -7885,7 +7885,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param size (optional) 
      * @param sort (optional) 
      * @param search (optional) 
-     * @param subjectId (optional) 
+     * @param subject (optional) 
      * @param sessionId (optional) 
      * @param markForReview (optional) 
      * @param succeeded (optional) 
@@ -7895,7 +7895,7 @@ export class IdentityApiService implements IIdentityApiService {
      * @param signInType (optional) 
      * @return OK
      */
-    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subjectId?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, succeeded?: boolean | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, signInType?: string | undefined): Observable<SignInLogEntryResultSet> {
+    getSignInLogs(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, subject?: string | undefined, sessionId?: string | undefined, markForReview?: boolean | undefined, succeeded?: boolean | undefined, from?: string | undefined, to?: string | undefined, applicationId?: string | undefined, signInType?: string | undefined): Observable<SignInLogEntryResultSet> {
         let url_ = this.baseUrl + "/api/sign-in-logs?";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
@@ -7913,10 +7913,10 @@ export class IdentityApiService implements IIdentityApiService {
             throw new Error("The parameter 'search' cannot be null.");
         else if (search !== undefined)
             url_ += "Search=" + encodeURIComponent("" + search) + "&";
-        if (subjectId === null)
-            throw new Error("The parameter 'subjectId' cannot be null.");
-        else if (subjectId !== undefined)
-            url_ += "SubjectId=" + encodeURIComponent("" + subjectId) + "&";
+        if (subject === null)
+            throw new Error("The parameter 'subject' cannot be null.");
+        else if (subject !== undefined)
+            url_ += "Subject=" + encodeURIComponent("" + subject) + "&";
         if (sessionId === null)
             throw new Error("The parameter 'sessionId' cannot be null.");
         else if (sessionId !== undefined)
