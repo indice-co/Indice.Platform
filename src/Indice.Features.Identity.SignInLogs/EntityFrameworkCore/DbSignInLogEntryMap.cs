@@ -23,6 +23,7 @@ internal class DbSignInLogEntryMap : IEntityTypeConfiguration<DbSignInLogEntry>
         builder.HasIndex(x => x.CreatedAt);
         builder.HasIndex(x => x.SessionId);
         builder.HasIndex(x => x.SubjectId);
+        builder.HasIndex(x => x.SubjectName);
         // Configure properties.
         builder.Property(x => x.ActionName).HasMaxLength(TextSizePresets.M256);
         builder.Property(x => x.ApplicationId).HasMaxLength(TextSizePresets.M128);

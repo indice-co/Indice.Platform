@@ -20,11 +20,11 @@ public abstract class BaseSetLanguageModel : BasePageModel
         _requestLocalizationOptions = requestLocalizationOptions.Value;
     }
 
-    /// <summary>The submitted culture to change</summary>
+    /// <summary>The submitted culture to change.</summary>
     [BindProperty]
     public string? Culture { get; set; }
 
-    /// <summary>Challenge callback page GET handler.</summary>
+    /// <summary>Set language page POST handler.</summary>
     public virtual IActionResult OnPost(string returnUrl) {
         var supportedCultures = (_requestLocalizationOptions.SupportedCultures ?? new List<CultureInfo>()).Select(x => x.TwoLetterISOLanguageName).ToHashSet();
         if (string.IsNullOrWhiteSpace(Culture) || !supportedCultures.Contains(Culture)) {

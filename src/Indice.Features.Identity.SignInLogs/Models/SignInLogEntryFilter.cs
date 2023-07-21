@@ -17,7 +17,7 @@ public class SignInLogEntryFilterBase
 public class SignInLogEntryFilter : SignInLogEntryFilterBase
 {
     /// <summary>The unique identifier of the subject.</summary>
-    public string SubjectId { get; set; }
+    public string Subject { get; set; }
     /// <summary>User's session id.</summary>
     public string SessionId { get; set; }
     /// <summary>Indicates whether the specified log entry is marked for review.</summary>
