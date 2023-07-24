@@ -130,6 +130,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             typeId: this._basicInfoStep.type.value?.value || undefined,
             recipientIds: this._recipientsStep.recipientIds.value ? this._recipientsStep.recipientIds.value.split('\n') : null,
             recipientListId: this._recipientsStep.distributionList.value?.value || undefined,
+            recipients: this._recipientsStep.recipients.value || undefined,
             content: {}
         });
         const formContents = this._contentStep?.form.controls.content.value;
