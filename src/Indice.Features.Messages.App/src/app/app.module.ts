@@ -129,7 +129,7 @@ if (app.settings.tenantId) {
     TemplateDetailsEditRightpaneComponent,
     TemplateEditComponent,
     TemplatesComponent,
-    ListContactCreateComponent
+    ListContactCreateComponent,
     HttpStatusComponent,
     FileUploadComponent,
     CampaignAttachmentsComponent,
