@@ -46,4 +46,7 @@ public class MessageExceptions
     /// <summary>Template not found exception.</summary>
     /// <param name="id">The template id.</param>
     public static BusinessException TemplateNotFound(Guid id) => new($"Template with id '{id}' does not exist.", nameof(TemplateNotFound));
+    /// <summary>Attachment not found exception.</summary>
+    /// <param name="attachmentId">The attachment id.</param>
+    public static BusinessException AttachmentNotFound(Guid attachmentId) => new($"Campaign with id '{attachmentId}' does not exist.", nameof(CampaignNotFound));
 }

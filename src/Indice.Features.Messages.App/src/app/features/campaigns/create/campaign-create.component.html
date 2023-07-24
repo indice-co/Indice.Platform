@@ -43,6 +43,11 @@
                                                           #contentStep>
                                     </app-campaign-content>
                                 </lib-step>
+                                <lib-step [stepControl]="contentStep.form">
+                                    <ng-template libStepLabel>Επισυναπτομενα</ng-template>
+                                    <ng-template libStepInfo>Επισυναπτόμενα της καμπάνιας</ng-template>
+                                    <app-campaign-attachments #attachmentsStep></app-campaign-attachments>
+                                </lib-step>
                                 <lib-step [stepControl]="recipientsStep.form">
                                     <ng-template libStepLabel>Παραληπτες</ng-template>
                                     <ng-template libStepInfo>Παραλήπτες της καμπάνιας</ng-template>

@@ -1,0 +1,22 @@
+<lib-side-view-layout title="Επεξεργασία επισυναπτόμενων"
+                      [ok-close-dialog]="false"
+                      [ok-label]="'Αποθήκευση'"
+                      [cancel-label]="'Κλείσιμο'"
+                      (ok)="onSubmit()"
+                      [disabled]="isLoading || !attachmentChanged"
+                      #sideViewLayout>
+    <div class="mt-4">
+        <div class="px-4 space-y-2 pb-4">
+            <div class="grid grid-cols-4 gap-4">
+                <div class="col-span-4 py-5">
+                    <span class="mt-1 max-w-2xl text-sm text-gray-500">
+                        Τα επισυναπτόμενα αρχεία χρησιμοποιούνται μόνο εφόσον επιλεγεί ως κανάλι επικοινωνίας <strong>Inbox</strong> ή <strong>Email</strong>.
+                    </span>
+                    <div class="mt-10" *ngIf="!isLoading">
+                        <app-file-upload #fileUploadComponent [extendedView]="true" [existingFile]="campaignAttachment" [maxSize]="6*1024*1024" (fileChange)="onFileChange($event)"></app-file-upload>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</lib-side-view-layout>

@@ -198,6 +198,22 @@ internal class CampaignsController : CampaignsControllerBase
         return Ok(attachmentLink);
     }
 
+    /// <summary>
+    /// Deletes the camapaign attachment
+    /// </summary>
+    /// <param name="campaignId">The id of the campaign.</param>
+    /// <param name="attachmentId">The id of the attachment to be deleted.</param>
+    /// <response code="204">No Content</response>
+    /// <response code="400">Bad Request</response>
+    [HttpDelete("{campaignId}/attachments/{attachmentId}")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteCampaignAttachment([FromRoute] Guid campaignId, [FromRoute] Guid attachmentId) {
+        await CampaignAttachmentService.Delete(campaignId, attachmentId);
+        return NoContent();
+    }
+
     /// <summary>Gets the attachment associated with a campaign.</summary>
     /// <param name="fileGuid">Contains the photo's Id.</param>
     /// <param name="format">Contains the format of the uploaded attachment extension.</param>
@@ -209,6 +225,6 @@ internal class CampaignsController : CampaignsControllerBase
     [Produces(MediaTypeNames.Application.Octet)]
     [ProducesResponseType(typeof(IFormFile), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new[] { "v" })]
+    [ResponseCache(Duration = 345600, Location = ResponseCacheLocation.Any)]
     public async Task<IActionResult> GetCampaignAttachment([FromRoute] Base64Id fileGuid, [FromRoute] string format) => await GetFile("campaigns", fileGuid, format);
 }
