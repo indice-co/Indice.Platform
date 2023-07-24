@@ -59,6 +59,27 @@ public class CampaignAttachmentService : ICampaignAttachmentService
     }
 
     /// <inheritdoc />
+    public async Task Delete(Guid campaignId, Guid attachmentId) {
+        var dbAttachment = await DbContext
+            .Attachments
+            .Where(x => x.Id == attachmentId)
+            .SingleOrDefaultAsync();
+        if (dbAttachment is null) {
+            throw MessageExceptions.AttachmentNotFound(attachmentId);
+        }
+        var campaign = await DbContext.Campaigns.FindAsync(campaignId);
+        if (campaign is null) {
+            throw MessageExceptions.CampaignNotFound(campaignId);
+        }
+        campaign.AttachmentId = null;
+        DbContext.Attachments.Remove(dbAttachment);
+        await DbContext.SaveChangesAsync();
+
+        var path = $"campaigns/{dbAttachment.Guid.ToString("N")[..2]}/{dbAttachment.Guid:N}.{dbAttachment.FileExtension.TrimStart('.')}";
+        await FileService.DeleteAsync(path);
+    }
+
+    /// <inheritdoc />
     public async Task<FileAttachment> GetFile(Guid campaignId, Guid attachmentId) {
         var dbAttachment = await DbContext
             .Campaigns

@@ -5,6 +5,8 @@ import { ModalService, ToasterService, ToastType } from '@indice/ng-components';
 import { CampaignDetails, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { CampaignEditStore } from '../campaign-edit-store.service';
+import { HttpClient } from '@angular/common/http';
+import { settings } from 'src/app/core/models/settings';
 
 @Component({
     selector: 'app-campaign-details-edit',
@@ -20,7 +22,8 @@ export class CampaignDetailsEditComponent implements OnInit {
         private _router: Router,
         @Inject(ToasterService) private _toaster: ToasterService,
         private _modalService: ModalService,
-        private _api: MessagesApiClient
+        private _api: MessagesApiClient,
+        private _httpClient: HttpClient
     ) { }
 
     public campaign: CampaignDetails | undefined;
@@ -40,6 +43,10 @@ export class CampaignDetailsEditComponent implements OnInit {
 
     public openEditPane(action: string): void {
         this._router.navigate(['', { outlets: { rightpane: ['edit-campaign'] } }], { queryParams: { action: action } });
+    }
+
+    public openEditAttachmentsPane(): void {
+        this._router.navigate(['', { outlets: { rightpane: ['edit-campaign-attachments'] } }]);
     }
 
     public deleteCampaign(): void {
@@ -82,6 +89,24 @@ export class CampaignDetailsEditComponent implements OnInit {
                 });
             }
         });
+    }
+
+    public downloadAttachment() {
+        if (!this.campaign?.attachment?.permaLink || !this.campaign?.attachment?.label) {
+            return;
+        }
+        var url = `${settings.api_url}/${this.campaign?.attachment?.permaLink}`;
+        this._httpClient.get(url, { responseType: 'arraybuffer' })
+            .subscribe((blob) => {
+                const url = window.URL.createObjectURL(new Blob([blob]));
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = this.campaign?.attachment?.label ?? 'download';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
     }
 
     public ngAfterViewInit(): void {

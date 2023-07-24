@@ -44,6 +44,7 @@ import { MessageTypeEditComponent } from './features/message-types/edit/message-
 import { MessageTypesComponent } from './features/message-types/message-types.component';
 import { PageIllustrationComponent } from './shared/components/page-illustration/page-illustration.component';
 import { RadioButtonsListComponent } from './shared/components/radio-buttons-list/radio-buttons-list.component';
+import { ListContactCreateComponent } from './shared/components/list-contact-create/list-contact-create.component';
 import { SafePipe } from './shared/pipes/safe.pipe';
 import { ShellConfig } from './shell.config';
 import { TemplateContentEditComponent } from './features/templates/edit/content/template-edit-content.component';
@@ -52,6 +53,9 @@ import { TemplateDetailsEditComponent } from './features/templates/edit/details/
 import { TemplateDetailsEditRightpaneComponent } from './features/templates/edit/details/rightpane/template-edit-details-rightpane.component';
 import { TemplateEditComponent } from './features/templates/edit/template-edit.component';
 import { TemplatesComponent } from './features/templates/templates.component';
+import { FileUploadComponent } from './shared/components/file-upload/file-upload.component';
+import { CampaignAttachmentsComponent } from './features/campaigns/create/steps/attachments/campaign-attachments.component';
+import { CampaignAttachmentsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-attachments-rightpane.component';
 import * as app from 'src/app/core/models/settings';
 import localeGreek from '@angular/common/locales/el';
 registerLocaleData(localeGreek);
@@ -125,7 +129,11 @@ if (app.settings.tenantId) {
     TemplateDetailsEditRightpaneComponent,
     TemplateEditComponent,
     TemplatesComponent,
-    HttpStatusComponent
+    ListContactCreateComponent,
+    HttpStatusComponent,
+    FileUploadComponent,
+    CampaignAttachmentsComponent,
+    CampaignAttachmentsEditRightpaneComponent
   ],
   imports: [
     AppRoutingModule,

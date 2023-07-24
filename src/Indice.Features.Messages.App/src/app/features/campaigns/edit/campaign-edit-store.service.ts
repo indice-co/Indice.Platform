@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { AsyncSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CampaignDetails, MessagesApiClient, UpdateCampaignRequest } from 'src/app/core/services/messages-api.service';
+import { CampaignDetails, FileParameter, MessagesApiClient, UpdateCampaignRequest } from 'src/app/core/services/messages-api.service';
 
 @Injectable({
     providedIn: 'root'
@@ -44,6 +44,22 @@ export class CampaignEditStore {
         });
         return this._api
             .updateCampaign(campaignId, body)
+            .pipe(
+                map(_ => this._campaign = undefined)
+            );
+    }
+
+    public uploadCampaignAttachment(campaignId: string, attachment?: FileParameter) {
+        return this._api
+            .uploadCampaignAttachment(campaignId, attachment)
+            .pipe(
+                map(_ => this._campaign = undefined)
+            );
+    }
+
+    public deleteCampaignAttachment(campaignId: string, attachmentId: string) {
+        return this._api
+            .deleteCampaignAttachment(campaignId, attachmentId)
             .pipe(
                 map(_ => this._campaign = undefined)
             );

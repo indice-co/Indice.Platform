@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Indice.Features.Identity.UI.Models;
-using Indice.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 
@@ -14,6 +13,7 @@ public class VerifyPhoneInputModelValidator : AbstractValidator<VerifyPhoneInput
 
     /// <summary>Creates a new instance of <see cref="VerifyPhoneInputModelValidator"/> class.</summary>
     /// <param name="localizer">Represents a service that provides localized strings.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public VerifyPhoneInputModelValidator(IStringLocalizer<VerifyPhoneInputModelValidator> localizer, IConfiguration configuration) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
