@@ -5,9 +5,9 @@
       <VersionPrefixBase>7.3</VersionPrefixBase>
       <VersionPrefixCore>$(VersionPrefixBase).11</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).11</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).13</VersionPrefixIdentityUI>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).14</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).7</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).5</VersionPrefixMessages>
+      <VersionPrefixMessages>$(VersionPrefixBase).6</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).5</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).5</VersionPrefixRisk>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
