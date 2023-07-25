@@ -14,7 +14,7 @@
 <div class="sign-in m-auto">
     <partial name="_PageHeader" model="title" />
     <partial name="_ValidationSummary" />
-    @if (Model.View.DeliveryChannel == TotpDeliveryChannel.Sms && !string.IsNullOrWhiteSpace(maskedPhoneNumber))
+    @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms && !string.IsNullOrWhiteSpace(maskedPhoneNumber))
     {
         <div class="alert alert-primary" role="alert">@Localizer["We texted your phone {0}. Please enter the code to sign in.", maskedPhoneNumber]</div>
         <form id="mfa-form" asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
@@ -37,7 +37,7 @@
             <button type="submit" class="btn btn-info btn-block">@Localizer["Login"]</button>
         </form>
     }
-    @if (Model.View.DeliveryChannel == TotpDeliveryChannel.PushNotification)
+    @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification)
     {
         <form id="mfa-form" asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
             <input type="hidden" asp-for="Input.ReturnUrl" />
@@ -80,7 +80,7 @@
 
 @section scripts {
     <partial name="_ValidationScripts" />
-    @if (Model.View.DeliveryChannel == TotpDeliveryChannel.PushNotification)
+    @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification)
     {
         <script type="text/javascript" src="~/lib/@@microsoft/signalr/dist/browser/signalr.min.js" csp-nonce></script>
     }
@@ -95,7 +95,7 @@
                 $otpCodeInput: $('#Input_OtpCode'),
                 $rememberClientCheckbox: $('#Input_RememberClient'),
                 browserFamily: '@(HttpContext.Request.GetBrowserName())',
-                deliveryChannel: '@Model.View.DeliveryChannel',
+                deliveryChannel: '@Model.View.AuthenticationMethod?.GetDeliveryChannel()',
                 hubConnectionUrl: '@hubConnectionUrl'
             };
             var viewModel = new indice.mfaViewModelFactory(viewModelParameters);

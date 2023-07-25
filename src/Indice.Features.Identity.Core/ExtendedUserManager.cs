@@ -353,10 +353,6 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         }
         return result;
     }
-
-    /// <summary>Gets a two factor email OTP for the specified user.</summary>
-    /// <param name="user">The user instance.</param>
-    public Task<string> GenerateTwoFactorEmailOtpAsync(TUser user) => GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
     #endregion
 
     /// <summary>Adds a new device to the specified user.</summary>

@@ -139,8 +139,8 @@ public static class WorkerHostBuilderExtensions
     /// <summary>Adds an instance of <see cref="IEmailService"/> that uses SparkPost to send emails.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageJobsOptions UseEmailServiceSparkpost(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddEmailServiceSparkpost(configuration);
+    public static MessageJobsOptions UseEmailServiceSparkPost(this MessageJobsOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceSparkPost(configuration);
         return options;
     }
 

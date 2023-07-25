@@ -28,7 +28,8 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
         string subject = null,
         string purpose = null,
         string pushNotificationClassification = null,
-        string pushNotificationData = null
+        string pushNotificationData = null,
+        string tokenProvider = null
     ) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
@@ -43,7 +44,12 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
     }
 
     /// <inheritdoc />
-    public override async Task<TotpResult> VerifyAsync(TUser user, string code, string purpose = null) {
+    public override async Task<TotpResult> VerifyAsync(
+        TUser user, 
+        string code, 
+        string purpose = null, 
+        string tokenProvider = null
+    ) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
         }

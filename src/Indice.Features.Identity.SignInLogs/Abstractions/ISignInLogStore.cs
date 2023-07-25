@@ -19,7 +19,8 @@ public interface ISignInLogStore
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     Task CreateManyAsync(IEnumerable<SignInLogEntry> logEntries, CancellationToken cancellationToken = default);
     /// <summary>Queries a list of user's sign in event data, applying the provided filter.</summary>
-    /// <param name="options">The filter options to apply.</param>
+    /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter">The filter options to apply.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     Task<ResultSet<SignInLogEntry>> ListAsync(ListOptions options, SignInLogEntryFilter filter, CancellationToken cancellationToken = default);
     /// <summary>Updates the specified log entry.</summary>

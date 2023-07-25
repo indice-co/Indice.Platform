@@ -12,17 +12,17 @@ namespace Indice.Services;
 /// SparkPost implementation for the email service abstraction.
 /// https://developers.sparkpost.com/api/transmissions.html
 /// </summary>
-public class EmailServiceSparkpost : IEmailService
+public class EmailServiceSparkPost : IEmailService
 {
-    /// <summary>Creates a new instance of <see cref="EmailServiceSparkpost"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="EmailServiceSparkPost"/>.</summary>
     /// <param name="settings">An instance of <see cref="EmailServiceSparkPostSettings"/> used to initialize the service.</param>
     /// <param name="httpClient">The HTTP client to use (DI managed)</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
     /// <param name="htmlRenderingEngine">This is an abstraction for the rendering engine.</param>
-    public EmailServiceSparkpost(
+    public EmailServiceSparkPost(
         EmailServiceSparkPostSettings settings,
         HttpClient httpClient,
-        ILogger<EmailServiceSparkpost> logger,
+        ILogger<EmailServiceSparkPost> logger,
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
         Settings = settings ?? throw new ArgumentNullException(nameof(settings));
@@ -37,7 +37,7 @@ public class EmailServiceSparkpost : IEmailService
 
     private EmailServiceSparkPostSettings Settings { get; }
     private HttpClient HttpClient { get; }
-    private ILogger<EmailServiceSparkpost> Logger { get; }
+    private ILogger<EmailServiceSparkPost> Logger { get; }
     /// <inheritdoc/>
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
 

@@ -94,10 +94,10 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <summary>Adds an instance of <see cref="IEmailService"/> that uses SparkPost to send emails.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static EmailServiceBuilder AddEmailServiceSparkpost(this IServiceCollection services, IConfiguration configuration) {
+    public static EmailServiceBuilder AddEmailServiceSparkPost(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<EmailServiceSparkPostSettings>(configuration.GetSection(EmailServiceSparkPostSettings.Name));
         services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value);
-        services.AddHttpClient<IEmailService, EmailServiceSparkpost>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        services.AddHttpClient<IEmailService, EmailServiceSparkPost>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
         services.AddHtmlRenderingEngineNoop();
         return new EmailServiceBuilder(services);
     }

@@ -75,11 +75,12 @@ public abstract class BaseMfaModel : BasePageModel
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl, [FromQuery(Name = "dc")] bool? downgradeChannel) {
         Input = View = await BuildMfaLoginViewModelAsync(returnUrl, downgradeChannel);
         var totpService = TotpServiceFactory.Create<User>();
-        if (View.DeliveryChannel == TotpDeliveryChannel.Sms) {
+        if (View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms) {
             await totpService.SendAsync(message =>
                 message.ToUser(View.User)
                        .WithMessage(_localizer["Your OTP code for login is: {0}"])
                        .UsingSms()
+                       .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider())
                        .WithSubject(_localizer["OTP login"])
                        .WithPurpose("TwoFactor")
             );
@@ -91,8 +92,8 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
-        var totpService = TotpServiceFactory.Create<User>();
-        var signInResult = await SignInManager.TwoFactorSignInAsync(totpService.TokenProvider, Input.OtpCode, Input.RememberMe, Input.RememberClient);
+        View = await BuildMfaLoginViewModelAsync(Input);
+        var signInResult = await SignInManager.TwoFactorSignInAsync(View.AuthenticationMethod?.GetTokenProvider(), Input.OtpCode, Input.RememberMe, Input.RememberClient);
         if (signInResult.Succeeded) {
             if (string.IsNullOrEmpty(Input.ReturnUrl)) {
                 return Redirect("/");
@@ -107,7 +108,6 @@ public abstract class BaseMfaModel : BasePageModel
             return Redirect(redirectUrl);
         }
         ModelState.AddModelError(string.Empty, _localizer["The OTP code is not valid."]);
-        View = await BuildMfaLoginViewModelAsync(Input);
         return Page();
     }
 
@@ -124,9 +124,8 @@ public abstract class BaseMfaModel : BasePageModel
         var authenticationMethod = await AuthenticationMethodProvider.GetRequiredAuthenticationMethod(user, tryDowngradeAuthenticationMethod) ?? throw new InvalidOperationException("MFA must be applied but no suitable authentication method was found.");
         var allowDowngradeAuthenticationMethod = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
         return new MfaLoginViewModel {
+            AuthenticationMethod = authenticationMethod,
             AllowDowngradeAuthenticationMethod = allowDowngradeAuthenticationMethod,
-            DeliveryChannel = authenticationMethod.SupportsDeliveryChannel() ? ((IAuthenticationMethodWithChannel)authenticationMethod).DeliveryChannel  : null,
-            DeviceNames = authenticationMethod.SupportsDevices() ? ((IAuthenticationMethodWithDevices)authenticationMethod).Devices.Select(x => x.Name) : Array.Empty<string>(),
             ReturnUrl = returnUrl,
             User = user
         };
