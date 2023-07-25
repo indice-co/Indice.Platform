@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="A confirmation email has been sent to the address bellow." xml:space="preserve">
-    <value>Ένα email επιβεβαίωσης έχει αποσταλλεί στην παρακάτω διεύθυνση.</value>
+  <data name="A confirmation email has been sent to the address below." xml:space="preserve">
+    <value>Ένα email επιβεβαίωσης έχει αποσταλεί στην παρακάτω διεύθυνση.</value>
   </data>
   <data name="Please enter your email address so we can verify it before we continue." xml:space="preserve">
     <value>Παρακαλώ εισάγετε τη διεύθυνση email σας για να την επιβεβαιώσουμε πριν προχωρήσουμε.</value>
