@@ -123,6 +123,9 @@
   <data name="Next" xml:space="preserve">
     <value>Επόμενο</value>
   </data>
+  <data name="Resend" xml:space="preserve">
+    <value>Επαναποστολή</value>
+  </data>
   <data name="Save" xml:space="preserve">
     <value>Αποθήκευση</value>
   </data>
