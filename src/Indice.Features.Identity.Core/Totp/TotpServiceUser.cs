@@ -32,8 +32,6 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<TUser> UserManager { get; }
-    /// <summary>The token provider used by <see cref="TotpServiceUser{TUser}"/>.</summary>
-    public string TokenProvider => TokenOptions.DefaultPhoneProvider;
 
     /// <summary>Creates a TOTP and sends it as an SMS message.</summary>
     /// <param name="user">The user instance.</param>
@@ -82,6 +80,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
     /// <param name="classification">The notification's type.</param>
     /// <param name="data">The push notification data (preferably as a JSON string).</param>
+    /// <param name="tokenProvider">The name of the token provider.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public async Task<TotpResult> SendAsync(
         ClaimsPrincipal principal,
@@ -90,10 +89,11 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         string subject = null,
         string purpose = null,
         string classification = null,
-        string data = null
+        string data = null,
+        string tokenProvider = null
     ) {
         var user = await UserManager.GetUserAsync(principal);
-        return await SendAsync(user, message, channel, subject, purpose, classification, data);
+        return await SendAsync(user, message, channel, subject, purpose, classification, data, tokenProvider);
     }
 
     /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
@@ -103,9 +103,9 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         configureAction(builder);
         var @params = builder.Build();
         if (@params.ClaimsPrincipal is not null) {
-            return SendAsync(@params.ClaimsPrincipal, @params.Message, @params.DeliveryChannel, @params.Subject, @params.Purpose, @params.Classification, @params.Data);
+            return SendAsync(@params.ClaimsPrincipal, @params.Message, @params.DeliveryChannel, @params.Subject, @params.Purpose, @params.Classification, @params.Data, @params.TokenProvider);
         }
-        return SendAsync(@params.User, @params.Message, @params.DeliveryChannel, @params.Subject, @params.Purpose, @params.Classification, @params.Data);
+        return SendAsync(@params.User, @params.Message, @params.DeliveryChannel, @params.Subject, @params.Purpose, @params.Classification, @params.Data, @params.TokenProvider);
     }
 
     /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
@@ -116,6 +116,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
     /// <param name="classification">The notification's type.</param>
     /// <param name="data">The push notification data (preferably as a JSON string).</param>
+    /// <param name="tokenProvider">The name of the token provider.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public virtual async Task<TotpResult> SendAsync(
         TUser user,
@@ -124,13 +125,15 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         string subject = null,
         string purpose = null,
         string classification = null,
-        string data = null
+        string data = null,
+        string tokenProvider = null
     ) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
         }
         purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-        var token = await UserManager.GenerateUserTokenAsync(user, TokenProvider, purpose);
+        tokenProvider ??= TokenOptions.DefaultPhoneProvider;
+        var token = await UserManager.GenerateUserTokenAsync(user, tokenProvider, purpose);
         message = _localizer[message, token];
         var cacheKey = $"{nameof(TotpServiceUser<TUser>)}:{user.Id}:{channel}:{purpose}";
         if (await CacheKeyExistsAsync(cacheKey)) {
@@ -205,17 +208,20 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="user">The user instance.</param>
     /// <param name="code">The TOTP code to verify.</param>
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
+    /// <param name="tokenProvider">The name of the token provider.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public virtual async Task<TotpResult> VerifyAsync(
         TUser user,
         string code,
-        string purpose = null
+        string purpose = null,
+        string tokenProvider = null
     ) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
         }
         purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
-        var verified = await UserManager.VerifyUserTokenAsync(user, TokenProvider, purpose, code);
+        tokenProvider ??= TokenOptions.DefaultPhoneProvider;
+        var verified = await UserManager.VerifyUserTokenAsync(user, tokenProvider, purpose, code);
         if (verified) {
             await UserManager.UpdateSecurityStampAsync(user);
             return TotpResult.SuccessResult;

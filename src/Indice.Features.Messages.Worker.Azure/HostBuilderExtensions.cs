@@ -127,8 +127,8 @@ public static class HostBuilderExtensions
     /// <summary>Adds an instance of <see cref="IEmailService"/> that uses SparkPost to send emails.</summary>
     /// <param name="options">Options used when configuring messages in Azure Functions.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    public static MessageOptions UseEmailServiceSparkpost(this MessageOptions options, IConfiguration configuration) {
-        options.Services.AddEmailServiceSparkpost(configuration);
+    public static MessageOptions UseEmailServiceSparkPost(this MessageOptions options, IConfiguration configuration) {
+        options.Services.AddEmailServiceSparkPost(configuration);
         return options;
     }
 

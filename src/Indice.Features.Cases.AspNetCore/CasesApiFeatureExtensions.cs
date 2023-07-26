@@ -149,7 +149,7 @@ public static class CasesApiFeatureExtensions
         services.AddTransient<INotificationSubscriptionService, NotificationSubscriptionService>();
         services.AddSmsServiceYubotoOmni(configuration)
             .AddViberServiceYubotoOmni(configuration)
-            .AddEmailServiceSparkpost(configuration)
+            .AddEmailServiceSparkPost(configuration)
             .WithMvcRazorRendering();
         services.AddTransient<CasesMessageDescriber>();
         services.AddTransient<IJsonTranslationService, JsonTranslationService>();

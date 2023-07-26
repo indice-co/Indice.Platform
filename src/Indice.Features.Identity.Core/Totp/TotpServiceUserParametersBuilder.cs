@@ -33,6 +33,7 @@ public sealed class TotpServiceUserParametersBuilder<TUser> : TotpServiceUserPar
         Message = Message,
         Purpose = Purpose,
         Subject = Subject,
+        TokenProvider = TokenProvider,
         User = User
     };
 }
@@ -114,6 +115,13 @@ public sealed class TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser> wh
         _builder.Subject = subject;
         return new TotpServiceUserSmsOrViberOptionalParametersBuilder<TUser>(_builder);
     }
+
+    /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.TokenProvider"/> property.</summary>
+    /// <param name="tokenProvider">The name of the token provider.</param>
+    public TotpServiceUserOptionalParametersBuilder<TUser> UsingTokenProvider(string tokenProvider) {
+        _builder.TokenProvider = tokenProvider;
+        return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
+    }
 }
 
 /// <summary>Builder class.</summary>
@@ -160,6 +168,13 @@ public sealed class TotpServiceUserOptionalParametersBuilder<TUser> where TUser 
         _builder.Data = JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings());
         return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
     }
+
+    /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.TokenProvider"/> property.</summary>
+    /// <param name="tokenProvider">The name of the token provider.</param>
+    public TotpServiceUserOptionalParametersBuilder<TUser> UsingTokenProvider(string tokenProvider) {
+        _builder.TokenProvider = tokenProvider;
+        return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
+    }
 }
 
 /// <summary>Data class that contains the parameters required for <see cref="TotpServiceUser{TUser}"/>.</summary>
@@ -182,4 +197,6 @@ public class TotpServiceUserParameters<TUser> where TUser : User
     public string Subject { get; internal set; }
     /// <summary>The user entity.</summary>
     public TUser User { get; internal set; }
+    /// <summary>The name of the token provider.</summary>
+    public string TokenProvider { get; set; }
 }
