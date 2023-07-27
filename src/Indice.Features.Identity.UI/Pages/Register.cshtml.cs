@@ -79,6 +79,7 @@ public abstract class BaseRegisterModel : BasePageModel
                 returnUrl
             });
         }
+        Input.ReturnUrl = returnUrl;
         return Page();
     }
 
