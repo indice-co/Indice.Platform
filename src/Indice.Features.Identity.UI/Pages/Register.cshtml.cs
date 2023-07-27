@@ -159,7 +159,7 @@ public abstract class BaseRegisterModel : BasePageModel
     /// <param name="input">The input model.</param>
     protected virtual User CreateUserFromInput(RegisterInputModel input) {
         var user = new User {
-            UserName = input.UserName,
+            UserName = UserManager.EmailAsUserName ? input.Email : input.UserName,
             Email = input.Email,
             PhoneNumber = input.PhoneNumber
         };
