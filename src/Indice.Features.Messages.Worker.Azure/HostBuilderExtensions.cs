@@ -3,7 +3,9 @@ using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
+using Indice.Features.Messages.Core.Hosting;
 using Indice.Features.Messages.Core.Manager;
+using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -14,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -56,6 +59,7 @@ public static class HostBuilderExtensions
         services.TryAddTransient<NotificationsManager>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.TryAddTransient<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
+        services.AddHostedService<StartupSeedHostedService>();
         return services;
     }
 
@@ -121,6 +125,10 @@ public static class HostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageOptions UseEmailServiceSmtp(this MessageOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSmtp(configuration);
+        options.Services.AddSingleton((sp) => {
+            var smptSettings = sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
+            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smptSettings.Sender, smptSettings.SenderName));
+        });
         return options;
     }
 
@@ -129,6 +137,10 @@ public static class HostBuilderExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageOptions UseEmailServiceSparkPost(this MessageOptions options, IConfiguration configuration) {
         options.Services.AddEmailServiceSparkPost(configuration);
+        options.Services.AddSingleton((sp) => {
+            var sparkpostSettings = sp.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
+            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkpostSettings.Sender, sparkpostSettings.SenderName));
+        });
         return options;
     }
 

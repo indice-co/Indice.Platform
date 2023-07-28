@@ -10,7 +10,8 @@ public class EmailMessage
     /// <param name="template">The template used to render the email. Defaults to 'Email'.</param>
     /// <param name="data">Data that are passed to the email template.</param>
     /// <param name="attachments">Optional attachments contained in the message.</param>
-    public EmailMessage(IList<string> recipients, string subject, string body, string template, object data, IList<EmailAttachment> attachments) {
+    /// <param name="sender">Optionally change the default sender.</param>
+    public EmailMessage(IList<string> recipients, string subject, string body, string template, object data, IList<EmailAttachment> attachments, EmailSender sender = null) {
         Recipients = recipients ?? throw new ArgumentNullException(nameof(recipients));
         Subject = subject ?? throw new ArgumentNullException(nameof(subject));
         if (string.IsNullOrEmpty(body) && string.IsNullOrEmpty(template)) {
@@ -20,6 +21,7 @@ public class EmailMessage
         Template = template;
         Attachments = attachments;
         Data = data;
+        Sender = sender;
     }
 
     /// <summary>The email addresses of the recipients.</summary>
@@ -34,6 +36,9 @@ public class EmailMessage
     internal object Data { get; }
     /// <summary>Optional attachments contained in the message.</summary>
     internal IList<EmailAttachment> Attachments { get; set; } = new List<EmailAttachment>();
+    /// <summary>The representation of an email address in the form field.</summary>
+    /// <remarks>Defaults to the configuration values <strong>Email:Sender</strong> and <strong>Email:SenderName</strong>.</remarks>
+    internal EmailSender Sender { get; set; }
 }
 
 /// <summary>Models the optional attachment of an email message.</summary>

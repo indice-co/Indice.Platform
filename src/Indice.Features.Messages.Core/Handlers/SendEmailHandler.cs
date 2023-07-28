@@ -25,7 +25,7 @@ public class SendEmailHandler : ICampaignJobHandler<SendEmailEvent>
         var attachment = await CampaignAttachmentService.GetFile(@event.CampaignId, Guid.NewGuid());
         await EmailService.SendAsync(builder => {
             if (@event.Sender is not null && !@event.Sender.IsEmpty) {
-                builder.From(@event.Sender.Id, @event.Sender.DisplayName);
+                builder.From(@event.Sender.Sender, @event.Sender.DisplayName);
             }
             builder.To(@event.RecipientEmail)
                    .WithSubject(@event.Title)

@@ -117,5 +117,5 @@ public static class EmailMessageBuilderExtensions
     /// <param name="builder">The builder.</param>
     /// <returns>The configured <see cref="EmailMessage"/>.</returns>
     public static EmailMessage Build(this EmailMessageBuilder builder) =>
-        new(builder.Recipients, builder.Subject, builder.Body, builder.Template, builder.Data, builder.Attachments);
+        new(builder.Recipients, builder.Subject, builder.Body, builder.Template, builder.Data, builder.Attachments, builder.Sender);
 }

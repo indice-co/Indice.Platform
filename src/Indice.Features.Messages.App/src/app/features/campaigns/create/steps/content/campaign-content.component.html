@@ -128,6 +128,29 @@
              #contentTemplate>
     <div class="space-y-2 pb-4 mt-4"
          [formGroup]="contentForm">
+         <fieldset *ngIf="contentForm.controls['channel'].value == 'email'">
+            <legend class="sr-only">Αποστολέας (*)</legend>
+            <div class="text-base font-medium text-gray-900"
+                 aria-hidden="true">
+                Αποστολέας (*)
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2 sm:col-span-1">
+                    <label for="sender"
+                           class="field-label hidden"
+                           aria-hidden="true">
+                        Αποστολέας (*)
+                    </label>
+                    <lib-local-drop-down-menu id="messageSender"
+                                  name="messageSender"
+                                  class="w-full"
+                                  [value]="selectedSenderId"
+                                  [options]="messageSenders"
+                                  (change)="senderSelectionChanged($event, contentForm)">
+                    </lib-local-drop-down-menu>
+                </div>
+            </div>
+        </fieldset>
         <fieldset>
             <legend class="sr-only">Θέμα (*)</legend>
             <div class="text-base font-medium text-gray-900"

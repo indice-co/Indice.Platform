@@ -1,12 +1,14 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import * as Handlebars from 'handlebars';
-import { LibTabComponent, LibTabGroupComponent } from '@indice/ng-components';
-import { MessageChannelKind, MessageContent } from 'src/app/core/services/messages-api.service';
+import { LibTabComponent, LibTabGroupComponent, MenuOption } from '@indice/ng-components';
+import { MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { ChannelState } from './channel-state';
+import { map } from 'rxjs/operators';
+import { SettingsStore } from 'src/app/features/settings/settings-store.service';
 
 @Component({
     selector: 'app-campaign-content',
@@ -32,7 +34,8 @@ export class CampaignContentComponent implements OnInit, OnChanges {
     constructor(
         private _validationService: ValidationService,
         private _utilities: UtilitiesService,
-        private _formBuilder: FormBuilder
+        private _formBuilder: FormBuilder,
+        private _store: SettingsStore
     ) { }
 
     // Input & Output parameters
@@ -56,6 +59,8 @@ export class CampaignContentComponent implements OnInit, OnChanges {
     public bodyPreview: string = '';
     public MessageChannelKind = MessageChannelKind;
     public hideMetadata = false;
+    public selectedSenderId: any;
+    public messageSenders: MenuOption[] = [];
 
     public get samplePayload(): any {
         return {
@@ -76,7 +81,8 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         'sms': { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS, checked: false }
     };
 
-    public ngOnInit(): void { }
+    public ngOnInit(): void {
+    }
 
     public ngOnChanges(changes: SimpleChanges): void {
         if (changes.content?.currentValue) {
@@ -88,6 +94,7 @@ export class CampaignContentComponent implements OnInit, OnChanges {
                     const content = <MessageContent>contentValue[channel];
                     const channelForm = this._formBuilder.group({
                         channel: channel,
+                        sender: [content.sender],
                         subject: [content.title, Validators.required],
                         body: [content.body, Validators.required]
                     });
@@ -103,7 +110,45 @@ export class CampaignContentComponent implements OnInit, OnChanges {
                 }
                 index++;
             }
+            if (contentValue?.email) {
+                this._loadMessageSenders();
+            }
         }
+    }
+
+    public senderSelectionChanged(selectedOption: MenuOption, content: FormGroup) {
+        if (!selectedOption.value) {
+            return;
+        }
+        this.selectedSenderId = selectedOption;
+        let sender = selectedOption.data ? new MessageSender(selectedOption.data) : undefined;
+        content.controls['sender'].setValue(sender);
+    }
+
+    private _loadMessageSenders(): void {
+        this._store
+            .getMessageSenders()
+            .pipe(map((messageSenders: MessageSenderResultSet) => {
+                this.selectedSenderId = this.content?.email?.sender 
+                    ? new MenuOption(`${this.content.email.sender.displayName} <${this.content.email.sender.sender}>`, this.content.email.sender.id, undefined, this.content?.email?.sender)
+                    : undefined;
+                if (messageSenders.items) {
+                    this.messageSenders = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+                    this.messageSenders.push(...messageSenders.items.map(s => {
+                        let sender = {
+                            id: s.id,
+                            sender: s.sender,
+                            displayName: s.displayName
+                        }
+                        if (s.isDefault) {
+                            this.selectedSenderId ??= new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined);
+                            return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined)
+                        }
+                        return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, sender)
+                    }));
+                }
+            }))
+            .subscribe();
     }
 
     public onChannelCheckboxChange(event: any): void {
@@ -113,6 +158,7 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         if (event.target.checked) {
             const channelForm = this._formBuilder.group({
                 channel: messageKind,
+                sender: [null],
                 subject: ['', Validators.required],
                 body: ['', Validators.required]
             });
@@ -128,6 +174,10 @@ export class CampaignContentComponent implements OnInit, OnChanges {
                 }
                 i++;
             });
+        }
+        
+        if (messageKind == 'email') {
+            this._loadMessageSenders();
         }
     }
 

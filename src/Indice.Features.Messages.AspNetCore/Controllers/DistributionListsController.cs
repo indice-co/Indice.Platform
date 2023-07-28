@@ -33,11 +33,12 @@ internal class DistributionListsController : ControllerBase
 
     /// <summary>Gets the list of available campaign types.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter">The filter applied to limi the results.</param>
     /// <response code="200">OK</response>
     [HttpGet]
     [ProducesResponseType(typeof(ResultSet<DistributionList>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetDistributionLists([FromQuery] ListOptions options) {
-        var lists = await DistributionListService.GetList(options);
+    public async Task<IActionResult> GetDistributionLists([FromQuery] ListOptions options, [FromQuery] DistributionListFilter filter) {
+        var lists = await DistributionListService.GetList(options, filter);
         return Ok(lists);
     }
 

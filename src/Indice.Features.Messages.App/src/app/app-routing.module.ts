@@ -33,6 +33,9 @@ import { TemplateDetailsEditComponent } from './features/templates/edit/details/
 import { TemplateDetailsEditRightpaneComponent } from './features/templates/edit/details/rightpane/template-edit-details-rightpane.component';
 import { TemplateEditComponent } from './features/templates/edit/template-edit.component';
 import { TemplatesComponent } from './features/templates/templates.component';
+import { SettingsComponent } from './features/settings/settings.component';
+import { EmailSendersCreateComponent } from './features/settings/email/create/email-senders-create.component';
+import { EmailSendersEditComponent } from './features/settings/email/edit/email-senders-edit.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -86,7 +89,8 @@ const routes: Routes = [
           { path: 'details', component: TemplateDetailsEditComponent },
           { path: 'content', component: TemplateContentEditComponent }
         ]
-      }
+      },
+      { path: 'settings', component: SettingsComponent }
     ]
   },
   { path: 'edit-campaign', canActivate: [AuthGuardService], component: CampaignDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
@@ -97,7 +101,9 @@ const routes: Routes = [
   { path: 'edit-contact/:contactId', canActivate: [AuthGuardService], component: DistributionListContactEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-template', canActivate: [AuthGuardService], component: TemplateDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'create-message-sender', canActivate: [AuthGuardService], component: EmailSendersCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-message-type/:messageTypeId', canActivate: [AuthGuardService], component: MessageTypeEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'edit-message-sender/:messageSenderId', canActivate: [AuthGuardService], component: EmailSendersEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'logout', component: LogOutComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
   {
     path: '**', component: HttpStatusComponent, data: {

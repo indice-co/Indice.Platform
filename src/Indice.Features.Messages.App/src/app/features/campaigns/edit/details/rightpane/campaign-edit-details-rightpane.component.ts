@@ -6,8 +6,9 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { ComboboxComponent, MenuOption, ToasterService, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CampaignDetails, DistributionList, DistributionListResultSet, Hyperlink, MessagesApiClient, MessageType, MessageTypeResultSet, Period } from 'src/app/core/services/messages-api.service';
+import { CampaignDetails, DistributionList, DistributionListResultSet, Hyperlink, MessagesApiClient, MessageSender, MessageSenderResultSet, MessageType, MessageTypeResultSet, Period } from 'src/app/core/services/messages-api.service';
 import { CampaignEditStore } from '../../campaign-edit-store.service';
+import { SettingsStore } from 'src/app/features/settings/settings-store.service';
 
 @Component({
     selector: 'app-campaign-details-edit-rightpane',
@@ -16,6 +17,7 @@ import { CampaignEditStore } from '../../campaign-edit-store.service';
 export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('editTitleTemplate', { static: true }) public editTitleTemplate!: TemplateRef<any>;
     @ViewChild('editTypeTemplate', { static: true }) public editTypeTemplate!: TemplateRef<any>;
+    @ViewChild('editSenderTemplate', { static: true }) public editSenderTemplate!: TemplateRef<any>;
     @ViewChild('editActivePeriodTemplate', { static: true }) public editActivePeriodTemplate!: TemplateRef<any>;
     @ViewChild('editCtaTemplate', { static: true }) public editCtaTemplate!: TemplateRef<any>;
     @ViewChild('editListTemplate', { static: true }) public editListTemplate!: TemplateRef<any>;
@@ -32,7 +34,8 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
         private _changeDetector: ChangeDetectorRef,
         @Inject(ToasterService) private _toaster: ToasterService,
         private _api: MessagesApiClient,
-        private _datePipe: DatePipe
+        private _datePipe: DatePipe,
+        private _settingsStore: SettingsStore
     ) { }
 
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
@@ -40,7 +43,9 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
     public templateOutlet!: TemplateRef<any>;
     public model = new CampaignDetails();
     public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+    public messageSenders: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public selectedTypeId: MenuOption | null = null;
+    public selectedSenderId: MenuOption | null = null;
     public now: Date = new Date();
     public activePeriodFrom: string | null = null;
     public activePeriodTo: string | null = null;
@@ -67,7 +72,29 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
         }
     }
 
+    public senderSelectionChanged(selectedOption: MenuOption): void {
+        if (!this.model.content?.email) {
+            return;
+        }
+        if (selectedOption.value) {
+            this.selectedSenderId = selectedOption;
+            if (!this.model.content?.email) {
+                return;
+            }
+        } else {
+            this.selectedSenderId = null;
+        }
+    }
+
     public onSubmit(): void {
+        if (this.model.content?.email) {
+            if (!this.selectedSenderId?.data && this.model.content.email.sender) {
+                this.model.content.email.sender = undefined;
+            }
+            else if (this.selectedSenderId?.data && this.selectedSenderId.data.id != this.model.content.email.sender?.id) {
+                this.model.content.email.sender = new MessageSender(this.selectedSenderId.data);
+            }
+        }
         this.submitInProgress = true;
         this._updateCampaignSubscription = this._campaignStore
             .updateCampaign(this._campaignId, this.model)
@@ -132,6 +159,14 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
             if (campaign.type?.id) {
                 this.selectedTypeId = new MenuOption(campaign.type.name || '', campaign.type.id);
             }
+            if (campaign.content?.email?.sender) {
+                let sender = {
+                    id: campaign.content.email.sender.id,
+                    sender: campaign.content.email.sender.sender,
+                    displayName: campaign.content.email.sender.displayName
+                }
+                this.selectedSenderId = new MenuOption(`${sender.displayName} <${sender.sender}>`, sender.id, undefined, sender);
+            }
             this.activePeriodFrom = this._datePipe.transform(campaign.activePeriod?.from || this.now, 'yyyy-MM-ddThh:mm');
             this.activePeriodTo = campaign.activePeriod?.to ? this._datePipe.transform(campaign.activePeriod.to, 'yyyy-MM-ddThh:mm') : null;
             if (this._distributionListCombobox) {
@@ -149,6 +184,10 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
                 this.templateOutlet = this.editTypeTemplate;
                 this._loadMessageTypes();
                 break;
+            case 'editSender':
+                this.templateOutlet = this.editSenderTemplate;
+                this._loadMessageSenders();
+            break;
             case 'editActivePeriod':
                 this.templateOutlet = this.editActivePeriodTemplate;
                 break;
@@ -167,6 +206,28 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
             .pipe(map((messageTypes: MessageTypeResultSet) => {
                 if (messageTypes.items) {
                     this.messageTypes.push(...messageTypes.items.map(type => new MenuOption(type.name || '', type.id)));
+                }
+            }))
+            .subscribe();
+    }
+
+    private _loadMessageSenders(): void {        
+        this._settingsStore
+            .getMessageSenders()
+            .pipe(map((messageSenders: MessageSenderResultSet) => {
+                if (messageSenders.items) {
+                    this.messageSenders.push(...messageSenders.items.map(s => {
+                        let sender = {
+                            id: s.id,
+                            sender: s.sender,
+                            displayName: s.displayName
+                        }
+                        if (s.isDefault) {
+                            this.selectedSenderId ??= new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined);
+                            return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined)
+                        }
+                        return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, sender)
+                    }));
                 }
             }))
             .subscribe();

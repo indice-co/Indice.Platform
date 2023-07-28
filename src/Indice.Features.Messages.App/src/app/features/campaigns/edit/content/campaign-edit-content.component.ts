@@ -48,6 +48,7 @@ export class CampaignContentEditComponent implements OnInit {
         for (const item of formContents) {
             content[item.channel] = new MessageContent({
                 title: item.subject,
+                sender: item.sender,
                 body: item.body
             })
         }

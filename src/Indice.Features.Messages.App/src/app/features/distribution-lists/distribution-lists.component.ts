@@ -31,13 +31,15 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
     public newItemLink: string | null = 'create-distribution-list';
     public full = true;
 
+    private _isSystemGeneratedFilter = false;
+
     public ngOnInit(): void {
         super.ngOnInit();
     }
 
     public loadItems(): Observable<IResultSet<DistributionList> | null | undefined> {
         return this._api
-            .getDistributionLists(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
+            .getDistributionLists(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, this._isSystemGeneratedFilter)
             .pipe(map((result: DistributionListResultSet) => (result as IResultSet<DistributionList>)));
     }
 
