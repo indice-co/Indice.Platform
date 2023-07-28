@@ -26,9 +26,9 @@ public class Contact
     /// <summary>Determines if there is an <see cref="Email"/> assigned to this contact.</summary>
     internal bool HasEmail => !string.IsNullOrWhiteSpace(Email);
     /// <summary>Determines if there is a <see cref="PhoneNumber"/> assigned to this contact.</summary>
-    internal bool HasPhoneNuber => !string.IsNullOrWhiteSpace(PhoneNumber);
+    internal bool HasPhoneNumber => !string.IsNullOrWhiteSpace(PhoneNumber);
     /// <summary>Check if the contact has email or phone.</summary>
-    internal bool IsEmpty => !HasEmail && !HasPhoneNuber;
+    internal bool IsEmpty => !HasEmail && !HasPhoneNumber;
     /// <summary>Not updated a while now. Checks if updated the last 5 days.</summary>
     internal bool NotUpdatedAWhileNow => !UpdatedAt.HasValue || (DateTimeOffset.UtcNow - UpdatedAt.Value) > TimeSpan.FromDays(5);
 }

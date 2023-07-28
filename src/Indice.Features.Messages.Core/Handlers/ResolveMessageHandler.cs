@@ -58,7 +58,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             // Anonymous contact should find by email or phone number.
             if (@event.Contact.HasEmail) {
                 contact = await ContactService.FindByEmail(@event.Contact.Email);
-            } else if (@event.Contact.HasPhoneNuber) {
+            } else if (@event.Contact.HasPhoneNumber) {
                 contact = await ContactService.FindByPhoneNumber(@event.Contact.PhoneNumber);
             }
             // If found but is already anonymous try to patch with filled data.

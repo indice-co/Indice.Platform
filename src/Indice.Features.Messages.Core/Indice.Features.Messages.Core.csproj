@@ -7,7 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Messages.AspNetCore" />
-    <InternalsVisibleTo Include="Indice.Api" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
