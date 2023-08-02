@@ -58,6 +58,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   public updateData(event: { draft: boolean }): void {
     this.getCaseActionsAndThenRequestModel();
+    this.getTimeline();
     this.showWarningModal = this.caseTypeConfig?.boOptions?.showWarningModal === false ? false : true;
   }
 
