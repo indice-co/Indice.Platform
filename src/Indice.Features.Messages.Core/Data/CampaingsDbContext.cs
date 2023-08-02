@@ -26,6 +26,8 @@ public class CampaignsDbContext : DbContext
     public DbSet<DbCampaign> Campaigns { get; set; }
     /// <summary>Message types table.</summary>
     public DbSet<DbMessageType> MessageTypes { get; set; }
+    /// <summary>Message senders table.</summary>
+    public DbSet<DbMessageSender> MessageSenders { get; set; }
     /// <summary>Inbox messages table.</summary>
     public DbSet<DbMessage> Messages { get; set; }
     /// <summary>Campaign hits table.</summary>
@@ -70,11 +72,11 @@ public class CampaignsDbContext : DbContext
             var auditableEntry = (DbAuditableEntity)entry.Entity;
             if (entry.State == EntityState.Added) {
                 auditableEntry.CreatedAt = DateTimeOffset.UtcNow;
-                auditableEntry.CreatedBy = userNameAccessor.Resolve();
+                auditableEntry.CreatedBy ??= userNameAccessor.Resolve();
             }
             if (entry.State == EntityState.Modified) {
                 auditableEntry.UpdatedAt = DateTimeOffset.UtcNow;
-                auditableEntry.UpdatedBy = userNameAccessor.Resolve();
+                auditableEntry.UpdatedBy ??= userNameAccessor.Resolve();
             }
         }
     }

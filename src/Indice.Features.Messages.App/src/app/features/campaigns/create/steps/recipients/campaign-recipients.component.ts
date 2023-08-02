@@ -70,7 +70,7 @@ export class CampaignRecipientsComponent implements OnInit {
 
     private _loadDistributionLists(): void {
         this._api
-            .getDistributionLists()
+            .getDistributionLists(undefined, undefined, undefined, undefined, false)
             .pipe(map((distributionLists: DistributionListResultSet) => {
                 if (distributionLists.items) {
                     this.distributionLists.push(...distributionLists.items.map(list => new MenuOption(list.name || '', list.id)));

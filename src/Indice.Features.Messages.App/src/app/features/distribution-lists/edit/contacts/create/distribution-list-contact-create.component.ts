@@ -47,7 +47,7 @@ export class DistributionListContactCreateComponent implements OnInit, AfterView
             return this._api.addContactToDistributionList(this._distributionListId, body);
         });
         forkJoin(tasks).subscribe().add(() => {
-            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
+            this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
         });
     }
 }

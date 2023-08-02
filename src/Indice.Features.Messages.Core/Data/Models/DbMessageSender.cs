@@ -3,7 +3,7 @@
 namespace Indice.Features.Messages.Core.Data.Models;
 
 /// <summary>Message sender.</summary>
-public class DbMessageSender
+public class DbMessageSender : DbAuditableEntity
 {
     /// <summary>Id.</summary>
     public Guid Id { get; set; }
@@ -13,4 +13,6 @@ public class DbMessageSender
     public string DisplayName { get; set; }
     /// <summary>Channel kind.</summary>
     public MessageChannelKind Kind { get; set; }
+    /// <summary>Indicates that the Sender is the default.</summary>
+    public bool IsDefault { get; set; }
 }

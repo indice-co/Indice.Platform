@@ -84,7 +84,7 @@
                     <dd class="mt-1 text-sm text-gray-900">
                         <a class="text-blue-600 hover:text-blue-500"
                            *ngIf="campaign?.distributionList"
-                           [routerLink]="['/distribution-lists/' + campaign?.distributionList?.id +'/contacts']">{{ campaign?.distributionList?.name }}</a>
+                           [routerLink]="['/distribution-lists/' + campaign?.distributionList?.id +'/distribution-list-contacts']">{{ campaign?.distributionList?.name }}</a>
                         <span *ngIf="!campaign?.distributionList">-</span>
                     </dd>
                 </div>
@@ -128,6 +128,14 @@
                            *ngIf="campaign?.attachment">{{ campaign?.attachment?.label }}</div>
                         <span *ngIf="!campaign?.attachment">-</span>
                     </dd>
+                </div>
+                <div class="sm:col-span-1" *ngIf="campaign?.content?.email">
+                    <dt class="text-sm font-medium text-gray-500">
+                        Αποστολέας Email
+                        <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editSender' }"></ng-container>
+                    </dt>
+                    <dd *ngIf="campaign?.content?.email?.sender" class="mt-1 text-sm text-gray-900">{{ campaign?.content?.email?.sender?.displayName+" \<"+campaign?.content?.email?.sender?.sender+">" }}</dd>
+                    <dd *ngIf="!campaign?.content?.email?.sender" class="mt-1 text-sm text-gray-900">{{ defaultSender?.displayName+" \<"+defaultSender?.sender+">" }}</dd>
                 </div>
             </dl>
         </div>

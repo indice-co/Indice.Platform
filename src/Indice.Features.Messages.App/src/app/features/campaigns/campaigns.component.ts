@@ -34,7 +34,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
 
     public ngOnInit(): void {
         super.ngOnInit();
-        this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add', null, null));
+        this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add-campaign', null, null));
     }
 
     public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {

@@ -12,6 +12,7 @@ internal class MessageFeatureProvider : IApplicationFeatureProvider<ControllerFe
         typeof(ContactsController).GetTypeInfo(),
         typeof(DistributionListsController).GetTypeInfo(),
         typeof(MessageTypesController).GetTypeInfo(),
+        typeof(MessageSendersController).GetTypeInfo(),
         typeof(TemplatesController).GetTypeInfo()
     };
 

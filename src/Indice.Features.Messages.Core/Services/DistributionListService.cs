@@ -25,7 +25,8 @@ public class DistributionListService : IDistributionListService
     public async Task<DistributionList> Create(CreateDistributionListRequest request, IEnumerable<Contact> contacts = null) {
         var list = new DbDistributionList {
             Id = Guid.NewGuid(),
-            Name = request.Name
+            Name = request.Name,
+            CreatedBy = request.IsSystemGenerated ? "system" : null
         };
         // The following code will try at its best effort to create contacts without making duplicates.
         // External contact resolution by recipient id is not needed here.
@@ -116,7 +117,7 @@ public class DistributionListService : IDistributionListService
     }
 
     /// <inheritdoc />
-    public Task<ResultSet<DistributionList>> GetList(ListOptions options) {
+    public Task<ResultSet<DistributionList>> GetList(ListOptions options, DistributionListFilter filter) {
         var query = DbContext
             .DistributionLists
             .AsNoTracking()
@@ -130,6 +131,9 @@ public class DistributionListService : IDistributionListService
             });
         if (!string.IsNullOrWhiteSpace(options.Search)) {
             query = query.Where(x => x.Name.ToLower().Contains(options.Search.ToLower()));
+        }
+        if (filter?.IsSystemGenerated is not null) {
+            query = query.Where(x => filter.IsSystemGenerated == (x.CreatedBy.ToLower() == "system"));
         }
         return query.ToResultSetAsync(options);
     }

@@ -19,7 +19,8 @@ public interface IDistributionListService
     Task<DistributionList> GetByName(string name);
     /// <summary>Gets a list of all distribution lists in the system.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
-    Task<ResultSet<DistributionList>> GetList(ListOptions options);
+    /// <param name="filter">The filter used to limit the results of distribution list according to corresponding criteria.</param>
+    Task<ResultSet<DistributionList>> GetList(ListOptions options, DistributionListFilter filter);
     /// <summary>Updates an existing distribution list.</summary>
     /// <param name="id">The id of the distribution list.</param>
     /// <param name="request">The data for the distribution list to update.</param>
