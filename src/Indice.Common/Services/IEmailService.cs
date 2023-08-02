@@ -62,7 +62,7 @@ public static class EmailServiceExtensions
         if (!string.IsNullOrWhiteSpace(message.Template)) {
             message.Body = await emailService.HtmlRenderingEngine?.RenderAsync(message.Template, message.Data);
         }
-        await emailService.SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Attachments.ToArray());
+        await emailService.SendAsync(message.Recipients.ToArray(), message.Subject, message.Body, message.Attachments.ToArray(), message.Sender);
     }
 }
 

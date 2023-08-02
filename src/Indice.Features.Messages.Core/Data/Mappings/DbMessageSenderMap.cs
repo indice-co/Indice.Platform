@@ -26,6 +26,10 @@ public class DbMessageSenderMap : IEntityTypeConfiguration<DbMessageSender>
         // Configure properties.
         builder.Property(x => x.Sender).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.DisplayName).HasMaxLength(TextSizePresets.M128);
+        builder.Property(x => x.IsDefault).IsRequired();
+        builder.Property(x => x.CreatedAt).IsRequired(); 
+        builder.Property(x => x.CreatedBy).HasMaxLength(TextSizePresets.M128).IsRequired();
+        builder.Property(x => x.UpdatedBy).HasMaxLength(TextSizePresets.M128);
         // Configure indexes.
         builder.HasIndex(x => x.Sender);
     }

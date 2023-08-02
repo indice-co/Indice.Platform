@@ -138,6 +138,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
         for (const item of formContents) {
             content[item.channel] = new MessageContent({
                 title: item.subject,
+                sender: item.sender,
                 body: item.body
             })
         }

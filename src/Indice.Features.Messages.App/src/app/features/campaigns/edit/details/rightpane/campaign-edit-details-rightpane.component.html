@@ -60,6 +60,22 @@
     </div>
     <p class="field-info col-span-3">Ο τύπος στον οποίο ανατίθεται η καμπάνια.</p>
 </ng-template>
+<ng-template #editSenderTemplate>
+    <label for="messageSender"
+           class="field-label">
+        Αποστολέας
+    </label>
+    <div class="mt-1 flex rounded-sm">
+        <lib-local-drop-down-menu id="messageSender"
+                                  name="messageSender"
+                                  class="w-full"
+                                  [value]="selectedSenderId"
+                                  [options]="messageSenders"
+                                  (change)="senderSelectionChanged($event)">
+        </lib-local-drop-down-menu>
+    </div>
+    <p class="field-info col-span-3">Ο αποστολέας της καμπάνιας για το κανάλι Email.</p>
+</ng-template>
 <ng-template #editActivePeriodTemplate>
     <label for="campaignStart"
            class="field-label">

@@ -1,0 +1,68 @@
+<lib-side-view-layout title="Επεξεργασία αποστολέα"
+                      [ok-close-dialog]="false"
+                      [ok-label]="'Αποθήκευση'"
+                      [cancel-label]="'Κλείσιμο'"
+                      (ok)="submitButton.nativeElement.click()"
+                      [disabled]="!messageSenderForm.valid || submitInProgress"
+                      #sideViewLayout>
+    <div class="mt-4">
+        <form #messageSenderForm="ngForm"
+              (ngSubmit)="onSubmit()">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="grid grid-cols-4 gap-1">
+                    <!-- Διεύθυνση -->
+                    <div class="col-span-4">
+                        <label for="messageSenderName"
+                               class="field-label">
+                            Αποστολέας (*)
+                        </label>
+                        <div class="flex rounded-sm">
+                            <input type="text"
+                                   name="messageSender"
+                                   id="messageSendeρ"
+                                   [(ngModel)]="model.sender"
+                                   placeholder="Το όνομα του αποστολέα..."
+                                   maxlength="128"
+                                   required
+                                   #messageSender="ngModel">
+                        </div>
+                        <p *ngIf="messageSender.invalid && (messageSender.dirty || messageSender.touched)"
+                           class="mt-2 text-sm text-red-600">
+                            <span *ngIf="messageSender.errors!['required']">Παρακαλώ συμπληρώστε μία διεύθυνση.</span>
+                            <span *ngIf="messageSender.errors!['maxlength']">Παρακαλώ συμπληρώστε μία μικρότερη διεύθυνση.</span>
+                        </p>
+                        <p class="field-info col-span-3">Η διεύθυνση του αποστολέα του Email.</p>
+                    </div>
+                    <!-- Όνομα -->
+                    <div class="col-span-4">
+                        <label for="messageSenderName"
+                               class="field-label">
+                            Όνομα (*)
+                        </label>
+                        <div class="flex rounded-sm">
+                            <input type="text"
+                                   name="messageSenderName"
+                                   id="messageSenderName"
+                                   [(ngModel)]="model.displayName"
+                                   placeholder="Το όνομα του αποστολέα..."
+                                   maxlength="128"
+                                   required
+                                   #messageSenderName="ngModel">
+                        </div>
+                        <p *ngIf="messageSenderName.invalid && (messageSenderName.dirty || messageSenderName.touched)"
+                           class="mt-2 text-sm text-red-600">
+                            <span *ngIf="messageSenderName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
+                            <span *ngIf="messageSenderName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                        </p>
+                        <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται o αποστολέας του Email.</p>
+                    </div>
+                </div>
+            </div>
+            <button type="submit"
+                    [style.visibility]="'hidden'"
+                    #submitBtn>
+                Submit
+            </button>
+        </form>
+    </div>
+</lib-side-view-layout>

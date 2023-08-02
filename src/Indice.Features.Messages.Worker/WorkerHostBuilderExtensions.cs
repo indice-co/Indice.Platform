@@ -2,7 +2,9 @@
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Events;
 using Indice.Features.Messages.Core.Handlers;
+using Indice.Features.Messages.Core.Hosting;
 using Indice.Features.Messages.Core.Manager;
+using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
@@ -14,6 +16,7 @@ using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -100,12 +103,14 @@ public static class WorkerHostBuilderExtensions
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
+        services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<ITemplateService, TemplateService>();
         services.TryAddTransient<CreateCampaignRequestValidator>();
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         services.TryAddTransient<NotificationsManager>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.TryAddTransient<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
+        services.AddHostedService<StartupSeedHostedService>();
     }
 
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
@@ -132,7 +137,10 @@ public static class WorkerHostBuilderExtensions
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceSmtp(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddEmailServiceSmtp(configuration);
+        options.Services.AddEmailServiceSmtp(configuration); options.Services.AddSingleton((sp) => {
+            var smptSettings = sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
+            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smptSettings.Sender, smptSettings.SenderName));
+        });
         return options;
     }
 
@@ -140,7 +148,11 @@ public static class WorkerHostBuilderExtensions
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceSparkPost(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddEmailServiceSparkPost(configuration);
+        options.Services.AddEmailServiceSparkPost(configuration); 
+        options.Services.AddSingleton((sp) => {
+            var sparkpostSettings = sp.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
+            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkpostSettings.Sender, sparkpostSettings.SenderName));
+        });
         return options;
     }
 

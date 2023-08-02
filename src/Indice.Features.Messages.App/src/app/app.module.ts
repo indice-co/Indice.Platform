@@ -58,6 +58,10 @@ import { CampaignAttachmentsComponent } from './features/campaigns/create/steps/
 import { CampaignAttachmentsEditRightpaneComponent } from './features/campaigns/edit/details/rightpane/campaign-edit-attachments-rightpane.component';
 import * as app from 'src/app/core/models/settings';
 import localeGreek from '@angular/common/locales/el';
+import { SettingsComponent } from './features/settings/settings.component';
+import { EmailSettingsComponent } from './features/settings/email/email-settings.component';
+import { EmailSendersCreateComponent } from './features/settings/email/create/email-senders-create.component';
+import { EmailSendersEditComponent } from './features/settings/email/edit/email-senders-edit.component';
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -133,7 +137,11 @@ if (app.settings.tenantId) {
     HttpStatusComponent,
     FileUploadComponent,
     CampaignAttachmentsComponent,
-    CampaignAttachmentsEditRightpaneComponent
+    CampaignAttachmentsEditRightpaneComponent,
+    SettingsComponent,
+    EmailSettingsComponent,
+    EmailSendersCreateComponent,
+    EmailSendersEditComponent
   ],
   imports: [
     AppRoutingModule,

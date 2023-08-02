@@ -96,6 +96,7 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IMessageService, MessageService>();
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
+        services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<CreateCampaignRequestValidator>();
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         return mvcBuilder;
@@ -162,6 +163,7 @@ public static class MessageFeatureExtensions
         // Register custom services.
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
+        services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
         services.TryAddTransient<IUserNameAccessor, UserNameFromClaimsAccessor>();
         services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());

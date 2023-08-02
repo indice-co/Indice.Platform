@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalService, ToasterService, ToastType } from '@indice/ng-components';
 
-import { CampaignDetails, MessagesApiClient } from 'src/app/core/services/messages-api.service';
+import { CampaignDetails, MessageSender, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { CampaignEditStore } from '../campaign-edit-store.service';
 import { HttpClient } from '@angular/common/http';
@@ -28,6 +28,7 @@ export class CampaignDetailsEditComponent implements OnInit {
 
     public campaign: CampaignDetails | undefined;
     public deliveryChannels: string | undefined;
+    public defaultSender: MessageSender | undefined;
 
     public ngOnInit(): void {
         this._campaignId = this._activatedRoute.parent?.snapshot.params['campaignId'];
@@ -38,7 +39,11 @@ export class CampaignDetailsEditComponent implements OnInit {
                     this.deliveryChannels = Object.keys(campaign.content).join(', ');
                 }
             });
-        }
+        }        
+        this._api.getMessageSenders(undefined, undefined, undefined, undefined, true)
+            .subscribe((result) => {
+                this.defaultSender = result?.items?.[0]
+            });
     }
 
     public openEditPane(action: string): void {

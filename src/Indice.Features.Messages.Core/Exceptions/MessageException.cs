@@ -49,4 +49,7 @@ public class MessageExceptions
     /// <summary>Attachment not found exception.</summary>
     /// <param name="attachmentId">The attachment id.</param>
     public static BusinessException AttachmentNotFound(Guid attachmentId) => new($"Campaign with id '{attachmentId}' does not exist.", nameof(CampaignNotFound));
+    /// <summary>Message sender not found exception.</summary>                                                                                                                                           
+    /// <param name="id">The message sender id.</param>
+    public static BusinessException MessageSenderNotFound(Guid id) => new($"Message sender with id '{id}' does not exist.", nameof(MessageSenderNotFound));
 }
