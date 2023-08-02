@@ -3,7 +3,7 @@ import { IShellConfig, ShellLayoutType } from '@indice/ng-components';
 export class ShellConfig implements IShellConfig {
     public appLogo = 'assets/images/logo.png';
     public appLogoAlt = 'Indice';
-    public breadcrumb = false;
+    public breadcrumb = true;
     public fluid = false;
     public langs = ['EL', 'EN'];
     public layout = ShellLayoutType.Sidebar;
@@ -18,7 +18,7 @@ export class ShellConfig implements IShellConfig {
 export const CommonAppShellConfig: IShellConfig = {
     appLogo: '',
     appLogoAlt: '',
-    breadcrumb: false,
+    breadcrumb: true,
     fluid: true,
     layout: ShellLayoutType.Stacked,
     showAlertsOnHeader: false,

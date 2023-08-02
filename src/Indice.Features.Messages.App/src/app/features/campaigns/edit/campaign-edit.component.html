@@ -9,7 +9,7 @@
                     <div class="bg-white px-4 py-5 shadow sm:rounded-lg sm:px-6">
                         <nav class="space-y-1"
                              aria-label="Sidebar">
-                            <a [routerLink]="['details']"
+                            <a [routerLink]="['campaign-details']"
                                class="vertical-navigation-link-base"
                                routerLinkActive="vertical-navigation-link-active"
                                [routerLinkActiveOptions]="{ exact: true }"
@@ -26,7 +26,7 @@
                                 </svg>
                                 <span class="truncate">Βασικές πληροφορίες</span>
                             </a>
-                            <a [routerLink]="['content']"
+                            <a [routerLink]="['campaign-content']"
                                routerLinkActive="vertical-navigation-link-active"
                                [routerLinkActiveOptions]="{ exact: true }"
                                class="vertical-navigation-link-base">
@@ -42,7 +42,7 @@
                                 </svg>
                                 <span class="truncate">Περιεχόμενο</span>
                             </a>
-                            <a [routerLink]="['reports']"
+                            <a [routerLink]="['campaign-reports']"
                                routerLinkActive="vertical-navigation-link-active"
                                [routerLinkActiveOptions]="{ exact: true }"
                                class="vertical-navigation-link-base">

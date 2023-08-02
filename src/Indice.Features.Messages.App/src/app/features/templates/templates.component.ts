@@ -33,7 +33,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
 
     public ngOnInit(): void {
         super.ngOnInit();
-        this.actions.push(new RouterViewAction(Icons.Add, 'templates/add', null, null));
+        this.actions.push(new RouterViewAction(Icons.Add, 'templates/add-template', null, null));
     }
 
     public loadItems(): Observable<IResultSet<Template> | null | undefined> {

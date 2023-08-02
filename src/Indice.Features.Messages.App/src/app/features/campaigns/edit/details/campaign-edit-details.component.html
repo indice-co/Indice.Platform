@@ -84,7 +84,7 @@
                     <dd class="mt-1 text-sm text-gray-900">
                         <a class="text-blue-600 hover:text-blue-500"
                            *ngIf="campaign?.distributionList"
-                           [routerLink]="['/distribution-lists/' + campaign?.distributionList?.id +'/contacts']">{{ campaign?.distributionList?.name }}</a>
+                           [routerLink]="['/distribution-lists/' + campaign?.distributionList?.id +'/distribution-list-contacts']">{{ campaign?.distributionList?.name }}</a>
                         <span *ngIf="!campaign?.distributionList">-</span>
                     </dd>
                 </div>
