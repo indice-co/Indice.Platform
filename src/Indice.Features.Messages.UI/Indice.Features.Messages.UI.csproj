@@ -4,6 +4,7 @@
     <SpaProjectName>messages-app</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Messages.App</SpaSourceFolder>
     <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
+    <PackageReadmeFile>CHANGELOG.md</PackageReadmeFile>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Campaigns;Notifications</PackageTags>
     <VersionPrefix>$(VersionPrefixMessages)</VersionPrefix>
@@ -15,6 +16,7 @@
   <ItemGroup>
     <EmbeddedResource Include="$(SpaDistFolder)\**\*" Exclude="$(SpaDistFolder)\**\index.html" />
     <EmbeddedResource Include="$(SpaProjectName)\index.html" />
+    <None Include="CHANGELOG.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)" />
