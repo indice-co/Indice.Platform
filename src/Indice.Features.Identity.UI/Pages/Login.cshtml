@@ -3,6 +3,7 @@
 @model BaseLoginModel
 
 @inject IIdentityViewLocalizer Localizer
+@inject ExtendedUserManager<User> userManager
 
 @{
     var title = ViewData["Title"] = Localizer["Login"].Value;
@@ -33,8 +34,8 @@
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.DeviceId" />
             <div class="form-group">
-                <label asp-for="Input.UserName" class="">@Localizer["Username"]</label>
-                <input class="form-control" type="text" placeholder="@Localizer["Username"]" asp-for="Input.UserName" />
+                <label asp-for="Input.UserName" class="">@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]</label>
+                <input class="form-control" type="text" placeholder="@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]" asp-for="Input.UserName" />
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
             <div class="form-group">
