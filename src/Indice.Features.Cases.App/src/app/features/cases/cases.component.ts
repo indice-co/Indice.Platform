@@ -130,6 +130,9 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         this.filters?.filter(f => f.member === 'customerId')?.forEach(f => customerIds.push(this.stringifyFilterClause(f)));
         let customerNames: string[] = [];
         this.filters?.filter(f => f.member === 'customerName')?.forEach(f => customerNames.push(this.stringifyFilterClause(f)));
+        let referenceNumbers: string[] = [];
+        this.filters?.filter(f => f.member === 'referenceNumber')?.forEach(f => referenceNumbers.push(this.stringifyFilterClause(f)));
+        console.log(referenceNumbers);
         let groupIds: string[] = [];
         this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(this.stringifyFilterClause(f)));
         let from = this.filters?.find(f => f.member === 'from')?.value;
@@ -153,6 +156,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             .getCases(
                 customerIds,
                 customerNames,
+                referenceNumbers,
                 from ? new Date(from) : undefined,
                 to ? new Date(to) : undefined,
                 caseTypeCodes,
