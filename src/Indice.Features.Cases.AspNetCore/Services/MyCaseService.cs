@@ -26,11 +26,12 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
 
     public MyCaseService(
         CasesDbContext dbContext,
+        MyCasesApiOptions options,
         ICaseTypeService caseTypeService,
         ICaseEventService caseEventService,
         IMyCaseMessageService caseMessageService,
         IJsonTranslationService jsonTranslationService,
-        CaseSharedResourceService caseSharedResourceService) : base(dbContext) {
+        CaseSharedResourceService caseSharedResourceService) : base(dbContext, options) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));

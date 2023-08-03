@@ -25,10 +25,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
     public AdminCaseService(
         CasesDbContext dbContext,
+        AdminCasesApiOptions options,
         ICaseAuthorizationProvider memberAuthorizationProvider,
         ICaseTypeService caseTypeService,
         IAdminCaseMessageService adminCaseMessageService,
-        ICaseEventService caseEventService) : base(dbContext) {
+        ICaseEventService caseEventService) : base(dbContext, options) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _memberAuthorizationProvider = memberAuthorizationProvider ?? throw new ArgumentNullException(nameof(memberAuthorizationProvider));
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));

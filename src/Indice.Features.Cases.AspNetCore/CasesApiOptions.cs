@@ -29,6 +29,9 @@ public abstract class CasesApiOptions
 
     /// <summary>The claim type groupid name</summary>
     public string GroupIdClaimType { get; set; } = CasesApiConstants.DefaultGroupIdClaimType;
+
+    /// <summary>Enables the Case `ReferenceNumber` feature. Defaults to <see langword="false"/>.</summary>
+    public bool EnableReferenceNumber { get; set; }
 }
 
 /// <summary>
