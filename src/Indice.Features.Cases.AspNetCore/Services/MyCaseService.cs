@@ -133,6 +133,11 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             dbCaseQueryable = dbCaseQueryable.Where(dbCase => EF.Functions.Like(dbCase.CaseType.Tags, $"%{tag}%"));
         }
 
+        // filter ReferenceNumbers
+        if (options.Filter.ReferenceNumbers is not null) {
+            dbCaseQueryable = dbCaseQueryable.Where(dbCase => dbCase.ReferenceNumber.HasValue && options.Filter.ReferenceNumbers.Contains(dbCase.ReferenceNumber.Value));
+        }
+
         // filter Statuses
         if (options.Filter?.Statuses != null && options.Filter.Statuses.Count() > 0) {
             var expressions = options.Filter.Statuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Status == status));
@@ -184,6 +189,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                          : string.Empty
                                      select new MyCasePartial {
                                          Id = c.Id,
+                                         ReferenceNumber = c.ReferenceNumber,
                                          Created = c.CreatedBy.When,
                                          CaseTypeCode = c.CaseType.Code,
                                          CheckpointType = new CheckpointType {

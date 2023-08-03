@@ -56,6 +56,7 @@ internal abstract class BaseCaseService
             let isCustomer = userId == c.Customer.UserId
             select new Case {
                 Id = c.Id,
+                ReferenceNumber = c.ReferenceNumber,
                 CheckpointType = new CheckpointType {
                     Id = isCustomer ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
                     Status = isCustomer ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
