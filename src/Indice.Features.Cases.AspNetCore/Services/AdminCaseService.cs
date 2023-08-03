@@ -134,17 +134,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                     case (FilterOperator.Neq):
                         query = query.Where(c => (c.ReferenceNumber ?? 0) != value);
                         break;
-                    case (FilterOperator.Gt):
-                        query = query.Where(c => (c.ReferenceNumber ?? 0) > value);
-                        break;
-                    case (FilterOperator.Gte):
-                        query = query.Where(c => (c.ReferenceNumber ?? 0) >= value);
-                        break;
-                    case (FilterOperator.Lt):
-                        query = query.Where(c => (c.ReferenceNumber ?? 0) < value);
-                        break;
-                    case (FilterOperator.Lte):
-                        query = query.Where(c => (c.ReferenceNumber ?? 0) <= value);
+                    case (FilterOperator.Contains):
+                        query = query.Where(c => c.ReferenceNumber.HasValue && c.ReferenceNumber.ToString().Contains(value.ToString()));
                         break;
                 }
             }
