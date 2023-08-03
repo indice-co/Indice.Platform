@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
@@ -21,12 +22,14 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
     /// <summary>Creates a new instance of <see cref="LoginInputModelValidator"/> class.</summary>
     /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
+    /// <param name="userManager">An extendned <see cref="UserManager{TUser}"/> for the identity framework.</param>
     /// <param name="identityOptions">Represents all the options you can use to configure the identity system.</param>
     /// <param name="configuration">Represents the configuration element.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public RegisterInputModelValidator(
         IStringLocalizer<RegisterInputModelValidator> localizer,
         ExtendedIdentityDbContext<User, Role> dbContext,
+        ExtendedUserManager<User> userManager,
         IOptionsSnapshot<IdentityOptions> identityOptions,
         IConfiguration configuration
     ) {
@@ -35,9 +38,11 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         RuleFor(x => x.FirstName).NotEmpty().WithName(_localizer["First name"]);
         RuleFor(x => x.LastName).NotEmpty().WithName(_localizer["Last name"]);
-        RuleFor(x => x.UserName).NotEmpty().WithName(_localizer["Username"]);
-        RuleFor(x => x.UserName).UserName(identityOptions.Value.User).WithName(_localizer["Username"]).WithMessage(_localizer["Field '{PropertyName}' can accept digits, uppercase or lowercase latin characters and the symbols -._@+"]);
-        RuleFor(x => x.UserName).Must(UserNameNotBeAssignedToAnotherUser).WithMessage(_localizer["This username already exists. Please use a different one."]);
+        if (!userManager.EmailAsUserName) {
+            RuleFor(x => x.UserName).NotEmpty().WithName(_localizer["Username"]);
+            RuleFor(x => x.UserName).UserName(identityOptions.Value.User).WithName(_localizer["Username"]).WithMessage(_localizer["Field '{PropertyName}' can accept digits, uppercase or lowercase latin characters and the symbols -._@+"]);
+            RuleFor(x => x.UserName).Must(UserNameNotBeAssignedToAnotherUser).WithMessage(_localizer["This username already exists. Please use a different one."]);
+        };
         RuleFor(x => x.Password).NotEmpty().WithName(_localizer["Password"]);
         RuleFor(x => x.PhoneNumber).UserPhoneNumber(configuration).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
         RuleFor(x => x.Email).NotEmpty().EmailAddress();

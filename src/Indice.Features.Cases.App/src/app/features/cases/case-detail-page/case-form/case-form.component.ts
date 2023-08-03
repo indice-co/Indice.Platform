@@ -100,8 +100,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     }
     // extract layout from case type
     let layout = JSON.parse(this.case.caseType?.layout!);
-    // transform layout only when formEditable input is changed
-    if (changes.hasOwnProperty('formEditable')) {
+    // since layout is reset we need to transform it
+    if (!this.formEditable) {
       this.transformLayout(layout, !this.formEditable, this.case.draft);
       // here we need to check if case has become editable: we need to "enable" checkboxes
       // note: this won't affect checkboxes that have "disableCheckbox" class in their layout!
