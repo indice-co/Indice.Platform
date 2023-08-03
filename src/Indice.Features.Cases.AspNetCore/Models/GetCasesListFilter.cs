@@ -15,6 +15,9 @@ public class GetCasesListFilter
     /// <summary>The name of the customer to filter.</summary>
     public List<FilterClause> CustomerNames { get; set; } = new List<FilterClause>();
 
+    /// <summary>The reference number of the case to filter.</summary>
+    public List<FilterClause> ReferenceNumbers { get; set; } = new List<FilterClause>();
+
     /// <summary>The created date of the case, starting from, to filter.</summary>
     public DateTimeOffset? From { get; set; }
 
