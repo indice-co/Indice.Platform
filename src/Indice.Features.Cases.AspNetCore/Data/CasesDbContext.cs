@@ -45,7 +45,7 @@ public class CasesDbContext : DbContext
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         modelBuilder.ApplyJsonFunctions();
-        modelBuilder.HasSequence<int>("ReferenceNumberSequence", CasesApiConstants.DatabaseSchema);
+        modelBuilder.HasSequence<int>(CasesApiConstants.ReferenceNumberSequence, CasesApiConstants.DatabaseSchema);
 
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(CasesApiConstants.DatabaseSchema);
