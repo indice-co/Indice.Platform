@@ -92,7 +92,8 @@
                                   rows="6"
                                   (input)="onCampaignMetadataInput($event)"
                                   placeholder="Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή"
-                                  class="code-editor">
+                                  class="code-editor"
+                                  [ngModel]="data.value">
                         </textarea>
                     </div>
                     <p *ngIf="data.invalid && (data.dirty || data.touched)"

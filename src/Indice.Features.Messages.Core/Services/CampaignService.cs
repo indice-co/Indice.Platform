@@ -92,6 +92,7 @@ public class CampaignService : ICampaignService
         campaign.Title = request.Title;
         campaign.TypeId = request.TypeId;
         campaign.DistributionListId = request.RecipientListId;
+        campaign.Data = request.Data;
         await DbContext.SaveChangesAsync();
     }
 

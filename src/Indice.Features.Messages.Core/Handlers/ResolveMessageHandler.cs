@@ -94,8 +94,8 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                 contact = contact is not null
                     ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(contact, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
                     : null,
-                data = campaign.Data is not null
-                    ? JsonSerializer.Deserialize<ExpandoObject>(JsonSerializer.Serialize(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings()), JsonSerializerOptionDefaults.GetDefaultSettings())
+                data = campaign.Data is not null && (campaign.Data is not string || !string.IsNullOrWhiteSpace(campaign.Data))
+                    ? JsonSerializer.Deserialize<ExpandoObject>(campaign.Data, JsonSerializerOptionDefaults.GetDefaultSettings())
                     : null
             };
             var messageContent = campaign.Content[content.Key];

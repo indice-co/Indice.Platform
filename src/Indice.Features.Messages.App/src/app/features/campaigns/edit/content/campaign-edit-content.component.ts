@@ -22,6 +22,7 @@ export class CampaignContentEditComponent implements OnInit {
 
     public basicInfoData: any = {};
     public campaign = new CampaignDetails();
+    public campaignData: any;
     public content: { [key: string]: MessageContent; } | undefined = undefined;
     public updateInProgress = false;
 
@@ -36,6 +37,7 @@ export class CampaignContentEditComponent implements OnInit {
                     text: campaign.actionLink?.text,
                     href: campaign.actionLink?.href
                 });
+                this.campaignData = campaign.data;
                 this.content = campaign.content;
             });
         }
@@ -53,6 +55,8 @@ export class CampaignContentEditComponent implements OnInit {
             })
         }
         this.campaign.content = content;
+        const data = this._contentComponent?.form.controls.data.value;
+        this.campaign.data = data ? data : null;
         this._campaignStore
             .updateCampaign(this._campaignId, this.campaign)
             .subscribe(_ => {
