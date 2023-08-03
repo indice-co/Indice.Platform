@@ -2,7 +2,6 @@
 using System.Reflection;
 using Indice.EntityFrameworkCore;
 using Indice.Features.Cases.Data.Models;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases.Data;
@@ -51,19 +50,5 @@ public class CasesDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema(CasesApiConstants.DatabaseSchema);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-    }
-
-    /// <summary>
-    /// Gets the next value of the `ReferenceNumberSequence` sequence.
-    /// </summary>
-    public async Task<int> NextReferenceNumber() {
-        var connection = Database.GetDbConnection();
-        var result = new SqlParameter("@result", System.Data.SqlDbType.Int) {
-            Direction = System.Data.ParameterDirection.Output
-        };
-        await Database.ExecuteSqlRawAsync($"SET @result = NEXT VALUE FOR [{connection.Database}].[{CasesApiConstants.DatabaseSchema}].[ReferenceNumberSequence]", result);
-
-        var value = (int)result.Value;
-        return value;
     }
 }

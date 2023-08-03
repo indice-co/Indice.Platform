@@ -163,8 +163,8 @@ internal abstract class BaseCaseService
         };
 
         // If enabled get a new reference number from the sequence.
-        if (_options.EnableReferenceNumber) {
-            entity.ReferenceNumber = await _dbContext.NextReferenceNumber();
+        if (_options.ReferenceNumberEnabled) {
+            entity.ReferenceNumber = await _dbContext.GetNextReferenceNumber();
         }
 
         // Create entity

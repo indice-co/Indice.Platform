@@ -10,7 +10,7 @@ public class MyCasePartial
     public Guid Id { get; set; }
 
     /// <summary>The reference number of this case if it has one.</summary>
-    /// <remarks>To enable set to <see langword="true"/> the <see cref="CasesApiOptions.EnableReferenceNumber"/> flag</remarks>
+    /// <remarks>To enable set to <see langword="true"/> the <see cref="CasesApiOptions.ReferenceNumberEnabled"/> flag</remarks>
     public int? ReferenceNumber { get; set; }
 
     /// <summary>The date the case was created.</summary>

@@ -11,7 +11,7 @@ public class CasePartial
     public Guid Id { get; set; }
 
     /// <summary>The reference number of this case if it has one.</summary>
-    /// <remarks>To enable set to <see langword="true"/> the <see cref="CasesApiOptions.EnableReferenceNumber"/> flag</remarks>
+    /// <remarks>To enable set to <see langword="true"/> the <see cref="CasesApiOptions.ReferenceNumberEnabled"/> flag</remarks>
     public int? ReferenceNumber { get; set; }
 
     /// <summary>The Id of the customer as provided from integration services (core or 3rd party).</summary>
