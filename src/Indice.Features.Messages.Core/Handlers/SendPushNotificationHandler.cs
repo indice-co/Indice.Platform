@@ -20,7 +20,9 @@ public class SendPushNotificationHandler : ICampaignJobHandler<SendPushNotificat
     /// <param name="pushNotification">The event model used when sending a push notification.</param>
     public async Task Process(SendPushNotificationEvent pushNotification) {
         var data = pushNotification.Data ?? new ExpandoObject();
-        data.TryAdd("campaignId", pushNotification.CampaignId);
+        if (pushNotification.MessageId.HasValue) {
+            data.TryAdd("messageId", pushNotification.MessageId);
+        }
         var pushNotificationService = GetPushNotificationService(KeyedServiceNames.PushNotificationServiceKey);
         var pushBody = pushNotification.Body ?? "-";
         if (pushNotification.Broadcast) {

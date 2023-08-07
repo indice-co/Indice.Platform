@@ -103,7 +103,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             messageContent.Body = handlebars.Compile(content.Value.Body)(templateData);
         }
         // Persist message with merged contents.
-        await MessageService.Create(new CreateMessageRequest {
+        var messageId = await MessageService.Create(new CreateMessageRequest {
             CampaignId = campaign.Id,
             ContactId = contact.Id,
             Content = campaign.Content,
@@ -111,7 +111,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         });
         var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
         if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
-            await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false),
+            await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));
         }
         if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.Email)) {

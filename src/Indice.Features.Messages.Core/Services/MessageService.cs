@@ -18,7 +18,7 @@ public class MessageService : IMessageService
     private CampaignsDbContext DbContext { get; }
 
     /// <inheritdoc />
-    public async Task Create(CreateMessageRequest request) {
+    public async Task<Guid> Create(CreateMessageRequest request) {
         var dbMessage = new DbMessage {
             CampaignId = request.CampaignId,
             ContactId = request.ContactId,
@@ -28,5 +28,7 @@ public class MessageService : IMessageService
         };
         DbContext.Messages.Add(dbMessage);
         await DbContext.SaveChangesAsync();
+
+        return dbMessage.Id;
     }
 }

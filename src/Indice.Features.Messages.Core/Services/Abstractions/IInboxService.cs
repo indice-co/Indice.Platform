@@ -10,7 +10,8 @@ public interface IInboxService
     /// <summary>Gets an inbox message by it's unique id.</summary>
     /// <param name="id">The id of the inbox message.</param>
     /// <param name="recipientId">The id of the recipient.</param>
-    Task<Message> GetById(Guid id, string recipientId);
+    /// <param name="channel">The channel of the message.</param>
+    Task<Message> GetById(Guid id, string recipientId, MessageChannelKind? channel = MessageChannelKind.Inbox);
     /// <summary>Gets a list of all inbox messages of a recipient in the system.</summary>
     /// <param name="recipientId">The id of the recipient.</param>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
