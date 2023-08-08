@@ -5,12 +5,12 @@
 const title = document.title;
 
 export const environment = {
-  api_url: 'https://localhost:2002', // cases api url
+  api_url: 'https://localhost:44378', // cases api url
   auth_settings: {
     accessTokenExpiringNotificationTime: 60,
-    authority: 'https://localhost:2000', // identity api url
+    authority: 'https://localhost:44359', // identity api url
     automaticSilentRenew: true,
-    client_id: 'cases-app',
+    client_id: 'cases-backoffice-app',
     filterProtocolClaims: true,
     loadUserInfo: true,
     monitorSession: true,
@@ -18,7 +18,7 @@ export const environment = {
     redirect_uri: 'http://localhost:4300/auth-callback',
     response_type: 'code',
     revokeAccessTokenOnSignout: true,
-    scope: 'openid profile role email cases',
+    scope: 'openid profile role email cases-api',
     silent_redirect_uri: 'http://localhost:4300/auth-renew',
     useRefreshToken: true
   },
