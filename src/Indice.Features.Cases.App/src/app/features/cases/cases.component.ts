@@ -209,13 +209,13 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             .getCases(
                 customerIds,
                 customerNames,
-                referenceNumbers, // move last
                 from ? new Date(from) : undefined,
                 to ? new Date(to) : undefined,
                 caseTypeCodes,
                 checkpointTypeCodes,
                 groupIds,
                 filterMetadata,
+                referenceNumbers,
                 this.page,
                 this.pageSize,
                 this.sortdir === 'asc' ? this.sort! : this.sort + '-',
