@@ -30,12 +30,14 @@ public class InboxService : IInboxService
 
     /// <inheritdoc />
     public async Task<ResultSet<Message>> GetList(string userCode, ListOptions<MessagesFilter> options) {
-        var userMessages = await GetUserInboxQuery(userCode, options).ToResultSetAsync(options);
+        var userMessages = await GetUserInboxQuery(userCode, options?.Filter).ToResultSetAsync(options);
         return userMessages;
     }
 
     /// <inheritdoc />
-    public Task<Message> GetById(Guid id, string recipientId) => GetUserInboxQuery(recipientId).SingleOrDefaultAsync(x => x.Id == id);
+    public Task<Message> GetById(Guid id, string recipientId, MessageChannelKind? channel = MessageChannelKind.Inbox) {
+        return GetUserInboxQuery(recipientId, new MessagesFilter { MessageChannelKind = channel}).SingleOrDefaultAsync(x => x.Id == id);
+    }
 
     /// <inheritdoc />
     public async Task MarkAsDeleted(Guid id, string recipientId) {
@@ -79,7 +81,7 @@ public class InboxService : IInboxService
         await DbContext.SaveChangesAsync();
     }
 
-    private IQueryable<Message> GetUserInboxQuery(string recipientId, ListOptions<MessagesFilter> options = null) {
+    private IQueryable<Message> GetUserInboxQuery(string recipientId, MessagesFilter filter = null) {
         var query = DbContext
             .Campaigns
             .AsNoTracking()
@@ -90,27 +92,31 @@ public class InboxService : IInboxService
                 resultSelector: (campaign, message) => new { Campaign = campaign, Message = message }
             )
             .Where(x => x.Campaign.Published
-                && x.Campaign.MessageChannelKind.HasFlag(MessageChannelKind.Inbox)
                 && (x.Message == null || !x.Message.IsDeleted)
                 && (x.Campaign.IsGlobal || x.Message != null && x.Message.RecipientId == recipientId)
             );
-        if (options?.Filter is not null) {
-            if (options.Filter.ShowExpired.HasValue) {
+        var messageChannelKind = MessageChannelKind.Inbox;
+        if (filter is not null) {
+            if (filter.ShowExpired.HasValue) {
                 query = query.Where(x => !x.Campaign.ActivePeriod.To.HasValue || x.Campaign.ActivePeriod.To.Value >= DateTime.UtcNow);
             }
-            if (options.Filter.TypeId.Length > 0) {
-                query = query.Where(x => x.Campaign.Type == null || options.Filter.TypeId.Contains(x.Campaign.Type.Id));
+            if (filter.TypeId.Length > 0) {
+                query = query.Where(x => x.Campaign.Type == null || filter.TypeId.Contains(x.Campaign.Type.Id));
             }
-            if (options.Filter.ActiveFrom.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod.To ?? DateTimeOffset.MaxValue) > options.Filter.ActiveFrom.Value);
+            if (filter.ActiveFrom.HasValue) {
+                query = query.Where(x => (x.Campaign.ActivePeriod.To ?? DateTimeOffset.MaxValue) > filter.ActiveFrom.Value);
             }
-            if (options.Filter.ActiveTo.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod.From ?? DateTimeOffset.MinValue) < options.Filter.ActiveTo.Value);
+            if (filter.ActiveTo.HasValue) {
+                query = query.Where(x => (x.Campaign.ActivePeriod.From ?? DateTimeOffset.MinValue) < filter.ActiveTo.Value);
             }
-            if (options.Filter.IsRead.HasValue) {
-                query = query.Where(x => ((bool?)x.Message.IsRead ?? false) == options.Filter.IsRead);
+            if (filter.IsRead.HasValue) {
+                query = query.Where(x => ((bool?)x.Message.IsRead ?? false) == filter.IsRead);
+            }
+            if (filter.MessageChannelKind.HasValue && filter.MessageChannelKind != MessageChannelKind.None) {
+                messageChannelKind = filter.MessageChannelKind.Value;
             }
         }
+        query = query.Where(x => x.Campaign.MessageChannelKind.HasFlag(messageChannelKind));
         return query.Select(x => new Message {
             ActionLink = x.Campaign.ActionLink != null ? new Hyperlink {
                 Text = x.Campaign.ActionLink.Text,
@@ -123,8 +129,8 @@ public class InboxService : IInboxService
                 ? $"{CampaignInboxOptions.ApiPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
                 : null,
             // TODO: Fix substitution when message is null.
-            Title = x.Message != null ? x.Message.Content[nameof(MessageChannelKind.Inbox)].Title : x.Campaign.Content[nameof(MessageChannelKind.Inbox)].Title,
-            Content = x.Message != null ? x.Message.Content[nameof(MessageChannelKind.Inbox)].Body : x.Campaign.Content[nameof(MessageChannelKind.Inbox)].Body,
+            Title = x.Message != null ? x.Message.Content[messageChannelKind.ToString()].Title : x.Campaign.Content[messageChannelKind.ToString()].Title,
+            Content = x.Message != null ? x.Message.Content[messageChannelKind.ToString()].Body : x.Campaign.Content[messageChannelKind.ToString()].Body,
             CreatedAt = x.Campaign.CreatedAt,
             Id = x.Campaign.Id,
             IsRead = x.Message != null && x.Message.IsRead,

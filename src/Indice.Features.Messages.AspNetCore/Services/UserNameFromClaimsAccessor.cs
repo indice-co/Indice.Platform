@@ -13,13 +13,19 @@ public class UserNameFromClaimsAccessor : IUserNameAccessor
     /// <summary>Creates a new instance of <see cref="UserNameFromClaimsAccessor"/>.</summary>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>.</param>
     public UserNameFromClaimsAccessor(IHttpContextAccessor httpContextAccessor) {
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        _httpContextAccessor = httpContextAccessor;
     }
 
     /// <inheritdoc />
+    public int Priority => 1;
+
+    /// <inheritdoc />
     public string Resolve() {
-        var principal = _httpContextAccessor.HttpContext.User;
-        return principal.FindFirstValue(JwtClaimTypes.Name) 
+        var principal = _httpContextAccessor.HttpContext?.User;
+        if (principal is null) {
+            return default;
+        }
+        return principal.FindFirstValue(JwtClaimTypes.Name)
             ?? principal.FindFirstValue(JwtClaimTypes.Email)
             ?? principal.FindFirstValue(JwtClaimTypes.ClientId)
             ?? "system";

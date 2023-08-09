@@ -13,4 +13,6 @@ public class MessagesFilter
     public bool? ShowExpired { get; set; } = false;
     /// <summary>Controls whether to filter for read messages.</summary>
     public bool? IsRead { get; set; }
+    /// <summary>The Channel Kind of the message.</summary>
+    internal MessageChannelKind? MessageChannelKind { get; set; }
 }

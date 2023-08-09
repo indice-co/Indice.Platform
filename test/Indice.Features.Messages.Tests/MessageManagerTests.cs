@@ -47,7 +47,7 @@ public class MessageManagerTests : IAsyncDisposable
             .AddTransient<CreateMessageTypeRequestValidator>()
             .AddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop())
             .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
-            .AddTransient<IUserNameAccessor, UserNameAccessorNoop>()
+            .AddTransient<IUserNameAccessor, UserNameAccessorNoOp>()
             //.AddKeyedService<IFileService, FileServiceInMemory, string>(KeyedServiceNames.FileServiceKey, ServiceLifetime.Singleton)
             //.AddFiles(x => x.AddFilesInMemory())
             .AddOptions()
@@ -135,8 +135,10 @@ public class MessageManagerTests : IAsyncDisposable
         Assert.NotEqual(default, result.CampaignId);
     }
 
-    public class UserNameAccessorNoop : IUserNameAccessor
+    public class UserNameAccessorNoOp : IUserNameAccessor
     {
+        public int Priority => 0;
+
         public string Resolve() => "static";
     }
 

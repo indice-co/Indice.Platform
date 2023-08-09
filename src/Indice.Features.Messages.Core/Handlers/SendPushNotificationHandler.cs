@@ -1,5 +1,7 @@
 ﻿using System.Dynamic;
+using System.Text.Json;
 using Indice.Features.Messages.Core.Events;
+using Indice.Serialization;
 using Indice.Services;
 
 namespace Indice.Features.Messages.Core.Handlers;
@@ -19,8 +21,13 @@ public class SendPushNotificationHandler : ICampaignJobHandler<SendPushNotificat
     /// <summary>Sends a push notification to all users or a single one.</summary>
     /// <param name="pushNotification">The event model used when sending a push notification.</param>
     public async Task Process(SendPushNotificationEvent pushNotification) {
-        var data = pushNotification.Data ?? new ExpandoObject();
-        data.TryAdd("campaignId", pushNotification.CampaignId);
+        ExpandoObject data = pushNotification.Data is not null && (pushNotification.Data is not string || !string.IsNullOrWhiteSpace(pushNotification.Data))
+            ? JsonSerializer.Deserialize<ExpandoObject>(pushNotification.Data, JsonSerializerOptionDefaults.GetDefaultSettings())
+            : new ExpandoObject();
+
+        if (pushNotification.MessageId.HasValue) {
+            data.TryAdd("messageId", pushNotification.MessageId);
+        }
         var pushNotificationService = GetPushNotificationService(KeyedServiceNames.PushNotificationServiceKey);
         var pushBody = pushNotification.Body ?? "-";
         if (pushNotification.Broadcast) {
