@@ -27,7 +27,6 @@ public class DbAttachmentMap : IEntityTypeConfiguration<DbAttachment>
         builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired();
         builder.Property(x => x.ContentType).HasMaxLength(TextSizePresets.M256).IsRequired();
         builder.Property(x => x.FileExtension).HasMaxLength(TextSizePresets.S08).IsRequired();
-        builder.Property(x => x.Data).HasColumnType("image");
         builder.Ignore(x => x.Uri);
     }
 }

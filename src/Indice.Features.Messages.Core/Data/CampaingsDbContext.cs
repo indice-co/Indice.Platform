@@ -53,6 +53,11 @@ public class CampaignsDbContext : DbContext
         builder.ApplyConfiguration(new DbMessageMap(schemaName));
         builder.ApplyConfiguration(new DbMessageTypeMap(schemaName));
         builder.ApplyConfiguration(new DbTemplateMap(schemaName));
+        if (Database.IsSqlServer()) {
+            builder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("image");
+        } else if (Database.IsNpgsql()) {
+            builder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("bytea");
+        }
     }
 
     /// <inheritdoc />
@@ -63,20 +68,30 @@ public class CampaignsDbContext : DbContext
 
     /// <summary>Runs code before persisting entities to the database.</summary>
     protected void OnBeforeSaving() {
-        var userNameAccessor = Database.GetService<IUserNameAccessor>();
-        if (userNameAccessor is null) {
+        var userNameAccessors = Database.GetService<IEnumerable<IUserNameAccessor>>()?.OrderBy(x => x.Priority);
+        if (userNameAccessors?.Any() == false) {
             return;
         }
         var auditableEntries = ChangeTracker.Entries().Where(entry => typeof(DbAuditableEntity).IsAssignableFrom(entry.Metadata.ClrType));
+        string userName = null;
+        foreach (var accessor in userNameAccessors) {
+            userName = accessor.Resolve();
+            if (!string.IsNullOrWhiteSpace(userName)) {
+                break;
+            }
+        }
+        if (string.IsNullOrWhiteSpace(userName)) {
+            return;
+        }
         foreach (var entry in auditableEntries) {
             var auditableEntry = (DbAuditableEntity)entry.Entity;
             if (entry.State == EntityState.Added) {
                 auditableEntry.CreatedAt = DateTimeOffset.UtcNow;
-                auditableEntry.CreatedBy ??= userNameAccessor.Resolve();
+                auditableEntry.CreatedBy ??= userName;
             }
             if (entry.State == EntityState.Modified) {
                 auditableEntry.UpdatedAt = DateTimeOffset.UtcNow;
-                auditableEntry.UpdatedBy ??= userNameAccessor.Resolve();
+                auditableEntry.UpdatedBy ??= userName;
             }
         }
     }
