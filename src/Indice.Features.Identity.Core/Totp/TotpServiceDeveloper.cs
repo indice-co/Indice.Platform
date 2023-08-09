@@ -36,8 +36,7 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
         }
         var userClaims = await UserManager.GetClaimsAsync(user);
         var developerTotpClaim = userClaims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.DeveloperTotp);
-        var hasDeveloperTotp = developerTotpClaim is not null && await UserManager.IsInRoleAsync(user, BasicRoleNames.Developer);
-        if (hasDeveloperTotp) {
+        if (developerTotpClaim is not null) {
             return TotpResult.SuccessResult;
         }
         return await base.SendAsync(user, message, channel, subject, purpose, pushNotificationClassification, pushNotificationData);

@@ -15,7 +15,7 @@ public class SendSmsEvent
     /// <summary>Optional message sender.</summary>
     public MessageSender Sender { get; set; }
     /// <summary>Optional data for the campaign.</summary>
-    public ExpandoObject Data { get; set; }
+    public dynamic Data { get; set; }
     /// <summary>Defines if push notification is sent to all registered user devices.</summary>
     public bool Broadcast { get; set; }
     /// <summary>The id of the recipient.</summary>
