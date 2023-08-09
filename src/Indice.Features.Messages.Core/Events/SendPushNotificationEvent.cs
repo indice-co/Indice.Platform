@@ -13,7 +13,7 @@ public class SendPushNotificationEvent
     /// <summary>The body of the message.</summary>
     public string Body { get; set; }
     /// <summary>Optional data for the campaign.</summary>
-    public ExpandoObject Data { get; set; }
+    public dynamic Data { get; set; }
     /// <summary>Defines if push notification is sent to all registered user devices.</summary>
     public bool Broadcast { get; set; }
     /// <summary>The id of the recipient.</summary>
