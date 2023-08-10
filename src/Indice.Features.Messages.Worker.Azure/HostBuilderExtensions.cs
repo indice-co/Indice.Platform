@@ -37,6 +37,11 @@ public static class HostBuilderExtensions
             services.Configure<WorkerOptions>(options => {
                 options.InputConverters.RegisterAt<MessagesInputConverter>(0);
             });
+            services.Configure<HostOptions>(hostOptions => {
+                // https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/hosting-exception-handling
+                hostOptions.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+            });
+            services.AddHostedService<StartupSeedHostedService>();
         });
 
     private static IServiceCollection AddCoreServices(this IServiceCollection services, MessageOptions options, IConfiguration configuration) {
