@@ -11,7 +11,7 @@
   "cases": {
     "customerId": "Αριθμός Πελάτη",
     "customerName": "Όνομα Πελάτη",
-    "referenceNumber": "Αριθμός αναφοράς",
+    "referenceNumber": "Αριθμός Αίτησης",
     "taxId": "Α.Φ.Μ.",
     "groupId": "Κατάστημα",
     "caseType": "Τύπος Αίτησης",
@@ -22,7 +22,7 @@
   },
   "caseDetails": {
     "caseId": "Κωδικός Αίτησης",
-    "referenceNumber": "Αριθμός αναφοράς",
+    "referenceNumber": "Αριθμός Αίτησης",
     "submitDate": "Ημ. Υποβολής",
     "caseType": "Τύπος Αίτησης",
     "channel": "Κανάλι",

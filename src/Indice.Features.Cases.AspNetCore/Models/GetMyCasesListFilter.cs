@@ -6,8 +6,6 @@ namespace Indice.Features.Cases.Models;
 /// <summary>Options used to filter the list of MyCases.</summary>
 public class GetMyCasesListFilter
 {
-    /// <summary>The reference number filter.</summary>
-    public IEnumerable<int> ReferenceNumbers { get; set; }
     /// <summary>The case type tag filter.</summary>
     public IEnumerable<string> CaseTypeTags { get; set; }
     /// <summary>The case status filter.</summary>
@@ -30,4 +28,6 @@ public class GetMyCasesListFilter
     public List<FilterClause> Metadata { get; set; }
     /// <summary>Determines whether draft cases should be included in result</summary>
     public bool? IncludeDrafts { get; set; }
+    /// <summary>The reference number filter.</summary>
+    public IEnumerable<int> ReferenceNumbers { get; set; }
 }

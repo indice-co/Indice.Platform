@@ -58,13 +58,13 @@ export interface ICasesApiService {
     /**
      * @param filter_CustomerIds (optional) 
      * @param filter_CustomerNames (optional) 
-     * @param filter_ReferenceNumbers (optional) 
      * @param filter_From (optional) 
      * @param filter_To (optional) 
      * @param filter_CaseTypeCodes (optional) 
      * @param filter_CheckpointTypeCodes (optional) 
      * @param filter_GroupIds (optional) 
      * @param filter_Metadata (optional) 
+     * @param filter_ReferenceNumbers (optional) 
      * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
      * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
      * @param sort (optional) The property name used to sort the list.
@@ -72,7 +72,7 @@ export interface ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getCases(filter_CustomerIds?: string[] | undefined, filter_CustomerNames?: string[] | undefined, filter_ReferenceNumbers?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet>;
+    getCases(filter_CustomerIds?: string[] | undefined, filter_CustomerNames?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, filter_ReferenceNumbers?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet>;
     /**
      * @param api_version (optional) 
      * @param body (optional) 
@@ -230,7 +230,6 @@ export interface ICasesApiService {
      */
     getCaseType(caseTypeCode: string, api_version?: string | undefined): Observable<CaseTypePartial>;
     /**
-     * @param filter_ReferenceNumbers (optional) 
      * @param filter_CaseTypeTags (optional) 
      * @param filter_Statuses (optional) 
      * @param filter_CaseTypeCodes (optional) 
@@ -242,6 +241,7 @@ export interface ICasesApiService {
      * @param filter_Data (optional) 
      * @param filter_Metadata (optional) 
      * @param filter_IncludeDrafts (optional) 
+     * @param filter_ReferenceNumbers (optional) 
      * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
      * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
      * @param sort (optional) The property name used to sort the list.
@@ -249,7 +249,7 @@ export interface ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getMyCases(filter_ReferenceNumbers?: number[] | undefined, filter_CaseTypeTags?: string[] | undefined, filter_Statuses?: CaseStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Checkpoints?: string[] | undefined, filter_Data?: string[] | undefined, filter_Metadata?: string[] | undefined, filter_IncludeDrafts?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
+    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_Statuses?: CaseStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Checkpoints?: string[] | undefined, filter_Data?: string[] | undefined, filter_Metadata?: string[] | undefined, filter_IncludeDrafts?: boolean | undefined, filter_ReferenceNumbers?: number[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet>;
     /**
      * @param api_version (optional) 
      * @param body (optional) 
@@ -946,13 +946,13 @@ export class CasesApiService implements ICasesApiService {
     /**
      * @param filter_CustomerIds (optional) 
      * @param filter_CustomerNames (optional) 
-     * @param filter_ReferenceNumbers (optional) 
      * @param filter_From (optional) 
      * @param filter_To (optional) 
      * @param filter_CaseTypeCodes (optional) 
      * @param filter_CheckpointTypeCodes (optional) 
      * @param filter_GroupIds (optional) 
      * @param filter_Metadata (optional) 
+     * @param filter_ReferenceNumbers (optional) 
      * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
      * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
      * @param sort (optional) The property name used to sort the list.
@@ -960,7 +960,7 @@ export class CasesApiService implements ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getCases(filter_CustomerIds?: string[] | undefined, filter_CustomerNames?: string[] | undefined, filter_ReferenceNumbers?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet> {
+    getCases(filter_CustomerIds?: string[] | undefined, filter_CustomerNames?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, filter_ReferenceNumbers?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet> {
         let url_ = this.baseUrl + "/api/manage/cases?";
         if (filter_CustomerIds === null)
             throw new Error("The parameter 'filter_CustomerIds' cannot be null.");
@@ -970,10 +970,6 @@ export class CasesApiService implements ICasesApiService {
             throw new Error("The parameter 'filter_CustomerNames' cannot be null.");
         else if (filter_CustomerNames !== undefined)
             filter_CustomerNames && filter_CustomerNames.forEach(item => { url_ += "Filter.CustomerNames=" + encodeURIComponent("" + item) + "&"; });
-        if (filter_ReferenceNumbers === null)
-            throw new Error("The parameter 'filter_ReferenceNumbers' cannot be null.");
-        else if (filter_ReferenceNumbers !== undefined)
-            filter_ReferenceNumbers && filter_ReferenceNumbers.forEach(item => { url_ += "Filter.ReferenceNumbers=" + encodeURIComponent("" + item) + "&"; });
         if (filter_From === null)
             throw new Error("The parameter 'filter_From' cannot be null.");
         else if (filter_From !== undefined)
@@ -998,6 +994,10 @@ export class CasesApiService implements ICasesApiService {
             throw new Error("The parameter 'filter_Metadata' cannot be null.");
         else if (filter_Metadata !== undefined)
             filter_Metadata && filter_Metadata.forEach(item => { url_ += "Filter.Metadata=" + encodeURIComponent("" + item) + "&"; });
+        if (filter_ReferenceNumbers === null)
+            throw new Error("The parameter 'filter_ReferenceNumbers' cannot be null.");
+        else if (filter_ReferenceNumbers !== undefined)
+            filter_ReferenceNumbers && filter_ReferenceNumbers.forEach(item => { url_ += "Filter.ReferenceNumbers=" + encodeURIComponent("" + item) + "&"; });
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -3645,7 +3645,6 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * @param filter_ReferenceNumbers (optional) 
      * @param filter_CaseTypeTags (optional) 
      * @param filter_Statuses (optional) 
      * @param filter_CaseTypeCodes (optional) 
@@ -3657,6 +3656,7 @@ export class CasesApiService implements ICasesApiService {
      * @param filter_Data (optional) 
      * @param filter_Metadata (optional) 
      * @param filter_IncludeDrafts (optional) 
+     * @param filter_ReferenceNumbers (optional) 
      * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
      * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
      * @param sort (optional) The property name used to sort the list.
@@ -3664,12 +3664,8 @@ export class CasesApiService implements ICasesApiService {
      * @param api_version (optional) 
      * @return Success
      */
-    getMyCases(filter_ReferenceNumbers?: number[] | undefined, filter_CaseTypeTags?: string[] | undefined, filter_Statuses?: CaseStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Checkpoints?: string[] | undefined, filter_Data?: string[] | undefined, filter_Metadata?: string[] | undefined, filter_IncludeDrafts?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet> {
+    getMyCases(filter_CaseTypeTags?: string[] | undefined, filter_Statuses?: CaseStatus[] | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CreatedFrom?: Date | undefined, filter_CreatedTo?: Date | undefined, filter_CompletedFrom?: Date | undefined, filter_CompletedTo?: Date | undefined, filter_Checkpoints?: string[] | undefined, filter_Data?: string[] | undefined, filter_Metadata?: string[] | undefined, filter_IncludeDrafts?: boolean | undefined, filter_ReferenceNumbers?: number[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<MyCasePartialResultSet> {
         let url_ = this.baseUrl + "/api/my/cases?";
-        if (filter_ReferenceNumbers === null)
-            throw new Error("The parameter 'filter_ReferenceNumbers' cannot be null.");
-        else if (filter_ReferenceNumbers !== undefined)
-            filter_ReferenceNumbers && filter_ReferenceNumbers.forEach(item => { url_ += "Filter.ReferenceNumbers=" + encodeURIComponent("" + item) + "&"; });
         if (filter_CaseTypeTags === null)
             throw new Error("The parameter 'filter_CaseTypeTags' cannot be null.");
         else if (filter_CaseTypeTags !== undefined)
@@ -3714,6 +3710,10 @@ export class CasesApiService implements ICasesApiService {
             throw new Error("The parameter 'filter_IncludeDrafts' cannot be null.");
         else if (filter_IncludeDrafts !== undefined)
             url_ += "Filter.IncludeDrafts=" + encodeURIComponent("" + filter_IncludeDrafts) + "&";
+        if (filter_ReferenceNumbers === null)
+            throw new Error("The parameter 'filter_ReferenceNumbers' cannot be null.");
+        else if (filter_ReferenceNumbers !== undefined)
+            filter_ReferenceNumbers && filter_ReferenceNumbers.forEach(item => { url_ += "Filter.ReferenceNumbers=" + encodeURIComponent("" + item) + "&"; });
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
