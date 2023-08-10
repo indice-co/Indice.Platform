@@ -110,7 +110,6 @@ public static class WorkerHostBuilderExtensions
         services.TryAddTransient<NotificationsManager>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
         services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
-        services.AddHostedService<StartupSeedHostedService>();
     }
 
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
