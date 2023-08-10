@@ -149,7 +149,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
         // filter CreatedTo
         if (options.Filter?.CreatedTo != null) {
-            dbCaseQueryable = dbCaseQueryable.Where(c => c.CreatedBy.When <= options.Filter.CreatedTo);
+            dbCaseQueryable = dbCaseQueryable.Where(c => c.CreatedBy.When < options.Filter.CreatedTo.Value.AddDays(1));
         }
         // filter CompletedFrom
         if (options.Filter?.CompletedFrom != null) {
@@ -157,7 +157,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
         // filter CompletedTo
         if (options.Filter?.CompletedTo != null) {
-            dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When <= options.Filter.CompletedTo);
+            dbCaseQueryable = dbCaseQueryable.Where(c => c.CompletedBy != null && c.CompletedBy.When != null && c.CompletedBy.When < options.Filter.CompletedTo.Value.AddDays(1));
         }
 
         // filter by Checkpoint Code

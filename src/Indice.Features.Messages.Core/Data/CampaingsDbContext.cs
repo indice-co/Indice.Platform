@@ -2,7 +2,6 @@
 using Indice.Features.Messages.Core.Data.Mappings;
 using Indice.Features.Messages.Core.Data.Models;
 using Indice.Features.Messages.Core.Services;
-using Indice.Features.Messages.Core.Services.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,6 +52,7 @@ public class CampaignsDbContext : DbContext
         builder.ApplyConfiguration(new DbMessageMap(schemaName));
         builder.ApplyConfiguration(new DbMessageTypeMap(schemaName));
         builder.ApplyConfiguration(new DbTemplateMap(schemaName));
+        builder.ApplyConfiguration(new DbMessageSenderMap(schemaName));
         if (Database.IsSqlServer()) {
             builder.Entity<DbAttachment>().Property(x => x.Data).HasColumnType("image");
         } else if (Database.IsNpgsql()) {
@@ -68,18 +68,8 @@ public class CampaignsDbContext : DbContext
 
     /// <summary>Runs code before persisting entities to the database.</summary>
     protected void OnBeforeSaving() {
-        var userNameAccessors = Database.GetService<IEnumerable<IUserNameAccessor>>()?.OrderBy(x => x.Priority);
-        if (userNameAccessors?.Any() == false) {
-            return;
-        }
         var auditableEntries = ChangeTracker.Entries().Where(entry => typeof(DbAuditableEntity).IsAssignableFrom(entry.Metadata.ClrType));
-        string userName = null;
-        foreach (var accessor in userNameAccessors) {
-            userName = accessor.Resolve();
-            if (!string.IsNullOrWhiteSpace(userName)) {
-                break;
-            }
-        }
+        var userName = Database.GetService<UserNameAccessorAggregate>().Resolve();
         if (string.IsNullOrWhiteSpace(userName)) {
             return;
         }
