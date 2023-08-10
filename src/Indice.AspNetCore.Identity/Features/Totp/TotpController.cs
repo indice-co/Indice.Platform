@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Mime;
-using System.Threading.Tasks;
+﻿using System.Net.Mime;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.AspNetCore.Identity.Features.Totp.Models;
 using Indice.Features.Identity.Core.Data.Models;

@@ -47,6 +47,9 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         content: this._formBuilder.array([])
     });
 
+    @Input() set data(value: any) {
+        this.form.controls['data'].setValue(value);
+    }
     public get data(): AbstractControl {
         return this.form.controls['data'];
     }
@@ -63,9 +66,13 @@ export class CampaignContentComponent implements OnInit, OnChanges {
     public messageSenders: MenuOption[] = [];
 
     public get samplePayload(): any {
+        let data = null;
+        if (this.data?.value && this._utilities.isValidJson(this.data.value)) {
+            data = JSON.parse(this.data.value);
+        }
         return {
             ...this._samplePayload,
-            data: this._currentValidDataObject ? { ...this._currentValidDataObject } : null,
+            data: data,
             ...this.additionalData
         };
     }
@@ -82,6 +89,7 @@ export class CampaignContentComponent implements OnInit, OnChanges {
     };
 
     public ngOnInit(): void {
+        
     }
 
     public ngOnChanges(changes: SimpleChanges): void {
@@ -196,9 +204,6 @@ export class CampaignContentComponent implements OnInit, OnChanges {
 
     public onCampaignMetadataInput(event: any): void {
         const value = event.target.value;
-        if (this._utilities.isValidJson(value)) {
-            this._currentValidDataObject = JSON.parse(value);
-        }
     }
 
     public onSubjectInput(content: FormGroup): void {

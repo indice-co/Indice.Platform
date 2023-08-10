@@ -109,7 +109,7 @@ public static class WorkerHostBuilderExtensions
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         services.TryAddTransient<NotificationsManager>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
-        services.TryAddTransient<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
+        services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
         services.AddHostedService<StartupSeedHostedService>();
     }
 
@@ -137,9 +137,10 @@ public static class WorkerHostBuilderExtensions
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceSmtp(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddEmailServiceSmtp(configuration); options.Services.AddSingleton((sp) => {
-            var smptSettings = sp.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smptSettings.Sender, smptSettings.SenderName));
+        options.Services.AddEmailServiceSmtp(configuration);
+        options.Services.AddSingleton(serviceProvider => {
+            var smtpSettings = serviceProvider.GetRequiredService<IOptions<EmailServiceSettings>>().Value;
+            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(smtpSettings.Sender, smtpSettings.SenderName));
         });
         return options;
     }
@@ -148,10 +149,10 @@ public static class WorkerHostBuilderExtensions
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static MessageJobsOptions UseEmailServiceSparkPost(this MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddEmailServiceSparkPost(configuration); 
-        options.Services.AddSingleton((sp) => {
-            var sparkpostSettings = sp.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
-            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkpostSettings.Sender, sparkpostSettings.SenderName));
+        options.Services.AddEmailServiceSparkPost(configuration);
+        options.Services.AddSingleton(serviceProvider => {
+            var sparkPostSettings = serviceProvider.GetRequiredService<IOptions<EmailServiceSparkPostSettings>>().Value;
+            return new Func<EmailProviderInfo>(() => new EmailProviderInfo(sparkPostSettings.Sender, sparkPostSettings.SenderName));
         });
         return options;
     }

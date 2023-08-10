@@ -17,30 +17,38 @@ export const MESSAGES_API_BASE_URL = new InjectionToken<string>('MESSAGES_API_BA
 
 export interface IMessagesApiClient {
     /**
-     * @param filter_MessageChannelKind (optional) 
-     * @param filter_Published (optional) 
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the list of all campaigns using the provided Indice.Types.ListOptions.
+     * @param filter_MessageChannelKind (optional) The delivery channel of a campaign.
+     * @param filter_Published (optional) Determines if a campaign is published.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getCampaigns(filter_MessageChannelKind?: MessageChannelKind[] | undefined, filter_Published?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<CampaignResultSet>;
     /**
-     * @param body (optional) 
+     * Creates a new campaign.
+     * @param body (optional) Contains info about the campaign to be created.
      * @return Created
      */
     createCampaign(body?: CreateCampaignRequest | undefined): Observable<Campaign>;
     /**
-     * @return Success
+     * Gets a campaign with the specified id.
+     * @param campaignId The id of the campaign.
+     * @return OK
      */
     getCampaignById(campaignId: string): Observable<CampaignDetails>;
     /**
-     * @param body (optional) 
+     * Updates an existing unpublished campaign.
+     * @param campaignId The id of the campaign to update.
+     * @param body (optional) Contains info about the campaign to update.
      * @return No Content
      */
     updateCampaign(campaignId: string, body?: UpdateCampaignRequest | undefined): Observable<void>;
     /**
+     * Permanently deletes a campaign.
+     * @param campaignId The id of the campaign.
      * @return No Content
      */
     deleteCampaign(campaignId: string): Observable<void>;
@@ -52,201 +60,264 @@ export interface IMessagesApiClient {
      */
     uploadCampaignAttachment(campaignId: string, file?: FileParameter | undefined): Observable<AttachmentLink>;
     /**
+     * Deletes the camapaign attachment
+     * @param campaignId The id of the campaign.
+     * @param attachmentId The id of the attachment to be deleted.
      * @return No Content
      */
     deleteCampaignAttachment(campaignId: string, attachmentId: string): Observable<void>;
     /**
+     * Publishes a campaign.
+     * @param campaignId The id of the campaign.
      * @return No Content
      */
     publishCampaign(campaignId: string): Observable<void>;
     /**
-     * @return Success
+     * Gets the statistics for a specified campaign.
+     * @param campaignId The id of the campaign.
+     * @return OK
      */
     getCampaignStatistics(campaignId: string): Observable<CampaignStatistics>;
     /**
-     * @return Success
+     * Gets the statistics for a specified campaign in the form of an Excel file.
+     * @param campaignId The id of the campaign.
+     * @return OK
      */
     exportCampaignStatistics(campaignId: string): Observable<FileResponse>;
     /**
-     * @param filter_DistributionListId (optional) 
-     * @param filter_RecipientId (optional) 
-     * @param filter_Email (optional) 
-     * @param filter_PhoneNumber (optional) 
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * Gets the list of all contacts using the provided Indice.Types.ListOptions.
+     * @param filter_DistributionListId (optional) The id of a distribution list.
+     * @param filter_RecipientId (optional) The recipientid associated with the contact.
+     * @param filter_Email (optional) The email for the contact to search.
+     * @param filter_PhoneNumber (optional) The phone number for the contact to search.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
      * @param resolve (optional) 
-     * @return Success
+     * @return OK
      */
     getContacts(filter_DistributionListId?: string | undefined, filter_RecipientId?: string | undefined, filter_Email?: string | undefined, filter_PhoneNumber?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet>;
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new contact in the store.
+     * @param body (optional) The request model used to create a new contact.
+     * @return OK
      */
     createContact(body?: CreateContactRequest | undefined): Observable<MessageType>;
     /**
-     * @return Success
+     * Gets the specified contact by it's unique id.
+     * @param contactId The unique id of the contact.
+     * @return OK
      */
     getContactById(contactId: string): Observable<Contact>;
     /**
-     * @param body (optional) 
+     * Updates the specified contact in the store.
+     * @param contactId The unique id of the contact.
+     * @param body (optional) The request model used to update a new contact.
      * @return No Content
      */
     updateContact(contactId: string, body?: UpdateContactRequest | undefined): Observable<void>;
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @param isSystemGenerated (optional) 
-     * @return Success
+     * Gets the list of available campaign types.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param isSystemGenerated (optional) Indicates that the list is system generated.
+     * @return OK
      */
     getDistributionLists(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isSystemGenerated?: boolean | undefined): Observable<DistributionListResultSet>;
     /**
-     * @param body (optional) 
+     * Creates a new distribution list.
+     * @param body (optional) Contains info about the distribution list to be created.
      * @return Created
      */
     createDistributionList(body?: CreateDistributionListRequest | undefined): Observable<DistributionList>;
     /**
-     * @return Success
+     * Gets a distribution list by it's unique id.
+     * @param distributionListId The id of the message type.
+     * @return OK
      */
     getDistributionListById(distributionListId: string): Observable<DistributionList>;
     /**
+     * Permanently deletes a distribution list.
+     * @param distributionListId The id of the distribution list.
      * @return No Content
      */
     deleteDistributionList(distributionListId: string): Observable<void>;
     /**
-     * @param body (optional) 
+     * Updates an existing distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param body (optional) Models a request when updating a distribution list.
      * @return No Content
      */
     updateDistributionList(distributionListId: string, body?: UpdateDistributionListRequest | undefined): Observable<DistributionList>;
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the contacts of a given distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getDistributionListContacts(distributionListId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet>;
     /**
-     * @param body (optional) 
-     * @return No Content
+     * Adds a new or existing contact in the specified distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param body (optional) Contains info about the contact to be assigned to the distribution list.
+     * @return Bad Request
      */
     addContactToDistributionList(distributionListId: string, body?: CreateDistributionListContactRequest | undefined): Observable<void>;
     /**
-     * @return No Content
+     * Removes an existing contact from the specified distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param contactId The unique id of the contact.
+     * @return Bad Request
      */
     removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void>;
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @param isDefault (optional) 
-     * @return Success
+     * Gets the list of available message senders.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param isDefault (optional) Indicates that only the default sender should be returned.
+     * @return OK
      */
     getMessageSenders(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isDefault?: boolean | undefined): Observable<MessageSenderResultSet>;
     /**
-     * @param body (optional) 
+     * Creates a new message sender.
+     * @param body (optional) Contains info about the message sender to be created.
      * @return Created
      */
     createMessageSender(body?: CreateMessageSenderRequest | undefined): Observable<MessageSender>;
     /**
-     * @return Success
+     * Gets a message sender by it's unique id.
+     * @param senderId The id of the message sender.
+     * @return OK
      */
     getMessageSenderById(senderId: string): Observable<MessageSender>;
     /**
-     * @param body (optional) 
+     * Updates an existing message sender.
+     * @param senderId The id of the message sender.
+     * @param body (optional) Contains info about the message sender to update.
      * @return No Content
      */
     updateMessageSender(senderId: string, body?: UpdateMessageSenderRequest | undefined): Observable<void>;
     /**
+     * Permanently deletes a message sender.
+     * @param senderId The id of the message sender.
      * @return No Content
      */
     deleteMessageSender(senderId: string): Observable<void>;
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the list of available message types.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet>;
     /**
-     * @param body (optional) 
+     * Creates a new message type.
+     * @param body (optional) Contains info about the message type to be created.
      * @return Created
      */
     createMessageType(body?: CreateMessageTypeRequest | undefined): Observable<MessageType>;
     /**
-     * @return Success
+     * Gets a message type by it's unique id.
+     * @param typeId The id of the message type.
+     * @return OK
      */
     getMessageTypeById(typeId: string): Observable<MessageType>;
     /**
-     * @param body (optional) 
+     * Updates an existing message type.
+     * @param typeId The id of the message type.
+     * @param body (optional) Contains info about the message type to update.
      * @return No Content
      */
     updateMessageType(typeId: string, body?: UpdateMessageTypeRequest | undefined): Observable<void>;
     /**
+     * Permanently deletes a message type.
+     * @param typeId The id of the message type.
      * @return No Content
      */
     deleteMessageType(typeId: string): Observable<void>;
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the list of available campaign types.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getInboxMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet>;
     /**
-     * @param filter_TypeId (optional) 
-     * @param filter_ActiveFrom (optional) 
-     * @param filter_ActiveTo (optional) 
-     * @param filter_ShowExpired (optional) 
-     * @param filter_IsRead (optional) 
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the list of all user messages using the provided Indice.Types.ListOptions.
+     * @param filter_TypeId (optional) The id of a campaign type.
+     * @param filter_ActiveFrom (optional) Active from.
+     * @param filter_ActiveTo (optional) Active to.
+     * @param filter_ShowExpired (optional) Controls whether to show expired messages (that is outside of active period). Defaults to false.
+     * @param filter_IsRead (optional) Controls whether to filter for read messages.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getMessages(filter_TypeId?: string[] | undefined, filter_ActiveFrom?: Date | undefined, filter_ActiveTo?: Date | undefined, filter_ShowExpired?: boolean | undefined, filter_IsRead?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageResultSet>;
     /**
-     * @return Success
+     * Gets the message with the specified id.
+     * @param messageId The id of the message.
+     * @param channel (optional) The channel of the message.
+     * @return OK
      */
-    getMessageById(messageId: string): Observable<Message>;
+    getMessageById(messageId: string, channel?: MessageChannelKind[] | undefined): Observable<Message>;
     /**
+     * Marks the specified message as deleted.
+     * @param messageId The id of the message.
      * @return No Content
      */
     deleteMessage(messageId: string): Observable<void>;
     /**
+     * Marks the specified message as read.
+     * @param messageId The id of the message.
      * @return No Content
      */
     markMessageAsRead(messageId: string): Observable<void>;
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the list of all templates using the provided Indice.Types.ListOptions.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet>;
     /**
-     * @param body (optional) 
+     * Creates a new template in the store.
+     * @param body (optional) The request model used to create a new template.
      * @return Created
      */
     createTemplate(body?: CreateTemplateRequest | undefined): Observable<Template>;
     /**
-     * @return Success
+     * Gets a template by it's unique id.
+     * @param templateId The id of the template.
+     * @return OK
      */
     getTemplateById(templateId: string): Observable<Template>;
     /**
-     * @param body (optional) 
+     * Updates an existing template.
+     * @param templateId The id of the template.
+     * @param body (optional) Contains info about the template to update.
      * @return No Content
      */
     updateTemplate(templateId: string, body?: UpdateTemplateRequest | undefined): Observable<void>;
     /**
+     * Permanently deletes a template from the store.
+     * @param templateId The id of the template.
      * @return No Content
      */
     deleteTemplate(templateId: string): Observable<Template>;
@@ -266,13 +337,14 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param filter_MessageChannelKind (optional) 
-     * @param filter_Published (optional) 
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the list of all campaigns using the provided Indice.Types.ListOptions.
+     * @param filter_MessageChannelKind (optional) The delivery channel of a campaign.
+     * @param filter_Published (optional) Determines if a campaign is published.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getCampaigns(filter_MessageChannelKind?: MessageChannelKind[] | undefined, filter_Published?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<CampaignResultSet> {
         let url_ = this.baseUrl + "/api/campaigns?";
@@ -361,7 +433,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Creates a new campaign.
+     * @param body (optional) Contains info about the campaign to be created.
      * @return Created
      */
     createCampaign(body?: CreateCampaignRequest | undefined): Observable<Campaign> {
@@ -438,7 +511,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @return Success
+     * Gets a campaign with the specified id.
+     * @param campaignId The id of the campaign.
+     * @return OK
      */
     getCampaignById(campaignId: string): Observable<CampaignDetails> {
         let url_ = this.baseUrl + "/api/campaigns/{campaignId}";
@@ -513,7 +588,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Updates an existing unpublished campaign.
+     * @param campaignId The id of the campaign to update.
+     * @param body (optional) Contains info about the campaign to update.
      * @return No Content
      */
     updateCampaign(campaignId: string, body?: UpdateCampaignRequest | undefined): Observable<void> {
@@ -589,6 +666,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Permanently deletes a campaign.
+     * @param campaignId The id of the campaign.
      * @return No Content
      */
     deleteCampaign(campaignId: string): Observable<void> {
@@ -745,6 +824,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Deletes the camapaign attachment
+     * @param campaignId The id of the campaign.
+     * @param attachmentId The id of the attachment to be deleted.
      * @return No Content
      */
     deleteCampaignAttachment(campaignId: string, attachmentId: string): Observable<void> {
@@ -819,6 +901,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Publishes a campaign.
+     * @param campaignId The id of the campaign.
      * @return No Content
      */
     publishCampaign(campaignId: string): Observable<void> {
@@ -890,7 +974,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @return Success
+     * Gets the statistics for a specified campaign.
+     * @param campaignId The id of the campaign.
+     * @return OK
      */
     getCampaignStatistics(campaignId: string): Observable<CampaignStatistics> {
         let url_ = this.baseUrl + "/api/campaigns/{campaignId}/statistics";
@@ -965,7 +1051,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @return Success
+     * Gets the statistics for a specified campaign in the form of an Excel file.
+     * @param campaignId The id of the campaign.
+     * @return OK
      */
     exportCampaignStatistics(campaignId: string): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/campaigns/{campaignId}/statistics/export";
@@ -1044,16 +1132,17 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param filter_DistributionListId (optional) 
-     * @param filter_RecipientId (optional) 
-     * @param filter_Email (optional) 
-     * @param filter_PhoneNumber (optional) 
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
+     * Gets the list of all contacts using the provided Indice.Types.ListOptions.
+     * @param filter_DistributionListId (optional) The id of a distribution list.
+     * @param filter_RecipientId (optional) The recipientid associated with the contact.
+     * @param filter_Email (optional) The email for the contact to search.
+     * @param filter_PhoneNumber (optional) The phone number for the contact to search.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
      * @param resolve (optional) 
-     * @return Success
+     * @return OK
      */
     getContacts(filter_DistributionListId?: string | undefined, filter_RecipientId?: string | undefined, filter_Email?: string | undefined, filter_PhoneNumber?: string | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, resolve?: boolean | undefined): Observable<ContactResultSet> {
         let url_ = this.baseUrl + "/api/contacts?";
@@ -1154,8 +1243,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
-     * @return Success
+     * Creates a new contact in the store.
+     * @param body (optional) The request model used to create a new contact.
+     * @return OK
      */
     createContact(body?: CreateContactRequest | undefined): Observable<MessageType> {
         let url_ = this.baseUrl + "/api/contacts";
@@ -1231,7 +1321,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @return Success
+     * Gets the specified contact by it's unique id.
+     * @param contactId The unique id of the contact.
+     * @return OK
      */
     getContactById(contactId: string): Observable<Contact> {
         let url_ = this.baseUrl + "/api/contacts/{contactId}";
@@ -1303,7 +1395,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Updates the specified contact in the store.
+     * @param contactId The unique id of the contact.
+     * @param body (optional) The request model used to update a new contact.
      * @return No Content
      */
     updateContact(contactId: string, body?: UpdateContactRequest | undefined): Observable<void> {
@@ -1372,12 +1466,13 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @param isSystemGenerated (optional) 
-     * @return Success
+     * Gets the list of available campaign types.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param isSystemGenerated (optional) Indicates that the list is system generated.
+     * @return OK
      */
     getDistributionLists(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isSystemGenerated?: boolean | undefined): Observable<DistributionListResultSet> {
         let url_ = this.baseUrl + "/api/distribution-lists?";
@@ -1462,7 +1557,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Creates a new distribution list.
+     * @param body (optional) Contains info about the distribution list to be created.
      * @return Created
      */
     createDistributionList(body?: CreateDistributionListRequest | undefined): Observable<DistributionList> {
@@ -1539,7 +1635,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @return Success
+     * Gets a distribution list by it's unique id.
+     * @param distributionListId The id of the message type.
+     * @return OK
      */
     getDistributionListById(distributionListId: string): Observable<DistributionList> {
         let url_ = this.baseUrl + "/api/distribution-lists/{distributionListId}";
@@ -1614,6 +1712,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Permanently deletes a distribution list.
+     * @param distributionListId The id of the distribution list.
      * @return No Content
      */
     deleteDistributionList(distributionListId: string): Observable<void> {
@@ -1685,7 +1785,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Updates an existing distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param body (optional) Models a request when updating a distribution list.
      * @return No Content
      */
     updateDistributionList(distributionListId: string, body?: UpdateDistributionListRequest | undefined): Observable<DistributionList> {
@@ -1765,11 +1867,13 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the contacts of a given distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getDistributionListContacts(distributionListId: string, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<ContactResultSet> {
         let url_ = this.baseUrl + "/api/distribution-lists/{distributionListId}/contacts?";
@@ -1853,8 +1957,10 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
-     * @return No Content
+     * Adds a new or existing contact in the specified distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param body (optional) Contains info about the contact to be assigned to the distribution list.
+     * @return Bad Request
      */
     addContactToDistributionList(distributionListId: string, body?: CreateDistributionListContactRequest | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/distribution-lists/{distributionListId}/contacts";
@@ -1929,7 +2035,10 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @return No Content
+     * Removes an existing contact from the specified distribution list.
+     * @param distributionListId The id of the distribution list.
+     * @param contactId The unique id of the contact.
+     * @return Bad Request
      */
     removeContactFromDistributionList(distributionListId: string, contactId: string): Observable<void> {
         let url_ = this.baseUrl + "/api/distribution-lists/{distributionListId}/contacts/{contactId}";
@@ -2003,12 +2112,13 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @param isDefault (optional) 
-     * @return Success
+     * Gets the list of available message senders.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @param isDefault (optional) Indicates that only the default sender should be returned.
+     * @return OK
      */
     getMessageSenders(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, isDefault?: boolean | undefined): Observable<MessageSenderResultSet> {
         let url_ = this.baseUrl + "/api/message-senders?";
@@ -2093,7 +2203,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Creates a new message sender.
+     * @param body (optional) Contains info about the message sender to be created.
      * @return Created
      */
     createMessageSender(body?: CreateMessageSenderRequest | undefined): Observable<MessageSender> {
@@ -2170,7 +2281,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @return Success
+     * Gets a message sender by it's unique id.
+     * @param senderId The id of the message sender.
+     * @return OK
      */
     getMessageSenderById(senderId: string): Observable<MessageSender> {
         let url_ = this.baseUrl + "/api/message-senders/{senderId}";
@@ -2245,7 +2358,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Updates an existing message sender.
+     * @param senderId The id of the message sender.
+     * @param body (optional) Contains info about the message sender to update.
      * @return No Content
      */
     updateMessageSender(senderId: string, body?: UpdateMessageSenderRequest | undefined): Observable<void> {
@@ -2321,6 +2436,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Permanently deletes a message sender.
+     * @param senderId The id of the message sender.
      * @return No Content
      */
     deleteMessageSender(senderId: string): Observable<void> {
@@ -2392,11 +2509,12 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the list of available message types.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet> {
         let url_ = this.baseUrl + "/api/message-types?";
@@ -2477,7 +2595,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Creates a new message type.
+     * @param body (optional) Contains info about the message type to be created.
      * @return Created
      */
     createMessageType(body?: CreateMessageTypeRequest | undefined): Observable<MessageType> {
@@ -2554,7 +2673,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @return Success
+     * Gets a message type by it's unique id.
+     * @param typeId The id of the message type.
+     * @return OK
      */
     getMessageTypeById(typeId: string): Observable<MessageType> {
         let url_ = this.baseUrl + "/api/message-types/{typeId}";
@@ -2629,7 +2750,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Updates an existing message type.
+     * @param typeId The id of the message type.
+     * @param body (optional) Contains info about the message type to update.
      * @return No Content
      */
     updateMessageType(typeId: string, body?: UpdateMessageTypeRequest | undefined): Observable<void> {
@@ -2705,6 +2828,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Permanently deletes a message type.
+     * @param typeId The id of the message type.
      * @return No Content
      */
     deleteMessageType(typeId: string): Observable<void> {
@@ -2776,11 +2901,12 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the list of available campaign types.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getInboxMessageTypes(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageTypeResultSet> {
         let url_ = this.baseUrl + "/api/messages/types?";
@@ -2861,16 +2987,17 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param filter_TypeId (optional) 
-     * @param filter_ActiveFrom (optional) 
-     * @param filter_ActiveTo (optional) 
-     * @param filter_ShowExpired (optional) 
-     * @param filter_IsRead (optional) 
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the list of all user messages using the provided Indice.Types.ListOptions.
+     * @param filter_TypeId (optional) The id of a campaign type.
+     * @param filter_ActiveFrom (optional) Active from.
+     * @param filter_ActiveTo (optional) Active to.
+     * @param filter_ShowExpired (optional) Controls whether to show expired messages (that is outside of active period). Defaults to false.
+     * @param filter_IsRead (optional) Controls whether to filter for read messages.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getMessages(filter_TypeId?: string[] | undefined, filter_ActiveFrom?: Date | undefined, filter_ActiveTo?: Date | undefined, filter_ShowExpired?: boolean | undefined, filter_IsRead?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<MessageResultSet> {
         let url_ = this.baseUrl + "/api/my/messages?";
@@ -2971,13 +3098,20 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @return Success
+     * Gets the message with the specified id.
+     * @param messageId The id of the message.
+     * @param channel (optional) The channel of the message.
+     * @return OK
      */
-    getMessageById(messageId: string): Observable<Message> {
-        let url_ = this.baseUrl + "/api/my/messages/{messageId}";
+    getMessageById(messageId: string, channel?: MessageChannelKind[] | undefined): Observable<Message> {
+        let url_ = this.baseUrl + "/api/my/messages/{messageId}?";
         if (messageId === undefined || messageId === null)
             throw new Error("The parameter 'messageId' must be defined.");
         url_ = url_.replace("{messageId}", encodeURIComponent("" + messageId));
+        if (channel === null)
+            throw new Error("The parameter 'channel' cannot be null.");
+        else if (channel !== undefined)
+            channel && channel.forEach(item => { url_ += "channel=" + encodeURIComponent("" + item) + "&"; });
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3046,6 +3180,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Marks the specified message as deleted.
+     * @param messageId The id of the message.
      * @return No Content
      */
     deleteMessage(messageId: string): Observable<void> {
@@ -3117,6 +3253,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Marks the specified message as read.
+     * @param messageId The id of the message.
      * @return No Content
      */
     markMessageAsRead(messageId: string): Observable<void> {
@@ -3188,11 +3326,12 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param page (optional) 
-     * @param size (optional) 
-     * @param sort (optional) 
-     * @param search (optional) 
-     * @return Success
+     * Gets the list of all templates using the provided Indice.Types.ListOptions.
+     * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
+     * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
+     * @param sort (optional) The property name used to sort the list.
+     * @param search (optional) A search term used to limit the results of the list.
+     * @return OK
      */
     getTemplates(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<TemplateListItemResultSet> {
         let url_ = this.baseUrl + "/api/templates?";
@@ -3273,7 +3412,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Creates a new template in the store.
+     * @param body (optional) The request model used to create a new template.
      * @return Created
      */
     createTemplate(body?: CreateTemplateRequest | undefined): Observable<Template> {
@@ -3350,7 +3490,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @return Success
+     * Gets a template by it's unique id.
+     * @param templateId The id of the template.
+     * @return OK
      */
     getTemplateById(templateId: string): Observable<Template> {
         let url_ = this.baseUrl + "/api/templates/{templateId}";
@@ -3422,7 +3564,9 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
-     * @param body (optional) 
+     * Updates an existing template.
+     * @param templateId The id of the template.
+     * @param body (optional) Contains info about the template to update.
      * @return No Content
      */
     updateTemplate(templateId: string, body?: UpdateTemplateRequest | undefined): Observable<void> {
@@ -3498,6 +3642,8 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 
     /**
+     * Permanently deletes a template from the store.
+     * @param templateId The id of the template.
      * @return No Content
      */
     deleteTemplate(templateId: string): Observable<Template> {
@@ -3566,12 +3712,19 @@ export class MessagesApiClient implements IMessagesApiClient {
     }
 }
 
+/** Models an attachment that is associated with a campaign. */
 export class AttachmentLink implements IAttachmentLink {
+    /** The id of the attachment. */
     id?: string;
+    /** The URL to the file. */
     permaLink?: string | undefined;
+    /** The label of the file. */
     label?: string | undefined;
+    /** The file size in bytes. */
     size?: number;
+    /** The file size in readable format. */
     readonly sizeText?: string | undefined;
+    /** The content type of the file. */
     contentType?: string | undefined;
 
     constructor(data?: IAttachmentLink) {
@@ -3613,30 +3766,48 @@ export class AttachmentLink implements IAttachmentLink {
     }
 }
 
+/** Models an attachment that is associated with a campaign. */
 export interface IAttachmentLink {
+    /** The id of the attachment. */
     id?: string;
+    /** The URL to the file. */
     permaLink?: string | undefined;
+    /** The label of the file. */
     label?: string | undefined;
+    /** The file size in bytes. */
     size?: number;
+    /** The file size in readable format. */
     sizeText?: string | undefined;
+    /** The content type of the file. */
     contentType?: string | undefined;
 }
 
+/** Models a campaign. */
 export class Campaign implements ICampaign {
+    /** The unique identifier of the campaign. */
     id?: string;
+    /** The title of the campaign. */
     title?: string | undefined;
+    /** The content of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
+    /** Determines if a campaign is published. */
     published?: boolean;
     activePeriod?: Period;
+    /** Determines if campaign targets all user base. */
     isGlobal?: boolean;
     type?: MessageType;
     distributionList?: DistributionList;
     messageChannelKind?: MessageChannelKind[];
+    /** Optional data for the campaign. */
     data?: any | undefined;
+    /** Specifies the principal that created the campaign. */
     createdBy?: string | undefined;
+    /** Specifies when a campaign was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the campaign. */
     updatedBy?: string | undefined;
+    /** Specifies when a campaign was updated. */
     updatedAt?: Date | undefined;
 
     constructor(data?: ICampaign) {
@@ -3716,39 +3887,61 @@ export class Campaign implements ICampaign {
     }
 }
 
+/** Models a campaign. */
 export interface ICampaign {
+    /** The unique identifier of the campaign. */
     id?: string;
+    /** The title of the campaign. */
     title?: string | undefined;
+    /** The content of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
+    /** Determines if a campaign is published. */
     published?: boolean;
     activePeriod?: Period;
+    /** Determines if campaign targets all user base. */
     isGlobal?: boolean;
     type?: MessageType;
     distributionList?: DistributionList;
     messageChannelKind?: MessageChannelKind[];
+    /** Optional data for the campaign. */
     data?: any | undefined;
+    /** Specifies the principal that created the campaign. */
     createdBy?: string | undefined;
+    /** Specifies when a campaign was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the campaign. */
     updatedBy?: string | undefined;
+    /** Specifies when a campaign was updated. */
     updatedAt?: Date | undefined;
 }
 
+/** Models a campaign. */
 export class CampaignDetails implements ICampaignDetails {
+    /** The unique identifier of the campaign. */
     id?: string;
+    /** The title of the campaign. */
     title?: string | undefined;
+    /** The content of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
+    /** Determines if a campaign is published. */
     published?: boolean;
     activePeriod?: Period;
+    /** Determines if campaign targets all user base. */
     isGlobal?: boolean;
     type?: MessageType;
     distributionList?: DistributionList;
     messageChannelKind?: MessageChannelKind[];
+    /** Optional data for the campaign. */
     data?: any | undefined;
+    /** Specifies the principal that created the campaign. */
     createdBy?: string | undefined;
+    /** Specifies when a campaign was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the campaign. */
     updatedBy?: string | undefined;
+    /** Specifies when a campaign was updated. */
     updatedAt?: Date | undefined;
     attachment?: AttachmentLink;
 
@@ -3831,27 +4024,41 @@ export class CampaignDetails implements ICampaignDetails {
     }
 }
 
+/** Models a campaign. */
 export interface ICampaignDetails {
+    /** The unique identifier of the campaign. */
     id?: string;
+    /** The title of the campaign. */
     title?: string | undefined;
+    /** The content of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
+    /** Determines if a campaign is published. */
     published?: boolean;
     activePeriod?: Period;
+    /** Determines if campaign targets all user base. */
     isGlobal?: boolean;
     type?: MessageType;
     distributionList?: DistributionList;
     messageChannelKind?: MessageChannelKind[];
+    /** Optional data for the campaign. */
     data?: any | undefined;
+    /** Specifies the principal that created the campaign. */
     createdBy?: string | undefined;
+    /** Specifies when a campaign was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the campaign. */
     updatedBy?: string | undefined;
+    /** Specifies when a campaign was updated. */
     updatedAt?: Date | undefined;
     attachment?: AttachmentLink;
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class CampaignResultSet implements ICampaignResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: Campaign[] | undefined;
 
     constructor(data?: ICampaignResultSet) {
@@ -3893,8 +4100,11 @@ export class CampaignResultSet implements ICampaignResultSet {
     }
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface ICampaignResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: Campaign[] | undefined;
 }
 
@@ -3954,16 +4164,27 @@ export interface ICampaignStatistics {
     lastUpdated?: Date;
 }
 
+/** Models a contact in the system as a member of a distribution list. */
 export class Contact implements IContact {
+    /** The unique id of the contact. */
     readonly id?: string | undefined;
+    /** The recipient correlation code. */
     recipientId?: string | undefined;
+    /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
+    /** The first name. */
     firstName?: string | undefined;
+    /** The last name. */
     lastName?: string | undefined;
+    /** The full name. */
     fullName?: string | undefined;
+    /** The email. */
     email?: string | undefined;
+    /** The phone number. */
     phoneNumber?: string | undefined;
+    /** Indicates when contact info were last updated. */
     updatedAt?: Date | undefined;
+    /** Determines if there is a Indice.Features.Messages.Core.Models.Contact.RecipientId involved. */
     readonly isAnonymous?: boolean;
 
     constructor(data?: IContact) {
@@ -4013,25 +4234,43 @@ export class Contact implements IContact {
     }
 }
 
+/** Models a contact in the system as a member of a distribution list. */
 export interface IContact {
+    /** The unique id of the contact. */
     id?: string | undefined;
+    /** The recipient correlation code. */
     recipientId?: string | undefined;
+    /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
+    /** The first name. */
     firstName?: string | undefined;
+    /** The last name. */
     lastName?: string | undefined;
+    /** The full name. */
     fullName?: string | undefined;
+    /** The email. */
     email?: string | undefined;
+    /** The phone number. */
     phoneNumber?: string | undefined;
+    /** Indicates when contact info were last updated. */
     updatedAt?: Date | undefined;
+    /** Determines if there is a Indice.Features.Messages.Core.Models.Contact.RecipientId involved. */
     isAnonymous?: boolean;
 }
 
+/** An anonymous contact not originating from any the existing connected resolvers. */
 export class ContactAnonymous implements IContactAnonymous {
+    /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
+    /** The first name. */
     firstName?: string | undefined;
+    /** The last name. */
     lastName?: string | undefined;
+    /** The full name. */
     fullName?: string | undefined;
+    /** The email. */
     email?: string | undefined;
+    /** The phone number. */
     phoneNumber?: string | undefined;
 
     constructor(data?: IContactAnonymous) {
@@ -4073,17 +4312,27 @@ export class ContactAnonymous implements IContactAnonymous {
     }
 }
 
+/** An anonymous contact not originating from any the existing connected resolvers. */
 export interface IContactAnonymous {
+    /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
+    /** The first name. */
     firstName?: string | undefined;
+    /** The last name. */
     lastName?: string | undefined;
+    /** The full name. */
     fullName?: string | undefined;
+    /** The email. */
     email?: string | undefined;
+    /** The phone number. */
     phoneNumber?: string | undefined;
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class ContactResultSet implements IContactResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: Contact[] | undefined;
 
     constructor(data?: IContactResultSet) {
@@ -4125,22 +4374,36 @@ export class ContactResultSet implements IContactResultSet {
     }
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface IContactResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: Contact[] | undefined;
 }
 
+/** The request model used to create a new campaign. */
 export class CreateCampaignRequest implements ICreateCampaignRequest {
+    /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
+    /** The title of the campaign. */
     title?: string | undefined;
+    /** The contents of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
     activePeriod?: Period;
+    /** The id of the type this campaign belongs. */
     typeId?: string | undefined;
+    /** The id of the distribution list. */
     recipientListId?: string | undefined;
+    /** Optional data for the campaign. */
     data?: any | undefined;
+    /** Determines if a campaign is published. */
     published?: boolean;
+    /** Defines a list of user identifiers that constitutes the audience of the campaign. */
     recipientIds?: string[] | undefined;
+    /** List of anonymous contacts not available through any of the existing contact resolvers.
+Use this list if recipient id is not known/available or the message will be fire and forget. */
     recipients?: ContactAnonymous[] | undefined;
 
     constructor(data?: ICreateCampaignRequest) {
@@ -4220,27 +4483,46 @@ export class CreateCampaignRequest implements ICreateCampaignRequest {
     }
 }
 
+/** The request model used to create a new campaign. */
 export interface ICreateCampaignRequest {
+    /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
+    /** The title of the campaign. */
     title?: string | undefined;
+    /** The contents of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
     activePeriod?: Period;
+    /** The id of the type this campaign belongs. */
     typeId?: string | undefined;
+    /** The id of the distribution list. */
     recipientListId?: string | undefined;
+    /** Optional data for the campaign. */
     data?: any | undefined;
+    /** Determines if a campaign is published. */
     published?: boolean;
+    /** Defines a list of user identifiers that constitutes the audience of the campaign. */
     recipientIds?: string[] | undefined;
+    /** List of anonymous contacts not available through any of the existing contact resolvers.
+Use this list if recipient id is not known/available or the message will be fire and forget. */
     recipients?: ContactAnonymous[] | undefined;
 }
 
+/** The request model used to create a new contact. */
 export class CreateContactRequest implements ICreateContactRequest {
+    /** The recipient correlation code. */
     recipientId?: string | undefined;
+    /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
+    /** The first name. */
     firstName?: string | undefined;
+    /** The last name. */
     lastName?: string | undefined;
+    /** The full name. */
     fullName?: string | undefined;
+    /** The email. */
     email?: string | undefined;
+    /** The phone number. */
     phoneNumber?: string | undefined;
 
     constructor(data?: ICreateContactRequest) {
@@ -4284,24 +4566,40 @@ export class CreateContactRequest implements ICreateContactRequest {
     }
 }
 
+/** The request model used to create a new contact. */
 export interface ICreateContactRequest {
+    /** The recipient correlation code. */
     recipientId?: string | undefined;
+    /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
+    /** The first name. */
     firstName?: string | undefined;
+    /** The last name. */
     lastName?: string | undefined;
+    /** The full name. */
     fullName?: string | undefined;
+    /** The email. */
     email?: string | undefined;
+    /** The phone number. */
     phoneNumber?: string | undefined;
 }
 
 export class CreateDistributionListContactRequest implements ICreateDistributionListContactRequest {
+    /** The recipient correlation code. */
     recipientId?: string | undefined;
+    /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
+    /** The first name. */
     firstName?: string | undefined;
+    /** The last name. */
     lastName?: string | undefined;
+    /** The full name. */
     fullName?: string | undefined;
+    /** The email. */
     email?: string | undefined;
+    /** The phone number. */
     phoneNumber?: string | undefined;
+    /** The id of the existing contact. */
     contactId?: string | undefined;
 
     constructor(data?: ICreateDistributionListContactRequest) {
@@ -4348,17 +4646,27 @@ export class CreateDistributionListContactRequest implements ICreateDistribution
 }
 
 export interface ICreateDistributionListContactRequest {
+    /** The recipient correlation code. */
     recipientId?: string | undefined;
+    /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
+    /** The first name. */
     firstName?: string | undefined;
+    /** The last name. */
     lastName?: string | undefined;
+    /** The full name. */
     fullName?: string | undefined;
+    /** The email. */
     email?: string | undefined;
+    /** The phone number. */
     phoneNumber?: string | undefined;
+    /** The id of the existing contact. */
     contactId?: string | undefined;
 }
 
+/** Models a request when creating a distribution list. */
 export class CreateDistributionListRequest implements ICreateDistributionListRequest {
+    /** The name of the distribution list. */
     name?: string | undefined;
 
     constructor(data?: ICreateDistributionListRequest) {
@@ -4390,12 +4698,17 @@ export class CreateDistributionListRequest implements ICreateDistributionListReq
     }
 }
 
+/** Models a request when creating a distribution list. */
 export interface ICreateDistributionListRequest {
+    /** The name of the distribution list. */
     name?: string | undefined;
 }
 
+/** The request model to create a new email sender. */
 export class CreateMessageSenderRequest implements ICreateMessageSenderRequest {
+    /** The sender of the Email. */
     sender?: string | undefined;
+    /** The display name of the sender of the email. */
     displayName?: string | undefined;
 
     constructor(data?: ICreateMessageSenderRequest) {
@@ -4429,12 +4742,17 @@ export class CreateMessageSenderRequest implements ICreateMessageSenderRequest {
     }
 }
 
+/** The request model to create a new email sender. */
 export interface ICreateMessageSenderRequest {
+    /** The sender of the Email. */
     sender?: string | undefined;
+    /** The display name of the sender of the email. */
     displayName?: string | undefined;
 }
 
+/** The request model used to create a new campaign type. */
 export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
+    /** The name of a campaign type. */
     name?: string | undefined;
 
     constructor(data?: ICreateMessageTypeRequest) {
@@ -4466,12 +4784,17 @@ export class CreateMessageTypeRequest implements ICreateMessageTypeRequest {
     }
 }
 
+/** The request model used to create a new campaign type. */
 export interface ICreateMessageTypeRequest {
+    /** The name of a campaign type. */
     name?: string | undefined;
 }
 
+/** The request model used to create a new template. */
 export class CreateTemplateRequest implements ICreateTemplateRequest {
+    /** The name of the template. */
     name?: string | undefined;
+    /** The content of the template. */
     content?: { [key: string]: MessageContent; } | undefined;
 
     constructor(data?: ICreateTemplateRequest) {
@@ -4517,17 +4840,27 @@ export class CreateTemplateRequest implements ICreateTemplateRequest {
     }
 }
 
+/** The request model used to create a new template. */
 export interface ICreateTemplateRequest {
+    /** The name of the template. */
     name?: string | undefined;
+    /** The content of the template. */
     content?: { [key: string]: MessageContent; } | undefined;
 }
 
+/** Models a distribution list. */
 export class DistributionList implements IDistributionList {
+    /** The unique id. */
     id?: string;
+    /** The name of the distribution list. */
     name?: string | undefined;
+    /** Specifies the principal that created the list. */
     createdBy?: string | undefined;
+    /** Specifies when a list was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the list. */
     updatedBy?: string | undefined;
+    /** Specifies when a list was updated. */
     updatedAt?: Date | undefined;
 
     constructor(data?: IDistributionList) {
@@ -4569,17 +4902,27 @@ export class DistributionList implements IDistributionList {
     }
 }
 
+/** Models a distribution list. */
 export interface IDistributionList {
+    /** The unique id. */
     id?: string;
+    /** The name of the distribution list. */
     name?: string | undefined;
+    /** Specifies the principal that created the list. */
     createdBy?: string | undefined;
+    /** Specifies when a list was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the list. */
     updatedBy?: string | undefined;
+    /** Specifies when a list was updated. */
     updatedAt?: Date | undefined;
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class DistributionListResultSet implements IDistributionListResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: DistributionList[] | undefined;
 
     constructor(data?: IDistributionListResultSet) {
@@ -4621,13 +4964,19 @@ export class DistributionListResultSet implements IDistributionListResultSet {
     }
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface IDistributionListResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: DistributionList[] | undefined;
 }
 
+/** Models a hyperlink. */
 export class Hyperlink implements IHyperlink {
+    /** Defines the hyperlink text. */
     text?: string | undefined;
+    /** Defines the hyperlink URL. */
     href?: string | undefined;
 
     constructor(data?: IHyperlink) {
@@ -4661,19 +5010,30 @@ export class Hyperlink implements IHyperlink {
     }
 }
 
+/** Models a hyperlink. */
 export interface IHyperlink {
+    /** Defines the hyperlink text. */
     text?: string | undefined;
+    /** Defines the hyperlink URL. */
     href?: string | undefined;
 }
 
+/** Models a user message. */
 export class Message implements IMessage {
+    /** The unique identifier of the user message. */
     id?: string;
+    /** The sender identity. This is optional and will default to the default settings. */
     sender?: string | undefined;
+    /** The title of the user message. */
     title?: string | undefined;
+    /** The content of the user message. */
     content?: string | undefined;
+    /** Determines if a message is read by the user. */
     isRead?: boolean;
     actionLink?: Hyperlink;
+    /** The URL to the attachment. */
     attachmentUrl?: string | undefined;
+    /** Defines when the message was created. */
     createdAt?: Date;
     activePeriod?: Period;
     type?: MessageType;
@@ -4725,22 +5085,33 @@ export class Message implements IMessage {
     }
 }
 
+/** Models a user message. */
 export interface IMessage {
+    /** The unique identifier of the user message. */
     id?: string;
+    /** The sender identity. This is optional and will default to the default settings. */
     sender?: string | undefined;
+    /** The title of the user message. */
     title?: string | undefined;
+    /** The content of the user message. */
     content?: string | undefined;
+    /** Determines if a message is read by the user. */
     isRead?: boolean;
     actionLink?: Hyperlink;
+    /** The URL to the attachment. */
     attachmentUrl?: string | undefined;
+    /** Defines when the message was created. */
     createdAt?: Date;
     activePeriod?: Period;
     type?: MessageType;
 }
 
+/** Encapsulates the message content for a given Indice.Features.Messages.Core.Models.MessageChannelKind */
 export class MessageContent implements IMessageContent {
     sender?: MessageSender;
+    /** The title of the message. */
     title?: string | undefined;
+    /** The body of the message. */
     body?: string | undefined;
 
     constructor(data?: IMessageContent) {
@@ -4776,14 +5147,20 @@ export class MessageContent implements IMessageContent {
     }
 }
 
+/** Encapsulates the message content for a given Indice.Features.Messages.Core.Models.MessageChannelKind */
 export interface IMessageContent {
     sender?: MessageSender;
+    /** The title of the message. */
     title?: string | undefined;
+    /** The body of the message. */
     body?: string | undefined;
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class MessageResultSet implements IMessageResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: Message[] | undefined;
 
     constructor(data?: IMessageResultSet) {
@@ -4825,20 +5202,33 @@ export class MessageResultSet implements IMessageResultSet {
     }
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface IMessageResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: Message[] | undefined;
 }
 
+/** The representation of a sender id visible in the recipients phone, email address etc. */
 export class MessageSender implements IMessageSender {
+    /** Sender id. */
     id?: string;
+    /** Sender. */
     sender?: string | undefined;
+    /** Sender Name. */
     displayName?: string | undefined;
+    /** Specifies the principal that created the sender. */
     createdBy?: string | undefined;
+    /** Specifies when a sender was created. */
     createdAt?: Date | undefined;
+    /** Specifies the principal that update the sender. */
     updatedBy?: string | undefined;
+    /** Specifies when a sender was updated. */
     updatedAt?: Date | undefined;
+    /** Indicates the default sender. */
     isDefault?: boolean;
+    /** Checks for id existence. */
     readonly isEmpty?: boolean;
 
     constructor(data?: IMessageSender) {
@@ -4886,20 +5276,33 @@ export class MessageSender implements IMessageSender {
     }
 }
 
+/** The representation of a sender id visible in the recipients phone, email address etc. */
 export interface IMessageSender {
+    /** Sender id. */
     id?: string;
+    /** Sender. */
     sender?: string | undefined;
+    /** Sender Name. */
     displayName?: string | undefined;
+    /** Specifies the principal that created the sender. */
     createdBy?: string | undefined;
+    /** Specifies when a sender was created. */
     createdAt?: Date | undefined;
+    /** Specifies the principal that update the sender. */
     updatedBy?: string | undefined;
+    /** Specifies when a sender was updated. */
     updatedAt?: Date | undefined;
+    /** Indicates the default sender. */
     isDefault?: boolean;
+    /** Checks for id existence. */
     isEmpty?: boolean;
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class MessageSenderResultSet implements IMessageSenderResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: MessageSender[] | undefined;
 
     constructor(data?: IMessageSenderResultSet) {
@@ -4941,13 +5344,19 @@ export class MessageSenderResultSet implements IMessageSenderResultSet {
     }
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface IMessageSenderResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: MessageSender[] | undefined;
 }
 
+/** Models a campaign type. */
 export class MessageType implements IMessageType {
+    /** The id of a campaign type. */
     id?: string;
+    /** The name of a campaign type. */
     name?: string | undefined;
 
     constructor(data?: IMessageType) {
@@ -4981,13 +5390,19 @@ export class MessageType implements IMessageType {
     }
 }
 
+/** Models a campaign type. */
 export interface IMessageType {
+    /** The id of a campaign type. */
     id?: string;
+    /** The name of a campaign type. */
     name?: string | undefined;
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class MessageTypeResultSet implements IMessageTypeResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: MessageType[] | undefined;
 
     constructor(data?: IMessageTypeResultSet) {
@@ -5029,13 +5444,19 @@ export class MessageTypeResultSet implements IMessageTypeResultSet {
     }
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface IMessageTypeResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: MessageType[] | undefined;
 }
 
+/** Represents a period in time, with a starting and ending System.DateTimeOffset. */
 export class Period implements IPeriod {
+    /** Period from. */
     from?: Date | undefined;
+    /** Period to. */
     to?: Date | undefined;
 
     constructor(data?: IPeriod) {
@@ -5069,8 +5490,11 @@ export class Period implements IPeriod {
     }
 }
 
+/** Represents a period in time, with a starting and ending System.DateTimeOffset. */
 export interface IPeriod {
+    /** Period from. */
     from?: Date | undefined;
+    /** Period to. */
     to?: Date | undefined;
 }
 
@@ -5138,13 +5562,21 @@ export interface IProblemDetails {
     [key: string]: any;
 }
 
+/** Models a template. */
 export class Template implements ITemplate {
+    /** The unique id of the template. */
     id?: string;
+    /** The name of the template. */
     name?: string | undefined;
+    /** Specifies the principal that created the template. */
     createdBy?: string | undefined;
+    /** Specifies when a template was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the template. */
     updatedBy?: string | undefined;
+    /** Specifies when a template was updated. */
     updatedAt?: Date | undefined;
+    /** The content of the template. */
     content?: { [key: string]: MessageContent; } | undefined;
 
     constructor(data?: ITemplate) {
@@ -5200,22 +5632,37 @@ export class Template implements ITemplate {
     }
 }
 
+/** Models a template. */
 export interface ITemplate {
+    /** The unique id of the template. */
     id?: string;
+    /** The name of the template. */
     name?: string | undefined;
+    /** Specifies the principal that created the template. */
     createdBy?: string | undefined;
+    /** Specifies when a template was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the template. */
     updatedBy?: string | undefined;
+    /** Specifies when a template was updated. */
     updatedAt?: Date | undefined;
+    /** The content of the template. */
     content?: { [key: string]: MessageContent; } | undefined;
 }
 
+/** Models a template when retrieved on a list. */
 export class TemplateListItem implements ITemplateListItem {
+    /** The unique id of the template. */
     id?: string;
+    /** The name of the template. */
     name?: string | undefined;
+    /** Specifies the principal that created the template. */
     createdBy?: string | undefined;
+    /** Specifies when a template was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the template. */
     updatedBy?: string | undefined;
+    /** Specifies when a template was updated. */
     updatedAt?: Date | undefined;
     channels?: MessageChannelKind[];
 
@@ -5268,18 +5715,28 @@ export class TemplateListItem implements ITemplateListItem {
     }
 }
 
+/** Models a template when retrieved on a list. */
 export interface ITemplateListItem {
+    /** The unique id of the template. */
     id?: string;
+    /** The name of the template. */
     name?: string | undefined;
+    /** Specifies the principal that created the template. */
     createdBy?: string | undefined;
+    /** Specifies when a template was created. */
     createdAt?: Date;
+    /** Specifies the principal that update the template. */
     updatedBy?: string | undefined;
+    /** Specifies when a template was updated. */
     updatedAt?: Date | undefined;
     channels?: MessageChannelKind[];
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export class TemplateListItemResultSet implements ITemplateListItemResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: TemplateListItem[] | undefined;
 
     constructor(data?: ITemplateListItemResultSet) {
@@ -5321,19 +5778,29 @@ export class TemplateListItemResultSet implements ITemplateListItemResultSet {
     }
 }
 
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
 export interface ITemplateListItemResultSet {
+    /** Total results count. */
     count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
     items?: TemplateListItem[] | undefined;
 }
 
+/** The request model used to update an existing campaign. */
 export class UpdateCampaignRequest implements IUpdateCampaignRequest {
+    /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
+    /** The title of the campaign. */
     title?: string | undefined;
+    /** The contents of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
     activePeriod?: Period;
+    /** The id of the type this campaign belongs. */
     typeId?: string | undefined;
+    /** The id of the distribution list. */
     recipientListId?: string | undefined;
+    /** Optional data for the campaign. */
     data?: any | undefined;
 
     constructor(data?: IUpdateCampaignRequest) {
@@ -5391,24 +5858,39 @@ export class UpdateCampaignRequest implements IUpdateCampaignRequest {
     }
 }
 
+/** The request model used to update an existing campaign. */
 export interface IUpdateCampaignRequest {
+    /** Determines if campaign targets all user base. Defaults to false. */
     isGlobal?: boolean;
+    /** The title of the campaign. */
     title?: string | undefined;
+    /** The contents of the campaign. */
     content?: { [key: string]: MessageContent; } | undefined;
     actionLink?: Hyperlink;
     activePeriod?: Period;
+    /** The id of the type this campaign belongs. */
     typeId?: string | undefined;
+    /** The id of the distribution list. */
     recipientListId?: string | undefined;
+    /** Optional data for the campaign. */
     data?: any | undefined;
 }
 
+/** The request model used to update an existing contact. */
 export class UpdateContactRequest implements IUpdateContactRequest {
+    /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
+    /** The first name. */
     firstName?: string | undefined;
+    /** The last name. */
     lastName?: string | undefined;
+    /** The full name. */
     fullName?: string | undefined;
+    /** The email. */
     email?: string | undefined;
+    /** The phone number. */
     phoneNumber?: string | undefined;
+    /** The id of the distribution list. */
     distributionListId?: string | undefined;
 
     constructor(data?: IUpdateContactRequest) {
@@ -5452,17 +5934,27 @@ export class UpdateContactRequest implements IUpdateContactRequest {
     }
 }
 
+/** The request model used to update an existing contact. */
 export interface IUpdateContactRequest {
+    /** Contact salutation (Mr, Mrs etc). */
     salutation?: string | undefined;
+    /** The first name. */
     firstName?: string | undefined;
+    /** The last name. */
     lastName?: string | undefined;
+    /** The full name. */
     fullName?: string | undefined;
+    /** The email. */
     email?: string | undefined;
+    /** The phone number. */
     phoneNumber?: string | undefined;
+    /** The id of the distribution list. */
     distributionListId?: string | undefined;
 }
 
+/** Models a request when updating a distribution list. */
 export class UpdateDistributionListRequest implements IUpdateDistributionListRequest {
+    /** The name of the distribution list. */
     name?: string | undefined;
 
     constructor(data?: IUpdateDistributionListRequest) {
@@ -5494,12 +5986,17 @@ export class UpdateDistributionListRequest implements IUpdateDistributionListReq
     }
 }
 
+/** Models a request when updating a distribution list. */
 export interface IUpdateDistributionListRequest {
+    /** The name of the distribution list. */
     name?: string | undefined;
 }
 
+/** The request to update an existing sender object. */
 export class UpdateMessageSenderRequest implements IUpdateMessageSenderRequest {
+    /** The sender of the Email. */
     sender?: string | undefined;
+    /** The display name of the sender. */
     displayName?: string | undefined;
 
     constructor(data?: IUpdateMessageSenderRequest) {
@@ -5533,12 +6030,17 @@ export class UpdateMessageSenderRequest implements IUpdateMessageSenderRequest {
     }
 }
 
+/** The request to update an existing sender object. */
 export interface IUpdateMessageSenderRequest {
+    /** The sender of the Email. */
     sender?: string | undefined;
+    /** The display name of the sender. */
     displayName?: string | undefined;
 }
 
+/** The request model used to update a campaign type. */
 export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
+    /** The name of a campaign type. */
     name?: string | undefined;
 
     constructor(data?: IUpdateMessageTypeRequest) {
@@ -5570,12 +6072,17 @@ export class UpdateMessageTypeRequest implements IUpdateMessageTypeRequest {
     }
 }
 
+/** The request model used to update a campaign type. */
 export interface IUpdateMessageTypeRequest {
+    /** The name of a campaign type. */
     name?: string | undefined;
 }
 
+/** The request model used to update an existing template. */
 export class UpdateTemplateRequest implements IUpdateTemplateRequest {
+    /** The name of the template. */
     name?: string | undefined;
+    /** The content of the template. */
     content?: { [key: string]: MessageContent; } | undefined;
 
     constructor(data?: IUpdateTemplateRequest) {
@@ -5621,8 +6128,11 @@ export class UpdateTemplateRequest implements IUpdateTemplateRequest {
     }
 }
 
+/** The request model used to update an existing template. */
 export interface IUpdateTemplateRequest {
+    /** The name of the template. */
     name?: string | undefined;
+    /** The content of the template. */
     content?: { [key: string]: MessageContent; } | undefined;
 }
 

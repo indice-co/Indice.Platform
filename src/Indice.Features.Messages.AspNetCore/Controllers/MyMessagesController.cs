@@ -21,9 +21,9 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [Route(ApiPrefixes.MessageInboxEndpoints)]
-internal class InboxController : CampaignsControllerBase
+internal class MyMessagesController : CampaignsControllerBase
 {
-    public InboxController(
+    public MyMessagesController(
         IInboxService inboxService,
         ICampaignService campaignService,
         IMessageTypeService messageTypeService,
@@ -67,14 +67,15 @@ internal class InboxController : CampaignsControllerBase
 
     /// <summary>Gets the message with the specified id.</summary>
     /// <param name="messageId">The id of the message.</param>
+    /// <param name="channel">The channel of the message.</param>
     /// <response code="200">OK</response>
     /// <response code="404">Not Found</response>
     [HttpGet("my/messages/{messageId:guid}")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(Message), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetMessageById([FromRoute] Guid messageId) {
-        var message = await InboxService.GetById(messageId, UserCode);
+    public async Task<IActionResult> GetMessageById([FromRoute] Guid messageId, [FromQuery] MessageChannelKind? channel) {
+        var message = await InboxService.GetById(messageId, UserCode, channel);
         if (message == null) {
             return NotFound();
         }

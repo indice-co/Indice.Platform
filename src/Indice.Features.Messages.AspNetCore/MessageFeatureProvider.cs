@@ -17,7 +17,7 @@ internal class MessageFeatureProvider : IApplicationFeatureProvider<ControllerFe
     };
 
     private static IReadOnlyList<TypeInfo> InboxApiControllerTypes => new List<TypeInfo>() {
-        typeof(InboxController).GetTypeInfo(),
+        typeof(MyMessagesController).GetTypeInfo(),
         typeof(TrackingController).GetTypeInfo()
     };
 

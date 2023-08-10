@@ -70,7 +70,7 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
                 const contact = response.result.data;
                 this._api.removeContactFromDistributionList(this._distributionListId, contact.id).subscribe(() => {
                     this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Η επαφή '${contact.fullName || contact.email}' αφαιρέθηκε από τη λίστα.`);
-                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'contacts']));
+                    this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
                 });
             }
         });

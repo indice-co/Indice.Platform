@@ -18,5 +18,8 @@ public class UserNameStaticAccessor : IUserNameAccessor
     }
 
     /// <inheritdoc />
+    public int Priority => 2;
+
+    /// <inheritdoc />
     public string Resolve() => _userName;
 }

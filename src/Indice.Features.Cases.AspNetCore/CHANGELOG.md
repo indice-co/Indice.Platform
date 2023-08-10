@@ -36,6 +36,10 @@ GO
 
 ```
 
+## [7.3.10] - 2023-08-10
+### Bugfix
+- MyCase list filter now supports `from` and `to` parameters that can return results for same-day filters.
+
 ## [7.3.6] - 2023-07-06
 ### Changed
 - Automatically remove `AssignedTo` when the case moves to Completed status.
