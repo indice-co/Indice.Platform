@@ -58,8 +58,8 @@ public static class HostBuilderExtensions
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         services.TryAddTransient<NotificationsManager>();
         services.TryAddSingleton(new DatabaseSchemaNameResolver(options.DatabaseSchema));
-        services.AddTransient<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
-        services.AddHostedService<StartupSeedHostedService>();
+        services.AddScoped<IUserNameAccessor>(serviceProvider => new UserNameStaticAccessor("worker"));
+        services.TryAddScoped<UserNameAccessorAggregate>();
         return services;
     }
 
