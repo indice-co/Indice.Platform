@@ -16,8 +16,8 @@ function createAppSettings(): IAppSettings {
         apiUrl = appRoot.getAttribute('apiUrl') || '';
         i18nAssets = appRoot.getAttribute('i18nAssets') || baseHref + '/assets/i18n/';
         dashboardTags = appRoot.getAttribute('dashboardTags') || '';
-        caseListColumns =  appRoot.getAttribute('caseListColumns') || '';;
-        caseListFilters =  appRoot.getAttribute('caseListFilters') || '';;
+        caseListColumns =  appRoot.getAttribute('caseListColumns') || '';
+        caseListFilters =  appRoot.getAttribute('caseListFilters') || '';
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
