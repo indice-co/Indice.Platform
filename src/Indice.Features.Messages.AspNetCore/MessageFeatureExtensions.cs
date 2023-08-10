@@ -165,7 +165,8 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
         services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
-        services.AddTransient<IUserNameAccessor, UserNameFromClaimsAccessor>();
+        services.TryAddScoped<IUserNameAccessor, UserNameFromClaimsAccessor>();
+        services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());
         // Register application DbContext.
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
