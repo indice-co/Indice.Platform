@@ -157,10 +157,17 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 
     /// <inheritdoc />
     public override async Task<IdentityResult> SetEmailAsync(TUser user, string email) {
-        if (EmailAsUserName) {
-            await base.SetUserNameAsync(user, email);
+        var emailResult = await base.SetEmailAsync(user, email);
+        if (!emailResult.Succeeded) {
+            return emailResult;
         }
-        return await base.SetEmailAsync(user, email);
+        if (EmailAsUserName) {
+            var userNameResult = await SetUserNameAsync(user, email);
+            if (!userNameResult.Succeeded) {
+                return userNameResult;
+            }
+        }
+        return emailResult;
     }
 
     /// <inheritdoc />
