@@ -16,6 +16,7 @@ using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -38,6 +39,11 @@ public static class WorkerHostBuilderExtensions
         workerHostBuilder.AddJobHandlers(options);
         workerHostBuilder.Services.AddCoreServices(options, configuration);
         workerHostBuilder.Services.AddJobHandlerServices();
+        workerHostBuilder.Services.Configure<HostOptions>(hostOptions => {
+            // https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/hosting-exception-handling
+            hostOptions.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+        });
+        workerHostBuilder.Services.AddHostedService<StartupSeedHostedService>();
         return workerHostBuilder;
     }
 

@@ -10,7 +10,6 @@ using Indice.Features.Messages.AspNetCore.Mvc.Formatters;
 using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
-using Indice.Features.Messages.Core.Hosting;
 using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Services;
 using Indice.Features.Messages.Core.Services.Abstractions;
@@ -40,7 +39,6 @@ public static class MessageFeatureExtensions
         // Configure options.
         var apiOptions = new MessageEndpointOptions(services);
         configureAction?.Invoke(apiOptions);
-        services.AddHostedService<StartupSeedHostedService>();
         return mvcBuilder.AddMessageManagementEndpoints(options => {
             options.ApiPrefix = apiOptions.ApiPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;

@@ -48,6 +48,7 @@ public class MessageManagerTests : IAsyncDisposable
             .AddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop())
             .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
             .AddTransient<IUserNameAccessor, UserNameAccessorNoOp>()
+            .AddTransient<UserNameAccessorAggregate>()
             //.AddKeyedService<IFileService, FileServiceInMemory, string>(KeyedServiceNames.FileServiceKey, ServiceLifetime.Singleton)
             //.AddFiles(x => x.AddFilesInMemory())
             .AddOptions()

@@ -48,6 +48,9 @@ public abstract class BaseAddEmailModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnGetAsync([FromQuery] string? returnUrl) {
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
+        if (user.EmailConfirmed) {
+            await UserManager.StateProvider.ChangeStateAsync(user, UserAction.VerifiedEmail);
+        }
         if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
             await SignInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
         }
