@@ -1,0 +1,61 @@
+﻿using System.Linq.Expressions;
+using Indice.Features.Media.AspNetCore.Data.Models;
+using Indice.Features.Media.AspNetCore.Stores.Abstractions;
+using Indice.Features.Media.Data;
+using Indice.Services;
+using Indice.Types;
+using Microsoft.EntityFrameworkCore;
+
+namespace Indice.Features.Media.AspNetCore.Services;
+
+/// <summary>An implementation of <see cref="IFileStore"/> for Entity Framework Core.</summary>
+internal class FileStore : IFileStore
+{
+    private readonly MediaDbContext _dbContext;
+
+    /// <summary>Creates a new instance of <see cref="FileStore"/>.</summary>
+    /// <param name="dbContext">The <see cref="DbContext"/> for Media API feature.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public FileStore(MediaDbContext dbContext) {
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+    }
+    /// <inheritdoc/>
+    public async Task<DbFile?> GetById(Guid id) {
+        return await _dbContext
+            .Files
+            .Where(x => x.Id == id && (x.Folder == null || !x.Folder.IsDeleted))
+            .SingleOrDefaultAsync();
+    }
+    /// <inheritdoc/>
+    public async Task<List<DbFile>> GetList(Expression<Func<DbFile, bool>>? query = null) {
+        query ??= f => true;
+        return await _dbContext.Files
+            .Where(query)
+            .OrderBy(f => f.FolderId)
+            .ThenBy(f => f.Name)
+            .ToListAsync();
+    }
+    /// <inheritdoc/>
+    public async Task<List<DbFile>> ListFiles(List<Guid> folderIds) {
+        return await _dbContext.Files.Where(f => f.FolderId.HasValue && folderIds.Contains(f.FolderId.Value)).ToListAsync();
+    }
+    /// <inheritdoc/>
+    public async Task<Guid> Create(DbFile file) {
+        _dbContext.Files.Add(file);
+        await _dbContext.SaveChangesAsync();
+        return file.Id;
+    }
+    /// <inheritdoc/>
+    public async Task Update(DbFile file) {
+        _dbContext.Files.Update(file);
+        await _dbContext.SaveChangesAsync();
+    }
+    /// <inheritdoc/>
+    public async Task Delete(Guid fileId) {
+        await _dbContext.Files.Where(f => f.Id == fileId).ExecuteDeleteAsync();
+    }
+    /// <inheritdoc/>
+    public async Task MarkAsDeletedRange(List<Guid> ids) {
+        await _dbContext.Files.Where(_ => ids.Contains(_.Id)).ExecuteUpdateAsync(f => f.SetProperty(p => p.IsDeleted, true));
+    }
+}

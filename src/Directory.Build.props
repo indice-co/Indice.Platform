@@ -10,6 +10,7 @@
       <VersionPrefixMessages>$(VersionPrefixBase).11</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).7</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).5</VersionPrefixRisk>
+      <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->
       <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
