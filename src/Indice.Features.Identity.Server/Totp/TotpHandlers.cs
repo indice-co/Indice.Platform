@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Features.Identity.Server.Totp.Models;
@@ -15,6 +16,7 @@ internal static class TotpHandlers
     internal static async Task<Results<NoContent, ForbidHttpResult, StatusCodeHttpResult, ValidationProblem>> Send(
         TotpServiceFactory totpServiceFactory,
         ClaimsPrincipal currentUser,
+        IAuthenticationMethodProvider authenticationMethodProvider,
         TotpRequest request
     ) {
         var userId = currentUser.FindSubjectId();
@@ -22,16 +24,34 @@ internal static class TotpHandlers
             return TypedResults.Forbid();
         }
         var result = default(TotpResult);
+        var channel = TotpDeliveryChannel.None;
+        string? tokenProvider = null;
+        if (!string.IsNullOrWhiteSpace(request.AuthenticationMethod)) {
+            var authenticationMethod = (await authenticationMethodProvider.GetAllMethodsAsync())
+                .Where(x => x.DisplayName.Equals(request.AuthenticationMethod, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
+            if (authenticationMethod is null) {
+                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' is not configured in the system."));
+            }
+            if (!authenticationMethod.SupportsDeliveryChannel() || !authenticationMethod.SupportsTokenProvider()) {
+                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' must support a delivery channel and a token provider."));
+            }
+            channel = authenticationMethod.GetDeliveryChannel();
+            tokenProvider = authenticationMethod.GetTokenProvider();
+        } else {
+            channel = request.Channel ?? TotpDeliveryChannel.None;
+        }
         var totpService = totpServiceFactory.Create<User>();
-        switch (request.Channel) {
+        switch (channel) {
             case TotpDeliveryChannel.Sms:
             case TotpDeliveryChannel.Viber:
-                result = await totpService.SendAsync(totp =>
-                    totp.ToPrincipal(currentUser)
-                        .WithMessage(request.Message)
-                        .UsingDeliveryChannel(request.Channel)
-                        .WithPurpose(request.Purpose)
-                );
+                result = await totpService.SendAsync(totp => totp
+                    .ToPrincipal(currentUser)
+                    .WithMessage(request.Message)
+                    .UsingDeliveryChannel(channel)
+                    .WithSubject(request.Subject)
+                    .WithPurpose(request.Purpose)
+                    .UsingTokenProvider(tokenProvider));
                 break;
             case TotpDeliveryChannel.PushNotification:
                 result = await totpService.SendAsync(totp => totp
@@ -40,11 +60,18 @@ internal static class TotpHandlers
                     .UsingPushNotification()
                     .WithSubject(request.Subject)
                     .WithPurpose(request.Purpose)
+                    .UsingTokenProvider(tokenProvider)
                     .WithData(request.Data)
-                    .WithClassification(request.Classification)
-                );
+                    .WithClassification(request.Classification));
                 break;
             case TotpDeliveryChannel.Email:
+                result = await totpService.SendAsync(totp => totp.ToPrincipal(currentUser)
+                    .WithMessage(request.Message)
+                    .UsingEmail(request.EmailTemplate)
+                    .WithSubject(request.Subject)
+                    .WithPurpose(request.Purpose)
+                    .UsingTokenProvider(tokenProvider));
+                break;
             case TotpDeliveryChannel.Telephone:
             default:
                 return TypedResults.StatusCode(StatusCodes.Status405MethodNotAllowed);
