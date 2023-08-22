@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Threading.Channels;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
@@ -86,13 +87,27 @@ internal static class TotpHandlers
         TotpServiceFactory totpServiceFactory,
         ClaimsPrincipal currentUser,
         IStringLocalizer<TotpServiceUser<User>> localizer,
+        IAuthenticationMethodProvider authenticationMethodProvider,
         TotpVerificationRequest request
     ) {
         var userId = currentUser.FindSubjectId();
         if (string.IsNullOrEmpty(userId)) {
             return TypedResults.Forbid();
         }
-        var result = await totpServiceFactory.Create<User>().VerifyAsync(currentUser, request.Code, request.Purpose);
+        string? tokenProvider = null;
+        if (!string.IsNullOrWhiteSpace(request.AuthenticationMethod)) {
+            var authenticationMethod = (await authenticationMethodProvider.GetAllMethodsAsync())
+                .Where(x => x.DisplayName.Equals(request.AuthenticationMethod, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault();
+            if (authenticationMethod is null) {
+                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' is not configured in the system."));
+            }
+            if (!authenticationMethod.SupportsTokenProvider()) {
+                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' must support a delivery channel and a token provider."));
+            }
+            tokenProvider = authenticationMethod.GetTokenProvider();
+        }
+        var result = await totpServiceFactory.Create<User>().VerifyAsync(currentUser, request.Code, request.Purpose, tokenProvider);
         if (!result.Success) {
             var errors = ValidationErrors.AddError(nameof(request.Code), localizer["Invalid code"]);
             return TypedResults.ValidationProblem(errors);

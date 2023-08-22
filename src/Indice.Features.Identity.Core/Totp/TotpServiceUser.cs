@@ -205,13 +205,15 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="principal">The current user principal.</param>
     /// <param name="code">The TOTP code to verify.</param>
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
+    /// <param name="tokenProvider">The name of the token provider.</param>
     public async Task<TotpResult> VerifyAsync(
         ClaimsPrincipal principal,
         string code,
-        string purpose = null
+        string purpose = null,
+        string tokenProvider = null
     ) {
         var user = await UserManager.GetUserAsync(principal);
-        return await VerifyAsync(user, code, purpose);
+        return await VerifyAsync(user, code, purpose, tokenProvider);
     }
 
     /// <summary>Verifies the TOTP received for the given user.</summary>
