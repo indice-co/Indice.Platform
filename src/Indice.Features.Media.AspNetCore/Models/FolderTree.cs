@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-
-namespace Indice.Features.Media.AspNetCore.Models;
+﻿namespace Indice.Features.Media.AspNetCore.Models;
 
 /// <summary>Represent a Tree of Folders.</summary>
 public class FolderTree
@@ -56,10 +54,30 @@ public class FolderTree
         return child;
     }
     /// <summary> Traverses the tree, returns and removes the leaves.</summary>
-    public List<FolderTree> FindLeaves() {
+    public List<FolderTree> RemoveLeaves() {
         var leafChildren = Children.Where(c => c.IsLeaf).ToList();
         Children = Children.Where(c => !c.IsLeaf).ToList();
-        return leafChildren.Concat(Children.SelectMany(c => c.FindLeaves())).ToList();
+        return leafChildren.Concat(Children.SelectMany(c => c.RemoveLeaves())).ToList();
+    }
+
+
+
+    /// <summary>Retrieves paged result of children.</summary>
+    /// <param name="page">The item Id.</param>
+    /// <param name="size">The item Id.</param>
+    /// <returns>A list of <see cref="Folder"/></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    public List<Folder> GetChildren(int page, int size) {
+        if (page <= 0) {
+            throw new ArgumentOutOfRangeException(nameof(page));
+        }
+        if (size <= 0) {
+            throw new ArgumentOutOfRangeException(nameof(page));
+        }
+        if (IsLeaf) {
+            return new List<Folder>();
+        }
+        return Children.Select(c => c.Node).Skip((page - 1) * size).Take(size).ToList();
     }
 }
 

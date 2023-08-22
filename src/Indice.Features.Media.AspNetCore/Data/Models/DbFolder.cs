@@ -15,4 +15,8 @@ public class DbFolder : DbAuditableEntity
     public DbFolder? Parent { get; set; }
     /// <summary>Marks a folder as deleted.</summary>
     public bool IsDeleted { get; set; }
+    /// <summary>The contained folders.</summary>
+    public ICollection<DbFolder> SubFolders { get; set; } = new List<DbFolder>();
+    /// <summary>The contained files.</summary>
+    public ICollection<DbFile> Files { get; set; } = new List<DbFile>();
 }

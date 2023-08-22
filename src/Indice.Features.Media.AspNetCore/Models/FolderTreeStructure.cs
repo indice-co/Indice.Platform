@@ -9,16 +9,20 @@ public class FolderTreeStructure
     }
     /// <summary>Constructs a <see cref="FolderTreeStructure"/>.</summary>
     /// <param name="folders">The items of the structure.</param>
-    public FolderTreeStructure(IEnumerable<Folder> folders) {
+    /// <param name="rootFilesCount">The root files count.</param>
+    public FolderTreeStructure(IEnumerable<Folder> folders, int rootFilesCount = 0) {
         Items = new List<FolderTree>();
+        RootFilesCount = rootFilesCount;
         Build(folders);
     }
     /// <summary>The structure first level items.</summary>
     public List<FolderTree> Items { get; set; }
+    /// <summary>The structure first files count.</summary>
+    public int RootFilesCount { get; set; }
     /// <summary>Indicates if the structure is Empty.</summary>
     public bool IsEmpty => Items == null || !Items.Any();
     /// <summary>The number of elements.</summary>
-    public int TotalCount => IsEmpty ? 0 : Items.Count;
+    public int TotalCount => IsEmpty ? RootFilesCount : Items.Count + RootFilesCount;
     /// <summary>Builds the structure.</summary>
     /// <param name="folders">The items of the structure.</param>
     public void Build(IEnumerable<Folder> folders) {

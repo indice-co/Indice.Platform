@@ -56,32 +56,27 @@ public class MediaManager
         if (folderTree == null) {
             return new FolderContent();
         }
-        if (folderTree.TotalCount > 0 && (page.Value - 1) * size.Value >= folderTree.TotalCount) {
-            throw new ArgumentOutOfRangeException(nameof(page));
-        }
-
-        var cacheKey = $"{CONTENT_CACHE_KEY}_{(folderId.HasValue ? folderId.Value : "root")}";
-        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
-        var files = await _cache.GetAsync<List<FileDetails>>(cacheKey, serializationOptions);
-        if (files == null) {
-            var dbfiles = await _fileStore.GetList(f => f.FolderId == folderId && !f.IsDeleted);
-            files = dbfiles != null ? dbfiles.Select(f => f.ToFileDetails(_options)).ToList() : new List<FileDetails>();
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(files, serializationOptions), new DistributedCacheEntryOptions {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
-            });
+        var pagedFolders = folderTree.GetChildren(page.Value, size.Value);
+        var pagedFoldersCount = pagedFolders.Count();
+        var files = await ListFiles(folderId);
+        var pagedFiles = new List<FileDetails>();
+        if (pagedFoldersCount < size.Value) {
+            var newPage = page.Value - (folderTree.TotalCount / size.Value + 1);
+            var filesToSkip = newPage*(size.Value - (pagedFoldersCount > 0 ? pagedFoldersCount : folderTree.TotalCount % size.Value));
+            pagedFiles = files.Skip(filesToSkip).Take(size.Value-pagedFoldersCount).ToList();
         }
         return new FolderContent {
             Id = folderId,
             Name = folderTree.Node.Name,
             ParentId = folderTree.Node.ParentId,
-            Files = files,
-            Folders = !folderTree.IsLeaf ? folderTree.Children.Select(f => f.Node).ToList() : new List<Folder>(),
+            Files = pagedFiles,
+            Folders = pagedFolders,
             TotalCount = files != null ? folderTree.TotalCount + files.Count : folderTree.TotalCount,
         };
     }
     /// <summary>Lists the all the existing folders.</summary>
     public async Task<List<Folder>> ListFolders() {
-        var dbFolders = await _folderStore.GetList();
+        var dbFolders = await _folderStore.GetList(f => !f.IsDeleted);
         if (dbFolders == null) {
             return new List<Folder>();
         }
@@ -101,8 +96,9 @@ public class MediaManager
         var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         var structure = await _cache.GetAsync<FolderTreeStructure>(STRUCT_CACHE_KEY, serializationOptions);
         if (structure == null) {
-            var dbFolders = await _folderStore.GetList(f => !f.IsDeleted);
-            structure = new FolderTreeStructure(dbFolders.Select(f => f.ToFolder()));
+            var folders = await ListFolders();
+            var rootFiles = await ListFiles();
+            structure = new FolderTreeStructure(folders, rootFiles.Count);
             await _cache.SetStringAsync(STRUCT_CACHE_KEY, JsonSerializer.Serialize(structure, serializationOptions), new DistributedCacheEntryOptions {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             });
@@ -160,6 +156,20 @@ public class MediaManager
         }
         
     }
+    /// <summary>Lists the all the existing files of a folder.</summary>
+    public async Task<List<FileDetails>> ListFiles(Guid? folderId = null) {
+        var cacheKey = $"{CONTENT_CACHE_KEY}_{(folderId.HasValue ? folderId.Value : "root")}";
+        var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
+        var files = await _cache.GetAsync<List<FileDetails>>(cacheKey, serializationOptions);
+        if (files == null) {
+            var dbfiles = await _fileStore.GetList(f => f.FolderId == folderId && !f.IsDeleted);
+            files = dbfiles != null ? dbfiles.Select(f => f.ToFileDetails(_options)).ToList() : new List<FileDetails>();
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(files, serializationOptions), new DistributedCacheEntryOptions {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
+            });
+        }
+        return files;
+    }
     /// <summary>Retrieves the details about a file.</summary>
     /// <param name="id">The file id.</param>
     /// <param name="includeData">Indicates if the details should contain the byte array of data.</param>
@@ -187,6 +197,7 @@ public class MediaManager
         }
         var cacheKey = $"{CONTENT_CACHE_KEY}_{(command.FolderId.HasValue ? command.FolderId.Value : "root")}";
         await _cache.RemoveAsync(cacheKey);
+        await _cache.RemoveAsync(STRUCT_CACHE_KEY);
         return await _fileStore.Create(dbFile);
     }
     /// <summary>Updates metadata about a file.</summary>
@@ -204,6 +215,7 @@ public class MediaManager
         await _fileStore.Update(dbFile);
         var cacheKey = $"{CONTENT_CACHE_KEY}_{(dbFile.FolderId.HasValue ? dbFile.FolderId.Value : "root")}";
         await _cache.RemoveAsync(cacheKey);
+        await _cache.RemoveAsync(STRUCT_CACHE_KEY);
     }
     /// <summary>Marks an existing file as deleted.</summary>
     /// <param name="id">The file id.</param>
@@ -216,6 +228,7 @@ public class MediaManager
         await _fileStore.Update(dbFile);
         var cacheKey = $"{CONTENT_CACHE_KEY}_{(dbFile.FolderId.HasValue ? dbFile.FolderId.Value : "root")}";
         await _cache.RemoveAsync(cacheKey);
+        await _cache.RemoveAsync(STRUCT_CACHE_KEY);
     }
     /// <summary>Deletes all files marked as deleted. Used by <see cref="FilesCleanUpHostedService"/></summary>
     internal async Task CleanUpFiles() {
@@ -238,7 +251,7 @@ public class MediaManager
         var structure = new FolderTreeStructure(deletedFolders.Select(f => f.ToFolder()));
         foreach (var item in structure.Items) {
             while (!item.IsLeaf) {
-                foreach (var folder in item.FindLeaves()) {
+                foreach (var folder in item.RemoveLeaves()) {
                     await _folderStore.Delete(folder.Node.Id);
                 }
             }

@@ -38,7 +38,9 @@ internal static class Mapper
         UpdatedBy = dbFolder.UpdatedBy,
         Description = dbFolder.Description,
         Name = dbFolder.Name,
-        ParentId = dbFolder.ParentId
+        ParentId = dbFolder.ParentId,
+        SubFoldersCount = dbFolder.SubFolders?.Count ?? 0,
+        FilesCount = dbFolder.Files?.Count ?? 0
     };
     #endregion
     #region File

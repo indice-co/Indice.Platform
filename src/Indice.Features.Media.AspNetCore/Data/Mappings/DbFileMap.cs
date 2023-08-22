@@ -27,6 +27,6 @@ public class DbFileMap : IEntityTypeConfiguration<DbFile>
         builder.Property(x => x.UpdatedBy).HasMaxLength(TextSizePresets.M128);
         builder.Ignore(x => x.Uri);
         // Configure relationships.
-        builder.HasOne(x => x.Folder).WithMany().HasForeignKey(x => x.FolderId).OnDelete(DeleteBehavior.SetNull);
+        builder.HasOne(x => x.Folder).WithMany(f => f.Files).HasForeignKey(x => x.FolderId).OnDelete(DeleteBehavior.SetNull);
     }
 }

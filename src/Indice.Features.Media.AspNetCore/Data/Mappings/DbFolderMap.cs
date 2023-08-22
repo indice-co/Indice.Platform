@@ -23,6 +23,6 @@ public class DbFolderMap : IEntityTypeConfiguration<DbFolder>
         builder.Property(x => x.CreatedBy).HasMaxLength(TextSizePresets.M128).IsRequired();
         builder.Property(x => x.UpdatedBy).HasMaxLength(TextSizePresets.M128);
         // Configure relationships.
-        builder.HasOne(x => x.Parent).WithMany().HasForeignKey(x => x.ParentId);
+        builder.HasOne(x => x.Parent).WithMany(f => f.SubFolders).HasForeignKey(x => x.ParentId);
     }
 }

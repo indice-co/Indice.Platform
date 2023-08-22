@@ -41,7 +41,7 @@ public static class ServiceCollectionExtensions
         // Register services.
         services.TryAddTransient<IFolderStore, FolderStore>();
         services.TryAddTransient<IFileStore, FileStore>();
-        services.TryAddTransient<IUserNameAccessor, UserNameFromClaimsAccessor>();
+        services.TryAddTransient<IUserNameAccessor, UserNameFromHttpContextAccessor>();
         services.TryAddTransient<MediaManager>();
         services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());
         // Register validators

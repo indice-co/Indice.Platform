@@ -15,11 +15,6 @@
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.20" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.20" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.20" />
-  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.9" />

@@ -30,6 +30,8 @@ internal class FolderStore : IFolderStore
         query ??= f => !f.IsDeleted;
         return await _dbContext.Folders
             .Where(query)
+            .Include(f => f.SubFolders.Where(f => !f.IsDeleted))
+            .Include(f => f.Files.Where(f => !f.IsDeleted))
             .OrderBy(f => f.ParentId)
             .ThenBy(f => f.Name)
             .ToListAsync();
@@ -47,10 +49,14 @@ internal class FolderStore : IFolderStore
     }
     /// <inheritdoc/>
     public async Task Delete(Guid id) {
-        await _dbContext.Folders.Where(f => f.Id == id).ExecuteDeleteAsync();
+        await _dbContext.Folders
+            .Where(f => f.Id == id)
+            .ExecuteDeleteAsync();
     }
     /// <inheritdoc/>
     public async Task MarkAsDeletedRange(List<Guid> ids) {
-        await _dbContext.Folders.Where(_ => ids.Contains(_.Id)).ExecuteUpdateAsync(f => f.SetProperty(p => p.IsDeleted, true));
+        await _dbContext.Folders
+            .Where(_ => ids.Contains(_.Id))
+            .ExecuteUpdateAsync(f => f.SetProperty(p => p.IsDeleted, true));
     }
 }

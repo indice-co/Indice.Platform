@@ -1,0 +1,78 @@
+<lib-side-view-layout title="Επεξεργασία αρχείου"
+                      [ok-close-dialog]="false"
+                      [ok-label]="'Αποθήκευση'"
+                      [cancel-label]="'Κλείσιμο'"
+                      (ok)="submitButton.nativeElement.click()"
+                      [disabled]="!editFileForm.valid || submitInProgress"
+                      #sideViewLayout>
+    <div class="mt-4">
+        <form #editFileForm="ngForm"
+              (ngSubmit)="onSubmit()">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="grid grid-cols-4 gap-4">
+                    <div class="col-span-4">
+                        <ng-container [ngTemplateOutlet]="templateOutlet"></ng-container>
+                    </div>
+                </div>
+            </div>
+            <button type="submit"
+                    [style.visibility]="'hidden'"
+                    #submitBtn>
+                Submit
+            </button>
+        </form>
+    </div>
+</lib-side-view-layout>
+<ng-template #editNameTemplate>
+    <label for="documentName"
+           class="field-label">
+        Όνομα (*)
+    </label>
+    <div class="mt-1 flex rounded-sm">
+        <input type="text"
+               name="documentName"
+               id="documentName"
+               [(ngModel)]="model.name"
+               placeholder="Το όνομα του αρχείου..."
+               required
+               #documentName="ngModel">
+    </div>
+    <p *ngIf="documentName.invalid && (documentName.dirty || documentName.touched)"
+       class="mt-2 text-sm text-red-600">
+        <span *ngIf="documentName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
+        <span *ngIf="documentName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+    </p>
+    <p class="field-info col-span-3">Το όνομα με το οποίο θα εμφανίζεται το αρχείο.</p>
+</ng-template>
+<ng-template #editDescriptionTemplate>
+    <label for="documentDescription"
+           class="field-label">
+        Περιγραφή
+    </label>
+    <div class="mt-1 flex rounded-sm">
+        <input type="text"
+               name="documentDescription"
+               id="documentDescription"
+               [(ngModel)]="model.description"
+               placeholder="Η περιγραφή του αρχείου..."
+               required
+               #documentDescription="ngModel">
+    </div>
+    <p class="field-info col-span-3">Σύντομη περιγραφή του αρχείου.</p>
+</ng-template>
+<ng-template #editFolderTemplate>
+    <label for="folder"
+           class="field-label">
+        Φάκελος
+    </label>
+    <div class="mt-1 flex rounded-sm">
+        <lib-local-drop-down-menu id="folder"
+                                  name="folder"
+                                  class="w-full"
+                                  [value]="selectedFolderId"
+                                  [options]="folders"
+                                  (change)="folderSelectionChanged($event)">
+        </lib-local-drop-down-menu>
+    </div>
+    <p class="field-info col-span-3">Ο φάκελος που περιέχει το αρχείο.</p>
+</ng-template>

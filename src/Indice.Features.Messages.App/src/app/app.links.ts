@@ -13,7 +13,8 @@ export class AppLinks implements IAppLinks {
         new NavLink('Τύποι Μηνυμάτων', '/message-types', false, false, Icons.Details),
         new NavLink('Λίστες Διανομής', '/distribution-lists', false, false, Icons.TilesView),
         new NavLink('Πρότυπα', '/templates', false, false, Icons.SendEmail),
-        new NavLink('Ρυθμίσεις', '/settings', false, false, 'ms-Icon ms-Icon--Settings')
+        new NavLink('Ρυθμίσεις', '/settings', false, false, 'ms-Icon ms-Icon--Settings'),
+        new NavLink('Αρχεία', '/media', false, false, 'ms-Icon ms-Icon--Folder')
     ]);
 
     public profile: Observable<NavLink[]> = of([

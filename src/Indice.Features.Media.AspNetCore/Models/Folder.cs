@@ -19,6 +19,10 @@ public class Folder
     public DateTimeOffset? UpdatedAt { get; set; }
     /// <summary>The Id of the Parent Folder.</summary>
     public Guid? ParentId { get; set; }
+    /// <summary>The number of contained Folders.</summary>
+    public int? SubFoldersCount { get; set; }
+    /// <summary>The number of contained Files.</summary>
+    public int? FilesCount { get; set; }
 
     internal bool IsDeleted { get; set; }
 }

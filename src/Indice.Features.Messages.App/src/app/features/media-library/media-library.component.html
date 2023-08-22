@@ -1,0 +1,52 @@
+<div class="mt-5">
+    
+    <div class="view-layout-title-container">
+        <div class="view-layout-title-container-inner">
+            <div class="flex flex-row items-center">
+                <div>
+                    <div class="flex items-center">
+                        <h1 class="view-layout-title">Αρχεία</h1>
+                    </div>
+                    <div class="meta-container">
+                        <div class="meta-item-container">
+                            <i aria-hidden="true" class="meta-icon ms-Icon ms-Icon--Boards"></i>
+                            <span class="meta-text">{{folderContent ? folderContent.totalCount : 0}} αποτελέσματα</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-row">
+                    <button type="button" class="p-2 flex items-center justify-center w-8 h-8 rounded-lg"
+                        [ngClass]="view == 'folder' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-800 '"
+                        title="προσθήκη φακέλου">
+                        <i class="ms-Icon ms-Icon--Backlog" (click)="selectView('folder')"></i>
+                    </button>
+                    <button type="button" class="p-2 flex items-center justify-center w-8 h-8 rounded-lg"
+                        [ngClass]="view == 'list' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-800 '"
+                        title="προσθήκη φακέλου">
+                        <i class="ms-Icon ms-Icon--BulletedList" (click)="selectView('list')"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="view-layout-title-container-far">
+            <button type="button" class="p-2 btn-view-header" title="ανανέωση στοιχείων" (click)="loadContent()"><i
+                    class="ms-Icon ms-Icon--Refresh"></i>
+            </button>
+            <button type="button" href="#" class="p-2 btn-view-header" title="προσθήκη φακέλου"><i
+                    class="ms-Icon ms-Icon--FabricNewFolder" (click)="createFolder()"></i>
+            </button>
+            <button type="button" href="#" class="p-2 btn-view-header" title="προσθήκη αρχείου"><i
+                    class="ms-Icon ms-Icon--Upload" (click)="uploadFile()"></i>
+            </button>
+        </div>
+    </div>
+    <div class="mt-10 flex flex-row space-x-10">
+        <div class="w-96" *ngIf="useBreadcrumb">
+            <app-tree-breadcrumb [structure]="structure"></app-tree-breadcrumb>
+        </div>
+        <app-folder-view class="w-full" *ngIf="view == 'folder'" [folderContent]="folderContent" (pageChanged)="onPageChanged($event)" (pageSizeChanged)="onPageSizeChanged($event)" (itemDeleted)="onItemDeleted()"></app-folder-view>
+        <app-list-view class="w-full" *ngIf="view == 'list'" [folderContent]="folderContent" (pageChanged)="onPageChanged($event)" (pageSizeChanged)="onPageSizeChanged($event)" (itemDeleted)="onItemDeleted()"></app-list-view>
+    </div>
+</div>

@@ -36,6 +36,12 @@ import { TemplatesComponent } from './features/templates/templates.component';
 import { SettingsComponent } from './features/settings/settings.component';
 import { EmailSendersCreateComponent } from './features/settings/email/create/email-senders-create.component';
 import { EmailSendersEditComponent } from './features/settings/email/edit/email-senders-edit.component';
+import { MediaLibraryComponent } from './features/media-library/media-library.component';
+import { FolderCreateComponent } from './features/media-library/folder-create/folder-create.component';
+import { DocumentUploadComponent } from './features/media-library/document-upload/document-upload.component';
+import { DocumentEditComponent } from './features/media-library/document-edit/document-edit.component';
+import { DocumentEditRightpaneComponent } from './features/media-library/document-edit/rightpane/document-edit-rightpane.component';
+import { FolderEditComponent } from './features/media-library/folder-edit/folder-edit.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -58,7 +64,6 @@ const routes: Routes = [
       shell: CommonAppShellConfig
     }
   },
-  
   {
     path: '', canActivate: [AuthGuardService], children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -119,7 +124,23 @@ const routes: Routes = [
         path: 'settings', 
         data: { breadcrumb: { title: 'Ρυθμίσεις' }}, 
         component: SettingsComponent 
-      }
+      },
+      { 
+        path: 'media', 
+        data: { breadcrumb: { title: 'Αρχεία' }},
+        children: [
+          { path: '', component: MediaLibraryComponent, pathMatch: 'full' },
+          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'Αρχεία' }} },
+          {
+            path: ':folderId', component: MediaLibraryComponent, 
+            data: { breadcrumb: { title: 'Φάκελος' }}
+          },
+          {
+            path: ':folderId/:documentId', component: DocumentEditComponent, 
+            data: { breadcrumb: { title: 'Επεξεργασία' }}
+          },
+        ]
+      },
     ]
   },
   { path: 'edit-campaign', canActivate: [AuthGuardService], component: CampaignDetailsEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
@@ -132,6 +153,10 @@ const routes: Routes = [
   { path: 'create-message-type', canActivate: [AuthGuardService], component: MessageTypeCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'create-message-sender', canActivate: [AuthGuardService], component: EmailSendersCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-message-type/:messageTypeId', canActivate: [AuthGuardService], component: MessageTypeEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'create-folder', canActivate: [AuthGuardService], component: FolderCreateComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'edit-folder/:folderId', canActivate: [AuthGuardService], component: FolderEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'upload-file', canActivate: [AuthGuardService], component: DocumentUploadComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'edit-file', canActivate: [AuthGuardService], component: DocumentEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-message-sender/:messageSenderId', canActivate: [AuthGuardService], component: EmailSendersEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'logout', component: LogOutComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
   {
