@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using FluentValidation;
 using IdentityModel;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -13,6 +14,8 @@ using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Options;
+using Indice.Features.Identity.Server.Totp.Models;
+using Indice.Features.Identity.Server.Totp.Validators;
 using Indice.Security;
 using Indice.Serialization;
 using Indice.Services;
@@ -303,6 +306,13 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         });
         services.AddPushNotificationServiceNoop();
         services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+        return builder;
+    }
+
+    /// <summary>Adds the required services for the <b>TOTP API</b> features.</summary>
+    /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
+    public static IExtendedIdentityServerBuilder AddTotpEndpoints(this IExtendedIdentityServerBuilder builder) {
+        builder.Services.AddTransient<IValidator<TotpRequest>, TotpRequestValidator>();
         return builder;
     }
 

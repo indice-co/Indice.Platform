@@ -81,6 +81,8 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="classification">The notification's type.</param>
     /// <param name="data">The push notification data (preferably as a JSON string).</param>
     /// <param name="tokenProvider">The name of the token provider.</param>
+    /// <param name="authenticationMethod">The user authentication method to be used.</param>
+    /// <param name="emailTemplate">The email template to be used when <paramref name="channel"/> is <see cref="TotpDeliveryChannel.Email"/> or when <paramref name="authenticationMethod"/> has a relevant channel.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public async Task<TotpResult> SendAsync(
         ClaimsPrincipal principal,
@@ -90,10 +92,12 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         string purpose = null,
         string classification = null,
         string data = null,
-        string tokenProvider = null
+        string tokenProvider = null,
+        string authenticationMethod = null,
+        string emailTemplate = null
     ) {
         var user = await UserManager.GetUserAsync(principal);
-        return await SendAsync(user, message, channel, subject, purpose, classification, data, tokenProvider);
+        return await SendAsync(user, message, channel, subject, purpose, classification, data, tokenProvider, authenticationMethod, emailTemplate);
     }
 
     /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
@@ -103,9 +107,9 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         configureAction(builder);
         var @params = builder.Build();
         if (@params.ClaimsPrincipal is not null) {
-            return SendAsync(@params.ClaimsPrincipal, @params.Message, @params.DeliveryChannel, @params.Subject, @params.Purpose, @params.Classification, @params.Data, @params.TokenProvider);
+            return SendAsync(@params.ClaimsPrincipal, @params.Message, @params.DeliveryChannel, @params.Subject, @params.Purpose, @params.Classification, @params.Data, @params.TokenProvider, @params.AuthenticationMethod, @params.EmailTemplate);
         }
-        return SendAsync(@params.User, @params.Message, @params.DeliveryChannel, @params.Subject, @params.Purpose, @params.Classification, @params.Data, @params.TokenProvider);
+        return SendAsync(@params.User, @params.Message, @params.DeliveryChannel, @params.Subject, @params.Purpose, @params.Classification, @params.Data, @params.TokenProvider, @params.AuthenticationMethod, @params.EmailTemplate);
     }
 
     /// <summary>Creates a TOTP and sends it in the selected <see cref="TotpDeliveryChannel"/>.</summary>
@@ -117,6 +121,8 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="classification">The notification's type.</param>
     /// <param name="data">The push notification data (preferably as a JSON string).</param>
     /// <param name="tokenProvider">The name of the token provider.</param>
+    /// <param name="authenticationMethod">The user authentication method to be used.</param>
+    /// <param name="emailTemplate">The email template to be used when <paramref name="channel"/> is <see cref="TotpDeliveryChannel.Email"/> or when <paramref name="authenticationMethod"/> has a relevant channel.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public virtual async Task<TotpResult> SendAsync(
         TUser user,
@@ -126,7 +132,9 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         string purpose = null,
         string classification = null,
         string data = null,
-        string tokenProvider = null
+        string tokenProvider = null,
+        string authenticationMethod = null,
+        string emailTemplate = null
     ) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
@@ -148,7 +156,8 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
                     new TotpRecipient {
                         DeviceId = device.Id.ToString(),
                         UserId = user.Id,
-                        PhoneNumber = user.PhoneNumber
+                        PhoneNumber = user.PhoneNumber,
+                        Email = user.Email
                     },
                     new TotpMessage {
                         Message = message,
@@ -163,7 +172,8 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
                 channel,
                 new TotpRecipient {
                     UserId = user.Id,
-                    PhoneNumber = user.PhoneNumber
+                    PhoneNumber = user.PhoneNumber,
+                    Email = user.Email
                 },
                 new TotpMessage {
                     Message = message,
@@ -195,13 +205,15 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="principal">The current user principal.</param>
     /// <param name="code">The TOTP code to verify.</param>
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
+    /// <param name="tokenProvider">The name of the token provider.</param>
     public async Task<TotpResult> VerifyAsync(
         ClaimsPrincipal principal,
         string code,
-        string purpose = null
+        string purpose = null,
+        string tokenProvider = null
     ) {
         var user = await UserManager.GetUserAsync(principal);
-        return await VerifyAsync(user, code, purpose);
+        return await VerifyAsync(user, code, purpose, tokenProvider);
     }
 
     /// <summary>Verifies the TOTP received for the given user.</summary>
