@@ -20,7 +20,7 @@ public static class EndpointParameterValidationConfiguration
     /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
     /// <param name="scanAssemblies">The assemblies to scan.</param>
     public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection services, ServiceLifetime lifetime, params Assembly[] scanAssemblies) {
-        services.TryAddSingleton<IEndpointParameterValidator, EndpointParameterFluentValidator>();
+        services.TryAddScoped<IEndpointParameterValidator, EndpointParameterFluentValidator>();
         if (scanAssemblies?.Length > 0) {
             AssemblyScanner.FindValidatorsInAssemblies(scanAssemblies)
                            .ForEach(x => services.TryAdd(ServiceDescriptor.Describe(x.InterfaceType, x.ValidatorType, lifetime)));
