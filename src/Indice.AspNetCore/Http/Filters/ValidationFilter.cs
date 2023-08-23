@@ -82,7 +82,7 @@ public static partial class ValidationFilterExtensions
             endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json"));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
-                    var validator = context.ApplicationServices.GetRequiredService<IEndpointParameterValidator>();
+                    var validator = invocationContext.HttpContext.RequestServices.GetRequiredService<IEndpointParameterValidator>();
                     foreach (var descriptor in parametersToValidate) {
                         if (invocationContext.Arguments[descriptor.ArgumentIndex] is { } arg) {
                             var (IsValid, Errors) = await validator.TryValidateAsync(descriptor.ArgumentType, arg);
@@ -134,7 +134,6 @@ public static partial class ValidationFilterExtensions
             endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), statusCode, "application/problem+json"));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
-                    var validator = context.ApplicationServices.GetService<IEndpointParameterValidator>();
                     try {
                         return await next(invocationContext);
                     } catch (TException exception) {
