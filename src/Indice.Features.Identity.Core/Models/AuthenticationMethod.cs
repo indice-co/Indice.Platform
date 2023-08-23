@@ -42,7 +42,7 @@ public abstract class AuthenticationMethod
     public bool SupportsTokenProvider() => typeof(IAuthenticationMethodWithTokenProvider).IsAssignableFrom(GetType());
 
     /// <summary>Gets the <see cref="TotpDeliveryChannel"/> if the authentication method supports it.</summary>
-    public TotpDeliveryChannel? GetDeliveryChannel() => SupportsDeliveryChannel() ? ((IAuthenticationMethodWithChannel)this).DeliveryChannel : default;
+    public TotpDeliveryChannel GetDeliveryChannel() => SupportsDeliveryChannel() ? ((IAuthenticationMethodWithChannel)this).DeliveryChannel : default;
 
     /// <summary>Gets the list of associated user devices if the authentication method supports it.</summary>
     public IEnumerable<UserDevice> GetDevices() => SupportsDevices() ? ((IAuthenticationMethodWithDevices)this).Devices : Enumerable.Empty<UserDevice>();
@@ -85,9 +85,9 @@ public class SmsAuthenticationMethod : AuthenticationMethod, IAuthenticationMeth
         SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
     }
 
-    /// <summary>The delivery channel that can be used by the authentication method.</summary>
+    /// <inheritdoc />
     public TotpDeliveryChannel DeliveryChannel { get; } = TotpDeliveryChannel.Sms;
-    /// <summary>The name of the token provider.</summary>
+    /// <inheritdoc />
     public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
 }
 
@@ -132,16 +132,16 @@ public class BiometricsAuthenticationMethod : AuthenticationMethod, IAuthenticat
         SecurityLevel = AuthenticationMethodSecurityLevel.High;
     }
 
-    /// <summary>The delivery channel that can be used by the authentication method.</summary>
+    /// <inheritdoc />
     public TotpDeliveryChannel DeliveryChannel { get; } = TotpDeliveryChannel.PushNotification;
-    /// <summary>The devices that are supported by the authentication method.</summary>
+    /// <inheritdoc />
     public IEnumerable<UserDevice> Devices { get; } = new List<UserDevice>();
-    /// <summary>The name of the token provider.</summary>
+    /// <inheritdoc />
     public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
 }
 
 /// <summary>Email authentication method.</summary>
-public class EmailAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithTokenProvider
+public class EmailAuthenticationMethod : AuthenticationMethod, IAuthenticationMethodWithTokenProvider, IAuthenticationMethodWithChannel
 {
     /// <summary>Creates a new instance of <see cref="EmailAuthenticationMethod"/> class.</summary>
     /// <param name="displayName">The name for the UI.</param>
@@ -153,6 +153,8 @@ public class EmailAuthenticationMethod : AuthenticationMethod, IAuthenticationMe
         SecurityLevel = AuthenticationMethodSecurityLevel.Medium;
     }
 
-    /// <summary>The name of the token provider.</summary>
+    /// <inheritdoc />
     public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
+    /// <inheritdoc />
+    public TotpDeliveryChannel DeliveryChannel => TotpDeliveryChannel.Email;
 }

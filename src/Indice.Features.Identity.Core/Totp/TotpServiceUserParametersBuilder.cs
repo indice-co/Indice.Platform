@@ -34,7 +34,9 @@ public sealed class TotpServiceUserParametersBuilder<TUser> : TotpServiceUserPar
         Purpose = Purpose,
         Subject = Subject,
         TokenProvider = TokenProvider,
-        User = User
+        User = User,
+        AuthenticationMethod = AuthenticationMethod,
+        EmailTemplate = EmailTemplate
     };
 }
 
@@ -88,6 +90,14 @@ public sealed class TotpServiceUserDeliveryChannelBuilder<TUser> where TUser : U
     /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.DeliveryChannel"/> property.</summary>
     public TotpServiceUserOptionalParametersBuilder<TUser> UsingPushNotification() {
         _builder.DeliveryChannel = TotpDeliveryChannel.PushNotification;
+        return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
+    }
+
+    /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.DeliveryChannel"/> property.</summary>
+    /// <param name="template">The name of the template to be used.</param>
+    public TotpServiceUserOptionalParametersBuilder<TUser> UsingEmail(string template = null) {
+        _builder.DeliveryChannel = TotpDeliveryChannel.Email;
+        _builder.EmailTemplate = template;
         return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
     }
 }
@@ -199,4 +209,8 @@ public class TotpServiceUserParameters<TUser> where TUser : User
     public TUser User { get; internal set; }
     /// <summary>The name of the token provider.</summary>
     public string TokenProvider { get; set; }
+    /// <summary>The user authentication method to be used.</summary>
+    public string AuthenticationMethod { get; set; }
+    /// <summary>The email template to be used when <see cref="DeliveryChannel"/> is <see cref="TotpDeliveryChannel.Email"/>.</summary>
+    public string EmailTemplate { get; set; }
 }

@@ -29,7 +29,9 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
         string purpose = null,
         string pushNotificationClassification = null,
         string pushNotificationData = null,
-        string tokenProvider = null
+        string tokenProvider = null,
+        string authenticationMethod = null,
+        string emailTemplate = null
     ) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
@@ -39,14 +41,14 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
         if (developerTotpClaim is not null) {
             return TotpResult.SuccessResult;
         }
-        return await base.SendAsync(user, message, channel, subject, purpose, pushNotificationClassification, pushNotificationData);
+        return await base.SendAsync(user, message, channel, subject, purpose, pushNotificationClassification, pushNotificationData, tokenProvider, authenticationMethod, emailTemplate);
     }
 
     /// <inheritdoc />
     public override async Task<TotpResult> VerifyAsync(
-        TUser user, 
-        string code, 
-        string purpose = null, 
+        TUser user,
+        string code,
+        string purpose = null,
         string tokenProvider = null
     ) {
         if (user is null) {

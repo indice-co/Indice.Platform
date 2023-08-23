@@ -37,7 +37,6 @@ public abstract class TotpServiceBase
                                      .SendAsync(totpRecipient.PhoneNumber, totpMessage.Subject, totpMessage.Message);
                 break;
             case TotpDeliveryChannel.PushNotification:
-                var pushNotificationService = ServiceProvider.GetRequiredService<IPushNotificationService>();
                 await ServiceProvider.GetRequiredService<IPushNotificationService>()
                                      .SendAsync(builder => {
                                          builder.WithBody(totpMessage.Message)
@@ -54,6 +53,12 @@ public abstract class TotpServiceBase
                                      });
                 break;
             case TotpDeliveryChannel.Email:
+                await ServiceProvider.GetRequiredService<IEmailService>()
+                                     .SendAsync(builder => builder
+                                        .To(totpRecipient.Email)
+                                        .UsingTemplate(totpMessage.EmailTemplate)
+                                     );
+                break;
             case TotpDeliveryChannel.Telephone:
             case TotpDeliveryChannel.EToken:
                 throw new InvalidOperationException($"Delivery channel '{channel}' is not supported.");
@@ -119,6 +124,8 @@ public class TotpMessage
     public string Category { get; set; }
     /// <summary>The data (preferably as a JSON string) when selected delivery channel is <see cref="TotpDeliveryChannel.PushNotification"/>.</summary>
     public string Data { get; set; }
+    /// <summary>The email template to be used.</summary>
+    public string EmailTemplate { get; set; }
 }
 
 /// <summary>TOTP recipient info DTO.</summary>
@@ -130,6 +137,8 @@ public class TotpRecipient
     public string DeviceId { get; set; }
     /// <summary>User identifier.</summary>
     public string UserId { get; set; }
+    /// <summary>Email (used when selected delivery channel is <see cref="TotpDeliveryChannel.Email"/>).</summary>
+    public string Email { get; set; }
 }
 
 /// <summary>TOTP provider metadata.</summary>

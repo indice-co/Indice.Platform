@@ -24,7 +24,7 @@ public class StartupSeedHostedService : BackgroundService
         using var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
         var campaignsDbContext = serviceScope.ServiceProvider.GetRequiredService<CampaignsDbContext>();
         var defaultEmailProviderSelector = serviceScope.ServiceProvider.GetRequiredService<Func<EmailProviderInfo>>();
-        var defaultSender = await campaignsDbContext.MessageSenders.FirstOrDefaultAsync(x => x.IsDefault);
+        var defaultSender = await campaignsDbContext.MessageSenders.FirstOrDefaultAsync(x => x.IsDefault, stoppingToken);
         if (defaultSender is not null) {
             return;
         }
@@ -35,6 +35,6 @@ public class StartupSeedHostedService : BackgroundService
             Sender = defaultEmailProviderInfo.Sender,
             IsDefault = true
         });
-        await campaignsDbContext.SaveChangesAsync();
+        await campaignsDbContext.SaveChangesAsync(stoppingToken);
     }
 }
