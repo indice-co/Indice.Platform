@@ -59,7 +59,7 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
         if (developerTotpClaim?.Value == code) {
             return TotpResult.SuccessResult;
         }
-        return await base.VerifyAsync(user, code, purpose);
+        return await base.VerifyAsync(user, code, purpose, tokenProvider);
     }
 
     /// <inheritdoc />

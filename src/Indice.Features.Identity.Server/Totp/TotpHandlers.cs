@@ -103,7 +103,7 @@ internal static class TotpHandlers
                 return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' is not configured in the system."));
             }
             if (!authenticationMethod.SupportsTokenProvider()) {
-                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' must support a delivery channel and a token provider."));
+                return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.AuthenticationMethod), $"Authentication method '{request.AuthenticationMethod}' must support a token provider."));
             }
             tokenProvider = authenticationMethod.GetTokenProvider();
         }
