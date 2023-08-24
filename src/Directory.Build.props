@@ -3,13 +3,13 @@
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
       <VersionPrefixBase>7.3</VersionPrefixBase>
-      <VersionPrefixCore>$(VersionPrefixBase).17</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).17</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).22</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).12</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).14</VersionPrefixMessages>
-      <VersionPrefixMultitenancy>$(VersionPrefixBase).10</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).7</VersionPrefixRisk>
+      <VersionPrefixCore>$(VersionPrefixBase).18</VersionPrefixCore>
+      <VersionPrefixIdentity>$(VersionPrefixBase).18</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).23</VersionPrefixIdentityUI>
+      <VersionPrefixCases>$(VersionPrefixBase).13</VersionPrefixCases>
+      <VersionPrefixMessages>$(VersionPrefixBase).15</VersionPrefixMessages>
+      <VersionPrefixMultitenancy>$(VersionPrefixBase).11</VersionPrefixMultitenancy>
+      <VersionPrefixRisk>$(VersionPrefixBase).8</VersionPrefixRisk>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->
       <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
