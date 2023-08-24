@@ -55,12 +55,13 @@ public abstract class TotpServiceBase
             case TotpDeliveryChannel.Email:
                 await ServiceProvider.GetRequiredService<IEmailService>()
                                      .SendAsync(builder => {
-                                         builder.To(totpRecipient.Email);
+                                         builder.To(totpRecipient.Email)
+                                                .WithSubject(totpMessage.Subject);
                                          if (string.IsNullOrEmpty(totpMessage.EmailTemplate)) {
                                              builder.WithBody(totpMessage.Message);
                                          } else {
                                              builder.UsingTemplate(totpMessage.EmailTemplate)
-                                                    .WithData(totpMessage.Data); // TODO: check this out could be a problem with Razor Templates. Would prefer dynamic object or expando
+                                                    .WithData(new TotpEmail(totpRecipient, totpMessage)); // TODO: check this out could be a problem with Razor Templates. Would prefer dynamic object or expando
                                          }
                                      });
                 break;
@@ -144,6 +145,25 @@ public class TotpRecipient
     public string UserId { get; set; }
     /// <summary>Email (used when selected delivery channel is <see cref="TotpDeliveryChannel.Email"/>).</summary>
     public string Email { get; set; }
+}
+
+/// <summary>TOTP view model for databinding to an email template.</summary>
+public class TotpEmail
+{
+    /// <summary>Creates the DTO.</summary>
+    /// <param name="recipient">recipient info</param>
+    /// <param name="message">message info</param>
+    public TotpEmail(TotpRecipient recipient, TotpMessage message) {
+        Recipient = recipient;
+        Message = message;
+    }
+
+    /// <summary>TOTP recipient info DTO.</summary>
+    public TotpRecipient Recipient { get; }
+
+    /// <summary>TOTP message info DTO.</summary>
+    public TotpMessage Message { get; }
+
 }
 
 /// <summary>TOTP provider metadata.</summary>
