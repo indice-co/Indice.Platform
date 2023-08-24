@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Net.Http;
 using System.Reflection;
 using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
@@ -20,11 +21,28 @@ internal class IdentityUIPageModelConvention : IPageApplicationModelConvention
         model.ModelType = identityUIAttribute.Template.GetTypeInfo();
     }
 }
+
 internal partial class IdentityUIPageRouteModelConvention : IPageRouteModelConvention
+{
+    public IdentityUIPageRouteModelConvention() {
+    }
+    public void Apply(PageRouteModel model) {
+        // Only modify pages in the Themes folder.
+        if (!model.ViewEnginePath.StartsWith("/Themes/"))
+            return;
+
+        foreach (var selector in model.Selectors) {
+            selector.ActionConstraints.Add(new IdentityUiThemeActionConstraint());
+        }
+    }
+
+}
+
+internal partial class IdentityUIPageRouteModelConvention2 : IPageRouteModelConvention
 {
     private readonly string _uiFramework;
     private readonly Regex _frameworkPattern = FrameworkPattern();
-    public IdentityUIPageRouteModelConvention(string uiFramework) {
+    public IdentityUIPageRouteModelConvention2(string uiFramework) {
         _uiFramework = uiFramework;
     }
     public void Apply(PageRouteModel model) {
@@ -83,5 +101,29 @@ internal class IdentityUiFrameworkActionConstraint : IActionConstraint
         var options = context.RouteContext.HttpContext.RequestServices.GetRequiredService<IOptions<IdentityUIOptions>>();
 
         return _uiFramework.Equals(options.Value.UiFramework);
+    }
+}
+internal class IdentityUiThemeActionConstraint : IActionConstraint
+{
+    public int Order => -1;
+
+
+    public IdentityUiThemeActionConstraint() {
+
+    }
+
+    public bool Accept(ActionConstraintContext context) {
+        if (context.CurrentCandidate.Action is Microsoft.AspNetCore.Mvc.RazorPages.CompiledPageActionDescriptor pageAction) {
+            var themeAttribute = pageAction.ModelTypeInfo?.GetCustomAttribute<ClientThemeAttribute>();
+            if (themeAttribute is null) {
+                return true;
+            }
+            var requestClientId = context.RouteContext.HttpContext.GetClientIdFromReturnUrl();
+            var pageClientIds = themeAttribute.ClientIds;
+            var reject = string.IsNullOrWhiteSpace(requestClientId) || !pageClientIds.Contains(requestClientId, StringComparer.OrdinalIgnoreCase);
+            return !reject;
+            //var options = context.RouteContext.HttpContext.RequestServices.GetRequiredService<IOptions<IdentityUIOptions>>();
+        }
+        return true;// _uiFramework.Equals(options.Value.UiFramework);
     }
 }

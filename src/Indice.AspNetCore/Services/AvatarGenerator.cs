@@ -91,12 +91,12 @@ public class AvatarGenerator
             // For production application we would recomend you create a FontCollection singleton and manually install the ttf fonts yourself as using SystemFonts can be expensive and you risk font existing or not existing on a deployment by deployment basis.
             var font = _openSansFont.Get("Open Sans").CreateFont(70, FontStyle.Regular); // for scaling water mark size is largly ignored.
             // Measure the text size.
-            var textSize = TextMeasurer.Measure(avatarText, new TextOptions(font));
+            var textSize = TextMeasurer.MeasureSize(avatarText, new TextOptions(font));
             // Find out how much we need to scale the text to fill the space (up or down).
             var scalingFactor = Math.Min(image.Width * 0.6f / textSize.Width, image.Height * 0.6f / textSize.Height);
             // Create a new font.
             var scaledFont = new Font(font, scalingFactor * font.Size);
-            var textOptions = new TextOptions(scaledFont) {
+            var textOptions = new RichTextOptions(scaledFont) {
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
                 Origin = center
