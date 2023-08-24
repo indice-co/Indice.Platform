@@ -179,7 +179,8 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
                     Message = message,
                     Subject = subject,
                     Category = classification,
-                    Data = data
+                    Data = data,
+                    EmailTemplate = emailTemplate
                 }
             );
         }

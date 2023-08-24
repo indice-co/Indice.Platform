@@ -54,10 +54,15 @@ public abstract class TotpServiceBase
                 break;
             case TotpDeliveryChannel.Email:
                 await ServiceProvider.GetRequiredService<IEmailService>()
-                                     .SendAsync(builder => builder
-                                        .To(totpRecipient.Email)
-                                        .UsingTemplate(totpMessage.EmailTemplate)
-                                     );
+                                     .SendAsync(builder => {
+                                         builder.To(totpRecipient.Email);
+                                         if (string.IsNullOrEmpty(totpMessage.EmailTemplate)) {
+                                             builder.WithBody(totpMessage.Message);
+                                         } else {
+                                             builder.UsingTemplate(totpMessage.EmailTemplate)
+                                                    .WithData(totpMessage.Data); // TODO: check this out could be a problem with Razor Templates. Would prefer dynamic object or expando
+                                         }
+                                     });
                 break;
             case TotpDeliveryChannel.Telephone:
             case TotpDeliveryChannel.EToken:
