@@ -2,19 +2,14 @@
 using Indice.Configuration;
 using Indice.Features.Media.AspNetCore.Models.Requests;
 using Indice.Features.Media.AspNetCore.Stores.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Media.AspNetCore.Models.Validators;
 
 /// <summary>Contains validation logic for <see cref="CreateFolderRequest"/>.</summary>
-internal class CreateFolderRequestValidator : AbstractValidator<CreateFolderRequest>, IDisposable
+public class CreateFolderRequestValidator : AbstractValidator<CreateFolderRequest>
 {
-    private readonly IFolderStore _folderStore;
-    private readonly IServiceScope _scope;
     /// <summary>Creates a new instance of <see cref="CreateFolderRequestValidator"/>.</summary>
-    public CreateFolderRequestValidator(IServiceProvider serviceProvider) {
-        _scope = serviceProvider.CreateScope();
-        _folderStore = _scope.ServiceProvider.GetRequiredService<IFolderStore>();
+    public CreateFolderRequestValidator(IFolderStore folderStore) {
         RuleFor(folder => folder.Name)
             .NotEmpty()
             .WithMessage("Please provide a name for the folder's name.")
@@ -24,12 +19,8 @@ internal class CreateFolderRequestValidator : AbstractValidator<CreateFolderRequ
             .MaximumLength(TextSizePresets.M512)
             .WithMessage($"Folder description cannot exceed {TextSizePresets.M512} characters.");
         RuleFor(folder => folder.ParentId)
-            .MustAsync(async (id, token) => await _folderStore.GetById(id.Value) is not null)
+            .MustAsync(async (id, token) => await folderStore.GetById(id.Value) is not null)
             .When(folder => folder.ParentId is not null)
             .WithMessage("Parent should be an existing folder.");
-    }
-
-    public void Dispose() {
-        _scope.Dispose();
     }
 }

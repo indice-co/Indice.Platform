@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 import { FolderContent, FolderTreeStructure, MediaApiClient } from 'src/app/core/services/media-api.service';
 import { IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
 import { MediaLibraryStore } from './media-library-store.service';
-import { mergeMap, tap, map, switchMap, takeUntil, filter, startWith } from 'rxjs/operators';
+import { mergeMap, tap, map, switchMap, takeUntil, filter, startWith, skipUntil } from 'rxjs/operators';
 import { combineLatest } from 'rxjs';
 
 @Component({
@@ -31,9 +31,9 @@ export class MediaLibraryComponent implements OnInit {
 
   ngOnInit(): void {
     this.view = localStorage.getItem('view') == 'list' ? 'list' : 'folder';
-    this._activatedRoute.params.pipe(switchMap((params) => {
+    this._activatedRoute.params.pipe(mergeMap((params) => {
       this.currentFolderId = params.folderId;
-      return this._activatedRoute.queryParams.pipe(filter((x: any) => x.page != undefined), startWith(<any>{}), switchMap((queryParams) => {
+      return this._activatedRoute.queryParams.pipe(filter((x: any) => this._activatedRoute.snapshot.params.folderId == this.currentFolderId ? this._activatedRoute.snapshot.queryParams?.page ? x.page != undefined : true : false), mergeMap((queryParams) => {
         this.page = queryParams?.page ?? 1;
         this.size = queryParams?.pageSize ?? 20;
         return this._mediaStore.getFolderContent(this.currentFolderId, this.page, this.size)

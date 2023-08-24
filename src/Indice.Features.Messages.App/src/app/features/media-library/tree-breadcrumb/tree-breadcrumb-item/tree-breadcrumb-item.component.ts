@@ -9,6 +9,7 @@ import { FolderTree } from 'src/app/core/services/media-api.service';
 export class TreeBreadcrumbItemComponent implements OnInit {
 
   @Input() folderTree?: FolderTree;
+  @Input() activeFolderId: string | undefined;
 
   constructor(private _router: Router) { }
 

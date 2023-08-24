@@ -4,6 +4,7 @@
             <i class="ms-Icon ms-Icon--OpenFolderHorizontal text-slate-800 text-xl"></i>
             <span
                 class="max-w-[300px] text-ellipsis overflow-hidden text-slate-800 cursor-pointer"
+                [ngClass]="{'underline font-bold ': this.activeFolderId == folderTree.node?.id}"
                 (click)="goToFolder(folderTree.node?.id)">
                 {{ folderTree.node?.name || '-' }}
             </span>
@@ -12,18 +13,8 @@
             <i class="ms-Icon ms-Icon--FileImage text-slate-800 text-xs"></i>
             <span>{{ folderTree.node?.filesCount}}</span>
         </div>
-        <!-- <div class="flex flex-row space-x-2">
-            <div class="flex flex-row items-center space-x-1">
-                <i class="ms-Icon ms-Icon--OpenFolderHorizontal text-slate-800 text-xs"></i>
-                <span>{{ folderTree.node?.subFoldersCount}}</span>
-            </div>
-            <div class="flex flex-row items-center space-x-1">
-                <i class="ms-Icon ms-Icon--FileImage text-slate-800 text-xs"></i>
-                <span>{{ folderTree.node?.filesCount}}</span>
-            </div>
-        </div> -->
     </div>
     <div class="ml-7" *ngIf="!folderTree.isLeaf">
-        <app-tree-breadcrumb-item *ngFor="let child of folderTree.children" [folderTree]="child"></app-tree-breadcrumb-item>
+        <app-tree-breadcrumb-item *ngFor="let child of folderTree.children" [folderTree]="child" [activeFolderId]="activeFolderId"></app-tree-breadcrumb-item>
     </div>
 </div>

@@ -46,7 +46,6 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());
         // Register validators
         services.AddEndpointParameterFluentValidation(typeof(MediaLibraryApi).Assembly);
-        services.AddValidators();
         if(!apiOptions.UseSoftDelete) {
             services.AddHostedService<FoldersCleanUpHostedService>();
             services.AddHostedService<FilesCleanUpHostedService>();
@@ -72,12 +71,4 @@ public static class ServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static void UseFilesAzure(this MediaApiOptions options, Action<FileServiceAzureOptions>? configure = null) =>
         options.Services.AddFiles(options => options.AddAzureStorage(KeyedServiceNames.FileServiceKey, configure));
-
-    private static IServiceCollection AddValidators(this IServiceCollection services) {
-        services.TryAddTransient<IValidator<CreateFolderRequest>, CreateFolderRequestValidator>();
-        services.TryAddTransient<IValidator<UpdateFolderRequest>, UpdateFolderRequestValidator>();
-        services.TryAddTransient<IValidator<UpdateFileMetadataRequest>, UpdateFileMetadataRequestValidator>();
-        services.TryAddTransient<IValidator<UploadFileRequest>, UploadFileRequestValidator>();
-        return services;
-    }
 }

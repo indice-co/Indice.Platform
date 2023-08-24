@@ -30,10 +30,10 @@
                         </lib-list-column>
                         <lib-list-column title="ΤΥΠΟΣ">
                             <ng-template let-item>
-                                <span *ngIf="item.type !== ItemType.Button"
+                                <div *ngIf="item.type !== ItemType.Button"
                                     class="max-w-[200px] text-ellipsis overflow-hidden">
                                     {{ item.contentType || '-' }}
-                                </span>
+                                </div>
                             </ng-template>
                         </lib-list-column>
                         <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">

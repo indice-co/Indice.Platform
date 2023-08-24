@@ -2,19 +2,14 @@
 using Indice.Configuration;
 using Indice.Features.Media.AspNetCore.Models.Requests;
 using Indice.Features.Media.AspNetCore.Stores.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Media.AspNetCore.Models.Validators;
 
 /// <summary>Contains validation logic for <see cref="UpdateFileMetadataRequest"/>.</summary>
-internal class UpdateFileMetadataRequestValidator : AbstractValidator<UpdateFileMetadataRequest>, IDisposable
+public class UpdateFileMetadataRequestValidator : AbstractValidator<UpdateFileMetadataRequest>
 {
-    private readonly IFolderStore _folderStore;
-    private readonly IServiceScope _scope;
     /// <summary>Updates a new instance of <see cref="UpdateFileMetadataRequestValidator"/>.</summary>
-    public UpdateFileMetadataRequestValidator(IServiceProvider serviceProvider) {
-        _scope = serviceProvider.CreateScope();
-        _folderStore = _scope.ServiceProvider.GetRequiredService<IFolderStore>();
+    public UpdateFileMetadataRequestValidator(IFolderStore folderStore) {
         RuleFor(folder => folder.Name)
             .NotEmpty()
             .WithMessage("Please provide a name for the folder's name.")
@@ -24,12 +19,8 @@ internal class UpdateFileMetadataRequestValidator : AbstractValidator<UpdateFile
             .MaximumLength(TextSizePresets.M512)
             .WithMessage($"Folder description cannot exceed {TextSizePresets.M512} characters.");
         RuleFor(folder => folder.FolderId)
-            .MustAsync(async (id, token) => await _folderStore.GetById(id.Value) is not null)
+            .MustAsync(async (id, token) => await folderStore.GetById(id.Value) is not null)
             .When(folder => folder.FolderId is not null)
             .WithMessage("Parent should be an existing folder.");
-    }
-
-    public void Dispose() {
-        _scope.Dispose();
     }
 }
