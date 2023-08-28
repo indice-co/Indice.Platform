@@ -4,6 +4,7 @@ import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalSe
 import { FilterClause, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
+import { settings } from 'src/app/core/models/settings';
 import { CasePartial, CasePartialResultSet, CasesApiService, } from 'src/app/core/services/cases-api.service';
 import { ParamsService } from 'src/app/core/services/params.service';
 import { QueriesModalComponent } from 'src/app/shared/components/query-modal/query-modal.component';
@@ -19,6 +20,8 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         new ViewAction('refresh', 'refresh', null, Icons.Refresh, 'Ανανέωση στοιχείων')
     ];
     public queryParamsHasFilter = false;
+    public tableFilters = new TableFilters();
+    public tableColumns = new TableColumns();
 
     constructor(
         private _route: ActivatedRoute,
@@ -38,6 +41,8 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
     }
 
     public ngOnInit(): void {
+        this.loadFilterSettings();
+        this.loadColumnSettings();
         const storedParams = this._paramsService.getParams();
         if (storedParams) {
             this._router.navigate(['/cases'], { queryParams: storedParams });
@@ -70,36 +75,56 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             for (let checkpointType of checkpointTypes) { // fill checkpointTypeSearchOption's SelectInputOptions
                 checkpointTypeSearchOption.options?.push({ value: checkpointType?.code, label: checkpointType?.title ?? checkpointType?.code! })
             }
-            this.searchOptions = [
-                {
+            this.searchOptions = [];
+            if (this.tableFilters.CustomerId) {
+                this.searchOptions.push({
+                    field: 'referenceNumber',
+                    name: 'ΑΡΙΘΜΟΣ ΑΙΤΗΣΗΣ',
+                    dataType: 'string'
+                });
+            }
+            if (this.tableFilters.CustomerId) {
+                this.searchOptions.push({
                     field: 'customerId',
                     name: 'ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ',
                     dataType: 'string'
-                },
-                {
+                });
+            }
+            if (this.tableFilters.CustomerName) {
+                this.searchOptions.push({
                     field: 'customerName',
                     name: 'ΟΝΟΜΑ ΠΕΛΑΤΗ',
                     dataType: 'string'
-                },
-                {
+                });
+            }
+            if (this.tableFilters.TaxId) {
+                this.searchOptions.push({
                     field: 'TaxId', // this must be exactly the same "case-wise" with db's json property!
                     name: 'Α.Φ.Μ. ΠΕΛΑΤΗ',
                     dataType: 'string'
-                },
-                {
+                });
+            }
+            if (this.tableFilters.GroupIds) {
+                this.searchOptions.push({
                     field: 'groupIds',
                     name: 'ΑΡΙΘΜΟΣ ΚΑΤΑΣΤΗΜΑΤΟΣ',
                     dataType: 'string',
                     multiTerm: true
-                },
-                {
+                });
+            }
+            if (this.tableFilters.DateRange) {
+                this.searchOptions.push({
                     field: 'dateRange',
                     name: 'ΗΜ. ΥΠΟΒΟΛΗΣ',
                     dataType: 'daterange'
-                },
-                caseTypeSearchOption,
-                checkpointTypeSearchOption
-            ];
+                });
+            }
+            if (this.tableFilters.CaseTypeCodes) {
+                this.searchOptions.push(caseTypeSearchOption);
+            }
+            if (this.tableFilters.CheckpointTypeCodes) {
+                this.searchOptions.push(checkpointTypeSearchOption);
+            }
             // now that we have the searchOptions, call parent's ngOnInit!
             super.ngOnInit();
         });
@@ -118,6 +143,35 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             );
     }
 
+    loadFilterSettings(): void {
+        if (settings.caseListFilters === '') return;
+        const filters = settings.caseListFilters.split(',')
+
+        this.tableFilters.ReferenceNumber = filters.some(filter => filter === "ReferenceNumber");
+        this.tableFilters.CustomerId = filters.some(filter => filter === "CustomerId");
+        this.tableFilters.CustomerName = filters.some(filter => filter === "CustomerName");
+        this.tableFilters.TaxId = filters.some(filter => filter === "TaxId");
+        this.tableFilters.GroupIds = filters.some(filter => filter === "GroupIds");
+        this.tableFilters.DateRange = filters.some(filter => filter === "DateRange");
+        this.tableFilters.CaseTypeCodes = filters.some(filter => filter === "CaseTypeCodes");
+        this.tableFilters.CheckpointTypeCodes = filters.some(filter => filter === "CheckpointTypeCodes");
+    }
+
+    loadColumnSettings(): void {
+        if (settings.caseListColumns === '') return;
+        const columns = settings.caseListColumns.split(',')
+
+        this.tableColumns.ReferenceNumber = columns.some(column => column === "ReferenceNumber");
+        this.tableColumns.CustomerId = columns.some(column => column === "CustomerId");
+        this.tableColumns.CustomerName = columns.some(column => column === "CustomerName");
+        this.tableColumns.TaxId = columns.some(column => column === "TaxId");
+        this.tableColumns.GroupId = columns.some(column => column === "GroupId");
+        this.tableColumns.CaseType = columns.some(column => column === "CaseType");
+        this.tableColumns.CheckpointType = columns.some(column => column === "CheckpointType");
+        this.tableColumns.AssignedTo = columns.some(column => column === "AssignedTo");
+        this.tableColumns.SubmitDate = columns.some(column => column === "SubmitDate");
+    }
+
     openQueryModal(): void {
         this._modalService.show(QueriesModalComponent, {
             backdrop: 'static',
@@ -130,6 +184,8 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         this.filters?.filter(f => f.member === 'customerId')?.forEach(f => customerIds.push(this.stringifyFilterClause(f)));
         let customerNames: string[] = [];
         this.filters?.filter(f => f.member === 'customerName')?.forEach(f => customerNames.push(this.stringifyFilterClause(f)));
+        let referenceNumbers: string[] = [];
+        this.filters?.filter(f => f.member === 'referenceNumber')?.forEach(f => referenceNumbers.push(this.stringifyFilterClause(f)));
         let groupIds: string[] = [];
         this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(this.stringifyFilterClause(f)));
         let from = this.filters?.find(f => f.member === 'from')?.value;
@@ -159,6 +215,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
                 checkpointTypeCodes,
                 groupIds,
                 filterMetadata,
+                referenceNumbers,
                 this.page,
                 this.pageSize,
                 this.sortdir === 'asc' ? this.sort! : this.sort + '-',
@@ -184,4 +241,27 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
     private stringifyFilterClause(filter: FilterClause): string {
         return `${filter.member}::${filter.operator}::${filter.value}`;
     }
+}
+
+class TableFilters {
+    ReferenceNumber: boolean = false;
+    CustomerId: boolean = true;
+    CustomerName: boolean = true;
+    TaxId: boolean = true;
+    GroupIds: boolean = true;
+    DateRange: boolean = true;
+    CaseTypeCodes: boolean = true;
+    CheckpointTypeCodes: boolean = true;
+}
+
+class TableColumns {
+    ReferenceNumber: boolean = false;
+    CustomerId: boolean = true;
+    CustomerName: boolean = true;
+    TaxId: boolean = true;
+    GroupId: boolean = true;
+    CaseType: boolean = true;
+    CheckpointType: boolean = true;
+    AssignedTo: boolean = true;
+    SubmitDate: boolean = true;
 }
