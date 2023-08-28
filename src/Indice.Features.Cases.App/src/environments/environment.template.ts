@@ -19,5 +19,7 @@ export const environment = {
     i18n_assets: '/assets/i18n/',
     isTemplate: true,
     production: true,
-    dashboardTags: ''
+    dashboardTags: '',
+    caseListColumns: '',
+    caseListFilters: ''
 };

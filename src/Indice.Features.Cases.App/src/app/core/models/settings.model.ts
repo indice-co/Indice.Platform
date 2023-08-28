@@ -7,6 +7,8 @@ export interface IAppSettings {
     production: boolean;
     version: string;
     dashboardTags: string;
+    caseListColumns: string;
+    caseListFilters: string;
 }
 
 export interface IAuthSettings {

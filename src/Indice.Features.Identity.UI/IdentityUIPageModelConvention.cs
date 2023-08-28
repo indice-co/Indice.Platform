@@ -35,7 +35,6 @@ internal partial class IdentityUIPageRouteModelConvention : IPageRouteModelConve
             selector.ActionConstraints.Add(new IdentityUiThemeActionConstraint());
         }
     }
-
 }
 
 internal partial class IdentityUIPageRouteModelConvention2 : IPageRouteModelConvention

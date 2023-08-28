@@ -14,9 +14,11 @@ namespace Indice.Features.Cases.Services;
 internal abstract class BaseCaseService
 {
     private readonly CasesDbContext _dbContext;
+    private readonly CasesApiOptions _options;
 
-    protected BaseCaseService(CasesDbContext dbContext) {
+    protected BaseCaseService(CasesDbContext dbContext, CasesApiOptions options) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _options = options;
     }
 
     protected async Task<DbCaseType> GetCaseTypeInternal(string caseTypeCode) {
@@ -54,6 +56,7 @@ internal abstract class BaseCaseService
             let isCustomer = userId == c.Customer.UserId
             select new Case {
                 Id = c.Id,
+                ReferenceNumber = c.ReferenceNumber,
                 CheckpointType = new CheckpointType {
                     Id = isCustomer ? c.PublicCheckpoint.CheckpointType.Id : c.Checkpoint.CheckpointType.Id,
                     Status = isCustomer ? c.PublicCheckpoint.CheckpointType.Status : c.Checkpoint.CheckpointType.Status,
@@ -158,6 +161,11 @@ internal abstract class BaseCaseService
             Channel = channel,
             AssignedTo = assignee == null ? null : AuditMeta.Create(assignee)
         };
+
+        // If enabled get a new reference number from the sequence.
+        if (_options.ReferenceNumberEnabled) {
+            entity.ReferenceNumber = await _dbContext.GetNextReferenceNumber();
+        }
 
         // Create entity
         await _dbContext.AddAsync(entity);

@@ -26,28 +26,31 @@
                    (pageSizeChanged)="pageSizeChanged($event)"
                    (sortChanged)="sortChanged($event)"
                    (sortdirChanged)="sortdirChanged($event)">
-        <lib-list-column [title]="'cases.customerId' | translate">
+        <lib-list-column *ngIf="tableColumns.ReferenceNumber" [title]="'cases.referenceNumber' | translate">
+            <ng-template let-item>{{ item.referenceNumber ||   '-' }}</ng-template>
+        </lib-list-column>
+        <lib-list-column *ngIf="tableColumns.CustomerId" [title]="'cases.customerId' | translate">
             <ng-template let-item>{{ item.customerId }}</ng-template>
         </lib-list-column>
-        <lib-list-column [title]="'cases.customerName' | translate">
+        <lib-list-column *ngIf="tableColumns.CustomerName" [title]="'cases.customerName' | translate">
             <ng-template let-item>{{ item.customerName }}</ng-template>
         </lib-list-column>
-        <lib-list-column [title]="'cases.taxId' | translate">
+        <lib-list-column *ngIf="tableColumns.TaxId" [title]="'cases.taxId' | translate">
             <ng-template let-item>{{ item.metadata?.TaxId }}</ng-template>
         </lib-list-column>
-        <lib-list-column [title]="'cases.groupId' | translate">
+        <lib-list-column *ngIf="tableColumns.GroupId" [title]="'cases.groupId' | translate">
             <ng-template let-item>{{ item.groupId }}</ng-template>
         </lib-list-column>
-        <lib-list-column [title]="'cases.caseType' | translate">
+        <lib-list-column *ngIf="tableColumns.CaseType" [title]="'cases.caseType' | translate">
             <ng-template let-item>{{ item.caseType.title }}</ng-template>
         </lib-list-column>
-        <lib-list-column [title]="'cases.checkpointType' | translate">
+        <lib-list-column *ngIf="tableColumns.CheckpointType" [title]="'cases.checkpointType' | translate">
             <ng-template let-item>{{ item.checkpointType?.title ?? item.checkpointType?.code }}</ng-template>
         </lib-list-column>
-        <lib-list-column [title]="'cases.assignedTo' | translate">
+        <lib-list-column *ngIf="tableColumns.AssignedTo" [title]="'cases.assignedTo' | translate">
             <ng-template let-item>{{ item.assignedToName || ' - '}}</ng-template>
         </lib-list-column>
-        <lib-list-column [title]="'cases.submitDate' | translate">
+        <lib-list-column *ngIf="tableColumns.SubmitDate" [title]="'cases.submitDate' | translate">
             <ng-template let-item>{{ item.createdByWhen | date: 'dd/MM/yy, HH:mm' }}</ng-template>
         </lib-list-column>
         <lib-list-column>
