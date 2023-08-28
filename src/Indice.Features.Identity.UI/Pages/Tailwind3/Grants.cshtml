@@ -1,0 +1,87 @@
+﻿@page "/grants"
+
+@inject IIdentityViewLocalizer Localizer
+
+@model BaseGrantsModel
+
+@{
+    var title = ViewData["Title"] = Localizer["Grants"].Value;
+}
+
+<section class="page-grants m-auto">
+    <div class="page-header">
+        <partial name="_PageHeader" model="title" />
+        <p indice-if="Model.View.Grants.Any()" class="text-muted">
+            @Localizer["Below is the list of applications you have given access to and the names of the resources they have access to."]
+        </p>
+    </div>
+    @if (!Model.View.Grants.Any())
+    {
+        <div class="alert alert-dark text-center">
+            @Localizer["You have not provided access to any applications"]
+        </div>
+    }
+    else
+    {
+        foreach (var grant in Model.View.Grants)
+        {
+            <div class="card grant-card mb-3 mx-auto" style="max-width: 540px;">
+                <div class="row no-gutters justify-content-center">
+                    <div class="grant-header">
+                        <div class="client-logo mb-3" indice-if="!string.IsNullOrEmpty(grant.ClientLogoUrl)">
+                            <img class="card-img rounded-circle" src="@(Url.IsLocalUrl(grant.ClientLogoUrl) ? Url.Content(grant.ClientLogoUrl) : grant.ClientLogoUrl)" alt="@Localizer["Client logo"]" />
+                        </div>
+                        <div class="client-logo mb-3" indice-if="string.IsNullOrEmpty(grant.ClientLogoUrl)">
+                            <img class="card-img rounded-circle" src="~/avatar/@grant.ClientName/64.png" alt="@Localizer["Client logo"]" />
+                        </div>
+                        <h5 class="card-title">@grant.ClientName</h5>
+                        <p class="time-text">
+                            <small class="text-1">
+                                <span class="created text-info">@Localizer["Created:"]</span>
+                                <span>
+                                    @grant.Created.ToString("yyyy-MM-dd")
+                                    <span class="bank-icon bank-icon-clock my-1 text-info font-weight-600"></span>
+                                    @grant.Created.ToString("HH:mm")
+                                </span>
+                            </small>
+                        </p>
+                    </div>
+                    <div class="@(grant.ClientLogoUrl != null ? "col-md-8" : "col-12")">
+                        <div class="card-body">
+                            <div indice-if="grant.IdentityGrantNames.Any()" class="identity-grants">
+                                <h6 class="grant-type">
+                                    <span class="bank-icon bank-icon-security font-weight-600 pt-1 mr-1"></span>
+                                    Identity Grants
+                                </h6>
+                                <ul class="list-group list-group-flush mb-2">
+                                    @foreach (var name in grant.IdentityGrantNames)
+                                    {
+                                        <li class="list-group-item">@name</li>
+                                    }
+                                </ul>
+                            </div>
+                            <div indice-if="grant.ApiGrantNames.Any()" class="api-grants">
+                                <h6 class="grant-type"><span class="bank-icon bank-icon-server font-weight-600 pt-1 mr-1"></span>API Grants</h6>
+                                <ul class="list-group list-group-flush mb-2">
+                                    @foreach (var name in grant.ApiGrantNames)
+                                    {
+                                        <li class="list-group-item">@name</li>
+                                    }
+                                </ul>
+                            </div>
+                            <form asp-page-handler="Revoke">
+                                <div class="form-group text-right">
+                                    <input type="hidden" name="clientId" value="@grant.ClientId">
+                                    <button class="btn btn-outline-danger">@Localizer["Revoke Access"]</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <small class="expires" indice-if="grant.Expires.HasValue">
+                    @Localizer["Expires on"] @(grant.Expires.HasValue ? $"{grant.Expires.Value.ToString("yyyy-MM-dd")} @ {grant.Expires.Value.ToString("HH:mm")}" : "-");
+                </small>
+            </div>
+        }
+    }
+</section>

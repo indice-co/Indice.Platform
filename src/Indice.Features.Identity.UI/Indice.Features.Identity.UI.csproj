@@ -3,11 +3,17 @@
     <Nullable>enable</Nullable>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentityUI</PackageTags>
-    <VersionPrefix>$(VersionPrefixIdentityUI)</VersionPrefix>
+    <VersionPrefix>$(VersionPrefixIdentityUI)</VersionPrefix>    
   </PropertyGroup>
   <PropertyGroup>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="build\*" Pack="true" PackagePath="build\" />
+    <None Include="buildMultiTargeting\*" Pack="true" PackagePath="buildMultiTargeting\" />
+    <None Include="buildTransitive\*" Pack="true" PackagePath="buildTransitive\" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
     <PackageReference Include="Indice.Features.Identity.UI.Assets" Version="$(VersionPrefixIdentityUI)" />

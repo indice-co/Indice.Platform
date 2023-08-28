@@ -1,0 +1,16 @@
+﻿@model string
+
+@{
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+
+<h1>
+    <a class="header-logo" href="/">
+        <img class="w-100" src="/img/logo@(langSuffix).svg" />
+    </a>
+    @if (!string.IsNullOrWhiteSpace(Model))
+    {
+        <span class="header-text">@Model</span>
+    }
+</h1>
