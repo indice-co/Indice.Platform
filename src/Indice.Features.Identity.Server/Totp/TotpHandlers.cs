@@ -71,6 +71,7 @@ internal static class TotpHandlers
                     .UsingEmail(request.EmailTemplate)
                     .WithSubject(request.Subject)
                     .WithPurpose(request.Purpose)
+                    .WithData(request.Data)
                     .UsingTokenProvider(tokenProvider));
                 break;
             case TotpDeliveryChannel.Telephone:
