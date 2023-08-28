@@ -1,0 +1,3 @@
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)..\build\Indice.Features.Identity.UI.targets"/>
+</Project>

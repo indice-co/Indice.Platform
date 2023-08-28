@@ -1,0 +1,64 @@
+﻿@inject GeneralSettings Settings
+@inject IIdentityViewLocalizer Localizer
+@inject IWebHostEnvironment Environment
+@inject IConfiguration Configuration
+@inject JavaScriptSnippet JavaScriptSnippet
+@inject IOptions<ApplicationInsightsServiceOptions> AppInsightsOptions
+@inject IOptions<IdentityUIOptions> UiOptions
+@inject SignInManager<User> SignInManager
+
+@{
+    var dash = ViewBag.Title != null ? " - " : string.Empty;
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var authClass = SignInManager.IsSignedIn(User) ? "authenticated" : "anonymous";
+    var bgClass = SignInManager.IsSignedIn(User) ? "gradient-bg" : "gradient-bg";
+}
+
+<!DOCTYPE html>
+<html lang="@Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName">
+<head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="@Settings.ApplicationDescription" />
+    <meta property="og:title" content="@Settings.ApplicationName @(!Environment.IsProduction() ? $"({Environment.EnvironmentName})" : string.Empty)" />
+    <meta property="og:type" content="product" />
+    <meta property="og:url" content="@Settings.Host" />
+    <meta property="og:image" content="@Settings.Host/img/favico/facebook.png" />
+    <meta property="og:description" content="@Settings.ApplicationDescription" />
+    <meta name="application-name" content="@Settings.ApplicationName" />
+    <meta name="msapplication-TileColor" content="#006E58" />
+    @RenderSection("meta", required: false)
+    <title>@ViewBag.Title @dash @Localizer[Settings.ApplicationName]</title>
+    <link href="/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" sizes="16x16 32x32 64x64 128x128" />
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link rel="preconnect" href="https://storage.googleapis.com" />
+    <script type="text/javascript" csp-nonce="true">@Html.Raw(JavaScriptSnippet.ScriptBody)</script>
+</head>
+<body route-styles class="@authClass @UiOptions.Value.HtmlBodyBackgroundCssClass">
+    <link rel="stylesheet" href="/css/bootstrap.css" asp-append-version="true" />
+    <link rel="stylesheet" href="/css/identity.css" asp-append-version="true" />
+    <link rel="stylesheet" type="text/css" href="/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />
+    <partial name="_Styles" />
+    @RenderSection("css", required: false)
+    @await Html.PartialAsync("_MenuMain")
+    <environment exclude="Production">
+        <div class="ribbon @Environment.EnvironmentName.ToLower()">
+            <span>@Environment.EnvironmentName</span>
+        </div>
+    </environment>
+    <div class="wrapper">
+        <main>
+            <div class="container">
+                @RenderBody()
+            </div>
+            @await Html.PartialAsync("_Footer")
+        </main>
+    </div>
+    <script type="text/javascript" src="/lib/jquery/dist/jquery.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/lib/popper.js/dist/umd/popper.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/js/site.js" csp-nonce="true" asp-append-version="true"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>
