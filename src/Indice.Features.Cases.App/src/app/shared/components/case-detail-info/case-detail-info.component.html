@@ -5,8 +5,9 @@
             <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
                 {{title}}
             </h3>
-            <p class="text-s leading-none text-grey-dark mb-2"
-               *ngFor="let model of keyValuePairs | keyvalue">{{model.key | translate}}: {{ model.value }}</p>
+            <p class="text-s leading-none text-grey-dark mb-2" *ngFor="let model of keyValuePairs | keyvalue">
+               <span *ngIf="model.value">{{model.key | translate}}: {{ model.value }}</span>
+            </p>
         </div>
     </div>
 </div>

@@ -46,8 +46,10 @@ public class MyCaseServiceTests : IDisposable
         var mockMyCaseMessageService = new Mock<IMyCaseMessageService>();
         var mockJsonTranslationService = new Mock<IJsonTranslationService>();
         var mockResourceService = new CaseSharedResourceService(new Mock<IStringLocalizerFactory>().Object);
+        var myOptions = new MyCasesApiOptions();
 
         var myCaseService = new MyCaseService(dbContext,
+            myOptions,
             mockCaseTypeService.Object,
             mockCaseEventService.Object,
             mockMyCaseMessageService.Object,

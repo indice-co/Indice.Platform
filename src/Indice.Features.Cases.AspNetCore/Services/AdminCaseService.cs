@@ -25,10 +25,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
     public AdminCaseService(
         CasesDbContext dbContext,
+        AdminCasesApiOptions options,
         ICaseAuthorizationProvider memberAuthorizationProvider,
         ICaseTypeService caseTypeService,
         IAdminCaseMessageService adminCaseMessageService,
-        ICaseEventService caseEventService) : base(dbContext) {
+        ICaseEventService caseEventService) : base(dbContext, options) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         _memberAuthorizationProvider = memberAuthorizationProvider ?? throw new ArgumentNullException(nameof(memberAuthorizationProvider));
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
@@ -87,6 +88,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             .Where(options.Filter.Metadata) // filter Metadata
             .Select(@case => new CasePartial {
                 Id = @case.Id,
+                ReferenceNumber = @case.ReferenceNumber,
                 CustomerId = @case.Customer.CustomerId,
                 CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
                 CreatedByWhen = @case.CreatedBy.When,
@@ -117,6 +119,26 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             query = await _memberAuthorizationProvider.GetCaseMembership(query, user);
         } catch (ResourceUnauthorizedException) {
             return new List<CasePartial>().ToResultSet();
+        }
+
+        // filter ReferenceNumbers
+        if (options.Filter.ReferenceNumbers.Any()) {
+            foreach (var refNumber in options.Filter.ReferenceNumbers) {
+                if (!int.TryParse(refNumber.Value, out var value)) {
+                    continue;
+                }
+                switch (refNumber.Operator) {
+                    case (FilterOperator.Eq):
+                        query = query.Where(c => (c.ReferenceNumber ?? 0) == value);
+                        break;
+                    case (FilterOperator.Neq):
+                        query = query.Where(c => (c.ReferenceNumber ?? 0) != value);
+                        break;
+                    case (FilterOperator.Contains):
+                        query = query.Where(c => c.ReferenceNumber.HasValue && c.ReferenceNumber.ToString().Contains(value.ToString()));
+                        break;
+                }
+            }
         }
 
         // filter CustomerId
