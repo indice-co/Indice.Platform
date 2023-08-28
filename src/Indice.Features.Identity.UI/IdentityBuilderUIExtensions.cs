@@ -43,6 +43,7 @@ public static class IdentityBuilderUIExtensions
                      // the same mechanism that MVC uses today.
                      // Finally, if for some reason we aren't able to find the assembly, we'll use our default value
                      // (Bootstrap5)
+                     
                      if (!TryResolveUIFramework(Assembly.GetEntryAssembly(), out var framework) &&
                          !TryResolveUIFramework(GetApplicationAssembly(services), out framework)) {
                          framework = default;
@@ -106,33 +107,33 @@ public static class IdentityBuilderUIExtensions
                 if (IsIdentityUIView(descriptor)) {
                     switch (_framework) {
                         case UIFramework.Bootstrap4:
-                            if (descriptor.Type?.FullName?.Contains("V_B5", StringComparison.Ordinal) is true ||
-                                descriptor.Type?.FullName?.Contains("V_T", StringComparison.Ordinal) is true) {
+                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap5), StringComparison.Ordinal) is true ||
+                                descriptor.Type?.FullName?.Contains(nameof(UIFramework.Tailwind3), StringComparison.Ordinal) is true) {
                                 // Remove V5 views
                                 viewsToRemove.Add(descriptor);
                             } else {
                                 // Fix up paths to eliminate version subdir
-                                descriptor.RelativePath = descriptor.RelativePath.Replace("V_B4/", "");
+                                descriptor.RelativePath = descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap4)}/", "");
                             }
                             break;
                         case UIFramework.Bootstrap5:
-                            if (descriptor.Type?.FullName?.Contains("V_B4", StringComparison.Ordinal) is true ||
-                                descriptor.Type?.FullName?.Contains("V_T", StringComparison.Ordinal) is true) {
+                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap4), StringComparison.Ordinal) is true ||
+                                descriptor.Type?.FullName?.Contains(nameof(UIFramework.Tailwind3), StringComparison.Ordinal) is true) {
                                 // Remove V4 views
                                 viewsToRemove.Add(descriptor);
                             } else {
                                 // Fix up paths to eliminate version subdir
-                                descriptor.RelativePath = descriptor.RelativePath.Replace("V_B5/", "");
+                                descriptor.RelativePath = descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap5)}/", "");
                             }
                             break;
-                        case UIFramework.Tailwind:
-                            if (descriptor.Type?.FullName?.Contains("V_B4", StringComparison.Ordinal) is true ||
-                                descriptor.Type?.FullName?.Contains("V_B5", StringComparison.Ordinal) is true) {
+                        case UIFramework.Tailwind3:
+                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap4), StringComparison.Ordinal) is true ||
+                                descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap5), StringComparison.Ordinal) is true) {
                                 // Remove V4 views
                                 viewsToRemove.Add(descriptor);
                             } else {
                                 // Fix up paths to eliminate version subdir
-                                descriptor.RelativePath = descriptor.RelativePath.Replace("V_T/", "");
+                                descriptor.RelativePath = descriptor.RelativePath.Replace($"{nameof(UIFramework.Tailwind3)}/", "");
                             }
                             break;
                         default:
@@ -146,7 +147,10 @@ public static class IdentityBuilderUIExtensions
             }
         }
 
-        private static bool IsIdentityUIView(CompiledViewDescriptor desc) => desc.RelativePath.StartsWith("/Pages/V_", StringComparison.OrdinalIgnoreCase) &&
+        private static bool IsIdentityUIView(CompiledViewDescriptor desc) => (desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap4)}", StringComparison.OrdinalIgnoreCase) ||
+                                                                              desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap5)}", StringComparison.OrdinalIgnoreCase) ||
+                                                                              desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Tailwind3)}", StringComparison.OrdinalIgnoreCase) )
+                                                                              &&
             desc.Type?.Assembly == typeof(IdentityBuilderUIExtensions).Assembly;
     }
 }

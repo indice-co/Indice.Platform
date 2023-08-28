@@ -1,5 +1,0 @@
-<Project>
-  <Import Condition="'$(IdentityUIFrameworkVersion)' == 'Bootstrap4'" Project="$(MSBuildThisFileDirectory)Microsoft.AspNetCore.StaticWebAssets.VB4.targets"/>
-  <Import Condition="'$(IdentityUIFrameworkVersion)' == 'Bootstrap5'" Project="$(MSBuildThisFileDirectory)Microsoft.AspNetCore.StaticWebAssets.VB5.targets"/>
-  <Import Condition="'$(IdentityUIFrameworkVersion)' == 'Tailwind'" Project="$(MSBuildThisFileDirectory)Microsoft.AspNetCore.StaticWebAssets.VT.targets"/>
-</Project>
