@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Indice.Services.Yuboto.Bases;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Services.Yuboto;
 
@@ -12,7 +13,11 @@ public class ViberYubotoOmniService : YubotoOmniServiceBase, ISmsService
     /// <param name="httpClient">Provides a base class for sending HTTP requests and receiving HTTP responses from a resource identified by a URI.</param>
     /// <param name="settings">Settings class for configuring SMS service clients.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    public ViberYubotoOmniService(HttpClient httpClient, SmsServiceSettings settings, ILogger<ViberYubotoOmniService> logger) : base(httpClient, settings, logger) { }
+    public ViberYubotoOmniService(
+        HttpClient httpClient, 
+        IOptionsSnapshot<SmsServiceSettings> settings, 
+        ILogger<ViberYubotoOmniService> logger
+    ) : base(httpClient, settings, logger) { }
 
     /// <inheritdoc />
     public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {

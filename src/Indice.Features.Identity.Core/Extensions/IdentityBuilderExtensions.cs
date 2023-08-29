@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SixLabors.ImageSharp;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -65,18 +66,85 @@ public static class IdentityBuilderExtensions
 
     /// <summary>
     /// Adds the <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/> as the default phone provider.
-    /// Make sure you call this method after using <see cref="Microsoft.AspNetCore.Identity.IdentityBuilderExtensions.AddDefaultTokenProviders(IdentityBuilder)"/>.
+    /// Make sure you call this method after using <see cref="AspNetCore.Identity.IdentityBuilderExtensions.AddDefaultTokenProviders(IdentityBuilder)"/>.
     /// </summary>
     /// <param name="builder">Helper functions for configuring identity services.</param>
-    /// <param name="configuration"></param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
-    public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<TotpOptions> configure = null) {
-        if (configure is not null) {
-            builder.Services.PostConfigure(configure);
-        }
-        builder.Services.AddTotpServiceFactory(configuration, configure);
+    public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<PhoneNumberTokenProviderTotpOptions> configure = null) {
+        var totpSection = configuration.GetSection(PhoneNumberTokenProviderTotpOptions.Name);
+        var totpOptions = new PhoneNumberTokenProviderTotpOptions {
+            CodeDuration = totpSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeDuration)) ?? TotpOptionsBase.DefaultCodeDuration,
+            CodeLength = totpSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeLength)) ?? TotpOptionsBase.DefaultCodeLength
+        };
+        configure?.Invoke(totpOptions);
+        builder.Services.Configure<PhoneNumberTokenProviderTotpOptions>(options => {
+            options.CodeLength = totpOptions.CodeLength;
+            options.CodeDuration = totpOptions.CodeDuration;
+        });
         builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, typeof(DeveloperPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType));
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds the <see cref="ExtendedEmailTokenProvider{TUser}"/> as the default email provider.
+    /// Make sure you call this method after using <see cref="AspNetCore.Identity.IdentityBuilderExtensions.AddDefaultTokenProviders(IdentityBuilder)"/>.
+    /// </summary>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
+    /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    public static IdentityBuilder AddExtendedEmailTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<EmailTokenProviderTotpOptions> configure = null) {
+        var totpSection = configuration.GetSection(EmailTokenProviderTotpOptions.Name);
+        var totpOptions = new EmailTokenProviderTotpOptions {
+            CodeDuration = totpSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeDuration)) ?? TotpOptionsBase.DefaultCodeDuration,
+            CodeLength = totpSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeLength)) ?? TotpOptionsBase.DefaultCodeLength
+        };
+        configure?.Invoke(totpOptions);
+        builder.Services.Configure<EmailTokenProviderTotpOptions>(options => {
+            options.CodeLength = totpOptions.CodeLength;
+            options.CodeDuration = totpOptions.CodeDuration;
+        });
+        builder.AddTokenProvider(TokenOptions.DefaultEmailProvider, typeof(ExtendedEmailTokenProvider<>).MakeGenericType(builder.UserType));
+        return builder;
+    }
+
+    /// <summary>Configures options for <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/>.</summary>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
+    /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    public static IdentityBuilder ConfigureExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<PhoneNumberTokenProviderTotpOptions> configure = null) {
+        var totpSection = configuration.GetSection(PhoneNumberTokenProviderTotpOptions.Name);
+        var totpOptions = new PhoneNumberTokenProviderTotpOptions {
+            CodeDuration = totpSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeDuration)) ?? TotpOptionsBase.DefaultCodeDuration,
+            CodeLength = totpSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeLength)) ?? TotpOptionsBase.DefaultCodeLength
+        };
+        configure?.Invoke(totpOptions);
+        builder.Services.PostConfigure<PhoneNumberTokenProviderTotpOptions>(options => {
+            options.CodeLength = totpOptions.CodeLength;
+            options.CodeDuration = totpOptions.CodeDuration;
+        });
+        return builder;
+    }
+
+    /// <summary>Configures options for <see cref="ExtendedEmailTokenProvider{TUser}"/>.</summary>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
+    /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
+    public static IdentityBuilder ConfigureExtendedEmailTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<EmailTokenProviderTotpOptions> configure = null) {
+        var totpSection = configuration.GetSection(EmailTokenProviderTotpOptions.Name);
+        var totpOptions = new EmailTokenProviderTotpOptions {
+            CodeDuration = totpSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeDuration)) ?? TotpOptionsBase.DefaultCodeDuration,
+            CodeLength = totpSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeLength)) ?? TotpOptionsBase.DefaultCodeLength
+        };
+        configure?.Invoke(totpOptions);
+        builder.Services.PostConfigure<EmailTokenProviderTotpOptions>(options => {
+            options.CodeLength = totpOptions.CodeLength;
+            options.CodeDuration = totpOptions.CodeDuration;
+        });
         return builder;
     }
 

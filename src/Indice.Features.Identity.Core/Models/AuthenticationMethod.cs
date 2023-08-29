@@ -154,7 +154,7 @@ public class EmailAuthenticationMethod : AuthenticationMethod, IAuthenticationMe
     }
 
     /// <inheritdoc />
-    public string TokenProvider { get; } = TokenOptions.DefaultPhoneProvider;
+    public string TokenProvider { get; } = TokenOptions.DefaultEmailProvider;
     /// <inheritdoc />
     public TotpDeliveryChannel DeliveryChannel => TotpDeliveryChannel.Email;
 }
