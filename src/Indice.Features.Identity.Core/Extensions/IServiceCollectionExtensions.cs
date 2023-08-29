@@ -55,8 +55,8 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddTotpServiceFactory(this IServiceCollection services, IConfiguration configuration, Action<TotpOptions> configure = null) {
         var totpSection = configuration.GetSection(TotpOptions.Name);
         var totpOptions = new TotpOptions {
-            CodeDuration = totpSection.GetValue<int?>(nameof(TotpOptions.CodeDuration)) ?? TotpOptions.DefaultCodeDuration,
-            CodeLength = totpSection.GetValue<int?>(nameof(TotpOptions.CodeLength)) ?? TotpOptions.DefaultCodeLength,
+            CodeDuration = totpSection.GetValue<int?>(nameof(TotpOptions.CodeDuration)) ?? TotpOptionsBase.DefaultCodeDuration,
+            CodeLength = totpSection.GetValue<int?>(nameof(TotpOptions.CodeLength)) ?? TotpOptionsBase.DefaultCodeLength,
             EnableDeveloperTotp = totpSection.GetValue<bool>(nameof(TotpOptions.EnableDeveloperTotp))
         };
         configure?.Invoke(totpOptions);

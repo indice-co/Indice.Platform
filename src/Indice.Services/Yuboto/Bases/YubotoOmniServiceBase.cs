@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Services.Yuboto.Bases;
 
@@ -15,9 +16,13 @@ public class YubotoOmniServiceBase
     /// <param name="settings">The settings required to configure the service.</param>
     /// <param name="httpClient">Injected <see cref="System.Net.Http.HttpClient"/> managed by the DI.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    public YubotoOmniServiceBase(HttpClient httpClient, SmsServiceSettings settings, ILogger<YubotoOmniServiceBase> logger) {
-        HttpClient = httpClient ?? new HttpClient();
-        Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+    public YubotoOmniServiceBase(
+        HttpClient httpClient, 
+        IOptionsSnapshot<SmsServiceSettings> settings, 
+        ILogger<YubotoOmniServiceBase> logger
+    ) {
+        HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         if (HttpClient.BaseAddress == null) {
             HttpClient.BaseAddress = new Uri("https://services.yuboto.com/omni/v1/");

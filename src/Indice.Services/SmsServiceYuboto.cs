@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace Indice.Services;
@@ -9,26 +10,30 @@ public class SmsServiceYuboto : ISmsService, IDisposable
 {
     private bool _disposed = false;
 
-    /// <summary>The settings required to configure the service.</summary>
-    protected SmsServiceSettings Settings { get; }
-    /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
-    protected HttpClient HttpClient { get; }
-    /// <summary>Represents a type used to perform logging.</summary>
-    protected ILogger<SmsServiceYuboto> Logger { get; }
-
     /// <summary>Constructs the <see cref="SmsServiceYuboto"/> using the <seealso cref="SmsServiceSettings"/>.</summary>
     /// <param name="settings">The settings required to configure the service.</param>
     /// <param name="httpClient">Injected <see cref="System.Net.Http.HttpClient"/> managed by the DI.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    public SmsServiceYuboto(HttpClient httpClient, SmsServiceSettings settings, ILogger<SmsServiceYuboto> logger) {
+    public SmsServiceYuboto(
+        HttpClient httpClient, 
+        IOptionsSnapshot<SmsServiceSettings> settings, 
+        ILogger<SmsServiceYuboto> logger
+    ) {
         HttpClient = httpClient ?? new HttpClient();
-        Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         if (HttpClient.BaseAddress == null) {
             var uri = "https://services.yuboto.com/web2sms/api/v2/smsc.aspx";
             HttpClient.BaseAddress = new Uri(uri);
         }
     }
+
+    /// <summary>The settings required to configure the service.</summary>
+    protected SmsServiceSettings Settings { get; }
+    /// <summary>The <see cref="System.Net.Http.HttpClient"/>.</summary>
+    protected HttpClient HttpClient { get; }
+    /// <summary>Represents a type used to perform logging.</summary>
+    protected ILogger<SmsServiceYuboto> Logger { get; }
 
     /// <inheritdoc/>
     public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
