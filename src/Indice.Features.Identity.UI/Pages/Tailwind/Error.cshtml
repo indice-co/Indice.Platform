@@ -2,27 +2,35 @@
 
 @inject IIdentityViewLocalizer Localizer
 
-@model BaseErrorModel
+@model ErrorModel
 
 @{
-    var title = ViewData["Title"] = Localizer["Error"].Value;
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
 
-<section class="border-0 pt-5 error-page identity-panel">
-    <article>
-        <h1 class="text-danger text-start">@title</h1>
-        <h2 class="text-danger">@Localizer["Oops! Seems we encountered an error."]</h2>
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <div class="logo-crop">
+            <div class="logo-wrapper">
+                <div class="logo-inner-wrapper">
+                    <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
+                </div>
+            </div>
+        </div>
+        <h3>DEBT SETTLEMENT</h3>
+        <h1>@Localizer["Oops! Seems we encountered an error."]</h1>
         <p class="pt-5">
-            @if (Model?.Message is not null)
+            @if (Model is { Message: { Length: > 0 } })
             {
                 <strong>
                     <em>: @Model.Message</em>
                 </strong>
             }
-            @if (Model?.RequestId is not null)
+            @if (Model is { RequestId: { Length: > 0 } })
             {
                 <div class="request-id">@Localizer["Request Id"]: @Model.RequestId</div>
             }
         </p>
-    </article>
-</section>
+    </div>
+</div>

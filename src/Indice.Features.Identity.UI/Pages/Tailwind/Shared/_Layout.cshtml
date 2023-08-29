@@ -1,0 +1,68 @@
+﻿@inject GeneralSettings Settings
+@inject IViewLocalizer Localizer
+@inject IWebHostEnvironment Environment
+@*#if (!DisableAppInsights)
+    @inject JavaScriptSnippet JavaScriptSnippet
+    @inject IOptions<ApplicationInsightsServiceOptions> AppInsightsOptions
+    #endif*@
+@inject SignInManager<User> SignInManager
+
+@{
+    var dash = ViewBag.Title != null ? " - " : string.Empty;
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var version = typeof(BaseLoginModel).Assembly.GetName().Version?.ToString();
+    var authClass = SignInManager.IsSignedIn(User) ? "authenticated" : "anonymous";
+    var bgClass = SignInManager.IsSignedIn(User) ? "gradient-bg" : "gradient-bg";
+}
+
+<!DOCTYPE html>
+<html lang="@lang">
+<head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="@Settings.ApplicationDescription" />
+    <meta property="og:title" content="@Settings.ApplicationName @(!Environment.IsProduction() ? $"({Environment.EnvironmentName})" : string.Empty)" />
+    <meta property="og:type" content="product" />
+    <meta property="og:url" content="@Settings.Host" />
+    <meta property="og:image" content="@Settings.Host/img/favico/facebook.png" />
+    <meta property="og:description" content="@Settings.ApplicationDescription" />
+    <meta name="application-name" content="@Settings.ApplicationName" />
+    <meta name="msapplication-TileColor" content="#006E58" />
+    @RenderSection("meta", required: false)
+    <title>@ViewBag.Title @dash @Localizer[Settings.ApplicationName]</title>
+    <link href="~/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" sizes="16x16 32x32 64x64 128x128" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap" rel="stylesheet">
+    @*#if (!DisableAppInsights)
+    <script type="text/javascript" csp-nonce="true">@Html.Raw(JavaScriptSnippet.ScriptBody)</script>
+    #endif*@
+</head>
+<body>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" type="text/css" href="~/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />
+    @RenderSection("css", required: false)
+    @await Html.PartialAsync("_MenuMain")
+    <environment exclude="Production">
+        <div class="ribbon">
+            <span>@Environment.EnvironmentName</span>
+        </div>
+    </environment>
+    <main>
+        <div id="page-wrapper">
+            <div class="flex flex-row justify-end items-center hidden lg:block">
+                <partial name="_SelectLanguagePartial" />
+            </div>
+            @RenderBody()
+        </div>
+    </main>
+    <partial name="_Footer" />
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/lib/popper.js/dist/umd/popper.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/lib/flowbite/dist/flowbite.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/site.js" csp-nonce="true" asp-append-version="true"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

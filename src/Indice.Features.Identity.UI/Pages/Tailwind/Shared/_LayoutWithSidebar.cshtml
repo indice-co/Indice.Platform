@@ -1,26 +1,57 @@
 ﻿@inject GeneralSettings Settings
 @inject IViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
-@inject ExtendedSignInManager<User> SignInManager
+@*#if (!DisableAppInsights)
+    @inject JavaScriptSnippet JavaScriptSnippet
+    @inject IOptions<ApplicationInsightsServiceOptions> AppInsightsOptions
+    #endif*@
+@inject SignInManager<User> SignInManager
 
 @{
-    var displayMenu = SignInManager.IsSignedIn(User);// todo: check && !SignInManager.IsSignedInWithScheme(User, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-    var showRibbon = !Environment.IsProduction();
+    var dash = ViewBag.Title != null ? " - " : string.Empty;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var authClass = SignInManager.IsSignedIn(User) ? "authenticated" : "anonymous";
+    var bgClass = SignInManager.IsSignedIn(User) ? "gradient-bg" : "gradient-bg";
     var userName = User.Claims.Where(x => x.Type == JwtClaimTypes.Name).FirstOrDefault()?.Value;
     var initials = $"{User.FindFirst(JwtClaimTypes.GivenName)?.Value?[0]}{User.FindFirst(JwtClaimTypes.FamilyName)?.Value?[0]}";
 }
 
-@if (displayMenu)
-{
+<!DOCTYPE html>
+<html lang="@lang">
+<head prefix="og: http://ogp.me/ns#">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="@Settings.ApplicationDescription" />
+    <meta property="og:title" content="@Settings.ApplicationName @(!Environment.IsProduction() ? $"({Environment.EnvironmentName})" : string.Empty)" />
+    <meta property="og:type" content="product" />
+    <meta property="og:url" content="@Settings.Host" />
+    <meta property="og:image" content="@Settings.Host/img/favico/facebook.png" />
+    <meta property="og:description" content="@Settings.ApplicationDescription" />
+    <meta name="application-name" content="@Settings.ApplicationName" />
+    <meta name="msapplication-TileColor" content="#006E58" />
+    @RenderSection("meta", required: false)
+    <title>@ViewBag.Title @dash @Localizer[Settings.ApplicationName]</title>
+    <link href="~/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" sizes="16x16 32x32 64x64 128x128" />
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700&display=swap" rel="stylesheet">
+    @*#if (!DisableAppInsights)
+    <script type="text/javascript" csp-nonce="true">@Html.Raw(JavaScriptSnippet.ScriptBody)</script>
+    #endif*@
+</head>
+<body>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" type="text/css" href="~/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />
+    @RenderSection("css", required: false)
     <a href="~/?sidebar=true">
-        <div class="sidebar-toggler">
-            <span class="menu-avatar">@initials</span>
+        <div class="absolute h-12 w-12 rounded-full lg:bg-[#ffffff63]  lg:backdrop-blur-lg right-5 top-8 cursor-pointer flex items-center justify-center">
+            <span class="text-one font-extrabold text-2xl">@initials</span>
         </div>
     </a>
-    <aside class="sidebar hidden" id="sidebar"
-       aria-label="Sidebar">
+    <aside class="sidebar"
+           aria-label="Sidebar">
         <div class="grid h-full">
             <div class="flex">
                 <div class="toggle-btn-wrapper">
@@ -74,10 +105,10 @@
                     <div class="sidebar-body">
                         <div class="tabs-wrapper">
                             <ul class="tabs-list"
-                            id="myTab"
-                            role="tablist">
+                                id="myTab"
+                                role="tablist">
                                 <li class="mr-2"
-                                role="presentation">
+                                    role="presentation">
                                     <a class="@($"tab {(Context.Request.Path == "/" ? "selected" : string.Empty )}")"
                                        id="profile-tab"
                                        asp-page="/Home" asp-route-sidebar="true"
@@ -88,8 +119,9 @@
                                     </a>
                                 </li>
                                 <li class="mr-2"
-                                role="presentation">
+                                    role="presentation">
                                     <a class="@($"tab {(Context.Request.Path == "/manage/profile" ? "selected" : string.Empty )}")"
+                                       aria-selected="@(Context.Request.Path == "/manage/profile")"
                                        id="edit-profile-tab"
                                        asp-page="/Profile"
                                        role="tab">
@@ -97,18 +129,20 @@
                                     </a>
                                 </li>
                                 <li class="mr-2"
-                                role="presentation">
+                                    role="presentation">
                                     <a class="@($"tab {(Context.Request.Path == "/grants" ? "selected" : string.Empty )}")"
                                        id="grants-tab"
+                                       aria-selected="@(Context.Request.Path == "/grants")"
                                        asp-page="/Grants"
                                        role="tab">
                                         @Localizer["Grants"]
                                     </a>
                                 </li>
                                 <li class="mr-2"
-                                role="presentation">
+                                    role="presentation">
                                     <a class="@($"tab {(Context.Request.Path == "/change-password" ? "selected" : string.Empty )}")"
                                        id="changePassword-tab"
+                                       aria-selected="@(Context.Request.Path == "/change-password")"
                                        type="button"
                                        role="tab"
                                        asp-page="/ChangePassword">
@@ -118,15 +152,55 @@
                             </ul>
                         </div>
                         <div id="myTabContent"
-                         class="tab-content">
-                            <vc:ProfileSidebar />
+                             class="tab-content">
+                            @RenderBody()
                         </div>
                     </div>
                 </div>
+                @*            <div class="sidebar-footer">
+                <hr>
+                </div>*@
             </div>
-            @*            <div class="sidebar-footer">
-        <hr>
-        </div>*@
         </div>
     </aside>
-}
+    <environment exclude="Production">
+        <div class="ribbon">
+            <span>@Environment.EnvironmentName</span>
+        </div>
+    </environment>
+    <main>
+        <div id="page-wrapper">
+            <div class="flex flex-row justify-end items-center hidden lg:block">
+                <partial name="_SelectLanguagePartial" />
+            </div>
+            <div class="content-wrapper">
+                <div class="flex flex-col items-center justify-center">
+                    <h1 class="deck-title">
+                        @Localizer["<strong>Welcome</strong><br> to our Digital Services Portal of {0}", Settings.Organization]
+                    </h1>
+                    <p class="text-white lg:text-one text-lg pt-6 text-center max-w-screen-md">
+                        @($"Lorem Ipsum,η υπηρεσία Identity σας δίνει πρόσβαση με ένα λογαριασμό σε όλες τις υπηρεσίες της {Settings.Organization}. Εδώ μπορείτε να διαχειριστείτε το προφίλ χρήστη και τις παραμέτρους πρόσβασης στις υπηρεσίες. Χρησιμοποιώντας τους παρακάτω συνδέσμους.")
+                    </p>
+                    <div class="deck">
+                        @if (!User.IsAuthenticated())
+                        {
+                            <div class="deck-item col-auto">
+                                <a indice-if="@Environment.IsDevelopment()" asp-page="/Login">
+                                    <img indice-if="!User.IsAuthenticated()" class="h-64 w-64" src="~/img/logo@(langSuffix).svg" />
+                                </a>
+                            </div>
+                        }
+                        <partial name="_ServiceDeck" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <partial name="_Footer" />
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/lib/popper.js/dist/umd/popper.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/lib/flowbite/dist/flowbite.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/site.js" csp-nonce="true" asp-append-version="true"></script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

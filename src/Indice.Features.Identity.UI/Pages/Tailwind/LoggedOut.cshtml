@@ -1,26 +1,38 @@
 ﻿@page "/logged-out"
 
+@model LoggedOutModel
+
 @inject IIdentityViewLocalizer Localizer
 
-@model BaseLoggedOutModel
-
 @{
-    var title = ViewData["Title"] = Localizer["Logout"].Value;
+    ViewData["Title"] = Localizer["Logout"].Value;
+    ViewData["signed-out"] = true;
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
 
-<section class="identity-panel wide logged-out">
-    <article class="text-center">
-        <partial name="_PageHeader" model="title" />
+<section class="content-wrapper">
+    <div class="card-wrapper">
+        <div class="logo-crop">
+            <div class="logo-wrapper">
+                <div class="logo-inner-wrapper">
+                    <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
+                </div>
+            </div>
+        </div>
+        <h1>
+            @Localizer["Logout"]
+        </h1>
         <p>@Localizer["You are now logged out"]</p>
         <div indice-if="Model.PostLogoutRedirectUri != null">
-            @Localizer["Click"] <a id="PostLogoutRedirectUri" class="btn btn-primary" href="@Model.PostLogoutRedirectUri">@Localizer["here"]</a> @Localizer["to return to the application"]
+            @Localizer["Click"] <a class="PostLogoutRedirectUri btn btn-primary" href="@Model.PostLogoutRedirectUri">@Localizer["here"]</a> @Localizer["to return to the application"]
             <span>@Model.ClientName</span>.
         </div>
         <iframe indice-if="Model.SignOutIframeUrl != null" width="0" height="0" class="signout" src="@Model.SignOutIframeUrl"></iframe>
         <div indice-if="Model.PostLogoutRedirectUri == null">
-            @Localizer["Click"] <a href="~/">@Localizer["here"]</a> @Localizer["to return to the application"].
+            @Localizer["Click"] <a class="text-tenant-900" href="~/">@Localizer["here"]</a> @Localizer["to return to the application"]
         </div>
-    </article>
+    </div>
 </section>
 
 @section scripts {

@@ -1,35 +1,54 @@
 ﻿@page "/login/add-phone"
 
-@model BaseAddPhoneModel
+@model AddPhoneModel
 
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
 
+
 @{
-    var title = ViewData["Title"] = Localizer["Add phone"].Value;
-    var alert = TempData.Peek<AlertModel>(BaseAddPhoneModel.TempDataKey);
+    ViewBag.Title = Localizer["Add phone"];
+    ViewData["Title"] = Localizer["Add phone"].Value;
+    var alert = TempData.Peek<AlertModel>(BaseAddPhoneModel.TempDataKey).Localize(Localizer);
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
 
-<div class="sign-in m-auto">
-    <partial name="_PageHeader" model="title" />
-    <partial name="_ValidationSummary" />
-    <partial name="_Alert" model="alert" />
-    <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
-        <div class="mb-3">
-            <label asp-for="Input.PhoneNumber" class="form-label visually-hidden">@Localizer["Phone number"]</label>
-            <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-            <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
-            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-        </div>
-        <div class="mb-3">
-            <div class="row m-0 w-100">
-                <div class="col-12 py-1">
-                    <button class="btn btn-info w-100" type="submit">@Localizer["Save"]</button>
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <div class="logo-crop">
+            <div class="logo-wrapper">
+                <div class="logo-inner-wrapper">
+                    <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
                 </div>
             </div>
         </div>
-        <input type="hidden" asp-for="Input.ReturnUrl" />
-    </form>
+        <h3>DEBT SETTLEMENT</h3>
+        <h1>@ViewData["Title"]</h1>
+        <partial name="_ValidationSummary" />
+        <partial name="_Alert" model="alert" />
+        <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+            <div class="relative my-5">
+                <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+                <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
+                @*@if (HostingEnvironment.IsDevelopment())
+                {
+                <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="PhoneNumber" />
+                }
+                else
+                {
+                <select class="peer" placeholder="@Localizer["Phone number"]" asp-for="PhoneNumber" asp-items="@(new SelectList(new List<string>{ Model.PhoneNumber }))"></select>
+                }*@
+                <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="row justify-items-center place-items-center">
+                <div class="input-group-w-full">
+                    <button class="btn btn-primary" type="submit">@Localizer["Save"]</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 @section scripts {

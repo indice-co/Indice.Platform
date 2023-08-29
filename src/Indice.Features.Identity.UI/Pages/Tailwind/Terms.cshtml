@@ -1,17 +1,24 @@
 ﻿@page "/terms"
 
-@model BaseTermsModel
-
-@inject IIdentityViewLocalizer Localizer
+@model TermsModel
 
 @{
-    ViewData["body-css-class"] = "article-page";
-    ViewData["Title"] = Localizer[Model.View.Title];
+    ViewData["Title"] = Model.View.Title;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
 
-<article class="p-0 py-md-4 px-md-5">
-    <partial name="_PageHeader" model="string.Empty" />
-    <md path="@Model.View.MarkdownPath" class="markdown-body"></md>
-</article>
+<div class="article-content-wrapper">
+    <div class="article-wrapper">
+        <div class="logo-crop">
+            <div class="logo-wrapper">
+                <div class="logo-inner-wrapper">
+                    <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
+                </div>
+            </div>
+        </div>
+        @*        <h3>DEBT SETTLEMENT</h3>*@
+        <h1>@ViewData["Title"]</h1>
+        <md path="@Model.View.MarkdownPath" class="markdown-body "></md>
+    </div>
+</div>
