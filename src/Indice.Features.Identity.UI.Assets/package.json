@@ -2,19 +2,21 @@
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "3.4.0",
     "@microsoft/signalr": "7.0.4",
-    "bootstrap": "4.6.2",
-    "bootstrap.native": "2.0.27",
+    "bootstrap": "5.3.1",
+    "bootstrap.v4": "npm:bootstrap@^4.6.2",
+    "bootstrap.native": "5.0.9",
     "font-awesome": "4.7.0",
-    "jquery": "3.6.0",
+    "jquery": "3.7.1",
     "jquery-validation": "1.19.5",
     "jquery-validation-unobtrusive": "4.0.0",
     "knockout": "3.5.1",
     "knockout-secure-binding": "0.5.5",
-    "popper.js": "1.16.1",
-    "swiper": "9.1.1"
+    "popper.js": "2.0.0-next.3",
+    "popper.js.v1": "npm:popper.js@^1.16.1",
+    "swiper": "9.4.1"
   },
   "devDependencies": {
-    "del": "4.1.1",
+    "del": "7.0.0",
     "gulp": "4.0.2",
     "gulp-clean-css": "4.3.0",
     "gulp-concat": "2.6.1",
@@ -28,7 +30,7 @@
     "gulp-strip-debug": "5.0.0",
     "gulp-uglify": "3.0.2",
     "postcss-assets": "6.0.0",
-    "sass": "1.60.0"
+    "sass": "1.66.1"
   },
   "name": "indice-features-identity-ui",
   "private": true,

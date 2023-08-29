@@ -93,7 +93,7 @@ public class AvatarGenerator
             // Measure the text size.
             var textSize = TextMeasurer.MeasureSize(avatarText, new TextOptions(font));
             // Find out how much we need to scale the text to fill the space (up or down).
-            var scalingFactor = Math.Min(image.Width * 0.6f / textSize.Width, image.Height * 0.6f / textSize.Height);
+            var scalingFactor = Math.Min(image.Width * 0.5f / textSize.Width, image.Height * 0.5f / textSize.Height);
             // Create a new font.
             var scaledFont = new Font(font, scalingFactor * font.Size);
             var textOptions = new RichTextOptions(scaledFont) {

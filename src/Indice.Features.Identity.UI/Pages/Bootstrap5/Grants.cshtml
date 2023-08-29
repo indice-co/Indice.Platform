@@ -40,7 +40,7 @@
                                 <span class="created text-info">@Localizer["Created:"]</span>
                                 <span>
                                     @grant.Created.ToString("yyyy-MM-dd")
-                                    <span class="bank-icon bank-icon-clock my-1 text-info font-weight-600"></span>
+                                    <span class="bank-icon bank-icon-clock my-1 text-info fw-600"></span>
                                     @grant.Created.ToString("HH:mm")
                                 </span>
                             </small>
@@ -50,7 +50,7 @@
                         <div class="card-body">
                             <div indice-if="grant.IdentityGrantNames.Any()" class="identity-grants">
                                 <h6 class="grant-type">
-                                    <span class="bank-icon bank-icon-security font-weight-600 pt-1 mr-1"></span>
+                                    <span class="bank-icon bank-icon-security fw-600 pt-1 me-1"></span>
                                     Identity Grants
                                 </h6>
                                 <ul class="list-group list-group-flush mb-2">
@@ -61,7 +61,7 @@
                                 </ul>
                             </div>
                             <div indice-if="grant.ApiGrantNames.Any()" class="api-grants">
-                                <h6 class="grant-type"><span class="bank-icon bank-icon-server font-weight-600 pt-1 mr-1"></span>API Grants</h6>
+                                <h6 class="grant-type"><span class="bank-icon bank-icon-server fw-600 pt-1 me-1"></span>API Grants</h6>
                                 <ul class="list-group list-group-flush mb-2">
                                     @foreach (var name in grant.ApiGrantNames)
                                     {
@@ -70,7 +70,7 @@
                                 </ul>
                             </div>
                             <form asp-page-handler="Revoke">
-                                <div class="form-group text-right">
+                                <div class="mb-3 text-end">
                                     <input type="hidden" name="clientId" value="@grant.ClientId">
                                     <button class="btn btn-outline-danger">@Localizer["Revoke Access"]</button>
                                 </div>

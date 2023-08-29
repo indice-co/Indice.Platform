@@ -35,15 +35,15 @@
     <form method="post">
         <div class="row">
             <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.FirstName">@Localizer["First name"]</label>
+                <div class="mb-3">
+                    <label asp-for="Input.FirstName" class="form-label">@Localizer["First name"]</label>
                     <input class="form-control" type="text" placeholder="@Localizer["First name"]" asp-for="Input.FirstName" />
                     <span asp-validation-for="Input.FirstName" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.LastName">@Localizer["Last name"]</label>
+                <div class="mb-3">
+                    <label asp-for="Input.LastName" class="form-label">@Localizer["Last name"]</label>
                     <input class="form-control" type="text" placeholder="@Localizer["Last name"]" asp-for="Input.LastName" />
                     <span asp-validation-for="Input.LastName" class="text-danger"></span>
                 </div>
@@ -51,15 +51,15 @@
         </div>
         <div class="row">
             <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.UserName">@Localizer["Username"]</label>
+                <div class="mb-3">
+                    <label asp-for="Input.UserName" class="form-label">@Localizer["Username"]</label>
                     <input class="form-control" type="text" placeholder="@Localizer["Username"]" asp-for="Input.UserName" />
                     <span asp-validation-for="Input.UserName" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.Email">
+                <div class="mb-3">
+                    <label asp-for="Input.Email" class="form-label">
                         @Localizer["Email"]
                         <a indice-if="Model.View.EmailChangePending" href="#" id="resend-email-link" style="font-size: x-small;">(@Localizer["Confirmation"] →)</a>
                     </label>
@@ -70,8 +70,8 @@
         </div>
         <div class="row">
             <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.PhoneNumber">@Localizer["Phone number"]</label>
+                <div class="mb-3">
+                    <label asp-for="Input.PhoneNumber" class="form-label">@Localizer["Phone number"]</label>
                     <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
                     <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
                 </div>
@@ -79,15 +79,15 @@
         </div>
         <div class="row">
             <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.Tin">@Localizer["Tax identification"]</label>
+                <div class="mb-3">
+                    <label asp-for="Input.Tin" class="form-label">@Localizer["Tax identification"]</label>
                     <input class="form-control" type="text" placeholder="@Localizer["Tax identification"]" asp-for="Input.Tin" />
                     <span asp-validation-for="Input.Tin" class="text-danger"></span>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.BirthDate">@Localizer["Birth date"]</label>
+                <div class="mb-3">
+                    <label asp-for="Input.BirthDate" class="form-label">@Localizer["Birth date"]</label>
                     <input class="form-control" type="date" placeholder="@Localizer["Birth date"]" asp-for="Input.BirthDate" />
                     <span asp-validation-for="Input.BirthDate" class="text-danger"></span>
                 </div>
@@ -95,13 +95,13 @@
         </div>
         <div class="row" indice-if="Model.View.HasDeveloperTotp">
             <div class="col-md-6">
-                <div class="form-group">
-                    <label asp-for="Input.DeveloperTotp">@Localizer["Developer TOTP"]</label>
+                <div class="mb-3">
+                    <label asp-for="Input.DeveloperTotp" class="form-label">@Localizer["Developer TOTP"]</label>
                     <input class="form-control" type="text" placeholder="@Localizer["Developer TOTP"]" readonly="readonly" asp-for="Input.DeveloperTotp" />
                 </div>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="form-check custom-checkbox d-inline-block">
                 <label class="form-check-label" asp-for="Input.ConsentCommercial">
                     <input asp-for="Input.ConsentCommercial" type="checkbox" class="form-check-input text-info" />
@@ -114,10 +114,10 @@
 
             </div>
         </div>
-        <div class="form-group">
-            <div class="form-row m-0 w-100">
+        <div class="mb-3">
+            <div class="row m-0 w-100">
                 <div class="col-12 py-1">
-                    <button class="btn btn-primary btn-block" type="submit">@Localizer["Save"]</button>
+                    <button class="btn btn-primary w-100" type="submit">@Localizer["Save"]</button>
                 </div>
             </div>
         </div>

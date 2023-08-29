@@ -33,10 +33,10 @@
     <form class="mt-3" asp-route-returnUrl="@Model.View.ReturnUrl" method="post" novalidate>
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <input type="hidden" data-sbind="value: selectedMethodType" asp-for="Input.SelectedAuthenticationMethod" />
-        <div class="form-group">
-            <div class="form-row m-0 w-100">
+        <div class="mb-3">
+            <div class="row m-0 w-100">
                 <div class="col-12 py-1">
-                    <button class="btn btn-primary btn-block" name="button" value="login" type="submit">@Localizer["Next"]</button>
+                    <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Localizer["Next"]</button>
                 </div>
             </div>
         </div>

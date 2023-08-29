@@ -18,20 +18,20 @@
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
         <input type="hidden" asp-for="Input.ReturnUrl" />
         <input type="hidden" asp-for="Input.PhoneNumber" />
-        <div class="form-group">
-            <label asp-for="Input.Code" class="sr-only">@Localizer["Code"]</label>
+        <div class="mb-3">
+            <label asp-for="Input.Code" class="form-label visually-hidden">@Localizer["Code"]</label>
             <input class="form-control" type="text" placeholder="@Localizer["Code"]" asp-for="Input.Code" disabled="@displayNext" />
             <span asp-validation-for="Input.Code" class="text-danger"></span>
         </div>
-        <div class="form-group">
-            <div class="form-row m-0 w-100">
+        <div class="mb-3">
+            <div class="row m-0 w-100">
                 <div class="@(displayNext ? "col-sm-6" : String.Empty) col-12 py-1">
-                    <button class="btn btn-info btn-block" type="submit" disabled="@displayNext">@Localizer["Save"]</button>
+                    <button class="btn btn-info w-100" type="submit" disabled="@displayNext">@Localizer["Save"]</button>
                 </div>
                 @if (displayNext)
                 {
                     <div class="col-sm-6 col-12 py-1">
-                        <a class="btn btn-info btn-block" href="@infoMessage!.NextStepUrl">@Localizer["Next"]</a>
+                        <a class="btn btn-info w-100" href="@infoMessage!.NextStepUrl">@Localizer["Next"]</a>
                     </div>
                 }
             </div>

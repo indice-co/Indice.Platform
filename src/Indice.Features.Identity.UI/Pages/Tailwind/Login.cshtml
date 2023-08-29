@@ -6,7 +6,7 @@
 @inject ExtendedUserManager<User> userManager
 
 @{
-    var title = ViewData["Title"] = "Hello Tailwind " + Localizer["Login"].Value;
+    var title = ViewData["Title"] = Localizer["Login"].Value;
 }
 
 <section class="sign-in m-auto">
@@ -33,17 +33,17 @@
         <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.DeviceId" />
-            <div class="form-group">
-                <label asp-for="Input.UserName" class="">@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]</label>
+            <div class="mb-3">
+                <label asp-for="Input.UserName" class="form-label">@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]</label>
                 <input class="form-control" type="text" placeholder="@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]" asp-for="Input.UserName" />
                 <span asp-validation-for="Input.UserName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Input.Password" class="">@Localizer["Password"]</label>
+            <div class="mb-3">
+                <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
                 <input class="form-control" type="password" placeholder="@Localizer["Password"]" asp-for="Input.Password" autocomplete="off" />
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 @if (Model.UiOptions.AllowRememberLogin)
                 {
                     <div class="form-check custom-checkbox d-inline-block">
@@ -56,21 +56,21 @@
                 }
                 @if (Model.UiOptions.EnableForgotPasswordPage)
                 {
-                    <a class="btn btn-link p-0 text-md float-right text-blue" asp-page="/ForgotPassword">@Localizer["Forgot password?"]</a>
+                    <a class="btn btn-link p-0 text-md float-end text-blue" asp-page="/ForgotPassword">@Localizer["Forgot password?"]</a>
                 }
             </div>
-            <div class="form-group">
-                <div class="form-row m-0 w-100">
+            <div class="mb-3">
+                <div class="row m-0 w-100">
                     @if (Model.UiOptions.EnableRegisterPage)
                     {
                         <div class="col-sm-6 col-12 py-1">
-                            <a class="btn btn-link btn-block" asp-page="/Register" asp-route-returnUrl="@Model.View.ReturnUrl">
+                            <a class="btn btn-link w-100" asp-page="/Register" asp-route-returnUrl="@Model.View.ReturnUrl">
                                 @Localizer["Join us"]
                             </a>
                         </div>
                     }
                     <div class="@(Model.UiOptions.EnableRegisterPage ? "col-sm-6" : string.Empty) col-12 py-1">
-                        <button class="btn btn-primary btn-block" name="button" value="login" type="submit">@Localizer["Sign in"]</button>
+                        <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Localizer["Sign in"]</button>
                     </div>
                 </div>
             </div>

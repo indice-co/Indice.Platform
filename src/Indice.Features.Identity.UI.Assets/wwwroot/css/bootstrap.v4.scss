@@ -1,7 +1,7 @@
 ﻿@import 'colors';
 /* You need to import functions to compile overrides https://github.com/twbs/bootstrap/issues/23331 */
-@import 'node_modules/bootstrap/scss/functions';
-@import 'node_modules/bootstrap/scss/variables';
+@import 'node_modules/bootstrap.v4/scss/functions';
+@import 'node_modules/bootstrap.v4/scss/variables';
 // Color system.
 $primary: $primary;
 $secondary: $secondary;
@@ -48,4 +48,4 @@ $h6-font-size: $font-size-base;
 $link-decoration: none;
 $link-hover-decoration: underline;
 
-@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'node_modules/bootstrap.v4/scss/bootstrap';

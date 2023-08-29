@@ -17,7 +17,7 @@
 @for $i from 10 through 100 {
     @if $i % 10 == 0 {
         .w-#{$i} {
-            width: percentage($i/100);
+            width: percentage(calc($i/100));
         }
     }
 }
@@ -25,7 +25,7 @@
 @for $i from 10 through 100 {
     @if $i % 10 == 0 {
         .h-#{$i} {
-            height: percentage($i/100);
+            height: percentage(calc($i/100));
         }
     }
 }
@@ -33,14 +33,14 @@
 @for $i from 10 through 100 {
     @if $i % 10 == 0 {
         .br-#{$i} {
-            border-radius: percentage($i/100);
+            border-radius: percentage(calc($i/100));
         }
     }
 }
 
 @for $i from 1 through 10 {
     .opacity-#{$i} {
-        opacity: $i/10;
+        opacity: calc($i/10);
     }
 }
 
@@ -52,7 +52,7 @@
 
 @for $i from 1 through 10 {
     .ls-#{$i} {
-        letter-spacing: $i/10+rem;
+        letter-spacing: calc($i/10)+rem;
     }
 }
 

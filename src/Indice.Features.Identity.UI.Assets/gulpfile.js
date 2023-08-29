@@ -3,7 +3,7 @@
 import gulp from "gulp";
 import dartSass from 'sass';
 import gulpSass from 'gulp-sass';
-import del from "del";
+import { deleteAsync } from 'del';
 import cssbeautify from "gulp-cssbeautify";
 import npmDist from "gulp-npm-dist";
 const sass = gulpSass(dartSass);
@@ -23,7 +23,7 @@ gulp.task('sass:watch', function () {
 });
 
 gulp.task('clean:lib', function (cb) {
-    del([
+    deleteAsync([
         lib + '**'
     ]).then(function () {
         cb();

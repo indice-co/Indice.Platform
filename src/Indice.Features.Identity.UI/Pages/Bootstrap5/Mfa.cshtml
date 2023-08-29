@@ -20,12 +20,12 @@
         <form id="mfa-form" asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <input type="hidden" asp-for="Input.DeviceId" />
-            <div class="form-group">
-                <label asp-for="Input.OtpCode">@Localizer["OTP Code"]</label>
+            <div class="mb-3">
+                <label asp-for="Input.OtpCode" class="form-label">@Localizer["OTP Code"]</label>
                 <input class="form-control" placeholder="@Localizer["OTP Code"]" asp-for="Input.OtpCode" autofocus />
                 <span asp-validation-for="Input.OtpCode" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="form-check custom-checkbox d-inline-block">
                     <label class="form-check-label">
                         <input asp-for="Input.RememberClient" type="checkbox" class="form-check-input text-info" />
@@ -34,7 +34,7 @@
                     </label>
                 </div>
             </div>
-            <button type="submit" class="btn btn-info btn-block">@Localizer["Login"]</button>
+            <button type="submit" class="btn btn-info w-100">@Localizer["Login"]</button>
         </form>
     }
     @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification)
@@ -52,7 +52,7 @@
                 </svg>
                 @Localizer["Because you've turned on two-step verification, you need to approve request on your mobile app."]
             </p>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="form-check custom-checkbox d-inline-block">
                     <label class="form-check-label">
                         <input asp-for="Input.RememberClient" type="checkbox" class="form-check-input text-info" />
