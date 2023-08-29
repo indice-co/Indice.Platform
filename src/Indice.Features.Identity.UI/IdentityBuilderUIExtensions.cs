@@ -106,17 +106,29 @@ public static class IdentityBuilderUIExtensions
             foreach (var descriptor in feature.ViewDescriptors) {
                 if (IsIdentityUIView(descriptor)) {
                     switch (_framework) {
-                        case UIFramework.Bootstrap:
-                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Tailwind), StringComparison.Ordinal) is true) {
+                        case UIFramework.Bootstrap5:
+                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Tailwind), StringComparison.Ordinal) is true ||
+                                descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap4), StringComparison.Ordinal) is true) {
                                 // Remove V5 views
                                 viewsToRemove.Add(descriptor);
                             } else {
                                 // Fix up paths to eliminate version subdir
-                                descriptor.RelativePath = descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap)}/", "");
+                                descriptor.RelativePath = descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap5)}/", "");
+                            }
+                            break;
+                        case UIFramework.Bootstrap4:
+                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Tailwind), StringComparison.Ordinal) is true ||
+                                descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap5), StringComparison.Ordinal) is true) {
+                                // Remove V5 views
+                                viewsToRemove.Add(descriptor);
+                            } else {
+                                // Fix up paths to eliminate version subdir
+                                descriptor.RelativePath = descriptor.RelativePath.Replace($"{nameof(UIFramework.Bootstrap4)}/", "");
                             }
                             break;
                         case UIFramework.Tailwind:
-                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap), StringComparison.Ordinal) is true) {
+                            if (descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap4), StringComparison.Ordinal) is true ||
+                                descriptor.Type?.FullName?.Contains(nameof(UIFramework.Bootstrap5), StringComparison.Ordinal) is true) {
                                 // Remove V4 views
                                 viewsToRemove.Add(descriptor);
                             } else {
@@ -135,7 +147,8 @@ public static class IdentityBuilderUIExtensions
             }
         }
 
-        private static bool IsIdentityUIView(CompiledViewDescriptor desc) => (desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap)}", StringComparison.OrdinalIgnoreCase) ||
+        private static bool IsIdentityUIView(CompiledViewDescriptor desc) => (desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap5)}", StringComparison.OrdinalIgnoreCase) ||
+                                                                              desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap4)}", StringComparison.OrdinalIgnoreCase) ||
                                                                               desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Tailwind)}", StringComparison.OrdinalIgnoreCase) )
                                                                               &&
             desc.Type?.Assembly == typeof(IdentityBuilderUIExtensions).Assembly;
