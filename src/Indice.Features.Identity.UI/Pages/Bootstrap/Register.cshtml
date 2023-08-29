@@ -1,0 +1,188 @@
+﻿@page "/register"
+
+@model BaseRegisterModel
+
+@inject IIdentityViewLocalizer Localizer
+@inject ExtendedUserManager<User> userManager
+
+@{
+    var title = ViewData["Title"] = Localizer["Sign up"].Value;
+}
+
+<section class="sign-up m-auto">
+    <partial name="_PageHeader" model="title" />
+    <partial name="_ValidationSummary" />
+    @if (Model.View.VisibleExternalProviders.Any())
+    {
+        <div class="login-form">
+            <ul class="list-unstyled">
+                @foreach (var provider in Model.View.VisibleExternalProviders)
+                {
+                    <li class="idp idp-@provider.AuthenticationScheme!.ToLower()">
+                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                            @Localizer[provider.DisplayName!]
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="hr-sect">@Localizer["OR"]</div>
+    }
+    <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="Input.FirstName" class="form-label">@Localizer["First name"]</label>
+                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer["First name"]" autofocus />
+                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="Input.LastName" class="form-label">@Localizer["Last name"]</label>
+                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer["Last name"]" />
+                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            @if (!userManager.EmailAsUserName)
+            {
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
+                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+            <div class="@(userManager.EmailAsUserName ? "col-md-12" : "col-md-6")">
+                <div class="mb-3">
+                    <label asp-for="Input.PhoneNumber" class="form-label">@Localizer["Phone number"]</label>
+                    <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        @if (userManager.EmailAsUserName)
+        {
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <hr>
+                        <div>
+                            <p>
+                                @Localizer["Choose an email and a password of your choice. You can periodically change your password or whenever you wish to."]
+                                <br><br>
+                                @Localizer["These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties."]
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
+                        <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <hr>
+                        <div>
+                            <p>
+                                @Localizer["Choose a username and a password of your choice. You can periodically change your password or whenever you wish to."]
+                                <br><br>
+                                @Localizer["These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties."]
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <label asp-for="Input.UserName" class="form-label">@Localizer["Username"]</label>
+                        <input class="form-control" type="text" asp-for="Input.UserName" placeholder="@Localizer["Username"]" autocomplete="off" />
+                        <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
+                    <input class="form-control" type="password" asp-for="Input.Password" data-sbind="event: { keyup: passwordChanged }" placeholder="@Localizer["Password"]" autocomplete="new-password" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="password-rules" class="password-rules col-md-12">
+                <ul data-sbind="foreach: passwordRules">
+                    <li class="password-rule" data-sbind="text: $data.requirement, css: { 'rule-valid': $data.isValid }"></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="checkbox">
+                        <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
+                        @Localizer["I have read and accept the <a href=\"/terms\" target=\"_blank\">Terms of service</a> and the <a href=\"/privacy\" target=\"_blank\">privacy policy</a>."]
+                    </label>
+                    <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="checkbox">
+                        <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
+                        @Localizer["I consent to the registration and processing of the above personal details for my contact and service as they are defined"]
+                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Localizer["here"]</a>.
+                    </label>
+                    <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-md-6 col-12">
+                <div class="mb-3">
+                    <a class="btn btn-link w-100" asp-page="/Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer["Already have an account?"]</a>
+                </div>
+            </div>
+            <div class="col-md-6 col-12">
+                <div class="mb-3">
+                    <button class="btn btn-primary w-100" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer["Join us"]</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="/lib/knockout/build/output/knockout-latest.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/js/utilities.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/js/password-rules.js" csp-nonce="true"></script>
+    <script csp-nonce="true">
+        document.querySelectorAll('.idp a').forEach(function (el) {
+            el.onclick = function (link) {
+                if (!link.target.classList.contains('disabled')) {
+                    link.target.classList.add('disabled');
+                }
+            };
+        });
+    </script>
+}

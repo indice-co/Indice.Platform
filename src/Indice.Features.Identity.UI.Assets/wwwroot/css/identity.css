@@ -1630,7 +1630,9 @@ body.home .container .identity-panel {
     height: auto;
     min-height: auto;
     border-radius: 10px;
-} /* Grayscale. */
+}
+
+/* Grayscale. */
 /*1 rem = 16px;*/
 body.identity-page #wrap {
     position: relative;

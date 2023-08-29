@@ -1,0 +1,28 @@
+﻿@page "/error"
+
+@inject IIdentityViewLocalizer Localizer
+
+@model BaseErrorModel
+
+@{
+    var title = ViewData["Title"] = Localizer["Error"].Value;
+}
+
+<section class="border-0 pt-5 error-page identity-panel">
+    <article>
+        <h1 class="text-danger text-start">@title</h1>
+        <h2 class="text-danger">@Localizer["Oops! Seems we encountered an error."]</h2>
+        <p class="pt-5">
+            @if (Model?.Message is not null)
+            {
+                <strong>
+                    <em>: @Model.Message</em>
+                </strong>
+            }
+            @if (Model?.RequestId is not null)
+            {
+                <div class="request-id">@Localizer["Request Id"]: @Model.RequestId</div>
+            }
+        </p>
+    </article>
+</section>

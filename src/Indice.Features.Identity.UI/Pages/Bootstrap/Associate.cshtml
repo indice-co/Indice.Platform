@@ -1,0 +1,84 @@
+﻿@page "/associate"
+
+@model BaseAssociateModel
+
+@inject IIdentityViewLocalizer Localizer
+
+@{
+    var title = ViewData["Title"] = $"{Localizer["Associate your"].Value} {Model.View.Provider} {Localizer["account"].Value}";
+}
+
+<section class="sign-up m-auto">
+    <partial name="_PageHeader" model="title" />
+    <partial name="_ValidationSummary" />
+    <form asp-page="/Associate" method="post" autocomplete="off" novalidate>
+        <input type="hidden" asp-for="Input.ReturnUrl" />
+        <input type="hidden" asp-for="Input.UserName" />
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="Input.FirstName" class="form-label">@Localizer["First name"]</label>
+                    <input class="form-control" type="text" asp-for="Input.FirstName" placeholder="@Localizer["First name"]" autofocus />
+                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="Input.LastName" class="form-label">@Localizer["Last name"]</label>
+                    <input class="form-control" type="text" asp-for="Input.LastName" placeholder="@Localizer["Last name"]" />
+                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="Input.LastName" class="form-label">@Localizer["Phone number"]</label>
+                    <input class="form-control" type="tel" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
+                    <input class="form-control" type="email" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="checkbox">
+                        <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
+                        @Localizer["I have read and accept the <a href=\"/terms\" target=\"_blank\">Terms of service</a> and the <a href=\"/privacy\" target=\"_blank\">privacy policy</a>."]
+                    </label>
+                    <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="checkbox">
+                        <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
+                        @Localizer["I consent to the registration and processing of the above personal details for my contact and service as they are defined"]
+                        <a style="font-weight:bold" asp-page="/Privacy" target="_blank">@Localizer["here"].</a>.
+                    </label>
+                    <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row align-items-center">
+            <div class="col-xl-6 col-12">
+                <div class="mb-3">
+                    <button class="btn btn-primary w-100 btn-hover" type="submit">@Localizer["Register"]</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

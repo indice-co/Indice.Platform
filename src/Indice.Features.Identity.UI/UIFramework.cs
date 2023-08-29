@@ -5,10 +5,8 @@ internal enum UIFramework
 {
     // The default framework for a given release must be 0.
     // So this needs to be updated in the future if we include more frameworks.
-    /// <summary>Bootstrap 4</summary>
-    Bootstrap4 = 0,
     /// <summary>Bootstrap 5</summary>
-    Bootstrap5 = 1,
+    Bootstrap = 0,
     /// <summary>Tailwind 3</summary>
-    Tailwind3 = 2
+    Tailwind = 2
 }
