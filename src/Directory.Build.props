@@ -3,9 +3,9 @@
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
       <VersionPrefixBase>7.3</VersionPrefixBase>
-      <VersionPrefixCore>$(VersionPrefixBase).20</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).22</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).27</VersionPrefixIdentityUI>
+      <VersionPrefixCore>$(VersionPrefixBase).21</VersionPrefixCore>
+      <VersionPrefixIdentity>$(VersionPrefixBase).23</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).28</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).15</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).17</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).13</VersionPrefixMultitenancy>
