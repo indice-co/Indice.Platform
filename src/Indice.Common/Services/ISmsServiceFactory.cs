@@ -3,7 +3,7 @@
 /// <summary>Factory for <see cref="ISmsService"/>.</summary>
 public interface ISmsServiceFactory
 {
-    /// <summary>Create the <see cref="ISmsService"/> given the requested delivery channel. If an available implementation maches the given delivery Channel then an instance will be be returned else an <see cref="NotSupportedException"/> will be thrown.</summary>
+    /// <summary>Create the <see cref="ISmsService"/> given the requested delivery channel. If an available implementation matches the given delivery Channel then an instance will be be returned else an <see cref="NotSupportedException"/> will be thrown.</summary>
     /// <param name="channel">The name of channel.</param>
     /// <returns>The <see cref="ISmsService"/> for the requested channel</returns>
     /// <exception cref="NotSupportedException"></exception>

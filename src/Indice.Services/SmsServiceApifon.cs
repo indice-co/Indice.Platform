@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Services;
 
@@ -14,9 +15,13 @@ public class SmsServiceApifon : ISmsService
     /// <param name="settings">The settings required to configure the service.</param>
     /// <param name="httpClient">Injected <see cref="System.Net.Http.HttpClient"/> managed by the DI.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    public SmsServiceApifon(HttpClient httpClient, SmsServiceApifonSettings settings, ILogger<SmsServiceApifon> logger) {
+    public SmsServiceApifon(
+        HttpClient httpClient, 
+        IOptionsSnapshot<SmsServiceApifonSettings> settings, 
+        ILogger<SmsServiceApifon> logger
+    ) {
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         if (string.IsNullOrWhiteSpace(Settings.Token)) {
             throw new ArgumentException($"SMS settings {nameof(SmsServiceApifonSettings.Token)} is empty.");
