@@ -1,6 +1,6 @@
 ﻿@page "/login/add-phone"
 
-@model AddPhoneModel
+@model BaseAddPhoneModel
 
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
@@ -9,7 +9,7 @@
 @{
     ViewBag.Title = Localizer["Add phone"];
     ViewData["Title"] = Localizer["Add phone"].Value;
-    var alert = TempData.Peek<AlertModel>(BaseAddPhoneModel.TempDataKey).Localize(Localizer);
+    var alert = TempData.Peek<AlertModel>(BaseAddPhoneModel.TempDataKey);
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }

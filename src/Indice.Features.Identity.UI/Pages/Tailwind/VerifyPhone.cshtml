@@ -1,6 +1,6 @@
 ﻿@page "/login/verify-phone"
 
-@model VerifyPhoneModel
+@model BaseVerifyPhoneModel
 
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
@@ -9,7 +9,7 @@
 
     ViewBag.Title = Localizer["Verify phone number"];
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseVerifyPhoneModel.TempDataKey);
-    var alert = tempData.Alert.Localize(Localizer);
+    var alert = tempData.Alert;
     var displayNext = !string.IsNullOrEmpty(tempData.NextStepUrl) && tempData?.Alert?.AlertType == AlertType.Success;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;

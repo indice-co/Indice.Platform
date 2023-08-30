@@ -1,9 +1,11 @@
-﻿@inject GeneralSettings Settings
+﻿@using Microsoft.AspNetCore.Builder;
+@inject GeneralSettings Settings
 @inject IViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
+@inject IOptions<RequestLocalizationOptions> LocalizationOptions
 
 @{
-    var supportedCultures = SupportedCultures.Get().ToList();
+    var supportedCultures = LocalizationOptions.Value.SupportedUICultures!;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var currentLang = CultureInfo.CurrentUICulture.Name == "en" ? "English" : CultureInfo.CurrentUICulture.Name == "el" ? "Ελληνικά" : CultureInfo.CurrentUICulture.DisplayName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;

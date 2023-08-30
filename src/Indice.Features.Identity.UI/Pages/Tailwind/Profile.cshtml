@@ -1,13 +1,13 @@
 ﻿@page "/manage/profile"
 
-@model ProfileModel
+@model BaseProfileModel
 
 @inject IIdentityViewLocalizer Localizer
 
 @{
     Layout = "_LayoutWithSidebar";
     ViewData["Title"] = Localizer["Profile"];
-    var alert = TempData.Get<AlertModel>("Alert").Localize(Localizer);
+    var alert = TempData.Get<AlertModel>("Alert");
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
