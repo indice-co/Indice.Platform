@@ -1,0 +1,228 @@
+﻿/* You can add global styles to this file, and also import other style files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+:root {
+    --tenant900: #005b96;
+    --tenant800: #2673a5;
+    --tenant700: #4c8bb5;
+    --tenant600: #73a5c5;
+    --tenant500: #99bdd5;
+    --tenant400: #bfd6e5;
+    --tenant-bg-image: url("../../img/background-image.jpg");
+}
+
+@layer base {
+    body, html {
+    }
+
+    body {
+        @apply min-h-screen flex flex-col relative m-0 bg-no-repeat bg-one bg-cover bg-top bg-[url('../img/background-image.jpg')] overflow-x-hidden;
+         font-family: "Manrope", system-ui, sans-serif;
+    }
+
+    main {
+        @apply relative block h-full flex flex-col flex-nowrap grow shrink basis-0;
+    }
+
+    footer {
+        @apply lg:px-32 w-full flex shrink-0 grow-0 basis-full flex-wrap lg:flex-nowrap items-center justify-center lg:justify-between h-16 bottom-0 left-0 text-white bg-one lg:bg-transparent z-40 transition-all ease-in-out lg:my-3;
+    }
+
+    article, aside, header, main, section {
+        @apply block;
+    }
+
+    p {
+        @apply text-base font-normal text-greys-800;
+    }
+
+    h1 {
+        @apply text-3xl font-normal mt-5 mb-2;
+    }
+
+    h3 {
+        @apply text-tenant-900 font-bold;
+    }
+
+    a {
+        @apply text-tenant-900 underline;
+    }
+
+    label {
+        @apply text-sm font-medium text-greys-400;
+    }
+
+    hr {
+        @apply my-2.5 h-px bg-greys-400 border-t-0;
+    }
+
+    textarea,
+    select,
+    input[type]:not([type="checkbox"]) {
+        @apply w-full py-3 my-1 rounded-[35px] text-greys-900 bg-white focus:placeholder:invisible border-greys-400 px-6;
+        float: clear;
+        font-size: inherit;
+    }
+
+    input[type]:not([type="checkbox"]) + label {
+        @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
+    }
+
+    select + label {
+        @apply self-start bg-white invisible transition-transform duration-200 ease-in-out py-0.5 text-sm text-tenant-900 px-2 left-5 top-0;
+    }
+
+    input[type="checkbox"] {
+        @apply w-5 h-5 focus:ring-tenant-500 border-greys-400 focus:border-tenant-500 text-tenant-900 mx-2;
+    }
+
+    input[type="checkbox"] + label {
+        @apply text-greys-800;
+    }
+
+    input[type="range"] {
+        @apply appearance-none bg-transparent w-full rounded-full absolute;
+    }
+
+    input::-webkit-slider-thumb {
+        @apply appearance-none;
+    }
+
+    input::-moz-range-thumb {
+        @apply appearance-none;
+    }
+
+    textarea:focus,
+    select:focus,
+    input:focus {
+        @apply focus:outline-none focus:ring-1 focus:ring-tenant-900;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+        @apply w-full h-5;
+    }
+
+    input[type="range"]::-moz-range-track {
+        @apply w-full h-5;
+    }
+
+    input[type="number"] {
+        -webkit-appearance: textfield !important;
+        -moz-appearance: textfield !important;
+        appearance: textfield !important;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        @apply appearance-none;
+    }
+
+    ::-webkit-scrollbar {
+        @apply w-1 ml-5;
+    }
+
+    ::-webkit-scrollbar-track {
+        @apply rounded-full;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply rounded-full bg-tenant-900;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        @apply bg-tenant-900;
+    }
+}
+
+@layer components {
+
+    .form {
+        @apply px-8 overflow-y-scroll lg:max-h-[30rem] mt-7;
+    }
+
+    input:visited,
+    input:focus,
+    select:focus,
+    input:active {
+        border: 1px solid #005b96;
+    }
+
+    ::placeholder {
+        color: #cacaca;
+        opacity: 1;
+    }
+
+    :-ms-input-placeholder {
+        color: #cacaca;
+    }
+
+    ::-ms-input-placeholder {
+        color: #cacaca;
+    }
+
+    .footer-links {
+        @apply items-center border-b-tenant-900 lg:border-b-transparent border-b flex flex-row justify-center lg:justify-start place-content-end w-full;
+
+        a {
+            @apply text-xs uppercase text-white sm:text-center mx-1 no-underline cursor-pointer;
+        }
+
+        span {
+            @apply text-tenant-900 font-bold;
+        }
+    }
+
+    .hr-sect {
+        @apply flex basis-full items-center;
+
+
+        &:before,
+        &:after {
+            @apply bg-greys-400;
+            content: "";
+            flex-grow: 1;
+            visibility: visible !important;
+            height: 1px;
+            font-size: 0px;
+            line-height: 0px;
+        }
+
+        span {
+            @apply px-2 lowercase text-greys-400;
+        }
+    }
+
+    .mini-menu-icon {
+        @apply h-[22px] px-2;
+    }
+
+    .text-danger {
+        @apply text-left text-sm text-red-600;
+    }
+
+    .input-group {
+        @apply lg:col-span-6 col-span-12 relative;
+    }
+
+    .input-group-w-full {
+        @apply col-span-12 relative;
+    }
+
+    .row {
+        @apply grid grid-cols-12 gap-5 md:gap-7 md:mb-7 mb-5;
+    }
+}
+
+@import 'tailwind/alerts';
+@import 'ribbon';
+@import 'grants';
+@import 'tailwind/buttons';
+@import 'home';
+@import 'menu';
+@import 'deck';
+@import 'passrules';
+@import 'tailwind/sidebar';
+@import 'article';
