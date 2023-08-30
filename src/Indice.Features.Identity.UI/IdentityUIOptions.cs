@@ -40,6 +40,8 @@ public class IdentityUIOptions
     public bool ShowLogoutPrompt { get; set; } = true;
     /// <summary>Automatic redirect after sign out.</summary>
     public bool AutomaticRedirectAfterSignOut { get; set; } = false;
+    /// <summary>The two-letter country codes to allow phone numbers from.</summary>
+    public string[]? PhoneCountries { get; set; }
 
     /// <summary>Services shown in the homepage.</summary>
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
