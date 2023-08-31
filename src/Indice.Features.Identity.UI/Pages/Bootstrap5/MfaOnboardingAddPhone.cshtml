@@ -19,7 +19,10 @@
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <label asp-for="Input.PhoneNumber" class="form-label visually-hidden">@Localizer["Phone number"]</label>
             <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-            <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" readonly="@Model.View.DisablePhoneNumberInput" />
+            <div class="input-group">
+                <select indice-if="Model.GetPhoneCountriesList() is not null" class="form-select" asp-for="Input.PhoneCallingCode" asp-items="Model.GetPhoneCountriesList()"></select>
+                <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" readonly="@Model.View.DisablePhoneNumberInput" />
+            </div>
             <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
         </div>
         <div class="mb-3">

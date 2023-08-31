@@ -15,6 +15,8 @@ public class RegisterInputModel
     public string? PasswordConfirmation { get; set; }
     /// <summary>The users email.</summary>
     public string? Email { get; set; }
+    /// <summary>The country calling code.</summary>
+    public string? PhoneCallingCode { get; set; }
     /// <summary>The users phone number. Usually used to store the mobile phone in order later on enable 2 factor authentication scenarios through SMS.</summary>
     public string? PhoneNumber { get; set; }
     /// <summary>The return URL is used to keep track of the original intent of the user when he landed on login and switched over to register.</summary>

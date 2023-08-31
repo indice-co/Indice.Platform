@@ -59,7 +59,10 @@
             <div class="@(userManager.EmailAsUserName ? "col-md-12" : "col-md-6")">
                 <div class="form-group">
                     <label asp-for="Input.PhoneNumber">@Localizer["Phone number"]</label>
-                    <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                    <div class="input-group">
+                        <select indice-if="Model.GetPhoneCountriesList() is not null" class="form-select" asp-for="Input.PhoneCallingCode" asp-items="Model.GetPhoneCountriesList()"></select>
+                        <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                    </div>
                     <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
                 </div>
             </div>

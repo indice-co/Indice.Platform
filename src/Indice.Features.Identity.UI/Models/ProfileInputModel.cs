@@ -11,6 +11,8 @@ public class ProfileInputModel
     public string? UserName { get; set; }
     /// <summary></summary>
     public string? Email { get; set; }
+    /// <summary>The country calling code.</summary>
+    public string? PhoneCallingCode { get; set; }
     /// <summary></summary>
     public string? PhoneNumber { get; set; }
     /// <summary></summary>

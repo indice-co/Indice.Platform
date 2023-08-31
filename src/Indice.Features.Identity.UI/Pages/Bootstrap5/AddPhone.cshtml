@@ -18,7 +18,10 @@
         <div class="mb-3">
             <label asp-for="Input.PhoneNumber" class="form-label visually-hidden">@Localizer["Phone number"]</label>
             <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-            <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
+            <div class="input-group">
+                <select indice-if="Model.GetPhoneCountriesList() is not null" class="form-select" asp-for="Input.PhoneCallingCode" asp-items="Model.GetPhoneCountriesList()"></select>
+                <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+            </div>
             <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
         </div>
         <div class="mb-3">

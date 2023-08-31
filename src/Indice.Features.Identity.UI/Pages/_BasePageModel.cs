@@ -1,16 +1,15 @@
-﻿using System.Globalization;
-using IdentityModel;
+﻿using IdentityModel;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
@@ -23,6 +22,8 @@ namespace Indice.Features.Identity.UI.Pages;
 /// <summary>Base model class for pages containing some common utility methods.</summary>
 public abstract class BasePageModel : PageModel
 {
+    private static List<SelectListItem>? _phoneCountriesListCache;
+
     private IdentityUIOptions? _uiOptions;
     private RequestCulture? _requestCulture;
 
@@ -77,6 +78,28 @@ public abstract class BasePageModel : PageModel
         UserState.RequiresMfaOnboarding => Url.PageLink("/MfaOnboarding", values: new { returnUrl }),
         _ => default
     };
+
+    /// <summary>
+    /// Returns a <see cref="SelectListItem"/> array for an html select component or null if the feature is disabled.
+    /// </summary>
+    /// <returns></returns>
+    public List<SelectListItem>? GetPhoneCountriesList() {
+        if (_uiOptions?.PhoneCountries is not { Length: > 0 }) return null;
+
+        if (_phoneCountriesListCache is not null) return _phoneCountriesListCache;
+
+        var phoneCountries = _uiOptions.PhoneCountries.ToHashSet();
+        var countries = Indice.Globalization.CountryInfo.Countries
+            .Where(info => phoneCountries.Contains(info.TwoLetterCode))
+            .Select(info => new SelectListItem { Text = $"{info.Name} (+{info.CallingCodeDefault})", Value = info.CallingCode })
+            .ToList();
+
+        countries.Insert(0, new() { Text = "Choose", Value = string.Empty });
+
+        _phoneCountriesListCache = countries;
+
+        return countries;
+    }
 
     /// <summary>Adds errors contained in <see cref="IdentityResult"/> to the <see cref="ModelStateDictionary"/>.</summary>
     /// <param name="result">Represents the result of a sign-in operation.</param>
