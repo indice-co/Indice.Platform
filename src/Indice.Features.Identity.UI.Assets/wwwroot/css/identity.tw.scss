@@ -62,7 +62,7 @@
     textarea,
     select,
     input[type]:not([type="checkbox"]) {
-        @apply w-full py-3 my-1 rounded-[35px] text-greys-900 bg-white focus:placeholder:invisible border-greys-400 px-6;
+        @apply w-full py-3 my-1 rounded-md text-greys-900 bg-white focus:placeholder:invisible border-greys-400 px-6;
         float: clear;
         font-size: inherit;
     }
@@ -217,12 +217,12 @@
 }
 
 @import 'tailwind/alerts';
-@import 'ribbon';
-@import 'grants';
+@import 'tailwind/ribbon';
+@import 'tailwind/grants';
 @import 'tailwind/buttons';
-@import 'home';
-@import 'menu';
-@import 'deck';
-@import 'passrules';
+@import 'tailwind/home';
+@import 'tailwind/menu';
+@import 'tailwind/deck';
+@import 'tailwind/passrules';
 @import 'tailwind/sidebar';
-@import 'article';
+@import 'tailwind/article';

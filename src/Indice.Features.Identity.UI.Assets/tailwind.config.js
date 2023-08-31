@@ -1,6 +1,6 @@
 ﻿import flowbite from 'flowbite/plugin.js';
 export default {
-    content: ['./Pages/Tailwind/**/*.cshtml', '**/*.scss',
+    content: ['../Indice.Features.Identity.UI/Pages/Tailwind/**/*.cshtml', '**/*.scss',
         './node_modules/flowbite/**/*.js'],
     theme: {
         extend: {
