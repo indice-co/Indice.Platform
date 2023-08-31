@@ -1,0 +1,32 @@
+<div [class]="options?.htmlClass || ''">
+       <label *ngIf="options?.title"
+              [attr.for]="'control' + layoutNode?._id"
+              [class]="options?.labelHtmlClass || ''"
+              [style.display]="options?.notitle ? 'none' : ''"
+              [innerHTML]="options?.title"></label>
+       <ng-container *ngIf="!options?.readonly">
+              <input *ngIf="boundControl"
+                     [formControl]="formControl"
+                     type="hidden">
+              <input [class]="options?.fieldHtmlClass || ''"
+                     [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
+                     [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
+                     [attr.maxlength]="options?.maxLength"
+                     [attr.minlength]="options?.minLength"
+                     [attr.pattern]="options?.pattern"
+                     [attr.placeholder]="options?.placeholder"
+                     [attr.required]="options?.required"
+                     [disabled]="controlDisabled"
+                     [id]="'input-control' + layoutNode?._id"
+                     [name]="'input' + controlName"
+                     [readonly]="options?.readonly ? 'readonly' : null"
+                     [type]="layoutNode?.type"
+                     (input)="updateValue($event)"
+                     [(ngModel)]="formControl.value">
+       </ng-container>
+       <ng-container *ngIf="options?.readonly">
+              <a href="{{formControl.value}}">
+                     {{formControl.value}}
+              </a>
+       </ng-container>
+</div>

@@ -17,6 +17,7 @@ import { Router } from '@angular/router';
 import { FileWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/file-widget/file-widget.component';
 import { LookupSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
 import { WysiwygWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
+import { HrefWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/href-widget/href-widget.component';
 
 @Component({
   selector: 'app-case-form',
@@ -45,7 +46,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     "text": InputWidgetComponent,
     "number": InputWidgetComponent,
     "textarea": TextAreaWidgetComponent,
-    "wysiwyg": WysiwygWidgetComponent
+    "wysiwyg": WysiwygWidgetComponent,
+    "href": HrefWidgetComponent
   };
   // Add custom framework
   public framework = {
