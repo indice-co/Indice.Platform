@@ -25,8 +25,10 @@
                      [(ngModel)]="formControl.value">
        </ng-container>
        <ng-container *ngIf="options?.readonly">
-              <a href="{{formControl.value}}">
-                     {{formControl.value}}
-              </a>
+          <div class="mb-2 read-only:bg-gray-100 border rounded px-3 py-2">
+            <a href="{{formControl.value}}" class="text-blue-600" target="_blank">
+                   {{formControl.value}}
+            </a>
+          </div>
        </ng-container>
 </div>
