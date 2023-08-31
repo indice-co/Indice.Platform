@@ -3,29 +3,17 @@
 @model BaseVerifyPhoneModel
 
 @inject IIdentityViewLocalizer Localizer
-@inject IWebHostEnvironment HostingEnvironment
 
 @{
-
-    ViewBag.Title = Localizer["Verify phone number"];
+    var title = ViewData["Title"] = Localizer["Verify phone number"].Value;
     var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseVerifyPhoneModel.TempDataKey);
     var alert = tempData.Alert;
     var displayNext = !string.IsNullOrEmpty(tempData.NextStepUrl) && tempData?.Alert?.AlertType == AlertType.Success;
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <div class="logo-crop">
-            <div class="logo-wrapper">
-                <div class="logo-inner-wrapper">
-                    <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
-                </div>
-            </div>
-        </div>
-        <h3>DEBT SETTLEMENT</h3>
-        <h1>@ViewData["Title"]</h1>
+        <partial name="_PageHeader" model="title" />
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="alert" />
         <form method="post" novalidate>

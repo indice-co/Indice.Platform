@@ -5,20 +5,12 @@
 @inject IIdentityViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = Localizer["Email Confirmation"];
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var title = ViewData["Title"] = Localizer["Email Confirmation"].Value;
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <div class="logo-crop">
-            <div class="logo-wrapper">
-                <div class="logo-inner-wrapper">
-                    <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
-                </div>
-            </div>
-        </div>
+        <partial name="_PageHeader" model="title" />
         @if (ViewContext.ModelState.IsValid)
         {
             <h1>

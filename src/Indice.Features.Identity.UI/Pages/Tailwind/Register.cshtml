@@ -5,22 +5,12 @@
 @inject IIdentityViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = Localizer["Sign up"];
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var title = ViewData["Title"] = Localizer["Sign up"].Value;
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper register">
-        <div class="logo-crop">
-            <div class="logo-wrapper">
-                <div class="logo-inner-wrapper">
-                    <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
-                </div>
-            </div>
-        </div>
-        <h3>DEBT SETTLEMENT</h3>
-        <h1>@ViewData["Title"]</h1>
+        <partial name="_PageHeader" model="title" />
         <partial name="_ValidationSummary" />
         <p class="px-8">@Localizer["To register as a new user you will need to fill in the following information."]</p>
         <form data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form">
@@ -156,17 +146,13 @@
             </div>
         </form>
         <div class="px-8">
-            @{
-                await Html.RenderPartialAsync("_SelectLanguageFormPartial");
-            }
+            <partial name="_SelectLanguageFormPartial" />
         </div>
     </div>
 </div>
 
 @section scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScripts");
-    }
+    <partial name="_ValidationScripts" />
     <script type="text/javascript" src="~/lib/knockout/build/output/knockout-latest.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/utilities.js" csp-nonce="true"></script>
@@ -180,4 +166,4 @@
             };
         });
     </script>
-    }
+ }
