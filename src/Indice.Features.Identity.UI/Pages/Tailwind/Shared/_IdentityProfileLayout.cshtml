@@ -1,26 +1,32 @@
 ﻿@inject GeneralSettings Settings
-@inject IViewLocalizer Localizer
+@inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
-@inject ExtendedSignInManager<User> SignInManager
+@inject IConfiguration Configuration
+@inject IOptions<IdentityUIOptions> UiOptions
+@inject SignInManager<User> SignInManager
 
 @{
-    var displayMenu = SignInManager.IsSignedIn(User);// todo: check && !SignInManager.IsSignedInWithScheme(User, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-    var showRibbon = !Environment.IsProduction();
+    Layout = "_IdentityMasterLayout";
+
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
-    var userName = User.Claims.Where(x => x.Type == JwtClaimTypes.Name).FirstOrDefault()?.Value;
+    
     var initials = $"{User.FindFirst(JwtClaimTypes.GivenName)?.Value?[0]}{User.FindFirst(JwtClaimTypes.FamilyName)?.Value?[0]}";
 }
-
-@if (displayMenu)
-{
+@section meta {
+    @RenderSection("meta", required: false)
+}
+@section css {
+    @RenderSection("css", required: false)
+}
+@section aside {
     <a href="~/?sidebar=true">
-        <div class="sidebar-toggler">
-            <span class="menu-avatar">@initials</span>
+        <div class="absolute h-12 w-12 rounded-full lg:bg-[#ffffff63]  lg:backdrop-blur-lg right-5 top-8 cursor-pointer flex items-center justify-center">
+            <span class="text-one font-extrabold text-2xl">@initials</span>
         </div>
     </a>
-    <aside class="sidebar hidden" id="sidebar"
-       aria-label="Sidebar">
+    <aside class="sidebar"
+           aria-label="Sidebar">
         <div class="grid h-full">
             <div class="flex">
                 <div class="toggle-btn-wrapper">
@@ -67,17 +73,17 @@
                             <div class="flex flex-col">
                                 <div class="font-bold mb-1">@Localizer[Settings.Organization]</div>
                                 <div class="text-tenant-900 text-3xl font-normal">@User.FindDisplayName()</div>
-                                <div>@userName</div>
+                                <div>@User.GetDisplayName()</div>
                             </div>
                         </div>
                     </div>
                     <div class="sidebar-body">
                         <div class="tabs-wrapper">
                             <ul class="tabs-list"
-                            id="myTab"
-                            role="tablist">
+                                id="myTab"
+                                role="tablist">
                                 <li class="mr-2"
-                                role="presentation">
+                                    role="presentation">
                                     <a class="@($"tab {(Context.Request.Path == "/" ? "selected" : string.Empty )}")"
                                        id="profile-tab"
                                        asp-page="/Home" asp-route-sidebar="true"
@@ -88,8 +94,9 @@
                                     </a>
                                 </li>
                                 <li class="mr-2"
-                                role="presentation">
+                                    role="presentation">
                                     <a class="@($"tab {(Context.Request.Path == "/manage/profile" ? "selected" : string.Empty )}")"
+                                       aria-selected="@(Context.Request.Path == "/manage/profile")"
                                        id="edit-profile-tab"
                                        asp-page="/Profile"
                                        role="tab">
@@ -97,18 +104,20 @@
                                     </a>
                                 </li>
                                 <li class="mr-2"
-                                role="presentation">
+                                    role="presentation">
                                     <a class="@($"tab {(Context.Request.Path == "/grants" ? "selected" : string.Empty )}")"
                                        id="grants-tab"
+                                       aria-selected="@(Context.Request.Path == "/grants")"
                                        asp-page="/Grants"
                                        role="tab">
                                         @Localizer["Grants"]
                                     </a>
                                 </li>
                                 <li class="mr-2"
-                                role="presentation">
+                                    role="presentation">
                                     <a class="@($"tab {(Context.Request.Path == "/change-password" ? "selected" : string.Empty )}")"
                                        id="changePassword-tab"
+                                       aria-selected="@(Context.Request.Path == "/change-password")"
                                        type="button"
                                        role="tab"
                                        asp-page="/ChangePassword">
@@ -118,15 +127,45 @@
                             </ul>
                         </div>
                         <div id="myTabContent"
-                         class="tab-content">
-                            <vc:profile-sidebar />
+                             class="tab-content">
+                            @RenderBody()
                         </div>
                     </div>
                 </div>
+                @*            <div class="sidebar-footer">
+            <hr>
+            </div>*@
             </div>
-            @*            <div class="sidebar-footer">
-        <hr>
-        </div>*@
         </div>
     </aside>
+}
+
+<div class="content-wrapper">
+    <div class="flex flex-col items-center justify-center">
+        <h1 class="deck-title">
+            @Localizer[UiOptions.Value.HomePageSlogan, Settings.Organization]
+        </h1>
+        <p class="text-white lg:text-one text-lg pt-6 text-center max-w-screen-md">
+            @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization]
+        </p>
+        <div class="deck">
+            @if (!User.IsAuthenticated())
+            {
+                <div class="deck-item col-auto" indice-if="@Environment.IsDevelopment()">
+                    <a asp-page="/Login">
+                        <img indice-if="!User.IsAuthenticated()" class="h-64 w-64" src="~/img/logo@(langSuffix).svg" />
+                    </a>
+                </div>
+            }
+            <partial name="_ServiceDeck" />
+        </div>
+    </div>
+</div>
+<div id="stars"></div>
+<div id="stars2"></div>
+<div id="stars3"></div>
+
+
+@section scripts {
+    @RenderSection("scripts", required: false)
 }

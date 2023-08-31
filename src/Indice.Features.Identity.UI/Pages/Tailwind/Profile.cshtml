@@ -1,15 +1,13 @@
 ﻿@page "/manage/profile"
 
-@model BaseProfileModel
-
 @inject IIdentityViewLocalizer Localizer
 
+@model BaseProfileModel
+
 @{
-    Layout = "_LayoutWithSidebar";
-    ViewData["Title"] = Localizer["Profile"];
+    Layout = "_IdentityProfileLayout";
+    var title = ViewData["Title"] = Localizer["Profile"].Value;
     var alert = TempData.Get<AlertModel>("Alert");
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
 
 <div class="tab-panel"
@@ -25,19 +23,16 @@
     </div>
     @if (Model.ProfileSuccessfullyChanged)
     {
-        <div class="alert alert-success" role="alert">
-            @Localizer["Your profile was updated successfully."]
-            @if (Model.EmailChangeRequested)
-            {
-                @Localizer["An email has been sent to your new email address in order to confirm it."]
-            }
-        </div>
+        var message = Localizer["Your profile was updated successfully."].Value;
+        if (Model.EmailChangeRequested)
+        {
+            message += $" {Localizer["An email has been sent to your new email address in order to confirm it."].Value}";
+        }
+        <partial name="_Alert" model="@AlertModel.Success(message)" />
     }
     @if (Model.View.EmailChangePending && !Model.ProfileSuccessfullyChanged)
     {
-        <div class="alert alert-warning" role="alert">
-            @Localizer["Your new email verification is still pending."]
-        </div>
+        <partial name="_Alert" model="@AlertModel.Warn(Localizer.GetString("Your new email verification is still pending."))" />
     }
     <partial name="_Alert" model="alert" />
     <partial name="_ValidationSummary" />
@@ -149,9 +144,7 @@
             }
         </div>
     </form>
-    @{
-        await Html.RenderPartialAsync("_SelectLanguagePartial");
-    }
+    <partial name="_SelectLanguagePartial"/>
 </div>
 
 @section scripts {
