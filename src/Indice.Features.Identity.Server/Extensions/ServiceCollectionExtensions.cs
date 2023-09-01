@@ -52,8 +52,12 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         var options = new ExtendedIdentityServerOptions();
         setupAction?.Invoke(options);
         services.AddSingleton(options);
-        services.TryAddTransient(serviceProvider => new ExtendedIdentityDbContextSeedOptions<User> {
-            InitialUsers = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().InitialUsers
+        services.TryAddTransient(serviceProvider => {
+            var o = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>();
+            return new ExtendedIdentityDbContextSeedOptions<User, Role> {
+                InitialUsers = o.InitialUsers,
+                CustomRoles = o.CustomRoles
+            };
         });
         services.AddTransient(serviceProvider => new ExtendedConfigurationDbContextSeedOptions {
             CustomClaims = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().CustomClaims
