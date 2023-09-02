@@ -65,7 +65,7 @@ public static class ExtendedIdentityDbContextExtensions
                     CreateDate = DateTime.UtcNow,
                     Email = adminEmail,
                     EmailConfirmed = true,
-                    Id = "ab9769f1-d532-4b7d-9922-3da003157ebd",
+                    Id = adminId,
                     LockoutEnabled = false,
                     NormalizedEmail = adminEmail.ToUpper(),
                     NormalizedUserName = adminEmail.ToUpper(),
