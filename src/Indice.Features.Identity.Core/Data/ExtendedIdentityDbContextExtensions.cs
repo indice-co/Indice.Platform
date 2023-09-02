@@ -86,7 +86,10 @@ public static class ExtendedIdentityDbContextExtensions
                 RoleId = role.Id
             });
         }
-        if (seedOptions?.InitialUsers?.Count() > 0) {
+        if (seedOptions?.CustomRoles?.Any() == true) {
+            dbContext.Roles.AddRange(seedOptions.CustomRoles);
+        }
+        if (seedOptions?.InitialUsers?.Any() == true) {
             dbContext.Users.AddRange(seedOptions.InitialUsers);
         }
 
