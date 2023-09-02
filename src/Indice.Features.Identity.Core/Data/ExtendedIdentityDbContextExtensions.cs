@@ -56,6 +56,7 @@ public static class ExtendedIdentityDbContextExtensions
             }
             if (seedOptions?.InitialUsers?.Any() != true ||
                 !seedOptions.InitialUsers.Any(x => x.Id == adminId ||
+                                                   x.UserName.Equals(adminEmail, StringComparison.OrdinalIgnoreCase) ||
                                                    x.Email.Equals(adminEmail, StringComparison.OrdinalIgnoreCase))) {
                 // admin not seeded externaly through initial users!
                 // Create admin now
