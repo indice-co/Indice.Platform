@@ -1,24 +1,22 @@
 ﻿@page "/logout"
 
-@inject IIdentityViewLocalizer Localizer
-
 @model BaseLogoutModel
+
+@inject IIdentityViewLocalizer Localizer
 
 @{
     var title = ViewData["Title"] = Localizer["Logout"].Value;
 }
 
-<section class="identity-panel wide logout-page">
-    <article class="text-center">
+<div class="content-wrapper">
+    <div class="card-wrapper">
         <partial name="_PageHeader" model="title" />
         <p>@Localizer["Would you like to logout?"]</p>
         <form asp-page="/Logout">
             <input type="hidden" name="logoutId" value="@Model.LogoutId" />
             <fieldset>
-                <div class="mb-3">
-                    <button class="btn btn-primary">@Localizer["Yes"]</button>
-                </div>
+                <button class="btn btn-primary">@Localizer["Yes"]</button>
             </fieldset>
         </form>
-    </article>
-</section>
+    </div>
+</div>

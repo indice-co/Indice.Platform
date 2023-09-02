@@ -19,7 +19,8 @@ public static class ExtendedIdentityDbContextExtensions
             var dbContext = serviceScope.ServiceProvider.GetService<ExtendedIdentityDbContext<User, Role>>();
             if (dbContext is not null) {
                 dbContext.Database.EnsureCreated();
-                dbContext.SeedInitialData();
+                var seedOptions = serviceScope.ServiceProvider.GetService<ExtendedIdentityDbContextSeedOptions<User, Role>>();
+                dbContext.SeedInitialData(seedOptions);
             }
         }
         return app;
@@ -29,7 +30,8 @@ public static class ExtendedIdentityDbContextExtensions
     /// <typeparam name="TUser">The type of user.</typeparam>
     /// <typeparam name="TRole">The type of role.</typeparam>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
-    public static void SeedInitialData<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext)
+    /// <param name="seedOptions">Seed options to customize initial load of users and roles</param>
+    public static void SeedInitialData<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext, ExtendedIdentityDbContextSeedOptions<TUser, TRole> seedOptions = null)
         where TUser : User, new()
         where TRole : Role, new() {
         if (!dbContext.Database.CanConnect()) {
@@ -84,6 +86,13 @@ public static class ExtendedIdentityDbContextExtensions
                 RoleId = role.Id
             });
         }
+        if (seedOptions?.CustomRoles?.Any() == true) {
+            dbContext.Roles.AddRange(seedOptions.CustomRoles);
+        }
+        if (seedOptions?.InitialUsers?.Any() == true) {
+            dbContext.Users.AddRange(seedOptions.InitialUsers);
+        }
+
         dbContext.SaveChanges();
     }
 }

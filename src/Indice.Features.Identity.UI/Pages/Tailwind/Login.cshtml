@@ -9,81 +9,95 @@
     var title = ViewData["Title"] = Localizer["Login"].Value;
 }
 
-<section class="sign-in m-auto">
-    <partial name="_PageHeader" model="title" />
-    <partial name="_ValidationSummary" />
-    @if (Model.View.VisibleExternalProviders.Any())
-    {
-        <div class="login-form">
-            <ul class="list-unstyled">
-                @foreach (var provider in Model.View.VisibleExternalProviders)
-                {
-                    <li class="idp idp-@provider.AuthenticationScheme!.ToLower()">
-                        <a class="btn btn-@provider.AuthenticationScheme.ToLower() btn-hover" asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
-                            @Localizer[provider.DisplayName!]
-                        </a>
-                    </li>
-                }
-            </ul>
-        </div>
-        <div class="hr-sect">@Localizer["OR"]</div>
-    }
-    @if (Model.UiOptions.EnableLocalLogin)
-    {
-        <form asp-route-returnUrl="@Model.View.ReturnUrl" method="post">
-            <input type="hidden" asp-for="Input.ReturnUrl" />
-            <input type="hidden" asp-for="Input.DeviceId" />
-            <div class="mb-3">
-                <label asp-for="Input.UserName" class="form-label">@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]</label>
-                <input class="form-control" type="text" placeholder="@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]" asp-for="Input.UserName" />
-                <span asp-validation-for="Input.UserName" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
-                <input class="form-control" type="password" placeholder="@Localizer["Password"]" asp-for="Input.Password" autocomplete="off" />
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                @if (Model.UiOptions.AllowRememberLogin)
-                {
-                    <div class="form-check custom-checkbox d-inline-block">
-                        <label class="form-check-label">
-                            <input asp-for="Input.RememberLogin" type="checkbox" class="form-check-input text-info" />
-                            <span class="control"></span>
-                            @Localizer["Remember me"]
-                        </label>
-                    </div>
-                }
-                @if (Model.UiOptions.EnableForgotPasswordPage)
-                {
-                    <a class="btn btn-link p-0 text-md float-end text-blue" asp-page="/ForgotPassword">@Localizer["Forgot password?"]</a>
-                }
-            </div>
-            <div class="mb-3">
-                <div class="row m-0 w-100">
-                    @if (Model.UiOptions.EnableRegisterPage)
-                    {
-                        <div class="col-sm-6 col-12 py-1">
-                            <a class="btn btn-link w-100" asp-page="/Register" asp-route-returnUrl="@Model.View.ReturnUrl">
-                                @Localizer["Join us"]
-                            </a>
-                        </div>
-                    }
-                    <div class="@(Model.UiOptions.EnableRegisterPage ? "col-sm-6" : string.Empty) col-12 py-1">
-                        <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Localizer["Sign in"]</button>
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <partial name="_PageHeader" model="title" />
+        <partial name="_ValidationSummary" />
+
+        @if (Model.UiOptions.EnableLocalLogin)
+        {
+            <form asp-route-returnUrl="@Model.View.ReturnUrl" method="POST" class="form">
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+                <input type="hidden" asp-for="Input.DeviceId" />
+                <div class="row">
+                    <div class="input-group-w-full group">
+                        <input type="text" class="peer" placeholder="@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]" asp-for="Input.UserName" />
+                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer[userManager.EmailAsUserName ? "Email" : "Username"]</label>
+                        <span asp-validation-for="Input.UserName" class="text-danger"></span>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="input-group-w-full">
+                        <input type="password" class="peer" placeholder="@Localizer["Password"]" asp-for="Input.Password" autocomplete="off" />
+                        <label asp-for="Input.Password" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Password"]</label>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center md:justify-between items-center flex-row w-full">
+                    @if (Model.UiOptions.AllowRememberLogin)
+                    {
+                        <div class="flex items-center justify-center sm:justify-start flex-auto">
+                            <label asp-for="Input.RememberLogin" class="mx-1">
+                                <input asp-for="Input.RememberLogin" type="checkbox" class="w-4 h-4" />
+                                @Localizer["Remember me"]
+                            </label>
+                        </div>
+
+                    }
+                    @if (Model.UiOptions.EnableForgotPasswordPage)
+                    {
+                        <a asp-page="/ForgotPassword" asp-route-returnUrl="@(!string.IsNullOrEmpty(Model.View.ReturnUrl) ? Model.View.ReturnUrl : null)">@Localizer["Forgot password?"]</a>
+                    }
+                </div>
+                <div class="flex justify-center items-center mt-8">
+                    <button class="btn btn-primary" name="button" value="login" type="submit">@Localizer["Sign in"]</button>
+                </div>
+            </form>
+        }
+        <div class="px-8">
+            <div class="my-10">
+                @if (!Model.UiOptions.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
+                {
+                    <div class="alert alert-warning">
+                        <strong>@Localizer["Invalid login request"]</strong>
+                        @Localizer["There are no login schemes configured for this client."]
+                    </div>
+                }
+                @if (Model.View.VisibleExternalProviders.Any())
+                {
+                    <div class="hr-sect"><span>@Localizer["OR"]</span></div>
+                    <div class="flex justify-center mb-2.5">
+                        <span class="text-gray-400">@Localizer["login with"]</span>
+                    </div>
+                    <div class="flex flex-wrap justify-center pb-2">
+                        @foreach (var provider in Model.View.VisibleExternalProviders)
+                        {
+                            <div class="idp idp-@provider.AuthenticationScheme!.ToLower() mx-2.5">
+                                <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount">
+                                </a>
+                            </div>
+                        }
+                    </div>
+                    <hr />
+                }
             </div>
-        </form>
-    }
-    @if (!Model.UiOptions.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
-    {
-        <div class="alert alert-warning">
-            <strong>@Localizer["Invalid login request"]</strong>
-            @Localizer["There are no login schemes configured for this client."]
+            @if (Model.UiOptions.EnableRegisterPage)
+            {
+                <div class="flex flex-col mb-10">
+                    <span>
+                        @Localizer["Don't have an account?"]
+                    </span>
+                    <a asp-page="/Register" class="text-primary-default underline" asp-route-returnUrl="@(!string.IsNullOrEmpty(Model.View.ReturnUrl) ? Model.View.ReturnUrl : null)">
+                        @Localizer["Join us"]
+                    </a>
+                </div>
+            }
+            @{
+                await Html.RenderPartialAsync("_SelectLanguagePartial");
+            }
         </div>
-    }
-</section>
+    </div>
+</div>
 
 @section scripts {
     <partial name="_ValidationScripts" />

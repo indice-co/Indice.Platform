@@ -1,144 +1,112 @@
-﻿@inject IWebHostEnvironment Environment
-@inject IOptions<GeneralSettings> GeneralSettingsWrapper
-@inject IOptions<IdentityUIOptions> IdentityUIOptionsWrapper
-@inject IIdentityViewLocalizer Localizer
+﻿@inject GeneralSettings Settings
+@inject IViewLocalizer Localizer
+@inject IWebHostEnvironment Environment
 @inject ExtendedSignInManager<User> SignInManager
-@inject ExtendedUserManager<User> UserManager
 
 @{
-    var displayMenu = SignInManager.IsSignedIn(User) && !User.IsSignedInWithScheme(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
-    var generalSettings = GeneralSettingsWrapper.Value;
+    var displayMenu = SignInManager.IsSignedIn(User);// todo: check && !SignInManager.IsSignedInWithScheme(User, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
     var showRibbon = !Environment.IsProduction();
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
-    var user = await UserManager.GetUserAsync(User);
-
-    var UiOptions = IdentityUIOptionsWrapper.Value;
+    var userName = User.Claims.Where(x => x.Type == JwtClaimTypes.Name).FirstOrDefault()?.Value;
+    var initials = $"{User.FindFirst(JwtClaimTypes.GivenName)?.Value?[0]}{User.FindFirst(JwtClaimTypes.FamilyName)?.Value?[0]}";
 }
 
 @if (displayMenu)
 {
-    <header>
-        <nav class="navbar navbar-expand-md navbar-light bg-white mb-3 fixed-top py-1 py-md-0 text-dark main-nav px-md-5">
-            <div class="container-fluid px-0">
-                <div class="d-flex flex-column align-items-center justify-content-center navbar-brand-wrapper">
-                    <a class="navbar-brand d-flex align-items-center" href="~/">
-                        <img src="/img/logo@(langSuffix).svg" height="28" alt="">
+    <a href="~/?sidebar=true">
+        <div class="sidebar-toggler">
+            <span class="menu-avatar">@initials</span>
+        </div>
+    </a>
+    <aside class="sidebar hidden" id="sidebar"
+       aria-label="Sidebar">
+        <div class="grid h-full">
+            <div class="flex">
+                <div class="toggle-btn-wrapper">
+                    <a asp-page="/Home">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 stroke-white md:stroke-tenant-900 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
                     </a>
                 </div>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-links" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img" focusable="false">
-                        <title>Menu</title>
-                        <path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path>
-                    </svg>
-                </button>
-                <div id="nav-links" class="navbar-collapse collapse">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <div class="nav-avatar">
-                                <img class="card-img rounded-circle" src="~/avatar/@User.FindDisplayName()/48/@(UiOptions.AvatarColorHex).png" alt="@User.FindDisplayName() avatar" />
-                            </div>
-                        </li>
-                        <li class="nav-item">
-                            @if (user is not null && await UserManager.HasPasswordAsync(user))
-                            {
-                                <a class="nav-link" asp-page="/ChangePassword">@Localizer["Change Password"]</a>
-                            }
-                            else
-                            {
-                                <a class="nav-link" asp-page="/AddPassword">@Localizer["Add Password"]</a>
-                            }
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-page="/Profile">@Localizer["Profile"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-page="/Grants">@Localizer["Grants"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-page="/Logout">@Localizer["Log out"]</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="navbar-collapse flex-grow-0 d-none d-md-flex">
-                    <ul class="navbar-nav">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <div class="nav-avatar">
-                                    <img class="card-img rounded-circle" src="~/avatar/@User.FindDisplayName()/48/@(UiOptions.AvatarColorHex).png" alt="@User.FindDisplayName() avatar" />
-                                </div>
+                <div class="sidebar-wrapper">
+                    <div class="sidebar-header">
+                        <div class="flex flex-row justify-between items-start md:items-center border-b border-gray-200 pb-4 mb-8">
+                            <a class="flex flex-col md:flex-row space-x-4 items-center cursor-pointer text-black no-underline" asp-page="/Login">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="33.489" height="34.276" viewBox="0 0 33.489 34.276" class="mb-2 md:mb-0">
+                                    <g id="Group_2819" data-name="Group 2819" transform="translate(-1654.355 -18.751)">
+                                        <path id="Path_4832" data-name="Path 4832" d="M16.026,21.506c-4.788,0-8.288-8.694-8.288-13.218a8.288,8.288,0,1,1,16.576,0c0,4.524-3.5,13.218-8.288,13.218m0-19.488a6.277,6.277,0,0,0-6.27,6.27c0,3.917,3.223,11.2,6.27,11.2S22.3,12.2,22.3,8.288a6.277,6.277,0,0,0-6.27-6.27" transform="translate(1650.771 19.001)" fill="#9e9e9d" stroke="#9e9e9d" stroke-width="0.5" />
+                                        <path id="Path_4833" data-name="Path 4833" d="M12.15,51.207C9.3,51.207,0,50.916,0,47.171A12.374,12.374,0,0,1,8.61,35.4l.618-.191.431.482c1.545,1.725,3.393,1.807,5.05-.033l.434-.482.619.2a12.425,12.425,0,0,1,8.537,11.8c0,3.745-9.3,4.036-12.15,4.036M8.633,37.527a10.359,10.359,0,0,0-6.615,9.644c0,.555,3.115,2.018,10.132,2.018s10.132-1.463,10.132-2.018A10.416,10.416,0,0,0,15.73,37.5a5.179,5.179,0,0,1-3.538,1.538,5.19,5.19,0,0,1-3.559-1.51" transform="translate(1654.605 1.57)" fill="#9e9e9d" stroke="#9e9e9d" stroke-width="0.5" />
+                                        <g id="Group_2826" data-name="Group 2826" transform="translate(-1 3)">
+                                            <line id="Line_90" data-name="Line 90" x2="7.739" transform="translate(1680.105 32.37)" fill="none" stroke="#005b96" stroke-linecap="round" stroke-width="2" />
+                                            <line id="Line_91" data-name="Line 91" y2="7.739" transform="translate(1683.975 28.5)" fill="none" stroke="#005b96" stroke-linecap="round" stroke-width="2" />
+                                        </g>
+                                    </g>
+                                </svg>
+                                <span class="max-w-[175px] text-sm leading-4">
+                                    @Localizer["Sign in with a different account"]
+                                </span>
                             </a>
-                            <div class="dropdown-menu dropdown-menu-end drop-card" aria-labelledby="navbarDropdownMenuLink">
-                                <div class="drop-card-body">
-                                    <div class="current-account">
-                                        <div class="account-organization">@Localizer[generalSettings.Organization]</div>
-                                        <div class="account-info">
-                                            <div class="account-picture">
-                                                <img class="card-img rounded-circle" src="~/avatar/@User.FindDisplayName()/128/@(UiOptions.AvatarColorHex).png" alt="@User.FindDisplayName() avatar" />
-                                            </div>
-                                            <div class="account-details">
-                                                <div class="account-fullname text-truncate" title="@User.FindDisplayName()">@User.FindDisplayName()</div>
-                                                <div class="account-username text-truncate">@(user?.UserName ?? string.Empty)</div>
-                                                <div class="account-links">
-                                                    @if (user is not null && await UserManager.HasPasswordAsync(user))
-                                                    {
-                                                        <a class="account-link" asp-page="/ChangePassword">@Localizer["Change Password"]</a>
-                                                    }
-                                                    else
-                                                    {
-                                                        <a class="account-link" asp-page="/AddPassword">@Localizer["Add Password"]</a>
-                                                    }
-                                                    <a class="account-link" asp-page="/Profile">@Localizer["Profile"]</a>
-                                                    <a class="account-link" asp-page="/Grants">@Localizer["Grants"]</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <a class="account-sign-out text-truncate" asp-page="/Logout" target="_top">@Localizer["Log out"]</a>
-                                    </div>
-                                    <div class="account-list-container">
-                                        <ul class="account-list">
-                                            <li>
-                                                <div class="account-item">
-                                                    <a class="sign-in-item" asp-page="/Login">
-                                                        <div class="account-item-icon">
-                                                            <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' stroke='currentColor'>
-                                                                <g stroke-width='1.9' fill='none'>
-                                                                    <circle cx='32' cy='32' r='30.25' />
-                                                                    <g transform='matrix(1.1 0 0 1.1 8.8 5.61)'>
-                                                                        <circle cx='20' cy='16' r='7' />
-                                                                        <path d='M30 35h10m-5-5v10M30.833 32.09A11 11 0 009 34' />
-                                                                    </g>
-                                                                </g>
-                                                            </svg>
-                                                        </div>
-                                                        <div class="account-item-info">
-                                                            <div class="text-truncate">@Localizer["Sign in with a different account"]</div>
-                                                        </div>
-                                                    </a>
-                                                </div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
+                            <a class="flex flex-col-reverse md:flex-row space-x-4 items-center cursor-pointer text-black no-underline" asp-page="/Logout" target="_top">
+                                <span class="max-w-[175px] text-sm">
+                                    @Localizer["Log out"]
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="29.246" height="28.775" viewBox="0 0 29.246 28.775" class="mb-2 md:mb-0">
+                                    <g id="Group_2817" data-name="Group 2817" transform="translate(-1853.984 -17.501)">
+                                        <path id="Subtraction_14" data-name="Subtraction 14" d="M16166.889,14966.776a13.885,13.885,0,1,1,12.056-20.783h-2.034a12.169,12.169,0,1,0,0,13.791h2.034a13.9,13.9,0,0,1-12.056,6.992Z" transform="translate(-14298.516 -14921)" fill="#9e9e9d" stroke="#9e9e9d" stroke-miterlimit="10" stroke-width="1" />
+                                        <path id="Path_4832" data-name="Path 4832" d="M12.231,1H0A1,1,0,0,1-1,0,1,1,0,0,1,0-1H12.231a1,1,0,0,1,1,1A1,1,0,0,1,12.231,1Z" transform="translate(1869.5 31.889)" fill="#005b96" stroke="#005b96" stroke-linecap="round" stroke-width="1" />
+                                    </g>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="flex items-start md:items-center flex-col md:flex-row">
+                            <div class="rounded-full h-24 w-24 flex items-center justify-center bg-[#DFEAF2] text-tenant-900 font-bold text-4xl mr-8 mb-4">
+                                @initials
                             </div>
-                        </li>
-                    </ul>
+                            <div class="flex flex-col">
+                                <div class="font-bold mb-1">@Localizer[Settings.Organization]</div>
+                                <div class="text-tenant-900 text-3xl font-normal">@User.FindDisplayName()</div>
+                                <div>@userName</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sidebar-body">
+                        <div class="tabs-wrapper">
+                            <ul class="tabs-list"
+                            id="myTab"
+                            role="tablist">
+                                @foreach (var item in new ProfileTabViewModel[] {
+                            new ProfileTabViewModel(id:"profile", pagePath: "/Home", tabName: "Profile"),
+                            new ProfileTabViewModel(id:"edit-profile", pagePath: "/Profile", tabName: "Edit Profile"),
+                            new ProfileTabViewModel(id:"grants", pagePath: "/Grants", tabName: "Grants"),
+                            new ProfileTabViewModel(id:"changePassword", pagePath: "/ChangePassword", tabName: "Change Password"),
+                                            })
+                                {
+                                    <li class="mr-2"
+                                        role="presentation">
+                                        <a class="tab @($"{(Context.Request.Path == Url.Page(item.PagePath) ? "selected" : string.Empty )}")"
+                                           id="@item.Id-tab"
+                                           asp-page="@item.PagePath" asp-route-sidebar="true"
+                                           role="tab"
+                                           aria-controls="@(item.Id == "profile" ? "profile" : string.Empty)"
+                                           aria-selected="@(Context.Request.Path == "/")">
+                                            @Localizer[item.TabName]
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                        <div id="myTabContent"
+                         class="tab-content">
+                            <vc:profile-sidebar />
+                        </div>
+                    </div>
                 </div>
             </div>
-        </nav>
-    </header>
-}
-else
-{
-    <header class="d-none d-sm-none d-md-block position-absolute w-100">
-        <nav class="navbar navbar-expand-md bg-transparent ">
-            <div class="container px-0">
-                <div class="d-flex flex-column align-items-center justify-content-center navbar-brand-wrapper">
-                    <a class="navbar-brand d-flex align-items-center" href="~/">
-                        <img src="/img/logo-dark-bg@(langSuffix).svg" height="60" alt="">
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </header>
+            @*            <div class="sidebar-footer">
+        <hr>
+        </div>*@
+        </div>
+    </aside>
 }

@@ -23,6 +23,8 @@ public class ExtendedIdentityServerOptions
     public bool CanRaiseEvents { get; set; } = false;
     /// <summary>A list of initial users to be inserted in the database on startup. Works only when environment is 'Development'.</summary>
     public IEnumerable<User> InitialUsers { get; set; } = new List<User>();
+    /// <summary>A list of custom roles to add to the identity server database</summary>
+    public IEnumerable<Role> CustomRoles { get; set; } = new List<Role>();
     /// <summary>A list of custom claim types to be inserted in the database on startup. Works only when environment is 'Development'.</summary>
     public IEnumerable<ClaimType> CustomClaims { get; set; } = new List<ClaimType>();
 }

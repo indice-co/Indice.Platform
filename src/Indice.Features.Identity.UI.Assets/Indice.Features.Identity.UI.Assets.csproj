@@ -13,9 +13,6 @@
     <EmbeddedResource Include="wwwroot\**\*.*" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="wwwroot\css\bootstrap.v4.scss" />
-  </ItemGroup>
-  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">

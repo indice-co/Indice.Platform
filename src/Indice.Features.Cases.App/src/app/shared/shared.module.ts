@@ -29,6 +29,7 @@ import { QuillModule } from 'ngx-quill';
 import { WysiwygWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
 import { DeleteQueryModalComponent } from './components/delete-query-modal/delete-query-modal.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { HrefWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/href-widget/href-widget.component';
 
 
 
@@ -57,6 +58,7 @@ import { TranslateModule } from '@ngx-translate/core';
     TextAreaWidgetComponent,
     LookupSelectorWidgetComponent,
     WysiwygWidgetComponent,
+    HrefWidgetComponent,
     // pipes
     BeautifyBooleanPipe
   ],

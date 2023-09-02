@@ -1,26 +1,27 @@
 ﻿@page "/logged-out"
 
-@inject IIdentityViewLocalizer Localizer
-
 @model BaseLoggedOutModel
+
+@inject IIdentityViewLocalizer Localizer
 
 @{
     var title = ViewData["Title"] = Localizer["Logout"].Value;
+    ViewData["signed-out"] = true;
 }
 
-<section class="identity-panel wide logged-out">
-    <article class="text-center">
+<section class="content-wrapper">
+    <div class="card-wrapper">
         <partial name="_PageHeader" model="title" />
         <p>@Localizer["You are now logged out"]</p>
         <div indice-if="Model.PostLogoutRedirectUri != null">
-            @Localizer["Click"] <a id="PostLogoutRedirectUri" class="btn btn-primary" href="@Model.PostLogoutRedirectUri">@Localizer["here"]</a> @Localizer["to return to the application"]
+            @Localizer["Click"] <a class="PostLogoutRedirectUri btn btn-primary" href="@Model.PostLogoutRedirectUri">@Localizer["here"]</a> @Localizer["to return to the application"]
             <span>@Model.ClientName</span>.
         </div>
         <iframe indice-if="Model.SignOutIframeUrl != null" width="0" height="0" class="signout" src="@Model.SignOutIframeUrl"></iframe>
         <div indice-if="Model.PostLogoutRedirectUri == null">
-            @Localizer["Click"] <a href="~/">@Localizer["here"]</a> @Localizer["to return to the application"].
+            @Localizer["Click"] <a class="text-tenant-900" href="~/">@Localizer["here"]</a> @Localizer["to return to the application"]
         </div>
-    </article>
+    </div>
 </section>
 
 @section scripts {

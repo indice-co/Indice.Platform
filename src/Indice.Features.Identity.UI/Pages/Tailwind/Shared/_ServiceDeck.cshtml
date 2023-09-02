@@ -1,14 +1,28 @@
-﻿@inject IIdentityViewLocalizer Localizer
+﻿@using System.Security.Claims;
 
-@model List<GatewayServiceModel>
+@inject IIdentityViewLocalizer Localizer
+@inject IOptions<IdentityUIOptions> UiOptions
 
-<div indice-if="Model.Count > 0" class="services deck d-flex flex-wrap">
-    @foreach (var item in Model)
+@{
+    var services = UiOptions.Value.HomepageLinks
+        .Select((IdentityUIOptions.HomePageLink x) => new GatewayServiceModel
+        {
+            DisplayName = x.DisplayName,
+            CssClass = x.CssClass,
+            ImageSrc = x.ImageSrc,
+            Link = x.Link,
+            Visible = (x.VisibilityPredicate ?? ((Predicate<ClaimsPrincipal>)((ClaimsPrincipal principal) => true)))!(base.User)
+        })
+        .ToArray();
+}
+
+<div indice-if="services.Length > 0" class="services deck d-flex flex-wrap">
+    @foreach (var item in services)
     {
         var itemCssClass = item.DisplayName.ToLower().Replace(' ', '-');
-        <a class="deck-item @item.CssClass @itemCssClass d-flex flex-column-reverse mb-4" href="@Url.Content(item.Link)" indice-if="item.Visible">
-            <h5 class="deck-title mt-3">@Localizer[item.DisplayName]</h5>
+        <a class="no-underline deck-item @itemCssClass" href="@Url.Content(item.Link)" indice-if="item.Visible">
             <div class="deck-icon"></div>
+            <div class="deck-item-title">@Localizer[item.DisplayName]</div>
         </a>
     }
 </div>

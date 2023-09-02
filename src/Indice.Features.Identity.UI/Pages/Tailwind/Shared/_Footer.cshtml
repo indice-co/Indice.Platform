@@ -5,17 +5,31 @@
 @{
     var settings = Settings.Value;
     var copyYear = 2021;
-    var version = typeof(BaseLoginModel).Assembly.GetName().Version?.ToString();
 }
 
-<footer class="container-fluid footer">
-    <div class="copyright">
-        &copy; @Localizer[settings.Organization] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
-    </div>
-    <div class="links">
-        <span class="sonftware-verson">v@(version ?? "1.0.0")</span>
-        <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Localizer["Discovery"]</a>
-        <a asp-page="/Privacy" target="_blank">@Localizer["Privacy"]</a>
+<footer class="footer">
+    <div class="footer-links py-2 px-4 lg:p-0">
         <a asp-page="/Terms" target="_blank">@Localizer["Terms"]</a>
+        <span class="">•</span>
+        <a asp-page="/Privacy" target="_blank">@Localizer["Privacy"]</a>
+        <span class="" indice-if="!Environment.IsProduction()">•</span>
+        <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Localizer["Discovery"]</a>
+        <span class="hidden lg:block">•</span>
+        <div class="hidden lg:block cursor-auto">
+            &copy; @Localizer[settings.Organization] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
+        </div>
+    </div>
+    <div class="flex flex-row justify-between w-full py-2 px-4 lg:p-0">
+        <div>
+            <span class="text-white block lg:hidden ml-1 text-sm">
+                &copy; @Localizer[settings.Organization] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
+            </span>
+        </div>
+        <div class="text-xs text-white sm:text-center">
+            Powered by
+            <span class="px-1 text-white font-bold ml-1 text-sm">
+                Indice
+            </span>
+        </div>
     </div>
 </footer>
