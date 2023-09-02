@@ -53,34 +53,35 @@ public static class ExtendedIdentityDbContextExtensions
             const string adminId = "ab9769f1-d532-4b7d-9922-3da003157ebd";
             if (seedOptions?.InitialUsers?.Any() == true) {
                 dbContext.Users.AddRange(seedOptions.InitialUsers);
-                if (!seedOptions.InitialUsers.Any(x => x.Id == adminId || 
-                                                      x.Email.Equals(adminEmail, StringComparison.OrdinalIgnoreCase))) {
-                    // admin not seeded externaly through initial users!
-                    // Create admin now
-                    var admin = new TUser {
-                        Admin = true,
-                        ConcurrencyStamp = $"{Guid.NewGuid()}",
-                        CreateDate = DateTime.UtcNow,
-                        Email = adminEmail,
-                        EmailConfirmed = true,
-                        Id = "ab9769f1-d532-4b7d-9922-3da003157ebd",
-                        LockoutEnabled = false,
-                        NormalizedEmail = adminEmail.ToUpper(),
-                        NormalizedUserName = adminEmail.ToUpper(),
-                        PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
-                        PhoneNumber = "699XXXXXXX",
-                        PhoneNumberConfirmed = true,
-                        SecurityStamp = $"{Guid.NewGuid()}",
-                        UserName = adminEmail,
-                        Claims = {
-                            new () { ClaimType = JwtClaimTypes.GivenName, ClaimValue = "Indice" },
-                            new () { ClaimType = JwtClaimTypes.FamilyName, ClaimValue = "Company" },
-                            new () { ClaimType = BasicClaimTypes.DeveloperTotp, ClaimValue = "123456" }
-                        }
-                    };
-                    InitialRoles<TRole>.Get().ToList().ForEach(role => admin.Roles.Add(new() { RoleId = role.Id }));
-                    dbContext.Users.Add(admin);
-                }
+            }
+            if (seedOptions?.InitialUsers?.Any() != true ||
+                !seedOptions.InitialUsers.Any(x => x.Id == adminId ||
+                                                   x.Email.Equals(adminEmail, StringComparison.OrdinalIgnoreCase))) {
+                // admin not seeded externaly through initial users!
+                // Create admin now
+                var admin = new TUser {
+                    Admin = true,
+                    ConcurrencyStamp = $"{Guid.NewGuid()}",
+                    CreateDate = DateTime.UtcNow,
+                    Email = adminEmail,
+                    EmailConfirmed = true,
+                    Id = "ab9769f1-d532-4b7d-9922-3da003157ebd",
+                    LockoutEnabled = false,
+                    NormalizedEmail = adminEmail.ToUpper(),
+                    NormalizedUserName = adminEmail.ToUpper(),
+                    PasswordHash = "AH6SA/wuxp9YEfLGROaj2CgjhxZhXDkMB1nD8V7lfQAI+WTM4lGMItjLhhV5ASsq+Q==",
+                    PhoneNumber = "699XXXXXXX",
+                    PhoneNumberConfirmed = true,
+                    SecurityStamp = $"{Guid.NewGuid()}",
+                    UserName = adminEmail,
+                    Claims = {
+                        new () { ClaimType = JwtClaimTypes.GivenName, ClaimValue = "Indice" },
+                        new () { ClaimType = JwtClaimTypes.FamilyName, ClaimValue = "Company" },
+                        new () { ClaimType = BasicClaimTypes.DeveloperTotp, ClaimValue = "123456" }
+                    }
+                };
+                InitialRoles<TRole>.Get().ToList().ForEach(role => admin.Roles.Add(new() { RoleId = role.Id }));
+                dbContext.Users.Add(admin);
             }
         }
 
