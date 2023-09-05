@@ -2,7 +2,9 @@
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Validation;
+using Indice.Features.Identity.Core.Scopes;
 using Indice.Features.Identity.Server;
+using Microsoft.Extensions.Configuration;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -237,6 +239,26 @@ public static class IdentityServerBuilderAdapterExtensions
     /// <returns>The builder.</returns>
     public static IExtendedIdentityServerBuilder AddUserSession<T>(this IExtendedIdentityServerBuilder builder) where T : class, IUserSession {
         IdentityServerBuilderExtensionsAdditional.AddUserSession<T>(builder);
+        return builder;
+    }
+
+    /// <summary>Adds the scope metadata endpoint that will resolve the scope display name/description. Default configuration.</summary>
+    /// <typeparam name="TScopeMetadataService">The type of provided implementation of <see cref="IParsedScopeMetadataService"/>.</typeparam>
+    /// <param name="builder">The <see cref="IIdentityServerBuilder"/> builder.</param>
+    /// <param name="configureAction">Configures options for <see cref="IParsedScopeMetadataService"/>.</param>
+    public static IExtendedIdentityServerBuilder AddParsedScopeMetadataEndpoint<TScopeMetadataService>(this IExtendedIdentityServerBuilder builder, Action<ParsedScopeMetadataOptions>? configureAction = null)
+        where TScopeMetadataService : class, IParsedScopeMetadataService {
+        ParsedScopeConfiguration.AddParsedScopeMetadataEndpoint<TScopeMetadataService>(builder, configureAction);
+        return builder;
+    }
+
+    /// <summary>Adds the required services in order to notify the consumer about scopes that have been revoked or granted.</summary>
+    /// <typeparam name="TParsedScopeNotificationService">The type of provided implementation of <see cref="IParsedScopeNotificationService"/>.</typeparam>
+    /// <param name="builder">The <see cref="IExtendedIdentityServerBuilder"/> builder.</param>
+    /// <param name="configureAction">Configures options for <see cref="IParsedScopeNotificationService"/>.</param>
+    public static IExtendedIdentityServerBuilder AddParsedScopeNotifications<TParsedScopeNotificationService>(this IExtendedIdentityServerBuilder builder, Action<ParsedScopeNotificationOptions>? configureAction = null)
+        where TParsedScopeNotificationService : class, IParsedScopeNotificationService {
+        ParsedScopeConfiguration.AddParsedScopeNotifications<TParsedScopeNotificationService>(builder, configureAction);
         return builder;
     }
 }
