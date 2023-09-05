@@ -1,5 +1,4 @@
 ﻿using Indice.Features.Risk.Core;
-using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Services;
 using Indice.Features.Risk.Server.Models;
 using Microsoft.AspNetCore.Http;
@@ -10,11 +9,10 @@ namespace Indice.Features.Risk.Server;
 
 internal static class RiskApiHandlers
 {
-    internal static async Task<Ok<AggregateRuleExecutionResult>> GetRisk<TRiskEvent, TRiskRequest>(
-        [FromServices] RiskManager<TRiskEvent> riskManager,
-        [FromBody] TRiskRequest request
-    ) where TRiskEvent : DbRiskEvent, new()
-      where TRiskRequest : RiskRequestBase<TRiskEvent> {
+    internal static async Task<Ok<AggregateRuleExecutionResult>> GetRisk(
+        [FromServices] RiskManager riskManager,
+        [FromBody] RiskRequestBase request
+    ) {
         var riskEvent = request.ToDbRiskEvent();
         var result = await riskManager.GetRiskAsync(riskEvent);
         return TypedResults.Ok(result);

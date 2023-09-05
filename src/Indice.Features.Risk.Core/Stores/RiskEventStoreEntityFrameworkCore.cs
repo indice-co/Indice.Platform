@@ -5,20 +5,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Risk.Core.Stores;
 
-internal class RiskEventStoreEntityFrameworkCore<TRiskEvent> : IRiskEventStore<TRiskEvent> where TRiskEvent : DbRiskEvent
+internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
 {
-    private readonly RiskDbContext<TRiskEvent> _dbContext;
+    private readonly RiskDbContext _dbContext;
 
-    public RiskEventStoreEntityFrameworkCore(RiskDbContext<TRiskEvent> dbContext) {
+    public RiskEventStoreEntityFrameworkCore(RiskDbContext dbContext) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task CreateAsync(TRiskEvent @event) {
+    public async Task CreateAsync(DbRiskEvent @event) {
         _dbContext.RiskEvents.Add(@event);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<TRiskEvent>> GetListByType(string subjectId, string type) {
+    public async Task<IEnumerable<DbRiskEvent>> GetListByType(string subjectId, string type) {
         var events = await _dbContext.RiskEvents.Where(x => x.SubjectId == subjectId && x.Type == type).ToListAsync();
         return events;
     }
