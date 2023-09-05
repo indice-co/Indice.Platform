@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Changed
+- Elsa update from `2.11.0` to `2.12.0`
+### Added
+- Add `AddRetentionServices` feature for Elsa Workflows with app settings configuration.
+> To override the default specification for workflow retention selection, implement the `IRetentionSpecificationFilter` and pass it as a parameter to `AddWorkflow`.
+> More: https://github.com/elsa-workflows/elsa-core/blob/master/src/modules/retention/Elsa.Retention/Options/CleanupOptions.cs
+
+> Configuration example
+```json
+{
+    "Elsa":{
+        "CleanUpOptions": {
+            "Enabled": true,
+            "BatchSize": 100,
+            "TimeToLiveInDays": 30,
+            "SweepIntervalInHours": 4
+        }
+    }
+}
+```
+
 ## [7.4.0] - 2023-08-29
 ### Added
 - Add `int? ReferenceNumber` to `Case` as an optional feature with an auto-incremented sequence if enabled. 
