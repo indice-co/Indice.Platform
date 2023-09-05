@@ -3,12 +3,12 @@
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
       <VersionPrefixBase>7.3</VersionPrefixBase>
-      <VersionPrefixCore>$(VersionPrefixBase).21</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).25</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).31</VersionPrefixIdentityUI>
+      <VersionPrefixCore>$(VersionPrefixBase).22</VersionPrefixCore>
+      <VersionPrefixIdentity>$(VersionPrefixBase).26</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).32</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).15</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).17</VersionPrefixMessages>
-      <VersionPrefixMultitenancy>$(VersionPrefixBase).13</VersionPrefixMultitenancy>
+      <VersionPrefixMessages>$(VersionPrefixBase).18</VersionPrefixMessages>
+      <VersionPrefixMultitenancy>$(VersionPrefixBase).14</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).9</VersionPrefixRisk>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->
