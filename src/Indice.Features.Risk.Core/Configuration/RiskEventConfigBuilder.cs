@@ -1,21 +1,18 @@
-﻿using Indice.Features.Risk.Core.Data.Models;
-
-namespace Indice.Features.Risk.Core.Configuration;
+﻿namespace Indice.Features.Risk.Core.Configuration;
 
 /// <summary>Builder for configuring risk event score change.</summary>
-/// <typeparam name="TRiskEvent">The type of risk event.</typeparam>
-public class RiskEventConfigBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
+public class RiskEventConfigBuilder
 {
     internal List<RiskEventModel> Events { get; } = new List<RiskEventModel>();
 
     /// <summary></summary>
     /// <param name="eventName"></param>
     /// <returns></returns>
-    public RiskEventConfigScoreBuilder<TRiskEvent> On(string eventName) {
+    public RiskEventConfigScoreBuilder On(string eventName) {
         Events.Add(new RiskEventModel { 
             EventName = eventName
         });
-        return new RiskEventConfigScoreBuilder<TRiskEvent>(eventName, this);
+        return new RiskEventConfigScoreBuilder(eventName, this);
     }
 
     internal RiskEventConfig Build() => new() {
