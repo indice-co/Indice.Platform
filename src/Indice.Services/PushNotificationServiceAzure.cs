@@ -1,16 +1,25 @@
 ﻿using Indice.Types;
 using Microsoft.Azure.NotificationHubs;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Indice.Services;
 
 /// <summary>Push notification service implementation using <see cref="Microsoft.Azure.NotificationHubs"/>.</summary>
 public class PushNotificationServiceAzure : IPushNotificationService
 {
+    private readonly ILogger<PushNotificationServiceAzure> _logger;
     /// <summary>The connection string parameter name. The setting key that will be searched inside the configuration.</summary>
     public const string ConnectionStringName = "PushNotificationsConnection";
     /// <summary>The push notification hub path string parameter name. The setting key that will be searched inside the configuration.</summary>
     public const string NotificationsHubPath = "PushNotificationsHubPath";
+
+    /// <summary>Creates a new instance of <see cref="PushNotificationServiceAzure"/> class.</summary>
+    /// <param name="logger">Represents a type used to perform logging.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public PushNotificationServiceAzure(ILogger<PushNotificationServiceAzure> logger) {
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
 
     /// <summary>Constructs the <see cref="PushNotificationServiceAzure"/>.</summary>
     /// <param name="options">Connection string for Azure and Notifications hub name.</param>
@@ -62,6 +71,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
                 throw new ArgumentException("Device platform not supported.", nameof(devicePlatform));
         }
         await NotificationHub.CreateOrUpdateInstallationAsync(installationRequest);
+        _logger.LogInformation("{Platform} device with id '{Id}' was registered to Azure Notification Hubs with the following tags: {Tags}.", devicePlatform, deviceId, string.Join(", ", tags));
     }
 
     /// <inheritdoc/>
@@ -70,6 +80,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
             throw new ArgumentNullException(nameof(deviceId));
         }
         await NotificationHub.DeleteInstallationAsync(deviceId);
+        _logger.LogInformation("Device with id '{DeviceId}' was deleted from Azure Notification Hubs.", deviceId);
     }
 
     /// <inheritdoc/>
@@ -90,16 +101,16 @@ public class PushNotificationServiceAzure : IPushNotificationService
             properties.Add("classification", classification);
         }
         if (tags?.Any() == true) {
-            await NotificationHub.SendTemplateNotificationAsync(
-                properties,
-                tags.Select(
-                    tag => tag.Kind == PushNotificationTagKind.User || tag.Kind == PushNotificationTagKind.Unspecified
-                        ? tag.ToString()
-                        : "$InstallationId:{" + tag.Value + "}" // https://learn.microsoft.com/en-us/azure/notification-hubs/notification-hubs-push-notification-registration-management#installations
-                )
+            var tagsCollection = tags.Select(
+                tag => tag.Kind == PushNotificationTagKind.User || tag.Kind == PushNotificationTagKind.Unspecified
+                    ? tag.ToString()
+                    : "$InstallationId:{" + tag.Value + "}" // https://learn.microsoft.com/en-us/azure/notification-hubs/notification-hubs-push-notification-registration-management#installations
             );
+            await NotificationHub.SendTemplateNotificationAsync(properties, tagsCollection);
+            _logger.LogInformation("A push notification was dispatched to Azure Notification Hubs with properties '{Properties}' to the following tags: {Tags}.", string.Join(" - ", properties), string.Join(", ", tags));
         } else {
             await NotificationHub.SendTemplateNotificationAsync(properties);
+            _logger.LogInformation("A push notification was dispatched to Azure Notification Hubs with properties {Properties}.", string.Join(" - ", properties));
         }
     }
 }
