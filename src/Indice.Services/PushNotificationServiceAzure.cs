@@ -8,17 +8,17 @@ namespace Indice.Services;
 /// <summary>Push notification service implementation using <see cref="Microsoft.Azure.NotificationHubs"/>.</summary>
 public class PushNotificationServiceAzure : IPushNotificationService
 {
-    private readonly ILogger<PushNotificationServiceAzure> _logger;
+    private readonly ILogger _logger;
     /// <summary>The connection string parameter name. The setting key that will be searched inside the configuration.</summary>
     public const string ConnectionStringName = "PushNotificationsConnection";
     /// <summary>The push notification hub path string parameter name. The setting key that will be searched inside the configuration.</summary>
     public const string NotificationsHubPath = "PushNotificationsHubPath";
 
     /// <summary>Creates a new instance of <see cref="PushNotificationServiceAzure"/> class.</summary>
-    /// <param name="logger">Represents a type used to perform logging.</param>
+    /// <param name="loggerFactory">Represents a type used to configure the logging system and create instances of <see cref="ILogger"/> from the registered <see cref="ILoggerProvider"/>s.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public PushNotificationServiceAzure(ILogger<PushNotificationServiceAzure> logger) {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    public PushNotificationServiceAzure(ILoggerFactory loggerFactory) {
+        _logger = loggerFactory.CreateLogger(nameof(PushNotificationServiceAzure));
     }
 
     /// <summary>Constructs the <see cref="PushNotificationServiceAzure"/>.</summary>
