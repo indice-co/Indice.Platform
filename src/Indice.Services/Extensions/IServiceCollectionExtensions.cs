@@ -7,6 +7,7 @@ using Indice.Services.Yuboto;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -57,7 +58,7 @@ public static class IndiceServicesServiceCollectionExtensions
                                   configuration.GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
         };
         configure?.Invoke(serviceProvider, options);
-        return new PushNotificationServiceAzure(options);
+        return new PushNotificationServiceAzure(options, serviceProvider.GetRequiredService<ILoggerFactory>());
     };
 
     /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>

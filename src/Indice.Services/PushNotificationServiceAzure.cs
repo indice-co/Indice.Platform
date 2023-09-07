@@ -14,16 +14,11 @@ public class PushNotificationServiceAzure : IPushNotificationService
     /// <summary>The push notification hub path string parameter name. The setting key that will be searched inside the configuration.</summary>
     public const string NotificationsHubPath = "PushNotificationsHubPath";
 
-    /// <summary>Creates a new instance of <see cref="PushNotificationServiceAzure"/> class.</summary>
-    /// <param name="loggerFactory">Represents a type used to configure the logging system and create instances of <see cref="ILogger"/> from the registered <see cref="ILoggerProvider"/>s.</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public PushNotificationServiceAzure(ILoggerFactory loggerFactory) {
-        _logger = loggerFactory.CreateLogger(nameof(PushNotificationServiceAzure));
-    }
-
     /// <summary>Constructs the <see cref="PushNotificationServiceAzure"/>.</summary>
     /// <param name="options">Connection string for Azure and Notifications hub name.</param>
-    public PushNotificationServiceAzure(PushNotificationAzureOptions options) {
+    /// <param name="loggerFactory">Represents a type used to configure the logging system and create instances of <see cref="ILogger"/> from the registered <see cref="ILoggerProvider"/>s.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public PushNotificationServiceAzure(PushNotificationAzureOptions options, ILoggerFactory loggerFactory) {
         if (string.IsNullOrWhiteSpace(options?.ConnectionString) || string.IsNullOrWhiteSpace(options?.NotificationHubPath)) {
             throw new InvalidOperationException($"{nameof(PushNotificationAzureOptions)} are not properly configured.");
         }
@@ -35,6 +30,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
                 ? new NotificationHubSettings { MessageHandler = PushNotificationAzureOptions.MessageHandler }
                 : null
         );
+        _logger = loggerFactory.CreateLogger(nameof(PushNotificationServiceAzure));
     }
 
     private NotificationHubClient NotificationHub { get; }
