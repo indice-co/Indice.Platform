@@ -26,7 +26,7 @@
                         <img src="/img/logo@(langSuffix).svg" height="28" alt="">
                     </a>
                 </div>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-links" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-links" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" role="img" focusable="false">
                         <title>Menu</title>
                         <path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path>
@@ -63,12 +63,15 @@
                 <div class="navbar-collapse flex-grow-0 d-none d-md-flex">
                     <ul class="navbar-nav">
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <partial name="_LanguageSelector" />
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <div class="nav-avatar">
                                     <img class="card-img rounded-circle" src="~/avatar/@User.FindDisplayName()/48/@(UiOptions.AvatarColorHex).png" alt="@User.FindDisplayName() avatar" />
                                 </div>
                             </a>
-                            <div class="dropdown-menu drop-card" aria-labelledby="navbarDropdownMenuLink">
+                            <div class="dropdown-menu dropdown-menu-end drop-card" aria-labelledby="navbarDropdownMenuLink">
                                 <div class="drop-card-body">
                                     <div class="current-account">
                                         <div class="account-organization">@Localizer[generalSettings.Organization]</div>
