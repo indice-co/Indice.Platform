@@ -101,13 +101,13 @@ public class InboxService : IInboxService
                 query = query.Where(x => !x.Campaign.ActivePeriod.To.HasValue || x.Campaign.ActivePeriod.To.Value >= DateTime.UtcNow);
             }
             if (filter.TypeId.Length > 0) {
-                query = query.Where(x => x.Campaign.Type == null || filter.TypeId.Contains(x.Campaign.Type.Id));
+                query = query.Where(x => x.Campaign.Type != null && filter.TypeId.Contains(x.Campaign.Type.Id));
             }
             if (filter.ActiveFrom.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod.To ?? DateTimeOffset.MaxValue) > filter.ActiveFrom.Value);
+                query = query.Where(x => (x.Campaign.ActivePeriod.From ?? DateTimeOffset.MaxValue) > filter.ActiveFrom.Value);
             }
             if (filter.ActiveTo.HasValue) {
-                query = query.Where(x => (x.Campaign.ActivePeriod.From ?? DateTimeOffset.MinValue) < filter.ActiveTo.Value);
+                query = query.Where(x => (x.Campaign.ActivePeriod.To ?? DateTimeOffset.MinValue) < filter.ActiveTo.Value);
             }
             if (filter.IsRead.HasValue) {
                 query = query.Where(x => ((bool?)x.Message.IsRead ?? false) == filter.IsRead);
@@ -132,7 +132,7 @@ public class InboxService : IInboxService
             Title = x.Message != null ? x.Message.Content[messageChannelKind.ToString()].Title : x.Campaign.Content[messageChannelKind.ToString()].Title,
             Content = x.Message != null ? x.Message.Content[messageChannelKind.ToString()].Body : x.Campaign.Content[messageChannelKind.ToString()].Body,
             CreatedAt = x.Campaign.CreatedAt,
-            Id = x.Campaign.Id,
+            Id = x.Message != null ? x.Message.Id : x.Campaign.Id,
             IsRead = x.Message != null && x.Message.IsRead,
             Type = x.Campaign.Type != null ? new MessageType {
                 Id = x.Campaign.Type.Id,
