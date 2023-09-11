@@ -28,7 +28,10 @@ internal class CampaignsPolicyProvider : IAuthorizationPolicyProvider
             var policy = new AuthorizationPolicyBuilder();
             policy.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
                   .RequireAuthenticatedUser()
-                  .RequireAssertion(context => context.User.HasScope(_apiOptions.RequiredScope ?? MessagesApi.Scope));
+                  .RequireAssertion(context => 
+                     context.User.HasScope(_apiOptions.RequiredScope ?? MessagesApi.Scope) && 
+                     (context.User.IsAdmin() || context.User.HasRoleClaim(BasicRoleNames.CampaignManager))
+                  );
             return Task.FromResult(policy.Build());
         }
         return FallbackPolicyProvider.GetPolicyAsync(policyName);

@@ -1,5 +1,4 @@
-﻿using Indice.Features.Risk.Core.Data.Models;
-using Indice.Features.Risk.Server;
+﻿using Indice.Features.Risk.Server;
 using Indice.Features.Risk.Server.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
@@ -13,13 +12,9 @@ namespace Microsoft.AspNetCore.Builder;
 public static class RiskApi
 {
     /// <summary>Registers the endpoints for the risk engine.</summary>
-    /// <typeparam name="TRiskEvent">The type of transaction that the engine manages.</typeparam>
-    /// <typeparam name="TRiskRequest">The type of transaction that the engine manages.</typeparam>
     /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
-    public static IEndpointRouteBuilder MapRisk<TRiskEvent, TRiskRequest>(this IEndpointRouteBuilder builder)
-        where TRiskEvent : DbRiskEvent, new()
-        where TRiskRequest : RiskRequestBase<TRiskEvent> {
+    public static IEndpointRouteBuilder MapRisk(this IEndpointRouteBuilder builder) {
         var options = builder.ServiceProvider.GetService<IOptions<RiskApiOptions>>()?.Value ?? new RiskApiOptions();
         var group = builder.MapGroup($"{options.ApiPrefix}")
                            .WithGroupName("risk")
@@ -36,17 +31,11 @@ public static class RiskApi
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
         // POST: /api/risk
-        group.MapPost("risk", RiskApiHandlers.GetRisk<TRiskEvent, TRiskRequest>)
+        group.MapPost("risk", RiskApiHandlers.GetRisk)
              .WithName(nameof(RiskApiHandlers.GetRisk))
              .WithSummary("Calculates the risk given a transaction presented in the system.")
-             .WithParameterValidation<TRiskRequest>();
+             .WithParameterValidation<RiskRequestBase>();
 
         return builder;
     }
-
-    /// <summary>Registers the endpoints for the risk engine.</summary>
-    /// <param name="builder">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
-    public static IEndpointRouteBuilder MapRisk(this IEndpointRouteBuilder builder) =>
-        builder.MapRisk<DbRiskEvent, RiskRequestBase<DbRiskEvent>>();
 }

@@ -7,7 +7,6 @@
 @inject IWebHostEnvironment Environment
 
 @{
-    //ViewBag.Title = Localizer["Home"]; // no need for a home page title
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
 }
@@ -15,10 +14,10 @@
 <div class="content-wrapper">
     <div class="flex flex-col items-center justify-center">
         <h1 class="deck-title">
-            @Localizer["<strong>Welcome</strong><br> to our Digital Services Portal of {0}", Settings.Organization]
+            @Localizer[Model.UiOptions.HomePageSlogan, Settings.Organization]
         </h1>
         <p class="text-white lg:text-one text-lg pt-6 text-center max-w-screen-md">
-            @($"Lorem Ipsum,η υπηρεσία Identity σας δίνει πρόσβαση με ένα λογαριασμό σε όλες τις υπηρεσίες της {Settings.Organization}. Εδώ μπορείτε να διαχειριστείτε το προφίλ χρήστη και τις παραμέτρους πρόσβασης στις υπηρεσίες. Χρησιμοποιώντας τους παρακάτω συνδέσμους.")
+            @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization]
         </p>
         <div class="deck">
             @if (!User.IsAuthenticated())
@@ -29,7 +28,7 @@
                     </a>
                 </div>
             }
-            <partial name="_ServiceDeck" />
+            <partial name="_ServiceDeck" model="Model.Services" />
         </div>
     </div>
 </div>

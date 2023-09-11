@@ -5,21 +5,12 @@
 @model BaseErrorModel
 
 @{
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var error = Localizer["Oops! Seems we encountered an error."];
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <div class="logo-crop">
-            <div class="logo-wrapper">
-                <div class="logo-inner-wrapper">
-                    <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
-                </div>
-            </div>
-        </div>
-        <h3>DEBT SETTLEMENT</h3>
-        <h1>@Localizer["Oops! Seems we encountered an error."]</h1>
+        <partial name="_PageHeader" model="error" />
         <p class="pt-5">
             @if (Model is { Message: { Length: > 0 } })
             {

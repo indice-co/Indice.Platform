@@ -33,7 +33,7 @@ public class SendPushNotificationHandler : ICampaignJobHandler<SendPushNotificat
         if (pushNotification.Broadcast) {
             await pushNotificationService.BroadcastAsync(pushNotification.Title, pushBody, data, pushNotification.MessageType?.Name);
         } else {
-            await pushNotificationService.SendToUserAsync(pushNotification.Title, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name);
+            await pushNotificationService.SendToUserAsync(pushNotification.Title, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name, pushNotification.RecipientId);
         }
     }
 }

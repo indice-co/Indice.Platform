@@ -5,20 +5,12 @@
 @inject IIdentityViewLocalizer Localizer
 
 @{
-    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    var title = ViewData["Title"] = Localizer["Logout"].Value;
 }
 
 <div class="content-wrapper">
     <div class="card-wrapper">
-        <div class="logo-crop">
-            <div class="logo-wrapper">
-                <div class="logo-inner-wrapper">
-                    <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
-                </div>
-            </div>
-        </div>
-        <h1>@Localizer["Logout"]</h1>
+        <partial name="_PageHeader" model="title" />
         <p>@Localizer["Would you like to logout?"]</p>
         <form asp-page="/Logout">
             <input type="hidden" name="logoutId" value="@Model.LogoutId" />

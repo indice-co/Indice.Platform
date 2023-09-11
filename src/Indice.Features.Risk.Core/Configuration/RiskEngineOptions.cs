@@ -16,7 +16,7 @@ public class RiskEngineOptions
     public RiskLevelRangeDictionary RiskLevelRangeMapping {
         get => RiskLevelRangeMappingInternal;
         set => RiskLevelRangeMappingInternal = value is not null && value.Any()
-            ? new RiskLevelRangeDictionary(value.OrderBy(x => (int)x.Key).ToDictionary(x => x.Key, y => y.Value))
+            ? new RiskLevelRangeDictionary(value.OrderBy(x => (int)x.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value))
             : throw new ArgumentNullException($"{RiskLevelRangeMapping} options must be configured.");
     }
 

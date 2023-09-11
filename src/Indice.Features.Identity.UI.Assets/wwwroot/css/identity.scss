@@ -25,14 +25,25 @@ html {
 body {
     margin: 0;
     padding: 0;
+    color: $white;
 
     @include phone {
+        color: $text-color;
+
         &::before {
             display: none;
         }
     }
 }
 
+.header {
+    z-index: 1;
+    color: $white;
+
+    @include phone {
+        color: $text-color;
+    }
+}
 
 main {
     min-height: 100vh;
@@ -66,12 +77,13 @@ main {
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    pointer-events: none;
+    pointer-events: auto;
     height: 52px;
 
     .links {
         display: flex;
         justify-content: space-between;
+        padding-left: .5rem;
 
         .sonftware-verson {
             display: none;
@@ -102,6 +114,71 @@ main {
         .links a {
             padding: 0;
             padding-right: .5rem;
+        }
+    }
+}
+
+.footer {
+    font-size: 12px;
+    line-height: 1.4;
+
+    .language {
+        display: inline-flex;
+    }
+
+    .copyright {
+        text-transform: uppercase;
+    }
+
+    .links {
+        a {
+            font-size: 1em;
+            font-weight: bold;
+        }
+    }
+
+    .language {
+
+        .dropdown-toggle {
+            color: $white;
+
+            @include phone {
+                color: $text-color;
+            }
+        }
+    }
+
+    .anonymous & {
+
+        .copyright {
+            color: $white;
+        }
+
+        .links a {
+            color: $white;
+
+            &:hover {
+                font-weight: bold;
+            }
+        }
+
+        @include phone {
+            .language {
+                color: $blue;
+            }
+
+            .copyright {
+                color: $text-color;
+            }
+
+            .links a {
+                color: $blue;
+
+                &:hover {
+                }
+            }
+
+            color: inherit;
         }
     }
 }
@@ -150,4 +227,5 @@ a{
 @import 'bg';
 @import 'typography';
 @import 'dropcard';
+@import 'lang';
 @import 'custom';

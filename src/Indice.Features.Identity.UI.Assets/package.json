@@ -13,7 +13,8 @@
     "knockout-secure-binding": "0.5.5",
     "popper.js": "2.0.0-next.3",
     "popper.js.v1": "npm:popper.js@^1.16.1",
-    "swiper": "9.4.1"
+    "swiper": "9.4.1",
+    "flowbite": "1.5.3"
   },
   "devDependencies": {
     "del": "7.0.0",
@@ -30,7 +31,17 @@
     "gulp-strip-debug": "5.0.0",
     "gulp-uglify": "3.0.2",
     "postcss-assets": "6.0.0",
-    "sass": "1.66.1"
+    "sass": "1.66.1",
+
+    "postcss-simple-vars": "7.0.1",
+    "postcss-nested": "6.0.1",
+    "postcss-mixins": "9.0.4",
+    "@csstools/postcss-sass": "5.0.1",
+    "gulp-postcss": "9.0.1",
+    "gulp-rename": "2.0.0",
+    "postcss": "8.4.29",
+    "precss": "4.0.0",
+    "tailwindcss": "3.3.2"
   },
   "name": "indice-features-identity-ui",
   "private": true,

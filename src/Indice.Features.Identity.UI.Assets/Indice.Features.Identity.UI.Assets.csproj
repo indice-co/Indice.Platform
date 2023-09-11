@@ -13,7 +13,7 @@
     <EmbeddedResource Include="wwwroot\**\*.*" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="wwwroot\css\bootstrap.v4.scss" />
+    <None Remove="wwwroot\css\_lang.scss" />
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

@@ -6,8 +6,24 @@ namespace Indice.Features.Identity.UI;
 /// <summary>Configuration options for Identity UI.</summary>
 public class IdentityUIOptions
 {
-    /// <summary>Affects the ui framework that the views will be based upon. Defaults to Bootstrap 5.</summary>
-    public string? UiFramework { get; set; }
+    /// <summary>
+    /// The copywrite year from. Usualy found on UI footer
+    /// </summary>
+    public int CopyYear { get; set; } = DateTime.Now.Year;
+
+    /// <summary>This is the slogan that will be displayed in the home page.</summary>
+    /// <remarks>
+    /// There are already translations for the following: 
+    /// <list>
+    /// <item>
+    ///     Welcome to our Digital Services &lt;strong&gt;Portal&lt;/strong&gt; of {0}
+    /// </item>
+    /// <item>
+    ///     &lt;strong>Welcome&lt;/strong&gt;&lt;br&gt; to our Digital Services Portal of {0}
+    /// </item>
+    /// </list>
+    /// </remarks>
+    public string HomePageSlogan { get; set; } = "Welcome to our Digital Services <strong>Portal</strong> of {0}";
     /// <summary>An absolute URL to the <strong>terms and conditions</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>./legal/terms.md</strong> will be used. If populated it will do a redirect to this URL</remarks>
     public string? TermsUrl { get; set; }

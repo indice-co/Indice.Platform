@@ -28,8 +28,9 @@ public static class WebHostBuilderExtensions
     /// <summary>Adds seed information for the <see cref="ExtendedIdentityDbContext{TUser, TRole}"/>. Handy when used with database settings that initialization takes place sooner than the Identity Server is configured.</summary>
     /// <param name="builder">Builds an <see cref="IWebHost"/> which hosts a web application.</param>
     /// <param name="getInitialUsers">Function that gets the initial users.</param>
-    public static IWebHostBuilder AddInitialUsers(this IWebHostBuilder builder, Func<IEnumerable<User>> getInitialUsers) =>
+    /// <param name="getCustomRoles">Function that gets the custom roles needed</param>
+    public static IWebHostBuilder AddInitialUsers(this IWebHostBuilder builder, Func<IEnumerable<User>> getInitialUsers, Func<IEnumerable<Role>>? getCustomRoles = null) =>
         builder.ConfigureServices(new Action<IServiceCollection>(services =>
-            services.TryAddTransient(sp => new ExtendedIdentityDbContextSeedOptions<User> { InitialUsers = getInitialUsers() })
+            services.TryAddTransient(sp => new ExtendedIdentityDbContextSeedOptions<User, Role> { InitialUsers = getInitialUsers(), CustomRoles = getCustomRoles?.Invoke() })
         ));
 }

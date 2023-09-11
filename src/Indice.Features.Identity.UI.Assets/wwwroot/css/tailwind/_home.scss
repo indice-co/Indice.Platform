@@ -1,0 +1,39 @@
+﻿#page-wrapper {
+    @apply lg:px-[70px] p-0 h-full shrink-0 min-h-screen xl:min-h-[auto];
+}
+
+.content-wrapper {
+    @apply flex flex-row justify-center h-full lg:h-[95%] w-full 4xl:px-[30rem] pt-28 lg:pb-[50px] bg-clip-padding bg-no-repeat bg-transparent lg:bg-[#ffffff63] lg:backdrop-blur-3xl rounded-[50px] opacity-100;
+}
+
+.card-wrapper {
+    @apply relative bg-white w-full h-full lg:h-max text-center pt-20 pb-5 lg:pb-16  md:px-[82px] px-9 4xl:px-[150px] lg:max-w-[800px];
+
+    &.register{
+        @apply px-8;
+        }
+}
+
+.logo-crop {
+    @apply absolute left-0 top-0;
+    clip-path: ellipse(closest-side farthest-side);
+    margin-left: 50%;
+    transform: translate3d(-50%, -50%, 0px);
+}
+
+.logo-wrapper {
+}
+
+.logo-inner-wrapper {
+    @apply bg-clip-padding bg-no-repeat lg:bg-[#ffffff63] p-3 relative z-[1] bg-center transition-all ease-in-out;
+}
+
+.logo-wrapper:before {
+    @apply lg:blur-3xl bg-fixed bg-no-repeat h-screen w-screen absolute -mt-[48px] lg:-mt-[100px] bg-[url('../img/background-image.jpg')] bg-cover bg-top -translate-x-2/4 z-[1] transition-all ease-in-out visible;
+        content: "";
+}
+
+.main-logo {
+    @apply w-24 bg-white p-4;
+    border-radius: 100%;
+}

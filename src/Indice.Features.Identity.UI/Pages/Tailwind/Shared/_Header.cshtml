@@ -76,50 +76,30 @@
                             <ul class="tabs-list"
                             id="myTab"
                             role="tablist">
-                                <li class="mr-2"
-                                role="presentation">
-                                    <a class="@($"tab {(Context.Request.Path == "/" ? "selected" : string.Empty )}")"
-                                       id="profile-tab"
-                                       asp-page="/Home" asp-route-sidebar="true"
-                                       role="tab"
-                                       aria-controls="profile"
-                                       aria-selected="@(Context.Request.Path == "/")">
-                                        @Localizer["Profile"]
-                                    </a>
-                                </li>
-                                <li class="mr-2"
-                                role="presentation">
-                                    <a class="@($"tab {(Context.Request.Path == "/manage/profile" ? "selected" : string.Empty )}")"
-                                       id="edit-profile-tab"
-                                       asp-page="/Profile"
-                                       role="tab">
-                                        @Localizer["Edit Profile"]
-                                    </a>
-                                </li>
-                                <li class="mr-2"
-                                role="presentation">
-                                    <a class="@($"tab {(Context.Request.Path == "/grants" ? "selected" : string.Empty )}")"
-                                       id="grants-tab"
-                                       asp-page="/Grants"
-                                       role="tab">
-                                        @Localizer["Grants"]
-                                    </a>
-                                </li>
-                                <li class="mr-2"
-                                role="presentation">
-                                    <a class="@($"tab {(Context.Request.Path == "/change-password" ? "selected" : string.Empty )}")"
-                                       id="changePassword-tab"
-                                       type="button"
-                                       role="tab"
-                                       asp-page="/ChangePassword">
-                                        @Localizer["Change Password"]
-                                    </a>
-                                </li>
+                                @foreach (var item in new ProfileTabViewModel[] {
+                            new ProfileTabViewModel(id:"profile", pagePath: "/Home", tabName: "Profile"),
+                            new ProfileTabViewModel(id:"edit-profile", pagePath: "/Profile", tabName: "Edit Profile"),
+                            new ProfileTabViewModel(id:"grants", pagePath: "/Grants", tabName: "Grants"),
+                            new ProfileTabViewModel(id:"changePassword", pagePath: "/ChangePassword", tabName: "Change Password"),
+                                            })
+                                {
+                                    <li class="mr-2"
+                                        role="presentation">
+                                        <a class="tab @($"{(Context.Request.Path == Url.Page(item.PagePath) ? "selected" : string.Empty )}")"
+                                           id="@item.Id-tab"
+                                           asp-page="@item.PagePath" asp-route-sidebar="true"
+                                           role="tab"
+                                           aria-controls="@(item.Id == "profile" ? "profile" : string.Empty)"
+                                           aria-selected="@(Context.Request.Path == "/")">
+                                            @Localizer[item.TabName]
+                                        </a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                         <div id="myTabContent"
                          class="tab-content">
-                            <vc:ProfileSidebar />
+                            <vc:profile-sidebar />
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,4 @@
 ﻿using Indice.Features.Risk.Core.Configuration;
-using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -7,13 +6,12 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>Extension methods for configuring risk engine.</summary>
 public static class IServiceCollectionExtensions
 {
-    /// <summary>Adds the required services for configuring the risk engine, using the provided type <typeparamref name="TRiskEvent"/>.</summary>
-    /// <typeparam name="TRiskEvent">The type of risk event.</typeparam>
+    /// <summary>Adds the required services for configuring the risk engine.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configAction">Options for configuring the <b>Risk Engine</b> feature.</param>
-    /// <returns>The <see cref="StoreBuilder{TRiskEvent}"/> instance used to configure the risk engine.</returns>
-    public static StoreBuilder<TRiskEvent> AddRiskEngine<TRiskEvent>(this IServiceCollection services, Action<RiskEngineOptions>? configAction = null) where TRiskEvent : DbRiskEvent {
-        var builder = new StoreBuilder<TRiskEvent>(services);
+    /// <returns>The <see cref="StoreBuilder"/> instance used to configure the risk engine.</returns>
+    public static StoreBuilder AddRiskEngine(this IServiceCollection services, Action<RiskEngineOptions>? configAction = null) {
+        var builder = new StoreBuilder(services);
         var options = new RiskEngineOptions();
         configAction?.Invoke(options);
         var result = options.Validate();
@@ -23,14 +21,7 @@ public static class IServiceCollectionExtensions
         services.Configure<RiskEngineOptions>(riskOptions => {
             riskOptions.RiskLevelRangeMapping = options.RiskLevelRangeMapping;
         });
-        services.AddTransient<RiskManager<TRiskEvent>>();
+        services.AddTransient<RiskManager>();
         return builder;
     }
-
-    /// <summary>Adds the required services for configuring the risk engine, using the default type <see cref="DbRiskEvent"/>.</summary>
-    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    /// <param name="configAction">Options for configuring the <b>Risk Engine</b> feature.</param>
-    /// <returns>The <see cref="RiskRuleBuilder{TRiskEvent}"/> instance used to configure the risk engine.</returns>
-    public static StoreBuilder<DbRiskEvent> AddRiskEngine(this IServiceCollection services, Action<RiskEngineOptions>? configAction = null) =>
-        services.AddRiskEngine<DbRiskEvent>(configAction);
 }
