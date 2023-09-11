@@ -17,7 +17,7 @@ public class RiskRequestBase
     public string Type { get; set; } = string.Empty;
 
     /// <summary></summary>
-    public DbRiskEvent ToDbRiskEvent() => new() {
+    public RiskEvent ToDbRiskEvent() => new() {
         Amount = Amount,
         CreatedAt = DateTimeOffset.UtcNow,
         Id = Guid.NewGuid(),
