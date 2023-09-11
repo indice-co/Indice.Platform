@@ -1,0 +1,19 @@
+﻿@{
+    Layout = "_IdentityMasterLayout";
+}
+@section meta {
+    @RenderSection("meta", required: false)
+}
+@section css {
+    @RenderSection("css", required: false)
+}
+@section aside {
+    <partial name="_Header" />
+}
+
+@RenderBody()
+
+
+@section scripts {
+    @RenderSection("scripts", required: false)
+}

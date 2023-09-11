@@ -1,0 +1,42 @@
+﻿@page "/login/add-email"
+
+@model BaseAddEmailModel
+
+@inject IIdentityViewLocalizer Localizer
+
+@{
+
+    var title = ViewData["Title"] = Localizer["Verify email"].Value;
+    var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseAddEmailModel.TempDataKey);
+}
+
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <partial name="_PageHeader" model="title" />
+        <partial name="_ValidationSummary" />
+        <partial name="_Alert" model="tempData.Alert" />
+        <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+            <div class="flex flex-wrap items-center relative my-5">
+                <input type="text" class="peer" placeholder="@Localizer["Email"]" asp-for="Input.Email" disabled="@tempData.DisableForm" />
+                <label asp-for="Input.Email" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Email"]</label>
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="row justify-items-center place-items-center">
+                <div class="@(tempData.DisableForm ? "col-span-6" : "col-span-12" ) flex flex-col">
+                    <button class="btn btn-primary" type="submit" disabled="@tempData.DisableForm">@Localizer["Save"]</button>
+                </div>
+                @if (tempData.DisableForm || !string.IsNullOrEmpty(tempData.NextStepUrl))
+                {
+                    <div class="col-span-6 flex flex-col">
+                        <a class="btn btn-primary no-underline" href="@tempData.NextStepUrl">@Localizer["Next"]</a>
+                    </div>
+                }
+            </div>
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

@@ -9,9 +9,7 @@ $success: $success;
 $info: $info;
 $warning: $warning;
 $danger: $danger;
-/*$light: $gray-100;
-$dark: $gray-900;
-$theme-colors: ( 'primary': $primary, 'secondary': $secondary, 'success': $success, 'info': $info, 'warning': $warning, 'danger': $danger, 'light': $light, 'dark': $dark);*/
+
 $link-color: $blue;
 $link-hover-color: $text-color;
 $body-color: $text-color;
@@ -20,7 +18,7 @@ $input-color: $text-color;
 $input-focus-color: $text-color;
 $grays: ( "100": $gray-100, "200": $gray-200, "300": $gray-300, "400": $gray-400, "500": $gray-500, "600": $gray-600, "700": $gray-700, );
 $colors: ( "blue-400": $text-color, "gray-400": $gray-400, "gray-700": $gray-700, "white": $white, "orange": $orange, "green": $green, "violet": $violet, "violet-light":$violet-light,"red": $red, "red-light": $red-light, "yellow-dark": $yellow-dark, "yellow-light": $yellow-light, "teal": $teal, "blue-200-light": $blue-200-light, "blue-light": $blue-light, "blue-lighter":$blue-lighter, "alert": $alert );
-$headings-margin-bottom: $spacer / .65;
+$headings-margin-bottom: calc($spacer / 0.65);
 $border-radius: .1875rem;
 $border-radius-lg: .225rem;
 $border-radius-sm: .15rem;
@@ -46,4 +44,8 @@ $h3-font-size: $font-size-base * (1.75 * $font-mod);
 $h4-font-size: $font-size-base * (1.5 * $font-mod);
 $h5-font-size: $font-size-base * (1.25 * $font-mod);
 $h6-font-size: $font-size-base;
+
+$link-decoration: none;
+$link-hover-decoration: underline;
+
 @import 'node_modules/bootstrap/scss/bootstrap';

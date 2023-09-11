@@ -27,8 +27,11 @@ public static class CasesApiConstants
     /// <summary>The default groupId claim type.</summary>
     public static string DefaultGroupIdClaimType = "groupId";
 
-    /// <summary> The default name for systemic claims principal.</summary>
+    /// <summary>The default name for systemic claims principal.</summary>
     public static string SystemUserName = "system_user";
+
+    /// <summary>The default name for the ReferenceNumber sequence.</summary>
+    public const string ReferenceNumberSequence = "ReferenceNumberSequence";
 
     /// <summary>Cases API policies.</summary>
     public static class Policies

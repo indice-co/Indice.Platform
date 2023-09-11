@@ -28,4 +28,6 @@ public class GetMyCasesListFilter
     public List<FilterClause> Metadata { get; set; }
     /// <summary>Determines whether draft cases should be included in result</summary>
     public bool? IncludeDrafts { get; set; }
+    /// <summary>The reference number filter.</summary>
+    public IEnumerable<int> ReferenceNumbers { get; set; }
 }

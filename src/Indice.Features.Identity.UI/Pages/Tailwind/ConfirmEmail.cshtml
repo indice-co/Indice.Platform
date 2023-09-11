@@ -1,0 +1,36 @@
+﻿@page "/confirm-email"
+
+@model BaseConfirmEmailModel
+
+@inject IIdentityViewLocalizer Localizer
+
+@{
+    var title = ViewData["Title"] = Localizer["Email Confirmation"].Value;
+}
+
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <partial name="_PageHeader" model="title" />
+        @if (ViewContext.ModelState.IsValid)
+        {
+            <h1>
+                <span class="header-text">@Localizer["Your email has been confirmed"]!</span>
+            </h1>
+            <p>@Localizer["You can now close this browse window"].</p>
+        }
+        else if (ViewContext.ModelState.Keys.Contains("EmailVerified"))
+        {
+            <h1>
+                <span class="header-text">@(ViewContext.ModelState["EmailVerified"]!.Errors.First().ErrorMessage)</span>
+            </h1>
+            <p>@Localizer["You can now close this browse window"].</p>
+        }
+        else
+        {
+            <h1>
+                <span class="header-text">@Localizer["Something went wrong."]</span>
+            </h1>
+            <partial name="_ValidationSummary" />
+        }
+    </div>
+</div>

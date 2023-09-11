@@ -1,0 +1,18 @@
+﻿@inject IIdentityViewLocalizer Localizer
+
+@model List<GatewayServiceModel>
+
+<div indice-if="Model.Count > 0" class="services deck d-flex flex-wrap">
+    @foreach (var item in Model)
+    {
+        var itemCssClass = item.DisplayName.ToLower().Replace(' ', '-');
+        var hasImage = !string.IsNullOrWhiteSpace(item.ImageSrc);
+        <a class="no-underline deck-item @itemCssClass" href="@Url.Content(item.Link)" indice-if="item.Visible">
+            <div indice-if="!hasImage" class="deck-icon"></div>
+            <div indice-if="hasImage" class="deck-image">
+                <img src="@item.ImageSrc" alt="@Localizer[item.DisplayName] image" />
+            </div>
+            <div class="deck-item-title">@Localizer[item.DisplayName]</div>
+        </a>
+    }
+</div>

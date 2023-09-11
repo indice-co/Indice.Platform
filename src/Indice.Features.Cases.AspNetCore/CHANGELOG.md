@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.4.0] - 2023-08-29
+### Added
+- Add `int? ReferenceNumber` to `Case` as an optional feature with an auto-incremented sequence if enabled. 
+### Migrations
+Add `ReferenceNumberSequence` sequence and `ReferenceNumber` column to `Case` table using the following script.
+
+Change the database and the schema according to your configuration.
+```sql
+-- The script will run against the database we want it to.
+USE [Cases]
+
+-- If we search for our sequence and it retunrs 0
+-- we create our sequence
+IF (SELECT COUNT(*) FROM [sys].[sequences] WHERE [name] = 'ReferenceNumberSequence') = 0
+    CREATE SEQUENCE [case].[ReferenceNumberSequence] AS int
+        START WITH 1 INCREMENT
+        BY 1
+        NO MINVALUE
+        NO MAXVALUE
+        NO CYCLE;
+GO
+
+-- If the column length returns NULL it means the column does not exist.
+-- so we alter the table and add it.
+IF COL_LENGTH('case.Case', 'ReferenceNumber') IS NULL
+    ALTER TABLE [case].[Case]
+    ADD [ReferenceNumber] int NULL;
+GO
+
+```
+
 ## [7.3.10] - 2023-08-10
 ### Bugfix
 - MyCase list filter now supports `from` and `to` parameters that can return results for same-day filters.
@@ -104,7 +135,7 @@ ALTER TABLE [case].[Casetype]
 ### Migrations
 ```sql
 ALTER TABLE [case].[NotificationSubscription]
-	ADD [CaseTypeId] UNIQUEIDENTIFIER NOT NULL;
+    ADD [CaseTypeId] UNIQUEIDENTIFIER NOT NULL;
 ```
 Every existing record in [case].[NotificationSubscription] should be replaced with x new ones, where x is the number of case types that the record's subscriber can see!
 
@@ -156,14 +187,14 @@ UPDATE c
 SET CheckpointId = B.Id
 FROM [case].[Case] c
 INNER JOIN (
-	SELECT *
-	FROM (
-		SELECT Id, CaseId, ROW_NUMBER() OVER (PARTITION BY [CaseId] ORDER BY CreatedByWhen DESC) AS Rn
-		FROM [case].[Checkpoint]
-	) A
-	WHERE A.Rn = 1 
+    SELECT *
+    FROM (
+        SELECT Id, CaseId, ROW_NUMBER() OVER (PARTITION BY [CaseId] ORDER BY CreatedByWhen DESC) AS Rn
+        FROM [case].[Checkpoint]
+    ) A
+    WHERE A.Rn = 1 
 ) AS B 
-	ON c.Id = B.CaseId
+    ON c.Id = B.CaseId
 ```
 
 Rename table / IX / PK / FK
@@ -190,27 +221,27 @@ Update dataId and publicDataId FK with most recent versions, for each case
 ```sql
 UPDATE c
 SET DataId = [Data].Id, -- most recent data version
-	PublicDataId =  [PublicData].Id -- most recet customer data version
+    PublicDataId =  [PublicData].Id -- most recet customer data version
 FROM [case].[Case] c
 LEFT JOIN (
-	SELECT *
-	FROM (
-		SELECT Id, CaseId, ROW_NUMBER() OVER (PARTITION BY [CaseId] ORDER BY CreatedByWhen DESC) AS Rn
-		FROM [case].[CaseData]
-	) A
-	WHERE A.Rn = 1 
+    SELECT *
+    FROM (
+        SELECT Id, CaseId, ROW_NUMBER() OVER (PARTITION BY [CaseId] ORDER BY CreatedByWhen DESC) AS Rn
+        FROM [case].[CaseData]
+    ) A
+    WHERE A.Rn = 1 
 ) AS [Data] 
-	ON c.Id = [Data].CaseId
+    ON c.Id = [Data].CaseId
 LEFT JOIN (
-	SELECT *
-	FROM (
-		SELECT Id, CaseId, CreatedbyId, ROW_NUMBER() OVER (PARTITION BY [CaseId], [CreatedById] ORDER BY CreatedByWhen DESC) AS Rn
-		FROM [case].[CaseData]		
-	) A	
+    SELECT *
+    FROM (
+        SELECT Id, CaseId, CreatedbyId, ROW_NUMBER() OVER (PARTITION BY [CaseId], [CreatedById] ORDER BY CreatedByWhen DESC) AS Rn
+        FROM [case].[CaseData]		
+    ) A	
 ) AS [PublicData] 
-	ON c.Id = [PublicData].CaseId 
-		AND [PublicData].CreatedById = c.CustomerUserId 
-		AND [PublicData].Rn = 1
+    ON c.Id = [PublicData].CaseId 
+        AND [PublicData].CreatedById = c.CustomerUserId 
+        AND [PublicData].Rn = 1
 ```
 
 Elsa migrations
@@ -254,14 +285,14 @@ sp_rename 'case.CheckpointType.PublicStatus', 'Status', 'column'
 ### Migration
 ```sql
 CREATE TABLE [case].[Category](
-	[Id] [uniqueidentifier] NOT NULL,
-	[Name] [nvarchar](128) NULL,
-	[Description] [nvarchar](512) NULL,
-	[Order] [int] NULL,
-	[Translations] [nvarchar](max) NULL,
+    [Id] [uniqueidentifier] NOT NULL,
+    [Name] [nvarchar](128) NULL,
+    [Description] [nvarchar](512) NULL,
+    [Order] [int] NULL,
+    [Translations] [nvarchar](max) NULL,
  CONSTRAINT [PK_Category] PRIMARY KEY CLUSTERED 
 (
-	[Id] ASC
+    [Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 ```

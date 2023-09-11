@@ -1,9 +1,8 @@
-﻿using System.Security;
-using Indice.Features.Identity.Core.Configuration;
+﻿using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.Core.TokenProviders;
 
@@ -11,27 +10,20 @@ namespace Indice.Features.Identity.Core.TokenProviders;
 /// <typeparam name="TUser">The type used to represent a user.</typeparam>
 public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberTokenProvider<TUser> where TUser : User
 {
-    /// <summary>Creates a new instance of <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/>.</summary>
-    /// <param name="rfc6238AuthenticationService">Time-Based One-Time Password Algorithm service.</param>
-    /// <param name="options"></param>
-    /// <param name="environment"></param>
-    public DeveloperPhoneNumberTokenProvider(
-        Rfc6238AuthenticationService rfc6238AuthenticationService, 
-        TotpOptions options, 
-        IHostEnvironment environment
-    ) : base(rfc6238AuthenticationService) {
-        _options = options ?? throw new ArgumentNullException(nameof(options));
-        _environment = environment ?? throw new ArgumentNullException(nameof(environment));
-    }
-
     private readonly TotpOptions _options;
-    private readonly IHostEnvironment _environment;
 
-    private bool EnableDeveloperTotp => _options.EnableDeveloperTotp && !_environment.IsProduction();
+    /// <summary>Creates a new instance of <see cref="ExtendedPhoneNumberTokenProvider{TUser}"/>.</summary>
+    /// <param name="options">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
+    public DeveloperPhoneNumberTokenProvider(IOptions<TotpOptions> options) : base(Options.Create(new PhoneNumberTokenProviderTotpOptions {
+        CodeDuration = options.Value.CodeDuration,
+        CodeLength = options.Value.CodeLength
+    })) {
+        _options = options.Value ?? throw new ArgumentNullException(nameof(options));
+    }
 
     /// <inheritdoc />
     public override async Task<bool> CanGenerateTwoFactorTokenAsync(UserManager<TUser> userManager, TUser user) {
-        if (EnableDeveloperTotp) {
+        if (_options.EnableDeveloperTotp) {
             var userClaims = await userManager.GetClaimsAsync(user);
             var developerTotpClaim = userClaims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.DeveloperTotp);
             var hasDeveloperTotp = developerTotpClaim is not null && await userManager.IsInRoleAsync(user, BasicRoleNames.Developer);
@@ -44,7 +36,7 @@ public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberToken
 
     /// <inheritdoc />
     public override async Task<string> GenerateAsync(string purpose, UserManager<TUser> userManager, TUser user) {
-        if (EnableDeveloperTotp) {
+        if (_options.EnableDeveloperTotp) {
             var userClaims = await userManager.GetClaimsAsync(user);
             var developerTotpClaim = userClaims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.DeveloperTotp);
             if (!string.IsNullOrWhiteSpace(developerTotpClaim?.Value)) {
@@ -56,7 +48,7 @@ public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberToken
 
     /// <inheritdoc />
     public override async Task<bool> ValidateAsync(string purpose, string token, UserManager<TUser> userManager, TUser user) {
-        if (EnableDeveloperTotp) {
+        if (_options.EnableDeveloperTotp) {
             var userClaims = await userManager.GetClaimsAsync(user);
             var developerTotpClaim = userClaims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.DeveloperTotp);
             if (developerTotpClaim?.Value == token) {

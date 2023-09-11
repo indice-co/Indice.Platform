@@ -7,6 +7,7 @@ using Indice.Services.Yuboto;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -57,7 +58,7 @@ public static class IndiceServicesServiceCollectionExtensions
                                   configuration.GetValue<string>(PushNotificationServiceAzure.NotificationsHubPath)
         };
         configure?.Invoke(serviceProvider, options);
-        return new PushNotificationServiceAzure(options);
+        return new PushNotificationServiceAzure(options, serviceProvider.GetRequiredService<ILoggerFactory>());
     };
 
     /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
@@ -115,7 +116,6 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddSmsServiceYuboto(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
-        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         services.AddHttpClient<ISmsService, SmsServiceYuboto>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
@@ -127,7 +127,6 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddSmsServiceApifon(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceApifonOptions> configure = null) {
         services.Configure<SmsServiceApifonSettings>(configuration.GetSection(SmsServiceSettings.Name));
-        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceApifonSettings>>().Value);
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         var options = new SmsServiceApifonOptions();
         configure?.Invoke(options);
@@ -157,7 +156,6 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     public static IServiceCollection AddSmsServiceYubotoOmni(this IServiceCollection services, IConfiguration configuration) {
         services.Configure<SmsServiceSettings>(configuration.GetSection(SmsServiceSettings.Name));
-        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceSettings>>().Value);
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         services.AddHttpClient<ISmsService, SmsYubotoOmniService>().SetHandlerLifetime(TimeSpan.FromMinutes(5));
         return services;
@@ -180,7 +178,6 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
     public static IServiceCollection AddSmsServiceKapaTEL(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceKapaTELSettings> configure = null) {
         services.Configure<SmsServiceKapaTELSettings>(configuration.GetSection(SmsServiceSettings.Name));
-        services.AddTransient(serviceProvider => serviceProvider.GetRequiredService<IOptions<SmsServiceKapaTELSettings>>().Value);
         services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
         var options = new SmsServiceKapaTELSettings();
         configure?.Invoke(options);

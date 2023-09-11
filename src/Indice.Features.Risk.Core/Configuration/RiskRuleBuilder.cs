@@ -6,8 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.Risk.Core.Configuration;
 
 /// <summary>Builder class used to configure the risk engine feature.</summary>
-/// <typeparam name="TRiskEvent">The type of risk event.</typeparam>
-public class RiskRuleBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
+public class RiskRuleBuilder
 {
     private readonly List<string> _ruleNames = new();
     private readonly IServiceCollection _services;
@@ -16,42 +15,42 @@ public class RiskRuleBuilder<TRiskEvent> where TRiskEvent : DbRiskEvent
         _services = services ?? throw new ArgumentNullException(nameof(services));
     }
 
-    /// <summary>Adds a new rule to the risk engine by providing an implementation of <see cref="RiskRuleBase{TRiskEvent}"/>.</summary>
+    /// <summary>Adds a new rule to the risk engine by providing an implementation of <see cref="RiskRuleBase"/>.</summary>
     /// <typeparam name="TRule">The implementation type.</typeparam>
     /// <param name="name">The name of the rule.</param>
-    /// <returns>The instance of <see cref="RiskRuleBuilder{TRiskEvent}"/>.</returns>
-    public RiskRuleBuilder<TRiskEvent> AddRule<TRule>(string name) where TRule : RiskRuleBase<TRiskEvent> {
+    /// <returns>The instance of <see cref="RiskRuleBuilder"/>.</returns>
+    public RiskRuleBuilder AddRule<TRule>(string name) where TRule : RiskRuleBase {
         CheckAndAddRuleName(name);
-        _services.AddTransient<RiskRuleBase<TRiskEvent>, TRule>();
+        _services.AddTransient<RiskRuleBase, TRule>();
         return this;
     }
 
     /// <summary>Adds a new rule to the risk engine by providing a lambda expression.</summary>
     /// <param name="name">The name of the rule.</param>
     /// <param name="ruleDelegate">The delegate method to when a new event occurs.</param>
-    /// <returns>The instance of <see cref="RiskRuleBuilder{TRiskEvent}"/>.</returns>
-    public RiskRuleBuilder<TRiskEvent> AddRule(
+    /// <returns>The instance of <see cref="RiskRuleBuilder"/>.</returns>
+    public RiskRuleBuilder AddRule(
         string name,
-        Func<IServiceProvider, TRiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
+        Func<IServiceProvider, DbRiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
     ) {
         CheckAndAddRuleName(name);
-        _services.AddTransient<RiskRuleBase<TRiskEvent>>(serviceProvider => new GenericRule<TRiskEvent>(name, serviceProvider, ruleDelegate));
+        _services.AddTransient<RiskRuleBase>(serviceProvider => new GenericRule(name, serviceProvider, ruleDelegate));
         return this;
     }
 
     /// <summary>Adds a new rule to the risk engine by providing a lambda expression.</summary>
     /// <param name="name">The name of the rule.</param>
     /// <param name="ruleDelegate">The delegate method to when a new event occurs.</param>
-    /// <returns>The instance of <see cref="RiskRuleBuilder{TRiskEvent}"/>.</returns>
-    public RiskRuleBuilder<TRiskEvent> AddRule(
+    /// <returns>The instance of <see cref="RiskRuleBuilder"/>.</returns>
+    public RiskRuleBuilder AddRule(
         string name,
-        Func<TRiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
+        Func<DbRiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
     ) => AddRule(name, (serviceProvider, @event) => ruleDelegate(@event));
 
     /// <summary></summary>
     /// <param name="builder"></param>
-    public void ConfigureEvents(Action<RiskEventConfigBuilder<TRiskEvent>> builder) {
-        var ruleConfigBuilder = new RiskEventConfigBuilder<TRiskEvent>();
+    public void ConfigureEvents(Action<RiskEventConfigBuilder> builder) {
+        var ruleConfigBuilder = new RiskEventConfigBuilder();
         builder?.Invoke(ruleConfigBuilder);
         var ruleConfigs = ruleConfigBuilder.Build();
         foreach (var ruleConfig in ruleConfigs.Events) {

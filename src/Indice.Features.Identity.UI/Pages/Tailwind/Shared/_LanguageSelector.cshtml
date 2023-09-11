@@ -1,0 +1,64 @@
+﻿@using Microsoft.AspNetCore.Builder;
+@using Microsoft.AspNetCore.Http.Extensions;
+@inject IIdentityViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocalizationOptions
+
+@{
+    var htmlUniqueId = $"{Guid.NewGuid():N}";
+    var supportedCultures = LocalizationOptions.Value.SupportedUICultures!;
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langDisplayName = GetLangDisplayName(CultureInfo.CurrentUICulture);
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+
+@functions {
+    public string GetLangDisplayName(CultureInfo culture)
+    {
+        return culture.TwoLetterISOLanguageName == "en" ? "English" :
+               culture.TwoLetterISOLanguageName == "el" ? "Ελληνικά" :
+               culture.DisplayName;
+    }
+}
+
+<div class="h-12 flex lg:justify-end justify-center items-center px-12 group">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" class="lg:fill-white fill-greys-400 mini-menu-icon cursor-pointer transition-all">
+        <g id="a">
+            <path class="e" d="M11,0C4.92,0,0,4.93,0,11s4.93,11,11,11c2.92,0,5.71-1.16,7.78-3.22,2.06-2.06,3.22-4.86,3.22-7.78C22,4.92,17.07,0,11,0Zm6.09,15.08c.28-1.09,.44-2.26,.48-3.5h3.04c-.11,1.82-.71,3.5-1.69,4.9-.39-.53-1.02-1.01-1.83-1.41Zm-4.2,5.37c-.48,.09-.97,.14-1.47,.17v-6.04c1.86,.04,3.57,.37,4.86,.88-.69,2.33-1.91,4.14-3.39,4.99Zm-7.15-4.99c1.32-.52,3.08-.85,5-.88v6.05c-.55-.02-1.09-.07-1.61-.17-1.48-.84-2.7-2.66-3.39-4.99Zm-2.65,1.03c-.98-1.41-1.58-3.09-1.69-4.9h3.04c.04,1.23,.21,2.41,.48,3.49-.82,.4-1.45,.88-1.83,1.41Zm1.75-9.19c-.26,1.13-.41,2.34-.42,3.61H1.37c.02-1.91,.6-3.69,1.58-5.19,.35,.6,1.01,1.14,1.89,1.58Zm.28,4.29h.88c.19,0,.34-.15,.34-.34s-.15-.34-.34-.34h-.89c0-1.17,.14-2.28,.36-3.32,1.4,.56,3.23,.91,5.26,.94v2.38h-3.03c-.19,0-.34,.15-.34,.34,0,.19,.15,.34,.34,.34h3.03v2.31c-1.99,.03-3.79,.36-5.18,.9-.24-1-.39-2.09-.43-3.22ZM9.12,1.55c.52-.1,1.06-.16,1.61-.17V7.84c-1.96-.03-3.77-.38-5.1-.92,.67-2.51,1.94-4.47,3.5-5.36Zm7.25,5.36c-1.3,.53-3.05,.88-4.97,.92V1.38c.5,.02,.99,.07,1.47,.17,1.56,.89,2.83,2.85,3.5,5.36Zm-4.97,1.6c1.98-.04,3.75-.39,5.12-.94,.23,1.04,.36,2.16,.36,3.32h-5.49v-2.39Zm0,5.38v-2.32h5.47c-.04,1.13-.18,2.22-.43,3.22-1.36-.53-3.1-.86-5.04-.9Zm6.17-3c0-1.27-.16-2.48-.42-3.61,.88-.44,1.53-.98,1.89-1.58,1,1.53,1.56,3.33,1.58,5.19h-3.05Zm1.02-5.81c-.19,.57-.76,1.1-1.6,1.53-.52-1.87-1.37-3.46-2.43-4.57,1.2,.48,2.31,1.2,3.24,2.13,.28,.28,.54,.59,.79,.9ZM7.43,2.05c-1.06,1.11-1.91,2.69-2.43,4.57-.84-.44-1.42-.96-1.6-1.53,1.04-1.34,2.43-2.4,4.03-3.03Zm-3.92,15.01c.27-.49,.83-.95,1.6-1.33,.53,1.72,1.33,3.18,2.33,4.22-1.54-.62-2.89-1.62-3.92-2.89Zm11.06,2.89c.99-1.04,1.79-2.49,2.32-4.21,.77,.38,1.32,.84,1.59,1.33-1.03,1.27-2.38,2.27-3.92,2.88Z" />
+        </g>
+        <g id="b" />
+        <g id="c" />
+        <g id="d" />
+    </svg>
+    <span class="text-sm font-sm leading-none lg:text-white text-greys-400 lg:hidden">@langDisplayName</span>
+    <div>
+        <button id="dropdownTrigger_@htmlUniqueId" data-dropdown-toggle="dropdown_@htmlUniqueId" title="@Localizer["Select Language"]" class="py-4 rounded bg-transparent text-sm font-sm leading-none text-greys-500 flex items-center cursor-pointer" type="button">
+            <svg class="w-3 h-3 ease-in-out duration-300 lg:text-white text-greys-400 transition-transform lg:stroke-white stroke-greys-400 rotate-180"
+                 fill="none"
+                 xmlns="http://www.w3.org/2000/svg"
+                 viewBox="0 0 24 24"
+                 stroke-width="2">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M19 9l-7 7-7-7" />
+            </svg>
+        </button>
+        <div id="dropdown_@htmlUniqueId" class="hidden z-50 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700">
+            <form asp-page="/SetLanguage" id="SelectLanguageForm_@htmlUniqueId" asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()" method="post" role="form">
+                <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownTrigger_@htmlUniqueId">
+                    @foreach (var supportedCulture in supportedCultures)
+                    {
+                        var optionText = GetLangDisplayName(supportedCulture);
+                        var isSelected = supportedCulture.TwoLetterISOLanguageName == lang;
+                        <li>
+                            <button type="submit" form="SelectLanguageForm_@htmlUniqueId" 
+                                    name="culture" value="@supportedCulture.Name" title="@optionText" 
+                                    class="block py-2 px-4 hover:bg-gray-100 no-underline w-full text-left @(isSelected ? "font-bold" : "")">
+                                @optionText
+                            </button>
+                        </li>
+                    }
+                </ul>
+            </form>
+        </div>
+    </div>
+</div>

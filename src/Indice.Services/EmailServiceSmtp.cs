@@ -1,5 +1,6 @@
 ﻿using Indice.Extensions;
 using MailKit.Net.Smtp;
+using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
 
@@ -12,10 +13,10 @@ public class EmailServiceSmtp : IEmailService
     /// <param name="settings">The SMTP settings to use.</param>
     /// <param name="htmlRenderingEngine">This is an abstraction for the rendering engine.</param>
     public EmailServiceSmtp(
-        EmailServiceSettings settings,
+        IOptionsSnapshot<EmailServiceSettings> settings,
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
-        Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
     }
 

@@ -15,7 +15,7 @@
     </PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-    <AssemblyTitle>Edi.Net .NET 4.0</AssemblyTitle>
+    <AssemblyTitle>Indice.AspNet .NET 4.0</AssemblyTitle>
     <DefineConstants>$(DefineConstants);net40</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net40'">

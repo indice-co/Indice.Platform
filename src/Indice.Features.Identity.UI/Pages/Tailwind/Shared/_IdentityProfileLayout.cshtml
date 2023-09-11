@@ -1,0 +1,147 @@
+﻿@inject GeneralSettings Settings
+@inject IIdentityViewLocalizer Localizer
+@inject IWebHostEnvironment Environment
+@inject IConfiguration Configuration
+@inject IOptions<IdentityUIOptions> UiOptions
+@inject SignInManager<User> SignInManager
+
+@{
+    Layout = "_IdentityMasterLayout";
+
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+    
+    var initials = $"{User.FindFirst(JwtClaimTypes.GivenName)?.Value?[0]}{User.FindFirst(JwtClaimTypes.FamilyName)?.Value?[0]}";
+}
+@section meta {
+    @RenderSection("meta", required: false)
+}
+@section css {
+    @RenderSection("css", required: false)
+}
+@section aside {
+    <a href="~/?sidebar=true">
+        <div class="absolute h-12 w-12 rounded-full lg:bg-[#ffffff63]  lg:backdrop-blur-lg right-5 top-8 cursor-pointer flex items-center justify-center">
+            <span class="text-one font-extrabold text-2xl">@initials</span>
+        </div>
+    </a>
+    <aside class="sidebar"
+           aria-label="Sidebar">
+        <div class="grid h-full">
+            <div class="flex">
+                <div class="toggle-btn-wrapper">
+                    <a asp-page="/Home">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 stroke-white md:stroke-tenant-900 cursor-pointer" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+                <div class="sidebar-wrapper">
+                    <div class="sidebar-header">
+                        <div class="flex flex-row justify-between items-start md:items-center border-b border-gray-200 pb-4 mb-8">
+                            <a class="flex flex-col md:flex-row space-x-4 items-center cursor-pointer text-black no-underline" asp-page="/Login">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="33.489" height="34.276" viewBox="0 0 33.489 34.276" class="mb-2 md:mb-0">
+                                    <g id="Group_2819" data-name="Group 2819" transform="translate(-1654.355 -18.751)">
+                                        <path id="Path_4832" data-name="Path 4832" d="M16.026,21.506c-4.788,0-8.288-8.694-8.288-13.218a8.288,8.288,0,1,1,16.576,0c0,4.524-3.5,13.218-8.288,13.218m0-19.488a6.277,6.277,0,0,0-6.27,6.27c0,3.917,3.223,11.2,6.27,11.2S22.3,12.2,22.3,8.288a6.277,6.277,0,0,0-6.27-6.27" transform="translate(1650.771 19.001)" fill="#9e9e9d" stroke="#9e9e9d" stroke-width="0.5" />
+                                        <path id="Path_4833" data-name="Path 4833" d="M12.15,51.207C9.3,51.207,0,50.916,0,47.171A12.374,12.374,0,0,1,8.61,35.4l.618-.191.431.482c1.545,1.725,3.393,1.807,5.05-.033l.434-.482.619.2a12.425,12.425,0,0,1,8.537,11.8c0,3.745-9.3,4.036-12.15,4.036M8.633,37.527a10.359,10.359,0,0,0-6.615,9.644c0,.555,3.115,2.018,10.132,2.018s10.132-1.463,10.132-2.018A10.416,10.416,0,0,0,15.73,37.5a5.179,5.179,0,0,1-3.538,1.538,5.19,5.19,0,0,1-3.559-1.51" transform="translate(1654.605 1.57)" fill="#9e9e9d" stroke="#9e9e9d" stroke-width="0.5" />
+                                        <g id="Group_2826" data-name="Group 2826" transform="translate(-1 3)">
+                                            <line id="Line_90" data-name="Line 90" x2="7.739" transform="translate(1680.105 32.37)" fill="none" stroke="#005b96" stroke-linecap="round" stroke-width="2" />
+                                            <line id="Line_91" data-name="Line 91" y2="7.739" transform="translate(1683.975 28.5)" fill="none" stroke="#005b96" stroke-linecap="round" stroke-width="2" />
+                                        </g>
+                                    </g>
+                                </svg>
+                                <span class="max-w-[175px] text-sm leading-4">
+                                    @Localizer["Sign in with a different account"]
+                                </span>
+                            </a>
+                            <a class="flex flex-col-reverse md:flex-row space-x-4 items-center cursor-pointer text-black no-underline" asp-page="/Logout" target="_top">
+                                <span class="max-w-[175px] text-sm">
+                                    @Localizer["Log out"]
+                                </span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="29.246" height="28.775" viewBox="0 0 29.246 28.775" class="mb-2 md:mb-0">
+                                    <g id="Group_2817" data-name="Group 2817" transform="translate(-1853.984 -17.501)">
+                                        <path id="Subtraction_14" data-name="Subtraction 14" d="M16166.889,14966.776a13.885,13.885,0,1,1,12.056-20.783h-2.034a12.169,12.169,0,1,0,0,13.791h2.034a13.9,13.9,0,0,1-12.056,6.992Z" transform="translate(-14298.516 -14921)" fill="#9e9e9d" stroke="#9e9e9d" stroke-miterlimit="10" stroke-width="1" />
+                                        <path id="Path_4832" data-name="Path 4832" d="M12.231,1H0A1,1,0,0,1-1,0,1,1,0,0,1,0-1H12.231a1,1,0,0,1,1,1A1,1,0,0,1,12.231,1Z" transform="translate(1869.5 31.889)" fill="#005b96" stroke="#005b96" stroke-linecap="round" stroke-width="1" />
+                                    </g>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="flex items-start md:items-center flex-col md:flex-row">
+                            <div class="rounded-full h-24 w-24 flex items-center justify-center bg-[#DFEAF2] text-tenant-900 font-bold text-4xl mr-8 mb-4">
+                                @initials
+                            </div>
+                            <div class="flex flex-col">
+                                <div class="font-bold mb-1">@Localizer[Settings.Organization]</div>
+                                <div class="text-tenant-900 text-3xl font-normal">@User.FindDisplayName()</div>
+                                <div>@User.GetDisplayName()</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sidebar-body">
+                        <div class="tabs-wrapper">
+                            <ul class="tabs-list"
+                                id="myTab"
+                                role="tablist">
+                                @foreach (var item in new ProfileTabViewModel[] {
+                                        new ProfileTabViewModel(id:"profile", pagePath: "/Home", tabName: "Profile"),
+                                        new ProfileTabViewModel(id:"edit-profile", pagePath: "/Profile", tabName: "Edit Profile"),
+                                        new ProfileTabViewModel(id:"grants", pagePath: "/Grants", tabName: "Grants"),
+                                        new ProfileTabViewModel(id:"changePassword", pagePath: "/ChangePassword", tabName: "Change Password"),
+                                    }) {
+                                    <li class="mr-2"
+                                        role="presentation">
+                                        <a class="tab @($"{(Context.Request.Path == Url.Page(item.PagePath) ? "selected" : string.Empty )}")"
+                                           id="@item.Id-tab"
+                                           asp-page="@item.PagePath" asp-route-sidebar="true"
+                                           role="tab"
+                                           aria-controls="@(item.Id == "profile" ? "profile" : string.Empty)"
+                                           aria-selected="@(Context.Request.Path == "/")">
+                                            @Localizer[item.TabName]
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                        <div id="myTabContent"
+                             class="tab-content">
+                            @RenderBody()
+                        </div>
+                    </div>
+                </div>
+                @*            <div class="sidebar-footer">
+            <hr>
+            </div>*@
+            </div>
+        </div>
+    </aside>
+}
+
+<div class="content-wrapper">
+    <div class="flex flex-col items-center justify-center">
+        <h1 class="deck-title">
+            @Localizer[UiOptions.Value.HomePageSlogan, Settings.Organization]
+        </h1>
+        <p class="text-white lg:text-one text-lg pt-6 text-center max-w-screen-md">
+            @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization]
+        </p>
+        <div class="deck">
+            @if (!User.IsAuthenticated())
+            {
+                <div class="deck-item col-auto" indice-if="@Environment.IsDevelopment()">
+                    <a asp-page="/Login">
+                        <img indice-if="!User.IsAuthenticated()" class="h-64 w-64" src="~/img/logo@(langSuffix).svg" />
+                    </a>
+                </div>
+            }
+            <partial name="_ServiceDeck" model="Model.Services" />
+        </div>
+    </div>
+</div>
+<div id="stars"></div>
+<div id="stars2"></div>
+<div id="stars3"></div>
+
+
+@section scripts {
+    @RenderSection("scripts", required: false)
+}

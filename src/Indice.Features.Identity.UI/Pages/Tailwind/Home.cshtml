@@ -1,0 +1,38 @@
+﻿@page "/"
+
+@model BaseHomeModel
+
+@inject GeneralSettings Settings
+@inject IIdentityViewLocalizer Localizer
+@inject IWebHostEnvironment Environment
+
+@{
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+
+<div class="content-wrapper">
+    <div class="flex flex-col items-center justify-center">
+        <h1 class="deck-title">
+            @Localizer[Model.UiOptions.HomePageSlogan, Settings.Organization]
+        </h1>
+        <p class="text-white lg:text-one text-lg pt-6 text-center max-w-screen-md">
+            @Localizer["The Identity portal gives you access to all {0} services with one account. A place to manage your user profile and account access settings. Use the links below to get started.", Settings.Organization]
+        </p>
+        <div class="deck">
+            @if (!User.IsAuthenticated())
+            {
+                <div class="deck-item col-auto" indice-if="@Environment.IsDevelopment()">
+                    <a asp-page="/Login">
+                        <img indice-if="!User.IsAuthenticated()" class="h-64 w-64" src="~/img/logo@(langSuffix).svg" />
+                    </a>
+                </div>
+            }
+            <partial name="_ServiceDeck" model="Model.Services" />
+        </div>
+    </div>
+</div>
+<div id="stars"></div>
+<div id="stars2"></div>
+<div id="stars3"></div>
+

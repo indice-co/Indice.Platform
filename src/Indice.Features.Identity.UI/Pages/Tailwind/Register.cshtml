@@ -1,0 +1,169 @@
+﻿@page "/register"
+
+@model BaseRegisterModel
+
+@inject IIdentityViewLocalizer Localizer
+
+@{
+    var title = ViewData["Title"] = Localizer["Sign up"].Value;
+}
+
+<div class="content-wrapper">
+    <div class="card-wrapper register">
+        <partial name="_PageHeader" model="title" />
+        <partial name="_ValidationSummary" />
+        <p class="px-8">@Localizer["To register as a new user you will need to fill in the following information."]</p>
+        <form data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form">
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+            <div class="row">
+                <div class="input-group">
+                    <input type="text" class="peer" asp-for="Input.FirstName" placeholder="@Localizer["First name"]" autofocus />
+                    <label asp-for="Input.FirstName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["First name"]</label>
+                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                </div>
+                <div class="input-group">
+                    <input type="text" class="peer" asp-for="Input.LastName" placeholder="@Localizer["Last name"]" />
+                    <label asp-for="Input.LastName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Last name"]</label>
+                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-group">
+                    <input type="text" class="peer" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                    <label asp-for="Input.Email" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Email"]</label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+                <div class="input-group">
+                    <input type="text" class="peer" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                    <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-group">
+                    <select class="peer" asp-for="Input.ZoneInfo" required>
+                        <option value="" selected>@Localizer["Choose..."]</option>
+                        @foreach (var timezone in TimeZoneInfo.GetSystemTimeZones())
+                        {
+                            <option value="@timezone.Id">@timezone.DisplayName</option>
+                        }
+                    </select>
+                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer["Timezone"]</label>
+                    <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
+                </div>
+            </div>
+            <hr class="mb-7">
+            <div class="row">
+                <div class="input-group-w-full">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 right-4 flex items-center mt-[1.8rem]" data-tooltip-target="username-tooltip">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-greys-600" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div id="username-tooltip" role="tooltip" class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 shadow-sm opacity-0 tooltip max-w-xs">
+                            @Localizer["Choose a username and a password of your choice. You can periodically change your password or whenever you wish to."]
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                    </div>
+                    <input type="text" class="peer" asp-for="Input.UserName" placeholder="@Localizer["Username"]" autocomplete="off" />
+                    <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Username"]</label>
+                    <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-0.5">
+                <div class="input-group-w-full">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 right-4 flex items-center mt-[1.8rem]" data-tooltip-target="password-tooltip">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-greys-600" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div id="password-tooltip" role="tooltip" class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 shadow-sm opacity-0 tooltip max-w-xs">
+                            @Localizer["These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties."]
+                            <div class="tooltip-arrow" data-popper-arrow></div>
+                        </div>
+                    </div>
+                    <input type="password" class="peer" asp-for="Input.Password" data-sbind="event: { keyup: passwordChanged }" placeholder="@Localizer["Password"]" autocomplete="new-password" />
+                    <label asp-for="Input.Password" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Password"]</label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="row mb-0">
+                <div id="password-rules" class="password-rules col-span-12">
+                    <ul data-sbind="foreach: passwordRules">
+                        <li class="password-rule" data-sbind="text: $data.requirement, css: { 'rule-valid': $data.isValid }"></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 place-items-start place-content-start mb-4">
+                <div class="col-span-1 flex flex-row text-left mb-4">
+                    <input asp-for="Input.HasAcceptedTerms" type="checkbox" />
+                    <label class="checkbox">
+                        @Localizer["I have read and accept the <a href=\"/terms\" target=\"_blank\">Terms of service</a> and the <a href=\"/privacy\" target=\"_blank\">privacy policy</a>."]
+                    </label>
+                </div>
+                <span asp-validation-for="Input.HasAcceptedTerms" class="text-danger"></span>
+                <div class="col-span-1 flex flex-row text-left">
+                    <input asp-for="Input.HasReadPrivacyPolicy" type="checkbox" />
+                    <label class="checkbox">
+                        @Localizer["I consent to the registration and processing of the above personal details for my contact and service as they are defined"]
+                        <a asp-page="/Privacy" target="_blank">@Localizer["here"]</a>.
+                    </label>
+                </div>
+                <span asp-validation-for="Input.HasReadPrivacyPolicy" class="text-danger"></span>
+            </div>
+            <div class="row content-center place-items-center text-center mt-8">
+                <div class="col-span-12">
+                    <button class="btn btn-primary btn-block" type="submit" data-sbind="attr: { disabled: !isFormValid }">@Localizer["Join us"]</button>
+                </div>
+            </div>
+            <div class="row content-center place-items-center text-center mt-8">
+                <div class="col-span-12">
+                    <span>@Localizer["Already have an account?"]&nbsp;</span>
+
+                    <div class="col-span-12">
+                        <a class="text-tenant-900 underline" asp-page="/Login" asp-route-returnUrl="@Model.View.ReturnUrl">@Localizer["Login"]&nbsp;</a>
+                    </div>
+                </div>
+            </div>
+            <div class="my-10">
+                @if (Model.View.VisibleExternalProviders.Any())
+                {
+                    <div class="hr-sect"><span>@Localizer["OR"]</span></div>
+                    <div class="flex justify-center mb-2.5">
+                        <span class="text-greys-400">@Localizer["login with"]</span>
+                    </div>
+                    <div class="flex flex-wrap justify-center pb-2">
+                        @foreach (var provider in Model.View.VisibleExternalProviders)
+                        {
+                            <div class="idp idp-@provider.AuthenticationScheme!.ToLower() mx-2.5">
+                                <a asp-page="/Challenge" asp-route-provider="@provider.AuthenticationScheme" asp-route-returnUrl="@Model.View.ReturnUrl" asp-route-prompt="@OidcConstants.PromptModes.SelectAccount"></a>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </form>
+        <div class="px-8">
+            <partial name="_LanguageSelector" />
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="~/lib/knockout/build/output/knockout-latest.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/utilities.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/password-rules.js" csp-nonce="true"></script>
+    <script csp-nonce="true">
+        document.querySelectorAll('.idp a').forEach(function (el) {
+            el.onclick = function (link) {
+                if (!link.target.classList.contains('disabled')) {
+                    link.target.classList.add('disabled');
+                }
+            };
+        });
+    </script>
+ }

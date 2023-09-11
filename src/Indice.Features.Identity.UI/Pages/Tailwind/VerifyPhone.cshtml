@@ -1,0 +1,55 @@
+﻿@page "/login/verify-phone"
+
+@model BaseVerifyPhoneModel
+
+@inject IIdentityViewLocalizer Localizer
+
+@{
+    var title = ViewData["Title"] = Localizer["Verify phone number"].Value;
+    var tempData = TempData.Peek<ExtendedValidationTempDataModel>(BaseVerifyPhoneModel.TempDataKey);
+    var alert = tempData.Alert;
+    var displayNext = !string.IsNullOrEmpty(tempData.NextStepUrl) && tempData?.Alert?.AlertType == AlertType.Success;
+}
+
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <partial name="_PageHeader" model="title" />
+        <partial name="_ValidationSummary" />
+        <partial name="_Alert" model="alert" />
+        <form method="post" novalidate>
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+            <input type="hidden" asp-for="Input.PhoneNumber" />
+            <div class="relative my-5">
+                <input type="text" class="peer" placeholder="@Localizer["Code"]" asp-for="Input.Code" disabled="@displayNext" />
+                <label asp-for="Input.Code" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Code"]</label>
+                <span asp-validation-for="Input.Code" class="text-danger"></span>
+            </div>
+            <div class="row justify-items-center place-items-center">
+                <div class="col-span-6 flex flex-col">
+                    <button class="btn btn-primary" type="submit" disabled="@displayNext">@Localizer["Save"]</button>
+                </div>
+                @if (displayNext)
+                {
+                    <div class="col-span-6 flex flex-col">
+                        <a class="btn btn-primary no-underline" href="@tempData?.NextStepUrl">@Localizer["Next"]</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="col-span-6 flex flex-col">
+                        <button class="btn btn-outline" type="submit" id="otp-resend" name="Input.OtpResend" disabled="@displayNext" value="true">@Localizer["Resend"]</button>
+                    </div>
+                }
+            </div>
+            <div indice-if="!@displayNext">
+                @Localizer["OTP is valid till:"]
+                <span id="lblcountdown" class="countdown"></span>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="~/js/otp.js" csp-nonce></script>
+}

@@ -1,13 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using FluentValidation;
 using IdentityModel;
-using IdentityServer4.Extensions;
-using IdentityServer4.Models;
 using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -55,12 +52,17 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         var options = new ExtendedIdentityServerOptions();
         setupAction?.Invoke(options);
         services.AddSingleton(options);
-        services.TryAddTransient(serviceProvider => new ExtendedIdentityDbContextSeedOptions<User> {
-            InitialUsers = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().InitialUsers
+        services.TryAddTransient(serviceProvider => {
+            var o = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>();
+            return new ExtendedIdentityDbContextSeedOptions<User, Role> {
+                InitialUsers = o.InitialUsers,
+                CustomRoles = o.CustomRoles
+            };
         });
         services.AddTransient(serviceProvider => new ExtendedConfigurationDbContextSeedOptions {
             CustomClaims = serviceProvider.GetRequiredService<ExtendedIdentityServerOptions>().CustomClaims
         });
+        services.AddTotpServiceFactory(configuration);
         var identityBuilder = services.AddIdentityDefaults(configuration);
         var identityServerBuilder = services.AddIdentityServerDefaults(configuration, environment, options.ConfigureConfigurationDbContext, options.ConfigurePersistedGrantDbContext);
         services.AddAuthenticationDefaults();
@@ -95,7 +97,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                        .AddDefaultPasswordValidators()
                        .AddClaimsPrincipalFactory<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                        .AddDefaultTokenProviders()
-                       .AddExtendedPhoneNumberTokenProvider(configuration);
+                       .AddExtendedPhoneNumberTokenProvider(configuration)
+                       .AddExtendedEmailTokenProvider(configuration);
     }
 
     private static IIdentityServerBuilder AddIdentityServerDefaults(

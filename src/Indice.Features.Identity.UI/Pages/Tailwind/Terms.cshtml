@@ -1,0 +1,23 @@
+﻿@page "/terms"
+
+@model BaseTermsModel
+
+@{
+    ViewData["Title"] = Model.View.Title;
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+
+<div class="article-content-wrapper">
+    <div class="article-wrapper">
+        <div class="logo-crop">
+            <div class="logo-wrapper">
+                <div class="logo-inner-wrapper">
+                    <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
+                </div>
+            </div>
+        </div>
+        <h1>@ViewData["Title"]</h1>
+        <md path="@Model.View.MarkdownPath" class="markdown-body "></md>
+    </div>
+</div>

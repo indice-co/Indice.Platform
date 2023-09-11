@@ -10,6 +10,7 @@
                             <app-case-detail-info [title]="'Βασικά στοιχεία αίτησης'"
                                                   [keyValuePairs]="{
                                                     'caseDetails.caseId': model?.id,
+                                                    'caseDetails.referenceNumber': model?.referenceNumber?.toString(),
                                                     'caseDetails.submitDate': model?.createdByWhen | date:'dd/MM/YYYY',
                                                     'caseDetails.caseType':model?.caseType?.title,
                                                     'caseDetails.channel':model?.channel,

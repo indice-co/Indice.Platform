@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Services;
 
@@ -20,12 +21,12 @@ public class EmailServiceSparkPost : IEmailService
     /// <param name="logger">Represents a type used to perform logging.</param>
     /// <param name="htmlRenderingEngine">This is an abstraction for the rendering engine.</param>
     public EmailServiceSparkPost(
-        EmailServiceSparkPostSettings settings,
+        IOptionsSnapshot<EmailServiceSparkPostSettings> settings,
         HttpClient httpClient,
         ILogger<EmailServiceSparkPost> logger,
         IHtmlRenderingEngine htmlRenderingEngine
     ) {
-        Settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));

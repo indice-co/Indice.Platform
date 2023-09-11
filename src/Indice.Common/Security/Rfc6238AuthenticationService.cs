@@ -14,7 +14,7 @@ public class Rfc6238AuthenticationService
     private const double MIN_TIMESTEP = 0.5;
     private const double MAX_TIMESTEP = 3;
     private const int MIN_LENGTH = 6;
-    private readonly DateTime _unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    private readonly DateTime _unixEpoch = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     private readonly TimeSpan _timestep = TimeSpan.FromMinutes(MIN_TIMESTEP);
     private readonly int _codeLength = MIN_LENGTH;
     private readonly Encoding _encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);

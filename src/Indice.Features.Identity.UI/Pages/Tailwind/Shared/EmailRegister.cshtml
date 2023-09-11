@@ -1,0 +1,34 @@
+﻿@inject IViewLocalizer Localizer
+@inject IOptions<GeneralSettings> SettingsWrapper
+@inject UserManager<User> UserManager
+
+@{
+    Layout = "_LayoutEmail.cshtml";
+}
+
+@{
+    var Settings = SettingsWrapper.Value;
+    var subject = ViewData["Subject"];
+    var body = ViewData["Body"];
+    var userName = Model?.UserName ?? UserManager.GetUserName(User);
+}
+
+@section preheader {
+    @Localizer["We need you to verify your email. Click"] <a style="color:#007ac3" href="@Model.Url">@Localizer["here"]</a> @Localizer["to get verified"]!
+}
+
+@section subject {
+    <h1 style="font-size: 18px; font-family:'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-weight:normal">@subject</h1>
+}
+
+<p style="font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 12px;">
+    @Localizer["Hi"] @(userName ?? string.Empty),
+    <br /><br />
+    <br /><br />
+    @Localizer["We need you to verify your email. Click"] <a style="color:#007ac3" href="@Model.Url">@Localizer["here"]</a> @Localizer["to get verified"]
+    <br /><br />
+    @Localizer["Thanks"].
+    <br />
+    <br />
+    @Localizer["Sincerely"] @Localizer[Settings.Organization].
+</p>

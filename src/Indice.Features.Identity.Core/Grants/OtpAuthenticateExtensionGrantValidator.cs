@@ -2,7 +2,6 @@
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
-using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Security;
@@ -22,13 +21,11 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
     /// <summary>Creates a new instance of <see cref="OtpAuthenticateExtensionGrantValidator"/>.</summary>
     /// <param name="validator">Validates an access token.</param>
     /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-    /// <param name="totpOptions">Configuration used in <see cref="System.Security.Rfc6238AuthenticationService"/> service.</param>
     /// <param name="identityMessageDescriber">Provides an extensibility point for altering localizing used inside the package.</param>
     /// <param name="totpServiceFactory">Used to generate, send and verify time based one time passwords.</param>
     public OtpAuthenticateExtensionGrantValidator(
         ITokenValidator validator,
         UserManager<User> userManager,
-        TotpOptions totpOptions,
         IdentityMessageDescriber identityMessageDescriber,
         TotpServiceFactory totpServiceFactory
     ) {

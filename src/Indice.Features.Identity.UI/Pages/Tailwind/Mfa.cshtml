@@ -1,0 +1,107 @@
+﻿@page "/login/mfa"
+
+@model BaseMfaModel
+
+@inject IIdentityViewLocalizer Localizer
+@inject IConfiguration Configuration
+
+@{
+    var title = ViewData["Title"] = Localizer["Multifactor Authentication"].Value;
+    var maskedPhoneNumber = !string.IsNullOrWhiteSpace(Model.View.User?.PhoneNumber) ? Regex.Replace(Model.View.User.PhoneNumber, @"\d(?!\d{0,1}$)", "X") : null;
+    var hubConnectionUrl = Configuration.GetSection("General").GetValue<string>("HubConnectionUrl");
+}
+
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <partial name="_PageHeader" model="title" />
+        <partial name="_ValidationSummary" />
+        @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.Sms && !string.IsNullOrWhiteSpace(maskedPhoneNumber))
+        {
+            <div class="alert alert-primary" role="alert">@Localizer["We texted your phone {0}. Please enter the code to sign in.", maskedPhoneNumber]</div>
+            <form id="mfa-form" asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+                <input type="hidden" asp-for="Input.DeviceId" />
+                <div class="mb-3">
+                    <label asp-for="Input.OtpCode" class="form-label">@Localizer["OTP Code"]</label>
+                    <input class="form-control" placeholder="@Localizer["OTP Code"]" asp-for="Input.OtpCode" autofocus />
+                    <span asp-validation-for="Input.OtpCode" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <div class="form-check custom-checkbox d-inline-block">
+                        <label class="form-check-label">
+                            <input asp-for="Input.RememberClient" type="checkbox" class="form-check-input text-info" />
+                            <span class="control"></span>
+                            @Localizer["I sign in frequently here. Remember this browser."]
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-info w-100">@Localizer["Login"]</button>
+            </form>
+        }
+        @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification)
+        {
+            <form id="mfa-form" asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+                <input type="hidden" asp-for="Input.OtpCode" />
+                <input type="hidden" asp-for="Input.DeviceId" />
+                <p>
+                    <b>@Model.View.User?.UserName</b>
+                </p>
+                <p>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-key-fill" viewBox="0 0 16 16">
+                        <path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
+                    </svg>
+                    @Localizer["Because you've turned on two-step verification, you need to approve request on your mobile app."]
+                </p>
+                <div class="mb-3">
+                    <div class="form-check custom-checkbox d-inline-block">
+                        <label class="form-check-label">
+                            <input asp-for="Input.RememberClient" type="checkbox" class="form-check-input text-info" />
+                            <span class="control"></span>
+                            @Localizer["I sign in frequently here. Remember this browser."]
+                        </label>
+                    </div>
+                </div>
+                <p indice-if="Model.View.AllowDowngradeAuthenticationMethod">
+                    <a asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl" asp-route-dc="true">@Localizer["I can't use my app right now"]</a>
+                </p>
+            </form>
+            <form id="mfa-form-reject" class="d-none">
+                <p>
+                    <b>@Model.View.User?.UserName</b>
+                </p>
+                <h2>@Localizer["Request denied"]</h2>
+                <p>@Localizer["We sent an identity verification request to your mobile device, but you denied it."]</p>
+                <p>
+                    <a asp-page="/Mfa" asp-route-returnUrl="@Model.Input.ReturnUrl">@Localizer["Send another request to my app"]</a>
+                </p>
+            </form>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+    @if (Model.View.AuthenticationMethod?.GetDeliveryChannel() == TotpDeliveryChannel.PushNotification)
+    {
+        <script type="text/javascript" src="~/lib/@@microsoft/signalr/dist/browser/signalr.min.js" csp-nonce></script>
+    }
+    <script type="text/javascript" src="~/lib/@@fingerprintjs/fingerprintjs/dist/fp.min.js" csp-nonce></script>
+    <script type="text/javascript" src="~/js/mfa.js" csp-nonce></script>
+    <script type="text/javascript" csp-nonce>
+        $(document).ready(function () {
+            var viewModelParameters = {
+                $deviceIdInput: $('#Input_DeviceId'),
+                $mfaForm: $('#mfa-form'),
+                $mfaFormReject: $('#mfa-form-reject'),
+                $otpCodeInput: $('#Input_OtpCode'),
+                $rememberClientCheckbox: $('#Input_RememberClient'),
+                browserFamily: '@(HttpContext.Request.GetBrowserName())',
+                deliveryChannel: '@Model.View.AuthenticationMethod?.GetDeliveryChannel()',
+                hubConnectionUrl: '@hubConnectionUrl'
+            };
+            var viewModel = new indice.mfaViewModelFactory(viewModelParameters);
+            viewModel.init();
+        });
+    </script>
+}

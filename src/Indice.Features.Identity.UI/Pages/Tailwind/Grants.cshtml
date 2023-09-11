@@ -1,0 +1,92 @@
+﻿@page "/grants"
+
+@model BaseGrantsModel
+
+@inject IIdentityViewLocalizer Localizer
+
+@{
+    Layout = "_IdentityProfileLayout";
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+
+}
+
+<div class="tab-panel"
+     id="grants"
+     role="tabpanel"
+     aria-labelledby="grants-tab">
+    <h3 class="text-black mb-1">@Localizer["Client Application Access"]</h3>
+    <div class="md:max-h-[60vh] overflow-y-scroll pr-8">
+        <p indice-if="Model.View.Grants.Any()">
+            @Localizer["Below is the list of applications you have given access to and the names of the resources they have access to."]
+        </p>
+        @if (!Model.View.Grants.Any())
+        {
+            <div class="alert alert-dark text-center">
+                @Localizer["You have not provided access to any applications"]
+            </div>
+        }
+        else
+        {
+            foreach (var grant in Model.View.Grants)
+            {
+                <div class="grant-item">
+                    <div class="grid content-center">
+                        <div class="grant-header">
+                            <img class="client-logo" indice-if="!string.IsNullOrEmpty(grant.ClientLogoUrl)"
+                                 src="@(Url.IsLocalUrl(grant.ClientLogoUrl) ? Url.Content(grant.ClientLogoUrl) : grant.ClientLogoUrl)" alt="@Localizer["Client logo"]" />
+                            <img class="client-logo" indice-if="string.IsNullOrEmpty(grant.ClientLogoUrl)"
+                                 src="~/avatar/@grant.ClientName/64.png" alt="@Localizer["Client logo"]" alt="@Localizer["Client logo"]" />
+                            <div class="flex flex-col basis-full border-b md:ml-4 justify-center mb-2">
+                                <h5 class="client-name">@grant.ClientName</h5>
+                                <div class="flex justify-between flex-col md:flex-row">
+                                    <span class="text-xs mb-2">
+                                        @Localizer["Created:"] @grant.Created.ToString("yyyy-MM-dd") @grant.Created.ToString("HH:mm")
+                                    </span>
+                                    <span class="text-xs mb-2" indice-if="grant.Expires.HasValue">
+                                        @Localizer["Expires on"] @grant.Expires.Value.ToString("yyyy-MM-dd") &commat;  @grant.Expires.Value.ToString("HH:mm")
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="md:pl-16 md:ml-4">
+                            <div class="identity-grants" indice-if="grant.IdentityGrantNames.Any()">
+                                <h3 class="text-black mb-1">
+                                    Identity Grants
+                                </h3>
+                                <div class="flex flex-wrap flex-row gap-1">
+
+                                    @foreach (var name in grant.IdentityGrantNames)
+                                    {
+                                        <div class="grant-name">@name</div>
+                                    }
+
+                                </div>
+                            </div>
+                            <div class="api-grants" indice-if="grant.ApiGrantNames.Any()">
+                                <h3 class="text-black mb-1">
+                                    API
+                                    Grants
+                                </h3>
+                                <div class="flex flex-wrap flex-row gap-1">
+                                    @foreach (var name in grant.ApiGrantNames)
+                                    {
+                                        <div class="grant-name">@name</div>
+                                    }
+                                </div>
+                            </div>
+                            <form asp-action="Revoke" class="flex pt-5">
+                                <div class="text-right">
+                                    <input type="hidden"
+                                           name="clientId"
+                                           value="">
+                                    <button class="btn btn-danger">@Localizer["Revoke Access"]</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

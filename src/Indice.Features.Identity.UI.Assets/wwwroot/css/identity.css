@@ -1630,7 +1630,9 @@ body.home .container .identity-panel {
     height: auto;
     min-height: auto;
     border-radius: 10px;
-} /* Grayscale. */
+}
+
+/* Grayscale. */
 /*1 rem = 16px;*/
 body.identity-page #wrap {
     position: relative;
@@ -2909,4 +2911,29 @@ body {
     min-width: 0;
     width: 0;
     font-size: 0.8rem;
+}
+
+/*
+1px  = .0625
+2px  = .125
+3px  = .1875
+4px  = .25
+5px  = .3125
+6px  = .375
+7px  = .4375
+8px  = .5
+9px  = .5625
+10px = .625
+11px = .6875
+12px = .75
+13px = .8125
+14px = .875
+15px = .9375
+16px = 1
+24px = 1.5
+32px = 2
+*/
+.language-selector .dropdown-toggle {
+    line-height: 32px;
+    font-size: 20px;
 }

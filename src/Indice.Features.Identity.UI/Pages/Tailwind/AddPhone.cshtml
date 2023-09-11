@@ -1,0 +1,37 @@
+﻿@page "/login/add-phone"
+
+@model BaseAddPhoneModel
+
+@inject IIdentityViewLocalizer Localizer
+@inject IWebHostEnvironment HostingEnvironment
+
+@{
+    var title = ViewData["Title"] = Localizer["Add phone"].Value;
+    var alert = TempData.Peek<AlertModel>(BaseAddPhoneModel.TempDataKey);
+}
+
+<div class="content-wrapper">
+    <div class="card-wrapper">
+        <partial name="_PageHeader" model="title" />
+        <partial name="_ValidationSummary" />
+        <partial name="_Alert" model="alert" />
+        <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
+            <div class="relative my-5">
+                <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+                <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
+                <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="row justify-items-center place-items-center">
+                <div class="input-group-w-full">
+                    <button class="btn btn-primary" type="submit">@Localizer["Save"]</button>
+                </div>
+            </div>
+            <input type="hidden" asp-for="Input.ReturnUrl" />
+        </form>
+    </div>
+</div>
+
+@section scripts {
+    <partial name="_ValidationScripts" />
+}

@@ -1,0 +1,30 @@
+﻿@inject IOptions<GeneralSettings> SettingsWrapper
+
+@{
+    var Settings = SettingsWrapper.Value;
+}
+
+<html>
+<head>
+</head>
+<body style="margin: 0; padding: 0; background:#f2f2f2;">
+    <center span class="pre-header" style="display:none; font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 10px; color:#595959;">
+        @RenderSection("preheader", required: false)
+    </center>
+    <table align="center" border="0" cellpadding="0" cellspacing="0" width="648" style="border-collapse: collapse;">
+        <tr>
+            <td bgcolor="#ffffff" style="padding:30px 30px 30px 30px; font-family: 'Century Gothic', Arial, sans-serif ,Helvetica, Arial, sans-serif; font-size: 14px;">
+                <p>
+                    @RenderSection("subject", required: false)
+                </p>
+                <p>
+                    @RenderBody()
+                    <br />
+                    <br />
+                    <br />
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

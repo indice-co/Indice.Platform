@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.4.1] - 2023-08-29
+### Added
+- `href` widget component to handle links in cases backoffice.
+
+## [7.4.0] - 2023-08-29
+### Added
+- SPA settings to control which filters & columns are visible in the cases list view.
+- ReferenceNumber translation using the key `cases.referenceNumber` & `caseDetails.referenceNumber`
+- CasesUIOptions to control which filters & columns are visible in the cases list view.
+> Example to ovveride the visible filters & columns
+```cs
+app.UseCasesUI(options => {
+    // Filter using only: ReferenceNumber, CustomerId, CustomerName,
+    // TaxId, CaseTypeCode
+    options.CaseListFilters = new HashSet<CaseListFilter>() {
+        CaseListFilter.ReferenceNumber,
+        CaseListFilter.CustomerId,
+        CaseListFilter.CustomerName,
+        CaseListFilter.TaxId,
+        CaseListFilter.CaseTypeCodes,
+    };
+    // Displaay only the columns: ReferenceNumber, CustomerId,
+    // CustomerName, TaxId, CaseType, AssignedTo. SubmitDate
+    options.CaseListColumns = new HashSet<CaseListColumn>() {
+        CaseListColumn.ReferenceNumber,
+        CaseListColumn.CustomerId,
+        CaseListColumn.CustomerName,
+        CaseListColumn.TaxId,
+        CaseListColumn.CaseType,
+        CaseListColumn.AssignedTo,
+        CaseListColumn.SubmitDate
+    };
+});
+```
+
 ## [7.3.6] - 2023-07-06
 ### Bugfix
 - PDF button visibility is calculated from the correct property `checkpointType.status`.

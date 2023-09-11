@@ -1,0 +1,17 @@
+﻿@model string
+@inject IOptions<GeneralSettings> Settings
+@{
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+}
+<div class="logo-crop">
+    <div class="logo-wrapper">
+        <div class="logo-inner-wrapper">
+            <img class="main-logo" src="~/img/logo@(langSuffix).svg" />
+        </div>
+    </div>
+</div>
+@if (!string.IsNullOrWhiteSpace(Model)) {
+    <h3>@Settings.Value.ApplicationName</h3>
+    <h1>@Model</h1>
+}
