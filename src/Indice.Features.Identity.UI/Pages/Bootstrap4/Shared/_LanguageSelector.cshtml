@@ -30,7 +30,9 @@
             {
                 var optionText = GetLangDisplayName(supportedCulture);
                 var isSelected = supportedCulture.TwoLetterISOLanguageName == lang;
-                <button type="submit" form="SelectLanguageForm_@htmlUniqueId"
+                <button lang="@supportedCulture.TwoLetterISOLanguageName" 
+                        type="submit" 
+                        form="SelectLanguageForm_@htmlUniqueId"
                         name="culture" value="@supportedCulture.Name" title="@optionText"
                         class="dropdown-item font-weight-600 text-uppercase @(isSelected ? "active" : string.Empty)">
                     @optionText
