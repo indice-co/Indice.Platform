@@ -1,15 +1,19 @@
 ﻿@inject IOptions<GeneralSettings> Settings
+@inject IOptions<IdentityUIOptions> UIOptions
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 
 @{
     var settings = Settings.Value;
-    var copyYear = 2021;
+    var copyYear = UIOptions.Value.CopyYear;
     var version = typeof(BaseLoginModel).Assembly.GetName().Version?.ToString();
 }
 
 <footer class="container-fluid footer">
     <div class="copyright">
+        <div class="language">
+            <partial name="_LanguageSelector" />
+        </div>
         &copy; @Localizer[settings.Organization] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
     </div>
     <div class="links">
