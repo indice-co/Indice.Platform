@@ -25,7 +25,14 @@ public abstract class BaseSetLanguageModel : BasePageModel
     public string? Culture { get; set; }
 
     /// <summary>Set language page POST handler.</summary>
-    public virtual IActionResult OnPost(string returnUrl) {
+    public virtual IActionResult OnPost(string? returnUrl) => OnSetLangageInternal(returnUrl);
+
+    /// <summary>Set language page GET handler.</summary>
+    public virtual IActionResult OnGet(string? returnUrl) => OnSetLangageInternal(returnUrl);
+    
+
+    /// <summary>Set language page POST handler.</summary>
+    private IActionResult OnSetLangageInternal(string? returnUrl) {
         var supportedCultures = (_requestLocalizationOptions.SupportedCultures ?? new List<CultureInfo>()).Select(x => x.TwoLetterISOLanguageName).ToHashSet();
         if (string.IsNullOrWhiteSpace(Culture) || !supportedCultures.Contains(Culture)) {
             Culture = _requestLocalizationOptions.DefaultRequestCulture.Culture.TwoLetterISOLanguageName;
@@ -39,7 +46,7 @@ public abstract class BaseSetLanguageModel : BasePageModel
                 HttpOnly = false
             }
         );
-        return LocalRedirect(returnUrl);
+        return LocalRedirect(returnUrl ?? "/");
     }
 }
 
