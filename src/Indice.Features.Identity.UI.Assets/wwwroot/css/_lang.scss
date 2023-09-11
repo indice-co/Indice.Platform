@@ -13,7 +13,7 @@
         margin-left: 0;
     }
 
-    .show {
+    &.show {
         i.arrow::after {
             transform: rotate(180deg);
             transform-origin: center center;
