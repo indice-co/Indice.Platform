@@ -1,6 +1,7 @@
 using Indice.Features.Risk.Core;
 using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Services;
+using Indice.Features.Risk.Core.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,15 +14,24 @@ public class RiskCalculationTests
         // Initialize the default collection of service descriptors.
         var services = new ServiceCollection();
         // Setup risk engine.
-        services.AddRiskEngine()
-                .WithEntityFrameworkCoreStore(options => options.UseSqlite("Data Source=.\\risk.db")) // Use 'DataSource=:memory:' for in-memory data source.
-                .AddRule("TransactionOver1000", riskEvent =>
-                    ValueTask.FromResult(
-                        riskEvent.Type == "Transaction" && riskEvent.Amount > 1000
-                            ? RuleExecutionResult.HighRisk()
-                            : RuleExecutionResult.LowRisk()
-                    )
-                );
+        services.AddRiskEngine(options => {
+            options.RiskLevelRangeMapping = new RiskLevelRangeDictionary(new Dictionary<RiskLevel, IntegerRange> {
+                [RiskLevel.None] = new IntegerRange(0, 0),
+                [RiskLevel.Low] = new IntegerRange(1, 1000),
+                [RiskLevel.Medium] = new IntegerRange(1001, 2000),
+                [RiskLevel.High] = new IntegerRange(2000, 3000)
+            });
+        })
+        .AddRule("TransactionOver1000", riskEvent =>
+            ValueTask.FromResult(
+                riskEvent.Type == "Transaction" && riskEvent.Amount > 1000
+                    ? RuleExecutionResult.HighRisk()
+                    : RuleExecutionResult.LowRisk()
+            )
+        )
+        .AddEntityFrameworkCoreStore(builder => {
+            builder.UseSqlite("Data Source=.\\risk.db"); // Use 'DataSource=:memory:' for in-memory data source.
+        });
         // Initialize test class properties.
         ServiceProvider = services.BuildServiceProvider();
         Configuration = new ConfigurationBuilder()
@@ -35,7 +45,7 @@ public class RiskCalculationTests
     [Fact]
     public async void High_Risk_On_Transaction_Over_1000() {
         var riskManager = ServiceProvider.GetRequiredService<RiskManager>();
-        var result = await riskManager.GetRiskAsync(new DbRiskEvent {
+        var result = await riskManager.GetRiskAsync(new RiskEvent {
             Amount = 1001,
             CreatedAt = DateTime.UtcNow,
             IpAddress = "127.0.0.1",
