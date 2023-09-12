@@ -2971,7 +2971,7 @@ body {
     margin-left: 0;
 }
 
-.language-selector .show i.arrow::after {
+.language-selector.show i.arrow::after {
     transform: rotate(180deg);
     transform-origin: center center;
     margin-bottom: 0.2rem;
