@@ -4,8 +4,8 @@
       <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
       <VersionPrefixBase>7.3</VersionPrefixBase>
       <VersionPrefixCore>$(VersionPrefixBase).25</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).30</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).38</VersionPrefixIdentityUI>
+      <VersionPrefixIdentity>$(VersionPrefixBase).31</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).39</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).15</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).22</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).17</VersionPrefixMultitenancy>
