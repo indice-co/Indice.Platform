@@ -1,10 +1,12 @@
-﻿@inject IOptions<GeneralSettings> Settings
+﻿@inject IOptions<IdentityUIOptions> UIOptions
+@inject IOptions<GeneralSettings> Settings
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 
 @{
     var settings = Settings.Value;
-    var copyYear = 2021;
+    var copyYear = UIOptions.Value.CopyYear;
+    var version = typeof(BaseLoginModel).Assembly.GetName().Version?.ToString();
 }
 
 <footer class="footer">

@@ -30,7 +30,7 @@
     <meta name="application-name" content="@applicationName" />
     <meta name="msapplication-TileColor" content="#@UiOptions.Value.AvatarColorHex" />
     @RenderSection("meta", required: false)
-    <title>@ViewBag.Title @dash @applicationName]</title>
+    <title>@ViewBag.Title @dash @applicationName</title>
     <link href="~/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" sizes="16x16 32x32 64x64 128x128" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <partial name="_StylesHead" />
@@ -50,7 +50,7 @@
     <main>
         <div id="page-wrapper">
             <div class="flex flex-row justify-end items-center hidden lg:block">
-                <partial name="_SelectLanguagePartial" />
+                <partial name="_LanguageSelector" />
             </div>
             @RenderBody()
         </div>

@@ -24,19 +24,19 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 internal class MyMessagesController : CampaignsControllerBase
 {
     public MyMessagesController(
-        IInboxService inboxService,
+        IMessageService messageService,
         ICampaignService campaignService,
         IMessageTypeService messageTypeService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         Func<string, IFileService> getFileService
     ) : base(getFileService) {
-        InboxService = inboxService ?? throw new ArgumentNullException(nameof(inboxService));
+        MessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
         CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
         MessageTypeService = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
         CampaignInboxOptions = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
     }
 
-    public IInboxService InboxService { get; }
+    public IMessageService MessageService { get; }
     public ICampaignService CampaignService { get; }
     public IMessageTypeService MessageTypeService { get; }
     public MessageInboxOptions CampaignInboxOptions { get; }
@@ -49,7 +49,7 @@ internal class MyMessagesController : CampaignsControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(typeof(ResultSet<Message>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetMessages([FromQuery] ListOptions<MessagesFilter> options) {
-        var messages = await InboxService.GetList(UserCode, options);
+        var messages = await MessageService.GetList(UserCode, options);
         return Ok(messages);
     }
 
@@ -75,7 +75,7 @@ internal class MyMessagesController : CampaignsControllerBase
     [ProducesResponseType(typeof(Message), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMessageById([FromRoute] Guid messageId, [FromQuery] MessageChannelKind? channel) {
-        var message = await InboxService.GetById(messageId, UserCode, channel);
+        var message = await MessageService.GetById(messageId, UserCode, channel);
         if (message == null) {
             return NotFound();
         }
@@ -91,7 +91,7 @@ internal class MyMessagesController : CampaignsControllerBase
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
     public async Task<IActionResult> MarkMessageAsRead([FromRoute] Guid messageId) {
-        await InboxService.MarkAsRead(messageId, UserCode);
+        await MessageService.MarkAsRead(messageId, UserCode);
         return NoContent();
     }
 
@@ -104,7 +104,7 @@ internal class MyMessagesController : CampaignsControllerBase
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(void), StatusCodes.Status204NoContent)]
     public async Task<IActionResult> DeleteMessage([FromRoute] Guid messageId) {
-        await InboxService.MarkAsDeleted(messageId, UserCode);
+        await MessageService.MarkAsDeleted(messageId, UserCode);
         return NoContent();
     }
 

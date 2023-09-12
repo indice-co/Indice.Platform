@@ -6,6 +6,11 @@ namespace Indice.Features.Identity.UI;
 /// <summary>Configuration options for Identity UI.</summary>
 public class IdentityUIOptions
 {
+    /// <summary>
+    /// The copywrite year from. Usualy found on UI footer
+    /// </summary>
+    public int CopyYear { get; set; } = DateTime.Now.Year;
+
     /// <summary>This is the slogan that will be displayed in the home page.</summary>
     /// <remarks>
     /// There are already translations for the following: 

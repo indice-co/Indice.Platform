@@ -42,7 +42,7 @@
     <link rel="stylesheet" type="text/css" href="~/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />
     <partial name="_Styles" />
     @RenderSection("css", required: false)
-    <partial name="_MenuMain" />
+    <partial name="_Header" />
     <environment exclude="Production">
         <div class="ribbon @Environment.EnvironmentName.ToLower()">
             <span>@Environment.EnvironmentName</span>
