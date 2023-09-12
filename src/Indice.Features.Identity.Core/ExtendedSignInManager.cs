@@ -154,6 +154,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         var mfaImplicitlyPassed = false;
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {
+            // TODO: Check for suspicious login.
             if (!await IsTwoFactorClientRememberedAsync(user)) {
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
                 await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(userId, loginProvider));
