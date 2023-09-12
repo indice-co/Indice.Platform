@@ -17,21 +17,21 @@ public class RiskDbContext : DbContext
     }
 
     /// <summary>Risk events table.</summary>
-    public DbSet<DbRiskEvent> RiskEvents => Set<DbRiskEvent>();
+    public DbSet<RiskEvent> RiskEvents => Set<RiskEvent>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         base.OnModelCreating(modelBuilder);
         // Risk event configuration.
-        modelBuilder.Entity<DbRiskEvent>().ToTable("RiskEvent");
-        modelBuilder.Entity<DbRiskEvent>().HasKey(x => x.Id);
-        modelBuilder.Entity<DbRiskEvent>().HasIndex(x => x.CreatedAt);
-        modelBuilder.Entity<DbRiskEvent>().HasIndex(x => x.SubjectId);
-        modelBuilder.Entity<DbRiskEvent>().HasIndex(x => x.Type);
-        modelBuilder.Entity<DbRiskEvent>().Property(x => x.Amount).HasColumnType("money");
-        modelBuilder.Entity<DbRiskEvent>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
-        modelBuilder.Entity<DbRiskEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
-        modelBuilder.Entity<DbRiskEvent>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
-        modelBuilder.Entity<DbRiskEvent>().Property(x => x.Type).HasMaxLength(TextSizePresets.M256).IsRequired();
+        modelBuilder.Entity<RiskEvent>().ToTable("RiskEvent");
+        modelBuilder.Entity<RiskEvent>().HasKey(x => x.Id);
+        modelBuilder.Entity<RiskEvent>().HasIndex(x => x.CreatedAt);
+        modelBuilder.Entity<RiskEvent>().HasIndex(x => x.SubjectId);
+        modelBuilder.Entity<RiskEvent>().HasIndex(x => x.Type);
+        modelBuilder.Entity<RiskEvent>().Property(x => x.Amount).HasColumnType("money");
+        modelBuilder.Entity<RiskEvent>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
+        modelBuilder.Entity<RiskEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
+        modelBuilder.Entity<RiskEvent>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
+        modelBuilder.Entity<RiskEvent>().Property(x => x.Type).HasMaxLength(TextSizePresets.M256).IsRequired();
     }
 }

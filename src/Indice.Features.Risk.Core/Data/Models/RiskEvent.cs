@@ -1,7 +1,7 @@
 ﻿namespace Indice.Features.Risk.Core.Data.Models;
 
 /// <summary>Models an event that was ingested in the system.</summary>
-public class DbRiskEvent
+public class RiskEvent
 {
     /// <summary>The unique id of the event.</summary>
     public Guid Id { get; internal set; }

@@ -3,12 +3,12 @@
 namespace Indice.Features.Risk.Core.Abstractions;
 
 /// <summary>Abstracts a rule that is executed by the risk engine.</summary>
-public abstract class RiskRuleBase
+public abstract class RiskRule
 {
-    /// <summary>Creates a new instance of <see cref="RiskRuleBase"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="RiskRule"/>.</summary>
     /// <param name="ruleName">The name of the rule.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public RiskRuleBase(string ruleName) {
+    public RiskRule(string ruleName) {
         Name = ruleName ?? throw new ArgumentNullException(nameof(ruleName));
     }
 
@@ -18,5 +18,5 @@ public abstract class RiskRuleBase
     /// <summary>Executes the rule asynchronously.</summary>
     /// <param name="event">The event occurred.</param>
     /// <returns>The result of rule execution.</returns>
-    public abstract ValueTask<RuleExecutionResult> ExecuteAsync(DbRiskEvent @event);
+    public abstract ValueTask<RuleExecutionResult> ExecuteAsync(RiskEvent @event);
 }
