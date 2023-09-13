@@ -54,7 +54,7 @@ public class GeoPoint
     /// <summary>Calculates the distance in kilometers between two <see cref="GeoPoint"/> instances using the <b>Haversine formula.</b>.</summary>
     /// <param name="geoPoint">The geographical point to calculate the distance to.</param>
     /// <remarks>https://en.wikipedia.org/wiki/Haversine_formula</remarks>
-    public double DistanceTo(GeoPoint geoPoint) {
+    public double Distance(GeoPoint geoPoint) {
         double R = 6371; // Earth radius.
         var lat = Math.PI / 180 * (geoPoint.Latitude - Latitude);
         var lng = Math.PI / 180 * (geoPoint.Longitude - Longitude);
