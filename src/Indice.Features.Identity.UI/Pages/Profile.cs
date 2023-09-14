@@ -119,7 +119,7 @@ public abstract class BaseProfileModel : BasePageModel
         if (user == null) {
             return NotFound($"Unable to load user with ID '{UserManager.GetUserId(User)}'.");
         }
-        var result = await UserManager.RemoveLoginAsync(user, InputLoginLink.LoginProvider, InputLoginLink.ProviderKey);
+        var result = await UserManager.RemoveLoginAsync(user, InputLoginLink.LoginProvider!, InputLoginLink.ProviderKey!);
         if (!result.Succeeded) {
             TempData.Put("Alert", AlertModel.Error(string.Join(", ", result.Errors.Select(x => x.Description))));
             return RedirectToPage("/Profile");

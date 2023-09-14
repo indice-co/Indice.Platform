@@ -14,7 +14,7 @@
 }
 
 @section preheader {
-    @Localizer["We need you to verify your email. Click"] <a style="color:#007ac3" href="@Model.Url">@Localizer["here"]</a> @Localizer["to get verified"]!
+    @Localizer["We need you to verify your email. Click"] <a style="color:#007ac3" href="@Model?.Url">@Localizer["here"]</a> @Localizer["to get verified"]!
 }
 
 @section subject {
@@ -25,7 +25,7 @@
     @Localizer["Hi"] @(userName ?? string.Empty),
     <br /><br />
     <br /><br />
-    @Localizer["We need you to verify your email. Click"] <a style="color:#007ac3" href="@Model.Url">@Localizer["here"]</a> @Localizer["to get verified"]
+    @Localizer["We need you to verify your email. Click"] <a style="color:#007ac3" href="@Model?.Url">@Localizer["here"]</a> @Localizer["to get verified"]
     <br /><br />
     @Localizer["Thanks"].
     <br />
