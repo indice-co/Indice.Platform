@@ -3,6 +3,7 @@ using IdentityModel;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.Types;
 using Indice.Security;
@@ -152,13 +153,16 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         } else {
             await _stateProvider.ChangeStateAsync(user, UserAction.Login);
         }
+        var isSuspiciousLogin = await _signInGuard.IsSuspiciousLogin(user);
+        if (isSuspiciousLogin && _signInGuard.ImpossibleTravelDetector?.Options?.OnImpossibleTravelFlowType == OnImpossibleTravelFlowType.DenyLogin) {
+            return SignInResult.Failed;
+        }
         if (_stateProvider.ShouldSignInPartially()) {
             return await DoPartialSignInAsync(user, new string[] { "pwd" });
         }
         var mfaImplicitlyPassed = false;
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {
-            var isSuspiciousLogin = await _signInGuard.IsSuspiciousLogin(user);
-            if (!await IsTwoFactorClientRememberedAsync(user)) {
+            if (isSuspiciousLogin || !await IsTwoFactorClientRememberedAsync(user)) {
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
                 await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(userId, loginProvider));
                 return SignInResult.TwoFactorRequired;
@@ -339,7 +343,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="scheme">Authenticates the current request using the specified scheme.</param>
     public async Task<AuthenticationProperties> AutoSignIn(TUser user, string scheme) {
         var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(scheme);
-        AuthenticationProperties? authenticationProperties = default;
+        AuthenticationProperties authenticationProperties = default;
         if (authenticateResult.Succeeded) {
             authenticationProperties = authenticateResult.Properties;
             await SignInWithClaimsAsync(user, authenticationProperties, authenticateResult.Principal.Claims);

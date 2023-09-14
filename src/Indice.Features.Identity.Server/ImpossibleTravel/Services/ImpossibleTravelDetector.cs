@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Data;
 using Indice.Features.Identity.SignInLogs.Models;
@@ -12,11 +13,10 @@ namespace Indice.Features.Identity.Server.ImpossibleTravel.Services;
 
 /// <summary>A service that detects whether a login attempt is made from an impossible location.</summary>
 /// <typeparam name="TUser"></typeparam>
-public class ImpossibleTravelDetector<TUser> where TUser : User
+public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> where TUser : User
 {
     private readonly ISignInLogStore? _signInLogStore;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IOptions<ImpossibleTravelDetectorOptions> _options;
 
     /// <summary></summary>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
@@ -28,12 +28,14 @@ public class ImpossibleTravelDetector<TUser> where TUser : User
         IOptions<ImpossibleTravelDetectorOptions> options,
         ISignInLogStore? signInLogStore = null) {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        _options = options ?? throw new ArgumentNullException(nameof(options));
+        Options = options.Value ?? throw new ArgumentNullException(nameof(options));
         _signInLogStore = signInLogStore;
     }
 
-    /// <summary>Detects whether a login attempt is made from an impossible location.</summary>
-    /// <param name="user">The current user.</param>
+    /// <inheritdoc />
+    public ImpossibleTravelDetectorOptions Options { get; init; }
+
+    /// <inheritdoc />
     public async Task<bool> IsImpossibleTravelLogin(TUser user) {
         if (_signInLogStore is null || _httpContextAccessor.HttpContext is null || user is null) {
             return false;
@@ -66,7 +68,7 @@ public class ImpossibleTravelDetector<TUser> where TUser : User
         }
         var distanceBetweenLogins = currentLoginCoordinates.Distance(previousLoginCoordinates);
         var travelSpeed = distanceBetweenLogins / (DateTimeOffset.UtcNow - previousLogin.CreatedAt).TotalHours;
-        if (travelSpeed > _options.Value.AcceptableSpeed) {
+        if (travelSpeed > Options.AcceptableSpeed) {
             return true;
         }
         return false;

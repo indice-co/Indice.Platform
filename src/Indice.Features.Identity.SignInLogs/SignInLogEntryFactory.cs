@@ -5,6 +5,9 @@ namespace Indice.Features.Identity.SignInLogs;
 
 internal class SignInLogEntryFactory
 {
+    //private static readonly string INDICE_IP = "212.205.254.62";
+    private static readonly string INDICE_IP = "51.107.83.216";
+
     public static SignInLogEntry CreateFromTokenIssuedSuccessEvent(TokenIssuedSuccessEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
@@ -13,7 +16,7 @@ internal class SignInLogEntryFactory
             Description = "A token was successfully issued.",
             GrantType = @event.GrantType,
 #if DEBUG
-            IpAddress = "212.205.254.62",
+            IpAddress = INDICE_IP,
 #else
             IpAddress = @event.RemoteIpAddress,
 #endif
@@ -41,7 +44,7 @@ internal class SignInLogEntryFactory
             Description = "A token failed to issue.",
             GrantType = @event.GrantType,
 #if DEBUG
-            IpAddress = "212.205.254.62",
+            IpAddress = INDICE_IP,
 #else
             IpAddress = @event.RemoteIpAddress,
 #endif
@@ -65,7 +68,7 @@ internal class SignInLogEntryFactory
             ApplicationId = @event.ClientId,
             Description = "A user was successfully authenticated.",
 #if DEBUG
-            IpAddress = "212.205.254.62",
+            IpAddress = INDICE_IP,
 #else
             IpAddress = @event.RemoteIpAddress,
 #endif
@@ -88,7 +91,7 @@ internal class SignInLogEntryFactory
             ApplicationId = @event.ClientId,
             Description = "A user failed to authenticate.",
 #if DEBUG
-            IpAddress = "212.205.254.62",
+            IpAddress = INDICE_IP,
 #else
             IpAddress = @event.RemoteIpAddress,
 #endif

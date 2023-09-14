@@ -1,7 +1,7 @@
 ﻿using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Server;
-using Indice.Features.Identity.Server.ImpossibleTravel;
 using Indice.Features.Identity.Server.ImpossibleTravel.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -29,8 +29,9 @@ public static class IExtendedIdentityServerBuilderExtensions
         configure?.Invoke(impossibleTravelDetectorOptions);
         builder.Services.Configure<ImpossibleTravelDetectorOptions>(options => {
             options.AcceptableSpeed = impossibleTravelDetectorOptions.AcceptableSpeed;
+            options.OnImpossibleTravelFlowType = impossibleTravelDetectorOptions.OnImpossibleTravelFlowType;
         });
-        builder.Services.AddScoped<ImpossibleTravelDetector<TUser>>();
+        builder.Services.AddScoped<IImpossibleTravelDetector<TUser>, ImpossibleTravelDetector<TUser>>();
         var serviceDescriptor = builder.Services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(ISignInGuard<TUser>));
         if (serviceDescriptor is not null) {
             builder.Services.Remove(serviceDescriptor);
