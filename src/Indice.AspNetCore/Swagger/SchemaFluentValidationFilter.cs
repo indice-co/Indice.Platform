@@ -2,6 +2,7 @@
 using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Humanizer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -50,23 +51,35 @@ public class SchemaFluentValidationFilter : ISchemaFilter
 /// <summary>Filter that decorates request parameters with validators by searching in FluentValidation.</summary>
 public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
 {
-    private readonly IServiceProvider services;
+    private readonly IServiceProvider _rootServiceProvider;
     /// <summary>
     /// constructor
     /// </summary>
-    /// <param name="services"></param>
-    public RequestBodyFluentValidationSwaggerFilter(IServiceProvider services) {
-        this.services = services;
+    /// <param name="rootServiceProvider"></param>
+    public RequestBodyFluentValidationSwaggerFilter(IServiceProvider rootServiceProvider) {
+        _rootServiceProvider = rootServiceProvider;
     }
     /// <inheritdoc/>
     public void Apply(OpenApiRequestBody requestBody, RequestBodyFilterContext context) {
-        Type validatorType = typeof(IValidator<>).MakeGenericType(context.BodyParameterDescription.Type);
+        var scopedServiceProvider = _rootServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext.RequestServices;
+        if (context.BodyParameterDescription is not null) {
+            AnnotateRequestBodySchemaWithValidator(scopedServiceProvider, context, context.BodyParameterDescription.Type);
+        } else if (context.FormParameterDescriptions?.Count() > 0) {
+            foreach (var parameterDescription in context.FormParameterDescriptions) {
+                if (parameterDescription.Type is not null)
+                    AnnotateRequestBodySchemaWithValidator(scopedServiceProvider, context, parameterDescription.Type);
+            }
+        }
+    }
+
+    private static void AnnotateRequestBodySchemaWithValidator(IServiceProvider services, RequestBodyFilterContext context, Type parameterDescriptionType) {
+        Type validatorType = typeof(IValidator<>).MakeGenericType(parameterDescriptionType);
         IValidator validator = services.GetService(validatorType) as IValidator;
         if (validator is not null) {
-            if (!context.SchemaRepository.Schemas.ContainsKey(context.BodyParameterDescription.Type.FullName)) {
+            if (!context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.FullName)) {
                 return;
             }
-            OpenApiSchema schema = context.SchemaRepository.Schemas[context.BodyParameterDescription.Type.FullName];
+            OpenApiSchema schema = context.SchemaRepository.Schemas[parameterDescriptionType.FullName];
             IValidatorDescriptor descriptor = validator.CreateDescriptor();
             ILookup<string, (IPropertyValidator Validator, IRuleComponent Options)> validationRules = descriptor.GetMembersWithValidators();
             foreach (IGrouping<string, (IPropertyValidator Validator, IRuleComponent Options)> validationRule in validationRules) {
