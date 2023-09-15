@@ -73,13 +73,20 @@ public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
     }
 
     private static void AnnotateRequestBodySchemaWithValidator(IServiceProvider services, RequestBodyFilterContext context, Type parameterDescriptionType) {
+        if (!parameterDescriptionType.IsClass || parameterDescriptionType.IsOneOf(typeof(int), typeof(string), typeof(double), typeof(decimal), typeof(DateTime), typeof(DateTimeOffset))) {
+            return;
+        }
         Type validatorType = typeof(IValidator<>).MakeGenericType(parameterDescriptionType);
         IValidator validator = services.GetService(validatorType) as IValidator;
         if (validator is not null) {
-            if (!context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.FullName)) {
+            OpenApiSchema schema = default;
+            if (context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.FullName)) {
+                schema = context.SchemaRepository.Schemas[parameterDescriptionType.FullName];
+            } else if (context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.Name)) {
+                schema = context.SchemaRepository.Schemas[parameterDescriptionType.Name];
+            } else {
                 return;
             }
-            OpenApiSchema schema = context.SchemaRepository.Schemas[parameterDescriptionType.FullName];
             IValidatorDescriptor descriptor = validator.CreateDescriptor();
             ILookup<string, (IPropertyValidator Validator, IRuleComponent Options)> validationRules = descriptor.GetMembersWithValidators();
             foreach (IGrouping<string, (IPropertyValidator Validator, IRuleComponent Options)> validationRule in validationRules) {
