@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Features;
+﻿#nullable enable
+using Indice.AspNetCore.Features;
 using Indice.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -37,3 +38,4 @@ public static class AvatarFeatureExtensions {
         return services;
     }
 }
+#nullable disable
