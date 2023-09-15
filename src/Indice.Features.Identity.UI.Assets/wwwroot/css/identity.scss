@@ -140,7 +140,7 @@ main {
     .language {
 
         .dropdown-toggle {
-            color: $white;
+            color: inherit;
 
             @include phone {
                 color: $text-color;

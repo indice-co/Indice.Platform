@@ -68,6 +68,12 @@
             }
         }
 
+        &.clients-portal {
+            .deck-icon {
+                background-image: url(../img/icons/user.svg);
+            }
+        }
+
         &.group-policies {
             .deck-icon {
                 background-image: url(../img/icons/team.svg);
