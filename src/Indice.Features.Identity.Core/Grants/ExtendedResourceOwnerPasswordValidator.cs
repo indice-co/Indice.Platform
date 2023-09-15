@@ -2,6 +2,7 @@
 using IdentityServer4.Validation;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.Core.Grants;
@@ -179,6 +180,11 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
         if (!result.Succeeded) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.InvalidCredentials);
             return;
+        }
+        //For Users with 2FA enabled AccessFailedCounter is only reset after successful sign in with the 2nd Factor.
+        //We need to override the default logic for mobile login.
+        if (context.User.AccessFailedCount > 0) {
+            await _userManager.ResetAccessFailedCountAsync(context.User);
         }
         var subject = await _userManager.GetUserIdAsync(context.User);
         context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
