@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalService, ToastType, ToasterService } from '@indice/ng-components';
-import { FileDetails, Folder, FolderContent } from 'src/app/core/services/media-api.service';
+import { MediaFile, MediaFolder, FolderContent } from 'src/app/core/services/media-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { MediaLibraryStore } from '../../media-library-store.service';
 
@@ -66,7 +66,7 @@ export class ListViewComponent implements OnInit {
       this.size = params.pageSize ? +params.pageSize : 20;
     });
   }
-  public deleteFolder(folder: Folder) {
+  public deleteFolder(folder: MediaFolder) {
     const modal = this._modalService.show(BasicModalComponent, {
       animated: true,
       initialState: {
@@ -85,7 +85,7 @@ export class ListViewComponent implements OnInit {
         }
     });
   }
-  public deleteFile(file: FileDetails) {
+  public deleteFile(file: MediaFile) {
     const modal = this._modalService.show(BasicModalComponent, {
       animated: true,
       initialState: {
@@ -104,10 +104,10 @@ export class ListViewComponent implements OnInit {
         }
     });
   }
-  public editFile(file: FileDetails) {
+  public editFile(file: MediaFile) {
     this._router.navigate(['media', file.folderId ? file.folderId : 'root', file.id ]);
   }
-  public editFolder(folder: Folder) {
+  public editFolder(folder: MediaFolder) {
     this._router.navigate(['', { outlets: { rightpane: ['edit-folder', folder.id] } }]);
   }
   public goToFolder(id: string | undefined) {

@@ -20,17 +20,17 @@ internal static class Mapper
         Description = request.Description,
         ParentId = request.ParentId
     };
-    internal static DbFolder ToDbFolder(this CreateFolderCommand command) => new() {
+    internal static DbMediaFolder ToDbFolder(this CreateFolderCommand command) => new() {
         Name = command.Name,
         Description = command.Description,
         ParentId = command.ParentId
     };
-    internal static void Update(this DbFolder dbFolder, UpdateFolderCommand command) {
+    internal static void Update(this DbMediaFolder dbFolder, UpdateFolderCommand command) {
         dbFolder.Name = command.Name;
         dbFolder.Description = command.Description;
         dbFolder.ParentId = command.ParentId;
     }
-    internal static Folder ToFolder(this DbFolder dbFolder) => new() {
+    internal static MediaFolder ToFolder(this DbMediaFolder dbFolder) => new() {
         Id = dbFolder.Id,
         CreatedAt = dbFolder.CreatedAt,
         UpdatedAt = dbFolder.UpdatedAt,
@@ -68,7 +68,7 @@ internal static class Mapper
         Description = request.Description,
         FolderId = request.FolderId
     };
-    internal static DbFile ToDbFile(this UploadFileCommand command) => new() {
+    internal static DbMediaFile ToDbFile(this UploadFileCommand command) => new() {
         ContentLength = command.ContentLength,
         ContentType = command.ContentType,
         Data = command.Data,
@@ -79,12 +79,12 @@ internal static class Mapper
         Uri = command.Uri,
         FolderId = command.FolderId
     };
-    internal static void Update(this DbFile dbFile, UpdateFileMetadataCommand command) {
+    internal static void Update(this DbMediaFile dbFile, UpdateFileMetadataCommand command) {
         dbFile.Name = command.Name;
         dbFile.Description = command.Description;
         dbFile.FolderId = command.FolderId;
     }
-    internal static FileDetails ToFileDetails(this DbFile dbFile, MediaApiOptions options) => new() {
+    internal static MediaFile ToFileDetails(this DbMediaFile dbFile, MediaApiOptions options) => new() {
         ContentLength = dbFile.ContentLength,
         ContentType = dbFile.ContentType,
         FileExtension = dbFile.FileExtension,

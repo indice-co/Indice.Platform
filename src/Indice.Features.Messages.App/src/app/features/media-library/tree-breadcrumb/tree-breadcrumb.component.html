@@ -8,7 +8,7 @@
                 Αρχεία
             </span>
         </div>
-        <span>{{structure.totalCount}}</span>
+        <span>{{structure.filesCount}}</span>
     </div>
     <div class="ml-7 mt-2">
         <app-tree-breadcrumb-item *ngFor="let item of structure.items" [folderTree]="item" [activeFolderId]="activeFolderId"></app-tree-breadcrumb-item>

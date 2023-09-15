@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { AsyncSubject, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
-import { MediaApiClient, FolderContent, CreateFolderRequest, FileParameter, FileDetails, Folder, UpdateFileMetadataRequest, UpdateFolderRequest, FolderTreeStructure } from 'src/app/core/services/media-api.service';
+import { MediaApiClient, FolderContent, CreateFolderRequest, FileParameter, MediaFile, MediaFolder, UpdateFileMetadataRequest, UpdateFolderRequest, FolderTreeStructure } from 'src/app/core/services/media-api.service';
 
 @Injectable({
     providedIn: 'root'
@@ -12,10 +12,10 @@ export class MediaLibraryStore {
     private _folderContent: AsyncSubject<FolderContent> | undefined;
     private _folderIdChanged = false;
     private _currentFolderId: string | undefined;
-    private _selectedFile: AsyncSubject<FileDetails> | undefined;
+    private _selectedFile: AsyncSubject<MediaFile> | undefined;
     private _fileIdChanged = false;
     private _currentFileId: string | undefined;
-    private _folders: AsyncSubject<Folder[]> | undefined;
+    private _folders: AsyncSubject<MediaFolder[]> | undefined;
     private _page: number | undefined;
     private _size: number | undefined;
 
@@ -54,7 +54,7 @@ export class MediaLibraryStore {
         return this._folderStructure;
     }
 
-    public getFolderDetails(folderId: string): Observable<Folder> {
+    public getFolderDetails(folderId: string): Observable<MediaFolder> {
         if (this._folderContent) {
             return this._folderContent
                 .pipe(mergeMap((content) => {
@@ -120,15 +120,15 @@ export class MediaLibraryStore {
             );
     }
 
-    public getFileDetails(id: string): Observable<FileDetails> {
+    public getFileDetails(id: string): Observable<MediaFile> {
         this._fileIdChanged = this._currentFileId !== id;
         this._currentFileId = id;
         if (!this._selectedFile || this._fileIdChanged) {
-            this._selectedFile = new AsyncSubject<FileDetails>();
+            this._selectedFile = new AsyncSubject<MediaFile>();
             this._api
                 .getFileDetails(id)
-                .subscribe((fileDetails: FileDetails) => {
-                    this._selectedFile?.next(fileDetails);
+                .subscribe((mediaFile: MediaFile) => {
+                    this._selectedFile?.next(mediaFile);
                     this._selectedFile?.complete();
                 });
         }
@@ -145,10 +145,10 @@ export class MediaLibraryStore {
 
     public listFolders() {
         if (!this._folders) {
-            this._folders = new AsyncSubject<Folder[]>();
+            this._folders = new AsyncSubject<MediaFolder[]>();
             this._api
                 .listFolders()
-                .subscribe((folders: Folder[]) => {
+                .subscribe((folders: MediaFolder[]) => {
                     this._folders?.next(folders);
                     this._folders?.complete();
                 });

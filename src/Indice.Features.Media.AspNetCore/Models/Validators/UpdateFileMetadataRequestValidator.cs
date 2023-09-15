@@ -9,7 +9,7 @@ namespace Indice.Features.Media.AspNetCore.Models.Validators;
 public class UpdateFileMetadataRequestValidator : AbstractValidator<UpdateFileMetadataRequest>
 {
     /// <summary>Updates a new instance of <see cref="UpdateFileMetadataRequestValidator"/>.</summary>
-    public UpdateFileMetadataRequestValidator(IFolderStore folderStore) {
+    public UpdateFileMetadataRequestValidator(IMediaFolderStore folderStore) {
         RuleFor(folder => folder.Name)
             .NotEmpty()
             .WithMessage("Please provide a name for the folder's name.")

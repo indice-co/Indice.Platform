@@ -4,20 +4,20 @@ using Indice.Features.Media.AspNetCore.Data.Models;
 namespace Indice.Features.Media.AspNetCore.Stores.Abstractions;
 
 /// <summary>A service that contains media management related operations.</summary>
-public interface IFileStore
+public interface IMediaFileStore
 {
     /// <summary>Retrieves a file by Id.</summary>
     /// <param name="id">The file Id.</param>
-    Task<DbFile?> GetById(Guid id);
+    Task<DbMediaFile?> GetById(Guid id);
     /// <summary>Retrieves a a list of all files.</summary>
     /// <param name="query">The query to limit results.</param>
-    Task<List<DbFile>> GetList(Expression<Func<DbFile, bool>>? query = null);
+    Task<List<DbMediaFile>> GetList(Expression<Func<DbMediaFile, bool>>? query = null);
     /// <summary>Creates a new file.</summary>
     /// <param name="file">The file.</param>
-    Task<Guid> Create(DbFile file);
+    Task<Guid> Create(DbMediaFile file);
     /// <summary>Updates an existing file.</summary>
     /// <param name="file">The file.</param>
-    Task Update(DbFile file);
+    Task Update(DbMediaFile file);
     /// <summary>Deletes an existing file.</summary>
     /// <param name="fileId">The file Id.</param>
     Task Delete(Guid fileId);

@@ -26,7 +26,7 @@ export interface IMediaApiClient {
      * @param includeData (optional) 
      * @return OK
      */
-    getFileDetails(fileId: string, includeData?: boolean | undefined): Observable<FileDetails>;
+    getFileDetails(fileId: string, includeData?: boolean | undefined): Observable<MediaFile>;
     /**
      * Updates an existing file's metadata in the system.
      * @return OK
@@ -41,7 +41,7 @@ export interface IMediaApiClient {
      * Retrieves a list of all existing folders.
      * @return OK
      */
-    listFolders(): Observable<Folder[]>;
+    listFolders(): Observable<MediaFolder[]>;
     /**
      * Creates a new folder in the system.
      * @return Created
@@ -51,7 +51,7 @@ export interface IMediaApiClient {
      * Retrieves info of an existing folder.
      * @return OK
      */
-    getFolderById(folderId: string): Observable<Folder>;
+    getFolderById(folderId: string): Observable<MediaFolder>;
     /**
      * Updates an existing folder in the system.
      * @return OK
@@ -241,7 +241,7 @@ export class MediaApiClient implements IMediaApiClient {
      * @param includeData (optional) 
      * @return OK
      */
-    getFileDetails(fileId: string, includeData?: boolean | undefined): Observable<FileDetails> {
+    getFileDetails(fileId: string, includeData?: boolean | undefined): Observable<MediaFile> {
         let url_ = this.baseUrl + "/api/media/{fileId}?";
         if (fileId === undefined || fileId === null)
             throw new Error("The parameter 'fileId' must be defined.");
@@ -267,14 +267,14 @@ export class MediaApiClient implements IMediaApiClient {
                 try {
                     return this.processGetFileDetails(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<FileDetails>;
+                    return _observableThrow(e) as any as Observable<MediaFile>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<FileDetails>;
+                return _observableThrow(response_) as any as Observable<MediaFile>;
         }));
     }
 
-    protected processGetFileDetails(response: HttpResponseBase): Observable<FileDetails> {
+    protected processGetFileDetails(response: HttpResponseBase): Observable<MediaFile> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -285,7 +285,7 @@ export class MediaApiClient implements IMediaApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = FileDetails.fromJS(resultData200);
+            result200 = MediaFile.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -497,7 +497,7 @@ export class MediaApiClient implements IMediaApiClient {
      * Retrieves a list of all existing folders.
      * @return OK
      */
-    listFolders(): Observable<Folder[]> {
+    listFolders(): Observable<MediaFolder[]> {
         let url_ = this.baseUrl + "/api/media/folders";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -516,14 +516,14 @@ export class MediaApiClient implements IMediaApiClient {
                 try {
                     return this.processListFolders(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<Folder[]>;
+                    return _observableThrow(e) as any as Observable<MediaFolder[]>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<Folder[]>;
+                return _observableThrow(response_) as any as Observable<MediaFolder[]>;
         }));
     }
 
-    protected processListFolders(response: HttpResponseBase): Observable<Folder[]> {
+    protected processListFolders(response: HttpResponseBase): Observable<MediaFolder[]> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -537,7 +537,7 @@ export class MediaApiClient implements IMediaApiClient {
             if (Array.isArray(resultData200)) {
                 result200 = [] as any;
                 for (let item of resultData200)
-                    result200!.push(Folder.fromJS(item));
+                    result200!.push(MediaFolder.fromJS(item));
             }
             else {
                 result200 = <any>null;
@@ -669,7 +669,7 @@ export class MediaApiClient implements IMediaApiClient {
      * Retrieves info of an existing folder.
      * @return OK
      */
-    getFolderById(folderId: string): Observable<Folder> {
+    getFolderById(folderId: string): Observable<MediaFolder> {
         let url_ = this.baseUrl + "/api/media/folders/{folderId}";
         if (folderId === undefined || folderId === null)
             throw new Error("The parameter 'folderId' must be defined.");
@@ -691,14 +691,14 @@ export class MediaApiClient implements IMediaApiClient {
                 try {
                     return this.processGetFolderById(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<Folder>;
+                    return _observableThrow(e) as any as Observable<MediaFolder>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<Folder>;
+                return _observableThrow(response_) as any as Observable<MediaFolder>;
         }));
     }
 
-    protected processGetFolderById(response: HttpResponseBase): Observable<Folder> {
+    protected processGetFolderById(response: HttpResponseBase): Observable<MediaFolder> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -709,7 +709,7 @@ export class MediaApiClient implements IMediaApiClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = Folder.fromJS(resultData200);
+            result200 = MediaFolder.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 400) {
@@ -1668,168 +1668,12 @@ export interface ICreateFolderRequest {
     parentId?: string | undefined;
 }
 
-export class FileDetails implements IFileDetails {
-    id?: string;
-    name?: string | undefined;
-    description?: string | undefined;
-    fileExtension?: string | undefined;
-    contentType?: string | undefined;
-    contentLength?: number;
-    data?: string | undefined;
-    folderId?: string | undefined;
-    permaLink?: string | undefined;
-    createdBy?: string | undefined;
-    createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
-
-    constructor(data?: IFileDetails) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.fileExtension = _data["fileExtension"];
-            this.contentType = _data["contentType"];
-            this.contentLength = _data["contentLength"];
-            this.data = _data["data"];
-            this.folderId = _data["folderId"];
-            this.permaLink = _data["permaLink"];
-            this.createdBy = _data["createdBy"];
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
-            this.updatedBy = _data["updatedBy"];
-            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): FileDetails {
-        data = typeof data === 'object' ? data : {};
-        let result = new FileDetails();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["fileExtension"] = this.fileExtension;
-        data["contentType"] = this.contentType;
-        data["contentLength"] = this.contentLength;
-        data["data"] = this.data;
-        data["folderId"] = this.folderId;
-        data["permaLink"] = this.permaLink;
-        data["createdBy"] = this.createdBy;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-        data["updatedBy"] = this.updatedBy;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IFileDetails {
-    id?: string;
-    name?: string | undefined;
-    description?: string | undefined;
-    fileExtension?: string | undefined;
-    contentType?: string | undefined;
-    contentLength?: number;
-    data?: string | undefined;
-    folderId?: string | undefined;
-    permaLink?: string | undefined;
-    createdBy?: string | undefined;
-    createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
-}
-
-export class Folder implements IFolder {
-    id?: string;
-    name?: string | undefined;
-    description?: string | undefined;
-    createdBy?: string | undefined;
-    createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
-    parentId?: string | undefined;
-    subFoldersCount?: number | undefined;
-    filesCount?: number | undefined;
-
-    constructor(data?: IFolder) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.description = _data["description"];
-            this.createdBy = _data["createdBy"];
-            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
-            this.updatedBy = _data["updatedBy"];
-            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
-            this.parentId = _data["parentId"];
-            this.subFoldersCount = _data["subFoldersCount"];
-            this.filesCount = _data["filesCount"];
-        }
-    }
-
-    static fromJS(data: any): Folder {
-        data = typeof data === 'object' ? data : {};
-        let result = new Folder();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["description"] = this.description;
-        data["createdBy"] = this.createdBy;
-        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
-        data["updatedBy"] = this.updatedBy;
-        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
-        data["parentId"] = this.parentId;
-        data["subFoldersCount"] = this.subFoldersCount;
-        data["filesCount"] = this.filesCount;
-        return data;
-    }
-}
-
-export interface IFolder {
-    id?: string;
-    name?: string | undefined;
-    description?: string | undefined;
-    createdBy?: string | undefined;
-    createdAt?: Date;
-    updatedBy?: string | undefined;
-    updatedAt?: Date | undefined;
-    parentId?: string | undefined;
-    subFoldersCount?: number | undefined;
-    filesCount?: number | undefined;
-}
-
 export class FolderContent implements IFolderContent {
     id?: string | undefined;
     name?: string | undefined;
     parentId?: string | undefined;
-    folders?: Folder[] | undefined;
-    files?: FileDetails[] | undefined;
+    folders?: MediaFolder[] | undefined;
+    files?: MediaFile[] | undefined;
     totalCount?: number;
 
     constructor(data?: IFolderContent) {
@@ -1849,12 +1693,12 @@ export class FolderContent implements IFolderContent {
             if (Array.isArray(_data["folders"])) {
                 this.folders = [] as any;
                 for (let item of _data["folders"])
-                    this.folders!.push(Folder.fromJS(item));
+                    this.folders!.push(MediaFolder.fromJS(item));
             }
             if (Array.isArray(_data["files"])) {
                 this.files = [] as any;
                 for (let item of _data["files"])
-                    this.files!.push(FileDetails.fromJS(item));
+                    this.files!.push(MediaFile.fromJS(item));
             }
             this.totalCount = _data["totalCount"];
         }
@@ -1891,17 +1735,18 @@ export interface IFolderContent {
     id?: string | undefined;
     name?: string | undefined;
     parentId?: string | undefined;
-    folders?: Folder[] | undefined;
-    files?: FileDetails[] | undefined;
+    folders?: MediaFolder[] | undefined;
+    files?: MediaFile[] | undefined;
     totalCount?: number;
 }
 
 export class FolderTree implements IFolderTree {
-    node?: Folder;
+    node?: MediaFolder;
     children?: FolderTree[] | undefined;
     readonly isRoot?: boolean;
     readonly isLeaf?: boolean;
     readonly totalCount?: number;
+    readonly totalFilesCount?: number | undefined;
 
     constructor(data?: IFolderTree) {
         if (data) {
@@ -1914,7 +1759,7 @@ export class FolderTree implements IFolderTree {
 
     init(_data?: any) {
         if (_data) {
-            this.node = _data["node"] ? Folder.fromJS(_data["node"]) : <any>undefined;
+            this.node = _data["node"] ? MediaFolder.fromJS(_data["node"]) : <any>undefined;
             if (Array.isArray(_data["children"])) {
                 this.children = [] as any;
                 for (let item of _data["children"])
@@ -1923,6 +1768,7 @@ export class FolderTree implements IFolderTree {
             (<any>this).isRoot = _data["isRoot"];
             (<any>this).isLeaf = _data["isLeaf"];
             (<any>this).totalCount = _data["totalCount"];
+            (<any>this).totalFilesCount = _data["totalFilesCount"];
         }
     }
 
@@ -1944,22 +1790,26 @@ export class FolderTree implements IFolderTree {
         data["isRoot"] = this.isRoot;
         data["isLeaf"] = this.isLeaf;
         data["totalCount"] = this.totalCount;
+        data["totalFilesCount"] = this.totalFilesCount;
         return data;
     }
 }
 
 export interface IFolderTree {
-    node?: Folder;
+    node?: MediaFolder;
     children?: FolderTree[] | undefined;
     isRoot?: boolean;
     isLeaf?: boolean;
     totalCount?: number;
+    totalFilesCount?: number | undefined;
 }
 
 export class FolderTreeStructure implements IFolderTreeStructure {
     items?: FolderTree[] | undefined;
+    rootFilesCount?: number;
     readonly isEmpty?: boolean;
     readonly totalCount?: number;
+    readonly filesCount?: number;
 
     constructor(data?: IFolderTreeStructure) {
         if (data) {
@@ -1977,8 +1827,10 @@ export class FolderTreeStructure implements IFolderTreeStructure {
                 for (let item of _data["items"])
                     this.items!.push(FolderTree.fromJS(item));
             }
+            this.rootFilesCount = _data["rootFilesCount"];
             (<any>this).isEmpty = _data["isEmpty"];
             (<any>this).totalCount = _data["totalCount"];
+            (<any>this).filesCount = _data["filesCount"];
         }
     }
 
@@ -1996,16 +1848,20 @@ export class FolderTreeStructure implements IFolderTreeStructure {
             for (let item of this.items)
                 data["items"].push(item.toJSON());
         }
+        data["rootFilesCount"] = this.rootFilesCount;
         data["isEmpty"] = this.isEmpty;
         data["totalCount"] = this.totalCount;
+        data["filesCount"] = this.filesCount;
         return data;
     }
 }
 
 export interface IFolderTreeStructure {
     items?: FolderTree[] | undefined;
+    rootFilesCount?: number;
     isEmpty?: boolean;
     totalCount?: number;
+    filesCount?: number;
 }
 
 export class HttpValidationProblemDetails implements IHttpValidationProblemDetails {
@@ -2132,6 +1988,162 @@ export interface IHyperlink {
     text?: string | undefined;
     /** Defines the hyperlink URL. */
     href?: string | undefined;
+}
+
+export class MediaFile implements IMediaFile {
+    id?: string;
+    name?: string | undefined;
+    description?: string | undefined;
+    fileExtension?: string | undefined;
+    contentType?: string | undefined;
+    contentLength?: number;
+    data?: string | undefined;
+    folderId?: string | undefined;
+    permaLink?: string | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+
+    constructor(data?: IMediaFile) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.fileExtension = _data["fileExtension"];
+            this.contentType = _data["contentType"];
+            this.contentLength = _data["contentLength"];
+            this.data = _data["data"];
+            this.folderId = _data["folderId"];
+            this.permaLink = _data["permaLink"];
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): MediaFile {
+        data = typeof data === 'object' ? data : {};
+        let result = new MediaFile();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["fileExtension"] = this.fileExtension;
+        data["contentType"] = this.contentType;
+        data["contentLength"] = this.contentLength;
+        data["data"] = this.data;
+        data["folderId"] = this.folderId;
+        data["permaLink"] = this.permaLink;
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IMediaFile {
+    id?: string;
+    name?: string | undefined;
+    description?: string | undefined;
+    fileExtension?: string | undefined;
+    contentType?: string | undefined;
+    contentLength?: number;
+    data?: string | undefined;
+    folderId?: string | undefined;
+    permaLink?: string | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+}
+
+export class MediaFolder implements IMediaFolder {
+    id?: string;
+    name?: string | undefined;
+    description?: string | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+    parentId?: string | undefined;
+    subFoldersCount?: number | undefined;
+    filesCount?: number | undefined;
+
+    constructor(data?: IMediaFolder) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.description = _data["description"];
+            this.createdBy = _data["createdBy"];
+            this.createdAt = _data["createdAt"] ? new Date(_data["createdAt"].toString()) : <any>undefined;
+            this.updatedBy = _data["updatedBy"];
+            this.updatedAt = _data["updatedAt"] ? new Date(_data["updatedAt"].toString()) : <any>undefined;
+            this.parentId = _data["parentId"];
+            this.subFoldersCount = _data["subFoldersCount"];
+            this.filesCount = _data["filesCount"];
+        }
+    }
+
+    static fromJS(data: any): MediaFolder {
+        data = typeof data === 'object' ? data : {};
+        let result = new MediaFolder();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["description"] = this.description;
+        data["createdBy"] = this.createdBy;
+        data["createdAt"] = this.createdAt ? this.createdAt.toISOString() : <any>undefined;
+        data["updatedBy"] = this.updatedBy;
+        data["updatedAt"] = this.updatedAt ? this.updatedAt.toISOString() : <any>undefined;
+        data["parentId"] = this.parentId;
+        data["subFoldersCount"] = this.subFoldersCount;
+        data["filesCount"] = this.filesCount;
+        return data;
+    }
+}
+
+export interface IMediaFolder {
+    id?: string;
+    name?: string | undefined;
+    description?: string | undefined;
+    createdBy?: string | undefined;
+    createdAt?: Date;
+    updatedBy?: string | undefined;
+    updatedAt?: Date | undefined;
+    parentId?: string | undefined;
+    subFoldersCount?: number | undefined;
+    filesCount?: number | undefined;
 }
 
 /** Models a user message. */

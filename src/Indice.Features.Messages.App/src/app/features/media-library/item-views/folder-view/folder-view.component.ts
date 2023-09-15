@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FileDetails, Folder, FolderContent } from 'src/app/core/services/media-api.service';
-import { settings } from 'src/app/core/models/settings';
+import { MediaFile, MediaFolder, FolderContent } from 'src/app/core/services/media-api.service';
 import { ModalService, ToasterService, ToastType } from '@indice/ng-components';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { MediaLibraryStore } from '../../media-library-store.service';
+import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
 
 @Component({
   selector: 'app-folder-view',
@@ -34,7 +34,8 @@ export class FolderViewComponent implements OnInit {
     private _route: ActivatedRoute,
     private _mediaStore: MediaLibraryStore,
     private _modalService: ModalService,
-    private _toaster: ToasterService
+    private _toaster: ToasterService,
+    private _fileUtilitiesService: FileUtilitiesService
   ) { }
 
   ngOnInit(): void {
@@ -44,24 +45,10 @@ export class FolderViewComponent implements OnInit {
     });
   }
 
-  public getImageUrl(file: FileDetails) {
-    switch (file.fileExtension) {
-      case '.csv': 
-        return '../../../../assets/images/csv-icon.png';
-      case '.docx': 
-        return '../../../../assets/images/word-icon.png';
-      case '.xlsx': 
-        return '../../../../assets/images/excel-icon.png';
-      case '.pdf': 
-        return '../../../../assets/images/pdf-icon.png';
-      case '.pptx': 
-        return '../../../../assets/images/pptx-icon.png';
-      default:
-        return `${settings.api_url}${file.permaLink}`;
-    }
-    
+  public getImageUrl(file: MediaFile) {
+    return this._fileUtilitiesService.getCoverImageUrl(file);
   }
-  public deleteFolder(folder: Folder) {
+  public deleteFolder(folder: MediaFolder) {
     const modal = this._modalService.show(BasicModalComponent, {
       animated: true,
       initialState: {
@@ -80,7 +67,7 @@ export class FolderViewComponent implements OnInit {
         }
     });
   }
-  public deleteFile(file: FileDetails) {
+  public deleteFile(file: MediaFile) {
     const modal = this._modalService.show(BasicModalComponent, {
       animated: true,
       initialState: {
@@ -99,10 +86,10 @@ export class FolderViewComponent implements OnInit {
         }
     });
   }
-  public editFile(file: FileDetails) {
+  public editFile(file: MediaFile) {
     this._router.navigate(['media', file.folderId ? file.folderId : 'root', file.id ]);
   }
-  public editFolder(folder: Folder) {
+  public editFolder(folder: MediaFolder) {
     this._router.navigate(['', { outlets: { rightpane: ['edit-folder', folder.id] } }]);
   }
   public goToFolder(id: string | undefined) {
@@ -119,5 +106,9 @@ export class FolderViewComponent implements OnInit {
       },
       queryParamsHandling: 'merge'
     });
+  }
+  public copyToClipboard(file: MediaFile) {
+    this._fileUtilitiesService.copyPermaLinkToClipboard(file);
+    this._toaster.show(ToastType.Success, 'Αντιγραφή συνδέσμου', `Ο σύνδεσμος του αρχείου '${file.name}' αντιγράφηκε με επιτυχία.`);
   }
 }

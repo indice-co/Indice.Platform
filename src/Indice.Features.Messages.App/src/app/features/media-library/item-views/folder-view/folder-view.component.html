@@ -43,8 +43,14 @@
             <img class="h-full w-full object-contain" [src]="getImageUrl(file)" onerror="'../../../../assets/images/no-image-icon.png'"/>
         </div>
         <span class="w-36 text-ellipsis overflow-hidden text-center whitespace-nowrap">{{file.name}}</span>
-        <div class="absolute top-2 right-2 hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-red-600 bg-gray-100 items-center justify-center rounded-md text-red-600 hover:text-gray-100" (click)="$event.stopPropagation(); deleteFile(file);">
-            <i class="ms-Icon ms-Icon--Delete"></i>
+        
+        <div class="flex flex-row items-center absolute top-2 right-2 space-x-2">
+            <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-gray-500 bg-gray-100 items-center justify-center rounded-md text-gray-500 hover:text-gray-100" (click)="$event.stopPropagation(); copyToClipboard(file)">
+                <i class="ms-Icon ms-Icon--Copy"></i>
+            </div>
+            <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-red-600 bg-gray-100 items-center justify-center rounded-md text-red-600 hover:text-gray-100" (click)="$event.stopPropagation(); deleteFile(file);">
+                <i class="ms-Icon ms-Icon--Delete"></i>
+            </div>
         </div>
     </div>
 </div>

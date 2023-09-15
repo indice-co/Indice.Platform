@@ -1,7 +1,7 @@
 ﻿namespace Indice.Features.Media.AspNetCore.Data.Models;
 
 /// <summary>The File entity.</summary>
-public class DbFile : DbAuditableEntity
+public class DbMediaFile : DbAuditableEntity
 {
     /// <summary>The unique id of the file.</summary>
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -21,10 +21,10 @@ public class DbFile : DbAuditableEntity
     public byte[]? Data { get; set; }
     /// <summary>The file URI.</summary>
     public string? Uri { get; set; }
-    /// <summary>Foreign Key to containing folder <see cref="DbFolder"/>.</summary>
+    /// <summary>Foreign Key to containing folder <see cref="DbMediaFolder"/>.</summary>
     public Guid? FolderId { get; set; }
     /// <summary>The containing folder.</summary>
-    public DbFolder? Folder { get; set; }
+    public DbMediaFolder? Folder { get; set; }
     /// <summary>Marks a file as deleted.</summary>
     public bool IsDeleted { get; set; }
 }

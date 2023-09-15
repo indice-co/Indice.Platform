@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
-import { Folder, UpdateFolderRequest } from 'src/app/core/services/media-api.service';
+import { MediaFolder, UpdateFolderRequest } from 'src/app/core/services/media-api.service';
 import { MediaLibraryStore } from '../media-library-store.service';
 import { tap } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
@@ -26,7 +26,7 @@ export class FolderEditComponent implements OnInit {
     ) { }
 
     public submitInProgress = false;
-    public model = new Folder();
+    public model = new MediaFolder();
     private _folderId: string | undefined;
     private _loadFoldersSubscription: Subscription | undefined;
 
@@ -45,7 +45,7 @@ export class FolderEditComponent implements OnInit {
     private _loadFolders(): void {        
       this._loadFoldersSubscription = this._mediaStore
           .listFolders()
-          .pipe(tap((folders: Folder[]) => {
+          .pipe(tap((folders: MediaFolder[]) => {
               let selectedFolder = this.model.parentId ? folders.find(f => f.id == this.model.parentId) : null;
               this.parentFolderId = selectedFolder ? new MenuOption(selectedFolder.name!, selectedFolder?.id) : null;
               if (folders) {

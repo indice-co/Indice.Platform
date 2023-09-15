@@ -4,20 +4,20 @@ using Indice.Features.Media.AspNetCore.Data.Models;
 namespace Indice.Features.Media.AspNetCore.Stores.Abstractions;
 
 /// <summary>A service that contains folder management related operations.</summary>
-public interface IFolderStore
+public interface IMediaFolderStore
 {
     /// <summary>Gets a folder by it's unique id.</summary>
     /// <param name="id">The id of the folder.</param>
-    Task<DbFolder?> GetById(Guid id);
+    Task<DbMediaFolder?> GetById(Guid id);
     /// <summary>Retreieves all folders.</summary>
     /// <param name="query">The query to limit the results.</param>
-    Task<List<DbFolder>> GetList(Expression<Func<DbFolder, bool>>? query = null);
+    Task<List<DbMediaFolder>> GetList(Expression<Func<DbMediaFolder, bool>>? query = null);
     /// <summary>Creates a new folder.</summary>
     /// <param name="folder">The data for the folder to create.</param>
-    Task<Guid> Create(DbFolder folder);
+    Task<Guid> Create(DbMediaFolder folder);
     /// <summary>Updates an existing folder.</summary>
     /// <param name="folder">The data for the folder to update.</param>
-    Task Update(DbFolder folder);
+    Task Update(DbMediaFolder folder);
     /// <summary>Deletes an existing folder.</summary>
     /// <param name="id">The id of the folder.</param>
     Task Delete(Guid id);

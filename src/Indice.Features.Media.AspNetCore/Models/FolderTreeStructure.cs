@@ -10,7 +10,7 @@ public class FolderTreeStructure
     /// <summary>Constructs a <see cref="FolderTreeStructure"/>.</summary>
     /// <param name="folders">The items of the structure.</param>
     /// <param name="rootFilesCount">The root files count.</param>
-    public FolderTreeStructure(IEnumerable<Folder> folders, int rootFilesCount = 0) {
+    public FolderTreeStructure(IEnumerable<MediaFolder> folders, int rootFilesCount = 0) {
         Items = new List<FolderTree>();
         RootFilesCount = rootFilesCount;
         Build(folders);
@@ -23,9 +23,11 @@ public class FolderTreeStructure
     public bool IsEmpty => Items == null || !Items.Any();
     /// <summary>The number of elements.</summary>
     public int TotalCount => IsEmpty ? RootFilesCount : Items.Count + RootFilesCount;
+    /// <summary>The number of files the structure contains.</summary>
+    public int FilesCount => IsEmpty ? RootFilesCount : (Items.Select(i => i.TotalFilesCount).Sum() ?? 0) + RootFilesCount;
     /// <summary>Builds the structure.</summary>
     /// <param name="folders">The items of the structure.</param>
-    public void Build(IEnumerable<Folder> folders) {
+    public void Build(IEnumerable<MediaFolder> folders) {
         if (folders == null || !folders.Any()) {
             return;
         }
@@ -34,7 +36,7 @@ public class FolderTreeStructure
         }
     }
     /// <summary>Flattens the structure.</summary>
-    public IEnumerable<Folder> Flatten() {
+    public IEnumerable<MediaFolder> Flatten() {
         return Items.SelectMany(i => i.Flatten());
     }
     /// <summary>Searches an element of the specified Id.</summary>

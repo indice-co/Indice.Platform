@@ -39,8 +39,8 @@ public static class ServiceCollectionExtensions
         // Register framework services.
         services.AddHttpContextAccessor();
         // Register services.
-        services.TryAddTransient<IFolderStore, FolderStore>();
-        services.TryAddTransient<IFileStore, FileStore>();
+        services.TryAddTransient<IMediaFolderStore, MediaFolderStore>();
+        services.TryAddTransient<IMediaFileStore, MediaFileStore>();
         services.TryAddTransient<IUserNameAccessor, UserNameFromHttpContextAccessor>();
         services.TryAddTransient<MediaManager>();
         services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());

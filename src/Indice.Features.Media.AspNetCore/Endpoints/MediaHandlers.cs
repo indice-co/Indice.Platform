@@ -28,7 +28,7 @@ internal static class MediaHandlers
         return TypedResults.File(data, contentType, null, false,  properties.LastModified, new EntityTagHeaderValue(properties.ETag, true));
     }
 
-    internal static async Task<Results<Ok<FileDetails>, NotFound>> GetFileDetails(Guid fileId, bool? includeData, MediaManager mediaManager) {
+    internal static async Task<Results<Ok<MediaFile>, NotFound>> GetFileDetails(Guid fileId, bool? includeData, MediaManager mediaManager) {
         var file = await mediaManager.GetFileDetails(fileId, includeData);
         if (file is null) {
             return TypedResults.NotFound();

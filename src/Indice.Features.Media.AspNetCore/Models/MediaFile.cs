@@ -1,16 +1,14 @@
 ﻿namespace Indice.Features.Media.AspNetCore.Models;
 
 /// <summary>Models a file.</summary>
-public class FileDetails
+public class MediaFile
 {
-    /// <summary>Creates a new instance of <see cref="FileDetails"/>.</summary>
-    public FileDetails() {
+    /// <summary>Creates a new instance of <see cref="MediaFile"/>.</summary>
+    public MediaFile() {
     }
 
     /// <summary>The unique id of the file.</summary>
     public Guid Id { get; set; }
-    /// <summary>The unique id of the file, for internal use.</summary>
-    //public Guid Guid { get; set; }
     /// <summary>The name of the file.</summary>
     public string Name { get; set; }
     /// <summary>The description of the file.</summary>

@@ -1,5 +1,4 @@
 <div class="mt-5">
-    
     <div class="view-layout-title-container">
         <div class="view-layout-title-container-inner">
             <div class="flex flex-row items-center">
@@ -47,6 +46,6 @@
             <app-tree-breadcrumb [structure]="structure"></app-tree-breadcrumb>
         </div>
         <app-folder-view class="w-full" *ngIf="view == 'folder'" [folderContent]="folderContent" (pageChanged)="onPageChanged($event)" (pageSizeChanged)="onPageSizeChanged($event)" (itemDeleted)="onItemDeleted()"></app-folder-view>
-        <app-list-view class="overflow-x-hidden" *ngIf="view == 'list'" [folderContent]="folderContent" (pageChanged)="onPageChanged($event)" (pageSizeChanged)="onPageSizeChanged($event)" (itemDeleted)="onItemDeleted()"></app-list-view>
+        <app-list-view class="w-full overflow-x-hidden" *ngIf="view == 'list'" [folderContent]="folderContent" (pageChanged)="onPageChanged($event)" (pageSizeChanged)="onPageSizeChanged($event)" (itemDeleted)="onItemDeleted()"></app-list-view>
     </div>
 </div>

@@ -9,7 +9,7 @@ namespace Indice.Features.Media.AspNetCore.Models.Validators;
 public class CreateFolderRequestValidator : AbstractValidator<CreateFolderRequest>
 {
     /// <summary>Creates a new instance of <see cref="CreateFolderRequestValidator"/>.</summary>
-    public CreateFolderRequestValidator(IFolderStore folderStore) {
+    public CreateFolderRequestValidator(IMediaFolderStore folderStore) {
         RuleFor(folder => folder.Name)
             .NotEmpty()
             .WithMessage("Please provide a name for the folder's name.")

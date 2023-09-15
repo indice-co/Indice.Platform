@@ -1,7 +1,7 @@
 ﻿namespace Indice.Features.Media.AspNetCore.Models;
 
 /// <summary> The folder object.</summary>
-public class Folder
+public class MediaFolder
 {
     /// <summary>The Id of the Folder.</summary>
     public Guid Id { get; set; }

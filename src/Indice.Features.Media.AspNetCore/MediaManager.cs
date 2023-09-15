@@ -16,16 +16,16 @@ public class MediaManager
     private const string STRUCT_CACHE_KEY = "FOLDER_STRUCTURE";
     private const string CONTENT_CACHE_KEY = "FOLDER_CONTENT";
 
-    private readonly IFileStore _fileStore;
-    private readonly IFolderStore _folderStore;
+    private readonly IMediaFileStore _fileStore;
+    private readonly IMediaFolderStore _folderStore;
     private readonly IFileService _fileService;
     private readonly IDistributedCache _cache;
     private readonly MediaApiOptions _options;
 
     /// <summary>Creates a new instance of <see cref="MediaManager"/>.</summary>
     public MediaManager(
-        IFileStore fileStore, 
-        IFolderStore folderStore, 
+        IMediaFileStore fileStore, 
+        IMediaFolderStore folderStore, 
         Func<string, IFileService> getFileService, 
         IDistributedCache cache,
         IOptions<MediaApiOptions> options
@@ -59,7 +59,7 @@ public class MediaManager
         var pagedFolders = folderTree.GetChildren(page.Value, size.Value);
         var pagedFoldersCount = pagedFolders.Count();
         var files = await ListFiles(folderId);
-        var pagedFiles = new List<FileDetails>();
+        var pagedFiles = new List<MediaFile>();
         if (pagedFoldersCount < size.Value) {
             var newPage = page.Value - (folderTree.TotalCount / size.Value + 1);
             var filesToSkip = newPage*(size.Value - (pagedFoldersCount > 0 ? pagedFoldersCount : folderTree.TotalCount % size.Value));
@@ -75,16 +75,16 @@ public class MediaManager
         };
     }
     /// <summary>Lists the all the existing folders.</summary>
-    public async Task<List<Folder>> ListFolders() {
+    public async Task<List<MediaFolder>> ListFolders() {
         var dbFolders = await _folderStore.GetList(f => !f.IsDeleted);
         if (dbFolders == null) {
-            return new List<Folder>();
+            return new List<MediaFolder>();
         }
         return dbFolders.Select(f => f.ToFolder()).ToList();
     }
     /// <summary>Details about a folder.</summary>
     /// <param name="id">The Id of the folder.</param>
-    public async Task<Folder?> GetFolderById(Guid id) {
+    public async Task<MediaFolder?> GetFolderById(Guid id) {
         var dbFolder = await _folderStore.GetById(id);
         if (dbFolder == null) {
             return null;
@@ -157,13 +157,13 @@ public class MediaManager
         
     }
     /// <summary>Lists the all the existing files of a folder.</summary>
-    public async Task<List<FileDetails>> ListFiles(Guid? folderId = null) {
+    public async Task<List<MediaFile>> ListFiles(Guid? folderId = null) {
         var cacheKey = $"{CONTENT_CACHE_KEY}_{(folderId.HasValue ? folderId.Value : "root")}";
         var serializationOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
-        var files = await _cache.GetAsync<List<FileDetails>>(cacheKey, serializationOptions);
+        var files = await _cache.GetAsync<List<MediaFile>>(cacheKey, serializationOptions);
         if (files == null) {
             var dbfiles = await _fileStore.GetList(f => f.FolderId == folderId && !f.IsDeleted);
-            files = dbfiles != null ? dbfiles.Select(f => f.ToFileDetails(_options)).ToList() : new List<FileDetails>();
+            files = dbfiles != null ? dbfiles.Select(f => f.ToFileDetails(_options)).ToList() : new List<MediaFile>();
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(files, serializationOptions), new DistributedCacheEntryOptions {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             });
@@ -173,7 +173,7 @@ public class MediaManager
     /// <summary>Retrieves the details about a file.</summary>
     /// <param name="id">The file id.</param>
     /// <param name="includeData">Indicates if the details should contain the byte array of data.</param>
-    public async Task<FileDetails?> GetFileDetails(Guid id, bool? includeData) {
+    public async Task<MediaFile?> GetFileDetails(Guid id, bool? includeData) {
         var file = await _fileStore.GetById(id);
         if (file == null) {
             return null;

@@ -8,26 +8,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Media.AspNetCore.Services;
 
-/// <summary>An implementation of <see cref="IFileStore"/> for Entity Framework Core.</summary>
-internal class FileStore : IFileStore
+/// <summary>An implementation of <see cref="IMediaFileStore"/> for Entity Framework Core.</summary>
+internal class MediaFileStore : IMediaFileStore
 {
     private readonly MediaDbContext _dbContext;
 
-    /// <summary>Creates a new instance of <see cref="FileStore"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="MediaFileStore"/>.</summary>
     /// <param name="dbContext">The <see cref="DbContext"/> for Media API feature.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public FileStore(MediaDbContext dbContext) {
+    public MediaFileStore(MediaDbContext dbContext) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
     /// <inheritdoc/>
-    public async Task<DbFile?> GetById(Guid id) {
+    public async Task<DbMediaFile?> GetById(Guid id) {
         return await _dbContext
             .Files
             .Where(x => x.Id == id && (x.Folder == null || !x.Folder.IsDeleted))
             .SingleOrDefaultAsync();
     }
     /// <inheritdoc/>
-    public async Task<List<DbFile>> GetList(Expression<Func<DbFile, bool>>? query = null) {
+    public async Task<List<DbMediaFile>> GetList(Expression<Func<DbMediaFile, bool>>? query = null) {
         query ??= f => true;
         return await _dbContext.Files
             .Where(query)
@@ -36,17 +36,17 @@ internal class FileStore : IFileStore
             .ToListAsync();
     }
     /// <inheritdoc/>
-    public async Task<List<DbFile>> ListFiles(List<Guid> folderIds) {
+    public async Task<List<DbMediaFile>> ListFiles(List<Guid> folderIds) {
         return await _dbContext.Files.Where(f => f.FolderId.HasValue && folderIds.Contains(f.FolderId.Value)).ToListAsync();
     }
     /// <inheritdoc/>
-    public async Task<Guid> Create(DbFile file) {
+    public async Task<Guid> Create(DbMediaFile file) {
         _dbContext.Files.Add(file);
         await _dbContext.SaveChangesAsync();
         return file.Id;
     }
     /// <inheritdoc/>
-    public async Task Update(DbFile file) {
+    public async Task Update(DbMediaFile file) {
         _dbContext.Files.Update(file);
         await _dbContext.SaveChangesAsync();
     }

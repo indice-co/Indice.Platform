@@ -23,12 +23,12 @@ internal static class FoldersHandlers
         return TypedResults.Ok(folderContent);
     }
 
-    internal static async Task<Ok<List<Folder>>> ListFolders(MediaManager mediaManager) {
+    internal static async Task<Ok<List<MediaFolder>>> ListFolders(MediaManager mediaManager) {
         var folders = await mediaManager.ListFolders();
         return TypedResults.Ok(folders);
     }
 
-    internal static async Task<Results<Ok<Folder>, NotFound>> GetFolderById(Guid folderId, MediaManager mediaManager) {
+    internal static async Task<Results<Ok<MediaFolder>, NotFound>> GetFolderById(Guid folderId, MediaManager mediaManager) {
         var folder = await mediaManager.GetFolderById(folderId);
         if (folder == null) {
             return TypedResults.NotFound();

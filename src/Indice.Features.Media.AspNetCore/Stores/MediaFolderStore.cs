@@ -7,26 +7,26 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Media.AspNetCore.Stores;
 
-/// <summary>An implementation of <see cref="IFolderStore"/> for Entity Framework Core.</summary>
-internal class FolderStore : IFolderStore
+/// <summary>An implementation of <see cref="IMediaFolderStore"/> for Entity Framework Core.</summary>
+internal class MediaFolderStore : IMediaFolderStore
 {
     private readonly MediaDbContext _dbContext;
 
-    /// <summary>Creates a new instance of <see cref="FolderStore"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="MediaFolderStore"/>.</summary>
     /// <param name="dbContext">The <see cref="DbContext"/> for Media API feature.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public FolderStore(MediaDbContext dbContext) {
+    public MediaFolderStore(MediaDbContext dbContext) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
     /// <inheritdoc/>
-    public async Task<DbFolder?> GetById(Guid id) {
+    public async Task<DbMediaFolder?> GetById(Guid id) {
         return await _dbContext.Folders
             .Where(f => f.Id == id && !f.IsDeleted)
             .FirstOrDefaultAsync();
     }
     /// <inheritdoc/>
-    public async Task<List<DbFolder>> GetList(Expression<Func<DbFolder, bool>>? query = null) {
+    public async Task<List<DbMediaFolder>> GetList(Expression<Func<DbMediaFolder, bool>>? query = null) {
         query ??= f => !f.IsDeleted;
         return await _dbContext.Folders
             .Where(query)
@@ -37,13 +37,13 @@ internal class FolderStore : IFolderStore
             .ToListAsync();
     }
     /// <inheritdoc/>
-    public async Task<Guid> Create(DbFolder folder) {
+    public async Task<Guid> Create(DbMediaFolder folder) {
         _dbContext.Folders.Add(folder);
         await _dbContext.SaveChangesAsync();
         return folder.Id;
     }
     /// <inheritdoc/>
-    public async Task Update(DbFolder folder) {
+    public async Task Update(DbMediaFolder folder) {
         _dbContext.Folders.Update(folder);
         await _dbContext.SaveChangesAsync();
     }

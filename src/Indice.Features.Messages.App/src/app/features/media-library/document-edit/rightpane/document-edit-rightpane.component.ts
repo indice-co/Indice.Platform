@@ -3,7 +3,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { MenuOption, ToasterService, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
-import { FileDetails, Folder, UpdateFileMetadataRequest } from 'src/app/core/services/media-api.service';
+import { MediaFile, MediaFolder, UpdateFileMetadataRequest } from 'src/app/core/services/media-api.service';
 
 import { MediaLibraryStore } from '../../media-library-store.service';
 import { tap } from 'rxjs/operators';
@@ -31,7 +31,7 @@ export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, On
     @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
     public submitInProgress = false;
     public templateOutlet!: TemplateRef<any>;
-    public model = new FileDetails();
+    public model = new MediaFile();
     public folders: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public selectedFolderId: MenuOption | null = null;
 
@@ -98,7 +98,7 @@ export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, On
     private _loadFolders(): void {        
         this._loadFoldersSubscription = this._mediaStore
             .listFolders()
-            .pipe(tap((folders: Folder[]) => {
+            .pipe(tap((folders: MediaFolder[]) => {
                 let selectedFolder = this.model.folderId ? folders.find(f => f.id == this.model.folderId) : null;
                 this.selectedFolderId = selectedFolder ? new MenuOption(selectedFolder.name!, selectedFolder?.id) : null;
                 if (folders) {

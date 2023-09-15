@@ -2,16 +2,17 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using Indice.Configuration;
+using Indice.Features.Media.AspNetCore.Models;
 
 namespace Indice.Features.Media.AspNetCore.Data.Mappings;
 
-/// <summary>Configuration for <see cref="DbFile"/> entity.</summary>
-public class DbFileMap : IEntityTypeConfiguration<DbFile>
+/// <summary>Configuration for <see cref="DbMediaFile"/> entity.</summary>
+public class DbMediaFileMap : IEntityTypeConfiguration<DbMediaFile>
 {
     /// <inheritdoc />
-    public void Configure(EntityTypeBuilder<DbFile> builder) {
+    public void Configure(EntityTypeBuilder<DbMediaFile> builder) {
         // Configure table name.
-        builder.ToTable("File");
+        builder.ToTable(nameof(MediaFile));
         // Configure key.
         builder.HasKey(x => x.Id);
         // Configure indexes.

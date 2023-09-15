@@ -20,14 +20,14 @@ public class MediaDbContext : DbContext
     }
 
     /// <summary>Media folders table.</summary>
-    public DbSet<DbFolder> Folders { get; set; }
+    public DbSet<DbMediaFolder> Folders { get; set; }
     /// <summary>Media files table.</summary>
-    public DbSet<DbFile> Files { get; set; }
+    public DbSet<DbMediaFile> Files { get; set; }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder) {
-        builder.ApplyConfiguration(new DbFolderMap());
-        builder.ApplyConfiguration(new DbFileMap());
+        builder.ApplyConfiguration(new DbMediaFolderMap());
+        builder.ApplyConfiguration(new DbMediaFileMap());
     }
 
     /// <inheritdoc />

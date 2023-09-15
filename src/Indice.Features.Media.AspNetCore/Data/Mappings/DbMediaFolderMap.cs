@@ -2,16 +2,17 @@
 using Microsoft.EntityFrameworkCore;
 using Indice.Features.Media.AspNetCore.Data.Models;
 using Indice.Configuration;
+using Indice.Features.Media.AspNetCore.Models;
 
 namespace Indice.Features.Media.AspNetCore.Data.Mappings;
 
-/// <summary>Configuration for <see cref="DbFolder"/> entity.</summary>
-public class DbFolderMap : IEntityTypeConfiguration<DbFolder>
+/// <summary>Configuration for <see cref="DbMediaFolder"/> entity.</summary>
+public class DbMediaFolderMap : IEntityTypeConfiguration<DbMediaFolder>
 {
     /// <inheritdoc />
-    public void Configure(EntityTypeBuilder<DbFolder> builder) {
+    public void Configure(EntityTypeBuilder<DbMediaFolder> builder) {
         // Configure table name.
-        builder.ToTable("Folder");
+        builder.ToTable(nameof(MediaFolder));
         // Configure key.
         builder.HasKey(x => x.Id);
         // Configure indexes.

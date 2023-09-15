@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import * as Handlebars from 'handlebars';
@@ -9,6 +9,8 @@ import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { ChannelState } from './channel-state';
 import { map } from 'rxjs/operators';
 import { SettingsStore } from 'src/app/features/settings/settings-store.service';
+import { MediaFile } from 'src/app/core/services/media-api.service';
+import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
 
 @Component({
     selector: 'app-campaign-content',
@@ -27,6 +29,7 @@ export class CampaignContentComponent implements OnInit, OnChanges {
             phoneNumber: '(212)-456-7890'
         }
     };
+    private _contentForm?: FormGroup;
 
     private _currentValidDataObject: any = undefined;
     @ViewChild('tabGroup', { static: true }) private _tabGroup: LibTabGroupComponent | undefined;
@@ -35,7 +38,8 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         private _validationService: ValidationService,
         private _utilities: UtilitiesService,
         private _formBuilder: FormBuilder,
-        private _store: SettingsStore
+        private _store: SettingsStore,
+        private _fileUtilitiesService: FileUtilitiesService
     ) { }
 
     // Input & Output parameters
@@ -64,6 +68,7 @@ export class CampaignContentComponent implements OnInit, OnChanges {
     public hideMetadata = false;
     public selectedSenderId: any;
     public messageSenders: MenuOption[] = [];
+    public showSidePane: boolean = false;
 
     public get samplePayload(): any {
         let data = null;
@@ -215,6 +220,34 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         const subject = content.controls['body'].value;
         this._setBodyPreview(subject);
     }
+
+    public openMediaLibraryInNewTab() {
+        let url = `${window.location.origin}/media`;
+        window.open(url, '_blank');
+    }
+
+    public openSidePane(content: FormGroup) {
+        this.showSidePane = true;
+        this._contentForm = content;
+    }
+
+    public closeSidePane() {
+        this.showSidePane = false;
+    }
+
+    public async addToTextArea (file: MediaFile | undefined) {
+        if (!file) {
+            return;
+        }
+        let text = await this._fileUtilitiesService.getFileTemplate(file);
+        let textarea = document.getElementById("body") as HTMLTextAreaElement;
+        let start_position = textarea.selectionStart;
+        let end_position = textarea.selectionEnd;
+      
+        this._contentForm!.controls['body'].setValue(`${textarea.value.substring(0, start_position)}${text}${textarea.value.substring(end_position, textarea.value.length)}`);
+        this.onBodyInput(this._contentForm!);
+        this.showSidePane = false;
+    };
 
     private _setSubjectPreview(value: string | undefined): void {
         if (!value) {
