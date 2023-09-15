@@ -5,8 +5,8 @@ namespace Indice.Features.Identity.SignInLogs;
 
 internal class SignInLogEntryFactory
 {
-    //private static readonly string INDICE_IP = "212.205.254.62";
-    private static readonly string INDICE_IP = "51.107.83.216";
+    private static readonly string INDICE_IP = "212.205.254.62";
+    //private static readonly string INDICE_IP = "51.107.83.216";
 
     public static SignInLogEntry CreateFromTokenIssuedSuccessEvent(TokenIssuedSuccessEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
@@ -62,7 +62,7 @@ internal class SignInLogEntryFactory
         return logEntry;
     }
 
-    public static SignInLogEntry CreateFromUserLoginSuccessEvent(UserLoginSuccessEvent @event) {
+    public static SignInLogEntry CreateFromUserLoginSuccessEvent(ExtendedUserLoginSuccessEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
             ApplicationId = @event.ClientId,

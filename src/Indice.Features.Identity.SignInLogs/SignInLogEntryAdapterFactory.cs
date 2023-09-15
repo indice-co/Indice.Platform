@@ -15,7 +15,7 @@ internal class SignInLogEntryAdapterFactory
         return @event switch {
             TokenIssuedSuccessEvent => SignInLogEntryFactory.CreateFromTokenIssuedSuccessEvent((TokenIssuedSuccessEvent)@event),
             TokenIssuedFailureEvent => SignInLogEntryFactory.CreateFromTokenIssuedFailureEvent((TokenIssuedFailureEvent)@event),
-            UserLoginSuccessEvent => SignInLogEntryFactory.CreateFromUserLoginSuccessEvent((UserLoginSuccessEvent)@event),
+            UserLoginSuccessEvent => SignInLogEntryFactory.CreateFromUserLoginSuccessEvent((ExtendedUserLoginSuccessEvent)@event),
             UserLoginFailureEvent => SignInLogEntryFactory.CreateFromUserLoginFailureEvent((UserLoginFailureEvent)@event),
             _ => null
         };
