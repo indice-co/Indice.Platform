@@ -973,7 +973,7 @@ main::after {
 }
 
 .footer .language .dropdown-toggle {
-    color: #FFFFFF;
+    color: inherit;
 }
 
 @media only screen and (max-width: 767px) {
@@ -2582,12 +2582,34 @@ body .deck-item.b2b-e-shop .deck-icon {
     background-image: url(../img/icons/shopping-basket.svg);
 }
 
+body .deck-item.e-shop .deck-icon {
+    background-image: url(../img/icons/shopping-basket.svg);
+}
+
 body .deck-item.admin .deck-icon {
     background-image: url(../img/icons/security-check.svg);
 }
 
 body .deck-item.developers .deck-icon {
     background-image: url(../img/icons/coding.svg);
+}
+
+body .deck-item.clients-portal .deck-icon {
+    background-image: url(../img/icons/user.svg);
+}
+
+body .deck-item.group-policies .deck-icon {
+    background-image: url(../img/icons/team.svg);
+    padding: 2.1rem;
+    margin-bottom: 1rem;
+}
+
+body .deck-item.agents-portal .deck-icon {
+    background-image: url(../img/icons/briefcase.svg);
+}
+
+body .deck-item.intranet .deck-icon {
+    background-image: url(../img/icons/intranet.svg);
 }
 
 body .deck-item:hover {
@@ -2972,6 +2994,12 @@ body {
 }
 
 .language-selector.show i.arrow::after {
+    transform: rotate(180deg);
+    transform-origin: center center;
+    margin-bottom: 0.2rem;
+}
+
+.language-selector .show i.arrow::after {
     transform: rotate(180deg);
     transform-origin: center center;
     margin-bottom: 0.2rem;
