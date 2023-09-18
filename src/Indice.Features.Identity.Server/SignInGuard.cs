@@ -17,11 +17,13 @@ public class SignInGuard<TUser> : ISignInGuard<TUser> where TUser : User
     public IImpossibleTravelDetector<TUser>? ImpossibleTravelDetector { get; init; }
 
     /// <inheritdoc />
-    public async Task<bool> IsSuspiciousLogin(TUser user) {
-        var isSuspiciousLogin = false;
+    public async Task<SignInGuardResult> IsSuspiciousLogin(TUser user) {
         if (ImpossibleTravelDetector is not null) {
-            isSuspiciousLogin = await ImpossibleTravelDetector.IsImpossibleTravelLogin(user);
+            var isImpossibleTravel = await ImpossibleTravelDetector.IsImpossibleTravelLogin(user);
+            if (isImpossibleTravel) {
+                return SignInGuardResult.Failed(SignInWarning.ImpossibleTravel);
+            }
         }
-        return isSuspiciousLogin;
+        return SignInGuardResult.Success();
     }
 }

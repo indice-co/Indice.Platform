@@ -10,7 +10,7 @@ public interface ISignInGuard<TUser> where TUser : User
     public IImpossibleTravelDetector<TUser> ImpossibleTravelDetector { get; init; }
     /// <summary>Runs various rules and determines whether a login attempt is considered suspicious or not.</summary>
     /// <param name="user">The current user.</param>
-    Task<bool> IsSuspiciousLogin(TUser user);
+    Task<SignInGuardResult> IsSuspiciousLogin(TUser user);
 }
 
 /// <summary>Implementation of <see cref="ISignInGuard{TUser}"/> where no check is made.</summary>
@@ -21,5 +21,33 @@ public class SignInGuardNoOp<TUser> : ISignInGuard<TUser> where TUser : User
     public IImpossibleTravelDetector<TUser> ImpossibleTravelDetector { get; init; } = null;
 
     /// <inheritdoc />
-    public Task<bool> IsSuspiciousLogin(TUser user) => Task.FromResult(false);
+    public Task<SignInGuardResult> IsSuspiciousLogin(TUser user) => Task.FromResult(SignInGuardResult.Success());
+}
+
+/// <summary></summary>
+public class SignInGuardResult
+{
+    /// <summary>Describes whether the result was successful.</summary>
+    public bool Succeeded { get; private set; }
+    /// <summary>Describes a warning that may occur during a sign in event.</summary>
+    public SignInWarning? Warning { get; private set; }
+
+    /// <summary>Creates a new instance of a successful <see cref="SignInGuardResult"/>.</summary>
+    public static SignInGuardResult Success() => new() {
+        Succeeded = true
+    };
+
+    /// <summary>Creates a new instance of a failed <see cref="SignInGuardResult"/>.</summary>
+    /// <param name="warning"></param>
+    public static SignInGuardResult Failed(SignInWarning warning) => new() {
+        Succeeded = false,
+        Warning = warning
+    };
+}
+
+/// <summary>Describes a warning that may occur during a sign in event.</summary>
+public enum SignInWarning
+{
+    /// <summary>Impossible travel detected.</summary>
+    ImpossibleTravel
 }

@@ -2,7 +2,6 @@ using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4;
 using IdentityServer4.Events;
-using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -135,7 +134,6 @@ public abstract class BaseLoginModel : BasePageModel
             var user = await UserManager.FindByNameAsync(Input.UserName!);
             if (result.Succeeded && user is not null) {
                 await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
-                await Events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
                 Logger.LogInformation("User '{UserName}' with email {Email} was successfully logged in.", user.UserName, user.Email);
                 if (context is not null) {
                     if (context.IsNativeClient()) {
@@ -163,7 +161,6 @@ public abstract class BaseLoginModel : BasePageModel
             }
             var redirectUrl = GetRedirectUrl(result, Input.ReturnUrl);
             if (redirectUrl is not null && user is not null) {
-                await Events.RaiseAsync(new ExtendedUserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
                 return Redirect(redirectUrl);
             }
             Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", UserName);

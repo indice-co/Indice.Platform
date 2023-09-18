@@ -3,10 +3,12 @@ using IdentityModel;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.Types;
 using Indice.Security;
+using Indice.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -30,6 +32,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private readonly IUserStore<TUser> _userStore;
     private readonly IDeviceIdResolver _mfaDeviceIdResolver;
     private readonly ISignInGuard<TUser> _signInGuard;
+    private readonly IPlatformEventService _eventService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IUserStateProvider<TUser> _stateProvider;
 
@@ -47,6 +50,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="mfaDeviceIdResolver">An abstraction used to specify the way to resolve the device identifier used for MFA.</param>
     /// <param name="userStateProvider">A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</param>
     /// <param name="signInGuard">Abstracts the process of running various rules that determine whether a login attempt is suspicious or not.</param>
+    /// <param name="eventService">Models the event mechanism used to raise events inside the platform.</param>
     public ExtendedSignInManager(
         ExtendedUserManager<TUser> userManager,
         IHttpContextAccessor httpContextAccessor,
@@ -60,7 +64,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         IUserStore<TUser> userStore,
         IDeviceIdResolver mfaDeviceIdResolver,
         IUserStateProvider<TUser> userStateProvider,
-        ISignInGuard<TUser> signInGuard
+        ISignInGuard<TUser> signInGuard,
+        IPlatformEventService eventService
     ) : base(userManager, httpContextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
         _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
@@ -68,6 +73,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(_httpContextAccessor));
         _stateProvider = userStateProvider ?? throw new ArgumentNullException(nameof(userStateProvider));
         _signInGuard = signInGuard ?? throw new ArgumentNullException(nameof(signInGuard));
+        _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         RequirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedEmail)) == true;
         RequirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(RequirePostSignInConfirmedPhoneNumber)) == true;
         ExpireBlacklistedPasswordsOnSignIn = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExpireBlacklistedPasswordsOnSignIn)) == true;
@@ -153,8 +159,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         } else {
             await _stateProvider.ChangeStateAsync(user, UserAction.Login);
         }
-        var isSuspiciousLogin = await _signInGuard.IsSuspiciousLogin(user);
-        if (isSuspiciousLogin && _signInGuard.ImpossibleTravelDetector?.Options?.OnImpossibleTravelFlowType == OnImpossibleTravelFlowType.DenyLogin) {
+        var result = await _signInGuard.IsSuspiciousLogin(user);
+        if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector?.Options?.OnImpossibleTravelFlowType == OnImpossibleTravelFlowType.DenyLogin) {
             return SignInResult.Failed;
         }
         if (_stateProvider.ShouldSignInPartially()) {
@@ -162,7 +168,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         }
         var mfaImplicitlyPassed = false;
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {
-            if (isSuspiciousLogin || !await IsTwoFactorClientRememberedAsync(user)) {
+            if (result.Warning == SignInWarning.ImpossibleTravel || !await IsTwoFactorClientRememberedAsync(user)) {
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
                 await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(userId, loginProvider));
                 return SignInResult.TwoFactorRequired;
@@ -215,6 +221,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         user.LastSignInDate = DateTimeOffset.UtcNow;
         await ExtendedUserManager.UpdateAsync(user);
         await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
+        var result = await _signInGuard.IsSuspiciousLogin(user);
+        await _eventService.Publish(UserLoginEvent.Success(user, result.Warning));
     }
 
     /// <inheritdoc/>

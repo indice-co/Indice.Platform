@@ -1,4 +1,5 @@
 ﻿using IdentityServer4.Events;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.SignInLogs.Models;
 
 namespace Indice.Features.Identity.SignInLogs;
@@ -15,7 +16,7 @@ internal class SignInLogEntryAdapterFactory
         return @event switch {
             TokenIssuedSuccessEvent => SignInLogEntryFactory.CreateFromTokenIssuedSuccessEvent((TokenIssuedSuccessEvent)@event),
             TokenIssuedFailureEvent => SignInLogEntryFactory.CreateFromTokenIssuedFailureEvent((TokenIssuedFailureEvent)@event),
-            UserLoginSuccessEvent => SignInLogEntryFactory.CreateFromUserLoginSuccessEvent((ExtendedUserLoginSuccessEvent)@event),
+            ExtendedUserLoginSuccessEvent => SignInLogEntryFactory.CreateFromUserLoginSuccessEvent((ExtendedUserLoginSuccessEvent)@event),
             UserLoginFailureEvent => SignInLogEntryFactory.CreateFromUserLoginFailureEvent((UserLoginFailureEvent)@event),
             _ => null
         };
