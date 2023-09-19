@@ -85,7 +85,7 @@ public abstract class BasePageModel : PageModel
     /// </summary>
     /// <returns></returns>
     public List<SelectListItem>? GetPhoneCallingCodes() {
-        if (UiOptions?.PhoneCountries is not { Count: > 0 }) return null;
+        if (UiOptions?.PhoneCountries is null) return null;
 
         if (_phoneCountriesListCache is not null) return _phoneCountriesListCache;
 
