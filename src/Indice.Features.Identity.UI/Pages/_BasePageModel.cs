@@ -2,6 +2,7 @@
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Types;
 using Indice.Globalization;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
@@ -90,7 +91,8 @@ public abstract class BasePageModel : PageModel
         if (_phoneCountriesListCache is not null) return _phoneCountriesListCache;
 
         var countries = CountryInfo.Countries
-            .IntersectBy(UiOptions.PhoneCountries, x => x.TwoLetterCode)
+            .Where(country => PhoneInfo.AllCountries.Contains(country.TwoLetterCode))
+            .Where(country => UiOptions.PhoneCountries.Contains(country.TwoLetterCode))
             .SelectMany(info => info.CallingCode.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                .Select(code => new SelectListItem { Text = $"{info.Name} (+{code})", Value = code }))
             .ToList();
