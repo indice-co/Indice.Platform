@@ -16,11 +16,21 @@
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="alert" />
         <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
-            <div class="relative my-5">
-                <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-                <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
-                <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            <div class="flex flex-col sm:flex-row my-5 gap-1">
+                <select class="w-full sm:w-32"
+                        indice-if="Model.GetPhoneCallingCodes() is not null"
+                        asp-for="Input.PhoneCallingCode">
+                    @foreach (var option in Model.GetPhoneCallingCodes()!)
+                    {
+                        <option value="@option.Value" data-text="@option.Text">@option.Text</option>
+                    }
+                </select>
+                <div class="relative flex-grow">
+                    <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+                    <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
+                    <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                </div>
             </div>
             <div class="row justify-items-center place-items-center">
                 <div class="input-group-w-full">
@@ -34,4 +44,5 @@
 
 @section scripts {
     <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="/js/calling-codes-select.js" csp-nonce="true" data-id="@Html.IdFor(x => x.Input.PhoneCallingCode)"></script>
 }

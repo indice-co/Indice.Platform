@@ -64,9 +64,21 @@
         </div>
         <div class="row">
             <div class="input-group">
-                <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
-                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Localizer["Phone number"]</label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                <div class="flex gap-1">
+                    <select class="w-32"
+                            indice-if="Model.GetPhoneCallingCodes() is not null"
+                            asp-for="Input.PhoneCallingCode">
+                        @foreach (var option in Model.GetPhoneCallingCodes()!)
+                        {
+                            <option value="@option.Value" data-text="@option.Text">@option.Text</option>
+                        }
+                    </select>
+                    <div class="relative flex-grow">
+                        <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
+                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Localizer["Phone number"]</label>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row">
@@ -178,4 +190,5 @@
             };
         });
     </script>
+    <script type="text/javascript" src="/js/calling-codes-select.js" csp-nonce="true" data-id="@Html.IdFor(x => x.Input.PhoneCallingCode)"></script>
 }
