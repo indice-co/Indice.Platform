@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using SixLabors.ImageSharp;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -40,6 +39,7 @@ public static class IdentityBuilderExtensions
         });
         builder.Services.AddTransient<IDeviceIdResolver, DeviceIdResolverHttpContext>();
         builder.Services.TryAddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
+        builder.Services.TryAddSingleton<ISignInGuard<TUser>, SignInGuardNoOp<TUser>>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();
         builder.Services.TryAddScoped<IUserStateProvider<TUser>, DefaultUserStateProvider<TUser>>();
         return builder;
