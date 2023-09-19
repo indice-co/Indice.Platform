@@ -3,7 +3,8 @@ using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
-using Indice.Validation;
+using Indice.Features.Identity.UI.Types;
+using Indice.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +25,7 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
     /// <param name="userManager">An extendned <see cref="UserManager{TUser}"/> for the identity framework.</param>
     /// <param name="identityOptions">Represents all the options you can use to configure the identity system.</param>
+    /// <param name="identityUiOptions">Represents all the ui options you can use to configure the identity ui system.</param>
     /// <param name="configuration">Represents the configuration element.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public RegisterInputModelValidator(
@@ -31,6 +33,7 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedUserManager<User> userManager,
         IOptionsSnapshot<IdentityOptions> identityOptions,
+        IOptionsSnapshot<IdentityUIOptions> identityUiOptions,
         IConfiguration configuration
     ) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
@@ -43,8 +46,15 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
             RuleFor(x => x.UserName).UserName(identityOptions.Value.User).WithName(_localizer["Username"]).WithMessage(_localizer["Field '{PropertyName}' can accept digits, uppercase or lowercase latin characters and the symbols -._@+"]);
             RuleFor(x => x.UserName).Must(UserNameNotBeAssignedToAnotherUser).WithMessage(_localizer["This username already exists. Please use a different one."]);
         };
+        if (identityUiOptions.Value.PhoneCountries is { } phoneCountries) {
+            RuleFor(x => x.PhoneNumber)
+                .UserGlobalPhoneNumber(x => x.PhoneCallingCode, identityUiOptions.Value)
+                .WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
+        } else {
+            RuleFor(x => x.PhoneNumber).UserPhoneNumber(configuration).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
+        }
+
         RuleFor(x => x.Password).NotEmpty().WithName(_localizer["Password"]);
-        RuleFor(x => x.PhoneNumber).UserPhoneNumber(configuration).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
         RuleFor(x => x.Email).Must(EmailNotBeAssignedToAnotherUser).WithMessage(_localizer["This email already exists. Please use a different email."]);
         RuleFor(x => x.HasAcceptedTerms).Equal(true).WithMessage(_localizer["You must accept the service 'terms of use'."]);
