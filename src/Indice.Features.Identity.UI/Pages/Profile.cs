@@ -4,6 +4,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Indice.Features.Identity.UI.Types;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -100,7 +101,13 @@ public abstract class BaseProfileModel : BasePageModel
                 await SendChangeEmailConfirmationEmail(user, Input.Email);
             }
         }
-        user.PhoneNumber = Input.PhoneNumber;
+        var phoneNumber = GetPhoneCallingCodes() is not null
+                ? PhoneInfo.Format($"+{Input.PhoneCallingCode}{Input.PhoneNumber}")
+                : Input.PhoneNumber;
+        if (phoneNumber != user.PhoneNumber) {
+            await UserManager.SetPhoneNumberAsync(user, phoneNumber);
+        }
+
         if (user.UserName != Input.UserName) {
             result = await UserManager.SetUserNameAsync(user, Input.UserName);
             AddModelErrors(result);
@@ -175,6 +182,12 @@ public abstract class BaseProfileModel : BasePageModel
         if (consentDateText != null && DateTime.TryParse(consentDateText, out date)) {
             consentDate = date;
         }
+        string? phoneCallingCode = null;
+        var phoneNumber = user.PhoneNumber;
+        if (GetPhoneCallingCodes() is not null && PhoneInfo.TryParse(phoneNumber, "GR", out var parsedPhoneNumber)) {
+            phoneCallingCode = parsedPhoneNumber.CountryCode.ToString();
+            phoneNumber = parsedPhoneNumber.NationalNumber.ToString();
+        }
         return new ProfileViewModel {
             BirthDate = birthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
@@ -188,7 +201,8 @@ public abstract class BaseProfileModel : BasePageModel
             HasDeveloperTotp = Configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
             LastName = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value,
             OtherLogins = otherLogins,
-            PhoneNumber = user.PhoneNumber,
+            PhoneCallingCode = phoneCallingCode,
+            PhoneNumber = phoneNumber,
             Tin = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.Tin)?.Value,
             UserName = user.UserName ?? string.Empty
         };

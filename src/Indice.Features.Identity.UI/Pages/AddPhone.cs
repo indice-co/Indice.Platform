@@ -3,6 +3,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Indice.Features.Identity.UI.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -51,7 +52,12 @@ public abstract class BaseAddPhoneModel : BasePageModel
             Message = _localizer["Please select your phone number so we can verify it before we continue."],
             AlertType = AlertType.Info
         });
-        Input.PhoneNumber = user.PhoneNumber;
+        if (GetPhoneCallingCodes() is not null && PhoneInfo.TryParse(user.PhoneNumber, "GR", out var phoneNumber)) {
+            Input.PhoneCallingCode = phoneNumber.CountryCode.ToString();
+            Input.PhoneNumber = phoneNumber.NationalNumber.ToString();
+        } else {
+            Input.PhoneNumber = user.PhoneNumber;
+        }
         Input.ReturnUrl = returnUrl;
         return Page();
     }
@@ -63,7 +69,10 @@ public abstract class BaseAddPhoneModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+        var phoneNumber = GetPhoneCallingCodes() is not null
+                ? PhoneInfo.Format($"+{Input.PhoneCallingCode}{Input.PhoneNumber}")
+                : Input.PhoneNumber;
+        var result = await UserManager.SetPhoneNumberAsync(user, phoneNumber);
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();

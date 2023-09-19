@@ -2,6 +2,7 @@
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Globalization;
 using Indice.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -83,22 +84,21 @@ public abstract class BasePageModel : PageModel
     /// Returns a <see cref="SelectListItem"/> array for an html select component or null if the feature is disabled.
     /// </summary>
     /// <returns></returns>
-    public List<SelectListItem>? GetPhoneCountriesList() {
-        if (_uiOptions?.PhoneCountries is not { Length: > 0 }) return null;
+    public List<SelectListItem>? GetPhoneCallingCodes() {
+        if (UiOptions?.PhoneCountries is not { Count: > 0 }) return null;
 
         if (_phoneCountriesListCache is not null) return _phoneCountriesListCache;
 
-        var phoneCountries = _uiOptions.PhoneCountries.ToHashSet();
-        var countries = Indice.Globalization.CountryInfo.Countries
-            .Where(info => phoneCountries.Contains(info.TwoLetterCode))
-            .Select(info => new SelectListItem { Text = $"{info.Name} (+{info.CallingCodeDefault})", Value = info.CallingCode })
+        var countries = CountryInfo.Countries
+            .IntersectBy(UiOptions.PhoneCountries, x => x.TwoLetterCode)
+            .SelectMany(info => info.CallingCode.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+               .Select(code => new SelectListItem { Text = $"{info.Name} (+{code})", Value = code }))
             .ToList();
 
-        countries.Insert(0, new() { Text = "Choose", Value = string.Empty });
+        countries.Insert(0, new() { Text = "Choose...", Value = string.Empty });
 
         _phoneCountriesListCache = countries;
-
-        return countries;
+        return _phoneCountriesListCache;
     }
 
     /// <summary>Adds errors contained in <see cref="IdentityResult"/> to the <see cref="ModelStateDictionary"/>.</summary>

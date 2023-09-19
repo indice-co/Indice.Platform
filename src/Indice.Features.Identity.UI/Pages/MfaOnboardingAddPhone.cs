@@ -3,6 +3,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Indice.Features.Identity.UI.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -51,8 +52,15 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
             ? _localizer["Your phone number is already confirmed. Continue to enable MFA."]
             : _localizer["Please select your phone number so we can verify it before we continue."];
         TempData.Put(TempDataKey, AlertModel.Info(alert));
+        string? phoneCallingCode = null;
+        var phoneNumber = user.PhoneNumber;
+        if (GetPhoneCallingCodes() is not null && PhoneInfo.TryParse(phoneNumber, "GR", out var parsedPhoneNumber)) {
+            phoneCallingCode = parsedPhoneNumber.CountryCode.ToString();
+            phoneNumber = parsedPhoneNumber.NationalNumber.ToString();
+        }
         Input = View = new EnableMfaSmsViewModel {
-            PhoneNumber = user.PhoneNumber,
+            PhoneCallingCode = phoneCallingCode,
+            PhoneNumber = phoneNumber,
             PhoneNumberConfirmed = user.PhoneNumberConfirmed,
             ReturnUrl = returnUrl
         };
@@ -68,12 +76,15 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         IdentityResult result;
         if (!user.PhoneNumberConfirmed) {
-            result = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            var phoneNumber = GetPhoneCallingCodes() is not null
+                ? PhoneInfo.Format($"+{Input.PhoneCallingCode}{Input.PhoneNumber}")
+                : Input.PhoneNumber;
+            result = await UserManager.SetPhoneNumberAsync(user, phoneNumber);
             if (!result.Succeeded) {
                 AddModelErrors(result);
                 return Page();
             }
-            await SendVerificationSmsAsync(user, Input.PhoneNumber!);
+            await SendVerificationSmsAsync(user, phoneNumber!);
             return RedirectToPage("/MfaOnboardingVerifyPhone", routeValues: new { Input.ReturnUrl });
         }
         result = await UserManager.SetTwoFactorEnabledAsync(user, true);
