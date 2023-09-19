@@ -50,6 +50,12 @@
             }
         }
 
+        &.e-shop {
+            .deck-icon {
+                background-image: url(../img/icons/shopping-basket.svg);
+            }
+        }
+
         &.admin {
             .deck-icon {
                 background-image: url(../img/icons/security-check.svg);
@@ -59,6 +65,32 @@
         &.developers {
             .deck-icon {
                 background-image: url(../img/icons/coding.svg);
+            }
+        }
+
+        &.clients-portal {
+            .deck-icon {
+                background-image: url(../img/icons/user.svg);
+            }
+        }
+
+        &.group-policies {
+            .deck-icon {
+                background-image: url(../img/icons/team.svg);
+                padding: 2.1rem;
+                margin-bottom: 1rem;
+            }
+        }
+
+        &.agents-portal {
+            .deck-icon {
+                background-image: url(../img/icons/briefcase.svg);
+            }
+        }
+
+        &.intranet {
+            .deck-icon {
+                background-image: url(../img/icons/intranet.svg);
             }
         }
 

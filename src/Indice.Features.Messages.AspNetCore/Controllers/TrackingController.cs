@@ -20,9 +20,7 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 internal class TrackingController : ControllerBase
 {
     public TrackingController(
-        IInboxService inboxService,
         ICampaignService campaignService,
-        IMessageTypeService messageTypeService,
         IOptions<MessageInboxOptions> campaignEndpointOptions
     ) {
         CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));

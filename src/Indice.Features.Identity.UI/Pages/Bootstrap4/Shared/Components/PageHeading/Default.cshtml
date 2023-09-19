@@ -1,0 +1,18 @@
+﻿@model PageHeadingViewModel
+
+@{
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty;
+
+    if (string.IsNullOrWhiteSpace(Model.ImageSrc))
+    {
+        Model.ImageSrc = Url.Content($"~/img/logo{langSuffix}.svg");
+    }
+}
+
+<h1>
+    <a class="header-logo" href="/">
+        <img class="w-100" src="@Model.ImageSrc" />
+    </a>
+    <span indice-if="!string.IsNullOrWhiteSpace(Model.Title)" class="header-text">@Model.Title</span>
+</h1>

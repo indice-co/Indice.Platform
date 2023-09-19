@@ -73,15 +73,24 @@ public static class IdentityBuilderExtensions
     /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
     public static IdentityBuilder AddExtendedPhoneNumberTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<PhoneNumberTokenProviderTotpOptions> configure = null) {
-        var totpSection = configuration.GetSection(PhoneNumberTokenProviderTotpOptions.Name);
+        var totpSection = configuration.GetSection(TotpOptions.Name);
+        var totpPhoneSection = configuration.GetSection(PhoneNumberTokenProviderTotpOptions.Name);
         var totpOptions = new PhoneNumberTokenProviderTotpOptions {
-            CodeDuration = totpSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeDuration)) ?? TotpOptionsBase.DefaultCodeDuration,
-            CodeLength = totpSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeLength)) ?? TotpOptionsBase.DefaultCodeLength
+            CodeDuration = totpPhoneSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeDuration)) ??
+                           totpSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeDuration)) ??
+                           TotpOptionsBase.DefaultCodeDuration,
+            CodeLength = totpPhoneSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeLength)) ??
+                         totpSection.GetValue<int?>(nameof(PhoneNumberTokenProviderTotpOptions.CodeLength)) ??
+                         TotpOptionsBase.DefaultCodeLength,
+            EnableDeveloperTotp = totpPhoneSection.GetValue<bool?>(nameof(PhoneNumberTokenProviderTotpOptions.EnableDeveloperTotp)) ??
+                                  totpSection.GetValue<bool?>(nameof(PhoneNumberTokenProviderTotpOptions.EnableDeveloperTotp)) ??
+                                  false
         };
         configure?.Invoke(totpOptions);
         builder.Services.Configure<PhoneNumberTokenProviderTotpOptions>(options => {
             options.CodeLength = totpOptions.CodeLength;
             options.CodeDuration = totpOptions.CodeDuration;
+            options.EnableDeveloperTotp = totpOptions.EnableDeveloperTotp;
         });
         builder.AddTokenProvider(TokenOptions.DefaultPhoneProvider, typeof(DeveloperPhoneNumberTokenProvider<>).MakeGenericType(builder.UserType));
         return builder;
@@ -96,15 +105,24 @@ public static class IdentityBuilderExtensions
     /// <param name="configure">Action used to configure the <see cref="TotpOptions"/>.</param>
     /// <returns>The configured <see cref="IdentityBuilder"/>.</returns>
     public static IdentityBuilder AddExtendedEmailTokenProvider(this IdentityBuilder builder, IConfiguration configuration, Action<EmailTokenProviderTotpOptions> configure = null) {
-        var totpSection = configuration.GetSection(EmailTokenProviderTotpOptions.Name);
+        var totpSection = configuration.GetSection(TotpOptions.Name);
+        var totpEmailSection = configuration.GetSection(EmailTokenProviderTotpOptions.Name);
         var totpOptions = new EmailTokenProviderTotpOptions {
-            CodeDuration = totpSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeDuration)) ?? TotpOptionsBase.DefaultCodeDuration,
-            CodeLength = totpSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeLength)) ?? TotpOptionsBase.DefaultCodeLength
+            CodeDuration = totpEmailSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeDuration)) ??
+                           totpSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeDuration)) ??
+                           TotpOptionsBase.DefaultCodeDuration,
+            CodeLength = totpEmailSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeLength)) ??
+                         totpSection.GetValue<int?>(nameof(EmailTokenProviderTotpOptions.CodeLength)) ??
+                         TotpOptionsBase.DefaultCodeLength,
+            EnableDeveloperTotp = totpEmailSection.GetValue<bool?>(nameof(EmailTokenProviderTotpOptions.EnableDeveloperTotp)) ??
+                                  totpSection.GetValue<bool?>(nameof(EmailTokenProviderTotpOptions.EnableDeveloperTotp)) ??
+                                  false
         };
         configure?.Invoke(totpOptions);
         builder.Services.Configure<EmailTokenProviderTotpOptions>(options => {
             options.CodeLength = totpOptions.CodeLength;
             options.CodeDuration = totpOptions.CodeDuration;
+            options.EnableDeveloperTotp = totpOptions.EnableDeveloperTotp;
         });
         builder.AddTokenProvider(TokenOptions.DefaultEmailProvider, typeof(ExtendedEmailTokenProvider<>).MakeGenericType(builder.UserType));
         return builder;
