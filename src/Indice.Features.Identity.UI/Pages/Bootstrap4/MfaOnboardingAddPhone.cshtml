@@ -20,8 +20,14 @@
             <label asp-for="Input.PhoneNumber" class="sr-only">@Localizer["Phone number"]</label>
             <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
             <div class="input-group">
-                <partial indice-if="@(!Model.View.DisablePhoneNumberInput)" name="_CallingCodesDropdown" for="Input" />
-                <select indice-if="Model.GetPhoneCountriesList() is not null" class="form-select" asp-for="Input.PhoneCallingCode" asp-items="Model.GetPhoneCountriesList()" disabled="@Model.View.DisablePhoneNumberInput"></select>
+                <div class="input-group-prepend" style="max-width: 128px" indice-if="Model.GetPhoneCallingCodes() is not null">
+                    <select class="custom-select h-100 mr-1 rounded-0" asp-for="Input.PhoneCallingCode" disabled="@Model.View.DisablePhoneNumberInput">
+                        @foreach (var option in Model.GetPhoneCallingCodes()!)
+                        {
+                            <option value="@option.Value" data-text="@option.Text">@option.Text</option>
+                        }
+                    </select>
+                </div>
                 <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" readonly="@Model.View.DisablePhoneNumberInput" />
             </div>
             <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
@@ -45,4 +51,5 @@
 
 @section scripts {
     <partial name="_ValidationScripts" />
+    <script type="text/javascript" src="/js/calling-codes-select.js" csp-nonce="true" data-id="@Html.IdFor(x => x.Input.PhoneCallingCode)"></script>
 }
