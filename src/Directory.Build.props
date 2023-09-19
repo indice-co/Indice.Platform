@@ -2,14 +2,14 @@
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
-      <VersionPrefixBase>7.3</VersionPrefixBase>
-      <VersionPrefixCore>$(VersionPrefixBase).26</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).33</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).41</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).16</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).24</VersionPrefixMessages>
-      <VersionPrefixMultitenancy>$(VersionPrefixBase).19</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).9</VersionPrefixRisk>
+      <VersionPrefixBase>7.4</VersionPrefixBase>
+      <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
+      <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
+      <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
+      <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
+      <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
+      <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->
       <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>

@@ -166,7 +166,7 @@ internal class UsersController : ControllerBase
                 Email = user.Email,
                 EmailConfirmed = user.EmailConfirmed,
                 LockoutEnabled = user.LockoutEnabled,
-                LockoutEnd = user.LockoutEnd,
+                LockoutEnd = user.LockoutEnabled ? (user.LockoutEnd > DateTimeOffset.UtcNow ? user.LockoutEnd : null) : null,
                 PhoneNumber = user.PhoneNumber,
                 PhoneNumberConfirmed = user.PhoneNumberConfirmed,
                 TwoFactorEnabled = user.TwoFactorEnabled,

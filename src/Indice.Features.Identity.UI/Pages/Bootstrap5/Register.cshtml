@@ -10,7 +10,7 @@
 }
 
 <section class="sign-up m-auto">
-    <partial name="_PageHeader" model="title" />
+    <vc:page-heading title="@title" image-src="" />
     <partial name="_ValidationSummary" />
     @if (Model.View.VisibleExternalProviders.Any())
     {

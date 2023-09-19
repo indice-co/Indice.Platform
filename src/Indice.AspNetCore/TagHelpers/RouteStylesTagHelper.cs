@@ -24,7 +24,7 @@ public class RouteStylesTagHelper : TagHelper
             area = $"area-{area}";
         }
         var controller = GetUrlCasing($"{ViewContext.RouteData.Values["controller"]}");
-        var page = GetUrlCasing($"{ViewContext.RouteData.Values["page"]}").Replace("/-", string.Empty);
+        var page = GetUrlCasing($"{ViewContext.RouteData.Values["page"]}".Replace("/", string.Empty).Replace("-", string.Empty));
         var action = GetUrlCasing($"{ViewContext.RouteData.Values["action"]}");
         var extras = string.Empty;
         if (ViewContext.ViewData.ContainsKey("BodyCssClass")) {

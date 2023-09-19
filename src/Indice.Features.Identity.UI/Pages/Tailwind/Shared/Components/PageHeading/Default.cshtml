@@ -1,0 +1,22 @@
+﻿@model PageHeadingViewModel
+@inject IOptions<GeneralSettings> Settings
+@{
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langSuffix = (lang == "el") ? ".el" : string.Empty; 
+    if (string.IsNullOrWhiteSpace(Model.ImageSrc))
+    {
+        Model.ImageSrc = Url.Content($"~/img/logo{langSuffix}.svg");
+    }
+}
+<div class="logo-crop">
+    <div class="logo-wrapper">
+        <div class="logo-inner-wrapper">
+            <img class="main-logo" src="@Model.ImageSrc" />
+        </div>
+    </div>
+</div>
+@if (!string.IsNullOrWhiteSpace(Model.Title))
+{
+    <h3>@Settings.Value.ApplicationName</h3>
+    <h1>@Model.Title</h1>
+}
