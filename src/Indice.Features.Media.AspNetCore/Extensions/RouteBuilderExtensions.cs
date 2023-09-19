@@ -13,6 +13,7 @@ public static class RouteBuilderExtensions
     public static IEndpointRouteBuilder MapMediaLibrary(this IEndpointRouteBuilder builder) {
         builder.MapMedia();
         builder.MapFolders();
+        builder.MapMediaSettings();
         return builder;
     }
 }

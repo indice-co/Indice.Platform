@@ -3,7 +3,7 @@ using Indice.Features.Media.AspNetCore.Data.Models;
 
 namespace Indice.Features.Media.AspNetCore.Stores.Abstractions;
 
-/// <summary>A service that contains folder management related operations.</summary>
+/// <summary>The Media Folder's store.</summary>
 public interface IMediaFolderStore
 {
     /// <summary>Gets a folder by it's unique id.</summary>

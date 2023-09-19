@@ -53,8 +53,7 @@ export class DocumentEditComponent implements OnInit {
     }
 
     public preview(): void {
-      var url = `${settings.api_url}${this.file?.permaLink}`;
-      window.open(url, '_blank');
+      window.open(this.file?.permaLink, '_blank');
     }
 
     public async download() {

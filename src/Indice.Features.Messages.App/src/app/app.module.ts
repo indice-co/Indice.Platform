@@ -74,6 +74,8 @@ import { DocumentEditRightpaneComponent } from './features/media-library/documen
 import { FolderEditComponent } from './features/media-library/folder-edit/folder-edit.component';
 import { ListViewComponent } from './features/media-library/item-views/list-view/list-view.component';
 import { ReadOnlyViewComponent } from './features/media-library/item-views/read-only-view/read-only-view.component';
+import { MediaSettingsComponent } from './features/settings/media/media-settings.component';
+import { MediaSettingEditComponent } from './features/settings/media/edit/media-setting-edit.component';
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -165,7 +167,9 @@ if (app.settings.tenantId) {
     DocumentEditRightpaneComponent,
     FolderEditComponent,
     ListViewComponent,
-    ReadOnlyViewComponent
+    ReadOnlyViewComponent,
+    MediaSettingsComponent,
+    MediaSettingEditComponent
   ],
   imports: [
     AppRoutingModule,

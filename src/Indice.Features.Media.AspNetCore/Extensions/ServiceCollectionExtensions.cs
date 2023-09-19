@@ -41,6 +41,7 @@ public static class ServiceCollectionExtensions
         // Register services.
         services.TryAddTransient<IMediaFolderStore, MediaFolderStore>();
         services.TryAddTransient<IMediaFileStore, MediaFileStore>();
+        services.TryAddTransient<IMediaSettingService, MediaSettingService>();
         services.TryAddTransient<IUserNameAccessor, UserNameFromHttpContextAccessor>();
         services.TryAddTransient<MediaManager>();
         services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());

@@ -22,31 +22,20 @@ export class FileUtilitiesService {
       case '.pptx': 
         return '../../../assets/images/pptx-icon.png';
       default:
-        return `${settings.api_url}${file.permaLink}`;
+        return file.permaLink;
     }
   }
 
   public async getFileTemplate(file: MediaFile) {
-    let coverImageUrl = this.getCoverImageUrl(file);
     switch (file.fileExtension) {
       case '.csv' :
       case '.docx': 
       case '.xlsx': 
       case '.pdf': 
       case '.pptx': 
-        let fileImage = await this._toDataURL(coverImageUrl)
-        return `
-        <div style="display:flex; flex-direction:column; align-items: center;">
-          <a href="${settings.api_url}${file.permaLink}" download>
-            <img title="${file.name}" src="${fileImage}" alt="${file.name}" width="100" height="100">
-            </img>
-          </a>
-          <span style="max-width:100px; overflow:hidden; white-space: nowrap; text-overflow: ellipsis;">
-          ${file.name}
-          </span>
-        </div>`;
+        return `<a href="${file.permaLink}" download>${file.name}</a>`;
       default:
-        return `<img title="${file.name}" src="${settings.api_url}${file.permaLink}" alt="${file.name}"></img>`;
+        return `<img title="${file.name}" src="${file.permaLink}" alt="${file.name}"></img>`;
     }
   }
 
@@ -61,7 +50,7 @@ export class FileUtilitiesService {
 
   public copyPermaLinkToClipboard(file: MediaFile) {
     const el = document.createElement("textarea");
-    el.value = `${settings.api_url}${file.permaLink}` ?? '';
+    el.value = file.permaLink ?? '';
     el.setAttribute("readonly", "");
     el.style.position = "absolute";
     el.style.left = "-9999px";
@@ -80,12 +69,11 @@ export class FileUtilitiesService {
   }
 
   public openFileInNewTab(file: MediaFile) {
-    var url = `${settings.api_url}${file?.permaLink}`;
-      window.open(url, '_blank');
+      window.open(file?.permaLink, '_blank');
   }
 
   public async downloadFile(file: MediaFile | undefined) {
-    var url = `${settings.api_url}${file?.permaLink}`;
+    var url = file?.permaLink ?? '';
     let blob = await fetch(url).then(r => r.blob());
     const blobUrl = window.URL.createObjectURL(new Blob([blob]));
     const a = document.createElement('a');

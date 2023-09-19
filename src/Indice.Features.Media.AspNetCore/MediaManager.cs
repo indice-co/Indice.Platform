@@ -8,6 +8,8 @@ using System.Text.Json;
 using Indice.Serialization;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Microsoft.Extensions.Options;
+using Indice.Features.Media.AspNetCore.Services;
+using Indice.Configuration;
 
 namespace Indice.Features.Media.AspNetCore;
 /// <summary>A manager class that helps work with the Media Library API infrastructure.</summary>
@@ -18,23 +20,29 @@ public class MediaManager
 
     private readonly IMediaFileStore _fileStore;
     private readonly IMediaFolderStore _folderStore;
+    private readonly IMediaSettingService _settingService;
     private readonly IFileService _fileService;
     private readonly IDistributedCache _cache;
-    private readonly MediaApiOptions _options;
+    private readonly MediaApiOptions _mediaApiOptions;
+    private readonly GeneralSettings _generalSettings;
 
     /// <summary>Creates a new instance of <see cref="MediaManager"/>.</summary>
     public MediaManager(
         IMediaFileStore fileStore, 
-        IMediaFolderStore folderStore, 
+        IMediaFolderStore folderStore,
+        IMediaSettingService settingService,
         Func<string, IFileService> getFileService, 
         IDistributedCache cache,
-        IOptions<MediaApiOptions> options
+        IOptions<MediaApiOptions> mediaApiOptions,
+        IOptions<GeneralSettings> generalSettings
     ) {
         _fileStore = fileStore ?? throw new ArgumentNullException(nameof(fileStore));
         _folderStore = folderStore ?? throw new ArgumentNullException(nameof(folderStore));
+        _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
         _fileService = getFileService(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        _mediaApiOptions = mediaApiOptions?.Value ?? throw new ArgumentNullException(nameof(mediaApiOptions));
+        _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
     }
 
     /// <summary>Retrieves the content of a folder.</summary>
@@ -163,7 +171,14 @@ public class MediaManager
         var files = await _cache.GetAsync<List<MediaFile>>(cacheKey, serializationOptions);
         if (files == null) {
             var dbfiles = await _fileStore.GetList(f => f.FolderId == folderId && !f.IsDeleted);
-            files = dbfiles != null ? dbfiles.Select(f => f.ToFileDetails(_options)).ToList() : new List<MediaFile>();
+            files = new List<MediaFile>();
+            if (dbfiles != null) {
+                var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
+                var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
+                    ? $"{_generalSettings.Host.TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media"
+                    : $"{cdnUrl.Value.TrimEnd('/')}";
+                files = dbfiles.Select(f => f.ToFileDetails(permaLinkBaseUrl)).ToList();
+            }
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(files, serializationOptions), new DistributedCacheEntryOptions {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             });
@@ -186,7 +201,11 @@ public class MediaManager
             }
             file.Data = data;
         }
-        return file.ToFileDetails(_options);
+        var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
+        var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
+                    ? $"{_generalSettings.Host.TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media"
+                    : $"{cdnUrl.Value.TrimEnd('/')}";
+        return file.ToFileDetails(permaLinkBaseUrl);
     }
     /// <summary>Uploads a file in the system.</summary>
     /// <param name="command">The command containing all the required data to upload a file.</param>

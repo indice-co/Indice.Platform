@@ -84,7 +84,7 @@ internal static class Mapper
         dbFile.Description = command.Description;
         dbFile.FolderId = command.FolderId;
     }
-    internal static MediaFile ToFileDetails(this DbMediaFile dbFile, MediaApiOptions options) => new() {
+    internal static MediaFile ToFileDetails(this DbMediaFile dbFile, string permaLinkBaseUrl) => new() {
         ContentLength = dbFile.ContentLength,
         ContentType = dbFile.ContentType,
         FileExtension = dbFile.FileExtension,
@@ -98,7 +98,7 @@ internal static class Mapper
         UpdatedAt = dbFile.UpdatedAt,
         CreatedBy = dbFile.CreatedBy,
         UpdatedBy = dbFile.UpdatedBy,
-        PermaLink = $"{options.ApiPrefix}/media/{(Base64Id)dbFile.Guid}.{dbFile.FileExtension.TrimStart('.')}"
+        PermaLink = $"{permaLinkBaseUrl}/{(Base64Id)dbFile.Guid}.{dbFile.FileExtension.TrimStart('.')}"
     };
     #endregion
 }

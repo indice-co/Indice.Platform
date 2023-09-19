@@ -6,4 +6,6 @@ public class CreateMessageSenderRequest
     public string Sender { get; set; }
     /// <summary>The display name of the sender of the email.</summary>
     public string DisplayName { get; set; }
+    /// <summary>Indicates whether the sender is the default one.</summary>
+    public bool IsDefault { get; set; }
 }

@@ -42,6 +42,7 @@ import { DocumentUploadComponent } from './features/media-library/document-uploa
 import { DocumentEditComponent } from './features/media-library/document-edit/document-edit.component';
 import { DocumentEditRightpaneComponent } from './features/media-library/document-edit/rightpane/document-edit-rightpane.component';
 import { FolderEditComponent } from './features/media-library/folder-edit/folder-edit.component';
+import { MediaSettingEditComponent } from './features/settings/media/edit/media-setting-edit.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -158,6 +159,7 @@ const routes: Routes = [
   { path: 'upload-file', canActivate: [AuthGuardService], component: DocumentUploadComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-file', canActivate: [AuthGuardService], component: DocumentEditRightpaneComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'edit-message-sender/:messageSenderId', canActivate: [AuthGuardService], component: EmailSendersEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
+  { path: 'edit-media-setting/:mediaSettingKey', canActivate: [AuthGuardService], component: MediaSettingEditComponent, outlet: 'rightpane', pathMatch: 'prefix' },
   { path: 'logout', component: LogOutComponent, data: { shell: { fluid: true, showHeader: false, showFooter: false } } },
   {
     path: '**', component: HttpStatusComponent, data: {
