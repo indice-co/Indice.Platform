@@ -60,7 +60,15 @@
                 <div class="mb-3">
                     <label asp-for="Input.PhoneNumber" class="form-label">@Localizer["Phone number"]</label>
                     <div class="input-group">
-                        <select indice-if="Model.GetPhoneCountriesList() is not null" class="form-select" asp-for="Input.PhoneCallingCode" asp-items="Model.GetPhoneCountriesList()"></select>
+                        <select class="form-select"
+                                style="max-width: 128px"
+                                indice-if="Model.GetPhoneCallingCodes() is not null"
+                                asp-for="Input.PhoneCallingCode">
+                            @foreach (var option in Model.GetPhoneCallingCodes()!)
+                            {
+                                <option value="@option.Value" data-text="@option.Text">@option.Text</option>
+                            }
+                        </select>
                         <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
                     </div>
                     <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
@@ -179,6 +187,7 @@
     <script type="text/javascript" src="/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="/js/utilities.js" csp-nonce="true"></script>
     <script type="text/javascript" src="/js/password-rules.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/js/calling-codes-select.js" csp-nonce="true" data-id="@Html.IdFor(x => x.Input.PhoneCallingCode)"></script>
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
             el.onclick = function (link) {
