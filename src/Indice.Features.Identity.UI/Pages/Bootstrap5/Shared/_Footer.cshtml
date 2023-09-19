@@ -7,6 +7,7 @@
     var settings = Settings.Value;
     var copyYear = UIOptions.Value.CopyYear;
     var version = typeof(BaseLoginModel).Assembly.GetName().Version?.ToString();
+    var showContactUs = !string.IsNullOrWhiteSpace(UIOptions.Value.ContactUsUrl);
 }
 
 <footer class="container-fluid footer">
@@ -21,5 +22,6 @@
         <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Localizer["Discovery"]</a>
         <a asp-page="/Privacy" target="_blank">@Localizer["Privacy"]</a>
         <a asp-page="/Terms" target="_blank">@Localizer["Terms"]</a>
+        <a indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank">@Localizer["Contact us"]</a>
     </div>
 </footer>
