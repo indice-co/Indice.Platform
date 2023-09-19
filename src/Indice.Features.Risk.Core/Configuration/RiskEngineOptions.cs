@@ -1,4 +1,5 @@
-﻿using Indice.Features.Risk.Core.Types;
+﻿using System.ComponentModel.DataAnnotations;
+using Indice.Features.Risk.Core.Types;
 
 namespace Indice.Features.Risk.Core.Configuration;
 
@@ -21,31 +22,10 @@ public class RiskEngineOptions
     }
 
     /// <summary>Validates the current instance of <see cref="RiskEngineOptions"/>.</summary>
-    public RiskEngineOptionsValidationResult Validate() {
+    internal ValidationResult? Validate() {
         if (RiskLevelRangeMapping.ContainsOverlappingRanges(out var errorMessage)) {
-            return RiskEngineOptionsValidationResult.Failed(errorMessage);
+            return new ValidationResult(errorMessage);
         }
-        return RiskEngineOptionsValidationResult.Success;
+        return ValidationResult.Success;
     }
-}
-
-/// <summary>Models the result of validating a <see cref="RiskEngineOptions"/> instance.</summary>
-public class RiskEngineOptionsValidationResult
-{
-    /// <summary>Indicates whether the validation result was successful or not.</summary>
-    public bool Succeeded { get; private set; }
-    /// <summary>The error message.</summary>
-    public string? ErrorMessage { get; private set; }
-
-    /// <summary>Creates a successful result.</summary>
-    public static RiskEngineOptionsValidationResult Success => new() {
-        Succeeded = true
-    };
-
-    /// <summary>Create a failure result.</summary>
-    /// <param name="errorMessage">The error message.</param>
-    public static RiskEngineOptionsValidationResult Failed(string? errorMessage) => new() {
-        Succeeded = false,
-        ErrorMessage = errorMessage
-    };
 }

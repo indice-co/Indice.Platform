@@ -1,10 +1,14 @@
 ﻿using IdentityServer4.Events;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.SignInLogs.Models;
 
 namespace Indice.Features.Identity.SignInLogs;
 
 internal class SignInLogEntryFactory
 {
+    private static readonly string INDICE_IP = "212.205.254.62";
+    //private static readonly string INDICE_IP = "51.107.83.216";
+
     public static SignInLogEntry CreateFromTokenIssuedSuccessEvent(TokenIssuedSuccessEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
@@ -13,7 +17,7 @@ internal class SignInLogEntryFactory
             Description = "A token was successfully issued.",
             GrantType = @event.GrantType,
 #if DEBUG
-            IpAddress = "212.205.254.62",
+            IpAddress = INDICE_IP,
 #else
             IpAddress = @event.RemoteIpAddress,
 #endif
@@ -26,9 +30,9 @@ internal class SignInLogEntryFactory
         logEntry.ExtraData.ProcessId = @event.ProcessId;
         logEntry.ExtraData.RedirectUri = @event.RedirectUri;
         logEntry.ExtraData.Scope = @event.Scopes;
-        logEntry.ExtraData.Tokens = @event.Tokens.Select(x => new SignInLogEntryToken { 
-            TokenType = x.TokenType, 
-            TokenValue = x.TokenValue 
+        logEntry.ExtraData.Tokens = @event.Tokens.Select(x => new SignInLogEntryToken {
+            TokenType = x.TokenType,
+            TokenValue = x.TokenValue
         });
         return logEntry;
     }
@@ -41,7 +45,7 @@ internal class SignInLogEntryFactory
             Description = "A token failed to issue.",
             GrantType = @event.GrantType,
 #if DEBUG
-            IpAddress = "212.205.254.62",
+            IpAddress = INDICE_IP,
 #else
             IpAddress = @event.RemoteIpAddress,
 #endif
@@ -59,13 +63,13 @@ internal class SignInLogEntryFactory
         return logEntry;
     }
 
-    public static SignInLogEntry CreateFromUserLoginSuccessEvent(UserLoginSuccessEvent @event) {
+    public static SignInLogEntry CreateFromUserLoginSuccessEvent(ExtendedUserLoginSuccessEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
             ApplicationId = @event.ClientId,
-            Description = "A user was successfully authenticated.",
+            Description = "A user was successfully logged in.",
 #if DEBUG
-            IpAddress = "212.205.254.62",
+            IpAddress = INDICE_IP,
 #else
             IpAddress = @event.RemoteIpAddress,
 #endif
@@ -79,6 +83,10 @@ internal class SignInLogEntryFactory
         };
         logEntry.ExtraData.ProcessId = @event.ProcessId;
         logEntry.ExtraData.Provider = @event.Provider;
+        if (@event.Warning is not null) {
+            logEntry.Review = true;
+            logEntry.ExtraData.Warning = @event.Warning.Value;
+        }
         return logEntry;
     }
 
@@ -88,7 +96,7 @@ internal class SignInLogEntryFactory
             ApplicationId = @event.ClientId,
             Description = "A user failed to authenticate.",
 #if DEBUG
-            IpAddress = "212.205.254.62",
+            IpAddress = INDICE_IP,
 #else
             IpAddress = @event.RemoteIpAddress,
 #endif

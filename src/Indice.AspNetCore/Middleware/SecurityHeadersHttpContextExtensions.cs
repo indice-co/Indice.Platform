@@ -1,5 +1,7 @@
-﻿using System.Net.Mime;
+﻿#nullable enable
+using System.Net.Mime;
 using Indice.AspNetCore.Middleware;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Http;
 
@@ -9,8 +11,8 @@ public static class SecurityHeadersHttpContextExtensions
     /// <summary>Applies the security headers policy for the current request.</summary>
     /// <param name="httpContext"></param>
     /// <param name="requestPolicy"></param>
-    public static HttpContext ApplySecurityHeaders(this HttpContext httpContext, SecurityHeadersPolicy requestPolicy = null) {
-        requestPolicy ??= (SecurityHeadersPolicy)httpContext.RequestServices.GetService(typeof(SecurityHeadersPolicy));
+    public static HttpContext ApplySecurityHeaders(this HttpContext httpContext, SecurityHeadersPolicy? requestPolicy = null) {
+        requestPolicy ??= httpContext.RequestServices.GetRequiredService<SecurityHeadersPolicy>();
         httpContext.Response.OnStarting(() => {
             if (requestPolicy.HasXContentTypeOptions && !httpContext.Response.Headers.ContainsKey("X-Content-Type-Options")) {
                 httpContext.Response.Headers.Add("X-Content-Type-Options", requestPolicy.XContentTypeOptions);
@@ -22,13 +24,13 @@ public static class SecurityHeadersHttpContextExtensions
             if (isHtmlDocument == true) {
                 var cspPolicy = requestPolicy.ContentSecurityPolicy?.Clone() ?? CSP.DefaultPolicy.Clone();
                 if (httpContext.Items.ContainsKey(CSP.CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY)) {
-                    var nonceList = (List<string>)httpContext.Items[CSP.CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY];
+                    var nonceList = (List<string>)httpContext.Items[CSP.CSP_SCRIPT_NONCE_HTTPCONTEXT_KEY]!;
                     foreach (var nonce in nonceList) {
                         cspPolicy.AddScriptSrc($"'nonce-{nonce}'");
                     }
                 }
                 if (httpContext.Items.ContainsKey(CSP.CSP_STYLE_NONCE_HTTPCONTEXT_KEY)) {
-                    var nonceList = (List<string>)httpContext.Items[CSP.CSP_STYLE_NONCE_HTTPCONTEXT_KEY];
+                    var nonceList = (List<string>)httpContext.Items[CSP.CSP_STYLE_NONCE_HTTPCONTEXT_KEY]!;
                     foreach (var nonce in nonceList) {
                         cspPolicy.AddStyleSrc($"'nonce-{nonce}'");
                     }
@@ -50,3 +52,4 @@ public static class SecurityHeadersHttpContextExtensions
         return httpContext;
     }
 }
+#nullable disable

@@ -93,7 +93,6 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
         services.TryAddTransient<NotificationsManager>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
-        services.TryAddTransient<IMessageService, MessageService>();
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
         services.TryAddTransient<IMessageSenderService, MessageSenderService>();
@@ -126,7 +125,6 @@ public static class MessageFeatureExtensions
             options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.MessageInboxEndpoints, apiOptions.GroupName));
         });
         // Register custom services.
-        services.AddTransient<IInboxService, InboxService>();
         return mvcBuilder;
     }
 
@@ -165,6 +163,7 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
         services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<IDistributionListService, DistributionListService>();
+        services.TryAddTransient<IMessageService, MessageService>();
         services.TryAddScoped<IUserNameAccessor, UserNameFromClaimsAccessor>();
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());

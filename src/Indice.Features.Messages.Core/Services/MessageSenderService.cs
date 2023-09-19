@@ -26,9 +26,14 @@ public class MessageSenderService : IMessageSenderService
         var messageSender = new DbMessageSender {
             Id = Guid.NewGuid(),
             Sender = request.Sender,
-            DisplayName = request.DisplayName
+            DisplayName = request.DisplayName,
+            IsDefault = request.IsDefault
         };
         DbContext.MessageSenders.Add(messageSender);
+        if (request.IsDefault) {
+            var defaultSender = await DbContext.MessageSenders.FirstOrDefaultAsync(s => s.IsDefault);
+            defaultSender.IsDefault = false;
+        }
         await DbContext.SaveChangesAsync();
         return new MessageSender {
             Id = messageSender.Id,
@@ -119,6 +124,11 @@ public class MessageSenderService : IMessageSenderService
         }
         messageSender.Sender = request.Sender;
         messageSender.DisplayName = request.DisplayName;
+        if (request.IsDefault && !messageSender.IsDefault) {
+            var defaultSender = await DbContext.MessageSenders.FirstOrDefaultAsync(s => s.IsDefault);
+            defaultSender.IsDefault = false;
+            messageSender.IsDefault = true;
+        }
         await DbContext.SaveChangesAsync();
     }
 }

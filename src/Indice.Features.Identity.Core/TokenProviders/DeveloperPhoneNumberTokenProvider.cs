@@ -16,7 +16,8 @@ public class DeveloperPhoneNumberTokenProvider<TUser> : ExtendedPhoneNumberToken
     /// <param name="options">Configuration used in <see cref="Rfc6238AuthenticationService"/> service.</param>
     public DeveloperPhoneNumberTokenProvider(IOptions<TotpOptions> options) : base(Options.Create(new PhoneNumberTokenProviderTotpOptions {
         CodeDuration = options.Value.CodeDuration,
-        CodeLength = options.Value.CodeLength
+        CodeLength = options.Value.CodeLength,
+        EnableDeveloperTotp = options.Value.EnableDeveloperTotp
     })) {
         _options = options.Value ?? throw new ArgumentNullException(nameof(options));
     }

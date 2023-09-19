@@ -13,15 +13,16 @@
 @functions {
     public string GetLangDisplayName(CultureInfo culture)
     {
-        return culture.TwoLetterISOLanguageName == "en" ? "English" :
-               culture.TwoLetterISOLanguageName == "el" ? "Ελληνικά" :
+        return culture.Name == "en" ? "English" :
+               culture.Name == "el" ? "Ελληνικά" :
                culture.DisplayName;
     }
 }
-<div class="language-selector nav-item dropdown">
-    <button type="button" class="btn nav-link dropdown-toggle mr-md-2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="@langDisplayName">
+<div class="language-selector dropdown">
+    <button type="button" class="btn dropdown-toggle mr-md-2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="@langDisplayName">
         @*<i class="fa fa-globe fa-lg"></i>*@
         <span class="text-uppercase">@lang</span>
+        <i class="arrow"></i>
     </button>
     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
         <form asp-page="/SetLanguage" id="SelectLanguageForm_@htmlUniqueId" asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()" method="post" role="form">
@@ -30,7 +31,8 @@
                 var optionText = GetLangDisplayName(supportedCulture);
                 var isSelected = supportedCulture.TwoLetterISOLanguageName == lang;
                 <button type="submit" form="SelectLanguageForm_@htmlUniqueId"
-                        name="culture" value="@supportedCulture.Name" title="@optionText"
+                        lang="@supportedCulture.TwoLetterISOLanguageName"
+                        name="culture" value="@supportedCulture.TwoLetterISOLanguageName" title="@optionText"
                         class="dropdown-item font-weight-600 text-uppercase @(isSelected ? "active" : string.Empty)">
                     @optionText
                 </button>

@@ -850,11 +850,27 @@ html {
 body {
     margin: 0;
     padding: 0;
+    color: #FFFFFF;
 }
 
 @media only screen and (max-width: 767px) {
+    body {
+        color: #3f3e3e;
+    }
+
     body::before {
         display: none;
+    }
+}
+
+.header {
+    z-index: 1;
+    color: #FFFFFF;
+}
+
+@media only screen and (max-width: 767px) {
+    .header {
+        color: #3f3e3e;
     }
 }
 
@@ -893,13 +909,14 @@ main::after {
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    pointer-events: none;
+    pointer-events: auto;
     height: 52px;
 }
 
 .footer .links {
     display: flex;
     justify-content: space-between;
+    padding-left: 0.5rem;
 }
 
 .footer .links .sonftware-verson {
@@ -934,6 +951,64 @@ main::after {
     .footer .links a {
         padding: 0;
         padding-right: 0.5rem;
+    }
+}
+
+.footer {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.footer .language {
+    display: inline-flex;
+}
+
+.footer .copyright {
+    text-transform: uppercase;
+}
+
+.footer .links a {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.footer .language .dropdown-toggle {
+    color: inherit;
+}
+
+@media only screen and (max-width: 767px) {
+    .footer .language .dropdown-toggle {
+        color: #3f3e3e;
+    }
+}
+
+.anonymous .footer .copyright {
+    color: #FFFFFF;
+}
+
+.anonymous .footer .links a {
+    color: #FFFFFF;
+}
+
+.anonymous .footer .links a:hover {
+    font-weight: bold;
+}
+
+@media only screen and (max-width: 767px) {
+    .anonymous .footer {
+        color: inherit;
+    }
+
+    .anonymous .footer .language {
+        color: #256aba;
+    }
+
+    .anonymous .footer .copyright {
+        color: #3f3e3e;
+    }
+
+    .anonymous .footer .links a {
+        color: #256aba;
     }
 }
 
@@ -2507,12 +2582,34 @@ body .deck-item.b2b-e-shop .deck-icon {
     background-image: url(../img/icons/shopping-basket.svg);
 }
 
+body .deck-item.e-shop .deck-icon {
+    background-image: url(../img/icons/shopping-basket.svg);
+}
+
 body .deck-item.admin .deck-icon {
     background-image: url(../img/icons/security-check.svg);
 }
 
 body .deck-item.developers .deck-icon {
     background-image: url(../img/icons/coding.svg);
+}
+
+body .deck-item.clients-portal .deck-icon {
+    background-image: url(../img/icons/user.svg);
+}
+
+body .deck-item.group-policies .deck-icon {
+    background-image: url(../img/icons/team.svg);
+    padding: 2.1rem;
+    margin-bottom: 1rem;
+}
+
+body .deck-item.agents-portal .deck-icon {
+    background-image: url(../img/icons/briefcase.svg);
+}
+
+body .deck-item.intranet .deck-icon {
+    background-image: url(../img/icons/intranet.svg);
 }
 
 body .deck-item:hover {
@@ -2687,58 +2784,6 @@ body {
     body {
         color: #3f3e3e;
     }
-}
-
-.footer {
-    font-size: 12px;
-    line-height: 1.4;
-}
-
-.footer .copyright {
-    text-transform: uppercase;
-}
-
-.footer .links a {
-    font-size: 1em;
-    font-weight: bold;
-}
-
-.anonymous .footer .copyright {
-    color: #FFFFFF;
-}
-
-.anonymous .footer .links a {
-    color: #FFFFFF;
-}
-
-.anonymous .footer .links a:hover {
-    font-weight: bold;
-}
-
-@media only screen and (max-width: 767px) {
-    .anonymous .footer {
-        color: inherit;
-    }
-
-    .anonymous .footer .copyright {
-        color: #3f3e3e;
-    }
-
-    .anonymous .footer .links a {
-        color: #256aba;
-    }
-}
-
-.authenticated .footer {
-    color: #FFFFFF;
-}
-
-.authenticated .footer .links a {
-    color: #FFFFFF;
-}
-
-.authenticated .footer .links a:hover {
-    color: #3f3e3e;
 }
 
 .drop-card {
@@ -2933,7 +2978,29 @@ body {
 24px = 1.5
 32px = 2
 */
-.language-selector .dropdown-toggle {
-    line-height: 32px;
-    font-size: 20px;
+.language-selector {
+    display: flex;
+}
+
+.language-selector i.arrow::after {
+    width: 0;
+    height: 0;
+    border-left: 0.3rem solid transparent;
+    border-right: 0.3rem solid transparent;
+    border-top: 0.5rem solid currentColor;
+    display: inline-block;
+    content: " ";
+    margin-left: 0;
+}
+
+.language-selector.show i.arrow::after {
+    transform: rotate(180deg);
+    transform-origin: center center;
+    margin-bottom: 0.2rem;
+}
+
+.language-selector .show i.arrow::after {
+    transform: rotate(180deg);
+    transform-origin: center center;
+    margin-bottom: 0.2rem;
 }

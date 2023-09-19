@@ -51,7 +51,10 @@
                         var isSelected = supportedCulture.TwoLetterISOLanguageName == lang;
                         <li>
                             <button type="submit" form="SelectLanguageForm_@htmlUniqueId" 
-                                    name="culture" value="@supportedCulture.Name" title="@optionText" 
+                                    name="culture"
+                                    lang="@supportedCulture.TwoLetterISOLanguageName"
+                                    value="@supportedCulture.TwoLetterISOLanguageName"
+                                    title="@optionText" 
                                     class="block py-2 px-4 hover:bg-gray-100 no-underline w-full text-left @(isSelected ? "font-bold" : "")">
                                 @optionText
                             </button>

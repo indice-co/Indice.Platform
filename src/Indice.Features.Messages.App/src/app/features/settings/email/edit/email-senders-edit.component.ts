@@ -24,8 +24,10 @@ export class EmailSendersEditComponent implements OnInit, AfterViewInit {
   public submitInProgress = false;
   public model = new UpdateMessageSenderRequest({ 
     sender: '',
-    displayName: ''
+    displayName: '',
+    isDefault: false
  });
+ public isDefaultSender: boolean = false;
 
   public ngOnInit(): void {
       this._messageSenderId = this._activatedRoute.snapshot.params['messageSenderId'];
@@ -34,6 +36,8 @@ export class EmailSendersEditComponent implements OnInit, AfterViewInit {
           .subscribe((messageSender: MessageSender) => {
             this.model.displayName = messageSender.displayName;
             this.model.sender = messageSender.sender;
+            this.model.isDefault = messageSender.isDefault;
+            this.isDefaultSender = messageSender.isDefault ?? false;
           });
   }
 

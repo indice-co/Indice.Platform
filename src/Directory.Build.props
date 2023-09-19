@@ -2,14 +2,14 @@
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
-      <VersionPrefixBase>7.3</VersionPrefixBase>
-      <VersionPrefixCore>$(VersionPrefixBase).25</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).29</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).35</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).15</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).21</VersionPrefixMessages>
-      <VersionPrefixMultitenancy>$(VersionPrefixBase).17</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).9</VersionPrefixRisk>
+      <VersionPrefixBase>7.4</VersionPrefixBase>
+      <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
+      <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
+      <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
+      <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
+      <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
+      <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->

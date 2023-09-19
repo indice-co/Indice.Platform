@@ -1,8 +1,32 @@
 ﻿@import '_mixins';
 
 .language-selector {
-    .dropdown-toggle {
-        line-height: 32px;
-        font-size: 20px;
+    display: flex;
+
+    i.arrow::after {
+        width: 0;
+        height: 0;
+        border-left: 0.3rem solid transparent;
+        border-right: 0.3rem solid transparent;
+        border-top: 0.5rem solid currentColor;
+        display: inline-block;
+        content: " ";
+        margin-left: 0;
+    }
+
+    &.show {
+        i.arrow::after {
+            transform: rotate(180deg);
+            transform-origin: center center;
+            margin-bottom: 0.2rem
+        }
+    }
+
+    .show {
+        i.arrow::after {
+            transform: rotate(180deg);
+            transform-origin: center center;
+            margin-bottom: 0.2rem
+        }
     }
 }

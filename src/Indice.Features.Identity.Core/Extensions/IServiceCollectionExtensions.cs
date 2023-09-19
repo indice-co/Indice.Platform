@@ -60,7 +60,11 @@ public static class IServiceCollectionExtensions
             EnableDeveloperTotp = totpSection.GetValue<bool>(nameof(TotpOptions.EnableDeveloperTotp))
         };
         configure?.Invoke(totpOptions);
-        services.TryAddSingleton(totpOptions);
+        services.Configure<TotpOptions>(options => {
+            options.CodeDuration = totpOptions.CodeDuration;
+            options.CodeLength = totpOptions.CodeLength;
+            options.EnableDeveloperTotp = totpOptions.EnableDeveloperTotp;
+        });
         services.TryAddTransient<TotpServiceFactory>();
         services.TryAddSingleton(new Rfc6238AuthenticationService(totpOptions.Timestep, totpOptions.CodeLength));
         return services;
