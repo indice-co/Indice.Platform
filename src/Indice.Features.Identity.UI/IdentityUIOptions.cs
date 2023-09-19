@@ -57,7 +57,7 @@ public class IdentityUIOptions
     /// <summary>Automatic redirect after sign out.</summary>
     public bool AutomaticRedirectAfterSignOut { get; set; } = false;
     /// <summary>The two-letter country codes to allow phone numbers from. When null the feature is disabled (defaults to null)</summary>
-    public string[]? PhoneCountries { get; set; }
+    public HashSet<string>? PhoneCountries { get; set; }
 
     /// <summary>Services shown in the homepage.</summary>
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {

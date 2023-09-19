@@ -17,6 +17,7 @@
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
     <PackageReference Include="Indice.Features.Identity.UI.Assets" Version="$(VersionPrefixIdentityUI)" />
+    <PackageReference Include="libphonenumber-csharp" Version="8.13.20" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
   </ItemGroup>
   <ItemGroup>

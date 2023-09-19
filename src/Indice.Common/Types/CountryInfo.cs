@@ -18,9 +18,6 @@ public class CountryInfo
     /// <summary>Collection of countries</summary>
     public static readonly ICollection<CountryInfo> Countries;
 
-    /// <summary>The two letter codes of all <see cref="Countries"/>.</summary>
-    public static string[] TwoLetterCodes { get; }
-
     internal CountryInfo(string continent, string twoLetterCode, string threeLetterCode, int numericCode, string fullName, string capital, string twoLetterLanguageCode, string callingCode) {
         Name = fullName;
         Capital = capital;
@@ -287,9 +284,6 @@ public class CountryInfo
             { new CountryInfo("AF", "ZM", "ZMB", 894, "Zambia", "Lusaka", "bem,en", "260") },
             { new CountryInfo("AF", "ZW", "ZWE", 716, "Zimbabwe", "Harare", "en,nd,sn", "263") }
         };
-        TwoLetterCodes = Countries
-            .Select(static info => info.TwoLetterCode)
-            .ToArray();
     }
 
     /// <summary>The name.</summary>
