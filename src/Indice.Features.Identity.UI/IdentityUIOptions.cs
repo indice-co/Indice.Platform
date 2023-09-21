@@ -59,6 +59,8 @@ public class IdentityUIOptions
     public bool ShowLogoutPrompt { get; set; } = true;
     /// <summary>Automatic redirect after sign out.</summary>
     public bool AutomaticRedirectAfterSignOut { get; set; } = false;
+    /// <summary>Controls whether the /register page requires and displays the ZoneInfo input field. Defaults to <see langword="false"/>.</summary>
+    public bool RegisterRequireZoneInfo { get; set; } = false;
 
     /// <summary>Services shown in the homepage.</summary>
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
