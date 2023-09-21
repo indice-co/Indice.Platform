@@ -40,15 +40,18 @@
                 </div>
             </div>
             <div class="row">
-                <div class="input-group">
-                    <select class="peer" asp-for="Input.ZoneInfo" required>
-                        <option value="" selected>@Localizer["Choose..."]</option>
-                        @foreach (var timezone in TimeZoneInfo.GetSystemTimeZones())
-                        {
-                            <option value="@timezone.Id">@timezone.DisplayName</option>
-                        }
-                    </select>
+                <div class="input-group" indice-if="Model.UiOptions.RegisterRequireZoneInfo">
+                    @{
+                        var zoneInfoListId = @Html.IdFor(x => x.Input.ZoneInfo) + "_list";
+                    }
+                    <input type="text" class="peer" asp-for="Input.ZoneInfo" list="@zoneInfoListId" placeholder="@Localizer["Timezone"]" />
                     <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer["Timezone"]</label>
+                    <datalist id="@zoneInfoListId">
+                        @foreach (var timezone in ZoneInfo.GetTimeZones())
+                        {
+                            <option value="@timezone.Id">@timezone</option>
+                        }
+                    </datalist>
                     <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
                 </div>
             </div>
@@ -157,6 +160,7 @@
     <script type="text/javascript" src="~/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/utilities.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/password-rules.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="/js/zone-info-datalist.js" csp-nonce="true" data-id="@Html.IdFor(x => x.Input.ZoneInfo)"></script>
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
             el.onclick = function (link) {
