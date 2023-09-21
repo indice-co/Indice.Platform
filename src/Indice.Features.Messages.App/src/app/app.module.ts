@@ -76,6 +76,7 @@ import { ListViewComponent } from './features/media-library/item-views/list-view
 import { ReadOnlyViewComponent } from './features/media-library/item-views/read-only-view/read-only-view.component';
 import { MediaSettingsComponent } from './features/settings/media/media-settings.component';
 import { MediaSettingEditComponent } from './features/settings/media/edit/media-setting-edit.component';
+import { EditorModule, TINYMCE_SCRIPT_SRC } from '@tinymce/tinymce-angular';
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -101,7 +102,8 @@ const providers: Provider[] = [
       }
     }
   },
-  { provide: APP_LANGUAGES, useClass: AppLanguagesService }
+  { provide: APP_LANGUAGES, useClass: AppLanguagesService },
+  { provide: TINYMCE_SCRIPT_SRC, useValue: 'tinymce/tinymce.min.js' }
 ]
 
 if (app.settings.tenantId) {
@@ -180,7 +182,8 @@ if (app.settings.tenantId) {
     HttpClientModule,
     IndiceAuthModule,
     IndiceComponentsModule.forRoot(),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    EditorModule
   ],
   providers: providers,
   bootstrap: [AppComponent]

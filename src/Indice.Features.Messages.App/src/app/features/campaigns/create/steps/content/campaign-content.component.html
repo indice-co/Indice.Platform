@@ -2,11 +2,6 @@
     <div class="px-4 space-y-2 pb-4">
         <fieldset>
             <lib-tab-group (tabChanged)="onContentTabChanged($event)" #tabGroup>
-                <lib-tab [labelText]="channelsState[contentForm.value.channel].name"
-                    *ngFor="let contentForm of channelsContent.controls; let i = index">
-                    <ng-container
-                        *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>
-                </lib-tab>
                 <lib-tab labelText="Edit">
                     <ng-template libTabLabel>
                         <span class="inline-flex items-center">
@@ -58,6 +53,11 @@
                             </div>
                         </fieldset>
                     </div>
+                </lib-tab>
+                <lib-tab [labelText]="channelsState[contentForm.value.channel].name"
+                    *ngFor="let contentForm of channelsContent.controls; let i = index">
+                    <ng-container
+                        *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>
                 </lib-tab>
             </lib-tab-group>
         </fieldset>
@@ -157,38 +157,55 @@
                 <div class="text-base font-medium text-gray-900" aria-hidden="true">
                     Σώμα (*)
                 </div>
-                <button *ngIf="contentForm.controls['channel'].value == 'email'"
-                    (click)="openSidePane(contentForm)">
-                    <i class="ms-Icon ms-Icon--FileTemplate"></i>
-                </button>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-2 sm:col-span-1">
-                    <label for="body" class="field-label hidden" aria-hidden="true">
-                        Σώμα (*)
-                    </label>
-                    <div class="mt-1 flex rounded-sm col-span-3">
-                        <textarea id="body" name="body" formControlName="body" class="code-editor"
-                            placeholder="Το σώμα του μηνύματος" style="height: 50vh;"
-                            (input)="onBodyInput(contentForm)">
+            <ng-container *ngIf="contentForm.controls['channel'].value === 'email' || contentForm.controls['channel'].value === 'inbox'">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label for="body" class="field-label hidden" aria-hidden="true">
+                            Σώμα (*)
+                        </label>
+                        <textarea [id]="'tinymce-editor-'+contentForm.controls['channel'].value" name="body" formControlName="body" class="code-editor tinymce-editor"
+                                placeholder="Το σώμα του μηνύματος" style="height: 50vh;"
+                                (input)="onBodyInput(contentForm)">
                         </textarea>
-                    </div>
-                    <p *ngIf="contentForm.controls['body'].invalid && (contentForm.controls['body'].dirty || contentForm.controls['body'].touched)"
-                        class="mt-2 text-sm text-red-600">
-                        <span *ngIf="contentForm.controls['body'].errors!['required']">Παρακαλώ συμπληρώστε το σώμα του
-                            μηνύματος.</span>
-                    </p>
-                </div>
-                <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
-                    <label class="field-label hidden" aria-hidden="true">
-                        Προεπισκόπηση
-                    </label>
-                    <div class="flex rounded-sm col-span-3">
-                        <iframe class="w-full" [srcdoc]="bodyPreview | safe: 'html'" style="height: 50vh;">
-                        </iframe>
+                        <p *ngIf="contentForm.controls['body'].invalid && (contentForm.controls['body'].dirty || contentForm.controls['body'].touched)"
+                            class="mt-2 text-sm text-red-600">
+                            <span *ngIf="contentForm.controls['body'].errors!['required']">Παρακαλώ συμπληρώστε το σώμα του
+                                μηνύματος.</span>
+                        </p>
                     </div>
                 </div>
-            </div>
+            </ng-container>
+            <ng-container *ngIf="contentForm.controls['channel'].value !== 'email' && contentForm.controls['channel'].value !== 'inbox'">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2 md:col-span-1">
+                        <label for="body" class="field-label hidden" aria-hidden="true">
+                            Σώμα (*)
+                        </label>
+                        <div class="mt-1 flex rounded-sm col-span-3">
+                            <textarea [id]="'tinymce-editor-'+contentForm.controls['channel'].value" name="body" formControlName="body" class="code-editor" 
+                                placeholder="Το σώμα του μηνύματος" style="height: 50vh;"
+                                (input)="onBodyInput(contentForm)">
+                            </textarea>
+                        </div>
+                        <p *ngIf="contentForm.controls['body'].invalid && (contentForm.controls['body'].dirty || contentForm.controls['body'].touched)"
+                            class="mt-2 text-sm text-red-600">
+                            <span *ngIf="contentForm.controls['body'].errors!['required']">Παρακαλώ συμπληρώστε το σώμα του
+                                μηνύματος.</span>
+                        </p>
+                    </div>
+                    <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
+                        <label class="field-label hidden" aria-hidden="true">
+                            Προεπισκόπηση
+                        </label>
+                        <div class="flex rounded-sm col-span-3">
+                            <iframe class="w-full" [srcdoc]="bodyPreview | safe: 'html'" style="height: 50vh;">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+            
         </fieldset>
     </div>
 </ng-template>
