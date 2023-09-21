@@ -91,8 +91,9 @@ public abstract class BasePageModel : PageModel
         if (_phoneCountriesListCache is not null) return _phoneCountriesListCache;
 
         var countries = CountryInfo.Countries
-            .Where(country => PhoneInfo.AllCountries.Contains(country.TwoLetterCode))
-            .Where(country => UiOptions.PhoneCountries.Contains(country.TwoLetterCode))
+            .Where(country => 
+                PhoneInfo.AllCountries.Contains(country.TwoLetterCode)
+                && UiOptions.PhoneCountries.Contains(country.TwoLetterCode))
             .SelectMany(info => info.CallingCode.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                .Select(code => new SelectListItem { Text = $"{info.Name} (+{code})", Value = code }))
             .ToList();
