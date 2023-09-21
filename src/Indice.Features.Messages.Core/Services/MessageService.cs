@@ -129,6 +129,7 @@ public class MessageService : IMessageService
             }
         }
         query = query.Where(x => x.Campaign.MessageChannelKind.HasFlag(messageChannelKind));
+        var messageChannelKindKey = messageChannelKind.ToString();
         return query.Select(x => new Message {
             ActionLink = x.Campaign.ActionLink != null ? new Hyperlink {
                 Text = x.Campaign.ActionLink.Text,
@@ -141,10 +142,14 @@ public class MessageService : IMessageService
                 ? $"{CampaignInboxOptions.ApiPrefix}/messages/attachments/{(Base64Id)x.Campaign.Attachment.Guid}.{Path.GetExtension(x.Campaign.Attachment.Name).TrimStart('.')}"
                 : null,
             // TODO: Fix substitution when message is null.
-            Title = x.Message != null ? x.Message.Content[messageChannelKind.ToString()].Title : x.Campaign.Content[messageChannelKind.ToString()].Title,
-            Content = x.Message != null ? x.Message.Content[messageChannelKind.ToString()].Body : x.Campaign.Content[messageChannelKind.ToString()].Body,
+            Title = x.Message != null && x.Message.Content.ContainsKey(messageChannelKindKey) 
+                ? x.Message.Content[messageChannelKindKey].Title 
+                : x.Campaign != null && x.Campaign.Content.ContainsKey(messageChannelKindKey) ? x.Campaign.Content[messageChannelKindKey].Title : string.Empty,
+            Content = x.Message != null && x.Message.Content.ContainsKey(messageChannelKindKey) 
+                ? x.Message.Content[messageChannelKindKey].Body 
+                : x.Campaign != null && x.Campaign.Content.ContainsKey(messageChannelKindKey) ? x.Campaign.Content[messageChannelKindKey].Body : string.Empty,
             CreatedAt = x.Campaign.CreatedAt,
-            Id = x.Message != null ? x.Message.Id : x.Campaign.Id,
+            Id = x.Campaign.Id,
             IsRead = x.Message != null && x.Message.IsRead,
             Type = x.Campaign.Type != null ? new MessageType {
                 Id = x.Campaign.Type.Id,
