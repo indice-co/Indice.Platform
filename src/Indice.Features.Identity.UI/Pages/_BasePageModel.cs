@@ -99,9 +99,10 @@ public abstract class BasePageModel : PageModel
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         var callbackUrl = Url.PageLink("/ConfirmEmail", values: new { userId = user.Id, token, returnUrl, client_id = HttpContext.GetClientIdFromReturnUrl() }, protocol: HttpContext.Request.Scheme ?? null);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
+        var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
         await emailService.SendAsync(message =>
             message.To(user.Email)
-                   .WithSubject("Account confirmation")
+                   .WithSubject(localizer["Account confirmation"])
                    .UsingTemplate("EmailRegister")
                    .WithData(new {
                        user.UserName,

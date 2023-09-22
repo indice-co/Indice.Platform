@@ -59,6 +59,7 @@ public static class HostBuilderExtensions
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
         services.TryAddTransient<ITemplateService, TemplateService>();
+        services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<CreateCampaignRequestValidator>();
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         services.TryAddTransient<NotificationsManager>();

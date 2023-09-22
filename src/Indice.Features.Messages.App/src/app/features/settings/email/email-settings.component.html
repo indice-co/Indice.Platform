@@ -33,7 +33,14 @@
                     (pageChanged)="pageChanged($event)" (pageSizeChanged)="pageSizeChanged($event)"
                     (sortChanged)="sortChanged($event)" (sortdirChanged)="sortdirChanged($event)">
                     <lib-list-column title="ΑΠΟΣΤΟΛΕΑΣ">
-                        <ng-template let-item>{{ item.sender || '-' }}</ng-template>
+                        <ng-template let-item>
+                            <div class="flex flex-row items-center">
+                                <div class="w-5 h-5">
+                                    <i *ngIf="item.isDefault" class="ms-Icon ms-Icon--Accept text-green-500" title="Προκαθορισμένος Αποστολέας"></i>
+                                </div>
+                                <span class="ml-2">{{ item.sender || '-' }}</span>
+                            </div>
+                        </ng-template>
                     </lib-list-column>
                     <lib-list-column title="ONOMA">
                         <ng-template let-item>{{ item.displayName || '-' }}</ng-template>
@@ -46,7 +53,7 @@
                     </lib-list-column>
                     <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
                         <ng-template let-item>
-                            <a title="Επεξεργασία τύπου" [routerLinkActive]="['']"
+                            <a title="Επεξεργασία αποστολέα" [routerLinkActive]="['']"
                                 [routerLinkActiveOptions]="{ exact: true }"
                                 [routerLink]="['', { outlets: { rightpane: ['edit-message-sender', item.id] } }]"
                                 class="nav-link-profile"
@@ -60,8 +67,8 @@
                                         clip-rule="evenodd" />
                                 </svg>
                             </a>
-                            <button type="button" (click)="deleteConfirmation(item)"
-                                class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+                            <button *ngIf="!item.isDefault" type="button" (click)="deleteConfirmation(item)"
+                                class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm" title="Διαγραφή Αποστολέα">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                                     fill="currentColor">
                                     <path fill-rule="evenodd"

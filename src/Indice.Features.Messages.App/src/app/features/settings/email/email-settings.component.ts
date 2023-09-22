@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ToasterService } from '@indice/ng-components';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { MessageSender, MessageSenderResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 
@@ -22,8 +22,8 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
     super(route, _router);
     this.view = ListViewType.Table;
     this.pageSize = 10;
-    this.sort = '';
-    this.sortdir = 'asc';
+    this.sort = 'isDefault';
+    this.sortdir = 'desc';
     this.search = '';
     this.sortOptions = [
       new MenuOption('Αποστολέας', 'sender'),
@@ -36,17 +36,19 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
   public defaultSender: MessageSender | undefined;
 
   public ngOnInit(): void {
-    this._api.getMessageSenders(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, true)
-      .subscribe((result) => {
-        this.defaultSender = result.items?.find(x => x);
-      });
+    // this._api.getMessageSenders(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, true)
+    //   .subscribe((result) => {
+    //     this.defaultSender = result.items?.find(x => x);
+    //   });
     super.ngOnInit();
   }
 
   public loadItems(): Observable<IResultSet<MessageSender> | null | undefined> {
     return this._api
-      .getMessageSenders(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, false)
-      .pipe(map((result: MessageSenderResultSet) => (result as IResultSet<MessageSender>)));
+      .getMessageSenders(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined)
+      .pipe(tap((result: MessageSenderResultSet) => {
+        this.defaultSender = result?.items?.find(i => i.isDefault);
+      }), map((result: MessageSenderResultSet) => (result as IResultSet<MessageSender>)));
   }
 
   public deleteConfirmation(sender: MessageSender): void {
