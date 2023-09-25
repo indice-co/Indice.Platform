@@ -12,6 +12,8 @@ import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, 
 import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attachments.component';
 import { map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
+import "tinymce";
+declare var tinymce: any;
 
 @Component({
     selector: 'app-campaign-create',
@@ -86,6 +88,10 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     }
 
     public onStepperStepChanged(event: StepSelectedEvent) {
+        //remove tinymce editor on stepper change
+        if (tinymce.get("tinymce-editor-email") || tinymce.get("tinymce-editor-inbox")) {
+            tinymce.remove();
+        }
         if (event.selectedIndex === 1) {
             if (this.templateId) {
                 this._api.getTemplateById(this.templateId).subscribe((template: Template) => {
