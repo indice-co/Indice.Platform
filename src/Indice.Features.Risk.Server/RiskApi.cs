@@ -30,11 +30,16 @@ public static class RiskApi
         var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
+        // POST: /api/risk/events
+        group.MapGet("risk/events", RiskApiHandlers.CreateRiskEvent)
+             .WithName(nameof(RiskApiHandlers.CreateRiskEvent))
+             .WithSummary("Records a risk event in the store.");
+
         // POST: /api/risk
         group.MapPost("risk", RiskApiHandlers.GetRisk)
              .WithName(nameof(RiskApiHandlers.GetRisk))
              .WithSummary("Calculates the risk given a transaction presented in the system.")
-             .WithParameterValidation<RiskRequestBase>();
+             .WithParameterValidation<RiskModel>();
 
         return builder;
     }

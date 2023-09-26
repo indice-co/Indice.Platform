@@ -9,7 +9,7 @@ public interface IRiskEventStore
     /// <param name="event">The event occurred.</param>
     Task CreateAsync(RiskEvent @event);
     /// <summary></summary>
-    /// <param name="subjectId"></param>
-    /// <param name="type"></param>
-    Task<IEnumerable<RiskEvent>> GetListByType(string subjectId, string type);
+    /// <param name="subjectId">The subject id.</param>
+    /// <param name="types">The event types.</param>
+    Task<IEnumerable<RiskEvent>> GetList(string subjectId, string[]? types = null);
 }

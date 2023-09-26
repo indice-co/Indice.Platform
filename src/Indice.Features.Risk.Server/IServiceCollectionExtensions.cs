@@ -24,7 +24,7 @@ public static class IServiceCollectionExtensions
             options.AuthenticationScheme = riskApiOptions.AuthenticationScheme;
         });
         services.AddEndpointParameterFluentValidation(typeof(RiskApi).Assembly);
-        services.AddTransient<IValidator<RiskRequestBase>, GetRiskRequestValidator>();
+        services.AddTransient<IValidator<RiskModel>, GetRiskRequestValidator>();
         return services;
     }
 }
