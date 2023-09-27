@@ -27,7 +27,7 @@ public class EmailServiceSmtp : IEmailService
     /// <inheritdoc/>
     public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress(from?.Address ?? Settings.SenderName, from?.DisplayName ?? Settings.Sender));
+        message.From.Add(new MailboxAddress(from?.DisplayName ?? Settings.SenderName, from?.Address ?? Settings.Sender));
         message.To.AddRange(recipients.Select(InternetAddress.Parse));
         if (!string.IsNullOrWhiteSpace(Settings.BccRecipients)) {
             var bccRecipients = Settings.BccRecipients.Split(',', ';');

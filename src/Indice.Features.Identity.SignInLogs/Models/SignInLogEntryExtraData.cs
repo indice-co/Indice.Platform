@@ -25,4 +25,6 @@ public class SignInLogEntryExtraData
     public SignInLogEntryUserDevice UserDevice { get; set; }
     /// <summary>Describes a warning that may occur during a sign in event.</summary>
     public SignInWarning? Warning { get; set; }
+    /// <summary>The name of the original event occurred.</summary>
+    public string OriginalEventType { get; set; }
 }
