@@ -56,4 +56,11 @@ public static class IServiceCollectionExtensions
         services.TryAddSingleton<ISmsService, SmsServiceNoop>();
         return services;
     }
+
+    /// <summary>Adds a <see cref="TimeZoneInfo"/> based implementation of <see cref="IZoneInfoProvider"/>.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddZoneInfoProviderSystem(this IServiceCollection services) {
+        services.TryAddSingleton<IZoneInfoProvider, SystemZoneInfoProvider>();
+        return services;
+    }
 }
