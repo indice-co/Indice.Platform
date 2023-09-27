@@ -23,4 +23,6 @@ public class ProfileInputModel
     public DateTime? ConsentCommercialDate { get; set; }
     /// <summary></summary>
     public string? DeveloperTotp { get; set; }
+    /// <summary></summary>
+    public string? ZoneInfo { get; set; }
 }
