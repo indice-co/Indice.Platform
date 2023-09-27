@@ -150,9 +150,6 @@
   <data name="You must be informed about privacy policy." xml:space="preserve">
     <value>Θα πρέπει να έχετε ενημερωθεί σχετικά με την πολιτική προστασίας.</value>
   </data>
-  <data name="The field '{PropertyName}' must be one of the provided values." xml:space="preserve">
-    <value>Το πεδίο '{PropertyName}' πρέπει να είναι μία από τις παρεχόμενες τιμές.</value>
-  </data>
   <data name="Timezone" xml:space="preserve">
     <value>Ζώνη ώρας</value>
   </data>
