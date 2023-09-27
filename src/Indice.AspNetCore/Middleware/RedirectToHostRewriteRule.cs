@@ -19,11 +19,11 @@ public class RedirectToHostRewriteRule : IRule
 
     /// <summary>The kind of redirect (Permanent or not)</summary>
     public int StatusCode { get; } = (int)HttpStatusCode.MovedPermanently;
-    /// <summary>Dont run under localhost. (Defaults to true).</summary>
+    /// <summary>Don't run under localhost. (Defaults to true).</summary>
     public bool ExcludeLocalhost { get; set; } = true;
-    /// <summary>Dont run under localhost. (Defaults to true).</summary>
+    /// <summary>Don't run under localhost. (Defaults to true).</summary>
     internal RedirectToHostWwwHandling DefaultWwwHandling { get; set; }
-    /// <summary>The host binding under which we are serving. This should invlude if any the port and scheme.</summary>
+    /// <summary>The host binding under which we are serving. This should include if any the port and scheme.</summary>
     public HostString Host { get; }
 
     /// <summary>Applies the rule. Implementations of ApplyRule should set the value for <see cref="RewriteContext.Result"/> (defaults to <seealso cref="RuleResult.ContinueRules"/>)</summary>
@@ -49,13 +49,15 @@ public class RedirectToHostRewriteRule : IRule
         var response = context.HttpContext.Response;
         response.StatusCode = StatusCode;
         response.Headers[HeaderNames.Location] = newPath;
+        response.Headers[HeaderNames.CacheControl] = "no-cache, no-store, must-revalidate, max-age=0";
+        response.Headers[HeaderNames.Expires] = "-1";
         context.Result = RuleResult.EndResponse;
     }
 }
 
 /// <summary>
 /// An enum that has all available options for handling the www subdomain on a request host.
-/// This is used by the <see cref="RedirectToHostRewriteRule"/>
+/// This is used by the <see cref="RedirectToHostRewriteRule"/>.
 /// </summary>
 internal enum RedirectToHostWwwHandling 
 { 
