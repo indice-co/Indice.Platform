@@ -19,7 +19,7 @@ public class RiskCalculationTests
                 [RiskLevel.None] = new IntegerRange(0, 0),
                 [RiskLevel.Low] = new IntegerRange(1, 1000),
                 [RiskLevel.Medium] = new IntegerRange(1001, 2000),
-                [RiskLevel.High] = new IntegerRange(2000, 3000)
+                [RiskLevel.High] = new IntegerRange(2001, 3000)
             });
         })
         .AddRule("TransactionOver1000", riskEvent =>
@@ -55,6 +55,7 @@ public class RiskCalculationTests
         });
         Assert.Single(result.Results);
         Assert.Equal(1, result.NumberOfRulesExecuted);
+        Assert.Equal(3000, result.Results.First().RiskScore);
         Assert.Equal(RiskLevel.High, result.Results.First().RiskLevel);
     }
 

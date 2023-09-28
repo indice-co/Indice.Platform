@@ -48,7 +48,6 @@ public class RiskManager
         foreach (var rule in Rules) {
             var result = await rule.ExecuteAsync(@event);
             result.RuleName = rule.Name;
-            result.RiskScore += result.RiskScore;
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;
             results.Add(result);
         }
