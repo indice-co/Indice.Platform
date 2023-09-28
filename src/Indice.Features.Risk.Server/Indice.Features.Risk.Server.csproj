@@ -6,14 +6,13 @@
     <TargetFramework>net7.0</TargetFramework>
     <TargetFrameworks></TargetFrameworks>
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
-    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
-    <PackageReference Include="Indice.Features.Risk.Core" Version="$(VersionPrefixRisk)-beta-01" />
+    <PackageReference Include="Indice.Features.Risk.Core" Version="$(VersionPrefixRisk)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
