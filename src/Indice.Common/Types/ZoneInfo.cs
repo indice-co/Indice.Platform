@@ -1,7 +1,7 @@
 ﻿namespace Indice.Types;
 
 /// <summary>
-/// Contains information about TimeZones using the NodaTime tzdb.
+/// Contains information about a TimeZone.
 /// </summary>
 public class ZoneInfo
 {
