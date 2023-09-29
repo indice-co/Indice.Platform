@@ -150,4 +150,7 @@
   <data name="You must be informed about privacy policy." xml:space="preserve">
     <value>Θα πρέπει να έχετε ενημερωθεί σχετικά με την πολιτική προστασίας.</value>
   </data>
+  <data name="Timezone" xml:space="preserve">
+    <value>Ζώνη ώρας</value>
+  </data>
 </root>

@@ -4,6 +4,7 @@
 
 @inject IIdentityViewLocalizer Localizer
 @inject ExtendedUserManager<User> userManager
+@inject IZoneInfoProvider zoneInfoProvider
 
 @{
     var title = ViewData["Title"] = Localizer["Sign up"].Value;
@@ -34,7 +35,7 @@
                     <div class="input-group">
                         <select class="peer" asp-for="Input.ZoneInfo" required>
                             <option value="" selected>@Localizer["Choose..."]</option>
-                            @foreach (var timezone in TimeZoneInfo.GetSystemTimeZones())
+                            @foreach (var timezone in zoneInfoProvider.GetTimeZones())
                             {
                                 <option value="@timezone.Id">@timezone.DisplayName</option>
                             }
@@ -67,7 +68,7 @@
                     <div class="input-group">
                         <select class="peer" asp-for="Input.ZoneInfo" required>
                             <option value="" selected>@Localizer["Choose..."]</option>
-                            @foreach (var timezone in TimeZoneInfo.GetSystemTimeZones())
+                            @foreach (var timezone in zoneInfoProvider.GetTimeZones())
                             {
                                 <option value="@timezone.Id">@timezone.DisplayName</option>
                             }
@@ -202,6 +203,7 @@
     <script type="text/javascript" src="~/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/utilities.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/password-rules.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/zone-info-select.js" csp-nonce="true" data-id="@Html.IdFor(x => x.Input.ZoneInfo)"></script>
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
             el.onclick = function (link) {
