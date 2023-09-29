@@ -95,6 +95,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                        .AddExtendedUserManager()
                        .AddExtendedSignInManager<User>()
                        .AddDefaultPasswordValidators()
+                       .AddDefaultPhoneNumberValidator()
                        .AddClaimsPrincipalFactory<ExtendedUserClaimsPrincipalFactory<User, Role>>()
                        .AddDefaultTokenProviders()
                        .AddExtendedPhoneNumberTokenProvider(configuration)

@@ -6,6 +6,7 @@ using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
+using Indice.Features.Identity.Core.PhoneNumberValidation;
 using Indice.Features.Identity.Core.TokenProviders;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
@@ -219,6 +220,29 @@ public static class IdentityBuilderExtensions
         builder.AddPasswordValidator<UnicodeCharactersPasswordValidator>();
         builder.AddPasswordValidator<PreviousPasswordAwareValidator<ExtendedIdentityDbContext<User, Role>, User, Role>>();
         builder.AddPasswordValidator<UserNameAsPasswordValidator>();
+        return builder;
+    }
+
+    /// <summary>
+    /// Registers <see cref="DefaultPhoneNumberValidator"/> as a <see cref="IPhoneNumberValidator"/>.
+    /// </summary>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <returns>The <see cref="IdentityBuilder"/>.</returns>
+    public static IdentityBuilder AddDefaultPhoneNumberValidator(this IdentityBuilder builder) {
+        builder.AddPhoneNumberValidator<DefaultPhoneNumberValidator>();
+        return builder;
+    }
+
+    /// <summary>
+    /// Adds an overridden implementation of <see cref="IPhoneNumberValidator"/>.
+    /// </summary>
+    /// <typeparam name="TPhoneValidator">The type of your <see cref="IPhoneNumberValidator"/>.</typeparam>
+    /// <param name="builder">Helper functions for configuring identity services.</param>
+    /// <param name="serviceLifetime">The lifetime of your service.</param>
+    /// <returns>The <see cref="IdentityBuilder"/>.</returns>
+    public static IdentityBuilder AddPhoneNumberValidator<TPhoneValidator>(this IdentityBuilder builder, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped) where TPhoneValidator : class, IPhoneNumberValidator {
+        var descriptor = new ServiceDescriptor(typeof(IPhoneNumberValidator), typeof(TPhoneValidator), serviceLifetime);
+        builder.Services.Add(descriptor);
         return builder;
     }
 
