@@ -4,7 +4,6 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Risk;RulesEngine;</PackageTags>
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
-    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />

@@ -7,5 +7,5 @@ internal class RiskEventStoreNoOp : IRiskEventStore
 {
     public Task CreateAsync(RiskEvent @event) => Task.CompletedTask;
 
-    public Task<IEnumerable<RiskEvent>> GetListByType(string subjectId, string type) => Task.FromResult(Enumerable.Empty<RiskEvent>());
+    public Task<IEnumerable<RiskEvent>> GetList(string subjectId, string[]? types) => Task.FromResult(Enumerable.Empty<RiskEvent>());
 }

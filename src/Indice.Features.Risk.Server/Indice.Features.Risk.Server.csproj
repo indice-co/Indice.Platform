@@ -6,7 +6,6 @@
     <TargetFramework>net7.0</TargetFramework>
     <TargetFrameworks></TargetFrameworks>
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
-    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
