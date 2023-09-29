@@ -57,10 +57,18 @@ public static class IServiceCollectionExtensions
         return services;
     }
 
-    /// <summary>Adds a <see cref="TimeZoneInfo"/> based implementation of <see cref="IZoneInfoProvider"/>.</summary>
+    /// <summary>Adds the default implementation of <see cref="IZoneInfoProvider"/>.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    public static IServiceCollection AddZoneInfoProviderSystem(this IServiceCollection services) {
-        services.TryAddSingleton<IZoneInfoProvider, SystemZoneInfoProvider>();
+    public static IServiceCollection AddZoneInfoProvider(this IServiceCollection services) {
+        services.AddZoneInfoProvider<SystemZoneInfoProvider>();
+        return services;
+    }
+
+    /// <summary>Adds a concrete implementation of <see cref="IZoneInfoProvider"/></summary>
+    /// <typeparam name="TZoneInfoProvider">The implementation of <see cref="IZoneInfoProvider"/></typeparam>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddZoneInfoProvider<TZoneInfoProvider>(this IServiceCollection services) where TZoneInfoProvider : IZoneInfoProvider {
+        services.TryAddTransient(typeof(IZoneInfoProvider), typeof(TZoneInfoProvider));
         return services;
     }
 }

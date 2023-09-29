@@ -55,7 +55,7 @@ public static class IdentityBuilderUIExtensions
         services.AddTransient<IIdentityViewLocalizer, IdentityViewLocalizer>();
         services.AddPlatformEventHandler<UserLoginEvent, UserLoginEventHandler>();
         // Add default (system) implementation of zoneInfoProvider
-        services.AddZoneInfoProviderSystem();
+        services.AddZoneInfoProvider();
         // Configure other services.
         services.AddGeneralSettings(configuration);
         services.AddMarkdown();
