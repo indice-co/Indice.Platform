@@ -100,7 +100,10 @@ public abstract class BaseProfileModel : BasePageModel
                 await SendChangeEmailConfirmationEmail(user, Input.Email);
             }
         }
-        user.PhoneNumber = Input.PhoneNumber;
+        var phoneNumber = $"{Input.PhoneCallingCode}{Input.PhoneNumber}";
+        if (!user.PhoneNumber.Equals(phoneNumber, StringComparison.Ordinal)) {
+            await UserManager.SetPhoneNumberAsync(user, phoneNumber);
+        }
         if (user.UserName != Input.UserName) {
             result = await UserManager.SetUserNameAsync(user, Input.UserName);
             AddModelErrors(result);

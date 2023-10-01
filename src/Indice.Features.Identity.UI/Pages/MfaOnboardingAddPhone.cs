@@ -68,7 +68,7 @@ public abstract class BaseMfaOnboardingAddPhoneModel : BasePageModel
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         IdentityResult result;
         if (!user.PhoneNumberConfirmed) {
-            result = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            result = await UserManager.SetPhoneNumberAsync(user, $"{Input.PhoneCallingCode}{Input.PhoneNumber}");
             if (!result.Succeeded) {
                 AddModelErrors(result);
                 return Page();

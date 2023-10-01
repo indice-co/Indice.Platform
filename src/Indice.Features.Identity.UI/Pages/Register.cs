@@ -162,7 +162,7 @@ public abstract class BaseRegisterModel : BasePageModel
         var user = new User {
             UserName = UserManager.EmailAsUserName ? input.Email : input.UserName,
             Email = input.Email,
-            PhoneNumber = input.PhoneNumber
+            PhoneNumber = $"{input.PhoneCallingCode}{input.PhoneNumber}"
         };
         if (!string.IsNullOrWhiteSpace(input.FirstName)) {
             user.Claims.Add(new() {

@@ -63,7 +63,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+        var result = await UserManager.SetPhoneNumberAsync(user, $"{Input.PhoneCallingCode}{Input.PhoneNumber}");
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();
