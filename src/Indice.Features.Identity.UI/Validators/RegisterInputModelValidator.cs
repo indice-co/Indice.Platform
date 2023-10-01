@@ -2,8 +2,8 @@
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.PhoneNumberValidation;
 using Indice.Features.Identity.UI.Models;
-using Indice.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -31,7 +31,8 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedUserManager<User> userManager,
         IOptionsSnapshot<IdentityOptions> identityOptions,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IPhoneNumberValidator phoneNumberValidator
     ) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -44,7 +45,9 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
             RuleFor(x => x.UserName).Must(UserNameNotBeAssignedToAnotherUser).WithMessage(_localizer["This username already exists. Please use a different one."]);
         };
         RuleFor(x => x.Password).NotEmpty().WithName(_localizer["Password"]);
-        RuleFor(x => x.PhoneNumber).UserPhoneNumber(configuration).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
+        RuleFor(x => x.PhoneNumber)
+            .Must((model, phone) => phoneNumberValidator.Validate($"{model.PhoneCallingCode}{phone}"))
+            .WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
         RuleFor(x => x.Email).Must(EmailNotBeAssignedToAnotherUser).WithMessage(_localizer["This email already exists. Please use a different email."]);
         RuleFor(x => x.HasAcceptedTerms).Equal(true).WithMessage(_localizer["You must accept the service 'terms of use'."]);

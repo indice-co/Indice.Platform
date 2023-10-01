@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Indice.Features.Identity.Core.PhoneNumberValidation;
 using Indice.Features.Identity.UI.Models;
 using Indice.Validation;
 using Microsoft.AspNetCore.Identity;
@@ -18,14 +19,18 @@ public class ProfileInputModelValidator : AbstractValidator<ProfileInputModel>
     /// <exception cref="ArgumentNullException"></exception>
     public ProfileInputModelValidator(
         IStringLocalizer<ProfileInputModelValidator> localizer,
-        IOptionsSnapshot<IdentityOptions> identityOptions
+        IOptionsSnapshot<IdentityOptions> identityOptions,
+        IPhoneNumberValidator phoneNumberValidator
     ) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         RuleFor(x => x.UserName).NotEmpty().WithName(_localizer["Username"]);
         RuleFor(x => x.UserName).UserName(identityOptions.Value.User).WithName(_localizer["Username"]).WithMessage(_localizer["Field '{PropertyName}' can accept digits, uppercase or lowercase latin characters and the symbols -._@+"]);
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
-        RuleFor(x => x.PhoneNumber).Length(10).WithName(_localizer["Mobile phone"]);
-        RuleFor(x => x.PhoneNumber).Must(phoneNumber => string.IsNullOrEmpty(phoneNumber) || phoneNumber.StartsWith("69")).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty()
+            .WithName(_localizer["Mobile phone"])
+            .Must((model, phone) => phoneNumberValidator.Validate($"{model.PhoneCallingCode}{phone}"))
+            .WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
         RuleFor(x => x.Tin).TaxCode("GR").WithName(_localizer["Tin"]).WithMessage(_localizer["Invalid Tax Code."]);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Indice.Features.Identity.Core.PhoneNumberValidation;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
@@ -15,9 +16,13 @@ public class AddPhoneInputModelValidator : AbstractValidator<AddPhoneInputModel>
     /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <param name="configuration">Represents the configuration element.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public AddPhoneInputModelValidator(IStringLocalizer<AddPhoneInputModelValidator> localizer, IConfiguration configuration) {
+    public AddPhoneInputModelValidator(IStringLocalizer<AddPhoneInputModelValidator> localizer, IConfiguration configuration, IPhoneNumberValidator phoneNumberValidator) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        RuleFor(x => x.PhoneNumber).NotEmpty().WithName(_localizer["Phone Number"]).UserPhoneNumber(_configuration).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty()
+            .WithName(_localizer["Phone Number"])
+            .Must((model, phone) => phoneNumberValidator.Validate($"{model.PhoneCallingCode}{phone}"))
+            .UserPhoneNumber(_configuration).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
     }
 }
