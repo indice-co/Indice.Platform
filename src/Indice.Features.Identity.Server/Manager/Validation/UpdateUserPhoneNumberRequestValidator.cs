@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Indice.Features.Identity.Core.PhoneNumberValidation;
 using Indice.Features.Identity.Server.Manager.Models;
 using Microsoft.Extensions.Configuration;
 
@@ -10,8 +11,14 @@ public class UpdateUserPhoneNumberRequestValidator : AbstractValidator<UpdateUse
     private readonly IConfiguration _configuration;
 
     /// <summary></summary>
-    public UpdateUserPhoneNumberRequestValidator(IConfiguration configuration) {
+    public UpdateUserPhoneNumberRequestValidator(IConfiguration configuration, IPhoneNumberValidator phoneNumberValidator) {
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        RuleFor(x => x.PhoneNumber).UserPhoneNumber(_configuration).NotEmpty();
+
+        var regexMessage = configuration.GetIdentityOption("User", "PhoneNumberRegexMessage");
+
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty()
+            .Must(phoneNumberValidator.Validate)
+            .WithMessage(string.IsNullOrWhiteSpace(regexMessage) ? "The field '{PropertyName}' has invalid format." : regexMessage);
     }
 }
