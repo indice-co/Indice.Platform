@@ -5,6 +5,8 @@ public class VerifyPhoneInputModel
 {
     /// <summary>The verification code.</summary>
     public string? Code { get; set; }
+    /// <summary></summary>
+    public string? PhoneCallingCode { get; set; }
     /// <summary>The phone number.</summary>
     public string? PhoneNumber { get; set; }
     /// <summary>The return URL.</summary>
