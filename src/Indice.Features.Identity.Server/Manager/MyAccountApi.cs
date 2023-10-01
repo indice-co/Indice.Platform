@@ -135,6 +135,12 @@ public static class MyAccountApi
              .AllowAnonymous()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.PasswordOptions);
 
+        group.MapGet("account/phone-number-countries", MyAccountHandlers.GetPhoneNumberCountries)
+             .WithName(nameof(MyAccountHandlers.GetPhoneNumberCountries))
+             .WithSummary("Gets the available countries and their options that are applied when the user creates an account.")
+             .AllowAnonymous()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.PasswordOptions);
+
         group.MapPost("account/username-exists", MyAccountHandlers.CheckUserNameExists)
              .WithName(nameof(MyAccountHandlers.CheckUserNameExists))
              .WithSummary("Checks if a username already exists in the database.")

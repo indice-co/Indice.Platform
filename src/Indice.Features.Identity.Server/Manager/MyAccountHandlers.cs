@@ -7,8 +7,10 @@ using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
+using Indice.Features.Identity.Core.PhoneNumberValidation;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Features.Identity.Server.Options;
+using Indice.Globalization;
 using Indice.Security;
 using Indice.Services;
 using Indice.Types;
@@ -464,6 +466,11 @@ internal static class MyAccountHandlers
         return TypedResults.Ok(identityOptions.Value.Password);
     }
 
+    internal static Results<Ok<CountryInfo[]>, NotFound> GetPhoneNumberCountries(IPhoneNumberValidator phoneNumberValidator) {
+        var countries = phoneNumberValidator.GetCountries();
+        return TypedResults.Ok(countries);
+    }
+
     internal static async Task<Ok<CredentialsValidationInfo>> ValidatePassword(
         ExtendedUserManager<User> userManager,
         ValidatePasswordRequest request
@@ -491,8 +498,8 @@ internal static class MyAccountHandlers
                 }
             }
         }
-        return TypedResults.Ok(new CredentialsValidationInfo { 
-            PasswordRules = availableRules.Values.ToList() 
+        return TypedResults.Ok(new CredentialsValidationInfo {
+            PasswordRules = availableRules.Values.ToList()
         });
     }
 
