@@ -229,7 +229,7 @@ public static class IdentityBuilderExtensions
     /// <param name="builder">Helper functions for configuring identity services.</param>
     /// <returns>The <see cref="IdentityBuilder"/>.</returns>
     public static IdentityBuilder AddDefaultPhoneNumberValidator(this IdentityBuilder builder) {
-        builder.AddPhoneNumberValidator<DefaultPhoneNumberValidator>();
+        builder.Services.TryAddScoped<IPhoneNumberValidator, DefaultPhoneNumberValidator>();
         return builder;
     }
 

@@ -33,14 +33,10 @@ public class DefaultPhoneNumberValidator : IPhoneNumberValidator
 
     /// <inheritdoc/>
     public bool Validate(string phoneNumber) {
-        bool result;
         var phoneNumberRegex = configuration.GetIdentityOption("User", "PhoneNumberRegex");
-        if (string.IsNullOrEmpty(phoneNumberRegex)) {
-            // Greek phone number default.
-            result = phoneNumber is { Length: 10 } && phoneNumber.StartsWith("69");
-        } else {
-            result = Regex.IsMatch(phoneNumber, phoneNumberRegex);
-        }
-        return result;
+
+        return string.IsNullOrEmpty(phoneNumberRegex)
+            ? phoneNumber is { Length: 10 } && phoneNumber.StartsWith("69") // Greek phone number default.
+            : Regex.IsMatch(phoneNumber, phoneNumberRegex);
     }
 }

@@ -6,7 +6,6 @@ using Indice.Features.Identity.Core.PhoneNumberValidation;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
@@ -17,26 +16,25 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
 {
     private readonly IStringLocalizer<RegisterInputModelValidator> _localizer;
     private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
-    private readonly IConfiguration _configuration;
 
     /// <summary>Creates a new instance of <see cref="LoginInputModelValidator"/> class.</summary>
     /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
     /// <param name="userManager">An extendned <see cref="UserManager{TUser}"/> for the identity framework.</param>
     /// <param name="identityOptions">Represents all the options you can use to configure the identity system.</param>
-    /// <param name="configuration">Represents the configuration element.</param>
+    /// <param name="phoneNumberValidator">Represents a validator that validates phone numbers.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public RegisterInputModelValidator(
         IStringLocalizer<RegisterInputModelValidator> localizer,
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedUserManager<User> userManager,
         IOptionsSnapshot<IdentityOptions> identityOptions,
-        IConfiguration configuration,
         IPhoneNumberValidator phoneNumberValidator
     ) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(nameof(phoneNumberValidator));
+
         RuleFor(x => x.FirstName).NotEmpty().WithName(_localizer["First name"]);
         RuleFor(x => x.LastName).NotEmpty().WithName(_localizer["Last name"]);
         if (!userManager.EmailAsUserName) {
@@ -46,6 +44,7 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
         };
         RuleFor(x => x.Password).NotEmpty().WithName(_localizer["Password"]);
         RuleFor(x => x.PhoneNumber)
+            .NotEmpty()
             .Must((model, phone) => phoneNumberValidator.Validate($"{model.PhoneCallingCode}{phone}"))
             .WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
