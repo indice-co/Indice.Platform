@@ -41,6 +41,12 @@ public class EmailMessage
     internal EmailSender Sender { get; set; }
 }
 
+
+public class EmailBody
+{
+    // body, template, data, dataType, bool isTemplate => body is null;
+}
+
 /// <summary>Models the optional attachment of an email message.</summary>
 public class EmailAttachment
 {

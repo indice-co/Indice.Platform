@@ -35,7 +35,11 @@ public interface IEmailService
     /// <param name="body">The body of the email message.</param>
     /// <param name="attachments">The files that will be attached in the email message.</param>
     /// <param name="from">Optional email address in the form field. Defaults to the configuration values <strong>Email:Sender</strong> and <strong>Email:SenderName</strong>.</param>
+
+    // TODO: To Extension Method
     Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null);
+    
+    //Task SendAsync(string[] recipients, string subject, EmailBody body, EmailAttachment[] attachments = null, EmailSender from = null);
 }
 
 /// <summary>Service extensions for <see cref="IEmailService"/>.</summary>
