@@ -6,8 +6,8 @@ namespace Indice.Features.Identity.SignInLogs;
 
 internal class SignInLogEntryFactory
 {
-    private static readonly string INDICE_IP = "212.205.254.62";
-    //private static readonly string INDICE_IP = "51.107.83.216";
+    //private static readonly string INDICE_IP = "212.205.254.62";
+    private static readonly string INDICE_IP = "51.107.83.216";
 
     public static SignInLogEntry CreateFromTokenIssuedSuccessEvent(TokenIssuedSuccessEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
@@ -135,6 +135,10 @@ internal class SignInLogEntryFactory
             ExtraData = new SignInLogEntryExtraData()
         };
         logEntry.ExtraData.ProcessId = @event.ProcessId;
+        if (@event.Warning is not null) {
+            logEntry.Review = true;
+            logEntry.ExtraData.Warning = @event.Warning.Value;
+        }
         logEntry.ExtraData.OriginalEventType = nameof(UserPasswordLoginSuccessEvent);
         return logEntry;
     }
