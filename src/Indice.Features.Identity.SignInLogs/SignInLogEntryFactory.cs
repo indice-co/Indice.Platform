@@ -34,6 +34,7 @@ internal class SignInLogEntryFactory
             TokenType = x.TokenType,
             TokenValue = x.TokenValue
         });
+        logEntry.ExtraData.OriginalEventType = nameof(TokenIssuedSuccessEvent);
         return logEntry;
     }
 
@@ -60,6 +61,7 @@ internal class SignInLogEntryFactory
         logEntry.ExtraData.ProcessId = @event.ProcessId;
         logEntry.ExtraData.RedirectUri = @event.RedirectUri;
         logEntry.ExtraData.Scope = @event.Scopes;
+        logEntry.ExtraData.OriginalEventType = nameof(TokenIssuedFailureEvent);
         return logEntry;
     }
 
@@ -87,6 +89,7 @@ internal class SignInLogEntryFactory
             logEntry.Review = true;
             logEntry.ExtraData.Warning = @event.Warning.Value;
         }
+        logEntry.ExtraData.OriginalEventType = nameof(ExtendedUserLoginSuccessEvent);
         return logEntry;
     }
 
@@ -109,6 +112,30 @@ internal class SignInLogEntryFactory
             ExtraData = new SignInLogEntryExtraData()
         };
         logEntry.ExtraData.ProcessId = @event.ProcessId;
+        logEntry.ExtraData.OriginalEventType = nameof(UserLoginFailureEvent);
+        return logEntry;
+    }
+
+    public static SignInLogEntry CreateFromUserPasswordLoginSuccessEvent(UserPasswordLoginSuccessEvent @event) {
+        var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
+            ActionName = @event.Name,
+            ApplicationId = @event.ClientId,
+            Description = "A user was successfully provided his credentials.",
+#if DEBUG
+            IpAddress = INDICE_IP,
+#else
+            IpAddress = @event.RemoteIpAddress,
+#endif
+            ResourceId = @event.Endpoint,
+            ResourceType = "IdentityServer",
+            SignInType = SignInType.Interactive,
+            SubjectId = @event.SubjectId,
+            SubjectName = @event.DisplayName,
+            Succeeded = true,
+            ExtraData = new SignInLogEntryExtraData()
+        };
+        logEntry.ExtraData.ProcessId = @event.ProcessId;
+        logEntry.ExtraData.OriginalEventType = nameof(UserPasswordLoginSuccessEvent);
         return logEntry;
     }
 }

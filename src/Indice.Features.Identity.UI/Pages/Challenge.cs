@@ -77,6 +77,11 @@ public abstract class BaseChallengeModel : BasePageModel
         // Save user tokes retrieved from external provider.
         await SignInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
         var result = await SignInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, isPersistent: true);
+        // Replace locale Claim only if it has a different value configured.
+        var localeClaim = user.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale && x.ClaimValue == RequestCulture.Culture.TwoLetterISOLanguageName);
+        if (localeClaim is null) {
+            await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
+        }
         var redirectUrl = GetRedirectUrl(result, returnUrl);
         if (redirectUrl is not null) {
             return Redirect(redirectUrl);

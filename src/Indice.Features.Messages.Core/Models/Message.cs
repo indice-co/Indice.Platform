@@ -26,4 +26,8 @@ public class Message
     public Period ActivePeriod { get; set; }
     /// <summary>The type details of the campaign.</summary>
     public MessageType Type { get; set; }
+    /// <summary>Indicates that the message is part of a global campaign and requires the appropriate substitutions to be personalized.</summary>
+    internal bool RequiresSubstitutions { get; set; }
+    /// <summary>The Data property of Campaign Metadata.</summary>
+    internal dynamic CampaignData { get; set; }
 }

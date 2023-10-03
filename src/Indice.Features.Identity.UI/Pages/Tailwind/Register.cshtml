@@ -3,6 +3,8 @@
 @model BaseRegisterModel
 
 @inject IIdentityViewLocalizer Localizer
+@inject ExtendedUserManager<User> userManager
+@inject IZoneInfoProvider zoneInfoProvider
 
 @{
     var title = ViewData["Title"] = Localizer["Sign up"].Value;
@@ -27,49 +29,93 @@
                     <span asp-validation-for="Input.LastName" class="text-danger"></span>
                 </div>
             </div>
-            <div class="row">
-                <div class="input-group">
-                    <input type="text" class="peer" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
-                    <label asp-for="Input.Email" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Email"]</label>
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+            @if (userManager.EmailAsUserName)
+            {
+                <div class="row">
+                    <div class="input-group">
+                        <select class="peer" asp-for="Input.ZoneInfo" required>
+                            <option value="" selected>@Localizer["Choose..."]</option>
+                            @foreach (var timezone in zoneInfoProvider.GetTimeZones())
+                            {
+                                <option value="@timezone.Id">@timezone.DisplayName</option>
+                            }
+                        </select>
+                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer["Timezone"]</label>
+                        <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="peer" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                        <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <input type="text" class="peer" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
-                    <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
-                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="input-group">
+                        <input type="text" class="peer" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                        <label asp-for="Input.Email" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Email"]</label>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="peer" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                        <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="input-group">
-                    <select class="peer" asp-for="Input.ZoneInfo" required>
-                        <option value="" selected>@Localizer["Choose..."]</option>
-                        @foreach (var timezone in TimeZoneInfo.GetSystemTimeZones())
-                        {
-                            <option value="@timezone.Id">@timezone.DisplayName</option>
-                        }
-                    </select>
-                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer["Timezone"]</label>
-                    <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
+                <div class="row">
+                    <div class="input-group">
+                        <select class="peer" asp-for="Input.ZoneInfo" required>
+                            <option value="" selected>@Localizer["Choose..."]</option>
+                            @foreach (var timezone in zoneInfoProvider.GetTimeZones())
+                            {
+                                <option value="@timezone.Id">@timezone.DisplayName</option>
+                            }
+                        </select>
+                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer["Timezone"]</label>
+                        <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
+            }
             <hr class="mb-7">
             <div class="row">
-                <div class="input-group-w-full">
-                    <div class="relative">
-                        <div class="absolute inset-y-0 right-4 flex items-center mt-[1.8rem]" data-tooltip-target="username-tooltip">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-greys-600" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                            </svg>
+                @if (userManager.EmailAsUserName) {
+                    <div class="input-group-w-full">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 right-4 flex items-center mt-[1.8rem]" data-tooltip-target="username-tooltip">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-greys-600" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div id="username-tooltip" role="tooltip" class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 shadow-sm opacity-0 tooltip max-w-xs">
+                                @Localizer["Choose a username and a password of your choice. You can periodically change your password or whenever you wish to."]
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
                         </div>
-                        <div id="username-tooltip" role="tooltip" class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 shadow-sm opacity-0 tooltip max-w-xs">
-                            @Localizer["Choose a username and a password of your choice. You can periodically change your password or whenever you wish to."]
-                            <div class="tooltip-arrow" data-popper-arrow></div>
-                        </div>
+                        <input type="text" class="peer" asp-for="Input.Email" placeholder="@Localizer["Email"]" autocomplete="off" />
+                        <label asp-for="Input.Email" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Email"]</label>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
-                    <input type="text" class="peer" asp-for="Input.UserName" placeholder="@Localizer["Username"]" autocomplete="off" />
-                    <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Username"]</label>
-                    <span asp-validation-for="Input.UserName" class="text-danger"></span>
-                </div>
+                }
+                else {
+                    <div class="input-group-w-full">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 right-4 flex items-center mt-[1.8rem]" data-tooltip-target="username-tooltip">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 fill-greys-600" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div id="username-tooltip" role="tooltip" class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 shadow-sm opacity-0 tooltip max-w-xs">
+                                @Localizer["Choose a username and a password of your choice. You can periodically change your password or whenever you wish to."]
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                        </div>
+                        <input type="text" class="peer" asp-for="Input.UserName" placeholder="@Localizer["Username"]" autocomplete="off" />
+                        <label asp-for="Input.UserName" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Username"]</label>
+                        <span asp-validation-for="Input.UserName" class="text-danger"></span>
+                    </div>
+                }
             </div>
             <div class="row mb-0.5">
                 <div class="input-group-w-full">
@@ -157,6 +203,7 @@
     <script type="text/javascript" src="~/lib/knockout-secure-binding/dist/knockout-secure-binding.min.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/utilities.js" csp-nonce="true"></script>
     <script type="text/javascript" src="~/js/password-rules.js" csp-nonce="true"></script>
+    <script type="text/javascript" src="~/js/zone-info-select.js" csp-nonce="true" data-id="@Html.IdFor(x => x.Input.ZoneInfo)"></script>
     <script csp-nonce="true">
         document.querySelectorAll('.idp a').forEach(function (el) {
             el.onclick = function (link) {

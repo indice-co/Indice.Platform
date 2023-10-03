@@ -4,7 +4,7 @@ using Indice.Features.Risk.Server.Models;
 
 namespace Indice.Features.Risk.Server.Validators;
 
-internal class GetRiskRequestValidator : AbstractValidator<RiskRequestBase>
+internal class GetRiskRequestValidator : AbstractValidator<RiskModel>
 {
     public GetRiskRequestValidator() {
         RuleFor(x => x.IpAddress).MaximumLength(TextSizePresets.M128);

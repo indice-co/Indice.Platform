@@ -18,8 +18,13 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<RiskEvent>> GetListByType(string subjectId, string type) {
-        var events = await _dbContext.RiskEvents.Where(x => x.SubjectId == subjectId && x.Type == type).ToListAsync();
-        return events;
+    public async Task<IEnumerable<RiskEvent>> GetList(string subjectId, string[]? types) {
+        var query = _dbContext
+            .RiskEvents
+            .Where(x => x.SubjectId == subjectId);
+        if (types?.Any() == true) {
+            query = query.Where(x => types.Contains(x.Type));
+        }
+        return await query.ToListAsync();
     }
 }
