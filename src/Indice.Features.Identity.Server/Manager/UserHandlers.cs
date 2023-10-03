@@ -202,7 +202,10 @@ internal static class UserHandlers
                 });
             }
         }
-        await userManager.UpdateAsync(user, request.BypassEmailAsUserNamePolicy);
+        var identityResult = await userManager.UpdateAsync(user, request.BypassEmailAsUserNamePolicy);
+        if (!identityResult.Succeeded) {
+            return TypedResults.ValidationProblem(identityResult.Errors.ToDictionary());
+        }
         var roles = await dbContext.UserRoles.AsNoTracking().Where(x => x.UserId == userId).Join(
             dbContext.Roles,
             userRole => userRole.RoleId,
