@@ -151,6 +151,16 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     /// <inheritdoc/>
+    public override async Task<SignInResult> PasswordSignInAsync(TUser user, string password, bool isPersistent, bool lockoutOnFailure) {
+        var attempt = await base.PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure);
+        if (attempt.Succeeded) {
+            var result = await _signInGuard.IsSuspiciousLogin(user);
+            await _eventService.Publish(UserPasswordLoginEvent.Success(user, result.Warning));
+        }
+        return attempt;
+    }
+
+    /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
         var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) && (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
         if (isExternalLogin) {

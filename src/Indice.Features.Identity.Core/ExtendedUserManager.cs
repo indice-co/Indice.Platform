@@ -201,6 +201,17 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         }
         return result;
     }
+
+    /// <inheritdoc />
+    public override async Task<TUser> FindByEmailAsync(string email) {
+        if (!Options.User.RequireUniqueEmail) {
+            var user = await FindByNameAsync(email);
+            if (user is not null) {
+                return user;
+            }
+        }
+        return await base.FindByEmailAsync(email);
+    }
     #endregion
 
     #region Custom Methods
