@@ -15,6 +15,11 @@ namespace Indice.Services;
 /// </summary>
 public class EmailServiceSendGrid : IEmailService
 {
+    /// <summary>Creates a new instance of <see cref="EmailServiceSendGrid"/>.</summary>
+    /// <param name="settings">An instance of <see cref="EmailServiceSendGridSettings"/> used to initialize the service.</param>
+    /// <param name="httpClient">The HTTP client to use (DI managed)</param>
+    /// <param name="logger">Represents a type used to perform logging.</param>
+    /// <param name="htmlRenderingEngine">This is an abstraction for the rendering engine.</param>
     public EmailServiceSendGrid(
         IOptionsSnapshot<EmailServiceSendGridSettings> settings,
         HttpClient httpClient,
@@ -26,8 +31,9 @@ public class EmailServiceSendGrid : IEmailService
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
         if (HttpClient.BaseAddress == null) {
             HttpClient.BaseAddress = new Uri(Settings.Api.TrimEnd('/') + "/");
-            HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey);
         }
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey 
+            ?? throw new ArgumentNullException(nameof(Settings.ApiKey)));
     }
 
     private EmailServiceSendGridSettings Settings { get; }
@@ -60,15 +66,12 @@ public class EmailServiceSendGrid : IEmailService
                     Content = Convert.ToBase64String(x.Data)
                 }).ToList()
                 : null,
-        };
-
-        if (body is { Length: > 0 }) {
-            request.Content = new List<SendGridContent> {
+            Content = new List<SendGridContent> {
                 new () {
                     Value = body
                 }
-            };
-        }
+            }
+        };
 
         var requestJson = JsonSerializer.Serialize(request, new JsonSerializerOptions {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -100,8 +103,6 @@ public class EmailServiceSendGridSettings
     public string ApiKey { get; set; }
     /// <summary>The SendGrid API URL (ex. https://api.sendgrid.com/v3/).</summary>
     public string Api { get; set; } = "https://api.sendgrid.com/v3/";
-
-    public Dictionary<string, string> Templates { get; set; } = new ();
 }
 
 #region SendGrid models
