@@ -134,7 +134,7 @@ public class NotificationsManager
     public async Task<CreateCampaignResult> SendMessageToRecipients(string title, MessageChannelKind channels, Guid templateId, Period period = null,
         Hyperlink actionLink = null, string type = null, dynamic data = null, params string[] recipientIds) {
         var template = await TemplateService.GetById(templateId);
-        return await SendMessageToRecipients(title, template.Content.ToDictionary(x => Enum.Parse<MessageChannelKind>(x.Key), x => x.Value), period, actionLink, type, data, recipientIds);
+        return await SendMessageToRecipients(title, template.Content.ToDictionary(x => Enum.Parse<MessageChannelKind>(x.Key, ignoreCase: true), x => x.Value), period, actionLink, type, data, recipientIds);
     }
 
     /// <summary>Creates a new message for the specified recipients.</summary>
