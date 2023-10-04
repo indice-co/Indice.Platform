@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Elsa update from `2.11.0` to `2.12.0`
+- Elsa update from `2.11.0` to `2.13.0`
 ### Added
 - Add `AddRetentionServices` feature for Elsa Workflows with app settings configuration.
 > To override the default specification for workflow retention selection, implement the `IRetentionSpecificationFilter` and pass it as a parameter to `AddWorkflow`.
