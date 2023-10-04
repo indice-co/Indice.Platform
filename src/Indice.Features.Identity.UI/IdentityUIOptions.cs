@@ -6,6 +6,11 @@ namespace Indice.Features.Identity.UI;
 /// <summary>Configuration options for Identity UI.</summary>
 public class IdentityUIOptions
 {
+    /// <summary>
+    /// The copywrite year from. Usualy found on UI footer
+    /// </summary>
+    public int CopyYear { get; set; } = DateTime.Now.Year;
+
     /// <summary>This is the slogan that will be displayed in the home page.</summary>
     /// <remarks>
     /// There are already translations for the following: 
@@ -25,6 +30,9 @@ public class IdentityUIOptions
     /// <summary>An absolute URL to the <strong>privacy</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
     /// <remarks>If left null the <strong>./legal/privacy.md</strong> will be used. If populated it will do a redirect to this URL</remarks>
     public string? PrivacyUrl { get; set; }
+    /// <summary>An absolute URL to the <strong>Contact us</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
+    /// <remarks>If left null the <strong>Contact Us</strong> link in the footer will disapear. If populated it will do a redirect to this URL. By default it is empty</remarks>
+    public string? ContactUsUrl { get; set; }
     /// <summary>Controls whether an external Identity user will go through the associate screen or not.</summary>
     public bool AutoProvisionExternalUsers { get; set; } = true;
     /// <summary>Controls whether an external identity user be associated to an existing one using the email account.</summary>

@@ -2,6 +2,7 @@
 using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Humanizer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -47,27 +48,55 @@ public class SchemaFluentValidationFilter : ISchemaFilter
                   .Count() > 0;
 }
 
-/// <summary>Filter that decorates request parameters with validators by searching in FluentValidation.</summary>
+/// <summary>Filter that decorates request parameters with validators by searching in FluentValidation.</summary>/// <summary>Filter that decorates request parameters with validators by searching in FluentValidation.</summary>
 public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
 {
-    private readonly IServiceProvider services;
+    private readonly IServiceProvider _rootServiceProvider;
     /// <summary>
     /// constructor
     /// </summary>
-    /// <param name="services"></param>
-    public RequestBodyFluentValidationSwaggerFilter(IServiceProvider services) {
-        this.services = services;
+    /// <param name="rootServiceProvider"></param>
+    public RequestBodyFluentValidationSwaggerFilter(IServiceProvider rootServiceProvider) {
+        _rootServiceProvider = rootServiceProvider;
     }
     /// <inheritdoc/>
     public void Apply(OpenApiRequestBody requestBody, RequestBodyFilterContext context) {
-        Type validatorType = typeof(IValidator<>).MakeGenericType(context.BodyParameterDescription.Type);
+        var scopedServiceProvider = _rootServiceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext.RequestServices;
+        if (context.BodyParameterDescription is not null) {
+            AnnotateRequestBodySchemaWithValidator(scopedServiceProvider, context, context.BodyParameterDescription.Type);
+        } else if (context.FormParameterDescriptions?.Count() > 0) {
+            foreach (var parameterDescription in context.FormParameterDescriptions) {
+                if (parameterDescription.Type is not null)
+                    AnnotateRequestBodySchemaWithValidator(scopedServiceProvider, context, parameterDescription.Type);
+            }
+        }
+    }
+
+    private static void AnnotateRequestBodySchemaWithValidator(IServiceProvider services, RequestBodyFilterContext context, Type parameterDescriptionType) {
+        if (!parameterDescriptionType.IsClass || parameterDescriptionType.IsOneOf(typeof(int), typeof(long), typeof(float), typeof(string), typeof(double), typeof(decimal), typeof(DateTime), typeof(DateTimeOffset))) {
+            return;
+        }
+        Type validatorType = typeof(IValidator<>).MakeGenericType(parameterDescriptionType);
         IValidator validator = services.GetService(validatorType) as IValidator;
         if (validator is not null) {
-            OpenApiSchema schema = context.SchemaRepository.Schemas[context.BodyParameterDescription.Type.FullName];
+            OpenApiSchema schema = default;
+            if (context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.FullName)) {
+                schema = context.SchemaRepository.Schemas[parameterDescriptionType.FullName];
+            } else if (context.SchemaRepository.Schemas.ContainsKey(parameterDescriptionType.Name)) {
+                schema = context.SchemaRepository.Schemas[parameterDescriptionType.Name];
+            } else {
+                return;
+            }
             IValidatorDescriptor descriptor = validator.CreateDescriptor();
             ILookup<string, (IPropertyValidator Validator, IRuleComponent Options)> validationRules = descriptor.GetMembersWithValidators();
             foreach (IGrouping<string, (IPropertyValidator Validator, IRuleComponent Options)> validationRule in validationRules) {
-                string property = validationRule.Key[..1].ToLower() + validationRule.Key[1..];
+                // asume camelcase
+                var property = validationRule.Key[..1].ToLower() + validationRule.Key[1..];
+                // make sure
+                property = schema.Properties.Keys.Where(x => x.Equals(property, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                if (property is null) {
+                    continue;
+                }
                 foreach (IPropertyValidator propertyValidator in validationRule.Select(x => x.Validator)) {
                     switch (propertyValidator) {
                         case INotEmptyValidator:
@@ -84,12 +113,18 @@ public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
                             schema.Properties[property].MaxLength = lengthValidator.Max;
                             break;
                         case IBetweenValidator betweenValidator:
+                            if (!IsNumeric(betweenValidator.From)) {
+                                break;
+                            }
                             schema.Properties[property].Minimum = Convert.ToDecimal(betweenValidator.From);
                             schema.Properties[property].Maximum = Convert.ToDecimal(betweenValidator.To);
                             schema.Properties[property].ExclusiveMinimum = betweenValidator.Name.Contains("exclusive", StringComparison.OrdinalIgnoreCase);
                             schema.Properties[property].ExclusiveMaximum = betweenValidator.Name.Contains("exclusive", StringComparison.OrdinalIgnoreCase);
                             break;
                         case IComparisonValidator comparisonValidator:
+                            if (!IsNumeric(comparisonValidator.ValueToCompare)) {
+                                break;
+                            }
                             if (comparisonValidator.Comparison == Comparison.LessThan) {
                                 schema.Properties[property].Maximum = Convert.ToDecimal(comparisonValidator.ValueToCompare);
                                 schema.Properties[property].ExclusiveMaximum = true;
@@ -109,4 +144,6 @@ public class RequestBodyFluentValidationSwaggerFilter : IRequestBodyFilter
             }
         }
     }
+
+    private static bool IsNumeric(object value) => value is not null && value.GetType().IsOneOf(typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal));
 }

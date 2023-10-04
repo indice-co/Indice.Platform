@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Identity.SignInLogs.Models;
+﻿using Indice.Features.Identity.Core;
+
+namespace Indice.Features.Identity.SignInLogs.Models;
 
 /// <summary>Additional information about the user's sign in log entry.</summary>
 public class SignInLogEntryExtraData
@@ -21,4 +23,8 @@ public class SignInLogEntryExtraData
     public SignInLogEntryDevice Device { get; set; }
     /// <summary>User devices representation.</summary>
     public SignInLogEntryUserDevice UserDevice { get; set; }
+    /// <summary>Describes a warning that may occur during a sign in event.</summary>
+    public SignInWarning? Warning { get; set; }
+    /// <summary>The name of the original event occurred.</summary>
+    public string OriginalEventType { get; set; }
 }

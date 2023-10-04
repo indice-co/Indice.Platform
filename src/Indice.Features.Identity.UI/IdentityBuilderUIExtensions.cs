@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.Assets;
 using Indice.Features.Identity.UI.Localization;
@@ -37,26 +38,25 @@ public static class IdentityBuilderUIExtensions
         services.AddLocalization(options => options.ResourcesPath = "Resources");
         services.AddMvcCore()
                 .ConfigureApplicationPartManager(apm => {
-                     // We try to resolve the UI framework that was used by looking at the entry assembly.
-                     // When an app runs, the entry assembly will point to the built app. In some rare cases
-                     // (functional testing) the app assembly will be different, and we'll try to locate it through
-                     // the same mechanism that MVC uses today.
-                     // Finally, if for some reason we aren't able to find the assembly, we'll use our default value
-                     // (Bootstrap5)
-                     
-                     if (!TryResolveUIFramework(Assembly.GetEntryAssembly(), out var framework) &&
-                         !TryResolveUIFramework(GetApplicationAssembly(services), out framework)) {
-                         framework = default;
-                     }
-
-                     var parts = new ConsolidatedAssemblyApplicationPartFactory().GetApplicationParts(typeof(IdentityBuilderUIExtensions).Assembly);
-                     foreach (var part in parts) {
-                         apm.ApplicationParts.Add(part);
-                     }
-                     apm.FeatureProviders.Add(new ViewVersionFeatureProvider(framework));
-                 })
+                    // We try to resolve the UI framework that was used by looking at the entry assembly.
+                    // When an app runs, the entry assembly will point to the built app. In some rare cases (functional testing) the app assembly will be different, and we'll try to locate it through the same mechanism that MVC uses today.
+                    // Finally, if for some reason we aren't able to find the assembly, we'll use our default value (Bootstrap5).
+                    if (!TryResolveUIFramework(Assembly.GetEntryAssembly(), out var framework) &&
+                        !TryResolveUIFramework(GetApplicationAssembly(services), out framework)) {
+                        framework = default;
+                    }
+                    var parts = new ConsolidatedAssemblyApplicationPartFactory().GetApplicationParts(typeof(IdentityBuilderUIExtensions).Assembly);
+                    foreach (var part in parts) {
+                        apm.ApplicationParts.Add(part);
+                    }
+                    apm.FeatureProviders.Add(new ViewVersionFeatureProvider(framework));
+                })
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, options => options.ResourcesPath = "Resources");
         services.AddTransient<IIdentityViewLocalizer, IdentityViewLocalizer>();
+        services.AddPlatformEventHandler<UserLoginEvent, UserLoginEventHandler>();
+        services.AddPlatformEventHandler<UserPasswordLoginEvent, UserPasswordLoginEventHandler>();
+        // Add default (system) implementation of zoneInfoProvider
+        services.AddZoneInfoProvider();
         // Configure other services.
         services.AddGeneralSettings(configuration);
         services.AddMarkdown();
@@ -149,7 +149,7 @@ public static class IdentityBuilderUIExtensions
 
         private static bool IsIdentityUIView(CompiledViewDescriptor desc) => (desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap5)}", StringComparison.OrdinalIgnoreCase) ||
                                                                               desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Bootstrap4)}", StringComparison.OrdinalIgnoreCase) ||
-                                                                              desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Tailwind)}", StringComparison.OrdinalIgnoreCase) )
+                                                                              desc.RelativePath.StartsWith($"/Pages/{nameof(UIFramework.Tailwind)}", StringComparison.OrdinalIgnoreCase))
                                                                               &&
             desc.Type?.Assembly == typeof(IdentityBuilderUIExtensions).Assembly;
     }

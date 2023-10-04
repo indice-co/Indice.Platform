@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.Messages.Worker.Azure;
 
 /// <summary>Options used when configuring messages in Azure Functions.</summary>
-public class MessageOptions
+public class MessageOptions : MessageWorkerOptions
 {
     /// <summary>
     /// Configuration <see cref="Action"/> for internal <see cref="DbContext"/>. 

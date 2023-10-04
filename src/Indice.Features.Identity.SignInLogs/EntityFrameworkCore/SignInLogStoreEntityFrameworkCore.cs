@@ -67,7 +67,7 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
                 query = query.Where(l => l.SubjectId == filter.Subject || l.SubjectName == filter.Subject);
             }
         }
-        return await query.Select(ObjectMapping.ToSignInLogEntry).ToResultSetAsync(options);
+        return await query.Select(ObjectMapping.ToSignInLogEntry).ToResultSetAsync(options, cancellationToken);
     }
 
     /// <inheritdoc />

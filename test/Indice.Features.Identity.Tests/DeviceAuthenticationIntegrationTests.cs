@@ -160,11 +160,11 @@ public class DeviceAuthenticationIntegrationTests
         _output = output;
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
-            builder.AddInMemoryCollection(new List<KeyValuePair<string, string>> {
-                new KeyValuePair<string, string>("IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices", "20"),
-                new KeyValuePair<string, string>("IdentityOptions:User:Devices:MaxAllowedRegisteredDevices", "40"),
-                new KeyValuePair<string, string>("IdentityOptions:User:Devices:RequirePasswordAfterUserUpdate", "true"),
-                new KeyValuePair<string, string>("Totp:EnableDeveloperTotp", "true")
+            builder.AddInMemoryCollection(new Dictionary<string, string> {
+                [ "IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices" ] = "20",
+                [ "IdentityOptions:User:Devices:MaxAllowedRegisteredDevices" ] = "40",
+                [ "IdentityOptions:User:Devices:RequirePasswordAfterUserUpdate" ] = "true",
+                [ "Totp:EnableDeveloperTotp" ] = "true"
             });
         });
         builder.ConfigureServices(services => {

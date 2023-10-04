@@ -6,9 +6,13 @@
     @foreach (var item in Model)
     {
         var itemCssClass = item.DisplayName.ToLower().Replace(' ', '-');
+        var hasImage = !string.IsNullOrWhiteSpace(item.ImageSrc);
         <a class="deck-item @item.CssClass @itemCssClass d-flex flex-column-reverse mb-4" href="@Url.Content(item.Link)" indice-if="item.Visible">
             <h5 class="deck-title mt-3">@Localizer[item.DisplayName]</h5>
-            <div class="deck-icon"></div>
+            <div indice-if="!hasImage" class="deck-icon"></div>
+            <div indice-if="hasImage" class="deck-image">
+                <img src="@item.ImageSrc" alt="@Localizer[item.DisplayName] image" />
+            </div>
         </a>
     }
 </div>

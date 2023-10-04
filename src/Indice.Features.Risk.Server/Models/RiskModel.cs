@@ -3,7 +3,7 @@
 namespace Indice.Features.Risk.Server.Models;
 
 /// <summary></summary>
-public class RiskRequestBase
+public class RiskModel
 {
     /// <summary>An amount relative to the event.</summary>
     public decimal? Amount { get; set; }
@@ -17,7 +17,7 @@ public class RiskRequestBase
     public string Type { get; set; } = string.Empty;
 
     /// <summary></summary>
-    public DbRiskEvent ToDbRiskEvent() => new() {
+    public RiskEvent ToRiskEvent() => new() {
         Amount = Amount,
         CreatedAt = DateTimeOffset.UtcNow,
         Id = Guid.NewGuid(),

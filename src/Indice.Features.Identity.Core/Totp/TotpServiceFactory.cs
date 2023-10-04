@@ -4,6 +4,7 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.Core.Totp;
 
@@ -23,7 +24,7 @@ public class TotpServiceFactory
     /// <typeparam name="TUser">The type of user entity.</typeparam>
     public TotpServiceUser<TUser> Create<TUser>() where TUser : User {
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<TUser>>();
-        var options = _serviceProvider.GetRequiredService<TotpOptions>();
+        var options = _serviceProvider.GetRequiredService<IOptions<TotpOptions>>().Value;
         if (options.EnableDeveloperTotp) {
             var totpServiceDeveloperLocalizer = _serviceProvider.GetRequiredService<IStringLocalizer<TotpServiceDeveloper<TUser>>>();
             return new TotpServiceDeveloper<TUser>(userManager, totpServiceDeveloperLocalizer, _serviceProvider);

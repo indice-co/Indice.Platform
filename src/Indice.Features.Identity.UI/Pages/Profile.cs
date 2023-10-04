@@ -92,6 +92,10 @@ public abstract class BaseProfileModel : BasePageModel
         AddModelErrors(result);
         result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommercialDate, $"{DateTime.UtcNow:O}");
         AddModelErrors(result);
+        if (Input.ZoneInfo is not null && Input.ZoneInfo != user.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.ZoneInfo)?.ClaimValue) {
+            result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.ZoneInfo, Input.ZoneInfo);
+            AddModelErrors(result);
+        }
         if (user.NormalizedEmail != Input.Email?.Trim().ToUpper()) {
             EmailChangeRequested = true;
             user.EmailConfirmed = false;
@@ -119,7 +123,7 @@ public abstract class BaseProfileModel : BasePageModel
         if (user == null) {
             return NotFound($"Unable to load user with ID '{UserManager.GetUserId(User)}'.");
         }
-        var result = await UserManager.RemoveLoginAsync(user, InputLoginLink.LoginProvider, InputLoginLink.ProviderKey);
+        var result = await UserManager.RemoveLoginAsync(user, InputLoginLink.LoginProvider!, InputLoginLink.ProviderKey!);
         if (!result.Succeeded) {
             TempData.Put("Alert", AlertModel.Error(string.Join(", ", result.Errors.Select(x => x.Description))));
             return RedirectToPage("/Profile");
@@ -190,7 +194,8 @@ public abstract class BaseProfileModel : BasePageModel
             OtherLogins = otherLogins,
             PhoneNumber = user.PhoneNumber,
             Tin = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.Tin)?.Value,
-            UserName = user.UserName ?? string.Empty
+            UserName = user.UserName ?? string.Empty,
+            ZoneInfo = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.ZoneInfo)?.Value,
         };
     }
 

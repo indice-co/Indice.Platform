@@ -166,7 +166,7 @@ internal class UsersController : ControllerBase
                 Email = user.Email,
                 EmailConfirmed = user.EmailConfirmed,
                 LockoutEnabled = user.LockoutEnabled,
-                LockoutEnd = user.LockoutEnd,
+                LockoutEnd = user.LockoutEnabled ? (user.LockoutEnd > DateTimeOffset.UtcNow ? user.LockoutEnd : null) : null,
                 PhoneNumber = user.PhoneNumber,
                 PhoneNumberConfirmed = user.PhoneNumberConfirmed,
                 TwoFactorEnabled = user.TwoFactorEnabled,
@@ -296,7 +296,10 @@ internal class UsersController : ControllerBase
                 });
             }
         }
-        await _userManager.UpdateAsync(user, request.BypassEmailAsUserNamePolicy);
+        var identityResult = await _userManager.UpdateAsync(user, request.BypassEmailAsUserNamePolicy);
+        if (!identityResult.Succeeded) {
+            return BadRequest(identityResult.Errors.ToValidationProblemDetails());
+        }
         var roles = await _dbContext.UserRoles.AsNoTracking().Where(x => x.UserId == userId).Join(
             _dbContext.Roles,
             userRole => userRole.RoleId,

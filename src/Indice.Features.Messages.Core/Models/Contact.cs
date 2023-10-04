@@ -29,6 +29,4 @@ public class Contact
     internal bool HasPhoneNumber => !string.IsNullOrWhiteSpace(PhoneNumber);
     /// <summary>Check if the contact has email or phone.</summary>
     internal bool IsEmpty => !HasEmail && !HasPhoneNumber;
-    /// <summary>Not updated a while now. Checks if updated the last 5 days.</summary>
-    internal bool NotUpdatedAWhileNow => !UpdatedAt.HasValue || (DateTimeOffset.UtcNow - UpdatedAt.Value) > TimeSpan.FromDays(5);
 }

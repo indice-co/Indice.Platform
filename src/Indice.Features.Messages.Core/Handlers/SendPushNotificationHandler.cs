@@ -25,15 +25,17 @@ public class SendPushNotificationHandler : ICampaignJobHandler<SendPushNotificat
             ? JsonSerializer.Deserialize<ExpandoObject>(pushNotification.Data, JsonSerializerOptionDefaults.GetDefaultSettings())
             : new ExpandoObject();
 
-        if (pushNotification.MessageId.HasValue) {
-            data.TryAdd("messageId", pushNotification.MessageId);
-        }
+        //Intentioanally added for naming consistency. external MessageId == internal CampaignId
+        //Essentially the domain ID for messages is the internal campaign ID.
+        //The internal message ID is just for data integrity.
+        data.TryAdd("messageId", pushNotification.CampaignId);
+
         var pushNotificationService = GetPushNotificationService(KeyedServiceNames.PushNotificationServiceKey);
         var pushBody = pushNotification.Body ?? "-";
         if (pushNotification.Broadcast) {
             await pushNotificationService.BroadcastAsync(pushNotification.Title, pushBody, data, pushNotification.MessageType?.Name);
         } else {
-            await pushNotificationService.SendToUserAsync(pushNotification.Title, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name);
+            await pushNotificationService.SendToUserAsync(pushNotification.Title, pushBody, data, pushNotification.RecipientId, classification: pushNotification.MessageType?.Name, pushNotification.RecipientId);
         }
     }
 }

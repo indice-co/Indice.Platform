@@ -41,6 +41,9 @@ public static class HostBuilderExtensions
                 // https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/hosting-exception-handling
                 hostOptions.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
             });
+            services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
+                messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
+            });
             services.AddHostedService<StartupSeedHostedService>();
         });
 
@@ -59,6 +62,7 @@ public static class HostBuilderExtensions
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
         services.TryAddTransient<ITemplateService, TemplateService>();
+        services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<CreateCampaignRequestValidator>();
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
         services.TryAddTransient<NotificationsManager>();

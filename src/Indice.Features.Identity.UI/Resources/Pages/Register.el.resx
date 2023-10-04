@@ -159,6 +159,9 @@
   <data name="These credentials are personal. Please remember them and do not reveal in any way (i.e orally, written, email) in third parties." xml:space="preserve">
     <value>Οι κωδικοί αυτοί είναι προσωπικοί. Παρακαλούμε να τους απομνημονεύσετε και να μην τους αποκαλύψετε κατά οποιοδήποτε τρόπο (π.χ. προφορικά, γραπτώς, e-mail) σε τρίτους.</value>
   </data>
+  <data name="Timezone" xml:space="preserve">
+    <value>Ζώνη ώρας</value>
+  </data>
   <data name="Username" xml:space="preserve">
     <value>Όνομα Χρήστη</value>
   </data>

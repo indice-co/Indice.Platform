@@ -8,6 +8,7 @@
 @inject SignInManager<User> SignInManager
 
 @{
+    var applicationName = Localizer[ViewBag.ApplicationName ?? Settings.ApplicationName];
     var dash = ViewBag.Title != null ? " - " : string.Empty;
     var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
     var langSuffix = (lang == "el") ? ".el" : string.Empty;
@@ -21,15 +22,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="@Settings.ApplicationDescription" />
-    <meta property="og:title" content="@Settings.ApplicationName @(!Environment.IsProduction() ? $"({Environment.EnvironmentName})" : string.Empty)" />
+    <meta property="og:title" content="@applicationName @(!Environment.IsProduction() ? $"({Environment.EnvironmentName})" : string.Empty)" />
     <meta property="og:type" content="product" />
     <meta property="og:url" content="@Settings.Host" />
     <meta property="og:image" content="@Settings.Host/img/favico/facebook.png" />
     <meta property="og:description" content="@Settings.ApplicationDescription" />
-    <meta name="application-name" content="@Settings.ApplicationName" />
+    <meta name="application-name" content="@applicationName" />
     <meta name="msapplication-TileColor" content="#@UiOptions.Value.AvatarColorHex" />
     @RenderSection("meta", required: false)
-    <title>@ViewBag.Title @dash @Localizer[Settings.ApplicationName]</title>
+    <title>@ViewBag.Title @dash @applicationName</title>
     <link href="~/favicon.ico" rel="icon" type="image/vnd.microsoft.icon" sizes="16x16 32x32 64x64 128x128" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
     <partial name="_StylesHead" />
@@ -41,7 +42,7 @@
     <link rel="stylesheet" type="text/css" href="~/lib/font-awesome/css/font-awesome.min.css" asp-append-version="true" />
     <partial name="_Styles" />
     @RenderSection("css", required: false)
-    <partial name="_MenuMain" />
+    <partial name="_Header" />
     <environment exclude="Production">
         <div class="ribbon @Environment.EnvironmentName.ToLower()">
             <span>@Environment.EnvironmentName</span>

@@ -1,6 +1,7 @@
 ﻿@page "/manage/profile"
 
 @inject IIdentityViewLocalizer Localizer
+@inject IZoneInfoProvider zoneInfoProvider
 
 @model BaseProfileModel
 
@@ -67,6 +68,17 @@
                 <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
                 <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.PhoneNumber">@Localizer["Phone number"]</label>
                 <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            <div class="input-group">
+                <select class="peer" asp-for="Input.ZoneInfo" required>
+                    <option value="" selected>@Localizer["Choose..."]</option>
+                    @foreach (var timezone in zoneInfoProvider.GetTimeZones())
+                    {
+                        <option value="@timezone.Id">@timezone.DisplayName</option>
+                    }
+                </select>
+                <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer["Timezone"]</label>
+                <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
             </div>
         </div>
         <div class="row">
@@ -144,7 +156,7 @@
             }
         </div>
     </form>
-    <partial name="_SelectLanguagePartial"/>
+    <partial name="_LanguageSelector" />
 </div>
 
 @section scripts {

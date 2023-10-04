@@ -13,13 +13,18 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task CreateAsync(DbRiskEvent @event) {
+    public async Task CreateAsync(RiskEvent @event) {
         _dbContext.RiskEvents.Add(@event);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<DbRiskEvent>> GetListByType(string subjectId, string type) {
-        var events = await _dbContext.RiskEvents.Where(x => x.SubjectId == subjectId && x.Type == type).ToListAsync();
-        return events;
+    public async Task<IEnumerable<RiskEvent>> GetList(string subjectId, string[]? types) {
+        var query = _dbContext
+            .RiskEvents
+            .Where(x => x.SubjectId == subjectId);
+        if (types?.Any() == true) {
+            query = query.Where(x => types.Contains(x.Type));
+        }
+        return await query.ToListAsync();
     }
 }

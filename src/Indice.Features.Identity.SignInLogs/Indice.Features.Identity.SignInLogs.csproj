@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
+    <InternalsVisibleTo Include="Indice.Features.Identity.Server" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GeoLite2\GeoLite2-City.mmdb">

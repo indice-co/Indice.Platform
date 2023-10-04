@@ -1,15 +1,20 @@
 ﻿@inject IOptions<GeneralSettings> Settings
+@inject IOptions<IdentityUIOptions> UIOptions
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment Environment
 
 @{
     var settings = Settings.Value;
-    var copyYear = 2021;
+    var copyYear = UIOptions.Value.CopyYear;
     var version = typeof(BaseLoginModel).Assembly.GetName().Version?.ToString();
+    var showContactUs = !string.IsNullOrWhiteSpace(UIOptions.Value.ContactUsUrl);
 }
 
 <footer class="container-fluid footer">
     <div class="copyright">
+        <div class="language">
+            <partial name="_LanguageSelector" />
+        </div>
         &copy; @Localizer[settings.Organization] @copyYear @(DateTime.Today.Year > copyYear ? $" - {DateTime.Today.Year}" : string.Empty)
     </div>
     <div class="links">
@@ -17,5 +22,6 @@
         <a indice-if="!Environment.IsProduction()" href="~/.well-known/openid-configuration" target="_blank">@Localizer["Discovery"]</a>
         <a asp-page="/Privacy" target="_blank">@Localizer["Privacy"]</a>
         <a asp-page="/Terms" target="_blank">@Localizer["Terms"]</a>
+        <a indice-if="showContactUs" href="@UIOptions.Value.ContactUsUrl" target="_blank">@Localizer["Contact us"]</a>
     </div>
 </footer>

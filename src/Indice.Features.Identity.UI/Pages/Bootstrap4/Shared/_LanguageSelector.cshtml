@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Builder;
+@using Microsoft.AspNetCore.Http.Extensions;
+@inject IIdentityViewLocalizer Localizer
+@inject IOptions<RequestLocalizationOptions> LocalizationOptions
+
+@{
+    var htmlUniqueId = $"{Guid.NewGuid():N}";
+    var supportedCultures = LocalizationOptions.Value.SupportedUICultures!;
+    var lang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var langDisplayName = GetLangDisplayName(CultureInfo.CurrentUICulture);
+}
+
+@functions {
+    public string GetLangDisplayName(CultureInfo culture)
+    {
+        return culture.Name == "en" ? "English" :
+               culture.Name == "el" ? "Ελληνικά" :
+               culture.DisplayName;
+    }
+}
+<div class="language-selector dropdown">
+    <button type="button" class="btn dropdown-toggle mr-md-2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="@langDisplayName">
+        @*<i class="fa fa-globe fa-lg"></i>*@
+        <span class="text-uppercase">@lang</span>
+        <i class="arrow"></i>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+        <form asp-page="/SetLanguage" id="SelectLanguageForm_@htmlUniqueId" asp-route-returnUrl="@Context.Request.GetEncodedPathAndQuery()" method="post" role="form">
+            @foreach (var supportedCulture in supportedCultures)
+            {
+                var optionText = GetLangDisplayName(supportedCulture);
+                var isSelected = supportedCulture.TwoLetterISOLanguageName == lang;
+                <button lang="@supportedCulture.TwoLetterISOLanguageName" 
+                        type="submit"
+                        form="SelectLanguageForm_@htmlUniqueId"
+                        lang="@supportedCulture.TwoLetterISOLanguageName"
+                        name="culture" value="@supportedCulture.TwoLetterISOLanguageName" title="@optionText"
+                        class="dropdown-item font-weight-600 text-uppercase @(isSelected ? "active" : string.Empty)">
+                    @optionText
+                </button>
+            }
+        </form>
+    </div>
+</div>

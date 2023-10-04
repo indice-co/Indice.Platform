@@ -45,7 +45,7 @@ export class TemplateDetailsEditComponent implements OnInit {
         });
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
-                this._api.deleteCampaign(response.result.data.id).subscribe(() => {
+                this._api.deleteTemplate(response.result.data.id).subscribe(() => {
                     this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Το πρότυπο με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates']));
                 });

@@ -180,6 +180,11 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.InvalidCredentials);
             return;
         }
+        //For Users with 2FA enabled AccessFailedCounter is only reset after successful sign in with the 2nd Factor.
+        //We need to override the default logic for mobile login.
+        if (context.User.AccessFailedCount > 0) {
+            await _userManager.ResetAccessFailedCountAsync(context.User);
+        }
         var subject = await _userManager.GetUserIdAsync(context.User);
         context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
     }

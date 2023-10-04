@@ -43,6 +43,9 @@ public static class WorkerHostBuilderExtensions
             // https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/hosting-exception-handling
             hostOptions.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
         });
+        workerHostBuilder.Services.Configure<MessageWorkerOptions>(messageWorkerOptions => {
+            messageWorkerOptions.ContactRetainPeriodInDays = options.ContactRetainPeriodInDays;
+        });
         workerHostBuilder.Services.AddHostedService<StartupSeedHostedService>();
         return workerHostBuilder;
     }
