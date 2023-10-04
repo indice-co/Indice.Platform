@@ -29,6 +29,7 @@ public class ExtendedUserLoginSuccessEvent : UserLoginSuccessEvent
     /// <param name="name">The name.</param>
     /// <param name="interactive">if set to <c>true</c> [interactive].</param>
     /// <param name="clientId">The client id.</param>
+    /// <param name="clientName">The client name.</param>
     /// <param name="warning">Describes a warning that may occur during a sign in event.</param>
     public ExtendedUserLoginSuccessEvent(
         string username,
@@ -36,10 +37,15 @@ public class ExtendedUserLoginSuccessEvent : UserLoginSuccessEvent
         string name,
         bool interactive = true,
         string clientId = null,
-        SignInWarning? warning = null) : base(username, subjectId, name, interactive, clientId) {
+        string clientName = null,
+        SignInWarning? warning = null
+    ) : base(username, subjectId, name, interactive, clientId) {
+        ClientName = clientName;
         Warning = warning;
     }
 
     /// <summary>Describes a warning that may occur during a sign in event.</summary>
     public SignInWarning? Warning { get; }
+    /// <summary>The client name.</summary>
+    public string ClientName { get; set; }
 }
