@@ -16,6 +16,7 @@ export class UserSignInLogsComponent implements OnInit {
 
   @ViewChild('optionalTemplate', { static: true }) private _optionalTemplate: TemplateRef<HTMLElement>;
   @ViewChild('actionsTemplate', { static: true }) private _actionsTemplate: TemplateRef<HTMLElement>;
+  @ViewChild('statusTemplate', { static: true }) private _statusTemplate: TemplateRef<HTMLElement>;
   @ViewChild('signInLogsList', { static: true }) public signInLogsList: ListViewComponent;
   @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<HTMLElement>;
 
@@ -29,7 +30,7 @@ export class UserSignInLogsComponent implements OnInit {
   public columns: TableColumn[] = [];
   public rows: SignInLogEntry[] = [];
   public count = 0;
-  public defaultPageSize = 10;
+  public defaultPageSize = 15;
   public defaultPage = 1;
   public defaultSortField = 'createdAt';
   public defaultSortDirection = 'Desc';
@@ -40,13 +41,14 @@ export class UserSignInLogsComponent implements OnInit {
 
   ngOnInit(): void {
     this.columns = [
-        { prop: 'id', name: 'Id', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' },
+      { prop: 'id', name: 'Id', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' },
         { prop: 'createdAt', name: 'Created At', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this.signInLogsList.dateTimeTemplate, width: 200 },
         { prop: 'actionName', name: 'Action', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
         { prop: 'applicationName', name: 'App Name', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._optionalTemplate },
+        { name: 'Status', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._statusTemplate },
         { prop: 'sessionId', name: 'Session Id', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
         { prop: 'location', name: 'Location', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
-        { prop: 'subjectName', name: 'Subject', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
+        // { prop: 'subjectName', name: 'Subject', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
         { prop: 'resourceId', name: 'Endpoint', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate },
         { prop: 'signInType', name: 'Sign in Type', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._optionalTemplate }
     ];
@@ -88,6 +90,12 @@ export class UserSignInLogsComponent implements OnInit {
     else {
       const defaultSortField = `${this.defaultSortField}${this.defaultSortDirection == 'Desc' ? '-' : '+'}`;
       this.getUserSignInLogs(new SearchEvent(this.defaultPage, this.defaultPageSize, defaultSortField));
+    }
+  }
+
+  public getRowClass(row: any) {
+    return {
+        'bg-warning': row.review
     }
   }
 }

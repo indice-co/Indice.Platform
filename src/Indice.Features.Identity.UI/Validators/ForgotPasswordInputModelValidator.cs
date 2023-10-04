@@ -1,4 +1,6 @@
 ﻿using FluentValidation;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.Extensions.Localization;
 
@@ -11,9 +13,15 @@ public class ForgotPasswordInputModelValidator : AbstractValidator<ForgotPasswor
 
     /// <summary>Creates a new instance of <see cref="ForgotPasswordInputModelValidator"/> class.</summary>
     /// <param name="localizer">Represents a service that provides localized strings.</param>
+    /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public ForgotPasswordInputModelValidator(IStringLocalizer<ForgotPasswordInputModelValidator> localizer) {
+    public ForgotPasswordInputModelValidator(IStringLocalizer<ForgotPasswordInputModelValidator> localizer, ExtendedUserManager<User> userManager) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
-        RuleFor(x => x.Email).NotEmpty().EmailAddress();
+        if (userManager.Options.User.RequireUniqueEmail) {
+            RuleFor(x => x.Email).NotEmpty().EmailAddress();
+        }
+        else {
+            RuleFor(x => x.Email).NotEmpty();
+        }
     }
 }
