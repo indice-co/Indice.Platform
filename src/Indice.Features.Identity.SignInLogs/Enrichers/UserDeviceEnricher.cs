@@ -6,18 +6,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
-internal class UserDeviceEnricher : ISignInLogEntryEnricher
+/// <summary></summary>
+public sealed class UserDeviceEnricher : ISignInLogEntryEnricher
 {
     private readonly ExtendedUserManager<User> _userManager;
 
+    /// <summary></summary>
+    /// <param name="userManager"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public UserDeviceEnricher(ExtendedUserManager<User> userManager) {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
+    /// <inheritdoc />
     public int Order => 5;
-
+    /// <inheritdoc />
     public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Asynchronous;
 
+    /// <inheritdoc />
     public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
         var success = await EnrichFromDeviceId(logEntry);
         if (!success) { 

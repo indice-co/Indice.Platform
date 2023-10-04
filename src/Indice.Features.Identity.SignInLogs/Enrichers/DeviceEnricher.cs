@@ -6,17 +6,24 @@ using Microsoft.Net.Http.Headers;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
-internal class DeviceEnricher : ISignInLogEntryEnricher
+/// <summary></summary>
+public sealed class DeviceEnricher : ISignInLogEntryEnricher
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public int Order => 4;
-    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Synchronous;
-
+    /// <summary></summary>
+    /// <param name="httpContextAccessor"></param>
+    /// <exception cref="ArgumentNullException"></exception>
     public DeviceEnricher(IHttpContextAccessor httpContextAccessor) {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
+    /// <inheritdoc />
+    public int Order => 4;
+    /// <inheritdoc />
+    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Synchronous;
+
+    /// <inheritdoc />
     public ValueTask EnrichAsync(SignInLogEntry logEntry) {
         var userAgentHeader = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent];
         if (string.IsNullOrWhiteSpace(userAgentHeader)) {
