@@ -6,7 +6,8 @@ using Indice.Features.Identity.SignInLogs.Models;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
-internal class SignInTypeEnricher : ISignInLogEntryEnricher
+/// <summary></summary>
+public sealed class SignInTypeEnricher : ISignInLogEntryEnricher
 {
     private static readonly IReadOnlyList<string> INTERACTIVE_GRANT_TYPES = new List<string> {
         CustomGrantTypes.DeviceAuthentication,
@@ -25,9 +26,12 @@ internal class SignInTypeEnricher : ISignInLogEntryEnricher
         TotpConstants.GrantType.Totp
     };
 
+    /// <inheritdoc />
     public int Order => 7;
+    /// <inheritdoc />
     public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Default;
 
+    /// <inheritdoc />
     public ValueTask EnrichAsync(SignInLogEntry logEntry) {
         if (logEntry?.SignInType is not null || string.IsNullOrWhiteSpace(logEntry?.GrantType)) {
             return ValueTask.CompletedTask;

@@ -2,6 +2,10 @@
 using Elsa;
 using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
+using Elsa.Persistence.Specifications;
+using Elsa.Retention.Contracts;
+using Elsa.Retention.Extensions;
+using Elsa.Retention.Specifications;
 using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.Features.Cases.Converters;
 using Indice.Features.Cases.Data;
@@ -23,6 +27,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using NodaTime;
 
 namespace Indice.Features.Cases;
 
@@ -199,7 +204,12 @@ public static class CasesApiFeatureExtensions
     /// <param name="services">The <see cref="IServiceCollection"/>.</param>
     /// <param name="configuration">The <see cref="IConfiguration"/>.</param>
     /// <param name="workflowAssembly">The assembly with the workflow activities and definitions to register.</param>
-    public static void AddWorkflow(this IServiceCollection services, IConfiguration configuration, Assembly workflowAssembly) {
+    /// <param name="retentionSpecificationFilter">Override the specification filter that will select the workflows for deletion. If the value is null the default <see cref="CompletedWorkflowFilterSpecification"/> will be used.</param>
+    public static void AddWorkflow(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        Assembly workflowAssembly,
+        IRetentionSpecificationFilter retentionSpecificationFilter = null) {
         services.AddElsa(elsa => {
             elsa.UseEntityFrameworkPersistence(ef => ef.UseSqlServer(configuration.GetConnectionString("WorkflowDb")), false)
                 .AddQuartzTemporalActivities()
@@ -214,6 +224,18 @@ public static class CasesApiFeatureExtensions
                 elsa.AddActivitiesFrom(workflowAssembly);
             }
         });
+
+        var cleanUpOptions = configuration.GetSection("Elsa").GetSection("CleanUpOptions");
+        if (cleanUpOptions.GetSection("Enabled").Get<bool?>() ?? false) {
+            services.AddRetentionServices(options => {
+                options.BatchSize = cleanUpOptions.GetSection("BatchSize").Get<int?>() ?? 100;
+                options.TimeToLive = Duration.FromDays(cleanUpOptions.GetSection("TimeToLiveInDays").Get<int?>() ?? 30);
+                options.SweepInterval = Duration.FromDays(cleanUpOptions.GetSection("SweepIntervalInHours").Get<int?>() ?? 4);
+                if (retentionSpecificationFilter is not null) {
+                    options.ConfigureSpecificationFilter(retentionSpecificationFilter);
+                }
+            });
+        }
 
         // Elsa API endpoints.
         services.AddElsaApiEndpoints();

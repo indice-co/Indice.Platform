@@ -54,6 +54,7 @@ public static class IdentityBuilderUIExtensions
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, options => options.ResourcesPath = "Resources");
         services.AddTransient<IIdentityViewLocalizer, IdentityViewLocalizer>();
         services.AddPlatformEventHandler<UserLoginEvent, UserLoginEventHandler>();
+        services.AddPlatformEventHandler<UserPasswordLoginEvent, UserPasswordLoginEventHandler>();
         // Add default (system) implementation of zoneInfoProvider
         services.AddZoneInfoProvider();
         // Configure other services.

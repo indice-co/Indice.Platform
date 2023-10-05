@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.Messages.Worker;
 
 /// <summary>Options for configuring internal campaign jobs used by the worker host.</summary>
-public class MessageJobsOptions
+public class MessageJobsOptions : MessageWorkerOptions
 {
     internal IServiceCollection Services { get; set; }
     /// <summary>

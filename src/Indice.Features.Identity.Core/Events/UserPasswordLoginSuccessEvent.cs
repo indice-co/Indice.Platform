@@ -14,18 +14,24 @@ public class UserPasswordLoginSuccessEvent : Event
     /// <param name="name">The name.</param>
     /// <param name="interactive">if set to <c>true</c> [interactive].</param>
     /// <param name="clientId">The client id.</param>
+    /// <param name="clientName">The client name.</param>
+    /// <param name="warning">Describes a warning that may occur during a sign in event.</param>
     public UserPasswordLoginSuccessEvent(
         string username,
         string subjectId,
         string name,
         bool interactive = true,
-        string clientId = null
+        string clientId = null,
+        string clientName = null,
+        SignInWarning? warning = null
     ) : this() {
         Username = username;
         SubjectId = subjectId;
         DisplayName = name;
         ClientId = clientId;
+        ClientName = clientName;
         Endpoint = interactive ? "UI" : "Token";
+        Warning = warning;
     }
 
     /// <summary>Gets the username.</summary>
@@ -38,4 +44,8 @@ public class UserPasswordLoginSuccessEvent : Event
     public string Endpoint { get; set; }
     /// <summary>Gets the client id.</summary>
     public string ClientId { get; set; }
+    /// <summary>Gets the client id.</summary>
+    public string ClientName { get; set; }
+    /// <summary>Describes a warning that may occur during a sign in event.</summary>
+    public SignInWarning? Warning { get; }
 }

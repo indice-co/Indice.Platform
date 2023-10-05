@@ -21,19 +21,22 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="contactService">A service that contains contact related operations.</param>
     /// <param name="messageService">A service that contains message related operations.</param>
     /// <param name="logger">A logger</param>
+    /// <param name="options">Configuration for workers.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ResolveMessageHandler(
         Func<string, IEventDispatcher> getEventDispatcher,
         IContactResolver contactResolver,
         IContactService contactService,
         IMessageService messageService,
-        ILogger<ResolveMessageHandler> logger
+        ILogger<ResolveMessageHandler> logger,
+        Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options
     ) {
         GetEventDispatcher = getEventDispatcher ?? throw new ArgumentNullException(nameof(getEventDispatcher));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
         MessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     private Func<string, IEventDispatcher> GetEventDispatcher { get; }
@@ -41,17 +44,20 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     private IContactService ContactService { get; }
     private IMessageService MessageService { get; }
     private ILogger<ResolveMessageHandler> Logger { get; }
+    private MessageWorkerOptions Options { get; }
 
     /// <summary>Decides whether to insert or update a resolved contact.</summary>
     /// <param name="event">The event model used when a contact is resolved from an external system.</param>
     public async Task Process(ResolveMessageEvent @event) {
         var campaign = @event.Campaign;
         Contact contact = null;
+        var contactNotUpdatedAWhileNow = !@event.Contact.UpdatedAt.HasValue 
+            || (DateTimeOffset.UtcNow - @event.Contact.UpdatedAt.Value) > TimeSpan.FromDays(Options.ContactRetainPeriodInDays);
         if (!@event.Contact.IsAnonymous) {
             contact = await ContactService.FindByRecipientId(@event.Contact.RecipientId);
             if (contact is null) {
                 contact = await ContactResolver.Resolve(@event.Contact.RecipientId);
-            } else if (@event.Contact.IsEmpty) {
+            } else if (contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) {
                 contact = await ContactResolver.Patch(@event.Contact.RecipientId, contact);
             }
         } else {
@@ -71,7 +77,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             }
         }
         contact ??= @event.Contact;
-        if ((@event.Contact.NotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
+        if ((contactNotUpdatedAWhileNow || @event.Contact.IsEmpty) && contact.Id.HasValue) {
             await ContactService.Update(contact.Id.Value, Mapper.ToUpdateContactRequest(contact, campaign.DistributionListId));
         }
         // In case this is not yet published we should stop here so no messages get sent yet.

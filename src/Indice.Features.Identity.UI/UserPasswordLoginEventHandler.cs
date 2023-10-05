@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.UI;
 
-internal class UserLoginEventHandler : IPlatformEventHandler<UserLoginEvent>
+internal class UserPasswordLoginEventHandler : IPlatformEventHandler<UserPasswordLoginEvent>
 {
     private readonly IEventService _eventService;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -17,7 +17,7 @@ internal class UserLoginEventHandler : IPlatformEventHandler<UserLoginEvent>
     /// <param name="eventService">Interface for the event service.</param>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
     /// <param name="clientStore">Retrieval of client configuration.</param>
-    public UserLoginEventHandler(
+    public UserPasswordLoginEventHandler(
         IEventService eventService,
         IHttpContextAccessor httpContextAccessor,
         IClientStore clientStore
@@ -27,14 +27,14 @@ internal class UserLoginEventHandler : IPlatformEventHandler<UserLoginEvent>
         _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
     }
 
-    public async Task Handle(UserLoginEvent @event, PlatformEventArgs args) {
+    public async Task Handle(UserPasswordLoginEvent @event, PlatformEventArgs args) {
         if (@event.Succeeded) {
             var clientId = _httpContextAccessor?.HttpContext?.GetClientIdFromReturnUrl();
             Client? client = null;
             if (!string.IsNullOrWhiteSpace(clientId)) {
                 client = await _clientStore.FindClientByIdAsync(clientId);
             }
-            await _eventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(@event.User.UserName, @event.User.Id, @event.User.UserName, clientId: clientId, clientName: client?.ClientName, warning: @event.Warning));
+            await _eventService.RaiseAsync(new UserPasswordLoginSuccessEvent(@event.User.UserName, @event.User.Id, @event.User.UserName, clientId: clientId, clientName: client?.ClientName, warning: @event.Warning));
         }
     }
 }

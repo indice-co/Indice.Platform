@@ -283,7 +283,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <inheritdoc/>
     public override async Task<SignInResult> CheckPasswordSignInAsync(TUser user, string password, bool lockoutOnFailure) {
         var attempt = await base.CheckPasswordSignInAsync(user, password, lockoutOnFailure);
-        if (attempt.Succeeded && ExpireBlacklistedPasswordsOnSignIn) {
+        if (!attempt.Succeeded) {
+            return attempt;
+        }
+        var result = await _signInGuard.IsSuspiciousLogin(user);
+        await _eventService.Publish(UserPasswordLoginEvent.Success(user, result.Warning));
+        if (ExpireBlacklistedPasswordsOnSignIn) {
             var blacklistPasswordValidator = ExtendedUserManager.PasswordValidators.OfType<NonCommonPasswordValidator<TUser>>().FirstOrDefault();
             if (blacklistPasswordValidator is not null && await blacklistPasswordValidator.IsBlacklistedAsync(password)) {
                 // If blacklisted then expire users password before proceeding.
