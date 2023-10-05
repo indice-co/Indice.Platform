@@ -3,7 +3,7 @@ import { IAppSettings, IAuthSettings } from './settings.model';
 
 function createAppSettings(): IAppSettings {
     const isTemplate = environment.isTemplate;
-    let authority = '', clientId = '', host = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '';
+    let authority = '', clientId = '', host = '', culture = '', version = '', scopes = '', tenantId: string | undefined = '', path = '', enableMediaLibrary = undefined, enableRichTextEditor = undefined;
     if (isTemplate) {
         const appRoot = document.getElementsByTagName('app-root')[0];
         authority = appRoot.getAttribute('authority') || '';
@@ -14,6 +14,8 @@ function createAppSettings(): IAppSettings {
         version = appRoot.getAttribute('version') || '';
         scopes = appRoot.getAttribute('scopes') || '';
         tenantId = appRoot.getAttribute('tenantId') || undefined;
+        enableMediaLibrary = appRoot.getAttribute('enableMediaLibrary') || undefined;
+        enableRichTextEditor = appRoot.getAttribute('enableRichTextEditor') || undefined;
         if (!authority || !clientId || !host) {
             throw new Error('Please provide authority, clientId and baseAddress as properties of app-root element.');
         }
@@ -25,6 +27,8 @@ function createAppSettings(): IAppSettings {
         appRoot.attributes.removeNamedItem('version');
         appRoot.attributes.removeNamedItem('scopes');
         appRoot.attributes.removeNamedItem('tenantId');
+        appRoot.attributes.removeNamedItem('enableMediaLibrary');
+        appRoot.attributes.removeNamedItem('enableRichTextEditor');
     }
     return {
         api_url: !isTemplate ? environment.api_url : host,
@@ -51,7 +55,9 @@ function createAppSettings(): IAppSettings {
         isTemplate: environment.isTemplate,
         production: environment.production,
         version: version || '1.0.0',
-        tenantId: tenantId
+        tenantId: tenantId,
+        enableMediaLibrary: enableMediaLibrary ? enableMediaLibrary === 'True' : environment.enableMediaLibrary,
+        enableRichTextEditor: enableRichTextEditor ? enableRichTextEditor === 'True': environment.enableRichTextEditor,
     };
 }
 
