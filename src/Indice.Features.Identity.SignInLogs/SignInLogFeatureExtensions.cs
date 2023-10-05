@@ -24,7 +24,13 @@ public static class SignInLogFeatureExtensions
         var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         var resolvedOptions = new SignInLogOptions(builder.Services, configuration);
-        configure(resolvedOptions);
+        configure.Invoke(resolvedOptions);
+        // Add IdentityServer sink that captures required sign in events.
+        if (!resolvedOptions.Enable) {
+            return builder;
+        }
+        builder.AddEventSink<SignInLogEventSink>();
+        services.AddSingleton<IHostedService, PersistLogsHostedService>();
         // Configure options.
         services.Configure<SignInLogOptions>(options => {
             options.AnonymizePersonalData = resolvedOptions.AnonymizePersonalData;
@@ -38,13 +44,8 @@ public static class SignInLogFeatureExtensions
             options.Enable = resolvedOptions.Enable;
             options.QueueChannelCapacity = resolvedOptions.QueueChannelCapacity;
         });
-        // Add IdentityServer sink that captures required sign in events.
-        if (resolvedOptions.Enable) {
-            builder.AddEventSink<SignInLogEventSink>();
-            services.AddSingleton<IHostedService, PersistLogsHostedService>();
-        }
         // Add built-in enrichers & filters for the log entry model.
-        services.AddDefaultEnrichers();
+        services.AddDefaultEnrichers(resolvedOptions.ExcludedEnrichers.ToArray());
         services.AddDefaultFilters();
         services.AddTransient<SignInLogEntryEnricherAggregator>();
         services.AddSingleton<SignInLogEntryQueue>();
@@ -74,30 +75,30 @@ public static class SignInLogFeatureExtensions
     public static void UseEntityFrameworkCoreStore(this SignInLogOptions options, Action<DbContextOptionsBuilder> configure) =>
         options.UseEntityFrameworkCoreStore((serviceProvider, builder) => configure(builder));
 
-    /// <summary>Uses Azure table storage as a persistence store.</summary>
-    /// <param name="options">Options for configuring the IdentityServer audit mechanism.</param>
-    public static void UseAzureTableStorageStore(this SignInLogOptions options) {
-        throw new NotImplementedException();
-    }
+    /// <summary>Adds a custom enricher.</summary>
+    /// <typeparam name="TEnricher"></typeparam>
+    /// <param name="signInLogOptions">Options for configuring the IdentityServer sign in logs mechanism.</param>
+    public static void AddEnricher<TEnricher>(this SignInLogOptions signInLogOptions) where TEnricher : class, ISignInLogEntryEnricher =>
+        signInLogOptions.Services.AddSignInLogEnricher<TEnricher>();
 
-    /// <summary>Adds all enrichers contained in an assembly enrichers.</summary>
-    /// <typeparam name="TEnricher">The type that is contained in the assembly to scan.</typeparam>
-    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    public static IServiceCollection AddSignInLogEnricher<TEnricher>(this IServiceCollection services) where TEnricher : class, ISignInLogEntryEnricher {
+    /// <summary>Removes an existing enricher.</summary>
+    /// <typeparam name="TEnricher"></typeparam>
+    /// <param name="signInLogOptions">Options for configuring the IdentityServer sign in logs mechanism.</param>
+    public static void RemoveEnricher<TEnricher>(this SignInLogOptions signInLogOptions) where TEnricher : class, ISignInLogEntryEnricher =>
+        signInLogOptions.ExcludedEnrichers.Add(typeof(TEnricher));
+
+    private static IServiceCollection AddSignInLogEnricher<TEnricher>(this IServiceCollection services) where TEnricher : class, ISignInLogEntryEnricher {
         services.AddSignInLogEnricher(typeof(TEnricher));
         return services;
     }
 
-    /// <summary>Adds all enrichers contained in an assembly enrichers.</summary>
-    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    /// <param name="type">The type of enricher.</param>
     private static IServiceCollection AddSignInLogEnricher(this IServiceCollection services, Type type) {
         services.AddTransient(typeof(ISignInLogEntryEnricher), type);
         return services;
     }
 
-    private static IServiceCollection AddDefaultEnrichers(this IServiceCollection services) {
-        var enrichers = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryEnricher>(Assembly.GetExecutingAssembly());
+    private static IServiceCollection AddDefaultEnrichers(this IServiceCollection services, params Type[] excludedTypes) {
+        var enrichers = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryEnricher>(Assembly.GetExecutingAssembly()).Except(excludedTypes);
         foreach (var enricher in enrichers) {
             services.AddSignInLogEnricher(enricher);
         }

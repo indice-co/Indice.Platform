@@ -6,7 +6,6 @@ using System.Threading.RateLimiting;
 using FluentValidation;
 using IdentityModel;
 using IdentityServer4.EntityFramework.Services;
-using IdentityServer4.EntityFramework.Stores;
 using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -33,6 +32,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.FeatureManagement;
 using Microsoft.IdentityModel.Logging;
+using IndiceStores = Indice.IdentityServer.EntityFramework.Storage.Stores;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -142,10 +142,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         .AddExtendedResourceOwnerPasswordValidator()
         .AddDotnet7CompatibleStores()
         // Add store decorators for caching after calling AddDotnet7CompatibleStores.
-        .AddClientStoreCache<ClientStore>()
-        .AddCorsPolicyCache<CorsPolicyService>()
-        .AddConfigurationStoreCache()
-        .AddResourceStoreCache<ResourceStore>();
+        .AddInMemoryCaching()
+        .AddClientStoreCache<IndiceStores.ClientStore>()
+        .AddResourceStoreCache<IndiceStores.ResourceStore>()
+        .AddCorsPolicyCache<CorsPolicyService>();
         if (webHostEnvironment.IsDevelopment()) {
             IdentityModelEventSource.ShowPII = true;
             identityServerBuilder.AddDeveloperSigningCredential();
