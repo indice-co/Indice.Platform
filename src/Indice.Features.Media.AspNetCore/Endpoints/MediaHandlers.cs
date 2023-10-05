@@ -11,10 +11,11 @@ using Indice.Types;
 namespace Indice.Features.Media.AspNetCore.Endpoints;
 internal static class MediaHandlers
 {
-    internal static async Task<Results<FileContentHttpResult, NotFound>> GetFile(Base64Id fileGuid, string format, IFileService fileService) {
+    internal static async Task<Results<FileContentHttpResult, NotFound>> GetFile(Base64Id fileGuid, string format, Func<string, IFileService> getFileService) {
         if (format.StartsWith('.')) {
             format = format.TrimStart('.');
         }
+        var fileService = getFileService(KeyedServiceNames.FileServiceKey);
         var path = $"media/{fileGuid.Id.ToString("N")[..2]}/{fileGuid.Id:N}.{format}";
         var properties = await fileService.GetPropertiesAsync(path);
         if (properties is null) {
