@@ -64,6 +64,10 @@ public class RiskCalculationTests
         var riskManager = ServiceProvider.GetRequiredService<RiskManager>();
         var result = await riskManager.GetRiskAsync(new RiskEvent {
             Amount = 999,
+            CreatedAt = DateTimeOffset.UtcNow,
+            IpAddress = "127.0.0.1",
+            Name = "domestic_transaction_e3f9f3bf-7ab7-414f-9307-0c815922ef0c",
+            SubjectId = "4075C988-ECDB-434D-8164-970F7DF39DC3",
             Type = "Transaction"
         });
         Assert.Single(result.Results);
