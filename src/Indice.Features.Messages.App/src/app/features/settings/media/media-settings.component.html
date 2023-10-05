@@ -1,0 +1,57 @@
+<section aria-labelledby="applicant-information-title">
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                <div class="sm:col-span-1">
+                    <h2 id="applicant-information-title" class="text-lg leading-6 font-medium text-gray-900">
+                        Βιβλιοθήκη Αρχείων
+                    </h2>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι Ρυθμίσεις της Βιβλιοθήκης Αρχείων.</p>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+        </div>
+        <div class="px-4 py-5 sm:px-6">
+            <lib-view-layout [show-header]="false" [fluid]="true" [busy]="!settings">
+                <lib-list-view [items]="settings" [busy]="!settings" [show-pager]="false">
+                    <lib-list-column title="ΚΛΕΙΔΙ">
+                        <ng-template let-item>
+                            <div class="flex flex-col">
+                                <span>{{ item.key || '-' }}</span>
+                                <label class="text-sm text-gray-500">{{ item.description || '-' }}</label>
+                            </div>
+                        </ng-template>
+                    </lib-list-column>
+                    <lib-list-column title="ΤΙΜΗ">
+                        <ng-template let-item>{{ item.value || '-' }}</ng-template>
+                    </lib-list-column>
+                    <!-- <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
+                        <ng-template let-item>{{ item.createdBy || '-' }}</ng-template>
+                    </lib-list-column>
+                    <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
+                        <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
+                    </lib-list-column> -->
+                    <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+                        <ng-template let-item>
+                            <a title="Επεξεργασία τύπου" [routerLinkActive]="['']"
+                                [routerLinkActiveOptions]="{ exact: true }"
+                                [routerLink]="['', { outlets: { rightpane: ['edit-media-setting', item.key] } }]"
+                                class="nav-link-profile"
+                                class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                    fill="currentColor">
+                                    <path
+                                        d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                                    <path fill-rule="evenodd"
+                                        d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </a>
+                        </ng-template>
+                    </lib-list-column>
+                </lib-list-view>
+            </lib-view-layout>
+        </div>
+    </div>
+</section>

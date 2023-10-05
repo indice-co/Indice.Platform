@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import * as Handlebars from 'handlebars';
@@ -9,12 +9,17 @@ import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { ChannelState } from './channel-state';
 import { map } from 'rxjs/operators';
 import { SettingsStore } from 'src/app/features/settings/settings-store.service';
-
+import { MediaFile } from 'src/app/core/services/media-api.service';
+import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
+import { Editor } from 'tinymce';
+import "tinymce";
+import { settings } from 'src/app/core/models/settings';
+declare var tinymce: any;
 @Component({
     selector: 'app-campaign-content',
     templateUrl: './campaign-content.component.html'
 })
-export class CampaignContentComponent implements OnInit, OnChanges {
+export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChecked {
     private _samplePayload: any = {
         contact: {
             id: 'FA24F7D6-332F-4E17-8E43-A111DB32E7CC',
@@ -27,6 +32,7 @@ export class CampaignContentComponent implements OnInit, OnChanges {
             phoneNumber: '(212)-456-7890'
         }
     };
+    private _contentForm?: FormGroup;
 
     private _currentValidDataObject: any = undefined;
     @ViewChild('tabGroup', { static: true }) private _tabGroup: LibTabGroupComponent | undefined;
@@ -35,7 +41,8 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         private _validationService: ValidationService,
         private _utilities: UtilitiesService,
         private _formBuilder: FormBuilder,
-        private _store: SettingsStore
+        private _store: SettingsStore,
+        private _fileUtilitiesService: FileUtilitiesService
     ) { }
 
     // Input & Output parameters
@@ -61,9 +68,11 @@ export class CampaignContentComponent implements OnInit, OnChanges {
     public subjectPreview: string = '';
     public bodyPreview: string = '';
     public MessageChannelKind = MessageChannelKind;
-    public hideMetadata = false;
+    public hideMetadata = true;
     public selectedSenderId: any;
     public messageSenders: MenuOption[] = [];
+    public showSidePane: boolean = false;
+    public enableRichTextEditor = settings.enableRichTextEditor;
 
     public get samplePayload(): any {
         let data = null;
@@ -87,11 +96,59 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         'email': { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email, checked: false },
         'sms': { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS, checked: false }
     };
+    public tinyMceEditor?: Editor;
+    public tinyMceOptions = {
+        base_url: '/tinymce',
+        suffix: '.min',
+        selector: 'textarea.tinymce-editor',
+        plugins: 'preview importcss searchreplace autolink directionality code visualblocks visualchars fullscreen image link codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons',
+        menubar: 'file edit view insert format tools table help',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | align numlist bullist | link image media-library | table | lineheight outdent indent| forecolor backcolor removeformat | charmap emoticons codesample | code fullscreen preview',
+        external_plugins: {},
+        setup: (editor: Editor) => {
+          this.tinyMceEditor = editor;
+          editor.ui.registry.addButton('media-library', {
+            text: 'Media Library',
+            onAction: () => {
+              this.openSidePane(this.form)
+            }
+          });
+        },
+        init_instance_callback: (editor: Editor) => {
+            var initialInnerHtml: any;
+            var self = this;
+            editor.on('BeforeExecCommand', function (e) {
+                if (e.command == "mcePreview") {
+                    //store content prior to changing.
+                    initialInnerHtml = editor.getContent();
+                    const template = Handlebars.compile(initialInnerHtml);
+                    self.bodyPreview = template(self.samplePayload);
+                    editor.setContent(self.bodyPreview);
+                }
+            });
+            editor.on("ExecCommand", function (e) {
+                if (e.command == "mcePreview") {
+                    //Restore initial content.
+                    editor.setContent(initialInnerHtml);
+                }
+            });
+
+            editor.on("change", function (e) {
+                let currentIndex = self._tabGroup?.currentTab?.index ? self._tabGroup.currentTab.index - 1 : 0
+                let form = self.channelsContent?.controls[currentIndex] as FormGroup;
+                form.controls['body'].setValue(editor.getContent());
+            });
+
+        }
+    };
 
     public ngOnInit(): void {
-        
     }
-
+    public ngAfterViewChecked(): void {
+      if (this.enableRichTextEditor && (!tinymce.get("tinymce-editor-email") || !tinymce.get("tinymce-editor-inbox"))) {
+        tinymce.init(this.tinyMceOptions);
+      }
+    }
     public ngOnChanges(changes: SimpleChanges): void {
         if (changes.content?.currentValue) {
             this.channelsContent.clear();
@@ -133,32 +190,6 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         content.controls['sender'].setValue(sender);
     }
 
-    private _loadMessageSenders(): void {
-        this._store
-            .getMessageSenders()
-            .pipe(map((messageSenders: MessageSenderResultSet) => {
-                this.selectedSenderId = this.content?.email?.sender 
-                    ? new MenuOption(`${this.content.email.sender.displayName} <${this.content.email.sender.sender}>`, this.content.email.sender.id, undefined, this.content?.email?.sender)
-                    : undefined;
-                if (messageSenders.items) {
-                    this.messageSenders = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
-                    this.messageSenders.push(...messageSenders.items.map(s => {
-                        let sender = {
-                            id: s.id,
-                            sender: s.sender,
-                            displayName: s.displayName
-                        }
-                        if (s.isDefault) {
-                            this.selectedSenderId ??= new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined);
-                            return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined)
-                        }
-                        return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, sender)
-                    }));
-                }
-            }))
-            .subscribe();
-    }
-
     public onChannelCheckboxChange(event: any): void {
         const channelsFormArray: FormArray = this.channelsContent as FormArray;
         const messageKind = event.target.value;
@@ -183,16 +214,20 @@ export class CampaignContentComponent implements OnInit, OnChanges {
                 i++;
             });
         }
-        
+
         if (messageKind == 'email') {
             this._loadMessageSenders();
         }
     }
 
     public onContentTabChanged(tab: LibTabComponent): void {
+        if (this.enableRichTextEditor && (tinymce.get("tinymce-editor-email") || tinymce.get("tinymce-editor-inbox"))) {
+            tinymce.remove();
+            tinymce.init(this.tinyMceOptions);
+        }
         const index = tab.index || 0;
-        this.hideMetadata = index + 1 === this._tabGroup?.tabs?.toArray().length;
-        const formGroup = <FormGroup>this.channelsContent.controls[index];
+        this.hideMetadata = index === 0;
+        const formGroup = <FormGroup>this.channelsContent.controls[index - 1];
         if (!formGroup) {
             return;
         }
@@ -216,6 +251,39 @@ export class CampaignContentComponent implements OnInit, OnChanges {
         this._setBodyPreview(subject);
     }
 
+    public openMediaLibraryInNewTab() {
+        let url = `${window.location.origin}/media`;
+        window.open(url, '_blank');
+    }
+
+    public openSidePane(content: FormGroup) {
+        this.showSidePane = true;
+        this._contentForm = content;
+    }
+
+    public closeSidePane() {
+        this.showSidePane = false;
+    }
+
+    public async addToTextArea (file: MediaFile | undefined) {
+        if (!file) {
+            return;
+        }
+        let text = await this._fileUtilitiesService.getFileTemplate(file);
+        this.tinyMceEditor?.insertContent(text)
+        // if (!file) {
+        //     return;
+        // }
+        // let text = await this._fileUtilitiesService.getFileTemplate(file);
+        // let textarea = document.getElementById("body") as HTMLTextAreaElement;
+        // let start_position = textarea.selectionStart;
+        // let end_position = textarea.selectionEnd;
+
+        // this._contentForm!.controls['body'].setValue(`${textarea.value.substring(0, start_position)}${text}${textarea.value.substring(end_position, textarea.value.length)}`);
+        // this.onBodyInput(this._contentForm!);
+        this.showSidePane = false;
+    };
+
     private _setSubjectPreview(value: string | undefined): void {
         if (!value) {
             this.subjectPreview = '';
@@ -225,7 +293,6 @@ export class CampaignContentComponent implements OnInit, OnChanges {
             this.subjectPreview = template(this.samplePayload);
         } catch (error) { }
     }
-
     private _setBodyPreview(value: string | undefined): void {
         if (!value) {
             this.bodyPreview = '';
@@ -234,5 +301,30 @@ export class CampaignContentComponent implements OnInit, OnChanges {
             const template = Handlebars.compile(value);
             this.bodyPreview = template(this.samplePayload);
         } catch (error) { }
+    }
+    private _loadMessageSenders(): void {
+        this._store
+            .getMessageSenders()
+            .pipe(map((messageSenders: MessageSenderResultSet) => {
+                this.selectedSenderId = this.content?.email?.sender
+                    ? new MenuOption(`${this.content.email.sender.displayName} <${this.content.email.sender.sender}>`, this.content.email.sender.id, undefined, this.content?.email?.sender)
+                    : undefined;
+                if (messageSenders.items) {
+                    this.messageSenders = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+                    this.messageSenders.push(...messageSenders.items.map(s => {
+                        let sender = {
+                            id: s.id,
+                            sender: s.sender,
+                            displayName: s.displayName
+                        }
+                        if (s.isDefault) {
+                            this.selectedSenderId ??= new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined);
+                            return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, undefined)
+                        }
+                        return new MenuOption(`${s.displayName} <${s.sender}>`, s.id, undefined, sender)
+                    }));
+                }
+            }))
+            .subscribe();
     }
 }
