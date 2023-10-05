@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Routing;
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>Configuration extensions on <seealso cref="IEndpointRouteBuilder "/>.</summary>
-public static class RouteBuilderExtensions
+public static class MediaLibraryEndpointsExtensions
 {
 
     /// <summary>Registers the endpoints for the Media Api.</summary>

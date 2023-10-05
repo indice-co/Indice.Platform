@@ -9,10 +9,18 @@ namespace Indice.Features.Media.AspNetCore.Data.Mappings;
 /// <summary>Configuration for <see cref="DbMediaFolder"/> entity.</summary>
 public class DbMediaFolderMap : IEntityTypeConfiguration<DbMediaFolder>
 {
+    /// <summary>Creates a new instance of <see cref="DbMediaFolderMap"/>.</summary>
+    /// <param name="schemaName">The schema name.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public DbMediaFolderMap(string schemaName) {
+        _schemaName = schemaName ?? throw new ArgumentNullException(nameof(schemaName));
+    }
+    private string _schemaName { get; }
+
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<DbMediaFolder> builder) {
         // Configure table name.
-        builder.ToTable(nameof(MediaFolder));
+        builder.ToTable(nameof(MediaFolder), _schemaName);
         // Configure key.
         builder.HasKey(x => x.Id);
         // Configure indexes.

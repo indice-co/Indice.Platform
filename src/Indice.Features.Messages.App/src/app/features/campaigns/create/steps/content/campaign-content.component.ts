@@ -13,6 +13,7 @@ import { MediaFile } from 'src/app/core/services/media-api.service';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
 import { Editor } from 'tinymce';
 import "tinymce";
+import { settings } from 'src/app/core/models/settings';
 declare var tinymce: any;
 @Component({
     selector: 'app-campaign-content',
@@ -71,6 +72,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     public selectedSenderId: any;
     public messageSenders: MenuOption[] = [];
     public showSidePane: boolean = false;
+    public enableRichTextEditor = settings.enableRichTextEditor;
 
     public get samplePayload(): any {
         let data = null;
@@ -143,7 +145,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     public ngOnInit(): void {
     }
     public ngAfterViewChecked(): void {
-      if (!tinymce.get("tinymce-editor-email") || !tinymce.get("tinymce-editor-inbox")) {
+      if (this.enableRichTextEditor && (!tinymce.get("tinymce-editor-email") || !tinymce.get("tinymce-editor-inbox"))) {
         tinymce.init(this.tinyMceOptions);
       }
     }
@@ -219,7 +221,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     }
 
     public onContentTabChanged(tab: LibTabComponent): void {
-        if (tinymce.get("tinymce-editor-email") || tinymce.get("tinymce-editor-inbox")) {
+        if (this.enableRichTextEditor && (tinymce.get("tinymce-editor-email") || tinymce.get("tinymce-editor-inbox"))) {
             tinymce.remove();
             tinymce.init(this.tinyMceOptions);
         }

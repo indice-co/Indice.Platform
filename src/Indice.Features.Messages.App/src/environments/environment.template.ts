@@ -17,5 +17,7 @@ export const environment = {
     },
     culture: '',
     isTemplate: true,
-    production: true
+    production: true,
+    enableMediaLibrary: true,
+    enableRichTextEditor: true
 };

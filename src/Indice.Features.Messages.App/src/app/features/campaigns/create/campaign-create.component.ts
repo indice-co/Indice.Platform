@@ -13,6 +13,7 @@ import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attac
 import { map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import "tinymce";
+import { settings } from 'src/app/core/models/settings';
 declare var tinymce: any;
 
 @Component({
@@ -41,7 +42,8 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     public basicInfoData: any = {};
     public templateId: string | undefined;
     public metaItems: HeaderMetaItem[] | null = [];
-    public content: { [key: string]: MessageContent; } | undefined
+    public content: { [key: string]: MessageContent; } | undefined;
+    public enableRichTextEditor = settings.enableRichTextEditor;
 
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
@@ -89,7 +91,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
 
     public onStepperStepChanged(event: StepSelectedEvent) {
         //remove tinymce editor on stepper change
-        if (tinymce.get("tinymce-editor-email") || tinymce.get("tinymce-editor-inbox")) {
+        if (this.enableRichTextEditor && (tinymce.get("tinymce-editor-email") || tinymce.get("tinymce-editor-inbox"))) {
             tinymce.remove();
         }
         if (event.selectedIndex === 1) {

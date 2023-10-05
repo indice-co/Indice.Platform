@@ -28,9 +28,10 @@ public class MediaDbContext : DbContext
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder builder) {
-        builder.ApplyConfiguration(new DbMediaFolderMap());
-        builder.ApplyConfiguration(new DbMediaFileMap());
-        builder.ApplyConfiguration(new DbMediaSettingMap());
+        var schemaName = Database.GetService<DatabaseSchemaNameResolver>().GetSchemaName();
+        builder.ApplyConfiguration(new DbMediaFolderMap(schemaName));
+        builder.ApplyConfiguration(new DbMediaFileMap(schemaName));
+        builder.ApplyConfiguration(new DbMediaSettingMap(schemaName));
     }
 
     /// <inheritdoc />

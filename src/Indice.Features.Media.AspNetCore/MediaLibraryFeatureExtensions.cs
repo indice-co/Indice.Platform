@@ -1,7 +1,4 @@
-﻿using FluentValidation;
-using Indice.Features.Media.AspNetCore;
-using Indice.Features.Media.AspNetCore.Models.Requests;
-using Indice.Features.Media.AspNetCore.Models.Validators;
+﻿using Indice.Features.Media.AspNetCore;
 using Indice.Features.Media.AspNetCore.Services;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Indice.Features.Media.AspNetCore.Stores;
@@ -16,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Contains extension methods on <see cref="IServiceCollection"/> for configuring Media Management API feature.</summary>
-public static class ServiceCollectionExtensions
+public static class MediaLibraryFeatureExtensions
 {
     /// <summary>Adds Media Management API endpoints in the project.</summary>
     /// <param name="services">An interface for configuring services.</param>
@@ -47,12 +44,13 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());
         // Register validators
         services.AddEndpointParameterFluentValidation(typeof(MediaLibraryApi).Assembly);
-        if(!apiOptions.UseSoftDelete) {
+        if (!apiOptions.UseSoftDelete) {
             services.AddHostedService<FoldersCleanUpHostedService>();
             services.AddHostedService<FilesCleanUpHostedService>();
         }
+        services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register application DbContext.
-        services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ?? ((serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaDbConnection"))));
+        services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ?? ((serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaLibraryDbConnection"))));
         return services;
     }
 
