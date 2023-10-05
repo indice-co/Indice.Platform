@@ -1,0 +1,111 @@
+
+<ng-template #editIcon
+             let-action>
+    <svg xmlns="http://www.w3.org/2000/svg"
+         class="h-4 w-4 inline cursor-pointer"
+         fill="none"
+         viewBox="0 0 24 24"
+         stroke="currentColor"
+         (click)="openEditPane(action)"
+         stroke-width="2">
+        <path stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+    </svg>
+</ng-template>
+
+<lib-view-layout #layout>
+    <div class="min-h-full">
+        <main>
+            <section aria-labelledby="applicant-information-title">
+                <div class="bg-white shadow sm:rounded-lg">
+                    <div class="px-4 py-5 sm:px-6">
+                        <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                            <div class="sm:col-span-1">
+                                <h2 id="applicant-information-title"
+                                    class="text-lg leading-6 font-medium text-gray-900">
+                                    Βασικές Πληροφορίες
+                                </h2>
+                                <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες του αρχείου.</p>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
+                                    <div class="flex items-center space-x-5"></div>
+                                    <div class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
+                                        <button type="button"
+                                                class="side-view-layout-action-button-submit" (click)="preview()">
+                                            Προεπισκόπηση
+                                        </button>
+                                        <button type="button"
+                                                class="side-view-layout-action-button-submit" (click)="download()">
+                                            Λήψη Αρχείου
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+                        <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Τιτλος
+                                    <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editName' }"></ng-container>
+                                </dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.name }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Περιγραφή
+                                    <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editDescription' }"></ng-container>
+                                </dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.description || '-' }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Φάκελος
+                                    <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editParentFolder' }"></ng-container>
+                                </dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ parentFolderName || '-' }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Κατάληξη
+                                </dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.fileExtension || '-' }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Τύπος
+                                </dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.contentType || '-' }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">
+                                    Μέγεθος
+                                </dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.contentLength || '-' }} B</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε από</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.createdBy || '-' }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε στις</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.createdAt ? (file?.createdAt | date: 'medium') : '-' }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε από</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.updatedBy || '-' }}</dd>
+                            </div>
+                            <div class="sm:col-span-1">
+                                <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε στις</dt>
+                                <dd class="mt-1 text-sm text-gray-900">{{ file?.updatedAt ? (file?.updatedAt | date: 'medium') : '-' }}</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</lib-view-layout>

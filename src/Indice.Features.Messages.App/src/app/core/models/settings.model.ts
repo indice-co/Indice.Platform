@@ -6,6 +6,8 @@ export interface IAppSettings {
     production: boolean;
     version: string;
     tenantId: string | undefined;
+    enableMediaLibrary: boolean;
+    enableRichTextEditor: boolean;
 }
 
 export interface IAuthSettings {

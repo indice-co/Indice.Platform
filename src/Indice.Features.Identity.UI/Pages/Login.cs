@@ -134,7 +134,11 @@ public abstract class BaseLoginModel : BasePageModel
             var result = await SignInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, IdentityUIOptions.AllowRememberLogin && Input.RememberLogin, lockoutOnFailure: true);
             var user = await UserManager.FindByNameAsync(Input.UserName!);
             if (result.Succeeded && user is not null) {
-                await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
+                // Replace locale Claim only if it has a different value configured.
+                var localeClaim = user.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.Locale && x.ClaimValue == RequestCulture.Culture.TwoLetterISOLanguageName);
+                if (localeClaim is null) {
+                    await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.Locale, RequestCulture.Culture.TwoLetterISOLanguageName);
+                }
                 Logger.LogInformation("User '{UserName}' with email {Email} was successfully logged in.", user.UserName, user.Email);
                 if (context is not null) {
                     if (context.IsNativeClient()) {

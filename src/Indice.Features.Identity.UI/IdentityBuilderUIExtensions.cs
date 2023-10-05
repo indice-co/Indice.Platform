@@ -1,13 +1,11 @@
 ﻿using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.Assets;
 using Indice.Features.Identity.UI.Localization;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
@@ -53,7 +51,8 @@ public static class IdentityBuilderUIExtensions
                 })
                 .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix, options => options.ResourcesPath = "Resources");
         services.AddTransient<IIdentityViewLocalizer, IdentityViewLocalizer>();
-        services.AddPlatformEventHandler<UserLoginEvent, UserLoginEventHandler>();
+        // Add default (system) implementation of zoneInfoProvider
+        services.AddZoneInfoProvider();
         // Configure other services.
         services.AddGeneralSettings(configuration);
         services.AddMarkdown();

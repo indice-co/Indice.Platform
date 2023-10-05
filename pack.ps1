@@ -25,6 +25,7 @@ dotnet pack src/Indice.Features.Cases.AspNetCore/Indice.Features.Cases.AspNetCor
 dotnet pack src/Indice.Features.Cases.Server/Indice.Features.Cases.Server.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Cases.UI/Indice.Features.Cases.UI.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.GovGr/Indice.Features.GovGr.csproj --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Media.AspNetCore/Indice.Features.Media.AspNetCore.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Messages.AspNetCore/Indice.Features.Messages.AspNetCore.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Messages.Core/Indice.Features.Messages.Core.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Messages.UI/Indice.Features.Messages.UI.csproj --no-build -c Release -o ./artifacts
@@ -33,5 +34,7 @@ dotnet pack src/Indice.Features.Messages.Worker/Indice.Features.Messages.Worker.
 dotnet pack src/Indice.Features.Multitenancy.AspNetCore/Indice.Features.Multitenancy.AspNetCore.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Multitenancy.Core/Indice.Features.Multitenancy.Core.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Multitenancy.Worker.Azure/Indice.Features.Multitenancy.Worker.Azure.csproj --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Risk.Core/Indice.Features.Risk.Core.csproj --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Risk.Server/Indice.Features.Risk.Server.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Hosting/Indice.Hosting.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Services/Indice.Services.csproj --no-build -c Release -o ./artifacts

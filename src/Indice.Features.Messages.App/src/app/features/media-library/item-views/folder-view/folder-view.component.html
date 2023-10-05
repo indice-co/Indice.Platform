@@ -1,0 +1,61 @@
+<lib-pager [count]="folderContent?.totalCount ?? 0" 
+    [page]="page" 
+    [page-size]="size" 
+    (pageChanged)="loadContent($event, this.size)"
+    (pageSizeChanged)="loadContent(1, $event)">
+</lib-pager>
+
+<div  *ngIf="folderContent" class="flex flex-row items-center flex-wrap max-w-[1500px]">
+    <div *ngIf="folderContent?.id" class="h-40 w-40 flex flex-col cursor-pointer bg-white rounded-lg mt-5 mr-5" (click)="goToFolder(folderContent.parentId)">
+        <div class="text-5xl text-gray-600 w-full h-32 text-center">
+            <i class="ms-Icon ms-Icon--MoveToFolder mt-5"></i>
+        </div>
+        <span class="w-40 h-8 text-ellipsis overflow-hidden text-center whitespace-nowrap">...</span>
+    </div>
+    <div *ngFor="let folder of folderContent?.folders" class="h-40 w-40 flex flex-col items-center justify-center cursor-pointer bg-white rounded-lg mr-5 mt-5 relative group" (click)="goToFolder(folder.id)">
+        <div class="text-5xl text-gray-600 w-full h-28 text-center">
+            <i class="ms-Icon ms-Icon--OpenFolderHorizontal mt-5"></i>
+        </div>
+        <div class="flex flex-col mb-1">
+            <span class="w-36 text-ellipsis overflow-hidden text-center whitespace-nowrap">{{folder.name}}</span>
+            <div class="flex flex-row space-x-2 justify-end">
+                <div class="flex flex-row items-center space-x-1">
+                    <i class="ms-Icon ms-Icon--OpenFolderHorizontal text-slate-800 text-xs"></i>
+                    <span class="text-xs">{{folder.subFoldersCount}}</span>
+                </div>
+                <div class="flex flex-row items-center space-x-1">
+                    <i class="ms-Icon ms-Icon--FileImage text-slate-800 text-xs"></i>
+                    <span class="text-xs">{{folder.filesCount}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-row items-center absolute top-2 right-2 space-x-2">
+            <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-gray-600 bg-gray-100 items-center justify-center rounded-md text-gray-600 hover:text-gray-100" (click)="$event.stopPropagation(); editFolder(folder);">
+                <i class="ms-Icon ms-Icon--Edit"></i>
+            </div>
+            <div class="hidden group-hover:flex hover:bg-red-600 cursor-pointer w-7 h-7 bg-gray-100 items-center justify-center rounded-md text-red-600 hover:text-gray-100" (click)="$event.stopPropagation(); deleteFolder(folder);">
+                <i class="ms-Icon ms-Icon--Delete"></i>
+            </div>
+        </div>
+    </div>
+    <div *ngFor="let file of folderContent?.files" class="h-40 w-40 flex flex-col items-center justify-center cursor-pointer bg-white rounded-lg mr-5 mt-5 relative group" (click)="editFile(file)">
+        <div class="h-28 w-full p-2">
+            <img class="h-full w-full object-contain" [src]="getImageUrl(file)" onerror="'../../../../assets/images/no-image-icon.png'"/>
+        </div>
+        <span class="w-36 text-ellipsis overflow-hidden text-center whitespace-nowrap">{{file.name}}</span>
+        
+        <div class="flex flex-row items-center absolute top-2 right-2 space-x-2">
+            <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-gray-500 bg-gray-100 items-center justify-center rounded-md text-gray-500 hover:text-gray-100" (click)="$event.stopPropagation(); copyToClipboard(file)">
+                <i class="ms-Icon ms-Icon--Copy"></i>
+            </div>
+            <div class="hidden group-hover:flex cursor-pointer w-7 h-7 hover:bg-red-600 bg-gray-100 items-center justify-center rounded-md text-red-600 hover:text-gray-100" (click)="$event.stopPropagation(); deleteFile(file);">
+                <i class="ms-Icon ms-Icon--Delete"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<div *ngIf="!folderContent || !folderContent.totalCount || folderContent.totalCount <= 0" [ngClass]="!folderContent?.id ? 'bg-white shadow sm:rounded-lg' : 'bg-transparent' ">
+    <div class="px-4 py-5 sm:px-6">
+        <lib-list-view-empty-state></lib-list-view-empty-state>
+    </div>
+</div>

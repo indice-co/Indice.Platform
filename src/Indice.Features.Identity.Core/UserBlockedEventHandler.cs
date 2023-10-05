@@ -4,7 +4,7 @@ using Indice.Services;
 
 namespace Indice.Features.Identity.Core;
 
-internal class UserBlockedEventHandler : IPlatformEventHandler<UserBlockedEvent>
+internal sealed class UserBlockedEventHandler : IPlatformEventHandler<UserBlockedEvent>
 {
     private readonly IPersistedGrantService _persistedGrantService;
 

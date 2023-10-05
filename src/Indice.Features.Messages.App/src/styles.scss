@@ -113,5 +113,12 @@
 }
 
 .list-view-container-inner {
-  @apply overflow-x-auto
+  @apply overflow-x-auto;
+}
+.tox-promotion{
+  display: none !important;
+}
+.tox-tinymce {
+  border-radius: 0px !important;
+  border-width: thin !important;
 }

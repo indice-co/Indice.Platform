@@ -92,6 +92,10 @@ public abstract class BaseProfileModel : BasePageModel
         AddModelErrors(result);
         result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.ConsentCommercialDate, $"{DateTime.UtcNow:O}");
         AddModelErrors(result);
+        if (Input.ZoneInfo is not null && Input.ZoneInfo != user.Claims.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.ZoneInfo)?.ClaimValue) {
+            result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.ZoneInfo, Input.ZoneInfo);
+            AddModelErrors(result);
+        }
         if (user.NormalizedEmail != Input.Email?.Trim().ToUpper()) {
             EmailChangeRequested = true;
             user.EmailConfirmed = false;
@@ -190,7 +194,8 @@ public abstract class BaseProfileModel : BasePageModel
             OtherLogins = otherLogins,
             PhoneNumber = user.PhoneNumber,
             Tin = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.Tin)?.Value,
-            UserName = user.UserName ?? string.Empty
+            UserName = user.UserName ?? string.Empty,
+            ZoneInfo = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.ZoneInfo)?.Value,
         };
     }
 

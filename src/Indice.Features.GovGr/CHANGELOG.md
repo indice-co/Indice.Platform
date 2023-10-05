@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- ## [Unreleased] -->
 
+## [Unreleased] 
+### Added
+- `BusinessRegistryOptions.Enabled` option for backwards compatibility with previous installations. Consumers that require Business Registry feature will have to configure this option.
+
+## [7.4.0] - 2023-09-19
+### Added
+- Add Business Registry integration
+
 ## [6.6.0] - 2023-01-30
 - Jumped to 6.6.0 to match other Indice Packages
 

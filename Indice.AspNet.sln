@@ -105,6 +105,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Risk.Server
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Risk.Tests", "test\Indice.Features.Risk.Tests\Indice.Features.Risk.Tests.csproj", "{D39DFEBF-C818-42AB-9B8A-EA080D102606}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Media.AspNetCore", "src\Indice.Features.Media.AspNetCore\Indice.Features.Media.AspNetCore.csproj", "{FDFC28D4-8090-49B1-AD6F-8908D806F297}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -271,6 +273,10 @@ Global
 		{D39DFEBF-C818-42AB-9B8A-EA080D102606}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D39DFEBF-C818-42AB-9B8A-EA080D102606}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D39DFEBF-C818-42AB-9B8A-EA080D102606}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDFC28D4-8090-49B1-AD6F-8908D806F297}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDFC28D4-8090-49B1-AD6F-8908D806F297}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDFC28D4-8090-49B1-AD6F-8908D806F297}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDFC28D4-8090-49B1-AD6F-8908D806F297}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -316,6 +322,7 @@ Global
 		{A6196CEC-086A-468A-9E3C-74C6D16435DB} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{4012510C-029F-4AA0-B1C5-13AFB763A848} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{D39DFEBF-C818-42AB-9B8A-EA080D102606} = {613A1373-9A47-42DD-A076-7F310D0440B9}
+		{FDFC28D4-8090-49B1-AD6F-8908D806F297} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

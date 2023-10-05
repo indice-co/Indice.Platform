@@ -84,25 +84,22 @@ public static class SignInLogFeatureExtensions
     /// <typeparam name="TEnricher">The type that is contained in the assembly to scan.</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static IServiceCollection AddSignInLogEnricher<TEnricher>(this IServiceCollection services) where TEnricher : class, ISignInLogEntryEnricher {
-        services.AddTransient<ISignInLogEntryEnricher, TEnricher>();
+        services.AddSignInLogEnricher(typeof(TEnricher));
         return services;
     }
 
     /// <summary>Adds all enrichers contained in an assembly enrichers.</summary>
-    /// <typeparam name="T">The type that is contained in the assembly to scan</typeparam>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    public static IServiceCollection AddSignInLogEnrichersFromAssembly<T>(this IServiceCollection services) {
-        var enrichers = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryEnricher>(typeof(T).Assembly);
-        foreach (var enricher in enrichers) {
-            services.AddTransient(typeof(ISignInLogEntryEnricher), enricher);
-        }
+    /// <param name="type">The type of enricher.</param>
+    private static IServiceCollection AddSignInLogEnricher(this IServiceCollection services, Type type) {
+        services.AddTransient(typeof(ISignInLogEntryEnricher), type);
         return services;
     }
 
     private static IServiceCollection AddDefaultEnrichers(this IServiceCollection services) {
         var enrichers = AssemblyInternalExtensions.GetClassesAssignableFrom<ISignInLogEntryEnricher>(Assembly.GetExecutingAssembly());
         foreach (var enricher in enrichers) {
-            services.AddTransient(typeof(ISignInLogEntryEnricher), enricher);
+            services.AddSignInLogEnricher(enricher);
         }
         return services;
     }

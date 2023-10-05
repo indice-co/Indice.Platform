@@ -4,11 +4,15 @@ using Indice.Features.Identity.SignInLogs.Models;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
-internal class LocationEnricher : ISignInLogEntryEnricher
+/// <summary>Enriches the sign in log entry with location metadata of the user (given the IP address).</summary>
+public sealed class LocationEnricher : ISignInLogEntryEnricher
 {
+    /// <inheritdoc />
     public int Order => 6;
+    /// <inheritdoc />
     public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Default;
 
+    /// <inheritdoc />
     public ValueTask EnrichAsync(SignInLogEntry logEntry) {
         if (string.IsNullOrWhiteSpace(logEntry?.IpAddress)) {
             return ValueTask.CompletedTask;

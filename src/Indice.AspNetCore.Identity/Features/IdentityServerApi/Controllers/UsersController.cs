@@ -296,7 +296,10 @@ internal class UsersController : ControllerBase
                 });
             }
         }
-        await _userManager.UpdateAsync(user, request.BypassEmailAsUserNamePolicy);
+        var identityResult = await _userManager.UpdateAsync(user, request.BypassEmailAsUserNamePolicy);
+        if (!identityResult.Succeeded) {
+            return BadRequest(identityResult.Errors.ToValidationProblemDetails());
+        }
         var roles = await _dbContext.UserRoles.AsNoTracking().Where(x => x.UserId == userId).Join(
             _dbContext.Roles,
             userRole => userRole.RoleId,
