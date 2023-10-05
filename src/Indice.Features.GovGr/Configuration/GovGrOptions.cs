@@ -66,6 +66,8 @@ public class GovGrOptions
     /// <summary>Business Registry settings</summary>
     public class BusinessRegistryOptions
     {
+        /// <summary>Indicates whether the feature BusinessRegistry feature is enabled. Default value is false.</summary>
+        public bool Enabled { get; set; } 
         /// <summary>BaseAddress</summary>
         public string BaseAddress { get; set; } = "https://www1.gsis.gr:443/webtax2/wsgsis/RgWsPublic/RgWsPublicPort";
         /// <summary>Username</summary>
