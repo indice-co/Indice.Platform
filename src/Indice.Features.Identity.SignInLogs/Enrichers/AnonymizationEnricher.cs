@@ -5,13 +5,13 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
-/// <summary></summary>
+/// <summary>An enricher that anonymizes sensitive user data (i.e. IP address).</summary>
 public sealed class AnonymizationEnricher : ISignInLogEntryEnricher
 {
     private readonly SignInLogOptions _signInLogOptions;
 
-    /// <summary></summary>
-    /// <param name="signInLogOptions"></param>
+    /// <summary>Creates a new instance of <see cref="AnonymizationEnricher"/> class.</summary>
+    /// <param name="signInLogOptions">Options for configuring the IdentityServer sign in logs mechanism.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public AnonymizationEnricher(IOptions<SignInLogOptions> signInLogOptions) {
         _signInLogOptions = signInLogOptions?.Value ?? throw new ArgumentNullException(nameof(signInLogOptions));

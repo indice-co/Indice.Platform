@@ -6,7 +6,7 @@ using Indice.Features.Identity.SignInLogs.Models;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
-/// <summary></summary>
+/// <summary>Enriches the sign in log entry with the type of sign in (interactive vs non-interactive).</summary>
 public sealed class SignInTypeEnricher : ISignInLogEntryEnricher
 {
     private static readonly IReadOnlyList<string> INTERACTIVE_GRANT_TYPES = new List<string> {

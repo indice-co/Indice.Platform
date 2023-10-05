@@ -4,7 +4,7 @@ using Indice.Features.Identity.SignInLogs.Models;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
-/// <summary></summary>
+/// <summary>Enriches the sign in log entry with location metadata of the user (given the IP address).</summary>
 public sealed class LocationEnricher : ISignInLogEntryEnricher
 {
     /// <inheritdoc />

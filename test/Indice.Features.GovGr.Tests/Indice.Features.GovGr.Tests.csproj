@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <None Update="kyc-test-response.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

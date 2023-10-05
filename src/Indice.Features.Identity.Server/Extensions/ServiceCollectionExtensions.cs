@@ -5,6 +5,8 @@ using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using FluentValidation;
 using IdentityModel;
+using IdentityServer4.EntityFramework.Services;
+using IdentityServer4.EntityFramework.Stores;
 using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -138,7 +140,12 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         .AddDelegationGrantValidator()
         .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
         .AddExtendedResourceOwnerPasswordValidator()
-        .AddDotnet7CompatibleStores();
+        .AddDotnet7CompatibleStores()
+        // Add store decorators for caching after calling AddDotnet7CompatibleStores.
+        .AddClientStoreCache<ClientStore>()
+        .AddCorsPolicyCache<CorsPolicyService>()
+        .AddConfigurationStoreCache()
+        .AddResourceStoreCache<ResourceStore>();
         if (webHostEnvironment.IsDevelopment()) {
             IdentityModelEventSource.ShowPII = true;
             identityServerBuilder.AddDeveloperSigningCredential();

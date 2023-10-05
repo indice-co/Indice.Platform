@@ -6,13 +6,13 @@ using Microsoft.Net.Http.Headers;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
-/// <summary></summary>
+/// <summary>Enriches the sign in log with user agent information.</summary>
 public sealed class DeviceEnricher : ISignInLogEntryEnricher
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    /// <summary></summary>
-    /// <param name="httpContextAccessor"></param>
+    /// <summary>Creates a new instance of <see cref="DeviceEnricher"/> class.</summary>
+    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public DeviceEnricher(IHttpContextAccessor httpContextAccessor) {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -30,7 +30,7 @@ public sealed class DeviceEnricher : ISignInLogEntryEnricher
             return ValueTask.CompletedTask;
         }
         var userAgent = new UserAgent(userAgentHeader);
-        logEntry.ExtraData.Device = new SignInLogEntryDevice { 
+        logEntry.ExtraData.Device = new SignInLogEntryDevice {
             Model = userAgent.DeviceModel,
             Platform = userAgent.DevicePlatform,
             UserAgent = userAgent.HeaderValue,
