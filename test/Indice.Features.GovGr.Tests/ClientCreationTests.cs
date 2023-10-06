@@ -23,6 +23,7 @@ public class ClientCreationTests : IDisposable
             ["GovGr:BusinessRegistry:Username"] = "USERxxxxxxxxx",
             ["GovGr:BusinessRegistry:Password"] = "afmxxxxxxxxx",
             ["GovGr:BusinessRegistry:CallersFiscalCode"] = "xxxxxxxxxx",
+            ["GovGr:BusinessRegistry:Enabled"] = "true",
             ["TestGreekIdentityNumber"] = "000",
             ["TestOTP"] = "000000",
             //...populate as needed for the test
