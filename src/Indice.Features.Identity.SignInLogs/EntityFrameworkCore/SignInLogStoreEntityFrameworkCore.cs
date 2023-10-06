@@ -63,6 +63,9 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
             if (filter.Succeeded.HasValue) {
                 query = query.Where(l => l.Succeeded == filter.Succeeded.Value);
             }
+            if (filter.SignInType.HasValue) {
+                query = query.Where(l => l.SignInType == filter.SignInType.Value);
+            }
             if (!string.IsNullOrWhiteSpace(filter.Subject)) {
                 query = query.Where(l => l.SubjectId == filter.Subject || l.SubjectName == filter.Subject);
             }
