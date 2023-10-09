@@ -4,7 +4,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Extensions;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Services;
@@ -18,33 +17,29 @@ public class EmailServiceSendGrid : IEmailService
     /// <summary>Creates a new instance of <see cref="EmailServiceSendGrid"/>.</summary>
     /// <param name="settings">An instance of <see cref="EmailServiceSendGridSettings"/> used to initialize the service.</param>
     /// <param name="httpClient">The HTTP client to use (DI managed)</param>
-    /// <param name="logger">Represents a type used to perform logging.</param>
     /// <param name="htmlRenderingEngine">This is an abstraction for the rendering engine.</param>
     public EmailServiceSendGrid(
         IOptionsSnapshot<EmailServiceSendGridSettings> settings,
         HttpClient httpClient,
-        ILogger<EmailServiceSendGrid> logger,
         IHtmlRenderingEngine htmlRenderingEngine) {
         Settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
         HttpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         HtmlRenderingEngine = htmlRenderingEngine ?? throw new ArgumentNullException(nameof(htmlRenderingEngine));
         if (HttpClient.BaseAddress == null) {
             HttpClient.BaseAddress = new Uri(Settings.Api.TrimEnd('/') + "/");
         }
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey 
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey
             ?? throw new ArgumentNullException(nameof(Settings.ApiKey)));
     }
 
     private EmailServiceSendGridSettings Settings { get; }
     private HttpClient HttpClient { get; }
-    private ILogger<EmailServiceSendGrid> Logger { get; }
     /// <inheritdoc/>
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
 
     /// <inheritdoc/>
     public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
-        var bccRecipients = (Settings.BccRecipients ?? "").Split(';', ',');
+        var bccRecipients = (Settings.BccRecipients ?? "").Split(';', ',', StringSplitOptions.RemoveEmptyEntries);
         var request = new SendGridRequest {
             From = new SendGridEmailAddress {
                 Email = from?.Address ?? Settings.Sender,
@@ -81,9 +76,7 @@ public class EmailServiceSendGrid : IEmailService
         var response = await HttpClient.PostAsync("mail/send", new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json));
         if (!response.IsSuccessStatusCode) {
             var content = await response.Content.ReadAsStringAsync();
-            var message = $"SendGrid service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.";
-            Logger.LogError(message);
-            throw new InvalidOperationException(message);
+            throw new SendGridException($"SendGrid service could not send email to recipients '{string.Join(", ", recipients)}'. Error is: '{content}'.");
         }
     }
 }
@@ -103,6 +96,19 @@ public class EmailServiceSendGridSettings
     public string ApiKey { get; set; }
     /// <summary>The SendGrid API URL (ex. https://api.sendgrid.com/v3/).</summary>
     public string Api { get; set; } = "https://api.sendgrid.com/v3/";
+}
+
+/// <summary>Exception for SendGrid email service failure.</summary>
+public class SendGridException : Exception
+{
+    /// <inheritdoc />
+    public SendGridException() {
+
+    }
+    /// <inheritdoc />
+    public SendGridException(string message) : base(message) {
+
+    }
 }
 
 #region SendGrid models
