@@ -54,6 +54,8 @@ public static class IdentityBuilderExtensions
     /// <param name="builder">The type of builder for configuring identity services.</param>
     public static IdentityBuilder AddExtendedUserManager<TUser>(this IdentityBuilder builder) where TUser : User, new() {
         builder.Services.AddPlatformEventHandler<UserBlockedEvent, UserBlockedEventHandler>();
+        builder.Services.AddPlatformEventHandler<UserLoginEvent, UserLoginEventHandler>();
+        builder.Services.AddPlatformEventHandler<UserPasswordLoginEvent, UserPasswordLoginEventHandler>();
         builder.AddEntityFrameworkStores<ExtendedIdentityDbContext<TUser, Role>>()
                .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<TUser, Role>, TUser, Role>>()
                .AddUserManager<ExtendedUserManager<TUser>>();

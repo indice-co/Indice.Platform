@@ -62,6 +62,21 @@ import { SettingsComponent } from './features/settings/settings.component';
 import { EmailSettingsComponent } from './features/settings/email/email-settings.component';
 import { EmailSendersCreateComponent } from './features/settings/email/create/email-senders-create.component';
 import { EmailSendersEditComponent } from './features/settings/email/edit/email-senders-edit.component';
+import { MediaLibraryComponent } from './features/media-library/media-library.component';
+import { TreeBreadcrumbComponent } from './features/media-library/tree-breadcrumb/tree-breadcrumb.component';
+import { MEDIA_API_BASE_URL } from './core/services/media-api.service';
+import { TreeBreadcrumbItemComponent } from './features/media-library/tree-breadcrumb/tree-breadcrumb-item/tree-breadcrumb-item.component';
+import { FolderCreateComponent } from './features/media-library/folder-create/folder-create.component';
+import { DocumentUploadComponent } from './features/media-library/document-upload/document-upload.component';
+import { FolderViewComponent } from './features/media-library/item-views/folder-view/folder-view.component';
+import { DocumentEditComponent } from './features/media-library/document-edit/document-edit.component';
+import { DocumentEditRightpaneComponent } from './features/media-library/document-edit/rightpane/document-edit-rightpane.component';
+import { FolderEditComponent } from './features/media-library/folder-edit/folder-edit.component';
+import { ListViewComponent } from './features/media-library/item-views/list-view/list-view.component';
+import { ReadOnlyViewComponent } from './features/media-library/item-views/read-only-view/read-only-view.component';
+import { MediaSettingsComponent } from './features/settings/media/media-settings.component';
+import { MediaSettingEditComponent } from './features/settings/media/edit/media-setting-edit.component';
+import { EditorModule, TINYMCE_SCRIPT_SRC } from '@tinymce/tinymce-angular';
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -73,6 +88,7 @@ const providers: Provider[] = [
   { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   { provide: HTTP_INTERCEPTORS, useClass: BadRequestInterceptor, multi: true },
   { provide: MESSAGES_API_BASE_URL, useFactory: () => app.settings.api_url },
+  { provide: MEDIA_API_BASE_URL, useFactory: () => app.settings.api_url },
   { provide: SHELL_CONFIG, useFactory: () => new ShellConfig() },
   { provide: TENANT_PREFIX_URL, useExisting: MESSAGES_API_BASE_URL },
   { provide: LOCALE_ID, useValue: 'el-GR' },
@@ -86,7 +102,8 @@ const providers: Provider[] = [
       }
     }
   },
-  { provide: APP_LANGUAGES, useClass: AppLanguagesService }
+  { provide: APP_LANGUAGES, useClass: AppLanguagesService },
+  { provide: TINYMCE_SCRIPT_SRC, useValue: 'tinymce/tinymce.min.js' }
 ]
 
 if (app.settings.tenantId) {
@@ -141,7 +158,20 @@ if (app.settings.tenantId) {
     SettingsComponent,
     EmailSettingsComponent,
     EmailSendersCreateComponent,
-    EmailSendersEditComponent
+    EmailSendersEditComponent,
+    MediaLibraryComponent,
+    TreeBreadcrumbComponent,
+    TreeBreadcrumbItemComponent,
+    FolderCreateComponent,
+    DocumentUploadComponent,
+    FolderViewComponent,
+    DocumentEditComponent,
+    DocumentEditRightpaneComponent,
+    FolderEditComponent,
+    ListViewComponent,
+    ReadOnlyViewComponent,
+    MediaSettingsComponent,
+    MediaSettingEditComponent
   ],
   imports: [
     AppRoutingModule,
@@ -152,7 +182,8 @@ if (app.settings.tenantId) {
     HttpClientModule,
     IndiceAuthModule,
     IndiceComponentsModule.forRoot(),
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    EditorModule
   ],
   providers: providers,
   bootstrap: [AppComponent]

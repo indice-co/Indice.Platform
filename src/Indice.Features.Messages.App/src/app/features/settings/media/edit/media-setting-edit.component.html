@@ -1,0 +1,43 @@
+<lib-side-view-layout title="Επεξεργασία ρύθμισης"
+                      [ok-close-dialog]="false"
+                      [ok-label]="'Αποθήκευση'"
+                      [cancel-label]="'Κλείσιμο'"
+                      (ok)="submitButton.nativeElement.click()"
+                      [disabled]="!mediaSettingForm.valid || submitInProgress"
+                      #sideViewLayout>
+    <div class="mt-4">
+        <form #mediaSettingForm="ngForm"
+              (ngSubmit)="onSubmit()">
+            <div class="px-4 space-y-2 pb-4">
+                <div class="grid grid-cols-4 gap-1">
+                    <!-- Τιμή -->
+                    <div class="col-span-4">
+                        <label for="settingValue"
+                               class="field-label">
+                            Τιμή (*)
+                        </label>
+                        <div class="flex rounded-sm">
+                            <input type="text"
+                                   name="settingValue"
+                                   id="settingValue"
+                                   [(ngModel)]="model.value"
+                                   placeholder="Η τιμή του setting..."
+                                   pattern="^((http|https):\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$"
+                                   #settingValue="ngModel">
+                        </div>
+                        <p *ngIf="settingValue.invalid && (settingValue.dirty || settingValue.touched)"
+                           class="mt-2 text-sm text-red-600">
+                            <span *ngIf="settingValue.errors!['pattern']">Παρακαλώ συμπληρώστε μία ορθή διεύθυνση.</span>
+                        </p>
+                        <p class="field-info col-span-3">Η τιμή της συγκεκριμένης ρύθμισης.</p>
+                    </div>
+                </div>
+            </div>
+            <button type="submit"
+                    [style.visibility]="'hidden'"
+                    #submitBtn>
+                Submit
+            </button>
+        </form>
+    </div>
+</lib-side-view-layout>

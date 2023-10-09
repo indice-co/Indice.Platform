@@ -6,24 +6,31 @@ using Microsoft.Net.Http.Headers;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
-internal class DeviceEnricher : ISignInLogEntryEnricher
+/// <summary>Enriches the sign in log with user agent information.</summary>
+public sealed class DeviceEnricher : ISignInLogEntryEnricher
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public int Order => 4;
-    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Synchronous;
-
+    /// <summary>Creates a new instance of <see cref="DeviceEnricher"/> class.</summary>
+    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
+    /// <exception cref="ArgumentNullException"></exception>
     public DeviceEnricher(IHttpContextAccessor httpContextAccessor) {
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
+    /// <inheritdoc />
+    public int Order => 4;
+    /// <inheritdoc />
+    public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Synchronous;
+
+    /// <inheritdoc />
     public ValueTask EnrichAsync(SignInLogEntry logEntry) {
         var userAgentHeader = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.UserAgent];
         if (string.IsNullOrWhiteSpace(userAgentHeader)) {
             return ValueTask.CompletedTask;
         }
         var userAgent = new UserAgent(userAgentHeader);
-        logEntry.ExtraData.Device = new SignInLogEntryDevice { 
+        logEntry.ExtraData.Device = new SignInLogEntryDevice {
             Model = userAgent.DeviceModel,
             Platform = userAgent.DevicePlatform,
             UserAgent = userAgent.HeaderValue,

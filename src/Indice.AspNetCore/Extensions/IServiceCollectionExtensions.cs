@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Data;
+using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Middleware;
@@ -187,5 +188,21 @@ public static class ServiceCollectionExtensions
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         configuration.Bind(section ?? AzureDataProtectionOptions.Name, options);
         return options;
+    }
+
+    /// <summary>Removes the specified type implementation for <see cref="IServiceCollection"/>.</summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    /// <exception cref="ReadOnlyException"></exception>
+    public static IServiceCollection Remove<T>(this IServiceCollection services) where T : class {
+        if (services.IsReadOnly) {
+            throw new ReadOnlyException($"{nameof(services)} is read only.");
+        }
+        var serviceDescriptor = services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(T));
+        if (serviceDescriptor is not null) {
+            services.Remove(serviceDescriptor);
+        }
+        return services;
     }
 }

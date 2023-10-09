@@ -25,6 +25,7 @@ dotnet pack src/Indice.Features.Cases.AspNetCore/Indice.Features.Cases.AspNetCor
 dotnet pack src/Indice.Features.Cases.Server/Indice.Features.Cases.Server.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Cases.UI/Indice.Features.Cases.UI.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.GovGr/Indice.Features.GovGr.csproj --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.Features.Media.AspNetCore/Indice.Features.Media.AspNetCore.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Messages.AspNetCore/Indice.Features.Messages.AspNetCore.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Messages.Core/Indice.Features.Messages.Core.csproj --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Features.Messages.UI/Indice.Features.Messages.UI.csproj --no-build -c Release -o ./artifacts
