@@ -14,9 +14,7 @@ public class CampaignsDbContext : DbContext
     /// <summary>Creates a new instance of <see cref="CampaignsDbContext"/>.</summary>
     /// <param name="options">The options to be used by <see cref="CampaignsDbContext"/>.</param>
     public CampaignsDbContext(DbContextOptions<CampaignsDbContext> options) : base(options) {
-        if (Debugger.IsAttached) {
-            Database.EnsureCreated();
-        }
+        
     }
 
     /// <summary>Campaign attachments table.</summary>

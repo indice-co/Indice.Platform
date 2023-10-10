@@ -11,9 +11,6 @@ public class RiskDbContext : DbContext
     /// <summary>Creates a new instance of <see cref="RiskDbContext"/> class.</summary>
     /// <param name="dbContextOptions"></param>
     public RiskDbContext(DbContextOptions<RiskDbContext> dbContextOptions) : base(dbContextOptions) {
-        if (Debugger.IsAttached) {
-            Database.EnsureCreated();
-        }
     }
 
     /// <summary>Risk events table.</summary>

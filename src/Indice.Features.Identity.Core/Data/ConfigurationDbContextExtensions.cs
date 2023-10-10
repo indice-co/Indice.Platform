@@ -27,9 +27,11 @@ public static class ConfigurationExtensions
         IEnumerable<ApiScope> apiScopes = null) where TConfigurationDbContext : ConfigurationDbContext<TConfigurationDbContext> {
         using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
             var dbContext = serviceScope.ServiceProvider.GetService<TConfigurationDbContext>();
-            if (dbContext is not null) {
-                dbContext.Database.EnsureCreated();
+            if (dbContext is not null && dbContext.Database.EnsureCreated()) {
                 dbContext.SeedData(clients, identityResources, apis, apiScopes);
+                if (dbContext is ExtendedConfigurationDbContext extendedDbContext) {
+                    extendedDbContext.SeedInitialClaimTypes();
+                }
             }
         }
         return app;
