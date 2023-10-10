@@ -46,13 +46,15 @@ public class EmailServiceSendGrid : IEmailService
                 Name = from?.DisplayName ?? Settings.SenderName
             },
             Subject = subject,
-            Personalizations = new Personalizations {
-                To = recipients.Select(x => new SendGridEmailAddress {
-                    Email = x
-                }).ToList(),
-                Bcc = bccRecipients.Select(x => new SendGridEmailAddress {
-                    Email = x
-                }).ToList()
+            Personalizations = new List<Personalizations> {
+                new Personalizations {
+                    To = recipients.Select(x => new SendGridEmailAddress {
+                        Email = x
+                    }).ToList(),
+                    Bcc = bccRecipients.Select(x => new SendGridEmailAddress {
+                        Email = x
+                    }).ToList()
+                }
             },
             Attachments = attachments is { Length: > 0 }
                 ? attachments.Select(x => new SendGridAttachment {
@@ -119,7 +121,7 @@ internal class SendGridRequest
     public string Subject { get; set; }
     [JsonPropertyName("template_id")]
     public string TemplateId { get; set; }
-    public Personalizations Personalizations { get; set; }
+    public List<Personalizations> Personalizations { get; set; }
     public List<SendGridAttachment> Attachments { get; set; }
     public List<SendGridContent> Content { get; set; }
 }
