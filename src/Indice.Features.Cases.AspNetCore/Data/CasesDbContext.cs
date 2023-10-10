@@ -11,9 +11,7 @@ public class CasesDbContext : DbContext
 {
     /// <inheritdoc />
     public CasesDbContext(DbContextOptions<CasesDbContext> options) : base(options) {
-        if (Debugger.IsAttached) {
-            Database.EnsureCreated();
-        }
+        
     }
 
     /// <summary>Cases</summary>

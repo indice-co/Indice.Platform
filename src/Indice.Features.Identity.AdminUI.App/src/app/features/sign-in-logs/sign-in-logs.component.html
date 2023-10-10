@@ -123,7 +123,7 @@
     </div>
 </div>
 <div class="row mb-3 row-cols-1 row-cols-xl-2">
-    <div class="row mb-3 mb-xl-0 col-span row-cols-1 row-cols-md-4 g-3 gy-md-0">
+    <div class="row mb-3 mb-xl-0 col-span row-cols-1 row-cols-md-5 g-3 gy-md-0">
         <div class="col">
             <label class="visually-hidden"
                    for="sign-in-logs-success-select">
@@ -142,6 +142,24 @@
                 </option>
                 <option [ngValue]="false">
                     {{ 'Failed' }}
+                </option>
+            </select>
+        </div>
+        <div class="col">
+            <label class="visually-hidden"
+                   for="sign-in-logs-sign-in-type">
+                Sign In Type
+            </label>
+            <select class="form-control form-select"
+                    id="sign-in-logs-sign-in-type"
+                    name="sign-in-logs-sign-in-type"
+                    required
+                    [(ngModel)]="filter.signInType">
+                <option [ngValue]="undefined" selected="selected">
+                    {{ 'Not Defined' }}
+                </option>
+                <option *ngFor="let key of objectKeys(SignInLogType)" [ngValue]="SignInLogType[key]">
+                    {{SignInLogType[key]}}
                 </option>
             </select>
         </div>
@@ -191,7 +209,7 @@
     <span *ngIf="!value"> - </span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
-    <button class="btn btn-link" (click)="showLogDetails(row, content)">Details</button>
+    <span class="cursor-pointer text-primary" (click)="showLogDetails(row, content)">{{ value }}</span>
 </ng-template>
 <ng-template let-row="row" let-value="row" #statusTemplate>
     <div *ngIf="value">

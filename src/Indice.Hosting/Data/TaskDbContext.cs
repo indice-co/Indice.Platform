@@ -14,11 +14,11 @@ public class TaskDbContext : DbContext
 
     /// <summary>Creates a new instance of <see cref="TaskDbContext"/>.</summary>
     /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
-    public TaskDbContext(DbContextOptions<TaskDbContext> options) : base(options) => EnsuredCreated();
+    public TaskDbContext(DbContextOptions<TaskDbContext> options) : base(options) { }
 
     /// <summary>Creates a new instance of <see cref="TaskDbContext"/>.</summary>
     /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
-    protected TaskDbContext(DbContextOptions options) : base(options) => EnsuredCreated();
+    protected TaskDbContext(DbContextOptions options) : base(options) { }
 
     /// <summary>Queue messages.</summary>
     public DbSet<DbQMessage> Queue { get; set; }
@@ -35,14 +35,4 @@ public class TaskDbContext : DbContext
         builder.ApplyConfiguration(new DbLockMap());
     }
 
-    private void EnsuredCreated() {
-        if (Debugger.IsAttached) {
-            var exists = Database.GetService<IRelationalDatabaseCreator>().Exists();
-            if (!exists && !_alreadyCreated) {
-                // When no databases have been created, this ensures that the database creation process will run once.
-                _alreadyCreated = true;
-                Database.EnsureCreated();
-            }
-        }
-    }
 }

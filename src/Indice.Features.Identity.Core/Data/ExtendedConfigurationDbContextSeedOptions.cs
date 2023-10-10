@@ -4,7 +4,6 @@ using Indice.Features.Identity.Core.Data.Mappings;
 using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 namespace Indice.Features.Identity.Core.Data;
 
@@ -20,9 +19,7 @@ public class ExtendedConfigurationDbContext : ConfigurationDbContext<ExtendedCon
         ConfigurationStoreOptions storeOptions,
         IWebHostEnvironment webHostEnvironment
     ) : base(options, storeOptions) {
-        if (webHostEnvironment.IsDevelopment() && Database.EnsureCreated()) {
-            this.SeedInitialClaimTypes();
-        }
+        
     }
 
     /// <summary>A table that contains the association between a client and a user.</summary>

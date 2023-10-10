@@ -5,8 +5,8 @@
     <SpaProjectName>cases-app</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Cases.App</SpaSourceFolder>
     <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>    
-    <!--<VersionPrefix>$(VersionPrefixCases)</VersionPrefix>-->
-    <Version>7.4.1</Version>
+    <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
+    <!--<Version>7.4.1</Version>-->
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;Cases;CaseManagement</PackageTags>
   </PropertyGroup>

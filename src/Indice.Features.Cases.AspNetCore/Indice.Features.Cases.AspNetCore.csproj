@@ -5,8 +5,8 @@
     <Authors>Thanos Panousis, Dimitris Karkanas, Christos Asvestopoulos, Hermes Krouskos</Authors>
     <PackageReleaseNotes>Initial release for case management feature.</PackageReleaseNotes>
     <PackageTags>AspNetCore;CasesManagement;Cases</PackageTags>
-    <!--<VersionPrefix>$(VersionPrefixCases)</VersionPrefix>-->
-    <Version>7.4.0</Version>
+    <VersionPrefix>$(VersionPrefixCases)</VersionPrefix>
+    <!--<Version>7.4.0</Version>-->
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Cases.Tests" />
@@ -27,10 +27,10 @@
     <PackageReference Include="JsonSchema.Net" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.11" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.12" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />
