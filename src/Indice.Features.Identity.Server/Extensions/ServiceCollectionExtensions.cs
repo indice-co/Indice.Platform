@@ -182,7 +182,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
     /// <param name="builder">Builder for configuring the Indice Identity Server.</param>
     /// <param name="configureAction"></param>
     public static IExtendedIdentityServerBuilder AddExtendedEndpoints(this IExtendedIdentityServerBuilder builder, Action<ExtendedEndpointOptions>? configureAction = null) {
-        builder.Services.Configure<AntiforgeryOptions>(options => options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName); // Configure anti-forgery token options.
+        builder.Services.Configure<AntiforgeryOptions>(options => {
+            options.HeaderName = CustomHeaderNames.AntiforgeryHeaderName;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        }); // Configure anti-forgery token options.
         builder.Services.Configure<ExtendedEndpointOptions>(options => builder.Configuration.GetSection(ExtendedEndpointOptions.Name).Bind(options));
         builder.Services.PostConfigure<ExtendedEndpointOptions>(options => configureAction?.Invoke(options));
         builder.Services.Configure<CacheResourceFilterOptions>(options => builder.Configuration.GetSection(CacheResourceFilterOptions.Name).Bind(options)); // Configure options for CacheResourceFilter.
