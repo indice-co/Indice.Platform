@@ -45,7 +45,7 @@ public static class ConfigurationExtensions
     /// <param name="apiScopes">The list of predefined API scopes.</param>
     public static IApplicationBuilder ConfigurationStoreSetup(this IApplicationBuilder app, IEnumerable<Client> clients = null, IEnumerable<IdentityResource> identityResources = null, IEnumerable<ApiResource> apis = null,
         IEnumerable<ApiScope> apiScopes = null) =>
-        app.ConfigurationStoreSetup<ConfigurationDbContext>(clients, identityResources, apis, apiScopes);
+        app.ConfigurationStoreSetup<ExtendedConfigurationDbContext>(clients, identityResources, apis, apiScopes);
 
     /// <summary>Sets up the IdentityServer operational store.</summary>
     /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
