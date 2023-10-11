@@ -103,7 +103,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <summary>Type of expiration for <see cref="IdentityConstants.TwoFactorRememberMeScheme"/> cookie.</summary>
     public MfaExpirationType RememberExpirationType { get; }
     /// <summary>Quite self-explanatory property name. Defaults to true.</summary>
-    public bool RequireMfaWhenUserHasTrustedBrowserButExpiredPassword { get; set; }
+    public bool RequireMfaWhenUserHasTrustedBrowserButExpiredPassword { get; }
 
     #region Method Overrides
     /// <inheritdoc/>
@@ -159,7 +159,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         } else {
             await _stateProvider.ChangeStateAsync(user, UserAction.Login);
         }
-        var result = await _signInGuard.IsSuspiciousLogin(user);
+        var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
         if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector?.Options?.OnImpossibleTravelFlowType == OnImpossibleTravelFlowType.DenyLogin) {
             return SignInResult.Failed;
         }
@@ -221,7 +221,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         user.LastSignInDate = DateTimeOffset.UtcNow;
         await ExtendedUserManager.UpdateAsync(user);
         await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
-        var result = await _signInGuard.IsSuspiciousLogin(user);
+        var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
         await _eventService.Publish(UserLoginEvent.Success(user, result.Warning));
     }
 
@@ -286,7 +286,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         if (!attempt.Succeeded) {
             return attempt;
         }
-        var result = await _signInGuard.IsSuspiciousLogin(user);
+        var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
         await _eventService.Publish(UserPasswordLoginEvent.Success(user, result.Warning));
         if (ExpireBlacklistedPasswordsOnSignIn) {
             var blacklistPasswordValidator = ExtendedUserManager.PasswordValidators.OfType<NonCommonPasswordValidator<TUser>>().FirstOrDefault();
