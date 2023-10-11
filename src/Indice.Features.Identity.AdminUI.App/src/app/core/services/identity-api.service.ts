@@ -14693,6 +14693,8 @@ export class SingleUserInfo implements ISingleUserInfo {
     createDate?: Date;
     /** The date-time where the lockout period ends. */
     lockoutEnd?: Date | undefined;
+    /** Indicates that the user is Locked. */
+    isLocked?: boolean;
     /** User's email address. */
     email?: string | undefined;
     /** User's phone number. */
@@ -14733,6 +14735,7 @@ export class SingleUserInfo implements ISingleUserInfo {
             this.twoFactorEnabled = _data["twoFactorEnabled"];
             this.createDate = _data["createDate"] ? new Date(_data["createDate"].toString()) : <any>undefined;
             this.lockoutEnd = _data["lockoutEnd"] ? new Date(_data["lockoutEnd"].toString()) : <any>undefined;
+            this.isLocked = _data["isLocked"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
             this.userName = _data["userName"];
@@ -14771,6 +14774,7 @@ export class SingleUserInfo implements ISingleUserInfo {
         data["twoFactorEnabled"] = this.twoFactorEnabled;
         data["createDate"] = this.createDate ? this.createDate.toISOString() : <any>undefined;
         data["lockoutEnd"] = this.lockoutEnd ? this.lockoutEnd.toISOString() : <any>undefined;
+        data["isLocked"] = this.isLocked;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
         data["userName"] = this.userName;
@@ -14810,6 +14814,8 @@ export interface ISingleUserInfo {
     createDate?: Date;
     /** The date-time where the lockout period ends. */
     lockoutEnd?: Date | undefined;
+    /** Indicates that the user is Locked. */
+    isLocked?: boolean;
     /** User's email address. */
     email?: string | undefined;
     /** User's phone number. */
@@ -16611,6 +16617,8 @@ export class UserInfo implements IUserInfo {
     createDate?: Date;
     /** The date-time where the lockout period ends. */
     lockoutEnd?: Date | undefined;
+    /** Indicates that the user is Locked. */
+    isLocked?: boolean;
     /** User's email address. */
     email?: string | undefined;
     /** User's phone number. */
@@ -16651,6 +16659,7 @@ export class UserInfo implements IUserInfo {
             this.twoFactorEnabled = _data["twoFactorEnabled"];
             this.createDate = _data["createDate"] ? new Date(_data["createDate"].toString()) : <any>undefined;
             this.lockoutEnd = _data["lockoutEnd"] ? new Date(_data["lockoutEnd"].toString()) : <any>undefined;
+            this.isLocked = _data["isLocked"];
             this.email = _data["email"];
             this.phoneNumber = _data["phoneNumber"];
             this.userName = _data["userName"];
@@ -16681,6 +16690,7 @@ export class UserInfo implements IUserInfo {
         data["twoFactorEnabled"] = this.twoFactorEnabled;
         data["createDate"] = this.createDate ? this.createDate.toISOString() : <any>undefined;
         data["lockoutEnd"] = this.lockoutEnd ? this.lockoutEnd.toISOString() : <any>undefined;
+        data["isLocked"] = this.isLocked;
         data["email"] = this.email;
         data["phoneNumber"] = this.phoneNumber;
         data["userName"] = this.userName;
@@ -16712,6 +16722,8 @@ export interface IUserInfo {
     createDate?: Date;
     /** The date-time where the lockout period ends. */
     lockoutEnd?: Date | undefined;
+    /** Indicates that the user is Locked. */
+    isLocked?: boolean;
     /** User's email address. */
     email?: string | undefined;
     /** User's phone number. */

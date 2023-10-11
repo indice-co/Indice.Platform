@@ -76,7 +76,6 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
         // Calculate expiration date based on policy.
         user.PasswordExpirationDate = user.CalculatePasswordExpirationDate();
         await base.SetPasswordHashAsync(user, passwordHash, cancellationToken);
-        await UpdateAsync(user, cancellationToken);
     }
 
     /// <inheritdoc/>

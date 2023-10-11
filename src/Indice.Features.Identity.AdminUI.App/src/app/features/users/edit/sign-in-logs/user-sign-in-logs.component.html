@@ -138,7 +138,7 @@
     <span *ngIf="!value"> - </span>
 </ng-template>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
-    <span class="cursor-pointer text-primary" (click)="showLogDetails(row, content)">{{value}}</span>
+    <span class="cursor-pointer text-primary" (click)="showLogDetails(row, content)">{{ value | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
 </ng-template>
 <ng-template let-row="row" let-value="row" #statusTemplate>
     <div *ngIf="value">

@@ -84,6 +84,7 @@ export class UserStore {
     public unlockUser(userId: string): Observable<void> {
         this.getUser(userId).subscribe((user: SingleUserInfo) => {
             user.lockoutEnd = null;
+            user.isLocked = false;
             user.accessFailedCount = 0;
             this._user.next(user);
             this._user.complete();

@@ -7,7 +7,7 @@
 <ng-template let-row="row" let-value="value" #usernameTemplate>
     <span *ngIf="value" style="padding-right: 16px; position: relative;" [title]="value">
         <i *ngIf="row.blocked" class="material-icons font-14 checkmark" style="color: rgba(255, 81, 81, 0.61) !important;" title="Account is blocked">block</i>
-        <i *ngIf="row.accessFailedCount > 0 && row.lockoutEnd && !row.blocked" class="material-icons font-14 checkmark" style="color: rgba(255, 81, 81, 0.61) !important;" title="Account is locked">vpn_key</i>
+        <i *ngIf="row.isLocked && !row.blocked" class="material-icons font-14 checkmark" style="color: rgba(255, 81, 81, 0.61) !important;" title="Account is locked">vpn_key</i>
         {{ value }}
     </span>
     <span *ngIf="!value"> - </span>

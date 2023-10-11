@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Features.Identity.Core.Data.Models;
 
 namespace Indice.Features.Identity.Server.Manager.Models;
 
@@ -54,6 +51,8 @@ public class BasicUserInfo
     public DateTimeOffset CreateDate { get; set; }
     /// <summary>The date-time where the lockout period ends.</summary>
     public DateTimeOffset? LockoutEnd { get; set; }
+    /// <summary> Indicates that the user is Locked. </summary>
+    public bool IsLocked => LockoutEnabled && LockoutEnd.HasValue && LockoutEnd > DateTimeOffset.UtcNow;
     /// <summary>User's email address.</summary>
     public string? Email { get; set; }
     /// <summary>User's phone number.</summary>
