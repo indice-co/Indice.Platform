@@ -5,7 +5,9 @@ using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.Assets;
 using Indice.Features.Identity.UI.Localization;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
@@ -22,7 +24,11 @@ public static class IdentityBuilderUIExtensions
     /// <param name="configureAction">Configure action.</param>
     public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration, Action<IdentityUIOptions>? configureAction = null) {
         services.PostConfigure<IdentityUIOptions>(options => configureAction?.Invoke(options));
-        services.PostConfigure<AntiforgeryOptions>(options => options.HeaderName = "X-XSRF-TOKEN");
+        services.PostConfigure<AntiforgeryOptions>(options => {
+            options.HeaderName = "X-XSRF-TOKEN";
+            options.Cookie.HttpOnly = true;
+            options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        });
         // Post configure razor pages options.
         services.ConfigureOptions(typeof(IdentityUIRazorPagesConfigureOptions));
         services.ConfigureOptions(typeof(IdentityUIStaticFileConfigureOptions));
