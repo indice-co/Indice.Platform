@@ -38,7 +38,7 @@
 <p *ngIf="!user">Loading user data...</p>
 <form class="needs-validation" *ngIf="user" [ngClass]="{ 'was-validated': form.submitted }" (ngSubmit)="form.form.valid && update()" novalidate autocomplete="off" [formReadonly]="!canEditUser" #form="ngForm">
     <app-validation-summary [problemDetails]="updateUserProblemDetails" [level]="'warning'" #validationSummary></app-validation-summary>
-    <div class="alert alert-warning d-flex align-items-center justify-content-between" role="alert" *ngIf="user.lockoutEnd">
+    <div class="alert alert-warning d-flex align-items-center justify-content-between" role="alert" *ngIf="user.isLocked && user.lockoutEnd">
         <b class="flex-fill">User is locked until {{ user.lockoutEnd | date: 'medium' }}.</b>
         <button type="button" class="btn btn-secondary" (click)="unlockAlert.fire()">Unlock</button>
     </div>

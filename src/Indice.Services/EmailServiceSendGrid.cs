@@ -39,7 +39,9 @@ public class EmailServiceSendGrid : IEmailService
 
     /// <inheritdoc/>
     public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
-        var bccRecipients = (Settings.BccRecipients ?? "").Split(';', ',', StringSplitOptions.RemoveEmptyEntries);
+        var bccRecipients = string.IsNullOrEmpty(Settings.BccRecipients)
+            ? null
+            : (Settings.BccRecipients ?? "").Split(';', ',', StringSplitOptions.RemoveEmptyEntries).Select(x => new SendGridEmailAddress { Email = x });
         var request = new SendGridRequest {
             From = new SendGridEmailAddress {
                 Email = from?.Address ?? Settings.Sender,
@@ -51,9 +53,7 @@ public class EmailServiceSendGrid : IEmailService
                     To = recipients.Select(x => new SendGridEmailAddress {
                         Email = x
                     }).ToList(),
-                    Bcc = bccRecipients.Select(x => new SendGridEmailAddress {
-                        Email = x
-                    }).ToList()
+                    Bcc = bccRecipients
                 }
             },
             Attachments = attachments is { Length: > 0 }
@@ -93,7 +93,7 @@ public class EmailServiceSendGridSettings
     /// <summary>The default sender name (ex. INDICE OE)</summary>
     public string SenderName { get; set; }
     /// <summary>Optional email addresses that are always added as blind carbon copy recipients.</summary>
-    public string BccRecipients { get; set; }
+    public string BccRecipients { get; set; } = null;
     /// <summary>The SendGrid API key.</summary>
     public string ApiKey { get; set; }
     /// <summary>The SendGrid API URL (ex. https://api.sendgrid.com/v3/).</summary>
@@ -146,9 +146,9 @@ internal class SendGridAttachment
 
 internal class Personalizations
 {
-    public List<SendGridEmailAddress> To { get; set; }
-    public List<SendGridEmailAddress> Cc { get; set; }
-    public List<SendGridEmailAddress> Bcc { get; set; }
+    public IEnumerable<SendGridEmailAddress> To { get; set; }
+    public IEnumerable<SendGridEmailAddress> Cc { get; set; }
+    public IEnumerable<SendGridEmailAddress> Bcc { get; set; }
     [JsonPropertyName("dynamic_template_data")]
     public object TemplateData { get; set; }
 }
