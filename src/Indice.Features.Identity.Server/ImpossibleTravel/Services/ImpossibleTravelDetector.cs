@@ -1,10 +1,10 @@
-﻿using System.Net;
-using Indice.AspNetCore.Extensions;
+﻿using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Data;
 using Indice.Features.Identity.SignInLogs.Models;
+using Indice.Features.Identity.SignInLogs.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -15,20 +15,20 @@ namespace Indice.Features.Identity.Server.ImpossibleTravel.Services;
 /// <typeparam name="TUser"></typeparam>
 public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> where TUser : User
 {
+    private readonly IPAddressLocator? _ipAddressLocator;
     private readonly ISignInLogStore? _signInLogStore;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary></summary>
-    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
     /// <param name="options">Configuration options for impossible travel detector feature.</param>
+    /// <param name="ipAddressLocator"></param>
     /// <param name="signInLogStore">A service that contains operations used to persist the data of a user's sign in event.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ImpossibleTravelDetector(
-        IHttpContextAccessor httpContextAccessor,
         IOptions<ImpossibleTravelDetectorOptions> options,
+        IPAddressLocator? ipAddressLocator = null,
         ISignInLogStore? signInLogStore = null) {
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         Options = options.Value ?? throw new ArgumentNullException(nameof(options));
+        _ipAddressLocator = ipAddressLocator;
         _signInLogStore = signInLogStore;
     }
 
@@ -36,8 +36,8 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
     public ImpossibleTravelDetectorOptions Options { get; init; }
 
     /// <inheritdoc />
-    public async Task<bool> IsImpossibleTravelLogin(TUser user) {
-        if (_signInLogStore is null || _httpContextAccessor.HttpContext is null || user is null) {
+    public async Task<bool> IsImpossibleTravelLogin(HttpContext httpContext, TUser user) {
+        if (_ipAddressLocator is null || _signInLogStore is null || httpContext is null || user is null) {
             return false;
         }
         var previousLogins = (await _signInLogStore.ListAsync(
@@ -56,13 +56,13 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
         if (previousLogins is null || !previousLogins.Any()) {
             return false;
         }
-        var ipAddress = _httpContextAccessor.HttpContext.GetClientIpAddress();
+        var ipAddress = httpContext.GetClientIpAddress();
         if (ipAddress is null) {
             return false;
         }
         var result = false;
         foreach (var previousLogin in previousLogins) {
-            var currentLoginCoordinates = ipAddress.GetLocationMetadata()?.Coordinates;
+            var currentLoginCoordinates = _ipAddressLocator.GetLocationMetadata(ipAddress)?.Coordinates;
             var previousLoginCoordinates = previousLogin.Coordinates;
             if (currentLoginCoordinates is null || previousLoginCoordinates is null) {
                 continue;

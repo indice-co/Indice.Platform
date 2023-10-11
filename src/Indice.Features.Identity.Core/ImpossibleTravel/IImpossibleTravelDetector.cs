@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Identity.Core.Data.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Core.ImpossibleTravel;
 
@@ -9,6 +10,7 @@ public interface IImpossibleTravelDetector<TUser> where TUser : User
     /// <summary>Configuration options for impossible travel detector feature.</summary>
     public ImpossibleTravelDetectorOptions Options { get; init; }
     /// <summary>Detects whether a login attempt is made from an impossible location.</summary>
+    /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
     /// <param name="user">The current user.</param>
-    Task<bool> IsImpossibleTravelLogin(TUser user);
+    Task<bool> IsImpossibleTravelLogin(HttpContext httpContext, TUser user);
 }
