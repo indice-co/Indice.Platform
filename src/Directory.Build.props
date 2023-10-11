@@ -12,7 +12,7 @@
       <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).1</VersionPrefixMedia>
       <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
-      <VersionSuffix>beta-01</VersionSuffix>
+      <!--<VersionSuffix>beta-01</VersionSuffix>-->
       <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
       <LangVersion>Latest</LangVersion>
