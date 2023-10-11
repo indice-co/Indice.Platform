@@ -1,41 +1,44 @@
-﻿using System.Text;
-using Indice.Features.Identity.SignInLogs;
+﻿using System.Net;
+using System.Text;
+using Indice.Features.Identity.SignInLogs.GeoLite2;
 using Indice.Types;
-using MaxMind.GeoIP2;
 
-namespace System.Net;
+namespace Indice.Features.Identity.SignInLogs.Services;
 
-/// <summary>Extension methods on <see cref="IPAddress"/> type.</summary>
-public static class IPAddressExtensions
+/// <summary></summary>
+public sealed class IPAddressLocator
 {
+    private readonly CityDatabaseReader _cityDatabaseReader;
+    private readonly CountryDatabaseReader _countryDatabaseReader;
+
+    /// <summary></summary>
+    /// <param name="cityDatabaseReader"></param>
+    /// <param name="countryDatabaseReader"></param>
+    public IPAddressLocator(CityDatabaseReader cityDatabaseReader, CountryDatabaseReader countryDatabaseReader) {
+        _cityDatabaseReader = cityDatabaseReader ?? throw new ArgumentNullException(nameof(cityDatabaseReader));
+        _countryDatabaseReader = countryDatabaseReader ?? throw new ArgumentNullException(nameof(countryDatabaseReader));
+    }
+
     /// <summary>Gets various geolocation data for the given <see cref="IPAddress"/>.</summary>
     /// <param name="ipAddress">The IP address to look for.</param>
-    public static IPLocationMetadata GetLocationMetadata(this IPAddress ipAddress) {
-        var assembly = typeof(IPAddressExtensions).Assembly;
-        var @namespace = assembly.GetName().Name;
+    public IPLocationMetadata GetLocationMetadata(IPAddress ipAddress) {
         var result = new IPLocationMetadata();
-        var citiesFileStream = assembly.GetManifestResourceStream($"{@namespace}.GeoLite2.{SignInLogOptions.GEO_LITE2_CITY_FILE_NAME}");
-        using (var reader = new DatabaseReader(citiesFileStream)) {
-            if (reader.TryCity(ipAddress, out var response)) {
-                var latitude = response?.Location?.Latitude;
-                var longitude = response?.Location?.Longitude;
-                if (latitude.HasValue && longitude.HasValue) {
-                    result.Coordinates = new GeoPoint(latitude.Value, longitude.Value);
-                }
-                result.CityName = response?.City?.Name;
-                result.PostalCode = response?.Postal?.Code;
-                if (response?.Subdivisions?.Any() == true) {
-                    result.Subdivisions.AddRange(response.Subdivisions.Select(subdivision => subdivision.Name));
-                }
+        if (_cityDatabaseReader.TryCity(ipAddress, out var cityResponse)) {
+            var latitude = cityResponse?.Location?.Latitude;
+            var longitude = cityResponse?.Location?.Longitude;
+            if (latitude.HasValue && longitude.HasValue) {
+                result.Coordinates = new GeoPoint(latitude.Value, longitude.Value);
+            }
+            result.CityName = cityResponse?.City?.Name;
+            result.PostalCode = cityResponse?.Postal?.Code;
+            if (cityResponse?.Subdivisions?.Any() == true) {
+                result.Subdivisions.AddRange(cityResponse.Subdivisions.Select(subdivision => subdivision.Name));
             }
         }
-        var countriesFileStream = assembly.GetManifestResourceStream($"{@namespace}.GeoLite2.{SignInLogOptions.GEO_LITE2_COUNTRY_FILE_NAME}");
-        using (var reader = new DatabaseReader(countriesFileStream)) {
-            if (reader.TryCountry(ipAddress, out var response)) {
-                result.CountryName = response?.Country?.Name;
-                result.CountryIsoCode = response?.Country?.IsoCode;
-                result.Continent = response?.Continent?.Name;
-            }
+        if (_countryDatabaseReader.TryCountry(ipAddress, out var countryResponse)) {
+            result.CountryName = countryResponse?.Country?.Name;
+            result.CountryIsoCode = countryResponse?.Country?.IsoCode;
+            result.Continent = countryResponse?.Continent?.Name;
         }
         return result;
     }

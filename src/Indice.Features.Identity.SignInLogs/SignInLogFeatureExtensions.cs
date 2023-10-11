@@ -4,7 +4,9 @@ using Indice.Features.Identity.SignInLogs;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Enrichers;
 using Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
+using Indice.Features.Identity.SignInLogs.GeoLite2;
 using Indice.Features.Identity.SignInLogs.Hosting;
+using Indice.Features.Identity.SignInLogs.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -49,6 +51,9 @@ public static class SignInLogFeatureExtensions
         services.AddDefaultFilters();
         services.AddTransient<SignInLogEntryEnricherAggregator>();
         services.AddSingleton<SignInLogEntryQueue>();
+        services.AddSingleton<CityDatabaseReader>();
+        services.AddSingleton<CountryDatabaseReader>();
+        services.AddScoped<IPAddressLocator>();
         // Enable feature management for this module.
         services.AddFeatureManagement(configuration.GetSection(IdentityServerFeatures.Section));
         // Add a default implementation in case one is not specified. Avoids DI errors.
