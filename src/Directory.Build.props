@@ -3,15 +3,15 @@
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
       <VersionPrefixBase>7.6</VersionPrefixBase>
-      <VersionPrefixCore>$(VersionPrefixBase).1</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).3</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).3</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
-      <VersionPrefixMultitenancy>$(VersionPrefixBase).1</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
-      <VersionPrefixMedia>$(VersionPrefixBase).1</VersionPrefixMedia>
-      <VersionPrefix>$(VersionPrefixBase).1</VersionPrefix>
+      <VersionPrefixCore>$(VersionPrefixBase).2</VersionPrefixCore>
+      <VersionPrefixIdentity>$(VersionPrefixBase).4</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).4</VersionPrefixIdentityUI>
+      <VersionPrefixCases>$(VersionPrefixBase).2</VersionPrefixCases>
+      <VersionPrefixMessages>$(VersionPrefixBase).2</VersionPrefixMessages>
+      <VersionPrefixMultitenancy>$(VersionPrefixBase).2</VersionPrefixMultitenancy>
+      <VersionPrefixRisk>$(VersionPrefixBase).2</VersionPrefixRisk>
+      <VersionPrefixMedia>$(VersionPrefixBase).2</VersionPrefixMedia>
+      <VersionPrefix>$(VersionPrefixBase).2</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->
       <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>
