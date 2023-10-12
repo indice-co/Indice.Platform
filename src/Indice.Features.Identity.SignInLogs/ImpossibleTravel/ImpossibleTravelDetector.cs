@@ -9,14 +9,15 @@ using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
-namespace Indice.Features.Identity.Server.ImpossibleTravel.Services;
+namespace Indice.Features.Identity.SignInLogs.ImpossibleTravel;
 
 /// <summary>A service that detects whether a login attempt is made from an impossible location.</summary>
 /// <typeparam name="TUser"></typeparam>
 public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> where TUser : User
 {
-    private readonly IPAddressLocator? _ipAddressLocator;
-    private readonly ISignInLogStore? _signInLogStore;
+    private readonly IPAddressLocator _ipAddressLocator;
+    private readonly ISignInLogStore _signInLogStore;
+    private readonly SignInLogOptions _signInLogOptions;
 
     /// <summary></summary>
     /// <param name="options">Configuration options for impossible travel detector feature.</param>
@@ -24,16 +25,16 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
     /// <param name="signInLogStore">A service that contains operations used to persist the data of a user's sign in event.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ImpossibleTravelDetector(
-        IOptions<ImpossibleTravelDetectorOptions> options,
-        IPAddressLocator? ipAddressLocator = null,
-        ISignInLogStore? signInLogStore = null) {
-        Options = options.Value ?? throw new ArgumentNullException(nameof(options));
+        IOptions<SignInLogOptions> options,
+        IPAddressLocator ipAddressLocator = null,
+        ISignInLogStore signInLogStore = null) {
+        _signInLogOptions = options.Value ?? throw new ArgumentNullException(nameof(options));
         _ipAddressLocator = ipAddressLocator;
         _signInLogStore = signInLogStore;
     }
 
     /// <inheritdoc />
-    public ImpossibleTravelDetectorOptions Options { get; init; }
+    public ImpossibleTravelFlowType FlowType => _signInLogOptions.ImpossibleTravelFlowType;
 
     /// <inheritdoc />
     public async Task<bool> IsImpossibleTravelLogin(HttpContext httpContext, TUser user) {
@@ -69,7 +70,7 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
             }
             var distanceBetweenLogins = currentLoginCoordinates.Distance(previousLoginCoordinates);
             var travelSpeed = distanceBetweenLogins / (DateTimeOffset.UtcNow - previousLogin.CreatedAt).TotalHours;
-            if (travelSpeed > Options.AcceptableSpeed) {
+            if (travelSpeed > _signInLogOptions.ImpossibleTravelAcceptableSpeed) {
                 result = true;
                 break;
             }
