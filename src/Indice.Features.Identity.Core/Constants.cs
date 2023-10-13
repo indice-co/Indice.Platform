@@ -75,7 +75,7 @@ public static class TotpConstants
 }
 
 /// <summary>Constant values for IdentityServer features.</summary>
-public class IdentityServerFeatures 
+public class IdentityServerFeatures
 {
     /// <summary></summary>
     public const string Section = "IdentityServer:Features";
@@ -85,4 +85,6 @@ public class IdentityServerFeatures
     public const string PublicRegistration = nameof(PublicRegistration);
     /// <summary>Sign in logs.</summary>
     public const string SignInLogs = nameof(SignInLogs);
+    /// <summary>Impossible travel.</summary>
+    public const string ImpossibleTravel = nameof(ImpossibleTravel);
 }
