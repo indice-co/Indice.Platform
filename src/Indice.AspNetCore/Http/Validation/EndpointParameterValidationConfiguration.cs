@@ -13,16 +13,24 @@ public static class EndpointParameterValidationConfiguration
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="scanAssemblies">The assemblies to scan.</param>
     public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection services, params Assembly[] scanAssemblies)
-        => AddEndpointParameterFluentValidation(services, ServiceLifetime.Transient, scanAssemblies);
+        => AddEndpointParameterFluentValidation(services, ServiceLifetime.Transient, false, scanAssemblies);
+
+    /// <summary>Adds support for fluent validation validators in Minimal APIs.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="includeInternalTypes">Whether to include internal validators as well as public validators. The default is false.</param>
+    /// <param name="scanAssemblies">The assemblies to scan.</param>
+    public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection services, bool includeInternalTypes, params Assembly[] scanAssemblies)
+    => AddEndpointParameterFluentValidation(services, ServiceLifetime.Transient, includeInternalTypes, scanAssemblies);
 
     /// <summary>Adds support for fluent validation validators in Minimal APIs.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="lifetime">Specifies the lifetime of a service in an <see cref="IServiceCollection"/>.</param>
+    /// <param name="includeInternalTypes">Whether to include internal validators as well as public validators. The default is false.</param>
     /// <param name="scanAssemblies">The assemblies to scan.</param>
-    public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection services, ServiceLifetime lifetime, params Assembly[] scanAssemblies) {
+    public static IServiceCollection AddEndpointParameterFluentValidation(this IServiceCollection services, ServiceLifetime lifetime, bool includeInternalTypes, params Assembly[] scanAssemblies) {
         services.TryAddScoped<IEndpointParameterValidator, EndpointParameterFluentValidator>();
         if (scanAssemblies?.Length > 0) {
-            AssemblyScanner.FindValidatorsInAssemblies(scanAssemblies)
+            AssemblyScanner.FindValidatorsInAssemblies(scanAssemblies, includeInternalTypes)
                            .ForEach(x => services.TryAdd(ServiceDescriptor.Describe(x.InterfaceType, x.ValidatorType, lifetime)));
         }
         return services;
