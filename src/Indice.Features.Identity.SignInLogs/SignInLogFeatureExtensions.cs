@@ -1,11 +1,14 @@
 ﻿using System.Reflection;
 using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.SignInLogs;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Enrichers;
 using Indice.Features.Identity.SignInLogs.EntityFrameworkCore;
 using Indice.Features.Identity.SignInLogs.GeoLite2;
 using Indice.Features.Identity.SignInLogs.Hosting;
+using Indice.Features.Identity.SignInLogs.ImpossibleTravel;
 using Indice.Features.Identity.SignInLogs.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -21,11 +24,22 @@ public static class SignInLogFeatureExtensions
     /// <summary>Registers the <see cref="SignInLogEventSink"/> implementation to the IdentityServer infrastructure.</summary>
     /// <param name="builder">IdentityServer builder interface.</param>
     /// <param name="configure">Configure action for the sign in log feature.</param>
-    public static TBuilder AddSignInLogs<TBuilder>(this TBuilder builder, Action<SignInLogOptions> configure) where TBuilder : IIdentityServerBuilder {
+    public static TBuilder AddSignInLogs<TBuilder>(this TBuilder builder, Action<SignInLogOptions> configure) where TBuilder : IIdentityServerBuilder =>
+        builder.AddSignInLogs<TBuilder, User>(configure);
+
+    /// <summary>Registers the <see cref="SignInLogEventSink"/> implementation to the IdentityServer infrastructure.</summary>
+    /// <param name="builder">IdentityServer builder interface.</param>
+    /// <param name="configure">Configure action for the sign in log feature.</param>
+    public static TBuilder AddSignInLogs<TBuilder, TUser>(this TBuilder builder, Action<SignInLogOptions> configure)
+        where TBuilder : IIdentityServerBuilder
+        where TUser : User {
         var services = builder.Services;
         var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-        var resolvedOptions = new SignInLogOptions(builder.Services, configuration);
+        var resolvedOptions = new SignInLogOptions(builder.Services, configuration) {
+            Enable = configuration.GetSignInLogsEnabled() ?? SignInLogOptions.DEFAULT_ENABLE,
+            ImpossibleTravelGuard = configuration.GetImpossibleTravelEnabled() ?? SignInLogOptions.DEFAULT_IMPOSSIBLE_TRAVEL_GUARD
+        };
         configure.Invoke(resolvedOptions);
         // Add IdentityServer sink that captures required sign in events.
         if (!resolvedOptions.Enable) {
@@ -45,6 +59,9 @@ public static class SignInLogFeatureExtensions
             options.DatabaseSchema = resolvedOptions.DatabaseSchema;
             options.Enable = resolvedOptions.Enable;
             options.QueueChannelCapacity = resolvedOptions.QueueChannelCapacity;
+            options.ImpossibleTravelGuard = resolvedOptions.ImpossibleTravelGuard;
+            options.ImpossibleTravelAcceptableSpeed = resolvedOptions.ImpossibleTravelAcceptableSpeed;
+            options.ImpossibleTravelFlowType = resolvedOptions.ImpossibleTravelFlowType;
         });
         // Add built-in enrichers & filters for the log entry model.
         services.AddDefaultEnrichers(resolvedOptions.ExcludedEnrichers.ToArray());
@@ -61,6 +78,15 @@ public static class SignInLogFeatureExtensions
         // if enabled, register log cleanup hosted (background) service.
         if (resolvedOptions.Cleanup.Enable) {
             services.AddSingleton<IHostedService, LogCleanupHostedService>();
+        }
+        if (resolvedOptions.ImpossibleTravelGuard) {
+            // Configure impossible travel feature.
+            services.AddScoped<IImpossibleTravelDetector<TUser>, ImpossibleTravelDetector<TUser>>();
+            var serviceDescriptor = builder.Services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(ISignInGuard<TUser>));
+            if (serviceDescriptor is not null) {
+                builder.Services.Remove(serviceDescriptor);
+            }
+            builder.Services.TryAddScoped<ISignInGuard<TUser>, SignInGuard<TUser>>();
         }
         return builder;
     }
