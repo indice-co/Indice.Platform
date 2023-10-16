@@ -160,7 +160,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await _stateProvider.ChangeStateAsync(user, UserAction.Login);
         }
         var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
-        if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector?.Options?.OnImpossibleTravelFlowType == OnImpossibleTravelFlowType.DenyLogin) {
+        if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector.FlowType == ImpossibleTravelFlowType.DenyLogin) {
             return SignInResult.Failed;
         }
         if (_stateProvider.ShouldSignInPartially()) {
