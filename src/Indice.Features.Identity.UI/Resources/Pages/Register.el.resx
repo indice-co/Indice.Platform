@@ -120,6 +120,9 @@
   <data name="Already have an account?" xml:space="preserve">
     <value>Έχετε ήδη λογαριασμό;</value>
   </data>
+  <data name="Calling Code" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
   <data name="Choose a username and a password of your choice. You can periodically change your password or whenever you wish to." xml:space="preserve">
     <value>Επιλέξτε ένα όνομα χρήστη και έναν κωδικό πρόσβασης της προτίμησής σας. Έχετε τη δυνατότητα να αλλάξετε τον κωδικό σας σε περιοδικά διαστήματα ή όποτε το επιθυμείτε.</value>
   </data>

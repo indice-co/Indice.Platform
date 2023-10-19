@@ -1,6 +1,8 @@
 ﻿using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Indice.Features.Identity.Core;
+using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.Assets;
 using Indice.Features.Identity.UI.Localization;
@@ -85,6 +87,8 @@ public static class IdentityBuilderUIExtensions
         services.AddTransient<IIdentityViewLocalizer, IdentityViewLocalizer>();
         // Add default (system) implementation of zoneInfoProvider
         services.AddZoneInfoProvider();
+        services.AddTransient<CallingCodesProvider>();
+        services.Configure<PhoneNumberOptions>(configuration.GetSection(PhoneNumberOptions.Name));
         // Configure other services.
         services.AddGeneralSettings(configuration);
         services.AddMarkdown();

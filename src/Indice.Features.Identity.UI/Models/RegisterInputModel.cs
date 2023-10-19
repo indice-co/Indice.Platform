@@ -1,8 +1,7 @@
 ﻿namespace Indice.Features.Identity.UI.Models;
 
 /// <summary>The register input model.</summary>
-public class RegisterInputModel
-{
+public class RegisterInputModel {
     /// <summary>The first name.</summary>
     public string? FirstName { get; set; }
     /// <summary>The last name.</summary>
@@ -29,6 +28,8 @@ public class RegisterInputModel
     public string? ClientId { get; set; }
     /// <summary>The users time zone info.</summary>
     public string? ZoneInfo { get; set; }
+    /// <summary> The Phone Number's Calling Code.</summary>
+    public string? CallingCode { get; set; }
 
     /// <summary>Replace claim.</summary>
     /// <param name="name">Claim name.</param>

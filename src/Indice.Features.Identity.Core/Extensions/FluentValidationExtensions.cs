@@ -1,4 +1,6 @@
-﻿using Indice.Validation;
+﻿using System.Text.RegularExpressions;
+using Indice.Features.Identity.Core;
+using Indice.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 
@@ -19,11 +21,27 @@ public static class FluentValidationExtensions
     /// <typeparam name="T">The type of property.</typeparam>
     /// <param name="ruleBuilder">Rule builder.</param>
     /// <param name="configuration">The IConfiguration param to discover the <strong>User:PhoneNumberRegex</strong> setting.</param>
-    public static IRuleBuilderOptions<T, string> UserPhoneNumber<T>(this IRuleBuilder<T, string> ruleBuilder, IConfiguration configuration) {
+    /// <param name="callingCodesProvider">The provider for the supported Calling Codes.</param>
+    public static IRuleBuilderOptions<T, string> UserPhoneNumber<T>(this IRuleBuilder<T, string> ruleBuilder, IConfiguration configuration, CallingCodesProvider callingCodesProvider) {
         var phoneNumberRegex = configuration.GetIdentityOption("User", "PhoneNumberRegex");
         var phoneNumberRegexMessage = configuration.GetIdentityOption("User", "PhoneNumberRegexMessage");
         if (string.IsNullOrEmpty(phoneNumberRegex)) {
-            return ruleBuilder.GreekPhoneNumber();
+            return ruleBuilder.Must(x => {
+                if (!PhoneNumber.TryParse(x, out var phoneNumber)) {
+                    return false;
+                }
+                var callingCode = callingCodesProvider.GetCallingCode(phoneNumber.CallingCode);
+                if (callingCode is null) {
+                    return false;
+                }
+                if (!string.IsNullOrWhiteSpace(callingCode.Pattern)) {
+                    return Regex.IsMatch(phoneNumber.Number, callingCode.Pattern);
+                }
+                if (phoneNumber.IsGreek) {
+                    return phoneNumber.Number.Length == 10;
+                }
+                return true;
+            });
         }
         return ruleBuilder.Matches(phoneNumberRegex)
            .WithMessage(phoneNumberRegexMessage ?? "The field '{PropertyName}' has invalid format.");

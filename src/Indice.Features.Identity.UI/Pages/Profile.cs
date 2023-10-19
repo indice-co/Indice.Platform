@@ -4,6 +4,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Indice.Globalization;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -104,7 +105,8 @@ public abstract class BaseProfileModel : BasePageModel
                 await SendChangeEmailConfirmationEmail(user, Input.Email);
             }
         }
-        user.PhoneNumber = Input.PhoneNumber;
+        _ = PhoneNumber.TryParse($"{Input.CallingCode} {Input.PhoneNumber}", out var phoneNumber);
+        user.PhoneNumber = phoneNumber;
         if (user.UserName != Input.UserName) {
             result = await UserManager.SetUserNameAsync(user, Input.UserName);
             AddModelErrors(result);
@@ -179,6 +181,7 @@ public abstract class BaseProfileModel : BasePageModel
         if (consentDateText != null && DateTime.TryParse(consentDateText, out date)) {
             consentDate = date;
         }
+        _ = PhoneNumber.TryParse(user.PhoneNumber, out var phoneNumber);
         return new ProfileViewModel {
             BirthDate = birthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,
@@ -192,10 +195,11 @@ public abstract class BaseProfileModel : BasePageModel
             HasDeveloperTotp = Configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
             LastName = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value,
             OtherLogins = otherLogins,
-            PhoneNumber = user.PhoneNumber,
+            PhoneNumber = phoneNumber.Number,
             Tin = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.Tin)?.Value,
             UserName = user.UserName ?? string.Empty,
             ZoneInfo = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.ZoneInfo)?.Value,
+            CallingCode = phoneNumber.CallingCode
         };
     }
 

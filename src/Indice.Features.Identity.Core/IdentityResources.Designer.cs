@@ -392,5 +392,14 @@ namespace Indice.Features.Identity.Core {
                 return ResourceManager.GetString("UserAlreadyHasPhoneNumber", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Phone number is not valid &apos;{0}&apos;..
+        /// </summary>
+        internal static string InvalidPhoneNumber {
+            get {
+                return ResourceManager.GetString("InvalidPhoneNumber", resourceCulture);
+            }
+        }
     }
 }
