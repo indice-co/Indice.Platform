@@ -8,14 +8,15 @@ namespace Indice.Features.Identity.Core.Types;
 /// <summary>Models a user agent (browser) type, extracting various useful information.</summary>
 public class UserAgent
 {
+    private static readonly Parser Parser = Parser.GetDefault();
+
     /// <summary>Creates a new instance of <see cref="UserAgent"/> class, accepting the <see cref="HeaderNames.UserAgent"/> header value as parameter.</summary>
     /// <param name="userAgentHeader">The <see cref="HeaderNames.UserAgent"/> header value.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public UserAgent(string userAgentHeader) {
         ArgumentNullException.ThrowIfNull(userAgentHeader);
         HeaderValue = userAgentHeader;
-        var uaParser = Parser.GetDefault();
-        var clientInfo = uaParser.Parse(userAgentHeader);
+        var clientInfo = Parser.Parse(userAgentHeader);
         Os = FormatOsInfo(clientInfo?.OS);
         DisplayName = $"{FormatUserAgentInfo(clientInfo?.UA)} on {Os}".Trim();
         DevicePlatform = DecideDevicePlatform(Os);
