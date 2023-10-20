@@ -15,8 +15,8 @@ public class PhoneNumberFormatInfo : IFormatProvider, ICustomFormatter
         return format.ToUpperInvariant() switch {
             "G" => $"+{phoneNumber.CallingCode} {phoneNumber.Number}",
             "A" => $"{phoneNumber.CallingCode} {phoneNumber.Number}",
-            "D" => $"{phoneNumber.CallingCode.Replace("-", "")}{phoneNumber.Number}",
-            "N" => $"{phoneNumber.Number}",
+            "D" => $"{phoneNumber.CallingCode.TrimStart('0').Replace("-", "")}{phoneNumber.Number}",
+            "N" => phoneNumber.Number,
             _ => throw new FormatException(string.Format("The {0} format string is not supported.", format)),
         };
     }

@@ -50,7 +50,7 @@ public class SmsServiceKapaTEL : ISmsService
             if (!PhoneNumber.TryParse(recipient, out var phone)) {
                 throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
             }
-            return phone.ToString("D");
+            return phone.ToString("N");
         })
         .ToArray();
         if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
