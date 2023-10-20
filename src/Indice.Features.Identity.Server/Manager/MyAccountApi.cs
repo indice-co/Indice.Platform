@@ -156,6 +156,12 @@ public static class MyAccountApi
              .WithParameterValidation<RegisterRequest>()
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
+        group.MapGet("account/calling-codes", MyAccountHandlers.GetSupportedCallingCodes)
+             .WithName(nameof(MyAccountHandlers.GetSupportedCallingCodes))
+             .WithSummary("Retrieves the supported calling codes.")
+             .AllowAnonymous()
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.CallingCodes);
+
         return group;
     }
 }

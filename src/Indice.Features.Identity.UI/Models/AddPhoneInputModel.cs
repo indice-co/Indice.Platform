@@ -7,4 +7,6 @@ public class AddPhoneInputModel
     public string? PhoneNumber { get; set; }
     /// <summary>The return URL.</summary>
     public string? ReturnUrl { get; set; }
+    /// <summary>The calling code.</summary>
+    public string? CallingCode { get; set; }
 }

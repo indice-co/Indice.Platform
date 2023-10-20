@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -49,17 +50,17 @@ public class SmsServiceApifon : ISmsService
         if (recipients.Length == 0) {
             throw new ArgumentException("Recipients list cannot be empty.", nameof(recipients));
         }
+        recipients = recipients.Select(recipient => {
+            if (!PhoneNumber.TryParse(recipient, out var phone)) {
+                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
+            }
+            return phone.ToString("D");
+        })
+        .ToArray();
         if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
-        // TODO: Create a universal way to handle country codes.
-        // Quick and ugly fix for Apifon which only accepts MSISDN and no leading zeroes -> https://docs.apifon.com/apireference.html#sms-request
-        recipients = recipients.Select(
-            phoneNumber => phoneNumber.StartsWith("30")
-                ? phoneNumber
-                : phoneNumber.StartsWith("0") ? phoneNumber.TrimStart('0') : $"30{phoneNumber}"
-        )
-        .ToArray();
+        // https://docs.apifon.com/apireference.html#sms-request
         var payload = new ApifonRequest(sender?.Id ?? Settings.Sender ?? Settings.SenderName, recipients, body);
         var signature = payload.Sign(Settings.ApiKey, HttpMethod.Post.ToString(), "/services/api/v1/sms/send");
         var request = new HttpRequestMessage {

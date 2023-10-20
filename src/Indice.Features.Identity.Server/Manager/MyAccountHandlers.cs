@@ -6,6 +6,7 @@ using IdentityServer4.Stores.Serialization;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Features.Identity.Server.Options;
@@ -548,6 +549,10 @@ internal static class MyAccountHandlers
         }
         var user = await userManager.FindByNameAsync(request.UserName!);
         return user == null ? TypedResults.NotFound() : TypedResults.NoContent();
+    }
+
+    internal static Ok<List<CallingCode>> GetSupportedCallingCodes(CallingCodesProvider callingCodesProvider) {
+        return TypedResults.Ok(callingCodesProvider.GetSupportedCallingCodes());
     }
 
     private static User CreateUserFromRequest(RegisterRequest request) {

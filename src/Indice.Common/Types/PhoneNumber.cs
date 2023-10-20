@@ -1,10 +1,11 @@
 ﻿#nullable enable
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Indice.Globalization;
 
 /// <summary>Encapsulates an International number format</summary>
-public partial struct PhoneNumber
+public partial struct PhoneNumber : IFormattable
 {
     private const string RegexPatternString = @"(\+(?<CallingCode>\d+(-\d+)?) (?<Number>[\d() -]{5,15}))|(?<GreekNumber>69\d{8})";
     private const char PlusSign = '+';
@@ -16,6 +17,8 @@ public partial struct PhoneNumber
     public string TwoLetterCountryCode { get; }
     /// <summary>Area code and Subscriber number</summary>
     public string Number { get; }
+    /// <summary>Indicates that the Phone Number is a Greek Phone number.</summary>
+    public readonly bool IsGreek => TwoLetterCountryCode == "GR";
 
     /// <summary>Create a format to parse and format a number</summary>
     public PhoneNumber(string callingCode, string twoLetterCountryCode, string number) {
@@ -38,7 +41,7 @@ public partial struct PhoneNumber
 #endif
 
     /// <inheritdoc/>
-    public override string ToString() => $"{PlusSign}{CallingCode} {Number}";
+    public override string ToString() => ToString("G");
 
     /// <summary>
     /// Parses the given phone number using.
@@ -82,6 +85,25 @@ public partial struct PhoneNumber
         } catch {
             return false;
         }
+    }
+
+    /// <summary>Converts a Phone Number to String of the corresponding format.</summary>
+    /// <param name="format">
+    /// - G: The generic format (ex. +30 69xxxxxxxx)
+    /// - A: No plus sign format (ex. 30 69xxxxxxxx)
+    /// - D: Digits only format (ex. 3069xxxxxxx)
+    /// - N: Only the number without the calling code (ex. 69xxxxxxxx)
+    /// </param>
+    /// <returns></returns>
+    public readonly string ToString(string format)=> ToString(format, PhoneNumberFormatInfo.Default);
+
+    /// <inheritdoc/>
+    public readonly string ToString(string? format, IFormatProvider? formatProvider) {
+        if (string.IsNullOrEmpty(format)) {
+            format = "G";
+        }
+        formatProvider ??= PhoneNumberFormatInfo.Default;
+        return string.Format(formatProvider, $"{{0:{format}}}", this);
     }
 
     /// <summary>Implicit cast from <see cref="PhoneNumber"/> to <seealso cref="string"/>.</summary>

@@ -3,6 +3,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Indice.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
@@ -51,7 +52,9 @@ public abstract class BaseAddPhoneModel : BasePageModel
             Message = _localizer["Please select your phone number so we can verify it before we continue."],
             AlertType = AlertType.Info
         });
-        Input.PhoneNumber = user.PhoneNumber;
+        _ = PhoneNumber.TryParse(user.PhoneNumber, out var phone);
+        Input.PhoneNumber = phone.Number;
+        Input.CallingCode = phone.CallingCode;
         Input.ReturnUrl = returnUrl;
         return Page();
     }
@@ -62,13 +65,17 @@ public abstract class BaseAddPhoneModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
+        if (!PhoneNumber.TryParse($"{Input.CallingCode} {Input.PhoneNumber}", out var phone)) {
+            ModelState.AddModelError(nameof(Input.PhoneNumber), "Phone number is not valid.");
+            return Page();
+        }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+        var result = await UserManager.SetPhoneNumberAsync(user, phone);
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();
         }
-        await SendVerificationSmsAsync(user, Input.PhoneNumber ?? throw new ArgumentNullException(nameof(Input.PhoneNumber), "Phone number cannot be null."));
+        await SendVerificationSmsAsync(user, phone);
         return RedirectToPage("/VerifyPhone", new { returnUrl });
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.Assets;
 using Indice.Features.Identity.UI.Localization;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -85,6 +87,8 @@ public static class IdentityBuilderUIExtensions
         services.AddTransient<IIdentityViewLocalizer, IdentityViewLocalizer>();
         // Add default (system) implementation of zoneInfoProvider
         services.AddZoneInfoProvider();
+        // Add Phone number supported calling codes provider
+        services.TryAddScoped<CallingCodesProvider>();
         // Configure other services.
         services.AddGeneralSettings(configuration);
         services.AddMarkdown();
