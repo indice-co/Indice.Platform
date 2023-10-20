@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -46,6 +47,13 @@ public class SmsServiceYuboto : ISmsService, IDisposable
         if (recipients.Length == 0) {
             throw new ArgumentException("Recipients list is empty.", nameof(recipients));
         }
+        recipients = recipients.Select(recipient => {
+            if (!PhoneNumber.TryParse(recipient, out var phone)) {
+                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
+            }
+            return phone.ToString("D");
+        })
+        .ToArray();
         if (recipients.Any(telephone => telephone.Any(character => !char.IsNumber(character)))) {
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }

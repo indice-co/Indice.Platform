@@ -31,7 +31,7 @@ public class IdentityUIOptions
     /// <remarks>If left null the <strong>./legal/privacy.md</strong> will be used. If populated it will do a redirect to this URL</remarks>
     public string? PrivacyUrl { get; set; }
     /// <summary>An absolute URL to the <strong>Contact us</strong> web page. Use it when this page is located to (or shared with) an external website.</summary>
-    /// <remarks>If left null the <strong>Contact Us</strong> link in the footer will disapear. If populated it will do a redirect to this URL. By default it is empty</remarks>
+    /// <remarks>If left null the <strong>Contact Us</strong> link in the footer will disappear. If populated it will do a redirect to this URL. By default it is empty</remarks>
     public string? ContactUsUrl { get; set; }
     /// <summary>Controls whether an external Identity user will go through the associate screen or not.</summary>
     public bool AutoProvisionExternalUsers { get; set; } = true;
@@ -59,6 +59,8 @@ public class IdentityUIOptions
     public bool ShowLogoutPrompt { get; set; } = true;
     /// <summary>Automatic redirect after sign out.</summary>
     public bool AutomaticRedirectAfterSignOut { get; set; } = false;
+    /// <summary>Overrides the default static file middleware and adds required assets as embedded resources.</summary>
+    public bool OverrideDefaultStaticFileMiddleware { get; set; } = true;
 
     /// <summary>Services shown in the homepage.</summary>
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {

@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Identity.UI.Models;
+﻿using Indice.Globalization;
+
+namespace Indice.Features.Identity.UI.Models;
 
 /// <summary>Request input model for the manage profile page.</summary>
 public class ProfileInputModel
@@ -11,6 +13,8 @@ public class ProfileInputModel
     public string? UserName { get; set; }
     /// <summary></summary>
     public string? Email { get; set; }
+    /// <summary></summary>
+    public string? CallingCode { get; set; }
     /// <summary></summary>
     public string? PhoneNumber { get; set; }
     /// <summary></summary>

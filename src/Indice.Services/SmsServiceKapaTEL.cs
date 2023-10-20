@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Indice.Globalization;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -45,6 +46,13 @@ public class SmsServiceKapaTEL : ISmsService
         if (recipients.Length > 10) {
             throw new ArgumentException("Recipients list can contain up to 10 MSISDN.", nameof(recipients));
         }
+        recipients = recipients.Select(recipient => {
+            if (!PhoneNumber.TryParse(recipient, out var phone)) {
+                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
+            }
+            return phone.ToString("N");
+        })
+        .ToArray();
         if (recipients.Any(phoneNumber => phoneNumber.Any(numberChar => !char.IsNumber(numberChar)))) {
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }
@@ -52,7 +60,7 @@ public class SmsServiceKapaTEL : ISmsService
                             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                             .ToDictionary(prop => prop.Name.ToLower(), prop => (string)prop.GetValue(Settings, null));
         param.Add("text", body);
-        param.Add("to", destination);
+        param.Add("to", string.Join(',', recipients));
         param.Add("format", "json");
         var requestUri = new Uri(QueryHelpers.AddQueryString(HttpClient.BaseAddress.ToString(), param));
         try {

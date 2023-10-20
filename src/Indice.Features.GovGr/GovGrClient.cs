@@ -1,7 +1,6 @@
 ﻿using Indice.Features.GovGr.Configuration;
 using Indice.Features.GovGr.Interfaces;
 using Indice.Features.GovGr.Proxies.Gsis;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.GovGr;
@@ -11,22 +10,22 @@ public class GovGrClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptions<GovGrOptions> _settings;
-    private readonly RgWsPublic _rgWsPublic;
+    private readonly Func<RgWsPublic> _createBusinessRegistrySoapClient;
     private readonly GovGrKycScopeDescriber _kycScopeDescriber;
 
     /// <summary>Create a GovGrClient</summary>
     /// <param name="httpClientFactory"></param>
     /// <param name="settings"></param>
-    /// <param name="rgWsPublic"></param>
+    /// <param name="createBusinessRegistrySoapClient"></param>
     /// <param name="kycScopeDescriber"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public GovGrClient(IHttpClientFactory httpClientFactory,
         IOptions<GovGrOptions> settings,
-        RgWsPublic rgWsPublic,
+        Func<RgWsPublic> createBusinessRegistrySoapClient,
         GovGrKycScopeDescriber kycScopeDescriber) {
         _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-        _rgWsPublic = rgWsPublic ?? throw new ArgumentNullException(nameof(rgWsPublic));
+        _createBusinessRegistrySoapClient = createBusinessRegistrySoapClient ?? throw new ArgumentNullException(nameof(createBusinessRegistrySoapClient));
         _kycScopeDescriber = kycScopeDescriber ?? throw new ArgumentNullException(nameof(kycScopeDescriber));
     }
 
@@ -63,7 +62,7 @@ public class GovGrClient
     ///  Access the Business Registry WS
     /// </summary>
     /// <returns>A configured instance of the <see cref="IBusinessRegistryService"/></returns>
-    public IBusinessRegistryService BusinessRegistry() => new GovGrBusinessRegistryClient(_settings.Value.BusinessRegistry, _rgWsPublic);
+    public IBusinessRegistryService BusinessRegistry() => new GovGrBusinessRegistryClient(_settings.Value.BusinessRegistry, _createBusinessRegistrySoapClient());
 }
 
 /// <summary>Extensions on the <see cref="GovGrClient"/></summary>

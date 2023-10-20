@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Server.Manager.Models;
 using Microsoft.Extensions.Configuration;
 
@@ -10,8 +11,8 @@ public class UpdateUserPhoneNumberRequestValidator : AbstractValidator<UpdateUse
     private readonly IConfiguration _configuration;
 
     /// <summary></summary>
-    public UpdateUserPhoneNumberRequestValidator(IConfiguration configuration) {
+    public UpdateUserPhoneNumberRequestValidator(IConfiguration configuration, CallingCodesProvider callingCodesProvider) {
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        RuleFor(x => x.PhoneNumber).UserPhoneNumber(_configuration).NotEmpty();
+        RuleFor(x => x.PhoneNumber).UserPhoneNumber(_configuration, callingCodesProvider).NotEmpty();
     }
 }

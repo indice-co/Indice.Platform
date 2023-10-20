@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -50,16 +51,23 @@ public class YubotoOmniServiceBase
         if (recipients.Length == 0) {
             throw new ArgumentException("Recipients list is empty.", nameof(recipients));
         }
-        // Yuboto doc: Use country code without + or 00
-        recipients = recipients.Select(phoneNumber => {
-            if (phoneNumber.StartsWith("+")) {
-                return phoneNumber[1..];
-            } else if (phoneNumber.StartsWith("00")) {
-                return phoneNumber[2..];
+        recipients = recipients.Select(recipient => {
+            if (!PhoneNumber.TryParse(recipient, out var phone)) {
+                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
             }
-            return phoneNumber;
+            return phone.ToString("D");
         })
         .ToArray();
+        // Yuboto doc: Use country code without + or 00
+        //recipients = recipients.Select(phoneNumber => {
+        //    if (phoneNumber.StartsWith("+")) {
+        //        return phoneNumber[1..];
+        //    } else if (phoneNumber.StartsWith("00")) {
+        //        return phoneNumber[2..];
+        //    }
+        //    return phoneNumber;
+        //})
+        //.ToArray();
         if (recipients.Any(telephone => telephone.Any(character => !char.IsNumber(character)))) {
             throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(recipients));
         }

@@ -30,12 +30,11 @@ public static class GovGrKycConfigurationExtensions
         services.AddLocalization();
         services.AddHttpClient();
         services.AddTransient<GovGrClient>();
-        if (options.BusinessRegistry.Enabled) {
-            services.AddTransient<RgWsPublic, RgWsPublicClient>(sp => {
-                var client = new RgWsPublicClient(options.BusinessRegistry);
-                return client;
-            });
-        }
+        services.AddTransient<RgWsPublic, RgWsPublicClient>(sp => {
+            var client = new RgWsPublicClient(options.BusinessRegistry);
+            return client;
+        });
+        services.AddTransient(sp => new Func<RgWsPublic>(sp.GetRequiredService<RgWsPublic>));
         services.AddTransient<GovGrKycScopeDescriber>();
         return services;
     }

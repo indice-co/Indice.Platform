@@ -3,6 +3,7 @@ using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Indice.Globalization;
 using Indice.Validation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,13 +26,15 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
     /// <param name="userManager">An extendned <see cref="UserManager{TUser}"/> for the identity framework.</param>
     /// <param name="identityOptions">Represents all the options you can use to configure the identity system.</param>
     /// <param name="configuration">Represents the configuration element.</param>
+    /// <param name="callingCodesProvider">Provides the supported Calling Codes.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public RegisterInputModelValidator(
         IStringLocalizer<RegisterInputModelValidator> localizer,
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedUserManager<User> userManager,
         IOptionsSnapshot<IdentityOptions> identityOptions,
-        IConfiguration configuration
+        IConfiguration configuration,
+        CallingCodesProvider callingCodesProvider
     ) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -44,11 +47,12 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
             RuleFor(x => x.UserName).Must(UserNameNotBeAssignedToAnotherUser).WithMessage(_localizer["This username already exists. Please use a different one."]);
         };
         RuleFor(x => x.Password).NotEmpty().WithName(_localizer["Password"]);
-        RuleFor(x => x.PhoneNumber).UserPhoneNumber(configuration).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
+        //RuleFor(x => x.PhoneNumber).UserPhoneNumber(configuration).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
         RuleFor(x => x.Email).Must(EmailNotBeAssignedToAnotherUser).WithMessage(_localizer["This email already exists. Please use a different email."]);
         RuleFor(x => x.HasAcceptedTerms).Equal(true).WithMessage(_localizer["You must accept the service 'terms of use'."]);
         RuleFor(x => x.HasReadPrivacyPolicy).Equal(true).WithMessage(_localizer["You must be informed about privacy policy."]);
+        RuleFor(x => $"{x.CallingCode} {x.PhoneNumber}").UserPhoneNumber(configuration, callingCodesProvider).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
     }
 
     private bool EmailNotBeAssignedToAnotherUser(string? email) => !string.IsNullOrWhiteSpace(email) && !_dbContext.Users.Any(x => x.Email == email);

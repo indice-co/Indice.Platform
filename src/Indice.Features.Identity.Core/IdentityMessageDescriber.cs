@@ -71,4 +71,6 @@ public class IdentityMessageDescriber
     public virtual string RequiresOtpMessage() => IdentityResources.RequiresOtpMessage;
     /// <summary>Message content when <strong>TrustDeviceRequiresOtpAttribute</strong> is used.</summary>
     public virtual string TrustedDeviceRequiresOtpMessage(UserDevice device) => IdentityResources.TrustedDeviceRequiresOtpMessage;
+    /// <summary>Message content for an invalid phone number format.</summary>
+    public virtual string InvalidPhoneNumber() => IdentityResources.InvalidPhoneNumber;
 }

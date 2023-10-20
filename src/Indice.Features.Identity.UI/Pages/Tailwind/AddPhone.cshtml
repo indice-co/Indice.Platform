@@ -4,6 +4,7 @@
 
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
+@inject CallingCodesProvider callingCodesProvider
 
 @{
     var title = ViewData["Title"] = Localizer["Add phone"].Value;
@@ -16,11 +17,24 @@
         <partial name="_ValidationSummary" />
         <partial name="_Alert" model="alert" />
         <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post" novalidate>
-            <div class="relative my-5">
-                <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-                <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
-                <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            <div class="row relative my-5">
+                <div class="input-group">
+                    <select class="peer" asp-for="Input.CallingCode" required>
+                        <option value="" selected>@Localizer["Choose..."]</option>
+                        @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
+                        {
+                            <option value="@callingCode" selected="@(callingCode.Code == Model.Input.CallingCode)">@callingCode.DisplayName</option>
+                        }
+                    </select>
+                    <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Localizer["Calling Code"]</label>
+                    <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
+                </div>
+                <div class="input-group">
+                    <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+                    <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
+                    <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                </div>
             </div>
             <div class="row justify-items-center place-items-center">
                 <div class="input-group-w-full">

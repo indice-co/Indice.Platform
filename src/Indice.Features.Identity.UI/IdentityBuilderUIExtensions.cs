@@ -1,17 +1,18 @@
 ﻿using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.Assets;
 using Indice.Features.Identity.UI.Localization;
 using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -23,7 +24,32 @@ public static class IdentityBuilderUIExtensions
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="configureAction">Configure action.</param>
     public static IServiceCollection AddIdentityUI(this IServiceCollection services, IConfiguration configuration, Action<IdentityUIOptions>? configureAction = null) {
-        services.PostConfigure<IdentityUIOptions>(options => configureAction?.Invoke(options));
+        var configuredOptions = new IdentityUIOptions();
+        configureAction?.Invoke(configuredOptions);
+        services.PostConfigure<IdentityUIOptions>(options => { 
+            options.AllowRememberLogin = configuredOptions.AllowRememberLogin;
+            options.AutoAssociateExternalUsers = configuredOptions.AutoAssociateExternalUsers;
+            options.AutomaticRedirectAfterSignOut = configuredOptions.AutomaticRedirectAfterSignOut;
+            options.AutoProvisionExternalUsers = configuredOptions.AutoProvisionExternalUsers;
+            options.AvatarColorHex = configuredOptions.AvatarColorHex;
+            options.ContactUsUrl = configuredOptions.ContactUsUrl;
+            options.CopyYear = configuredOptions.CopyYear;
+            options.EmailLinkColorHex = configuredOptions.EmailLinkColorHex;
+            options.EnableForgotPasswordPage = configuredOptions.EnableForgotPasswordPage;
+            options.EnableLocalLogin = configuredOptions.EnableLocalLogin;
+            options.EnableRegisterPage = configuredOptions.EnableRegisterPage;
+            options.HomepageLinks.AddRange(configuredOptions.HomepageLinks);
+            options.HomePageSlogan = configuredOptions.HomePageSlogan;
+            options.HtmlBodyBackgroundCssClass = configuredOptions.HtmlBodyBackgroundCssClass;
+            options.OverrideDefaultStaticFileMiddleware = configuredOptions.OverrideDefaultStaticFileMiddleware;
+            options.PrivacyUrl = configuredOptions.PrivacyUrl;
+            options.RememberMeLoginDuration = configuredOptions.RememberMeLoginDuration;
+            options.ShowLogoutPrompt = configuredOptions.ShowLogoutPrompt;
+            options.TermsUrl = configuredOptions.TermsUrl;
+            foreach (var url in configuredOptions.ValidReturnUrls) {
+                options.ValidReturnUrls.Add(url);
+            }
+        });
         services.PostConfigure<AntiforgeryOptions>(options => {
             options.HeaderName = "X-XSRF-TOKEN";
             options.Cookie.HttpOnly = true;
@@ -31,7 +57,9 @@ public static class IdentityBuilderUIExtensions
         });
         // Post configure razor pages options.
         services.ConfigureOptions(typeof(IdentityUIRazorPagesConfigureOptions));
-        services.ConfigureOptions(typeof(IdentityUIStaticFileConfigureOptions));
+        if (configuredOptions.OverrideDefaultStaticFileMiddleware) {
+            services.ConfigureOptions(typeof(IdentityUIStaticFileConfigureOptions));
+        }
         // Configure FluentValidation.
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddFluentValidationAutoValidation(config => {
@@ -59,6 +87,8 @@ public static class IdentityBuilderUIExtensions
         services.AddTransient<IIdentityViewLocalizer, IdentityViewLocalizer>();
         // Add default (system) implementation of zoneInfoProvider
         services.AddZoneInfoProvider();
+        // Add Phone number supported calling codes provider
+        services.TryAddScoped<CallingCodesProvider>();
         // Configure other services.
         services.AddGeneralSettings(configuration);
         services.AddMarkdown();

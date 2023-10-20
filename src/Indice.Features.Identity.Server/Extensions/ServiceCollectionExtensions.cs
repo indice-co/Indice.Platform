@@ -92,6 +92,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.ExpireTimeSpan = TimeSpan.FromDays(configuration.GetIdentityOption<int?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "RememberDurationInDays") ?? ExtendedSignInManager<User>.DEFAULT_MFA_REMEMBER_DURATION_IN_DAYS);
         });
         services.TryAddScoped<IdentityMessageDescriber>();
+        services.TryAddScoped<CallingCodesProvider>();
         return services.AddIdentity<User, Role>()
                        .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
                        .AddExtendedUserManager()

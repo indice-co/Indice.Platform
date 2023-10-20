@@ -6,6 +6,7 @@ using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.UI.Models;
+using Indice.Globalization;
 using Indice.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -162,7 +163,7 @@ public abstract class BaseRegisterModel : BasePageModel
         var user = new User {
             UserName = UserManager.EmailAsUserName ? input.Email : input.UserName,
             Email = input.Email,
-            PhoneNumber = input.PhoneNumber
+            PhoneNumber = $"{input.CallingCode} {input.PhoneNumber}"
         };
         if (!string.IsNullOrWhiteSpace(input.FirstName)) {
             user.Claims.Add(new() {
