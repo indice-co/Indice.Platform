@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Cases.Controllers;
 
-/// <summary>Manage customer cases.</summary>
+/// <summary>Cases from the customer's perspective.</summary>
 [ApiController]
 [ApiExplorerSettings(GroupName = ApiGroups.MyCasesApiGroupNamePlaceholder)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesUser)]

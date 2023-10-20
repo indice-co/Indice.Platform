@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Cases.Controllers;
 
-/// <summary>Manage case types.</summary>
+/// <summary>Case types from the administrative perspective.</summary>
 [ApiController]
 [ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroupNamePlaceholder)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
