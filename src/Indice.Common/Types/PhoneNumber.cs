@@ -103,8 +103,7 @@ public partial struct PhoneNumber : IFormattable
             format = "G";
         }
         formatProvider ??= PhoneNumberFormatInfo.Default;
-        var x = string.Format(formatProvider, $"{{0:{format}}}", this);
-        return x;
+        return string.Format(formatProvider, $"{{0:{format}}}", this);
     }
 
     /// <summary>Implicit cast from <see cref="PhoneNumber"/> to <seealso cref="string"/>.</summary>

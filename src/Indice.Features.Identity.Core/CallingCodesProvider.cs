@@ -1,25 +1,26 @@
 ﻿using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Models;
 using Indice.Globalization;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Identity.Core;
 /// <summary> Provides the application supported countries. </summary>
 public class CallingCodesProvider
 {
-    private readonly PhoneNumberOptions _options;
+    private readonly List<SupportedCountry> _supportedCountries;
 
     /// <summary>Creates a new instance of <see cref="CallingCodesProvider"/>.</summary>
-    /// <param name="options">The configuration about acceptable phone numbers.</param>
-    public CallingCodesProvider(IOptions<PhoneNumberOptions> options) {
-        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    /// <param name="configuration">The application configuration.</param>
+    public CallingCodesProvider(IConfiguration configuration) {
+        _supportedCountries = configuration.GetSection($"{nameof(IdentityOptions)}:User:PhoneNumberCountries").Get<List<SupportedCountry>>() ?? new List<SupportedCountry>();
     }
 
     /// <summary> Retrieves all the supported countries. Defaults to GR if not configured. </summary>
     /// <returns>A list of <see cref="CountryInfo"/> with the configured default countries.</returns>
     public List<CallingCode> GetSupportedCallingCodes() {
         var supportedCountries = new List<CallingCode>();
-        foreach (var country in _options.SupportedCountries) {
+        foreach (var country in _supportedCountries) {
             if (CountryInfo.TryGetCountryByNameOrCode(country.TwoLetterCode, out var countryInfo)) {
                 foreach(var callingCode in countryInfo.CallingCode.Split(',')) {
                     supportedCountries.Add(new CallingCode(callingCode, countryInfo.TwoLetterCode, countryInfo.Name, country.Pattern));
@@ -46,7 +47,7 @@ public class CallingCodesProvider
         if (!CountryInfo.TryGetCountryByCallingCode(code, out var countryInfo)) {
             return null;
         }
-        var configuredCountry = _options.SupportedCountries?.FirstOrDefault(c => c.TwoLetterCode == countryInfo.TwoLetterCode);
+        var configuredCountry = _supportedCountries?.FirstOrDefault(c => c.TwoLetterCode == countryInfo.TwoLetterCode);
         if (configuredCountry == null && countryInfo.TwoLetterCode != "GR") {
             return null;
         }
