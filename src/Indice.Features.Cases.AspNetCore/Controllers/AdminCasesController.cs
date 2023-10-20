@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Cases.Controllers;
 
-/// <summary>Manage cases, attachments and everything related to cases for back-office users.</summary>
+/// /// <summary>Cases from the administrative perspective.</summary>
 [ApiController]
 [ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroupNamePlaceholder)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
@@ -208,7 +208,10 @@ internal class AdminCasesController : ControllerBase
         return Ok(await _caseApprovalService.GetRejectReasons(caseId));
     }
 
-    /// <summary>Download case in a PDF format for backoffice users</summary>
+    /// <summary>Download case in a PDF format.</summary>
+    /// <param name="caseId">The id of the case.</param>
+    /// <response code="200">OK</response>
+    /// <response code="404">Not Found</response>
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
     [Produces(MediaTypeNames.Application.Pdf, Type = typeof(IFormFile))]
     [HttpGet("{caseId:guid}.pdf")]
