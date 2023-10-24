@@ -28,7 +28,6 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
         var query = _dbContext
             .SignInLogs
             .Where(x => EF.Functions.DateDiffDay(x.CreatedAt, DateTimeOffset.UtcNow) > _signInLogOptions.Cleanup.RetentionDays)
-            .OrderBy(x => x.CreatedAt)
             .Take(_signInLogOptions.Cleanup.BatchSize);
 #if NET6_0
         var logs = await query.ToListAsync(cancellationToken: cancellationToken);

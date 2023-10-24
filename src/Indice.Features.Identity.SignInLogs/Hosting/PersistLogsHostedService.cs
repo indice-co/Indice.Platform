@@ -6,6 +6,8 @@ using Indice.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Open.ChannelExtensions;
 
 namespace Indice.Features.Identity.SignInLogs.Hosting;
 
@@ -15,17 +17,20 @@ internal class PersistLogsHostedService : BackgroundService
     private readonly SignInLogEntryQueue _signInLogEntryQueue;
     private readonly IPlatformEventService _eventService;
     private readonly ILogger<PersistLogsHostedService> _logger;
+    private readonly SignInLogOptions _signInLogOptions;
 
     public PersistLogsHostedService(
         IServiceProvider serviceProvider,
         SignInLogEntryQueue signInLogEntryQueue,
         IPlatformEventService eventService,
-        ILogger<PersistLogsHostedService> logger
+        ILogger<PersistLogsHostedService> logger,
+        IOptions<SignInLogOptions> signInLogOptions
     ) {
         _signInLogEntryQueue = signInLogEntryQueue ?? throw new ArgumentNullException(nameof(signInLogEntryQueue));
         _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        _signInLogOptions = signInLogOptions?.Value ?? throw new ArgumentNullException(nameof(signInLogOptions));
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
@@ -34,12 +39,24 @@ internal class PersistLogsHostedService : BackgroundService
             var enricherAggregator = serviceScope.ServiceProvider.GetRequiredService<SignInLogEntryEnricherAggregator>();
             // possible optimization read in batch so that we have fewer roundtrips to database https://stackoverflow.com/questions/63881607/how-to-read-remaining-items-in-channelt-less-than-batch-size-if-there-is-no-n
             // https://github.com/Open-NET-Libraries/Open.ChannelExtensions#batching
-            await foreach (var logEntry in _signInLogEntryQueue.DequeueAllAsync().WithCancellation(stoppingToken)) {
-                var enrichResult = await enricherAggregator.EnrichAsync(logEntry, SignInLogEnricherRunType.Default | SignInLogEnricherRunType.Asynchronous);
-                if (enrichResult.Succeeded) {
-                    await signInLogStore.CreateAsync(logEntry, stoppingToken);
+            var events = _signInLogEntryQueue.Reader
+                .PipeAsync(async logEntry => {
+                    var enrichResult = await enricherAggregator.EnrichAsync(logEntry, SignInLogEnricherRunType.Default | SignInLogEnricherRunType.Asynchronous);
+                    if (enrichResult.Succeeded) {
+                        return logEntry;
+                    }
+                    return null;
+                }, cancellationToken: stoppingToken)
+                .Filter(logEntry => logEntry is not null)
+                .PipeAsync(async logEntry => {
                     await _eventService.Publish(new SignInLogCreatedEvent(logEntry));
-                }
+                    return logEntry;
+                })
+                .Batch(_signInLogOptions.DequeueBatchSize)
+                .WithTimeout(_signInLogOptions.DequeueTimeoutInMilliseconds)
+                .ReadAllAsync(stoppingToken);
+            await foreach (var logEntryBatch in events) {
+                await signInLogStore.CreateManyAsync(logEntryBatch, stoppingToken);
             }
         }
     }
