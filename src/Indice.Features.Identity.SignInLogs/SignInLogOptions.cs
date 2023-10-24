@@ -70,7 +70,7 @@ public class LogCleanupOptions
 {
     #if NET6_0
     /// <summary>The number of log items to delete on each cleanup iteration. Defaults to <i>250</i>.</summary>
-    public ushort BatchSize { get; set; } = 250;
+    public ushort BatchSize { get; set; } = 1000;
     #endif
     #if NET7_0_OR_GREATER
     /// <summary>The number of log items to delete on each cleanup iteration. Defaults to <i>1000</i>. Maximum allowed values before lock escalation.</summary>
