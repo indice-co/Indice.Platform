@@ -62,6 +62,8 @@ public static class SignInLogFeatureExtensions
             options.ImpossibleTravelGuard = resolvedOptions.ImpossibleTravelGuard;
             options.ImpossibleTravelAcceptableSpeed = resolvedOptions.ImpossibleTravelAcceptableSpeed;
             options.ImpossibleTravelFlowType = resolvedOptions.ImpossibleTravelFlowType;
+            options.DequeueBatchSize = resolvedOptions.DequeueBatchSize;
+            options.DequeueTimeoutInMilliseconds = resolvedOptions.DequeueTimeoutInMilliseconds;
         });
         // Add built-in enrichers & filters for the log entry model.
         services.AddDefaultEnrichers(resolvedOptions.ExcludedEnrichers.ToArray());
