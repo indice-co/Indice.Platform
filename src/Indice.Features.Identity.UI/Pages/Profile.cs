@@ -105,12 +105,12 @@ public abstract class BaseProfileModel : BasePageModel
                 await SendChangeEmailConfirmationEmail(user, Input.Email);
             }
         }
-        _ = PhoneNumber.TryParse($"{Input.CallingCode} {Input.PhoneNumber}", out var phoneNumber);
-        user.PhoneNumber = phoneNumber;
-        if (user.UserName != Input.UserName) {
+        if (!UserManager.EmailAsUserName && user.UserName != Input.UserName) {
             result = await UserManager.SetUserNameAsync(user, Input.UserName);
             AddModelErrors(result);
         }
+        _ = PhoneNumber.TryParse($"{Input.CallingCode} {Input.PhoneNumber}", out var phoneNumber);
+        user.PhoneNumber = phoneNumber;
         result = await UserManager.UpdateAsync(user);
         AddModelErrors(result);
         ProfileSuccessfullyChanged = ModelState.ErrorCount == 0;

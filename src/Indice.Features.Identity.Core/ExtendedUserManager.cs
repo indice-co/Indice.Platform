@@ -148,10 +148,10 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 
     /// <inheritdoc />
     public async override Task<IdentityResult> SetUserNameAsync(TUser user, string userName) {
-        var previousUserState = user;
-        var result = await base.SetUserNameAsync(user, EmailAsUserName ? user.Email : userName);
+        var previousValue = user.UserName;
+        var result = await base.SetUserNameAsync(user, userName);
         if (result.Succeeded) {
-            await _eventService.Publish(new UserNameChangedEvent(user, previousUserState));
+            await _eventService.Publish(new UserNameChangedEvent(user, previousValue));
         }
         return result;
     }
