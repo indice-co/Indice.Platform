@@ -7,6 +7,7 @@ using Indice.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -21,17 +22,23 @@ public abstract class BaseAddPhoneModel : BasePageModel
     /// <summary>Creates a new instance of <see cref="BaseAddEmailModel"/> class.</summary>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseAddEmailModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+    /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseAddPhoneModel(
         IStringLocalizer<BaseAddPhoneModel> localizer,
-        ExtendedUserManager<User> userManager
+        ExtendedUserManager<User> userManager,
+        IOptions<IdentityUIOptions> identityUiOptions
     ) : base() {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        IdentityUiOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
+
+    /// <summary>Configuration options for Identity UI.</summary>
+    public IdentityUIOptions IdentityUiOptions { get; }
 
     /// <summary>The input model that backs the add phone page.</summary>
     [BindProperty]
@@ -70,7 +77,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.SetPhoneNumberAsync(user, phone);
+        var result = await UserManager.SetPhoneNumberAsync(user, IdentityUiOptions.EnablePhoneNumberCallingCodes ? phone : phone.Number);
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();
@@ -84,6 +91,7 @@ internal class AddPhoneModel : BaseAddPhoneModel
 {
     public AddPhoneModel(
         IStringLocalizer<AddPhoneModel> localizer,
-        ExtendedUserManager<User> userManager
-    ) : base(localizer, userManager) { }
+        ExtendedUserManager<User> userManager,
+        IOptions<IdentityUIOptions> identityUiOptions
+    ) : base(localizer, userManager, identityUiOptions) { }
 }

@@ -6,6 +6,7 @@
 @inject ExtendedUserManager<User> userManager
 @inject IZoneInfoProvider zoneInfoProvider
 @inject CallingCodesProvider callingCodesProvider
+@inject IOptions<IdentityUIOptions> identityUiOptions
 
 @{
     var title = ViewData["Title"] = Localizer["Sign up"].Value;
@@ -32,24 +33,27 @@
             </div>
             @if (userManager.EmailAsUserName)
             {
-                <div class="row">
-                    <div class="input-group">
-                        <select class="peer" asp-for="Input.CallingCode" required>
-                            <option value="" selected>@Localizer["Choose..."]</option>
-                            @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
-                            {
-                                <option value="@callingCode">@callingCode.DisplayName</option>
-                            }
-                        </select>
-                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Localizer["Calling Code"]</label>
-                        <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
+                @if (identityUiOptions.Value.EnablePhoneNumberCallingCodes)
+                {
+                    <div class="row">
+                        <div class="input-group">
+                            <select class="peer" asp-for="Input.CallingCode" required>
+                                <option value="" selected>@Localizer["Choose..."]</option>
+                                @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
+                                {
+                                    <option value="@callingCode">@callingCode.DisplayName</option>
+                                }
+                            </select>
+                            <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.CallingCode">@Localizer["Calling Code"]</label>
+                            <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" class="peer" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                            <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <input type="text" class="peer" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
-                        <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
-                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-                    </div>
-                </div>
+                }
                 <div class="row">
                     <div class="input-group">
                         <select class="peer" asp-for="Input.ZoneInfo" required>
@@ -62,9 +66,17 @@
                         <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer["Timezone"]</label>
                         <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
                     </div>
+                    @if (!identityUiOptions.Value.EnablePhoneNumberCallingCodes)
+                    {
+                        <div class="input-group">
+                            <input type="text" class="peer" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                            <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                        </div>
+                    }
                 </div>
             }
-            else
+            else if (identityUiOptions.Value.EnablePhoneNumberCallingCodes)
             {
                 <div class="row">
                     <div class="input-group">
@@ -100,6 +112,34 @@
                         <input type="text" class="peer" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
                         <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
                         <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <div class="input-group">
+                        <select class="peer" asp-for="Input.ZoneInfo" required>
+                            <option value="" selected>@Localizer["Choose..."]</option>
+                            @foreach (var timezone in zoneInfoProvider.GetTimeZones())
+                            {
+                                <option value="@timezone.Id">@timezone.DisplayName</option>
+                            }
+                        </select>
+                        <label class="peer-focus:-translate-y-[6px] peer-focus:visible absolute" asp-for="Input.ZoneInfo">@Localizer["Timezone"]</label>
+                        <span asp-validation-for="Input.ZoneInfo" class="text-danger"></span>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" class="peer" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                        <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
+                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group">
+                        <input type="text" class="peer" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
+                        <label asp-for="Input.Email" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Email"]</label>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
                 </div>
             }

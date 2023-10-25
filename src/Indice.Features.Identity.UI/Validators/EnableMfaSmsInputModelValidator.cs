@@ -15,6 +15,7 @@ public class EnableMfaSmsInputModelValidator : AbstractValidator<EnableMfaSmsInp
     /// <summary>Creates a new instance of <see cref="EnableMfaSmsInputModelValidator"/> class.</summary>
     /// <param name="localizer">Represents a service that provides localized strings.</param>
     /// <param name="configuration">Represents the configuration element.</param>
+    /// <param name="callingCodesProvider">The provider for the supported calling codes.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public EnableMfaSmsInputModelValidator(IStringLocalizer<EnableMfaSmsInputModelValidator> localizer, IConfiguration configuration, CallingCodesProvider callingCodesProvider) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));

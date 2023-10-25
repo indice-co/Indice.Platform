@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -26,17 +27,20 @@ public abstract class BaseProfileModel : BasePageModel
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="localizer">The source of translations for this model class</param>
+    /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseProfileModel(
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         IConfiguration configuration,
-        IStringLocalizer localizer
+        IStringLocalizer localizer,
+        IOptions<IdentityUIOptions> identityUiOptions
     ) : base() {
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         SignInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+        IdentityUIOptions = identityUiOptions?.Value ?? throw new ArgumentNullException(nameof(identityUiOptions));
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -47,6 +51,8 @@ public abstract class BaseProfileModel : BasePageModel
     protected IConfiguration Configuration { get; }
     /// <summary>The source of translations for this model class.</summary>
     protected IStringLocalizer Localizer { get; }
+    /// <summary>Configuration options for Identity UI.</summary>
+    protected IdentityUIOptions IdentityUIOptions { get; set; }
 
     /// <summary>Manage profile page view model.</summary>
     public ProfileViewModel View { get; set; } = new ProfileViewModel();
@@ -110,7 +116,7 @@ public abstract class BaseProfileModel : BasePageModel
             AddModelErrors(result);
         }
         _ = PhoneNumber.TryParse($"{Input.CallingCode} {Input.PhoneNumber}", out var phoneNumber);
-        user.PhoneNumber = phoneNumber;
+        user.PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? phoneNumber : phoneNumber.Number;
         result = await UserManager.UpdateAsync(user);
         AddModelErrors(result);
         ProfileSuccessfullyChanged = ModelState.ErrorCount == 0;
@@ -195,7 +201,7 @@ public abstract class BaseProfileModel : BasePageModel
             HasDeveloperTotp = Configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
             LastName = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value,
             OtherLogins = otherLogins,
-            PhoneNumber = phoneNumber.Number,
+            PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? phoneNumber.Number : phoneNumber.Number,
             Tin = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.Tin)?.Value,
             UserName = user.UserName ?? string.Empty,
             ZoneInfo = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.ZoneInfo)?.Value,
@@ -236,6 +242,7 @@ internal class ProfileModel : BaseProfileModel
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
         IConfiguration configuration,
-        IStringLocalizer<ProfileModel> localizer
-    ) : base(userManager, signInManager, configuration, localizer) { }
+        IStringLocalizer<ProfileModel> localizer,
+        IOptions<IdentityUIOptions> identityUiOptions
+    ) : base(userManager, signInManager, configuration, localizer, identityUiOptions) { }
 }
