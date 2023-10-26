@@ -163,7 +163,7 @@ public abstract class BaseRegisterModel : BasePageModel
         var user = new User {
             UserName = UserManager.EmailAsUserName ? input.Email : input.UserName,
             Email = input.Email,
-            PhoneNumber = $"{input.CallingCode} {input.PhoneNumber}"
+            PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? $"{input.CallingCode} {input.PhoneNumber}" : input.PhoneNumber
         };
         if (!string.IsNullOrWhiteSpace(input.FirstName)) {
             user.Claims.Add(new() {

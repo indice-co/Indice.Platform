@@ -12,7 +12,7 @@ public class FilterClauseQueryableExtensionTests : IDisposable
 {
     public FilterClauseQueryableExtensionTests() {
         var inMemorySettings = new Dictionary<string, string> {
-            ["ConnectionStrings:TestDb"] = "Server=(localdb)\\MSSQLLocalDB;Database=Indice.FilterClause.Test;Trusted_Connection=True;MultipleActiveResultSets=true",
+            ["ConnectionStrings:TestDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.FilterClause.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
             //...populate as needed for the test
         };
         IConfiguration configuration = new ConfigurationBuilder()

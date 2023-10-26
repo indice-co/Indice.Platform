@@ -22,7 +22,7 @@ public class MessageManagerTests : IAsyncDisposable
 {
     public MessageManagerTests() {
         var inMemorySettings = new Dictionary<string, string> {
-            ["ConnectionStrings:MessagesDb"] = "Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test;Trusted_Connection=True;MultipleActiveResultSets=true"
+            ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true"
         };
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)

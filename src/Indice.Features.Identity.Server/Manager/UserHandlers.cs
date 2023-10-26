@@ -183,13 +183,13 @@ internal static class UserHandlers
             var errors = ValidationErrors.AddError(nameof(request.UserName), "EmailAsUserName policy is applied to the identity system. Email and UserName properties should have the same value. User is not updated.");
             return TypedResults.ValidationProblem(errors);
         }
-        if (!PhoneNumber.TryParse(request.PhoneNumber, out var phoneNumber)) {
+        if (!PhoneNumber.TryParse(request.PhoneNumber!, out var phoneNumber)) {
             var errors = ValidationErrors.AddError(nameof(request.PhoneNumber), "The provided phone number is not valid.");
             return TypedResults.ValidationProblem(errors);
         }
         user.UserName = request.UserName;
         user.Email = request.Email;
-        user.PhoneNumber = phoneNumber;
+        user.PhoneNumber = request.PhoneNumber;
         user.TwoFactorEnabled = request.TwoFactorEnabled;
         user.PasswordExpirationPolicy = request.PasswordExpirationPolicy;
         user.Admin = request.IsAdmin;

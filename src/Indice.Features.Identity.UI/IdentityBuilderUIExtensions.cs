@@ -38,7 +38,8 @@ public static class IdentityBuilderUIExtensions
             options.EnableForgotPasswordPage = configuredOptions.EnableForgotPasswordPage;
             options.EnableLocalLogin = configuredOptions.EnableLocalLogin;
             options.EnableRegisterPage = configuredOptions.EnableRegisterPage;
-            options.HomepageLinks.AddRange(configuredOptions.HomepageLinks);
+            var extraHomePageLinks = configuredOptions.HomepageLinks.Where(h => !options.HomepageLinks.Select(x => x.DisplayName).Contains(h.DisplayName));
+            options.HomepageLinks.AddRange(extraHomePageLinks);
             options.HomePageSlogan = configuredOptions.HomePageSlogan;
             options.HtmlBodyBackgroundCssClass = configuredOptions.HtmlBodyBackgroundCssClass;
             options.OverrideDefaultStaticFileMiddleware = configuredOptions.OverrideDefaultStaticFileMiddleware;
@@ -46,6 +47,7 @@ public static class IdentityBuilderUIExtensions
             options.RememberMeLoginDuration = configuredOptions.RememberMeLoginDuration;
             options.ShowLogoutPrompt = configuredOptions.ShowLogoutPrompt;
             options.TermsUrl = configuredOptions.TermsUrl;
+            options.EnablePhoneNumberCallingCodes = configuredOptions.EnablePhoneNumberCallingCodes;
             foreach (var url in configuredOptions.ValidReturnUrls) {
                 options.ValidReturnUrls.Add(url);
             }
