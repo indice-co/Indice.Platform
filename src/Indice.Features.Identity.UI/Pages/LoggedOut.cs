@@ -2,6 +2,7 @@ using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MimeKit.Cryptography;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -33,6 +34,8 @@ public abstract class BaseLoggedOutModel : BasePageModel
     public string? ClientName { get; set; }
     /// <summary>The configured post logout URL for the client being logged out.</summary>
     public string? PostLogoutRedirectUri { get; set; }
+    /// <summary>True if post logout url is available through a the client being currently logged out</summary>
+    public bool HasPostLogoutRedirectUri => !string.IsNullOrEmpty(PostLogoutRedirectUri);
     /// <summary>The sign out IFrame URL.</summary>
     public string? SignOutIframeUrl { get; set; }
     /// <summary>Configuration options for Identity UI.</summary>
