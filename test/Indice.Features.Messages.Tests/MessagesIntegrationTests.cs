@@ -35,7 +35,7 @@ public class MessagesIntegrationTests : IDisposable
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string> {
-                ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major};Trusted_Connection=True;MultipleActiveResultSets=true",
+                ["ConnectionStrings:MessagesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=MessagesDb.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
                 ["ConnectionStrings:StorageConnection"] = "UseDevelopmentStorage=true"
             });
         });
