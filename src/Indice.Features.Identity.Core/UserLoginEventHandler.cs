@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Core;
 
-internal sealed class UserLoginEventHandler : IPlatformEventHandler<UserLoginEvent>
+public sealed class UserLoginEventHandler : IPlatformEventHandler<UserLoginEvent>
 {
     private readonly IEventService _eventService;
     private readonly IHttpContextAccessor _httpContextAccessor;
