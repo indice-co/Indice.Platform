@@ -72,7 +72,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
-        if (!PhoneNumber.TryParse($"{Input.CallingCode} {Input.PhoneNumber}", out var phone)) {
+        if (!PhoneNumber.TryParse(Input.PhoneNumberWithCallingCode, out var phone)) {
             ModelState.AddModelError(nameof(Input.PhoneNumber), "Phone number is not valid.");
             return Page();
         }

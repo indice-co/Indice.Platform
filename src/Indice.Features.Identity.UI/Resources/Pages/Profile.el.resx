@@ -126,6 +126,9 @@
   <data name="Birth date" xml:space="preserve">
     <value>Ημερομηνία Γέννησης</value>
   </data>
+  <data name="Calling Code" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
   <data name="Confirmation" xml:space="preserve">
     <value>Επιβεβαίωση</value>
   </data>

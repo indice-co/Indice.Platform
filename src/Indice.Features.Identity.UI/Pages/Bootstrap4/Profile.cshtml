@@ -1,6 +1,8 @@
 ﻿@page "/manage/profile"
 
 @inject IIdentityViewLocalizer Localizer
+@inject CallingCodesProvider callingCodesProvider
+@inject IOptions<IdentityUIOptions> identityUiOptions
 
 @model BaseProfileModel
 
@@ -69,11 +71,24 @@
             </div>
         </div>
         <div class="row">
+            <div indice-if="identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="col-md-6">
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.CallingCode">@Localizer["Calling Code"]</label>
+                    <select class="form-control" style="height: 40px" asp-for="Input.CallingCode" required>
+                        <option value="" selected>@Localizer["Choose..."]</option>
+                        @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
+                        {
+                            <option value="@callingCode">@callingCode.DisplayName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
+                </div>
+            </div>
             <div class="col-md-6">
                 <div class="form-group">
                     <label asp-for="Input.PhoneNumber">@Localizer["Phone number"]</label>
                     <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
-                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             </div>
         </div>

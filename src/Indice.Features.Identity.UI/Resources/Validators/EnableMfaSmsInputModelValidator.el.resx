@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="The field '{PropertyName}' has invalid format." xml:space="preserve">
-    <value>Ο αριθμός τηλεφώνου πρέπει να ξεκινά με τα ψηφία '69' και να έχει μέγεθος 10 χαρακτήρων.</value>
+    <value>Ο αριθμός τηλεφώνου δεν έχει αποδεκτή μορφή.</value>
   </data>
   <data name="Phone Number" xml:space="preserve">
     <value>Αριθμός Τηλεφώνου</value>
