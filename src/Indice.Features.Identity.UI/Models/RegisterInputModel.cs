@@ -31,6 +31,8 @@ public class RegisterInputModel {
     /// <summary> The Phone Number's Calling Code.</summary>
     public string? CallingCode { get; set; }
 
+    internal string? PhoneNumberWithCallingCode => string.IsNullOrWhiteSpace(CallingCode) ? PhoneNumber : $"{CallingCode} {PhoneNumber}";
+
     /// <summary>Replace claim.</summary>
     /// <param name="name">Claim name.</param>
     /// <param name="value">Claim value.</param>

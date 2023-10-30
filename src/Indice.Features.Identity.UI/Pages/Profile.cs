@@ -115,7 +115,7 @@ public abstract class BaseProfileModel : BasePageModel
             result = await UserManager.SetUserNameAsync(user, Input.UserName);
             AddModelErrors(result);
         }
-        _ = PhoneNumber.TryParse($"{Input.CallingCode} {Input.PhoneNumber}", out var phoneNumber);
+        _ = PhoneNumber.TryParse(Input.PhoneNumberWithCallingCode, out var phoneNumber);
         user.PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? phoneNumber : phoneNumber.Number;
         result = await UserManager.UpdateAsync(user);
         AddModelErrors(result);
@@ -201,7 +201,7 @@ public abstract class BaseProfileModel : BasePageModel
             HasDeveloperTotp = Configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
             LastName = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value,
             OtherLogins = otherLogins,
-            PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? phoneNumber.Number : phoneNumber.Number,
+            PhoneNumber = phoneNumber.Number,
             Tin = claims.SingleOrDefault(x => x.Type == BasicClaimTypes.Tin)?.Value,
             UserName = user.UserName ?? string.Empty,
             ZoneInfo = claims.SingleOrDefault(x => x.Type == JwtClaimTypes.ZoneInfo)?.Value,
@@ -229,7 +229,7 @@ public abstract class BaseProfileModel : BasePageModel
             HasDeveloperTotp = Configuration.DeveloperTotpEnabled() && roles.Contains(BasicRoleNames.Developer),
             LastName = model.LastName,
             OtherLogins = otherLogins,
-            PhoneNumber = model.PhoneNumber,
+            PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? model.PhoneNumberWithCallingCode : model.PhoneNumber,
             Tin = model.Tin,
             UserName = model.UserName
         };

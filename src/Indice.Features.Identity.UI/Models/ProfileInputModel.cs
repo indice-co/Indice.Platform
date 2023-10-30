@@ -29,4 +29,6 @@ public class ProfileInputModel
     public string? DeveloperTotp { get; set; }
     /// <summary></summary>
     public string? ZoneInfo { get; set; }
+
+    internal string? PhoneNumberWithCallingCode => string.IsNullOrWhiteSpace(CallingCode) ? PhoneNumber : $"{CallingCode} {PhoneNumber}";
 }

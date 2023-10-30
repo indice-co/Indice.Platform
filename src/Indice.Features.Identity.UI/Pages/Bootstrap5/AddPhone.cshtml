@@ -4,6 +4,8 @@
 
 @inject IIdentityViewLocalizer Localizer
 @inject IWebHostEnvironment HostingEnvironment
+@inject CallingCodesProvider callingCodesProvider
+@inject IOptions<IdentityUIOptions> identityUiOptions
 
 @{
     var title = ViewData["Title"] = Localizer["Add phone"].Value;
@@ -15,11 +17,23 @@
     <partial name="_ValidationSummary" />
     <partial name="_Alert" model="alert" />
     <form asp-route-returnUrl="@Model.Input.ReturnUrl" method="post">
-        <div class="mb-3">
-            <label asp-for="Input.PhoneNumber" class="form-label visually-hidden">@Localizer["Phone number"]</label>
-            <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
-            <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
-            <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+        <div class="row justify-content-center mb-3">
+            <div indice-if="identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="form-row col-md-6">
+                <select class="form-control" style="height: 40px" asp-for="Input.CallingCode" required>
+                    <option value="" selected>@Localizer["Choose..."]</option>
+                    @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
+                    {
+                        <option value="@callingCode">@callingCode.DisplayName</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
+            </div>
+            <div class="form-row @(identityUiOptions.Value.EnablePhoneNumberCallingCodes ? "col-md-6" :"col-md-12")">
+                <label asp-for="Input.PhoneNumber" class="sr-only">@Localizer["Phone number"]</label>
+                <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
+                <input class="form-control" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
+                <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
+            </div>
         </div>
         <div class="mb-3">
             <div class="row m-0 w-100">
