@@ -31,9 +31,11 @@ public static class RiskApi
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
         // POST: /api/risk/events
-        group.MapGet("risk/events", RiskApiHandlers.CreateRiskEvent)
+        group.MapPost("risk/events", RiskApiHandlers.CreateRiskEvent)
+
              .WithName(nameof(RiskApiHandlers.CreateRiskEvent))
-             .WithSummary("Records a risk event in the store.");
+             .WithSummary("Records a risk event in the store.")
+             .Produces(StatusCodes.Status201Created);
 
         // POST: /api/risk
         group.MapPost("risk", RiskApiHandlers.GetRisk)
