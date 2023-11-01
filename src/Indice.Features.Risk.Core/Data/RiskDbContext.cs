@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using Indice.Configuration;
+﻿using Indice.Configuration;
 using Indice.Features.Risk.Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Risk.Core.Data;
 
@@ -30,5 +30,6 @@ public class RiskDbContext : DbContext
         modelBuilder.Entity<RiskEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
         modelBuilder.Entity<RiskEvent>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
         modelBuilder.Entity<RiskEvent>().Property(x => x.Type).HasMaxLength(TextSizePresets.M256).IsRequired();
+        modelBuilder.Entity<RiskEvent>().Property(x => x.Data).HasJsonConversion();
     }
 }

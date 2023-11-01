@@ -7,6 +7,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
+    <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.16"></PackageReference>
@@ -16,6 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Common\Indice.Common.csproj" />
+    <ProjectReference Include="..\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Indice.Features.Risk.Server" />

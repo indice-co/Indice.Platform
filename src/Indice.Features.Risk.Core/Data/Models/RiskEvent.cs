@@ -17,4 +17,6 @@ public class RiskEvent
     public string? Name { get; set; }
     /// <summary>The type of the event.</summary>
     public string Type { get; set; } = string.Empty;
+    /// <summary>The data of the event.</summary>
+    public dynamic? Data { get; set; }
 }
