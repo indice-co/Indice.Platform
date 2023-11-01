@@ -548,6 +548,9 @@ public class ExtendedSignInResult : SignInResult
     /// <summary>Returns a flag indication whether the user should on-board to MFA.</summary>
     /// <value>True if the user attempting to sign-in requires MFA on-boarding, otherwise false.</value>
     public bool RequiresMfaOnboarding { get; }
+    /// <summary>Returns a flag indication whether the user should be treated with suspicion.</summary>
+    /// <value>True if the user attempting to sign-in from a galaxy far far away.</value>
+    public bool IsImpossibleTraveler { get; }
 }
 
 /// <summary>Extensions on <see cref="SignInResult"/> type.</summary>
