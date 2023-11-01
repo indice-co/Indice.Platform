@@ -12,7 +12,6 @@
     <StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>
     <StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>true</StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>
     <!--<DisableStaticWebAssetsBuildPropsFileGeneration>true</DisableStaticWebAssetsBuildPropsFileGeneration>-->
-    <ResolveStaticWebAssetsInputsDependsOn>RemoveIdentityDuplicateAssets</ResolveStaticWebAssetsInputsDependsOn>
   </PropertyGroup>
   <ItemGroup>
     <None Include="build\*" Pack="true" PackagePath="build\" />
@@ -33,9 +32,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
   </ItemGroup>
-
-  <!-- This will load the default asset manifest (inventory) that gets generated on build by default -->
-  <Import Project="./build/Indice.Features.Identity.UI.targets" />
   
   <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
     <Exec Command="npm install --force" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
