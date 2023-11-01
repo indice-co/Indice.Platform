@@ -9,18 +9,15 @@
     ViewData["signed-out"] = true;
 }
 
-<section class="content-wrapper">
+<section class="content-wrapper @(Model.AutomaticRedirectAfterSignOut ? "hidden": "")">
     <div class="card-wrapper">
         <vc:page-heading title="@title" image-src="" />
         <p>@Localizer["You are now logged out"]</p>
-        <div indice-if="Model.PostLogoutRedirectUri != null">
-            @Localizer["Click"] <a class="PostLogoutRedirectUri btn btn-primary" href="@Model.PostLogoutRedirectUri">@Localizer["here"]</a> @Localizer["to return to the application"]
-            <span>@Model.ClientName</span>.
+        <div>
+            @Localizer["Click"] <a id="PostLogoutRedirectUri" class="text-tenant-900" href="@Model.PostLogoutRedirectUri">@Localizer["here"]</a> @Localizer["to return to the application"]
+            <span indice-if="Model.HasPostLogoutRedirectUri">@Model.ClientName</span>.
         </div>
         <iframe indice-if="Model.SignOutIframeUrl != null" width="0" height="0" class="signout" src="@Model.SignOutIframeUrl"></iframe>
-        <div indice-if="Model.PostLogoutRedirectUri == null">
-            @Localizer["Click"] <a class="text-tenant-900" href="~/">@Localizer["here"]</a> @Localizer["to return to the application"]
-        </div>
     </div>
 </section>
 

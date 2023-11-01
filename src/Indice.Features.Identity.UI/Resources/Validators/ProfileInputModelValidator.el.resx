@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Calling Code" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
   <data name="Field '{PropertyName}' can accept digits, uppercase or lowercase latin characters and the symbols -._@+" xml:space="preserve">
     <value>Το πεδίο '{PropertyName}' δέχεται νούμερα, κεφαλαίους και πεζούς λατινικούς χαρακτήρες καθώς και τα σύμβολα -._@+</value>
   </data>
@@ -127,7 +130,7 @@
     <value>Κινητό τηλέφωνο</value>
   </data>
   <data name="The field '{PropertyName}' has invalid format." xml:space="preserve">
-    <value>Το κινητό τηλέφωνο πρέπει να ξεκινάει με '69' και να αποτελείτε από 10 ψηφία.</value>
+    <value>Το κινητό τηλέφωνο δεν έχει αποδεκτή μορφή.</value>
   </data>
   <data name="Tin" xml:space="preserve">
     <value>Α.Φ.Μ</value>

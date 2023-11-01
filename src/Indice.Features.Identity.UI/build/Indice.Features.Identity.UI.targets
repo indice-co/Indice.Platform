@@ -1,3 +1,8 @@
 <Project>
-  <!--<Import Project="$(MSBuildThisFileDirectory)Microsoft.AspNetCore.StaticWebAssets.targets"/>-->
+  <!-- This will remove any duplicate assets found on the Host web application and the UI project. Host always wins-->
+  <Target Name="RemoveIdentityDuplicateAssets">
+    <ItemGroup>
+      <StaticWebAsset Remove="@(StaticWebAsset)" Condition="%(SourceId) == 'Indice.Features.Identity.UI' And Exists($([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)/wwwroot%(StaticWebAsset.BasePath)%(StaticWebAsset.RelativePath))))" />
+    </ItemGroup>
+  </Target>
 </Project>

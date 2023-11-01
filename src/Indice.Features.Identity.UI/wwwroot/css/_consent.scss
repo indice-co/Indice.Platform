@@ -1,0 +1,85 @@
+﻿@import '_variables';
+@import '_colors';
+
+body {
+    &.consent {
+        .container {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: none;
+
+            @include phone {
+                box-shadow: none;
+            }
+        }
+
+        .header-logo {
+            width: 140px;
+            height: 70px;
+            display: inline-block;
+            color: transparent;
+        }
+    }
+}
+
+.page-consent {
+    max-width: $standalone-page-width-lg;
+    margin: auto;
+    padding: 48px 40px 36px;
+    height: auto;
+    min-height: 500px;
+    transition: .2s;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+
+    @include phone {
+        box-shadow: none;
+    }
+
+    .page-header {
+        padding-bottom: 1rem;
+        text-align: center;
+
+        img {
+            max-height: 100px;
+            filter: drop-shadow(0px 0px 1px $gray-900);
+        }
+    }
+
+    .panel {
+        margin: 2rem 0;
+    }
+
+    .disallow-btn {
+        color: $gray;
+    }
+
+    .consent-remember {
+        padding: 0 5px;
+    }
+
+    .sca-wrapper {
+        padding: .75rem 1.25rem;
+        margin-bottom: -1px;
+        background-color: #fff;
+        border: 1px solid $gray-100;
+        border-radius: .25rem;
+    }
+
+    .card {
+        background: transparent;
+    }
+
+    .card-title {
+        display: flex;
+        align-items: center;
+    }
+
+    .list-group-item {
+        background: linear-gradient(135deg, #FFFFFF 0%, #f3f6f8 100%);
+
+        .form-check-label {
+            flex-direction: row;
+        }
+    }
+}

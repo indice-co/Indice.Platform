@@ -2,16 +2,16 @@
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
-      <VersionPrefixBase>7.6</VersionPrefixBase>
-      <VersionPrefixCore>$(VersionPrefixBase).4</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).10</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).12</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).4</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).4</VersionPrefixMessages>
-      <VersionPrefixMultitenancy>$(VersionPrefixBase).3</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).3</VersionPrefixRisk>
-      <VersionPrefixMedia>$(VersionPrefixBase).3</VersionPrefixMedia>
-      <VersionPrefix>$(VersionPrefixBase).2</VersionPrefix>
+      <VersionPrefixBase>7.7</VersionPrefixBase>
+      <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
+      <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
+      <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
+      <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
+      <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
+      <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
+      <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
+      <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->
       <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
       <GenerateDocumentationFile>true</GenerateDocumentationFile>

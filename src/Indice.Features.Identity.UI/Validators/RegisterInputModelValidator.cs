@@ -18,7 +18,6 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
 {
     private readonly IStringLocalizer<RegisterInputModelValidator> _localizer;
     private readonly ExtendedIdentityDbContext<User, Role> _dbContext;
-    private readonly IConfiguration _configuration;
 
     /// <summary>Creates a new instance of <see cref="LoginInputModelValidator"/> class.</summary>
     /// <param name="localizer">Represents a service that provides localized strings.</param>
@@ -27,6 +26,7 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
     /// <param name="identityOptions">Represents all the options you can use to configure the identity system.</param>
     /// <param name="configuration">Represents the configuration element.</param>
     /// <param name="callingCodesProvider">Provides the supported Calling Codes.</param>
+    /// <param name="identityUiOptions">Configuration options for Identity UI.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public RegisterInputModelValidator(
         IStringLocalizer<RegisterInputModelValidator> localizer,
@@ -34,11 +34,11 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
         ExtendedUserManager<User> userManager,
         IOptionsSnapshot<IdentityOptions> identityOptions,
         IConfiguration configuration,
-        CallingCodesProvider callingCodesProvider
+        CallingCodesProvider callingCodesProvider,
+        IOptions<IdentityUIOptions> identityUiOptions
     ) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         RuleFor(x => x.FirstName).NotEmpty().WithName(_localizer["First name"]);
         RuleFor(x => x.LastName).NotEmpty().WithName(_localizer["Last name"]);
         if (!userManager.EmailAsUserName) {
@@ -52,7 +52,13 @@ public class RegisterInputModelValidator : AbstractValidator<RegisterInputModel>
         RuleFor(x => x.Email).Must(EmailNotBeAssignedToAnotherUser).WithMessage(_localizer["This email already exists. Please use a different email."]);
         RuleFor(x => x.HasAcceptedTerms).Equal(true).WithMessage(_localizer["You must accept the service 'terms of use'."]);
         RuleFor(x => x.HasReadPrivacyPolicy).Equal(true).WithMessage(_localizer["You must be informed about privacy policy."]);
-        RuleFor(x => $"{x.CallingCode} {x.PhoneNumber}").UserPhoneNumber(configuration, callingCodesProvider).WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
+        if (identityUiOptions.Value.EnablePhoneNumberCallingCodes) {
+            RuleFor(x => x.CallingCode).NotEmpty().WithName(_localizer["Calling Code"]);
+        }
+        RuleFor(x => x.PhoneNumberWithCallingCode)
+            .UserPhoneNumber(configuration, callingCodesProvider)
+            .WithName(p => p.PhoneNumber)
+            .WithMessage(_localizer["The field '{PropertyName}' has invalid format."]);
     }
 
     private bool EmailNotBeAssignedToAnotherUser(string? email) => !string.IsNullOrWhiteSpace(email) && !_dbContext.Users.Any(x => x.Email == email);

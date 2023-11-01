@@ -123,6 +123,9 @@
   <data name="Add phone number" xml:space="preserve">
     <value>Προσθήκη αριθμού</value>
   </data>
+  <data name="Calling Code" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
+  </data>
   <data name="Phone number" xml:space="preserve">
     <value>Αριθμός τηλεφώνου</value>
   </data>

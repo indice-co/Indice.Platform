@@ -1,0 +1,19 @@
+﻿.ribbon {
+    @apply fixed left-0 top-0 z-50 overflow-hidden md:w-32 h-20 text-right pointer-events-none transition-all w-full;
+
+    span {
+        @apply text-sm text-[10px] font-bold text-white uppercase text-center w-24 bg-tenant-900 shadow-lg absolute md:top-[20px] top-0 left-0 md:-left-[24px] md:rotate-[322deg] w-full;
+    }
+
+    &.development {
+        span {
+            @apply bg-white;
+        }
+    }
+
+    &.sandbox {
+        span {
+            @apply bg-yellow-600 text-black;
+        }
+    }
+}

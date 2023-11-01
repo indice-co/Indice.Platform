@@ -130,7 +130,7 @@
     <value>Κινητό τηλέφωνο</value>
   </data>
   <data name="The field '{PropertyName}' has invalid format." xml:space="preserve">
-    <value>Το κινητό τηλέφωνο πρέπει να ξεκινάει από '69' και να έχει 10 ψηφία.</value>
+    <value>Το κινητό τηλέφωνο δεν έχει αποδεκτή μορφή.</value>
   </data>
   <data name="Password" xml:space="preserve">
     <value>Κωδικός πρόσβασης</value>
@@ -152,5 +152,8 @@
   </data>
   <data name="Timezone" xml:space="preserve">
     <value>Ζώνη ώρας</value>
+  </data>
+  <data name="Calling Code" xml:space="preserve">
+    <value>Κωδικός Τηλεφώνου</value>
   </data>
 </root>

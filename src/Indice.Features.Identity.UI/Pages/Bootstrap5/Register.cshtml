@@ -4,6 +4,8 @@
 
 @inject IIdentityViewLocalizer Localizer
 @inject ExtendedUserManager<User> userManager
+@inject CallingCodesProvider callingCodesProvider
+@inject IOptions<IdentityUIOptions> identityUiOptions
 
 @{
     var title = ViewData["Title"] = Localizer["Sign up"].Value;
@@ -45,22 +47,44 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            @if (!userManager.EmailAsUserName)
-            {
-                <div class="col-md-6">
+        @if (!userManager.EmailAsUserName || !identityUiOptions.Value.EnablePhoneNumberCallingCodes)
+        {
+            <div class="row">
+                <div indice-if="!userManager.EmailAsUserName" class="@(identityUiOptions.Value.EnablePhoneNumberCallingCodes ? "col-md-12" : "col-md-6")">
                     <div class="mb-3">
                         <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
                         <input class="form-control" type="text" asp-for="Input.Email" placeholder="@Localizer["Email"]" />
                         <span asp-validation-for="Input.Email" class="text-danger"></span>
                     </div>
                 </div>
-            }
-            <div class="@(userManager.EmailAsUserName ? "col-md-12" : "col-md-6")">
+                <div indice-if="!identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="@(userManager.EmailAsUserName ? "col-md-12" : "col-md-6")">
+                    <div class="mb-3">
+                        <label asp-for="Input.PhoneNumber" class="form-label">@Localizer["Phone number"]</label>
+                        <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
+                        <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        }
+        <div indice-if="identityUiOptions.Value.EnablePhoneNumberCallingCodes" class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label" asp-for="Input.CallingCode">@Localizer["Calling Code"]</label>
+                    <select class="form-control lh-lg" asp-for="Input.CallingCode" required>
+                        <option value="" selected>@Localizer["Choose..."]</option>
+                        @foreach (var callingCode in callingCodesProvider.GetSupportedCallingCodes())
+                        {
+                            <option value="@callingCode">@callingCode.DisplayName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Input.CallingCode" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
                 <div class="mb-3">
                     <label asp-for="Input.PhoneNumber" class="form-label">@Localizer["Phone number"]</label>
                     <input class="form-control" type="text" asp-for="Input.PhoneNumber" placeholder="@Localizer["Phone number"]" />
-                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             </div>
         </div>

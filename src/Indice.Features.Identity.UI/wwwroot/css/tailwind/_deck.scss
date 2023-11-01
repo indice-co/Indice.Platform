@@ -1,0 +1,42 @@
+﻿.deck {
+    @apply flex flex-row  justify-around pt-16 flex-wrap;
+}
+
+a.deck-item {
+    @apply text-black;
+}
+
+.deck-title {
+    @apply text-white lg:text-one text-4xl text-center items-center justify-center;
+}
+
+.deck-item {
+    @apply h-64 w-64 rounded-full bg-white flex flex-col items-center justify-center p-5 cursor-pointer m-5 shadow-2xl;
+
+    .deck-item-title {
+        @apply font-bold text-tenant-900 text-2xl text-center no-underline;
+    }
+
+    .deck-icon {
+        @apply inline-block p-6 mb-[1.53846rem] bg-cover bg-no-repeat bg-[url('./assets/img/icons/avatar.svg')];
+        background-position: center center;
+    }
+
+    &.b2b-e-shop {
+        .deck-icon {
+            @apply bg-[url('../img/icons/shopping-basket.svg')];
+        }
+    }
+
+    &.admin {
+        .deck-icon {
+            @apply bg-[url('../img/icons/security-check.svg')];
+        }
+    }
+
+    &.developers {
+        .deck-icon {
+            @apply bg-[url('../img/icons/coding.svg')];
+        }
+    }
+}

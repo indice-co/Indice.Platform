@@ -36,7 +36,7 @@
                         <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
                         <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
                         <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
-                        <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                        <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                     </div>
                 </div>
             }
@@ -46,7 +46,7 @@
                     <input type="hidden" data-env="@HostingEnvironment.EnvironmentName" />
                     <input class="peer" type="text" placeholder="@Localizer["Phone number"]" asp-for="Input.PhoneNumber" />
                     <label asp-for="Input.PhoneNumber" class="peer-focus:-translate-y-[6px] peer-focus:visible absolute">@Localizer["Phone number"]</label>
-                    <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                    <span asp-validation-for="Input.PhoneNumberWithCallingCode" class="text-danger"></span>
                 </div>
             }
             <div class="row justify-items-center place-items-center">

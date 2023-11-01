@@ -1,0 +1,47 @@
+﻿.sidebar {
+    @apply xl:min-w-[1024px] h-full absolute md:fixed right-0 top-0 z-[100] max-w-5xl bg-white max-h-full overflow-y-scroll shadow-2xl;
+}
+
+.sidebar-wrapper {
+    @apply md:py-4 md:px-3 w-fill sm:py-6 sm:px-8 p-4;
+}
+
+.sidebar-header {
+    @apply md:px-12 px-0;
+}
+
+.sidebar-body {
+    @apply px-0 md:pl-44 md:pr-12;
+}
+
+.sidebar-footer {
+    @apply px-0 md:px-12 pb-14;
+}
+
+.tabs-wrapper {
+    @apply mb-4 border-y border-gray-200 dark:border-gray-700 mt-8;
+}
+
+.toggle-btn-wrapper {
+    @apply flex items-center bg-tenant-900 md:bg-white max-w-[32px];
+}
+
+.tabs-list {
+    @apply flex flex-wrap -mb-px text-sm font-medium text-center;
+
+    .tab {
+        @apply inline-block py-2 px-4 rounded-t-lg border-b border-transparent hover:border-tenant-900 no-underline text-black text-base;
+
+        &.selected {
+            @apply border-b border-tenant-900 text-tenant-900;
+        }
+    }
+}
+
+.tab-content {
+    @apply pt-5;
+}
+
+.tab-panel {
+    /*    @apply bg-gray-50 rounded-lg dark:bg-gray-800;*/
+}

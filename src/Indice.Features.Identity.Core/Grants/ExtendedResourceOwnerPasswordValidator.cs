@@ -192,11 +192,14 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
 
 internal class ResourceOwnerPasswordErrorCodes
 {
+    // user specific
     public const string LockedOut = "104";
     public const string NotAllowed = "105";
     public const string InvalidCredentials = "106";
     public const string NotFound = "107";
     public const string Blocked = "108";
+    public const string Traveler = "109";
+    // client specific
     public const string NotMobileClient = "204";
     public const string MissingDeviceId = "205";
     public const string DeviceNotFound = "206";

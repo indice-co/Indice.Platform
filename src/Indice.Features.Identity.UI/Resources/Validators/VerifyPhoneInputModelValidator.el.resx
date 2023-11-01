@@ -121,7 +121,7 @@
     <value>Κωδικός</value>
   </data>
   <data name="The field '{PropertyName}' has invalid format." xml:space="preserve">
-    <value>Ο αριθμός τηλεφώνου πρέπει να ξεκινά με τα ψηφία '69' και να έχει μέγεθος 10 χαρακτήρων.</value>
+    <value>Το κινητό τηλέφωνο δεν έχει αποδεκτή μορφή.</value>
   </data>
   <data name="Phone Number" xml:space="preserve">
     <value>Αριθμός Τηλεφώνου</value>
