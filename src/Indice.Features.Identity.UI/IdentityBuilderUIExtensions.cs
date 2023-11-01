@@ -3,7 +3,6 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.UI;
-using Indice.Features.Identity.UI.Assets;
 using Indice.Features.Identity.UI.Localization;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Hosting;
@@ -59,9 +58,6 @@ public static class IdentityBuilderUIExtensions
         });
         // Post configure razor pages options.
         services.ConfigureOptions(typeof(IdentityUIRazorPagesConfigureOptions));
-        if (configuredOptions.OverrideDefaultStaticFileMiddleware) {
-            services.ConfigureOptions(typeof(IdentityUIStaticFileConfigureOptions));
-        }
         // Configure FluentValidation.
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddFluentValidationAutoValidation(config => {

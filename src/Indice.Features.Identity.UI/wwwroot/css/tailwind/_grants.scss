@@ -1,0 +1,23 @@
+﻿.grant-item {
+    @apply border-b pb-7;
+}
+
+.grant-header {
+    @apply flex flex-col md:flex-row pt-10;
+}
+
+.client-name {
+    @apply font-semibold mb-1;
+}
+
+.identity-grants, .api-grants {
+    @apply mt-3;
+}
+
+.grant-name {
+    @apply bg-greys-200 rounded-lg py-0.5 px-2 mr-2;
+}
+
+.client-logo {
+    @apply rounded-full h-16 w-16 md:ml-0 mb-4 md:mb-0;
+}

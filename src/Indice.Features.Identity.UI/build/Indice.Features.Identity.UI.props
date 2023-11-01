@@ -1,8 +1,14 @@
 <Project>
-  <PropertyGroup>
-    <IdentityUIFrameworkVersion Condition="'$(IdentityUIFrameworkVersion)' == ''">Bootstrap5</IdentityUIFrameworkVersion>
-  </PropertyGroup>
+  <!-- This will load the default asset manifest (inventory) that gets generated on build by default -->
+  <Import Project="Microsoft.AspNetCore.StaticWebAssets.props" />
 
+  <PropertyGroup>
+    <!-- This declares the IdentityUIFrameworkVersion csproj parameter and defaults to bootstrap5 if not found -->
+    <IdentityUIFrameworkVersion Condition="'$(IdentityUIFrameworkVersion)' == ''">Bootstrap5</IdentityUIFrameworkVersion>
+    <!-- Triggerrs the Remove Identity assets target on the Host project -->
+    <ResolveStaticWebAssetsInputsDependsOn>RemoveIdentityDuplicateAssets</ResolveStaticWebAssetsInputsDependsOn>
+  </PropertyGroup>
+  <!-- This will enable the auto inclusion of the Assembly Attribute on the Host project based on the IdentityUIFrameworkVersion csproj parameter -->
   <ItemGroup>
     <AssemblyAttribute Include="Indice.Features.Identity.UI.UIFrameworkAttribute">
       <_Parameter1>$(IdentityUIFrameworkVersion)</_Parameter1>

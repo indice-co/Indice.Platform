@@ -1,0 +1,239 @@
+/*
+1px  = .0625
+2px  = .125
+3px  = .1875
+4px  = .25
+5px  = .3125
+6px  = .375
+7px  = .4375
+8px  = .5
+9px  = .5625
+10px = .625
+11px = .6875
+12px = .75
+13px = .8125
+14px = .875
+15px = .9375
+16px = 1
+24px = 1.5
+32px = 2
+*/
+
+$base-font-size: 16;
+
+@function calculateRem($size) {
+    $remSize: calc($size / $base-font-size);
+    @return #{$remSize}rem;
+}
+
+@mixin font-size($size) {
+    font-size: #{$size}px; //Fallback in px
+    font-size: calculateRem($size);
+}
+
+@mixin max-height($size) {
+    max-height: #{$size}px; //Fallback in px
+    max-height: calculateRem($size);
+}
+
+@mixin min-height($size) {
+    min-height: #{$size}px; //Fallback in px
+    min-height: calculateRem($size);
+}
+
+@mixin height($size) {
+    height: #{$size}px; //Fallback in px
+    height: calculateRem($size);
+}
+
+@mixin width($size) {
+    width: #{$size}px; //Fallback in px
+    width: calculateRem($size);
+}
+
+@mixin padding-all($size) {
+    padding: #{$size}px; //Fallback in px
+    padding: calculateRem($size);
+}
+
+@mixin padding-sides($size-t, $size-r, $size-b, $size-l) {
+    padding: #{$size-t}px #{$size-r}px #{$size-b}px #{$size-l}px; //Fallback in px
+    padding: calculateRem($size-t) calculateRem($size-r) calculateRem($size-b) calculateRem($size-l);
+}
+
+@mixin padding($size-y, $size-x) {
+    padding: #{$size-y}px #{$size-x}px; //Fallback in px
+    padding: calculateRem($size-y) calculateRem($size-x);
+}
+
+@mixin padding-x($size-x) {
+    padding-left: #{$size-x}px; //Fallback in px
+    padding-left: calculateRem($size-x);
+    padding-right: #{$size-x}px; //Fallback in px
+    padding-right: calculateRem($size-x);
+}
+
+@mixin padding-top($size) {
+    padding-top: #{$size}px; //Fallback in px
+    padding-top: calculateRem($size);
+}
+
+@mixin padding-right($size) {
+    padding-right: #{$size}px; //Fallback in px
+    padding-right: calculateRem($size);
+}
+
+@mixin padding-bottom($size) {
+    padding-bottom: #{$size}px; //Fallback in px
+    padding-bottom: calculateRem($size);
+}
+
+@mixin padding-left($size) {
+    padding-left: #{$size}px; //Fallback in px
+    padding-left: calculateRem($size);
+}
+
+@mixin margin-all($size) {
+    margin: #{$size}px; //Fallback in px
+    margin: calculateRem($size);
+}
+
+@mixin margin($size-y, $size-x) {
+    margin: #{$size-y}px #{$size-x}px; //Fallback in px
+    margin: calculateRem($size-y) calculateRem($size-x);
+}
+
+@mixin margin-top($size) {
+    margin-top: #{$size}px; //Fallback in px
+    margin-top: calculateRem($size);
+}
+
+@mixin margin-right($size) {
+    margin-right: #{$size}px; //Fallback in px
+    margin-right: calculateRem($size);
+}
+
+@mixin margin-bottom($size) {
+    margin-bottom: #{$size}px; //Fallback in px
+    margin-bottom: calculateRem($size);
+}
+
+@mixin margin-left($size) {
+    margin-left: #{$size}px; //Fallback in px
+    margin-left: calculateRem($size);
+}
+
+@mixin border-radius-all($size) {
+    border-radius: #{$size}px; //Fallback in px
+    border-radius: calculateRem($size);
+}
+
+@mixin border-radius($size-tl, $size-tr, $size-br, $size-bl) {
+    border-radius: #{$size-tl}px #{$size-tr}px #{$size-br}px #{$size-bl}px; //Fallback in px
+    border-radius: calculateRem($size-tl) calculateRem($size-tr) calculateRem($size-br) calculateRem($size-bl);
+}
+
+@mixin border($size, $color) {
+    border: #{$size}px solid $color; //Fallback in px
+    border: calculateRem($size) solid $color;
+}
+
+@mixin border-right($size, $color) {
+    border-right: #{$size}px solid $color; //Fallback in px
+    border-right: calculateRem($size) solid $color;
+}
+
+@mixin border-bottom($size, $color) {
+    border-bottom: #{$size}px solid $color; //Fallback in px
+    border-bottom: calculateRem($size) solid $color;
+}
+
+@mixin letter-spacing($size) {
+    letter-spacing: #{$size}px; //Fallback in px
+    letter-spacing: calculateRem($size);
+}
+
+@mixin top($size) {
+    top: #{$size}px; //Fallback in px
+    top: calculateRem($size);
+}
+
+@mixin right($size) {
+    right: #{$size}px; //Fallback in px
+    right: calculateRem($size);
+}
+
+@mixin bottom($size) {
+    bottom: #{$size}px; //Fallback in px
+    bottom: calculateRem($size);
+}
+
+@mixin left($size) {
+    left: #{$size}px; //Fallback in px
+    left: calculateRem($size);
+}
+
+@mixin line-height($size) {
+    line-height: #{$size}; //Fallback in px
+    line-height: calculateRem($size);
+}
+
+@mixin box-shadow($length-h, $length-v, $blur, $spread, $color, $opacity, $inset: false) {
+    -webkit-box-shadow: if($inset, inset, '') #{$length-h}px #{$length-v}px #{$blur}px #{$spread}px rgba($color, $opacity);
+    -moz-box-shadow: if($inset, inset, '') #{$length-h}px #{$length-v}px #{$blur}px #{$spread}px rgba($color, $opacity);
+    box-shadow: if($inset, inset, '') #{$length-h}px #{$length-v}px #{$blur}px #{$spread}px rgba($color, $opacity);
+    -webkit-box-shadow: if($inset, inset, '') calculateRem($length-h) calculateRem($length-v) calculateRem($blur) calculateRem($spread) rgba($color, $opacity);
+    -moz-box-shadow: if($inset, inset, '') calculateRem($length-h) calculateRem($length-v) calculateRem($blur) calculateRem($spread) rgba($color, $opacity);
+    box-shadow: if($inset, inset, '') calculateRem($length-h) calculateRem($length-v) calculateRem($blur) calculateRem($spread) rgba($color, $opacity);
+}
+
+@mixin text-indent($size) {
+    text-indent: #{$size}px; //Fallback in px
+    text-indent: calculateRem($size);
+}
+
+@mixin phone {
+    @media only screen and (max-width: 767px) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media only screen and (min-width: 768px) and (max-width: 1365px) {
+        @content;
+    }
+}
+
+@mixin laptop {
+    @media only screen and (min-width: 1366px) and (max-width: 1919px) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media only screen and (min-width: 1920px) {
+        @content;
+    }
+}
+
+@mixin phone_tablet {
+    @media only screen and (max-width: 1365px) {
+        @content;
+    }
+}
+
+@mixin tablet_laptop_desktop {
+    @media only screen and (min-width: 768px) {
+        @content;
+    }
+}
+
+@mixin laptop_desktop {
+    @media only screen and (min-width: 1366px) {
+        @content;
+    }
+}
+
+@function as-rgba($color, $opacity: 1) {
+    @return rgba($color, $opacity);
+}

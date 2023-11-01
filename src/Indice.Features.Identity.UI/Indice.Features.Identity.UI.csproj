@@ -3,24 +3,54 @@
     <Nullable>enable</Nullable>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentityUI</PackageTags>
-    <VersionPrefix>$(VersionPrefixIdentityUI)</VersionPrefix>    
+    <VersionPrefix>$(VersionPrefixIdentityUI)</VersionPrefix>
   </PropertyGroup>
   <PropertyGroup>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <StaticWebAssetBasePath>/</StaticWebAssetBasePath>  
+    <StaticWebAssetsDisableProjectBuildPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildPropsFileGeneration>
+    <StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildMultiTargetingPropsFileGeneration>
+    <StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>true</StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>
+    <!--<DisableStaticWebAssetsBuildPropsFileGeneration>true</DisableStaticWebAssetsBuildPropsFileGeneration>-->
+    <ResolveStaticWebAssetsInputsDependsOn>RemoveIdentityDuplicateAssets</ResolveStaticWebAssetsInputsDependsOn>
   </PropertyGroup>
   <ItemGroup>
     <None Include="build\*" Pack="true" PackagePath="build\" />
     <None Include="buildMultiTargeting\*" Pack="true" PackagePath="buildMultiTargeting\" />
     <None Include="buildTransitive\*" Pack="true" PackagePath="buildTransitive\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Remove="package.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="package.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
-    <PackageReference Include="Indice.Features.Identity.UI.Assets" Version="$(VersionPrefixIdentityUI)" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
-    <ProjectReference Include="..\Indice.Features.Identity.UI.Assets\Indice.Features.Identity.UI.Assets.csproj" />
   </ItemGroup>
+
+  <!-- This will load the default asset manifest (inventory) that gets generated on build by default -->
+  <Import Project="./build/Indice.Features.Identity.UI.targets" />
+  
+  <Target Name="NpmInstall" BeforeTargets="DispatchToInnerBuilds">
+    <Exec Command="npm install --force" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js/npm is required to build this project. To continue, please install Node.js from https://nodejs.org/ or Visual Studio Installer, and then restart your command prompt or IDE." />
+  </Target>
+  <Target Name="CopyLibs" BeforeTargets="PreBuildEvent">
+    <Exec Command="npm run gulp -- copy:libs" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+  </Target>
+  <Target Name="Sass" BeforeTargets="PreBuildEvent">
+    <Exec Command="npm run gulp -- sass" EnvironmentVariables="PATH=$(Path.Replace(';', '%3B'))" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+  </Target>
 </Project>

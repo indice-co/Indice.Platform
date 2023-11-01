@@ -1,0 +1,45 @@
+﻿@import 'colors';
+
+body {
+    &.device {
+
+        &.success {
+            .container {
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+
+                @include phone {
+                    box-shadow: none;
+                }
+            }
+        }
+
+
+        .header-logo {
+            width: 140px;
+            height: 70px;
+            display: inline-block;
+            color: transparent;
+        }
+
+        .capture-page {
+            padding: 48px 40px 36px;
+            height: auto;
+            min-height: 500px;
+            transition: .2s;
+            box-shadow: 0 10px 25px rgba(0,0,0,.3);
+            border-radius: 8px;
+            /*background-color: white;*/
+            color: $gray-900;
+            max-width: $standalone-page-width;
+
+            @include phone {
+                padding: 0;
+                border: none;
+                box-shadow: none;
+                background-color: transparent;
+            }
+        }
+    }
+}
