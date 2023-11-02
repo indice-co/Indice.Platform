@@ -20,6 +20,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
         { ResourceOwnerPasswordErrorCodes.InvalidCredentials, "User provided invalid credentials." },
         { ResourceOwnerPasswordErrorCodes.NotFound, "User was not found." },
         { ResourceOwnerPasswordErrorCodes.Blocked, "User is blocked." },
+        { ResourceOwnerPasswordErrorCodes.Traveler, "User's login is suspicious." },
         { ResourceOwnerPasswordErrorCodes.NotMobileClient, "Client is not a mobile device." },
         { ResourceOwnerPasswordErrorCodes.MissingDeviceId, "Device id is missing." },
         { ResourceOwnerPasswordErrorCodes.DeviceNotFound, "Device was not found." }
@@ -164,6 +165,10 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
     /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
         var result = await _signInManager.CheckPasswordSignInAsync(context.User, context.Password, lockoutOnFailure: true);
+        if (result.IsImpossibleTraveler()) {
+            context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.Traveler);
+            return;
+        }
         if (context.User.Blocked) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.Blocked);
             return;
