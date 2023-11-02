@@ -13,18 +13,13 @@
     <StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>true</StaticWebAssetsDisableProjectBuildTransitivePropsFileGeneration>
     <!--<DisableStaticWebAssetsBuildPropsFileGeneration>true</DisableStaticWebAssetsBuildPropsFileGeneration>-->
   </PropertyGroup>
+  
   <ItemGroup>
     <None Include="build\*" Pack="true" PackagePath="build\" />
     <None Include="buildMultiTargeting\*" Pack="true" PackagePath="buildMultiTargeting\" />
     <None Include="buildTransitive\*" Pack="true" PackagePath="buildTransitive\" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Remove="package.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="package.json" />
-  </ItemGroup>
-
+ 
   <ItemGroup>
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
