@@ -1,6 +1,11 @@
 # Indice.Features.GovGr
 
-Gov.gr services integration .Net Library
+Gov.gr services integration .Net Library.
+
+Currently supports:
+- eGov-KYC
+- Gov.gr Wallet
+- Business Registry
 
 ## Prerequisites
 
@@ -14,7 +19,7 @@ PM> Install-Package "Indice.Features.GovGr"
 
 Or, simply, download it [here](https://www.nuget.org/packages/Indice.Features.GovGr/):
 
-### eGov- KYC Settings
+### eGov-KYC
 
 For the eGov-KYC integration (authorization code flow) to work, you will need to follow the steps bellow:
 
@@ -37,6 +42,7 @@ Firstly, you need to have one (or more) OAuth2 Client(s) registered by GSIS. You
         "RedirectUri": "RedirectUriB"
       }
     ]
+  }
 ```
 
 Note: If `Environment` is set to `production` or `staging` you have to use production credentials!
@@ -67,4 +73,33 @@ You can also get the available scopes from ` _govGrClient` (used in the call to 
 
 ```csharp
 var kycScopes = await _govGrClient.Kyc().GetAvailableScopes();
+```
+
+### Gov.gr Wallet
+
+For the Gov.gr Wallet integration to work, you will need to follow the steps bellow:
+
+You have to use the appsettings in the following format:
+
+```
+  "GovGr": {
+    "Wallet": {
+      "Sandbox": true,
+      "Token": "<The service token goes here>"
+    }
+  }
+```
+
+Note: If `Sandbox` is set to `false` you integrate with production services!
+
+Then, simply, inject `GovGrClient _govGrClient` to your code and use it to get user document data:
+
+```csharp
+WalletDocumentReference reference = await _govGrClient.Wallet().RequestIdentificationAsync(idNumber);
+```
+
+Once, you get the reference/declaration Id and receive the OTP:
+
+```csharp
+DocumentData data = await _govGrClient.Wallet().GetIdentificationAsync(declarationId, otp, includePdf);
 ```
