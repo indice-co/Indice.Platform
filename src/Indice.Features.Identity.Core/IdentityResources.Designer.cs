@@ -133,6 +133,24 @@ namespace Indice.Features.Identity.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Suspicious login attempt OTP code is {0}..
+        /// </summary>
+        internal static string ImpossibleTravelOtpMessage {
+            get {
+                return ResourceManager.GetString("ImpossibleTravelOtpMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Suspicious login attempt from a new location..
+        /// </summary>
+        internal static string ImpossibleTravelOtpSubject {
+            get {
+                return ResourceManager.GetString("ImpossibleTravelOtpSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to User must have at least 1 device..
         /// </summary>
         internal static string InsufficientNumberOfDevices {

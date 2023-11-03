@@ -73,4 +73,8 @@ public class IdentityMessageDescriber
     public virtual string TrustedDeviceRequiresOtpMessage(UserDevice device) => IdentityResources.TrustedDeviceRequiresOtpMessage;
     /// <summary>Message content for an invalid phone number format.</summary>
     public virtual string InvalidPhoneNumber() => IdentityResources.InvalidPhoneNumber;
+    /// <summary>Message content for suspicious login attempt (Impossible Travel).</summary>
+    public virtual string ImpossibleTravelOtpMessage() => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpMessage, "{0}");
+    /// <summary>Subject content for suspicious login attempt (Impossible Travel).</summary>
+    public virtual string ImpossibleTravelOtpSubject => string.Format(IdentityResources.Culture, IdentityResources.ImpossibleTravelOtpSubject);
 }

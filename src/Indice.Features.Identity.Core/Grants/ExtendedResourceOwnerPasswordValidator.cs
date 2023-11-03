@@ -1,7 +1,10 @@
-﻿using IdentityServer4.Models;
+﻿using System.Text;
+using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
+using Indice.Features.Identity.Core.Totp;
+using Indice.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.Core.Grants;
@@ -147,16 +150,23 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
 {
     private readonly ExtendedUserManager<TUser> _userManager;
     private readonly ExtendedSignInManager<TUser> _signInManager;
+    private readonly TotpServiceFactory _totpServiceFactory;
+    private readonly IdentityMessageDescriber _identityMessageDescriber;
 
     /// <summary>Creates a new instance of <see cref="IdentityResourceOwnerPasswordValidator{TUser}"/>.</summary>
     /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
+    /// <param name="totpServiceFactory">Used to generate, send and verify time based one time passwords.</param>
+    /// <param name="identityMessageDescriber">Provides an extensibility point for altering localizing used inside the package.</param>
     public IdentityResourceOwnerPasswordValidator(
         ExtendedUserManager<TUser> userManager,
-        ExtendedSignInManager<TUser> signInManager
-    ) {
+        ExtendedSignInManager<TUser> signInManager,
+        TotpServiceFactory totpServiceFactory, 
+        IdentityMessageDescriber identityMessageDescriber) {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+        _totpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
+        _identityMessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
     }
 
     /// <inheritdoc />
@@ -165,10 +175,6 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
     /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
         var result = await _signInManager.CheckPasswordSignInAsync(context.User, context.Password, lockoutOnFailure: true);
-        if (result.IsImpossibleTraveler()) {
-            context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.Traveler);
-            return;
-        }
         if (context.User.Blocked) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.Blocked);
             return;
@@ -179,6 +185,11 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
         }
         if (result.IsLockedOut) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.LockedOut);
+            return;
+        }
+        if (result.IsImpossibleTraveler()) {
+            // in this case, and otp has been sent, or an error has occurred
+            await SendOrValidateImpossibleOtp(context);
             return;
         }
         if (!result.Succeeded) {
@@ -192,6 +203,67 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
         }
         var subject = await _userManager.GetUserIdAsync(context.User);
         context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
+    }
+
+    private async Task SendOrValidateImpossibleOtp(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
+        var rawRequest = context.Request.Raw;
+        var requestId = rawRequest.Get("requestId") ?? Guid.NewGuid().ToString();
+        var totpService = _totpServiceFactory.Create<User>();
+
+        if (rawRequest.Get("grant_type") is not { } grantType ||
+            rawRequest.Get("username") is not { } username ||
+            rawRequest.Get("password") is not { } password ||
+            rawRequest.Get("client_id") is not { } clientId ||
+            rawRequest.Get("deviceId") is not { } deviceId ||
+            rawRequest.Get("scope") is not { } scope
+        ) {
+            context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant);
+            return;
+        }
+
+        var purpose = new StringBuilder();
+        purpose.Append($"{grantType}:");
+        purpose.Append($"{username}:");
+        purpose.Append($"{password}:");
+        purpose.Append($"{clientId}:");
+        purpose.Append($"{deviceId}:");
+        purpose.Append($"{scope}:");
+        purpose.Append($"{requestId}");
+
+        var otp = rawRequest.Get("otp");
+        if (string.IsNullOrEmpty(otp)) {
+            // User tried to log in, and impossible travel has been detected
+            var providedChannel = rawRequest.Get("channel");
+            var channel = TotpDeliveryChannel.Sms;
+            if (!string.IsNullOrWhiteSpace(providedChannel)) {
+                if (Enum.TryParse<TotpDeliveryChannel>(providedChannel, ignoreCase: true, out var parsedChannel)) {
+                    channel = parsedChannel;
+                } else {
+                    context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Invalid delivery channel.");
+                    return;
+                }
+            }
+            await totpService.SendAsync(totp =>
+                totp.ToUser(context.User)
+                    .WithMessage(_identityMessageDescriber.ImpossibleTravelOtpMessage())
+                    .UsingDeliveryChannel(channel)
+                    .WithSubject(_identityMessageDescriber.ImpossibleTravelOtpSubject)
+                    .WithPurpose(purpose.ToString())
+            );
+            context.Result = new GrantValidationResult(
+                error: TokenRequestErrors.InvalidGrant,
+                errorDescription: ResourceOwnerPasswordErrorCodes.Traveler,
+                customResponse: new Dictionary<string, object> {{ "requestId", requestId  }
+            });
+            return;
+        }
+        // User will verify the otp to invalidate the impossible travel
+        if (await totpService.VerifyAsync(context.User, otp, purpose.ToString()) is { Success: false }) {
+            context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "OTP verification code could not be validated.");
+            return;
+        }
+        // return token to user
+        context.Result = new GrantValidationResult(context.User.Id, IdentityModel.OidcConstants.AuthenticationMethods.Password);
     }
 }
 
