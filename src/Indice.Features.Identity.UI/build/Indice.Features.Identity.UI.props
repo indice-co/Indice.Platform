@@ -1,6 +1,6 @@
 <Project>
   <!-- This will load the default asset manifest (inventory) that gets generated on build by default -->
-  <Import Project="Microsoft.AspNetCore.StaticWebAssets.props" />
+  <Import Project="Microsoft.AspNetCore.StaticWebAssets.props" Condition="Exists('Microsoft.AspNetCore.StaticWebAssets.props')" />
 
   <PropertyGroup>
     <!-- This declares the IdentityUIFrameworkVersion csproj parameter and defaults to bootstrap5 if not found -->

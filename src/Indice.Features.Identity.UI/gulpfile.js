@@ -44,11 +44,13 @@ gulp.task('clean:lib', function (cb) {
     });
 });
 
-gulp.task('copy:libs', function () {
-    return gulp.src(npmDist(), {
-        base: './node_modules'
-    })
-    .pipe(gulp.dest(lib));
+gulp.task('copy:libs', async function () {
+    // result should not be empty, otherwise the task will crash
+    if (npmDist().length === 0) {
+        return;
+    }
+    return gulp.src(npmDist(), { base: './node_modules' })
+               .pipe(gulp.dest(lib));
 });
 
 /* tailwind specific */
