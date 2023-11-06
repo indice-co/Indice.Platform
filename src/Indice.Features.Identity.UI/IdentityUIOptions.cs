@@ -63,6 +63,10 @@ public class IdentityUIOptions
     public bool OverrideDefaultStaticFileMiddleware { get; set; } = true;
     /// <summary>Stores the calling code along with the phone number.</summary>
     public bool EnablePhoneNumberCallingCodes { get; set; } = false;
+    /// <summary>
+    /// Used with <see cref="Indice.Globalization.PhoneNumber"/> instances to convert to predictable string for storage.
+    /// </summary>
+    public string PhoneNumberStoreFormat => EnablePhoneNumberCallingCodes ? "D" : "N";
 
     /// <summary>Services shown in the homepage.</summary>
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
