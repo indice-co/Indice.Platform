@@ -161,7 +161,7 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
     public IdentityResourceOwnerPasswordValidator(
         ExtendedUserManager<TUser> userManager,
         ExtendedSignInManager<TUser> signInManager,
-        TotpServiceFactory totpServiceFactory, 
+        TotpServiceFactory totpServiceFactory,
         IdentityMessageDescriber identityMessageDescriber) {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
@@ -196,8 +196,8 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.InvalidCredentials);
             return;
         }
-        //For Users with 2FA enabled AccessFailedCounter is only reset after successful sign in with the 2nd Factor.
-        //We need to override the default logic for mobile login.
+        // For Users with 2FA enabled AccessFailedCounter is only reset after successful sign in with the 2nd Factor.
+        // We need to override the default logic for mobile login.
         if (context.User.AccessFailedCount > 0) {
             await _userManager.ResetAccessFailedCountAsync(context.User);
         }
@@ -209,30 +209,26 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
         var rawRequest = context.Request.Raw;
         var requestId = rawRequest.Get("requestId") ?? Guid.NewGuid().ToString();
         var totpService = _totpServiceFactory.Create<User>();
-
         if (rawRequest.Get("grant_type") is not { } grantType ||
             rawRequest.Get("username") is not { } username ||
             rawRequest.Get("password") is not { } password ||
             rawRequest.Get("client_id") is not { } clientId ||
-            rawRequest.Get("deviceId") is not { } deviceId ||
             rawRequest.Get("scope") is not { } scope
         ) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant);
             return;
         }
-
-        var purpose = new StringBuilder();
-        purpose.Append($"{grantType}:");
-        purpose.Append($"{username}:");
-        purpose.Append($"{password}:");
-        purpose.Append($"{clientId}:");
-        purpose.Append($"{deviceId}:");
-        purpose.Append($"{scope}:");
-        purpose.Append($"{requestId}");
-
+        var purpose = new StringBuilder()
+            .Append($"{grantType}:")
+            .Append($"{username}:")
+            .Append($"{password}:")
+            .Append($"{clientId}:")
+            .Append($"{rawRequest.Get("deviceId")}:")
+            .Append($"{scope}:")
+            .Append($"{requestId}");
         var otp = rawRequest.Get("otp");
         if (string.IsNullOrEmpty(otp)) {
-            // User tried to log in, and impossible travel has been detected
+            // User tried to log in, and impossible travel has been detected.
             var providedChannel = rawRequest.Get("channel");
             var channel = TotpDeliveryChannel.Sms;
             if (!string.IsNullOrWhiteSpace(providedChannel)) {
@@ -257,26 +253,26 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
             });
             return;
         }
-        // User will verify the otp to invalidate the impossible travel
+        // User will verify the otp to invalidate the impossible travel.
         if (await totpService.VerifyAsync(context.User, otp, purpose.ToString()) is { Success: false }) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "OTP verification code could not be validated.");
             return;
         }
-        // return token to user
+        // Return token to user.
         context.Result = new GrantValidationResult(context.User.Id, IdentityModel.OidcConstants.AuthenticationMethods.Password);
     }
 }
 
 internal class ResourceOwnerPasswordErrorCodes
 {
-    // user specific
+    // User specific error codes.
     public const string LockedOut = "104";
     public const string NotAllowed = "105";
     public const string InvalidCredentials = "106";
     public const string NotFound = "107";
     public const string Blocked = "108";
     public const string Traveler = "109";
-    // client specific
+    // Client specific error codes.
     public const string NotMobileClient = "204";
     public const string MissingDeviceId = "205";
     public const string DeviceNotFound = "206";
