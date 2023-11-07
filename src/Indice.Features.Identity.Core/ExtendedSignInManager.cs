@@ -287,6 +287,11 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return attempt;
         }
         var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
+        if (result.Warning is SignInWarning.ImpossibleTravel) {
+            return _signInGuard.ImpossibleTravelDetector.FlowType == ImpossibleTravelFlowType.PromptMfa
+                ? new ExtendedSignInResult(UserState.IsImpossibleTraveler)
+                : SignInResult.NotAllowed;
+        }
         await _eventService.Publish(UserPasswordLoginEvent.Success(user, result.Warning));
         if (ExpireBlacklistedPasswordsOnSignIn) {
             var blacklistPasswordValidator = ExtendedUserManager.PasswordValidators.OfType<NonCommonPasswordValidator<TUser>>().FirstOrDefault();
@@ -518,12 +523,13 @@ public class ExtendedSignInResult : SignInResult
         bool requiresEmailVerification,
         bool requiresPhoneNumberVerification,
         bool requiresPasswordChange,
-        bool requiresMfaOnboarding
-    ) {
+        bool requiresMfaOnboarding, 
+        bool isImpossibleTraveler) {
         RequiresEmailVerification = requiresEmailVerification;
         RequiresPhoneNumberVerification = requiresPhoneNumberVerification;
         RequiresPasswordChange = requiresPasswordChange;
         RequiresMfaOnboarding = requiresMfaOnboarding;
+        IsImpossibleTraveler = isImpossibleTraveler;
     }
 
     /// <summary>Construct an instance of <see cref="ExtendedSignInResult"/> based on <see cref="UserState"/>.</summary>
@@ -531,8 +537,8 @@ public class ExtendedSignInResult : SignInResult
         state == UserState.RequiresEmailVerification,
         state == UserState.RequiresPhoneNumberVerification,
         state == UserState.RequiresPasswordChange,
-        state == UserState.RequiresMfaOnboarding
-    ) {
+        state == UserState.RequiresMfaOnboarding,
+        state == UserState.IsImpossibleTraveler) {
         Succeeded = state == UserState.LoggedIn;
     }
 
@@ -565,6 +571,8 @@ public static class ExtendedSignInManagerExtensions
     public static bool RequiresPasswordChange(this SignInResult result) => result is ExtendedSignInResult { RequiresPasswordChange: true };
     /// <summary>Returns a flag indication whether the user should on-board to MFA.</summary>
     public static bool RequiresMfaOnboarding(this SignInResult result) => result is ExtendedSignInResult { RequiresMfaOnboarding: true };
+    /// <summary>Returns a flag indication whether the user is an impossible traveler.</summary>
+    public static bool IsImpossibleTraveler(this SignInResult result) => result is ExtendedSignInResult { IsImpossibleTraveler: true };
 }
 
 internal sealed class TwoFactorAuthenticationInfo

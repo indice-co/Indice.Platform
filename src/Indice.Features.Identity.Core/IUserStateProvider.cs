@@ -56,7 +56,9 @@ public enum UserState
     /// <summary>Requires MFA.</summary>
     RequiresMfa,
     /// <summary>MFA on-boarding.</summary>
-    RequiresMfaOnboarding
+    RequiresMfaOnboarding,
+    /// <summary>Is impossible traveler.</summary>
+    IsImpossibleTraveler
 }
 
 /// <summary>Describes the action taken by the principal that changes the state.</summary>
