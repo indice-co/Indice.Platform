@@ -131,7 +131,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             options.SetupTables();
             options.EnableTokenCleanup = true;
             options.TokenCleanupInterval = (int)TimeSpan.FromHours(1).TotalSeconds;
-            options.TokenCleanupBatchSize = 250;
+            options.TokenCleanupBatchSize = 1000;
             options.ConfigureDbContext = configurePersistedGrantDbContext ??= dbBuilder => dbBuilder.UseSqlServer(configuration.GetConnectionString("OperationalDb"));
         })
         .AddJwtBearerClientAuthentication()

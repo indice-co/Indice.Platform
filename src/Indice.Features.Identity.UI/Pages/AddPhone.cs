@@ -59,7 +59,7 @@ public abstract class BaseAddPhoneModel : BasePageModel
             Message = _localizer["Please select your phone number so we can verify it before we continue."],
             AlertType = AlertType.Info
         });
-        _ = PhoneNumber.TryParse(user.PhoneNumber, out var phone);
+        _ = PhoneNumber.TryParse(user.PhoneNumber!, out var phone);
         Input.PhoneNumber = phone.Number;
         Input.CallingCode = phone.CallingCode;
         Input.ReturnUrl = returnUrl;
@@ -72,17 +72,17 @@ public abstract class BaseAddPhoneModel : BasePageModel
         if (!ModelState.IsValid) {
             return Page();
         }
-        if (!PhoneNumber.TryParse(Input.PhoneNumberWithCallingCode, out var phone)) {
+        if (!PhoneNumber.TryParse(Input.PhoneNumberWithCallingCode!, out var phone)) {
             ModelState.AddModelError(nameof(Input.PhoneNumber), "Phone number is not valid.");
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.SetPhoneNumberAsync(user, IdentityUiOptions.EnablePhoneNumberCallingCodes ? phone : phone.Number);
+        var result = await UserManager.SetPhoneNumberAsync(user, phone.ToString(IdentityUiOptions.PhoneNumberStoreFormat));
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();
         }
-        await SendVerificationSmsAsync(user, phone);
+        await SendVerificationSmsAsync(user, phone.ToString(IdentityUiOptions.PhoneNumberStoreFormat));
         return RedirectToPage("/VerifyPhone", new { returnUrl });
     }
 }

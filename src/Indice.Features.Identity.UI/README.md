@@ -17,8 +17,9 @@ ResolveStaticWebAssetsInputs
 GetCurrentProjectStaticWebAssets
 
 This helped alot as well as debuggin the MSBuild logs using this tool here
-https://msbuildlog.com/
-https://stackoverflow.com/questions/72107400/msbuild-project-get-item-list-from-another-project-and-print-foreach
+- Debug MSBuild logs https://msbuildlog.com/
+- [MSBuild cheat sheet](https://gist.github.com/dotMorten/7db5cc3ae4ab72db784df0793b45d6ac)
+- [MSBuild print list of included items](https://stackoverflow.com/questions/72107400/msbuild-project-get-item-list-from-another-project-and-print-foreach)
 ```xml
   <PropertyGroup>
     <ResolveStaticWebAssetsInputsDependsOn>RemoveIdentityAssets</ResolveStaticWebAssetsInputsDependsOn>
