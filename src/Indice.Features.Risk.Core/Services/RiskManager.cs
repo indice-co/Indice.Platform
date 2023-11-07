@@ -9,19 +9,23 @@ namespace Indice.Features.Risk.Core.Services;
 public class RiskManager
 {
     private readonly IRiskEventStore _riskEventStore;
+    private readonly IRiskResultStore _riskResultStore;
 
     /// <summary>Creates a new instance of <see cref="RiskManager"/>.</summary>
     /// <param name="rules">Collection of rules registered in the engine.</param>
     /// <param name="riskEngineOptions">Options used to configure the core risk engine.</param>
     /// <param name="riskEventStore"></param>
+    /// <param name="riskResultStore"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public RiskManager(
         IEnumerable<RiskRule> rules,
         IOptions<RiskEngineOptions> riskEngineOptions,
-        IRiskEventStore riskEventStore
+        IRiskEventStore riskEventStore,
+        IRiskResultStore riskResultStore
     ) {
         Rules = rules ?? throw new ArgumentNullException(nameof(rules));
         _riskEventStore = riskEventStore ?? throw new ArgumentNullException(nameof(riskEventStore));
+        _riskResultStore = riskResultStore ?? throw new ArgumentNullException(nameof(riskResultStore));
         RiskEngineOptions = riskEngineOptions.Value ?? throw new ArgumentNullException(nameof(riskEngineOptions));
     }
 
@@ -34,6 +38,11 @@ public class RiskManager
     /// <param name="event">The event occurred and needs to be persisted.</param>
     public Task CreateRiskEventAsync(RiskEvent @event) =>
         _riskEventStore.CreateAsync(@event);
+
+    /// <summary>Creates a new risk result in the store.</summary>
+    /// <param name="riskResult">The calculated risk result needs to be persisted.</param>
+    public Task CreateRiskResultAsync(RiskResult riskResult) =>
+        _riskResultStore.CreateAsync(riskResult);
 
     /// <summary>Gets the list of events using the specified criteria.</summary>
     /// <param name="subjectId">The subject id.</param>

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Indice.Configuration;
-using Indice.Features.Risk.Server.Models;
+using Indice.Features.Risk.Core.Models;
 
 namespace Indice.Features.Risk.Server.Validators;
 

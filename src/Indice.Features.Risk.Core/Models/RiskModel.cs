@@ -1,6 +1,6 @@
 ﻿using Indice.Features.Risk.Core.Data.Models;
 
-namespace Indice.Features.Risk.Server.Models;
+namespace Indice.Features.Risk.Core.Models;
 
 /// <summary></summary>
 public class RiskModel

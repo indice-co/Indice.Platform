@@ -1,4 +1,6 @@
 ﻿using Indice.Features.Risk.Core.Configuration;
+using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Models;
 
 namespace Indice.Features.Risk.Core;
 
@@ -17,6 +19,19 @@ public class AggregateRuleExecutionResult
     public int NumberOfRulesExecuted { get; }
     /// <summary>The result of each individual rule run by the engine.</summary>
     public IEnumerable<RuleExecutionResult> Results { get; } = new List<RuleExecutionResult>();
+
+    /// <summary>Converts a <see cref="AggregateRuleExecutionResult"/> to a <see cref="RiskResult"/></summary>
+    /// <param name="riskModel"></param>
+    public RiskResult ToRiskResult(RiskModel riskModel) => new() {
+        TransactionId = TransactionId,
+        IpAddress = riskModel.IpAddress,
+        SubjectId = riskModel.SubjectId,
+        Name = riskModel.Name,
+        Type = riskModel.Type,
+        Data = riskModel.Data,
+        NumberOfRulesExecuted = NumberOfRulesExecuted,
+        Results = Results
+    };
 }
 
 /// <summary>Models an event of a transaction.</summary>
