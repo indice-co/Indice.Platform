@@ -12,7 +12,7 @@ internal class RiskResultStoreEntityFrameworkCore : IRiskResultStore
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task CreateAsync(RiskResult riskResult) {
+    public async Task CreateAsync(DbAggregateRuleExecutionResult riskResult) {
         _dbContext.RiskResults.Add(riskResult);
         await _dbContext.SaveChangesAsync();
     }

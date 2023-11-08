@@ -41,7 +41,7 @@ public class RiskManager
 
     /// <summary>Creates a new risk result in the store.</summary>
     /// <param name="riskResult">The calculated risk result needs to be persisted.</param>
-    public Task CreateRiskResultAsync(RiskResult riskResult) =>
+    public Task CreateRiskResultAsync(DbAggregateRuleExecutionResult riskResult) =>
         _riskResultStore.CreateAsync(riskResult);
 
     /// <summary>Gets the list of events using the specified criteria.</summary>

@@ -7,5 +7,5 @@ public interface IRiskResultStore
 {
     /// <summary>Persists a new risk result in the store.</summary>
     /// <param name="riskResult">The calculated risk result.</param>
-    Task CreateAsync(RiskResult riskResult);
+    Task CreateAsync(DbAggregateRuleExecutionResult riskResult);
 }
