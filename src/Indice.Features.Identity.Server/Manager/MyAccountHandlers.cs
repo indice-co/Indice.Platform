@@ -308,7 +308,7 @@ internal static class MyAccountHandlers
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedConfigurationDbContext configurationDbContext,
         ClaimsPrincipal currentUser,
-        IEnumerable<CreateClaimRequest> claims
+        List<CreateClaimRequest> claims
     ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
@@ -351,7 +351,7 @@ internal static class MyAccountHandlers
         ExtendedIdentityDbContext<User, Role> dbContext,
         ExtendedConfigurationDbContext configurationDbContext,
         ClaimsPrincipal currentUser,
-        IEnumerable<CreateClaimRequest> claims
+        List<CreateClaimRequest> claims
     ) {
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
