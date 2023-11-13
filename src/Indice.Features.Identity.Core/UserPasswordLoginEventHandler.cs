@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Core;
 
-internal sealed class UserPasswordLoginEventHandler : IPlatformEventHandler<UserPasswordLoginEvent>
+public sealed class UserPasswordLoginEventHandler : IPlatformEventHandler<UserPasswordLoginEvent>
 {
     private readonly IEventService _eventService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IClientStore _clientStore;
 
-    /// <summary>Creates a new instance of <see cref="UserLoginEventHandler"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="UserPasswordLoginEventHandler"/>.</summary>
     /// <param name="eventService">Interface for the event service.</param>
     /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
     /// <param name="clientStore">Retrieval of client configuration.</param>
