@@ -56,6 +56,7 @@ public class RiskEngineBuilder
     public void AddEntityFrameworkCoreStore(Action<DbContextOptionsBuilder> dbContextOptionsBuilderAction) {
         _services.AddDbContext<RiskDbContext>(dbContextOptionsBuilderAction);
         _services.AddTransient<IRiskEventStore, RiskEventStoreEntityFrameworkCore>();
+        _services.AddTransient<IRiskResultStore, RiskResultStoreEntityFrameworkCore>();
     }
 
     private void CheckAndAddRuleName(string ruleName) {

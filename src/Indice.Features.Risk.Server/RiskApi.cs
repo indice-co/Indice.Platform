@@ -1,5 +1,5 @@
-﻿using Indice.Features.Risk.Server;
-using Indice.Features.Risk.Server.Models;
+﻿using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Server;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
