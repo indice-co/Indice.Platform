@@ -32,7 +32,6 @@ public static class RiskApi
 
         // POST: /api/risk/events
         group.MapPost("risk/events", RiskApiHandlers.CreateRiskEvent)
-
              .WithName(nameof(RiskApiHandlers.CreateRiskEvent))
              .WithSummary("Records a risk event in the store.")
              .Produces(StatusCodes.Status201Created);

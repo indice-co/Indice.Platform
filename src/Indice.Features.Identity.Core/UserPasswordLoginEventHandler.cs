@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Core;
 
+/// <summary>An event that is raised when a user has a successful password login.</summary>
 public sealed class UserPasswordLoginEventHandler : IPlatformEventHandler<UserPasswordLoginEvent>
 {
     private readonly IEventService _eventService;
@@ -27,6 +28,7 @@ public sealed class UserPasswordLoginEventHandler : IPlatformEventHandler<UserPa
         _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
     }
 
+    /// <inheritdoc />
     public async Task Handle(UserPasswordLoginEvent @event, PlatformEventArgs args) {
         if (@event.Succeeded) {
             var clientId = _httpContextAccessor?.HttpContext?.GetClientIdFromReturnUrl();

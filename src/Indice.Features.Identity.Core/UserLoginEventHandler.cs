@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Core;
 
+/// <summary>An event that is raised when a user is fully logged in into the identity system.</summary>
 public sealed class UserLoginEventHandler : IPlatformEventHandler<UserLoginEvent>
 {
     private readonly IEventService _eventService;
@@ -27,6 +28,7 @@ public sealed class UserLoginEventHandler : IPlatformEventHandler<UserLoginEvent
         _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
     }
 
+    /// <inheritdoc />
     public async Task Handle(UserLoginEvent @event, PlatformEventArgs args) {
         if (@event.Succeeded) {
             var clientId = _httpContextAccessor?.HttpContext?.GetClientIdFromReturnUrl();
