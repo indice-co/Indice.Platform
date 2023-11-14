@@ -201,7 +201,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                                          },
                                          Metadata = c.Metadata,
                                          Message = reasonMessage,
-                                         Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(c.CaseType.Translations)
+                                         Translations = TranslationDictionary<MyCasePartialTranslation>.FromJson(c.CaseType.Translations),
+                                         Data = options.Filter.IncludeData ? c.Data.Data : null
                                      };
         // sorting option
         if (string.IsNullOrEmpty(options.Sort)) {

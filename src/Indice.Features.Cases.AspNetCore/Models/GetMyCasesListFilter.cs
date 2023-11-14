@@ -30,4 +30,6 @@ public class GetMyCasesListFilter
     public bool? IncludeDrafts { get; set; }
     /// <summary>The reference number filter.</summary>
     public IEnumerable<int> ReferenceNumbers { get; set; }
+    /// <summary>Determines whether case data should be included in result.</summary>
+    public bool IncludeData { get; set; }
 }
