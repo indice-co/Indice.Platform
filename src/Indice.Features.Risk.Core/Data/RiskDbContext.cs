@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Risk.Core.Data;
 
-/// <summary>A <see cref="DbContext"/> for persisting events and it's related data.</summary>
+/// <summary>A <see cref="DbContext"/> for persisting events and their related data.</summary>
 public class RiskDbContext : DbContext
 {
     /// <summary>Creates a new instance of <see cref="RiskDbContext"/> class.</summary>
@@ -34,6 +34,7 @@ public class RiskDbContext : DbContext
         modelBuilder.Entity<RiskEvent>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
         modelBuilder.Entity<RiskEvent>().Property(x => x.Type).HasMaxLength(TextSizePresets.M256).IsRequired();
         modelBuilder.Entity<RiskEvent>().Property(x => x.Data).HasJsonConversion();
+        modelBuilder.Entity<RiskEvent>().Property(x => x.SourceId).HasMaxLength(TextSizePresets.M256);
 
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().ToTable("RiskResult");
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasKey(x => x.TransactionId);
