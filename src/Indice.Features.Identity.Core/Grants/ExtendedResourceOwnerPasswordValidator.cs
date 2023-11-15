@@ -125,7 +125,6 @@ public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwner
 
     /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
-        var client = context.Request.Client;
         var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];
         var subject = await _userManager.GetUserIdAsync(context.User);
         if (string.IsNullOrWhiteSpace(deviceId)) {
@@ -249,7 +248,7 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
             context.Result = new GrantValidationResult(
                 error: TokenRequestErrors.InvalidGrant,
                 errorDescription: ResourceOwnerPasswordErrorCodes.Traveler,
-                customResponse: new Dictionary<string, object> {{ "requestId", requestId  }
+                customResponse: new Dictionary<string, object> {{ "requestId", requestId }
             });
             return;
         }
