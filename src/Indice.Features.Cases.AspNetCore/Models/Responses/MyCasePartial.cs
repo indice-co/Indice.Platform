@@ -34,6 +34,9 @@ public class MyCasePartial
     /// <summary>Translations.</summary>
     public TranslationDictionary<MyCasePartialTranslation> Translations { get; set; }
 
+    /// <summary>The json data of the case.</summary>
+    public dynamic Data { get; set; }
+
     #region Methods
 
     /// <summary>Translate helper</summary>
