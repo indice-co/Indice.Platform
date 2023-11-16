@@ -5,12 +5,14 @@ namespace Indice.Features.Cases.Extensions;
 
 internal static class PrincipalExtensions
 {
+    public static string Scope { get; set; } = CasesApiConstants.Scope;
+
     /// <summary>
     /// Return a system user to be used in scenarios with no HttpContext.
     /// </summary>
     public static ClaimsPrincipal SystemUser() {
         var claims = new List<Claim> {
-                new Claim(BasicClaimTypes.Scope, CasesApiConstants.Scope),
+                new Claim(BasicClaimTypes.Scope, Scope),
                 new Claim(BasicClaimTypes.Subject, "Case API"),
                 new Claim(BasicClaimTypes.Email, "Case API"),
                 new Claim(BasicClaimTypes.GivenName, "Case API"),
@@ -27,7 +29,7 @@ internal static class PrincipalExtensions
     /// <param name="user">The claims principal.</param>
     /// <returns></returns>
     public static string FindSubjectIdOrClientId(this ClaimsPrincipal user) =>
-        string.IsNullOrWhiteSpace(user.FindSubjectId()) ? 
+        string.IsNullOrWhiteSpace(user.FindSubjectId()) ?
             user.FindFirstValue(BasicClaimTypes.ClientId) :
             user.FindSubjectId();
 }
