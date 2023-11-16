@@ -5,4 +5,25 @@
       <StaticWebAsset Remove="@(StaticWebAsset)" Condition="%(SourceId) == 'Indice.Features.Identity.UI' And Exists($([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)/wwwroot%(StaticWebAsset.BasePath)%(StaticWebAsset.RelativePath))))" />
     </ItemGroup>
   </Target>
+  <Target Name="IdentityUIEnableScssTheming" BeforeTargets="PreBuildEvent">
+    <ItemGroup>
+      <IdentityThemeScssImportFile Include="$(MSBuildProjectDirectory)\wwwroot\css\$(IdentityUIScssImportsFileName).scss" />
+      <_IdentityThemeScssImport Include="$(MSBuildThisFileDirectory)..\$(IdentityUIScssImports)"
+                                Exclude="$(MSBuildThisFileDirectory)..\**\bin\**\*.scss" />
+      <_IdentityThemeScssImportLines Include="@(_IdentityThemeScssImport)">
+        <_Path>$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)\wwwroot\css\', '%(Identity)')))</_Path>
+        <_CssRootIndex>$([System.String]::new('%(Identity)').IndexOf('css'))</_CssRootIndex>
+        <Path>$([System.String]::new('%(_IdentityThemeScssImportLines._Path)').Replace('\', '/'))</Path>
+        <Id>$([System.String]::new('%(Identity)').Substring(%(_IdentityThemeScssImportLines._CssRootIndex)).Replace('\', '/'))</Id>
+        <Import>%40import '%(_IdentityThemeScssImportLines.Path)'%3B</Import>
+      </_IdentityThemeScssImportLines>
+      <IdentityThemeScssImportLines Include="@(_IdentityThemeScssImportLines)" />
+    </ItemGroup>
+    <!-- Generate config file here -->
+    <WriteLinesToFile File="@(IdentityThemeScssImportFile)" Lines="@(IdentityThemeScssImportLines->'%(Import)')" Condition="$(IdentityUIEnableScssTheming) == 'true'" Overwrite="true" />
+    <!-- Append to FileWrites so the file will be removed on clean -->
+    <ItemGroup>
+      <FileWrites Include="@(IdentityThemeScssImportFile)"/>
+    </ItemGroup>
+  </Target>
 </Project>
