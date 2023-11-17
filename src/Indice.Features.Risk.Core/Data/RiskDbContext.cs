@@ -1,4 +1,5 @@
 ﻿using Indice.Configuration;
+using Indice.EntityFrameworkCore;
 using Indice.Features.Risk.Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -46,5 +47,6 @@ public class RiskDbContext : DbContext
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Data).HasJsonConversion();
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.NumberOfRulesExecuted);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Results).HasJsonConversion();
+        modelBuilder.ApplyJsonFunctions();
     }
 }
