@@ -31,7 +31,7 @@ public class CustomGrantTypes
     /// <summary>Trusted device authorization.</summary>
     public const string DeviceAuthentication = "device_authentication";
     /// <summary>OTP authenticate.</summary>
-    public const string OtpAuthenticate = "otp_authenticate";
+    public const string Mfa = "mfa";
 }
 
 /// <summary>Contains constants for client property keys.</summary>

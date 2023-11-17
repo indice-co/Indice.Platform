@@ -26,7 +26,7 @@ public static class DevicesFeatureExtensions
             x.DefaultTotpDeliveryChannel = options.DefaultTotpDeliveryChannel;
         });
         services.AddPushNotificationServiceNoop();
-        services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+        services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
         builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
         services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssemblyContaining<DevicesFeatureProvider>();

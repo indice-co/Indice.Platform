@@ -27,7 +27,7 @@ public class TotpServiceTests
             });
         });
         builder.ConfigureServices(services => {
-            services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+            services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
             services.AddTransient<IUserStateProvider<User>, UserStateProviderNoop>();
             services.AddTotpServiceFactory(configuration)

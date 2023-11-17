@@ -31,7 +31,7 @@ public static class DeviceAuthenticationConfiguration
         builder.RegisterEndpoints();
         // Register stores and services.
         builder.Services.AddTransient<IDeviceAuthenticationCodeChallengeStore, DefaultDeviceAuthenticationCodeChallengeStore>();
-        builder.Services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+        builder.Services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
         builder.Services.TryAddScoped<IdentityMessageDescriber>();
         options.AddUserDeviceStoreInMemory();
         // Register custom grant validator.

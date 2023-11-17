@@ -164,7 +164,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return SignInResult.Failed;
         }
         if (_stateProvider.ShouldSignInPartially()) {
-            return await DoPartialSignInAsync(user, new string[] { "pwd" });
+            return await DoPartialSignInAsync(user, ["pwd"]);
         }
         var mfaImplicitlyPassed = false;
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {

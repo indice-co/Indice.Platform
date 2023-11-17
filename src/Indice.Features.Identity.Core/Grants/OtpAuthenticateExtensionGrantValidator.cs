@@ -4,7 +4,6 @@ using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
-using Indice.Security;
 using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 
@@ -36,7 +35,7 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
     }
 
     /// <inheritdoc />
-    public string GrantType => CustomGrantTypes.OtpAuthenticate;
+    public string GrantType => CustomGrantTypes.Mfa;
 
     /// <inheritdoc />
     public async Task ValidateAsync(ExtensionGrantValidationContext context) {
@@ -68,10 +67,9 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
         /* 5. Check if an OTP is provided in the request. */
         var purpose = $"{TotpConstants.TokenGenerationPurpose.SessionOtp}:{user.Id}";
         var otp = rawRequest.Get("otp");
-        var principal = Principal.Create("OtpAuthenticatedUser", new List<Claim> {
+        var principal = Principal.Create("OtpAuthenticatedUser", [
             new Claim(JwtClaimTypes.Subject, subject)
-        }
-        .ToArray());
+        ]);
         /* 5.1 If an OTP is not provided, then we must send one to the user's confirmed phone number. */
         var totpService = _totpServiceFactory.Create<User>();
         if (string.IsNullOrWhiteSpace(otp)) {
@@ -107,7 +105,7 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
         }
         /* If OTP verification code is valid add the same claims that were present in the token and a new one to mark that OTP verification has been successfully completed. */
         var claims = tokenValidationResult.Claims.ToList();
-        claims.Add(new Claim(BasicClaimTypes.OtpAuthenticated, "true", ClaimValueTypes.Boolean));
+        //claims.Add(new Claim(JwtClaimTypes.AuthenticationMethod, "mfa", ClaimValueTypes.String));
         context.Result = new GrantValidationResult(subject, GrantType, claims);
     }
 }

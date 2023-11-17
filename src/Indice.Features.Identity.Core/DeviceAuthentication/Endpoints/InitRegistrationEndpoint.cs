@@ -11,6 +11,7 @@ using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.DeviceAuthentication.Endpoints.Results;
+using Indice.Features.Identity.Core.DeviceAuthentication.Extensions;
 using Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
@@ -100,9 +101,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
         if (string.IsNullOrWhiteSpace(phoneNumberClaim?.Value) || phoneNumberVerifiedClaim == null || (bool.TryParse(phoneNumberVerifiedClaim.Value, out var phoneNumberVerified) && !phoneNumberVerified)) {
             return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "User does not have a phone number or the phone number is not verified.");
         }
-        var otpAuthenticatedValue = profileClaims.FirstOrDefault(x => x.Type == BasicClaimTypes.OtpAuthenticated)?.Value;
-        var otpAuthenticated = !string.IsNullOrWhiteSpace(otpAuthenticatedValue) && bool.Parse(otpAuthenticatedValue);
-        if (!otpAuthenticated) {
+        if (!profileClaims.MfaPassed()) {
             // Send OTP code.
             var totpResult = await TotpServiceFactory.Create<User>().SendAsync(totp => totp
                 .ToPrincipal(requestValidationResult.Principal)

@@ -7,6 +7,7 @@ using IdentityServer4.Validation;
 using Indice.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
+using Indice.Features.Identity.Core.DeviceAuthentication.Extensions;
 using Indice.Features.Identity.Core.DeviceAuthentication.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.Totp;
@@ -81,9 +82,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         if (authorizationCode.InteractionMode == InteractionMode.Pin) {
             parametersToValidate.Add(RegistrationRequestParameters.Pin);
         }
-        var otpAuthenticatedValue = tokenValidationResult.Claims.FirstOrDefault(x => x.Type == BasicClaimTypes.OtpAuthenticated)?.Value;
-        var otpAuthenticated = !string.IsNullOrWhiteSpace(otpAuthenticatedValue) && bool.Parse(otpAuthenticatedValue);
-        if (!otpAuthenticated) {
+        if (!tokenValidationResult.Claims.MfaPassed()) {
             parametersToValidate.Add(RegistrationRequestParameters.OtpCode);
         }
         foreach (var parameter in parametersToValidate) {
@@ -131,7 +130,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
             return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "User does not exists.");
         }
         // Validate OTP code, if needed.
-        if (!otpAuthenticated) {
+        if (!tokenValidationResult.Claims.MfaPassed()) {
             var totpResult = await TotpServiceFactory.Create<User>().VerifyAsync(user, parameters.Get(RegistrationRequestParameters.OtpCode), Constants.DeviceAuthenticationOtpPurpose(userId, authorizationCode.DeviceId));
             if (!totpResult.Success) {
                 return Error(totpResult.Error);

@@ -87,7 +87,7 @@ public static class MessageFeatureExtensions
         // Register framework services.
         services.AddHttpContextAccessor();
         // Register events.
-        services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+        services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
         services.TryAddTransient<IContactService, ContactService>();
         services.TryAddTransient<ITemplateService, TemplateService>();
         services.TryAddTransient<ICampaignAttachmentService, CampaignAttachmentService>();

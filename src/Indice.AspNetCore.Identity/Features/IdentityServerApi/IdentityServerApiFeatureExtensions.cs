@@ -45,7 +45,7 @@ public static class IdentityServerApiFeatureExtensions
         // Invoke action provided by developer to override default options.
         services.AddSingleton(apiEndpointsOptions);
         services.AddGeneralSettings(configuration);
-        services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+        services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
         services.TryAddScoped<IClientThemingService<DefaultClientThemeConfig>, ClientThemingService<DefaultClientThemeConfig>>();
         // Register validation filters.
         services.AddScoped<CreateClaimTypeRequestValidationFilter>();

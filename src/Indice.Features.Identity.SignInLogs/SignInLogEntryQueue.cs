@@ -7,7 +7,6 @@ namespace Indice.Features.Identity.SignInLogs;
 internal class SignInLogEntryQueue
 {
     private readonly Channel<SignInLogEntry> _queue;
-    public ChannelReader<SignInLogEntry> Reader => _queue.Reader;
 
     public SignInLogEntryQueue(IOptions<SignInLogOptions> signInLogOptions) =>
         _queue = Channel.CreateBounded<SignInLogEntry>(new BoundedChannelOptions(signInLogOptions.Value.QueueChannelCapacity) {
@@ -16,6 +15,8 @@ internal class SignInLogEntryQueue
             SingleWriter = false,
             FullMode = BoundedChannelFullMode.Wait
         });
+
+    public ChannelReader<SignInLogEntry> Reader => _queue.Reader;
 
     public ValueTask EnqueueAsync(SignInLogEntry logEntry) => _queue.Writer.WriteAsync(logEntry);
 }
