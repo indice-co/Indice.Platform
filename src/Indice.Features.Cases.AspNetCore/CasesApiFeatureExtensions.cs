@@ -10,6 +10,7 @@ using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.Features.Cases.Converters;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Events;
+using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Factories;
 using Indice.Features.Cases.Handlers;
 using Indice.Features.Cases.Interfaces;
@@ -128,6 +129,7 @@ public static class CasesApiFeatureExtensions
             options.ConfigureDbContext = casesApiOptions.ConfigureDbContext;
             options.DatabaseSchema = casesApiOptions.DatabaseSchema;
             options.ExpectedScope = casesApiOptions.ExpectedScope;
+            PrincipalExtensions.Scope = casesApiOptions.ExpectedScope;
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;

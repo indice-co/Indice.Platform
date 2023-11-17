@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [7.7.1] - 2023-11-17
+### Added
+- `IncludeData` to MyCases endpoint to provide the client with case data. 
+### Bugfix
+- `SystemUser` now correctly gets the scope as initialized from `AdminCaseApiOptions`
+
+## [7.7.0] - 2023-11-01
 ### Changed
 - Elsa update from `2.11.0` to `2.13.0`
 ### Added

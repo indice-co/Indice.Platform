@@ -66,7 +66,7 @@ public class IdentityUIOptions
     /// <summary>
     /// Used with <see cref="Indice.Globalization.PhoneNumber"/> instances to convert to predictable string for storage.
     /// </summary>
-    public string PhoneNumberStoreFormat => EnablePhoneNumberCallingCodes ? "D" : "N";
+    public string PhoneNumberStoreFormat => EnablePhoneNumberCallingCodes ? "G" : "N";
 
     /// <summary>Services shown in the homepage.</summary>
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {

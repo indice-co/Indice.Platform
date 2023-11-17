@@ -7,6 +7,10 @@
     <IdentityUIFrameworkVersion Condition="'$(IdentityUIFrameworkVersion)' == ''">Bootstrap5</IdentityUIFrameworkVersion>
     <!-- Triggerrs the Remove Identity assets target on the Host project -->
     <ResolveStaticWebAssetsInputsDependsOn>RemoveIdentityDuplicateAssets</ResolveStaticWebAssetsInputsDependsOn>
+    <!-- Scss Theming Variables -->
+    <IdentityUIEnableScssTheming Condition="'$(IdentityUIEnableScssTheming)' == ''">false</IdentityUIEnableScssTheming>
+    <IdentityUIScssImports Condition="'$(IdentityUIScssImports)' == ''">**/css/_*.scss</IdentityUIScssImports>
+    <IdentityUIScssImportsFileName Condition="'$(IdentityUIScssImportsFileName)' == ''">_imports</IdentityUIScssImportsFileName>
   </PropertyGroup>
   <!-- This will enable the auto inclusion of the Assembly Attribute on the Host project based on the IdentityUIFrameworkVersion csproj parameter -->
   <ItemGroup>
