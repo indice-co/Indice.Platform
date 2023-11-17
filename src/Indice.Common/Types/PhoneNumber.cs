@@ -78,7 +78,13 @@ public partial struct PhoneNumber : IFormattable
                 throw new FormatException($"The phoneNumber supplied was identified as an unknown international number '{internationalNumber}'");
             }
             callingCode = country.CallingCodeDefault.ToString();
-            return new PhoneNumber(callingCode, country.TwoLetterCode, internationalNumber.TrimStart('+', '0').Substring(callingCode.Length));
+            return new PhoneNumber(callingCode, country.TwoLetterCode, internationalNumber
+                                                                        .TrimStart('+', '0')
+                                                                        .Substring(callingCode.Length)
+                                                                        .Replace("-", "")
+                                                                        .Replace("(", "")
+                                                                        .Replace(")", "")
+                                                                        .Replace(" ", ""));
         }
         // check for Unidentified phone
         if (match.Groups["UnidentifiedNumber"].Success) {
