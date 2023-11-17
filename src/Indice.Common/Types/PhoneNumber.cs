@@ -7,7 +7,8 @@ namespace Indice.Globalization;
 /// <summary>Encapsulates an International number format</summary>
 public partial struct PhoneNumber : IFormattable
 {
-    private const string RegexPatternString = @"(\+(?<CallingCode>\d+(-\d+)?) (?<Number>[\d() -]{5,15}))|(?<GreekNumber>69\d{8})";
+    private const string RegexPatternString = @"(\+(?<CallingCode>\d+(-\d+)?) (?<Number>[\d() -]{5,15}))|(?<GreekNumber>69\d{8})|(?<GreekNumber>69\d{8})|(?<GreekNumberLand>2\d{9})|(?<InternationalNumber>((00)|\+)?\s?\d{11,15})||(?<UnidentifiedNumber>\d{5,10})";
+                                                                                                                                                                                                        //^\+[0-9]{1,3}\.[0-9]{4,14}(?:x.+)?$
     private const char PlusSign = '+';
     private static readonly Regex _Pattern = PhoneNumberFormat();
 
@@ -62,9 +63,31 @@ public partial struct PhoneNumber : IFormattable
         if (match.Groups["GreekNumber"].Success) {
             return new PhoneNumber("30", "GR", match.Groups["GreekNumber"].Value);
         }
-        var callingCode = match.Groups["CallingCode"].Value;
-        var number = match.Groups["Number"].Value;
-        if (!CountryInfo.TryGetCountryByCallingCode(callingCode, out var country)) {
+        // check for greek land phone
+        if (match.Groups["GreekNumberLand"].Success) {
+            return new PhoneNumber("30", "GR", match.Groups["GreekNumberLand"].Value);
+        }
+        string callingCode;
+        string number;
+        CountryInfo? country;
+        // check for international phone with double zero start
+        if (match.Groups["InternationalNumber"].Success) {
+            var internationalNumber = match.Groups["InternationalNumber"].Value;
+            country = CountryInfo.FindCountriesByPhoneNumber(internationalNumber).FirstOrDefault();
+            if (country is null) {
+                throw new FormatException($"The phoneNumber supplied was identified as an unknown international number '{internationalNumber}'");
+            }
+            callingCode = country.CallingCodeDefault.ToString();
+            return new PhoneNumber(callingCode, country.TwoLetterCode, internationalNumber.TrimStart('+', '0').Substring(callingCode.Length));
+        }
+        // check for Unidentified phone
+        if (match.Groups["UnidentifiedNumber"].Success) {
+            var unknown = match.Groups["UnidentifiedNumber"].Value;
+            throw new FormatException($"The phoneNumber supplied was identified as an unknown number '{unknown}'");
+        }
+        callingCode = match.Groups["CallingCode"].Value;
+        number = match.Groups["Number"].Value;
+        if (!CountryInfo.TryGetCountryByCallingCode(callingCode, out country)) {
             throw new FormatException($"The phoneNumber supplied has a calling code that is not corralate to a known country. Code '{callingCode}'");
         }
         return new PhoneNumber(callingCode, country.TwoLetterCode, number.Replace("-", "")

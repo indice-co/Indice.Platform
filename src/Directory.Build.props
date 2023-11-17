@@ -2,10 +2,10 @@
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net6.0;net7.0;</TargetFrameworks>
-      <VersionPrefixBase>7.7</VersionPrefixBase>
+      <VersionPrefixBase>7.8</VersionPrefixBase>
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).2</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).5</VersionPrefixIdentityUI>
+      <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).0</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
