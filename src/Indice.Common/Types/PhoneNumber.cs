@@ -1,10 +1,11 @@
 ﻿#nullable enable
-using System.Globalization;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace Indice.Globalization;
 
 /// <summary>Encapsulates an International number format</summary>
+[DebuggerDisplay("{ToString()} ({TwoLetterCountryCode})")]
 public partial struct PhoneNumber : IFormattable
 {
     private const string RegexPatternString = @"(\+(?<CallingCode>\d+(-\d+)?) (?<Number>[\d() -]{5,15}))|(?<GreekNumber>69\d{8})|(?<GreekNumber>69\d{8})|(?<GreekNumberLand>2\d{9})|(?<InternationalNumber>((00)|\+)?\s?\d{11,15})||(?<UnidentifiedNumber>\d{5,10})";
