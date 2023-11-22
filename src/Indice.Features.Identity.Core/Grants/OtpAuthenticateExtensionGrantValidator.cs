@@ -105,7 +105,6 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
         }
         /* If OTP verification code is valid add the same claims that were present in the token and a new one to mark that OTP verification has been successfully completed. */
         var claims = tokenValidationResult.Claims.ToList();
-        //claims.Add(new Claim(JwtClaimTypes.AuthenticationMethod, "mfa", ClaimValueTypes.String));
         context.Result = new GrantValidationResult(subject, GrantType, claims);
     }
 }

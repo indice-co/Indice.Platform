@@ -1,13 +1,14 @@
 ﻿using Humanizer;
 using IdentityModel;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Security;
 
 namespace Indice.Features.Identity.Core.Data;
 
 /// <summary>Provides functionality to generate test claim types for development purposes.</summary>
 internal class InitialClaimTypes
 {
-    private static readonly List<ClaimType> ClaimTypes = new() {
+    private static readonly List<ClaimType> ClaimTypes = [
         new ClaimType { Id = $"{Guid.NewGuid()}", Name = JwtClaimTypes.BirthDate, DisplayName = nameof(JwtClaimTypes.BirthDate).Humanize(), Reserved = true, Required = false, UserEditable = true, ValueType = ClaimValueType.DateTime, Description = "End-User's birthday, represented as an ISO 8601:2004 [ISO8601‑2004] YYYY-MM-DD format." },
         new ClaimType { Id = $"{Guid.NewGuid()}", Name = JwtClaimTypes.Email, DisplayName = nameof(JwtClaimTypes.Email).Humanize(), Reserved = true, Required = false, UserEditable = false, ValueType = ClaimValueType.String, Description = "End-User's preferred e-mail address." },
         new ClaimType { Id = $"{Guid.NewGuid()}", Name = JwtClaimTypes.EmailVerified, DisplayName = nameof(JwtClaimTypes.EmailVerified).Humanize(), Reserved = true, Required = false, UserEditable = false, ValueType = ClaimValueType.Boolean, Description = "'true' if the End-User's e-mail address has been verified; otherwise 'false'." },
@@ -27,7 +28,7 @@ internal class InitialClaimTypes
         new ClaimType { Id = $"{Guid.NewGuid()}", Name = JwtClaimTypes.WebSite, DisplayName = nameof(JwtClaimTypes.WebSite).Humanize(), Reserved = true, Required = false, UserEditable = true, ValueType = ClaimValueType.String, Description = "URL of the End-User's Web page or blog." },
         new ClaimType { Id = $"{Guid.NewGuid()}", Name = JwtClaimTypes.ZoneInfo, DisplayName = nameof(JwtClaimTypes.ZoneInfo).Humanize(), Reserved = true, Required = false, UserEditable = true, ValueType = ClaimValueType.String, Description = "String from the time zone database (http://www.twinsun.com/tz/tz-link.htm) representing the End-User's time zone. For example, Europe/Paris or America/Los_Angeles." },
         new ClaimType { Id = $"{Guid.NewGuid()}", Name = JwtClaimTypes.Locale, DisplayName = nameof(JwtClaimTypes.Locale).Humanize(), Reserved = true, Required = false, UserEditable = true, ValueType = ClaimValueType.String, Description = "End-User's locale, represented as a BCP47 [RFC5646] language tag. This is typically an ISO 639-1 Alpha-2 [ISO639‑1] language code in lowercase and an ISO 3166-1 Alpha-2 [ISO3166‑1] country code in uppercase, separated by a dash. For example, en-US or fr-CA. As a compatibility note, some implementations have used an underscore as the separator rather than a dash, for example, en_US; Relying Parties MAY choose to accept this locale syntax as well." }
-    };
+    ];
 
     /// <summary>Gets a collection of test claim types.</summary>
     public static IReadOnlyCollection<ClaimType> Get() => ClaimTypes;

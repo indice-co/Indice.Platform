@@ -94,14 +94,15 @@ internal class InitRegistrationEndpoint : IEndpointHandler
         var profileDataRequestContext = new ProfileDataRequestContext(requestValidationResult.Principal, requestValidationResult.Client, IdentityServerConstants.ProfileDataCallers.UserInfoEndpoint, requestedClaimTypes) {
             RequestedResources = validatedResources
         };
-        await ProfileService.GetProfileDataAsync(profileDataRequestContext);
-        var profileClaims = profileDataRequestContext.IssuedClaims;
-        var phoneNumberClaim = profileClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.PhoneNumber);
-        var phoneNumberVerifiedClaim = profileClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.PhoneNumberVerified);
-        if (string.IsNullOrWhiteSpace(phoneNumberClaim?.Value) || phoneNumberVerifiedClaim == null || (bool.TryParse(phoneNumberVerifiedClaim.Value, out var phoneNumberVerified) && !phoneNumberVerified)) {
+        var phoneNumberClaim = profileDataRequestContext.Subject.FindFirst(JwtClaimTypes.PhoneNumber);
+        var phoneNumberVerifiedClaim = profileDataRequestContext.Subject.FindFirst(JwtClaimTypes.PhoneNumberVerified);
+        if (string.IsNullOrWhiteSpace(phoneNumberClaim?.Value) 
+         || phoneNumberVerifiedClaim == null 
+         || (bool.TryParse(phoneNumberVerifiedClaim.Value, out var phoneNumberVerified) && !phoneNumberVerified)) {
             return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "User does not have a phone number or the phone number is not verified.");
         }
-        if (!profileClaims.MfaPassed()) {
+        var amrClaim = profileDataRequestContext.Subject.FindFirst(JwtClaimTypes.AuthenticationMethod);
+        if (amrClaim is not null && amrClaim.Value != CustomGrantTypes.Mfa) {
             // Send OTP code.
             var totpResult = await TotpServiceFactory.Create<User>().SendAsync(totp => totp
                 .ToPrincipal(requestValidationResult.Principal)

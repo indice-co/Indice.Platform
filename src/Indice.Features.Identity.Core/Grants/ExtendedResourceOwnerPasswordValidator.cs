@@ -1,9 +1,12 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
+using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.Totp;
+using Indice.Security;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
 
@@ -66,7 +69,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
         }
         if (!isError) {
             var subject = await _userManager.GetUserIdAsync(user);
-            context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
+            context.Result = extendedContext.Result;
         }
     }
 
@@ -126,9 +129,8 @@ public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwner
     /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
         var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];
-        var subject = await _userManager.GetUserIdAsync(context.User);
         if (string.IsNullOrWhiteSpace(deviceId)) {
-            context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
+            context.Result = context.Result;
             return;
         }
         var device = await _userManager.GetDeviceByIdAsync(context.User, deviceId);
@@ -139,7 +141,7 @@ public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwner
             device.LastSignInDate = DateTimeOffset.UtcNow;
             await _userManager.UpdateDeviceAsync(context.User, device);
         }
-        context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
+        context.Result = context.Result;
     }
 }
 
@@ -201,7 +203,7 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
             await _userManager.ResetAccessFailedCountAsync(context.User);
         }
         var subject = await _userManager.GetUserIdAsync(context.User);
-        context.Result = new GrantValidationResult(subject, IdentityModel.OidcConstants.AuthenticationMethods.Password);
+        context.Result = new GrantValidationResult(subject, OidcConstants.AuthenticationMethods.Password);
     }
 
     private async Task SendOrValidateImpossibleOtp(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
@@ -258,7 +260,7 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
             return;
         }
         // Return token to user.
-        context.Result = new GrantValidationResult(context.User.Id, IdentityModel.OidcConstants.AuthenticationMethods.Password);
+        context.Result = new GrantValidationResult(context.User.Id, CustomGrantTypes.Mfa);
     }
 }
 

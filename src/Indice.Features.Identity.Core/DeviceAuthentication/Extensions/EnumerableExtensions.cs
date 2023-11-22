@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using IdentityModel;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Extensions;
 
@@ -7,6 +8,6 @@ public static class EnumerableExtensions
 {
     /// <summary>Indicates whether MFA has been passed.</summary>
     /// <param name="claims">The list of claims.</param>
-    public static bool MfaPassed(this IEnumerable<Claim> claims) => 
-        !string.IsNullOrWhiteSpace(claims.FirstOrDefault(x => x.Type == CustomGrantTypes.Mfa)?.Value);
+    public static bool MfaPassed(this IEnumerable<Claim> claims) =>
+        claims.Any(x => x.Type == JwtClaimTypes.AuthenticationMethod && x.Value == CustomGrantTypes.Mfa);
 }

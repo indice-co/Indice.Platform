@@ -195,10 +195,10 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         }
         var signInManager = _serviceProvider.GetRequiredService<ExtendedSignInManager<TUser>>();
         if (StateProvider.ShouldSignInForExtendedValidation()) {
-            await signInManager.DoPartialSignInAsync(user, new string[] { "pwd" });
+            await signInManager.DoPartialSignInAsync(user, ["pwd"]);
         }
         if (StateProvider.CurrentState == UserState.LoggedIn) {
-            await signInManager.SignInWithClaimsAsync(user, false, new List<Claim> { new Claim(JwtClaimTypes.AuthenticationMethod, "pwd") });
+            await signInManager.SignInWithClaimsAsync(user, false, new List<Claim> { new(JwtClaimTypes.AuthenticationMethod, "pwd") });
         }
         return result;
     }

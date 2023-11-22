@@ -21,13 +21,8 @@ public class ExtendedProfileService<TInner> : IProfileService where TInner : IPr
     }
 
     /// <inheritdoc />
-    public async Task GetProfileDataAsync(ProfileDataRequestContext context) {
+    public async Task GetProfileDataAsync(ProfileDataRequestContext context) => 
         await _inner.GetProfileDataAsync(context);
-        var otpVerifiedClaim = context.Subject.FindFirst(JwtClaimTypes.AuthenticationMethod);
-        if (otpVerifiedClaim is not null) {
-            context.IssuedClaims.Add(otpVerifiedClaim);
-        }
-    }
 
     /// <inheritdoc />
     public async Task IsActiveAsync(IsActiveContext context) {
