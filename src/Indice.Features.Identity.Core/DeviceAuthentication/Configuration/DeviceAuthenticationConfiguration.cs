@@ -27,6 +27,9 @@ public static class DeviceAuthenticationConfiguration
             Configuration = configuration
         };
         configureAction?.Invoke(options);
+        builder.Services.Configure<DeviceAuthenticationOptions>(x => {
+            x.AlwaysSendOtp = options.AlwaysSendOtp;
+        });
         // Register endpoints.
         builder.RegisterEndpoints();
         // Register stores and services.

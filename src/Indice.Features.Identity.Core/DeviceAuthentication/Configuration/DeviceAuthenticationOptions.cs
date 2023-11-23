@@ -7,4 +7,6 @@ public class DeviceAuthenticationOptions
 {
     internal IServiceCollection Services { get; set; }
     internal IConfiguration Configuration { get; set; }
+    /// <summary>Determines whether an OTP code is always sent as part of initiation and completion process of biometric login.</summary>
+    public bool AlwaysSendOtp { get; set; }
 }

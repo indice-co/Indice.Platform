@@ -1,12 +1,10 @@
-﻿using System.Security.Claims;
-using System.Text;
+﻿using System.Text;
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.Totp;
-using Indice.Security;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
 

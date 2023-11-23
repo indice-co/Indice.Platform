@@ -11,14 +11,14 @@ using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.DeviceAuthentication.Endpoints.Results;
-using Indice.Features.Identity.Core.DeviceAuthentication.Extensions;
 using Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 using Indice.Features.Identity.Core.Totp;
-using Indice.Security;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Endpoints;
 
@@ -33,7 +33,8 @@ internal class InitRegistrationEndpoint : IEndpointHandler
         IResourceStore resourceStore,
         TotpServiceFactory totpServiceFactory,
         IUserDeviceStore userDeviceStore,
-        IdentityMessageDescriber identityMessageDescriber
+        IdentityMessageDescriber identityMessageDescriber,
+        IOptions<DeviceAuthenticationOptions> deviceAuthenticationOptions
     ) {
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         ProfileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
@@ -44,6 +45,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
         TotpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
         UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
         IdentityMessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
+        DeviceAuthenticationOptions = deviceAuthenticationOptions?.Value ?? throw new ArgumentNullException(nameof(deviceAuthenticationOptions));
     }
 
     public BearerTokenUsageValidator Token { get; }
@@ -55,6 +57,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
     public TotpServiceFactory TotpServiceFactory { get; }
     public IUserDeviceStore UserDeviceStore { get; }
     public IdentityMessageDescriber IdentityMessageDescriber { get; }
+    public DeviceAuthenticationOptions DeviceAuthenticationOptions { get; }
 
     public async Task<IEndpointResult> ProcessAsync(HttpContext httpContext) {
         Logger.LogInformation($"[{nameof(InitRegistrationEndpoint)}] Started processing trusted device registration initiation endpoint.");
@@ -96,13 +99,14 @@ internal class InitRegistrationEndpoint : IEndpointHandler
         };
         var phoneNumberClaim = profileDataRequestContext.Subject.FindFirst(JwtClaimTypes.PhoneNumber);
         var phoneNumberVerifiedClaim = profileDataRequestContext.Subject.FindFirst(JwtClaimTypes.PhoneNumberVerified);
-        if (string.IsNullOrWhiteSpace(phoneNumberClaim?.Value) 
-         || phoneNumberVerifiedClaim == null 
+        if (string.IsNullOrWhiteSpace(phoneNumberClaim?.Value)
+         || phoneNumberVerifiedClaim == null
          || (bool.TryParse(phoneNumberVerifiedClaim.Value, out var phoneNumberVerified) && !phoneNumberVerified)) {
             return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "User does not have a phone number or the phone number is not verified.");
         }
         var amrClaim = profileDataRequestContext.Subject.FindFirst(JwtClaimTypes.AuthenticationMethod);
-        if (amrClaim is not null && amrClaim.Value != CustomGrantTypes.Mfa) {
+        var mfaPassed = amrClaim is not null && amrClaim.Value == CustomGrantTypes.Mfa;
+        if (DeviceAuthenticationOptions.AlwaysSendOtp || !mfaPassed) {
             // Send OTP code.
             var totpResult = await TotpServiceFactory.Create<User>().SendAsync(totp => totp
                 .ToPrincipal(requestValidationResult.Principal)
