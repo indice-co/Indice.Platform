@@ -3,9 +3,10 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AspNetIdentity;SignInLogs;</PackageTags>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-beta-01" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
     <PackageReference Include="Open.ChannelExtensions" Version="6.2.2" />
   </ItemGroup>

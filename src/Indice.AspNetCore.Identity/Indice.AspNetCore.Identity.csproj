@@ -3,12 +3,13 @@
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Bogus" Version="34.0.2" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefixCore)" />
-    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-beta-01" />
     <PackageReference Include="Microsoft.FeatureManagement.AspNetCore" Version="3.0.0-preview" />
     <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>

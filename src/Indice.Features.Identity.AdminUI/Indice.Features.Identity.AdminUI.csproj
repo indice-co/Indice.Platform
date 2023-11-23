@@ -8,6 +8,7 @@
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
     <!--<Version>7.0.0-beta01</Version>-->
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

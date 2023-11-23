@@ -6,6 +6,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <TargetFrameworks></TargetFrameworks>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
+    <VersionSuffix>beta-01</VersionSuffix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -13,8 +14,8 @@
   <ItemGroup>
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
     <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefixCore)" />
-    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />
-    <PackageReference Include="Indice.Features.Identity.SignInLogs" Version="$(VersionPrefixIdentity)" />
+    <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)-beta-01" />
+    <PackageReference Include="Indice.Features.Identity.SignInLogs" Version="$(VersionPrefixIdentity)-beta-01" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
