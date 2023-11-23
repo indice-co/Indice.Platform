@@ -12,6 +12,8 @@
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
     <ProjectReference Include="..\Indice.Hosting\Indice.Hosting.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">

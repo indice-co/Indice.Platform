@@ -3,15 +3,14 @@
     <Nullable>enable</Nullable>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;MediaLibrary;MinimalApis</PackageTags>
-    <TargetFramework>net7.0</TargetFramework>
-    <TargetFrameworks></TargetFrameworks>
+    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
     <VersionPrefix>$(VersionPrefixMedia)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="6.1.0" />
+    <PackageReference Include="IdentityModel" Version="6.2.0" />
     <PackageReference Include="Indice.AspNetCore" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
   </ItemGroup>
@@ -19,6 +18,11 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.9" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore\Indice.AspNetCore.csproj" />

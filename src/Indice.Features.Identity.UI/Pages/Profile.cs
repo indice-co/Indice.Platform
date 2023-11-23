@@ -115,7 +115,7 @@ public abstract class BaseProfileModel : BasePageModel
             result = await UserManager.SetUserNameAsync(user, Input.UserName);
             AddModelErrors(result);
         }
-        _ = PhoneNumber.TryParse(Input.PhoneNumberWithCallingCode, out var phoneNumber);
+        _ = PhoneNumber.TryParse(Input!.PhoneNumberWithCallingCode!, out var phoneNumber);
         user.PhoneNumber = IdentityUIOptions.EnablePhoneNumberCallingCodes ? phoneNumber : phoneNumber.Number;
         result = await UserManager.UpdateAsync(user);
         AddModelErrors(result);
@@ -187,7 +187,7 @@ public abstract class BaseProfileModel : BasePageModel
         if (consentDateText != null && DateTime.TryParse(consentDateText, out date)) {
             consentDate = date;
         }
-        _ = PhoneNumber.TryParse(user.PhoneNumber, out var phoneNumber);
+        _ = PhoneNumber.TryParse(user.PhoneNumber!, out var phoneNumber);
         return new ProfileViewModel {
             BirthDate = birthDate,
             CanRemoveProvider = await UserManager.HasPasswordAsync(user) || currentLogins.Count > 1,

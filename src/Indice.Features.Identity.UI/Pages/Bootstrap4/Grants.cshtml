@@ -11,11 +11,11 @@
 <section class="page-grants m-auto">
     <div class="page-header">
         <vc:page-heading title="@title" image-src="" />
-        <p indice-if="Model.View.Grants.Any()" class="text-muted">
+        <p indice-if="Model.View.Grants!.Any()" class="text-muted">
             @Localizer["Below is the list of applications you have given access to and the names of the resources they have access to."]
         </p>
     </div>
-    @if (!Model.View.Grants.Any())
+    @if (!Model.View.Grants!.Any())
     {
         <div class="alert alert-dark text-center">
             @Localizer["You have not provided access to any applications"]
@@ -23,7 +23,7 @@
     }
     else
     {
-        foreach (var grant in Model.View.Grants)
+        foreach (var grant in Model.View.Grants!)
         {
             <div class="card grant-card mb-3 mx-auto" style="max-width: 540px;">
                 <div class="row no-gutters justify-content-center">

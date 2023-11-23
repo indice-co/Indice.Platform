@@ -32,7 +32,7 @@ public static class RequireOtpFilterExtensions
     public static TBuilder RequireOtp<TBuilder>(this TBuilder builder, Action<RequireOtpPolicy>? configureAction = null) where TBuilder : IEndpointConventionBuilder {
         builder.Add(endpointBuilder => {
             // We can respond with problem details if there's a validation error.
-            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), StatusCodes.Status400BadRequest, "application/problem+json"));
+            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(StatusCodes.Status400BadRequest, typeof(HttpValidationProblemDetails), ["application/problem+json"]));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async (invocationContext) => {
                     var httpContext = invocationContext.HttpContext;
