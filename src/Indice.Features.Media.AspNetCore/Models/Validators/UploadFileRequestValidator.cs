@@ -10,7 +10,7 @@ public class UploadFileRequestValidator : AbstractValidator<UploadFileRequest>
     /// <summary>Updates a new instance of <see cref="UploadFileRequestValidator"/>.</summary>
     public UploadFileRequestValidator(IMediaFolderStore folderStore) {
         RuleFor(folder => folder.FolderId)
-            .MustAsync(async (id, token) => await folderStore.GetById(id.Value) is not null)
+            .MustAsync(async (id, token) => await folderStore.GetById(id!.Value) is not null)
             .When(folder => folder.FolderId is not null)
             .WithMessage("Parent should be an existing folder.");
     }

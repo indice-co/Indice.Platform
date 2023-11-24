@@ -2,6 +2,7 @@
 using Indice.Extensions;
 using Indice.Features.Messages.Core.Models;
 using Indice.Security;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Net.Http.Headers;
@@ -27,7 +28,7 @@ internal class XlsxCampaignStatisticsOutputFormatter : OutputFormatter
         var contentDisposition = new ContentDispositionHeaderValue("attachment");
         _utcNow = DateTime.UtcNow;
         contentDisposition.SetHttpFileName($"{data.Title.ToLower()}_{_utcNow:yyyyMMddHHmm}.xlsx");
-        response.Headers.Add(HeaderNames.ContentDisposition, contentDisposition.ToString());
+        response.Headers.Append(HeaderNames.ContentDisposition, contentDisposition.ToString());
     }
 
     public async override Task WriteResponseBodyAsync(OutputFormatterWriteContext context) {

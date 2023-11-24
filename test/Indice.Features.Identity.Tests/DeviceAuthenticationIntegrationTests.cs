@@ -218,79 +218,19 @@ public class DeviceAuthenticationIntegrationTests
         Assert.IsType<Guid>(responseDto.RegistrationId);
     }
 
-    [Fact]
-    public async Task<TrustedDeviceCompleteRegistrationResultDto> Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint() {
-        var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
-        var codeVerifier = GenerateCodeVerifier();
-        var deviceId = Guid.NewGuid().ToString();
-        var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
-        var response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
-        var responseJson = await response.Content.ReadAsStringAsync();
-        if (!response.IsSuccessStatusCode) {
-            _output.WriteLine(responseJson);
-        }
-        var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-        Assert.True(response.IsSuccessStatusCode);
-        Assert.IsType<Guid>(responseDto.RegistrationId);
-        codeVerifier = GenerateCodeVerifier();
-        challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
-        response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
-        responseJson = await response.Content.ReadAsStringAsync();
-        if (!response.IsSuccessStatusCode) {
-            _output.WriteLine(responseJson);
-        }
-        responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-        Assert.True(response.IsSuccessStatusCode);
-        Assert.IsType<Guid>(responseDto.RegistrationId);
-        responseDto.DeviceId = deviceId;
-        return responseDto;
-    }
+
 
     [Fact]
-    public async Task<string> Can_Register_New_Device_Using_Pin() {
-        var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
-        var codeVerifier = GenerateCodeVerifier();
-        var deviceId = Guid.NewGuid().ToString();
-        var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
-        var response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
-        if (!response.IsSuccessStatusCode) {
-            var responseJson = await response.Content.ReadAsStringAsync();
-            _output.WriteLine(responseJson);
-        }
-        Assert.True(response.IsSuccessStatusCode);
-        return deviceId;
-    }
+    public Task Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint_Test() => 
+        Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint();
+    
+    [Fact]
+    public Task Can_Register_New_Device_Using_Pin_Test() => 
+        Can_Register_New_Device_Using_Pin();
 
     [Fact]
-    public async Task<TrustedDeviceCompleteRegistrationResultDto> Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin() {
-        var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
-        var codeVerifier = GenerateCodeVerifier();
-        var deviceId = Guid.NewGuid().ToString();
-        var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
-        var response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
-        var responseJson = await response.Content.ReadAsStringAsync();
-        if (!response.IsSuccessStatusCode) {
-            _output.WriteLine(responseJson);
-        }
-        var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-        Assert.True(response.IsSuccessStatusCode);
-        Assert.IsType<Guid>(responseDto.RegistrationId);
-        var pinRegistrationId = responseDto.RegistrationId;
-        codeVerifier = GenerateCodeVerifier();
-        challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
-        response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
-        responseJson = await response.Content.ReadAsStringAsync();
-        if (!response.IsSuccessStatusCode) {
-            _output.WriteLine(responseJson);
-        }
-        responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
-        Assert.True(response.IsSuccessStatusCode);
-        Assert.IsType<Guid>(responseDto.RegistrationId);
-        var fingerprintRegistrationId = responseDto.RegistrationId;
-        Assert.Equal(pinRegistrationId, fingerprintRegistrationId);
-        responseDto.DeviceId = deviceId;
-        return responseDto;
-    }
+    public Task Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin_Test() => 
+        Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin();
 
     [Fact]
     public async Task Can_Authenticate_Existing_Device_Using_Fingerprint() {
@@ -430,6 +370,79 @@ public class DeviceAuthenticationIntegrationTests
     #endregion
 
     #region Helper Methods
+
+
+    private async Task<TrustedDeviceCompleteRegistrationResultDto> Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint() {
+        var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var codeVerifier = GenerateCodeVerifier();
+        var deviceId = Guid.NewGuid().ToString();
+        var challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
+        }
+        var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.IsType<Guid>(responseDto.RegistrationId);
+        codeVerifier = GenerateCodeVerifier();
+        challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
+        response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
+        responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
+        }
+        responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.IsType<Guid>(responseDto.RegistrationId);
+        responseDto.DeviceId = deviceId;
+        return responseDto;
+    }
+
+    private async Task<string> Can_Register_New_Device_Using_Pin() {
+        var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var codeVerifier = GenerateCodeVerifier();
+        var deviceId = Guid.NewGuid().ToString();
+        var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
+        if (!response.IsSuccessStatusCode) {
+            var responseJson = await response.Content.ReadAsStringAsync();
+            _output.WriteLine(responseJson);
+        }
+        Assert.True(response.IsSuccessStatusCode);
+        return deviceId;
+    }
+
+    private async Task<TrustedDeviceCompleteRegistrationResultDto> Can_Register_Device_Using_Fingerprint_When_Already_Supports_Pin() {
+        var accessToken = await LoginWithPasswordGrant(userName: "company@indice.gr", password: "123abc!");
+        var codeVerifier = GenerateCodeVerifier();
+        var deviceId = Guid.NewGuid().ToString();
+        var challenge = await InitiateDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId);
+        var response = await CompleteDeviceRegistrationUsingPin(accessToken, codeVerifier, deviceId, challenge);
+        var responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
+        }
+        var responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.IsType<Guid>(responseDto.RegistrationId);
+        var pinRegistrationId = responseDto.RegistrationId;
+        codeVerifier = GenerateCodeVerifier();
+        challenge = await InitiateDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId);
+        response = await CompleteDeviceRegistrationUsingBiometric(accessToken, codeVerifier, deviceId, challenge);
+        responseJson = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) {
+            _output.WriteLine(responseJson);
+        }
+        responseDto = JsonSerializer.Deserialize<TrustedDeviceCompleteRegistrationResultDto>(responseJson);
+        Assert.True(response.IsSuccessStatusCode);
+        Assert.IsType<Guid>(responseDto.RegistrationId);
+        var fingerprintRegistrationId = responseDto.RegistrationId;
+        Assert.Equal(pinRegistrationId, fingerprintRegistrationId);
+        responseDto.DeviceId = deviceId;
+        return responseDto;
+    }
+
     private async Task<HttpResponseMessage> Register_Device_Using_Biometric(string deviceId, string userName = "company@indice.gr") {
         var accessToken = await LoginWithPasswordGrant(userName, password: "123abc!");
         var codeVerifier = GenerateCodeVerifier();

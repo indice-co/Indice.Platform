@@ -23,21 +23,22 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         IDeviceAuthenticationCodeChallengeStore codeChallengeStore,
         IClientStore clientStore,
         ILogger<CompleteRegistrationRequestValidator> logger,
-        ISystemClock systemClock,
         ITokenValidator tokenValidator,
         TotpServiceFactory totpServiceFactory,
         ExtendedUserManager<User> userManager
     ) : base(clientStore, tokenValidator) {
         CodeChallengeStore = codeChallengeStore;
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        SystemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
         TotpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
+    /// <summary>
+    /// Gets the current time, primarily for unit testing.
+    /// </summary>
+    protected TimeProvider TimeProvider { get; private set; } = TimeProvider.System;
     public IDeviceAuthenticationCodeChallengeStore CodeChallengeStore { get; }
     public ILogger<CompleteRegistrationRequestValidator> Logger { get; }
-    public ISystemClock SystemClock { get; }
     public TotpServiceFactory TotpServiceFactory { get; }
     public ExtendedUserManager<User> UserManager { get; }
 
@@ -165,10 +166,10 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         // Remove authorization code.
         await CodeChallengeStore.RemoveDeviceAuthenticationCode(code);
         // Validate code expiration.
-        if (authorizationCode.CreationTime.HasExceeded(authorizationCode.Lifetime, SystemClock.UtcNow.UtcDateTime)) {
+        if (authorizationCode.CreationTime.HasExceeded(authorizationCode.Lifetime, TimeProvider.GetUtcNow().UtcDateTime)) {
             return Error(OidcConstants.TokenErrors.InvalidGrant, "Authorization code is invalid.");
         }
-        if (authorizationCode.CreationTime.HasExceeded(client.AuthorizationCodeLifetime, SystemClock.UtcNow.UtcDateTime)) {
+        if (authorizationCode.CreationTime.HasExceeded(client.AuthorizationCodeLifetime, TimeProvider.GetUtcNow().UtcDateTime)) {
             return Error(OidcConstants.TokenErrors.InvalidGrant, "Authorization code is invalid.");
         }
         if (authorizationCode.RequestedScopes == null || !authorizationCode.RequestedScopes.Any()) {

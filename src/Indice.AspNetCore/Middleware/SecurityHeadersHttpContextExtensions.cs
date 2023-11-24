@@ -15,10 +15,10 @@ public static class SecurityHeadersHttpContextExtensions
         requestPolicy ??= httpContext.RequestServices.GetRequiredService<SecurityHeadersPolicy>();
         httpContext.Response.OnStarting(() => {
             if (requestPolicy.HasXContentTypeOptions && !httpContext.Response.Headers.ContainsKey("X-Content-Type-Options")) {
-                httpContext.Response.Headers.Add("X-Content-Type-Options", requestPolicy.XContentTypeOptions);
+                httpContext.Response.Headers.Append("X-Content-Type-Options", requestPolicy.XContentTypeOptions);
             }
             if (requestPolicy.HasXFrameOptions && !httpContext.Response.Headers.ContainsKey("X-Frame-Options")) {
-                httpContext.Response.Headers.Add("X-Frame-Options", requestPolicy.XFrameOptions);
+                httpContext.Response.Headers.Append("X-Frame-Options", requestPolicy.XFrameOptions);
             }
             var isHtmlDocument = httpContext.Response.ContentType?.StartsWith(MediaTypeNames.Text.Html);
             if (isHtmlDocument == true) {
@@ -37,15 +37,15 @@ public static class SecurityHeadersHttpContextExtensions
                 }
                 // Once for standards compliant browsers.
                 if (requestPolicy.HasContentSecurityPolicy && !httpContext.Response.Headers.ContainsKey("Content-Security-Policy")) {
-                    httpContext.Response.Headers.Add("Content-Security-Policy", cspPolicy.ToString());
+                    httpContext.Response.Headers.Append("Content-Security-Policy", cspPolicy.ToString());
                 }
                 // And once again for IE.
                 if (requestPolicy.HasContentSecurityPolicy && !httpContext.Response.Headers.ContainsKey("X-Content-Security-Policy")) {
-                    httpContext.Response.Headers.Add("X-Content-Security-Policy", cspPolicy.ToString());
+                    httpContext.Response.Headers.Append("X-Content-Security-Policy", cspPolicy.ToString());
                 }
             }
             if (requestPolicy.HasReferrerPolicy && !httpContext.Response.Headers.ContainsKey("Referrer-Policy")) {
-                httpContext.Response.Headers.Add("Referrer-Policy", requestPolicy.ReferrerPolicy);
+                httpContext.Response.Headers.Append("Referrer-Policy", requestPolicy.ReferrerPolicy);
             }
             return Task.CompletedTask;
         });
