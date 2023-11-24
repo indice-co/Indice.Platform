@@ -226,7 +226,12 @@ public static class DynamicExtensions
                 castMethod = typeof(Convert).GetMethod(nameof(Convert.ToBoolean), new[] { typeof(string) });
                 break;
             case JsonDataType.DateTime:
+#if NET8_0_OR_GREATER
+                //castMethod = typeof(Convert).GetMethod(nameof(Convert.ToDateTime), new[] { typeof(string) });
                 castMethod = typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDate), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+#else
+                castMethod = typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDate), BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
+#endif
                 break;
             case JsonDataType.String:
             default:
