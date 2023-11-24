@@ -26,6 +26,9 @@
     <PackageReference Include="Indice.EntityFrameworkCore" Version="$(VersionPrefixCore)" />
     <PackageReference Include="JsonSchema.Net" Version="4.1.1" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+  </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.11" />
   </ItemGroup>
