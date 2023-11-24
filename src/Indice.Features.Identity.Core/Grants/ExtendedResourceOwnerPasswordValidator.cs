@@ -145,7 +145,7 @@ public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwner
 
 /// <summary><see cref="IResourceOwnerPasswordValidator"/> that integrates with ASP.NET Identity.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
+public class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
 {
     private readonly ExtendedUserManager<TUser> _userManager;
     private readonly ExtendedSignInManager<TUser> _signInManager;
@@ -187,7 +187,7 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
             return;
         }
         if (result.IsImpossibleTraveler()) {
-            // in this case, and otp has been sent, or an error has occurred
+            // in this case, and otp has been sent, or an error has occurred.
             await SendOrValidateImpossibleOtp(context);
             return;
         }
@@ -204,7 +204,9 @@ public sealed class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwn
         context.Result = new GrantValidationResult(subject, OidcConstants.AuthenticationMethods.Password);
     }
 
-    private async Task SendOrValidateImpossibleOtp(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
+    /// <summary></summary>
+    /// <param name="context">Class describing the resource owner password validation context.</param>
+    public virtual async Task SendOrValidateImpossibleOtp(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
         var rawRequest = context.Request.Raw;
         var requestId = rawRequest.Get("requestId") ?? Guid.NewGuid().ToString();
         var totpService = _totpServiceFactory.Create<User>();
