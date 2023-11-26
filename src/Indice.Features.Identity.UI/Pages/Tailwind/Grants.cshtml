@@ -17,10 +17,10 @@
      aria-labelledby="grants-tab">
     <h3 class="text-black mb-1">@Localizer["Client Application Access"]</h3>
     <div class="md:max-h-[60vh] overflow-y-scroll pr-8">
-        <p indice-if="Model.View.Grants.Any()">
+        <p indice-if="Model.View.Grants!.Any()">
             @Localizer["Below is the list of applications you have given access to and the names of the resources they have access to."]
         </p>
-        @if (!Model.View.Grants.Any())
+        @if (!Model.View.Grants!.Any())
         {
             <div class="alert alert-dark text-center">
                 @Localizer["You have not provided access to any applications"]
@@ -28,7 +28,7 @@
         }
         else
         {
-            foreach (var grant in Model.View.Grants)
+            foreach (var grant in Model.View.Grants!)
             {
                 <div class="grant-item">
                     <div class="grid content-center">
@@ -44,7 +44,7 @@
                                         @Localizer["Created:"] @grant.Created.ToString("yyyy-MM-dd") @grant.Created.ToString("HH:mm")
                                     </span>
                                     <span class="text-xs mb-2" indice-if="grant.Expires.HasValue">
-                                        @Localizer["Expires on"] @grant.Expires.Value.ToString("yyyy-MM-dd") &commat;  @grant.Expires.Value.ToString("HH:mm")
+                                        @Localizer["Expires on"] @grant.Expires!.Value.ToString("yyyy-MM-dd") &commat;  @grant.Expires.Value.ToString("HH:mm")
                                     </span>
                                 </div>
                             </div>

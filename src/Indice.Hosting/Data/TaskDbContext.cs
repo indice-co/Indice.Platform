@@ -1,17 +1,12 @@
-﻿using System.Diagnostics;
-using Indice.Hosting.Data.Models;
+﻿using Indice.Hosting.Data.Models;
 using Indice.Hosting.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Indice.Hosting.Data;
 
 /// <summary>A <see cref="DbContext"/> for hosting multiple <see cref="IMessageQueue{T}"/>.</summary>
 public class TaskDbContext : DbContext
 {
-    private static bool _alreadyCreated = false;
-
     /// <summary>Creates a new instance of <see cref="TaskDbContext"/>.</summary>
     /// <param name="options">The options to be used by a <see cref="DbContext"/>.</param>
     public TaskDbContext(DbContextOptions<TaskDbContext> options) : base(options) { }

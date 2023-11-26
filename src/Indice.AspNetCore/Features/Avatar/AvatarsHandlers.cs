@@ -100,14 +100,12 @@ internal static class AvatarsHandlers
         var data = new MemoryStream();
         avatarGenerator.Generate(data, firstName, lastName, size ?? 192, ext == "jpg", background, foreground, circular ?? false);
         var hash = string.Empty;
-        using (var md5 = MD5.Create()) {
-            hash = md5.ComputeHash(Encoding.UTF8.GetBytes($"{firstName} {lastName}")).ToBase64UrlSafe();
-        }
-        response.Headers.Add("Cache-Control", "max-age=345600");
+        hash = MD5.HashData(Encoding.UTF8.GetBytes($"{firstName} {lastName}")).ToBase64UrlSafe();
+        response.Headers.Append("Cache-Control", "max-age=345600");
         //var filename = $"{firstName}_{lastName}_{size ?? 192}.{ext}";
-        return TypedResults.File(data, 
-                                contentType: ext == "jpg" ? "image/jpeg" : "image/png", 
-                                lastModified: DateTimeOffset.UtcNow, 
+        return TypedResults.File(data,
+                                contentType: ext == "jpg" ? "image/jpeg" : "image/png",
+                                lastModified: DateTimeOffset.UtcNow,
                                 entityTag: new EntityTagHeaderValue($"\"{hash}\""));
     }
 }

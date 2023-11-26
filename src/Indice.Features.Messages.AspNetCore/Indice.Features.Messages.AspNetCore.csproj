@@ -10,11 +10,9 @@
     <PackageReference Include="Indice.Features.Messages.Core" Version="$(VersionPrefixMessages)" />
     <PackageReference Include="Indice.Features.Multitenancy.AspNetCore" Version="$(VersionPrefixMultitenancy)" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
     <PackageReference Include="Indice.Features.Media.AspNetCore" Version="$(VersionPrefixMedia)" />
     <ProjectReference Include="..\Indice.Features.Media.AspNetCore\Indice.Features.Media.AspNetCore.csproj" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
