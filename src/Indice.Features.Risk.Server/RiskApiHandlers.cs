@@ -1,6 +1,6 @@
 ﻿using Indice.Features.Risk.Core;
+using Indice.Features.Risk.Core.Models;
 using Indice.Features.Risk.Core.Services;
-using Indice.Features.Risk.Server.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +15,8 @@ internal static class RiskApiHandlers
     ) {
         var riskEvent = request.ToRiskEvent();
         var result = await riskManager.GetRiskAsync(riskEvent);
+        var riskResult = result.ToRiskResult(request);
+        await riskManager.CreateRiskResultAsync(riskResult);
         return TypedResults.Ok(result);
     }
 
