@@ -9,15 +9,17 @@ namespace Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling;
 internal class InitRegistrationResponseGenerator : IResponseGenerator<InitRegistrationRequestValidationResult, InitRegistrationResponse>
 {
     public InitRegistrationResponseGenerator(
-        IDeviceAuthenticationCodeChallengeStore codeChallengeStore,
-        ISystemClock systemClock
+        IDeviceAuthenticationCodeChallengeStore codeChallengeStore
     ) {
         CodeChallengeStore = codeChallengeStore ?? throw new ArgumentNullException(nameof(codeChallengeStore));
-        SystemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
     }
 
+    /// <summary>
+    /// Gets the current time, primarily for unit testing.
+    /// </summary>
+    protected TimeProvider TimeProvider { get; private set; } = TimeProvider.System;
+
     public IDeviceAuthenticationCodeChallengeStore CodeChallengeStore { get; }
-    public ISystemClock SystemClock { get; }
 
     public async Task<InitRegistrationResponse> Generate(InitRegistrationRequestValidationResult validationResult) {
         var authorizationCode = new DeviceAuthenticationCode {
@@ -25,7 +27,7 @@ internal class InitRegistrationResponseGenerator : IResponseGenerator<InitRegist
             DeviceId = validationResult.DeviceId,
             InteractionMode = validationResult.InteractionMode,
             CodeChallenge = validationResult.CodeChallenge.Sha256(),
-            CreationTime = SystemClock.UtcNow.UtcDateTime,
+            CreationTime = TimeProvider.GetUtcNow().UtcDateTime,
             Lifetime = validationResult.Client.AuthorizationCodeLifetime,
             RequestedScopes = validationResult.RequestedScopes,
             Subject = validationResult.Principal

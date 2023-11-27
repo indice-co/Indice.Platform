@@ -1,22 +1,73 @@
-﻿#if NET7_0_OR_GREATER
+﻿#if NET7_0
+#nullable enable
+using System.Diagnostics;
 using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.Net.Http.Headers;
 
-namespace Microsoft.AspNetCore.Builder;
-/// <summary>Equivalent to the .Produces call to add metadata to endpoints</summary>
+namespace Microsoft.AspNetCore.Http;
+
+/// <summary>
+/// Specifies the type of the value and status code returned by the action.
+/// </summary>
+[DebuggerDisplay("{ToString(),nq}")]
 public sealed class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
 {
-    /// <summary>Constructor</summary>
-    public ProducesResponseTypeMetadata(Type type, int statusCode, string contentType) {
-        Type = type;
+    /// <summary>
+    /// Initializes an instance of <see cref="ProducesResponseTypeMetadata"/>.
+    /// </summary>
+    /// <param name="statusCode">The HTTP response status code.</param>
+    /// <param name="type">The <see cref="Type"/> of object that is going to be written in the response.</param>
+    /// <param name="contentTypes">Content types supported by the response.</param>
+    public ProducesResponseTypeMetadata(int statusCode, Type? type = null, string[]? contentTypes = null) {
         StatusCode = statusCode;
-        ContentTypes = new[] { contentType };
+        Type = type;
+
+        if (contentTypes is null || contentTypes.Length == 0) {
+            ContentTypes = Enumerable.Empty<string>();
+        } else {
+            for (var i = 0; i < contentTypes.Length; i++) {
+                MediaTypeHeaderValue.Parse(contentTypes[i]);
+                ValidateContentType(contentTypes[i]);
+            }
+
+            ContentTypes = contentTypes;
+        }
+
+        static void ValidateContentType(string type) {
+            if (type.Contains('*', StringComparison.OrdinalIgnoreCase)) {
+                throw new InvalidOperationException($"Could not parse '{type}'. Content types with wildcards are not supported.");
+            }
+        }
     }
 
-    /// <summary>The clr type for the response body</summary>
-    public Type Type { get; }
-    /// <summary>Http status code</summary>
-    public int StatusCode { get; }
-    /// <summary>Supported response body content types</summary>
-    public IEnumerable<string> ContentTypes { get; }
+    // Only for internal use where validation is unnecessary.
+    private ProducesResponseTypeMetadata(int statusCode, Type? type, IEnumerable<string> contentTypes) {
+        Type = type;
+        StatusCode = statusCode;
+        ContentTypes = contentTypes;
+    }
+
+    /// <summary>
+    /// Gets or sets the type of the value returned by an action.
+    /// </summary>
+    public Type? Type { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the HTTP status code of the response.
+    /// </summary>
+    public int StatusCode { get; private set; }
+
+    /// <summary>
+    /// Gets or sets the content types associated with the response.
+    /// </summary>
+    public IEnumerable<string> ContentTypes { get; private set; }
+
+    /// <inheritdoc/>
+    public override string ToString() {
+        return $"Produces {nameof(StatusCode)}={StatusCode}, {nameof(ContentTypes)}={string.Join('|', ContentTypes)}, {nameof(Type)}={Type?.Name}";
+    }
+
+    internal static ProducesResponseTypeMetadata CreateUnvalidated(Type? type, int statusCode, IEnumerable<string> contentTypes) => new(statusCode, type, contentTypes);
 }
+#nullable disable
 #endif

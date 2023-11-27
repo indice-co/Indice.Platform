@@ -56,10 +56,14 @@ public static class ModelBuilderExtensions
                     .HasTranslation(args => {
                         var datetime2 = new SqlFragmentExpression("datetime2");
                         var convertArgs = new SqlExpression[] { datetime2 }.Concat(args);
+#if NET8_0_OR_GREATER
+                        return new SqlFunctionExpression("Convert", convertArgs, nullable: true, argumentsPropagateNullability: convertArgs.Select(x => true), typeof(DateTime), null);
+#else
 #if NET5_0_OR_GREATER
-                        return new SqlFunctionExpression("Convert", convertArgs, nullable: true, argumentsPropagateNullability: convertArgs.Select(x => true), typeof(DateTime?), null);
+                        return new SqlFunctionExpression("Convert", convertArgs, nullable: true, argumentsPropagateNullability: convertArgs.Select(x => true), typeof(DateTime?), null);                  
 #else
                         return SqlFunctionExpression.Create("Convert", convertArgs, typeof(DateTime?), null);
+#endif
 #endif
                     })
                     .HasSchema(string.Empty);

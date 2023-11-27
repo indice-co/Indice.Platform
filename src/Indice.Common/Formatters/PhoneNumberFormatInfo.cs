@@ -16,7 +16,7 @@ public class PhoneNumberFormatInfo : IFormatProvider, ICustomFormatter
             "G" => $"+{phoneNumber.CallingCode} {phoneNumber.Number}",
             "A" => $"{phoneNumber.CallingCode} {phoneNumber.Number}",
             "D" => $"{phoneNumber.CallingCode.TrimStart('0').Replace("-", "")}{phoneNumber.Number}",
-            "N" => phoneNumber.Number,
+            "N" => phoneNumber.TwoLetterCountryCode == "GR" ? phoneNumber.Number : $"+{phoneNumber.CallingCode} {phoneNumber.Number}",
             _ => throw new FormatException(string.Format("The {0} format string is not supported.", format)),
         };
     }

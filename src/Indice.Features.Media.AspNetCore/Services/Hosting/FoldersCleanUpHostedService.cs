@@ -21,6 +21,7 @@ public class FoldersCleanUpHostedService : BackgroundService
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    /// <summary>Interval.</summary>
     public TimeSpan Interval => TimeSpan.FromSeconds(60);
 
     /// <summary>

@@ -1,10 +1,11 @@
 ﻿#nullable enable
-using System.Globalization;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace Indice.Globalization;
 
 /// <summary>Encapsulates an International number format</summary>
+[DebuggerDisplay("{ToString(),nq} ({TwoLetterCountryCode},nq)")]
 public partial struct PhoneNumber : IFormattable
 {
     private const string RegexPatternString = @"(\+(?<CallingCode>\d+(-\d+)?) (?<Number>[\d() -]{5,15}))|(?<GreekNumber>69\d{8})|(?<GreekNumber>69\d{8})|(?<GreekNumberLand>2\d{9})|(?<InternationalNumber>((00)|\+)?\s?\d{11,15})||(?<UnidentifiedNumber>\d{5,10})";
@@ -78,7 +79,13 @@ public partial struct PhoneNumber : IFormattable
                 throw new FormatException($"The phoneNumber supplied was identified as an unknown international number '{internationalNumber}'");
             }
             callingCode = country.CallingCodeDefault.ToString();
-            return new PhoneNumber(callingCode, country.TwoLetterCode, internationalNumber.TrimStart('+', '0').Substring(callingCode.Length));
+            return new PhoneNumber(callingCode, country.TwoLetterCode, internationalNumber
+                                                                        .TrimStart('+', '0')
+                                                                        .Substring(callingCode.Length)
+                                                                        .Replace("-", "")
+                                                                        .Replace("(", "")
+                                                                        .Replace(")", "")
+                                                                        .Replace(" ", ""));
         }
         // check for Unidentified phone
         if (match.Groups["UnidentifiedNumber"].Success) {
