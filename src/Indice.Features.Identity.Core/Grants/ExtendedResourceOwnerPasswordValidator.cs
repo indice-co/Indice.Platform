@@ -7,16 +7,26 @@ using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
+using UAParser;
 
 namespace Indice.Features.Identity.Core.Grants;
 
 /// <summary>An extended implementation of <see cref="IResourceOwnerPasswordValidator"/> where multiple filters can be registered and validated.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidator where TUser : User
+/// <remarks>Creates a new instance of <see cref="ExtendedResourceOwnerPasswordValidator{TUser}"/>.</remarks>
+/// <param name="filters"></param>
+/// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+/// <param name="logger">Represents a type used to perform logging.</param>
+/// <exception cref="ArgumentNullException"></exception>
+public class ExtendedResourceOwnerPasswordValidator<TUser>(
+    IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> filters,
+    ExtendedUserManager<TUser> userManager,
+    ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> logger
+) : IResourceOwnerPasswordValidator where TUser : User
 {
-    private readonly ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> _logger;
-    private readonly IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> _filters;
-    private readonly ExtendedUserManager<TUser> _userManager;
+    private readonly ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> _filters = filters ?? throw new ArgumentNullException(nameof(filters));
+    private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
     private readonly IDictionary<string, string> _errors = new Dictionary<string, string> {
         { ResourceOwnerPasswordErrorCodes.LockedOut, "User is locked out." },
@@ -30,21 +40,6 @@ public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
         { ResourceOwnerPasswordErrorCodes.DeviceNotFound, "Device was not found." }
     };
 
-    /// <summary>Creates a new instance of <see cref="ExtendedResourceOwnerPasswordValidator{TUser}"/>.</summary>
-    /// <param name="filters"></param>
-    /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-    /// <param name="logger">Represents a type used to perform logging.</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public ExtendedResourceOwnerPasswordValidator(
-        IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> filters,
-        ExtendedUserManager<TUser> userManager,
-        ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> logger
-    ) {
-        _filters = filters ?? throw new ArgumentNullException(nameof(filters));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
     /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationContext context) {
         var user = await _userManager.FindByNameAsync(context.UserName);
@@ -54,6 +49,9 @@ public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.NotFound);
             return;
         }
+        var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];
+        var device = await _userManager.GetDeviceByIdAsync(user, deviceId);
+        extendedContext.SetDevice(device);
         var isError = false;
         foreach (var filter in _filters.OrderBy(x => x.Order)) {
             await filter.ValidateAsync(extendedContext);
@@ -84,6 +82,8 @@ public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
 /// <typeparam name="TUser">The type of the user.</typeparam>
 public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwnerPasswordValidationContext where TUser : User
 {
+    private UserDevice _userDevice;
+
     internal ResourceOwnerPasswordValidationFilterContext(ResourceOwnerPasswordValidationContext context, TUser user) {
         Password = context.Password;
         Request = context.Request;
@@ -94,6 +94,13 @@ public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwner
 
     /// <summary>The user instance.</summary>
     public TUser User { get; }
+    /// <summary>The user device.</summary>
+    public UserDevice Device => _userDevice;
+    internal bool Handled { get; set; }
+
+    /// <summary>Sets the <see cref="Device"/> property.</summary>
+    /// <param name="device">The user device.</param>
+    public void SetDevice(UserDevice device) => _userDevice = device;
 }
 
 /// <summary>Handles validation of resource owner password credentials.</summary>
@@ -109,36 +116,26 @@ public interface IResourceOwnerPasswordValidationFilter<TUser> where TUser : Use
 
 /// <summary><see cref="IResourceOwnerPasswordValidator"/> that integrates with ASP.NET Identity and is specific to mobile clients.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
+/// <remarks>Creates a new instance of <see cref="DeviceResourceOwnerPasswordValidator{TUser}"/>.</remarks>
+/// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+public sealed class DeviceResourceOwnerPasswordValidator<TUser>(ExtendedUserManager<TUser> userManager) : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
 {
-    private readonly ExtendedUserManager<TUser> _userManager;
-
-    /// <summary>Creates a new instance of <see cref="DeviceResourceOwnerPasswordValidator{TUser}"/>.</summary>
-    /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-    public DeviceResourceOwnerPasswordValidator(
-        ExtendedUserManager<TUser> userManager
-    ) {
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-    }
+    private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
     /// <inheritdoc />
     public int Order => 1;
 
     /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
-        var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];
-        if (string.IsNullOrWhiteSpace(deviceId)) {
+        if (context.Device is null) {
             context.Result = context.Result;
             return;
         }
-        var device = await _userManager.GetDeviceByIdAsync(context.User, deviceId);
-        if (device is not null) {
-            if (device.RequiresPassword) {
-                await _userManager.SetDeviceRequiresPasswordAsync(context.User, device, requiresPassword: false);
-            }
-            device.LastSignInDate = DateTimeOffset.UtcNow;
-            await _userManager.UpdateDeviceAsync(context.User, device);
+        if (context.Device.RequiresPassword) {
+            await _userManager.SetDeviceRequiresPasswordAsync(context.User, context.Device, requiresPassword: false);
         }
+        context.Device.LastSignInDate = DateTimeOffset.UtcNow;
+        await _userManager.UpdateDeviceAsync(context.User, context.Device);
         context.Result = context.Result;
     }
 }
@@ -188,8 +185,10 @@ public class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
         }
         if (result.IsImpossibleTraveler()) {
             // in this case, and otp has been sent, or an error has occurred.
-            await SendOrValidateImpossibleOtp(context);
-            return;
+            await SendOrValidateImpossibleTravelOtp(context);
+            if (context.Handled) {
+                return;
+            }
         }
         if (!result.Succeeded) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.InvalidCredentials);
@@ -206,7 +205,8 @@ public class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
 
     /// <summary></summary>
     /// <param name="context">Class describing the resource owner password validation context.</param>
-    public virtual async Task SendOrValidateImpossibleOtp(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
+    public virtual async Task SendOrValidateImpossibleTravelOtp(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
+        context.Handled = true;
         var rawRequest = context.Request.Raw;
         var requestId = rawRequest.Get("requestId") ?? Guid.NewGuid().ToString();
         var totpService = _totpServiceFactory.Create<User>();
