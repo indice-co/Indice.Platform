@@ -15,8 +15,7 @@ public static class JsonSchemaNetExtensions
     /// <returns>A string containing JSON schema for a given class type.</returns>
     public static JsonSchema ToJsonSchema(this Type type) {
         var configuration = new SchemaGeneratorConfiguration {
-            
-            PropertyNamingMethod = PropertyNamingMethods.CamelCase
+            PropertyNameResolver = PropertyNameResolvers.CamelCase
         };
         configuration.Generators.Add(new EnumSchemaGenerator());
         var schema = new JsonSchemaBuilder().FromType(type, configuration).Build();

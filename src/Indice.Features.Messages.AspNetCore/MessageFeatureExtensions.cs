@@ -224,12 +224,14 @@ public static class MessageFeatureExtensions
     }
 
 #if NET7_0_OR_GREATER
+#nullable enable
     /// <summary>Adds the Media Library feature.</summary>
     /// <param name="options">Options used to configure the Media API feature.</param>
     /// <param name="configureAction">Configure the available options. Null to use defaults.</param>
     public static void UseMediaLibrary(this CampaignOptionsBase options, Action<Indice.Features.Media.AspNetCore.MediaApiOptions>? configureAction = null) {
         options.Services.AddMediaLibrary(configureAction);
     }
+#nullable disable
 #endif
     /// <summary>Configures that campaign contact information will be resolved by contacting the Identity Server instance.</summary>
     /// <param name="options">Options for configuring internal campaign jobs used by the worker host.</param>

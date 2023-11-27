@@ -1,5 +1,4 @@
-﻿using System.Runtime.Serialization;
-using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Services;
@@ -213,7 +212,6 @@ public class TotpResult
 }
 
 /// <summary>Specific exception used to pass errors when using .</summary>
-[Serializable]
 public class TotpServiceException : Exception
 {
     /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
@@ -224,7 +222,4 @@ public class TotpServiceException : Exception
 
     /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
     public TotpServiceException(string message, Exception innerException) : base(message, innerException) { }
-
-    /// <summary>Constructs the <see cref="TotpServiceException"/>.</summary>
-    protected TotpServiceException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }

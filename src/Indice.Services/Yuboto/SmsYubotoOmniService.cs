@@ -41,7 +41,7 @@ public class SmsYubotoOmniService : YubotoOmniServiceBase, ISmsService
             Logger.LogError(errorMessage);
             throw new SmsServiceException(errorMessage);
         }
-        Logger.LogInformation("SMS message successfully sent: \n", JsonSerializer.Serialize(response.Messages));
+        Logger.LogInformation("SMS message successfully sent");
     }
 
     /// <inheritdoc />

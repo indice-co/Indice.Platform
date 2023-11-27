@@ -43,7 +43,7 @@ public static class OpenApiExtensions
     /// <param name="contentType">The response content type. Defaults to "application/problem+json".</param>
     /// <returns>A <see cref="RouteGroupBuilder"/> that can be used to further customize the endpoint.</returns>
     public static RouteGroupBuilder ProducesProblem(this RouteGroupBuilder builder, int statusCode, string contentType = null) => 
-        builder.WithMetadata(new ProducesResponseTypeMetadata(typeof(ProblemDetails), statusCode, contentType ?? "application/problem+json"));
+        builder.WithMetadata(new ProducesResponseTypeMetadata(statusCode, typeof(ProblemDetails), new[] { contentType ?? "application/problem+json" }));
 
     /// <summary>
     /// Adds an <see cref="IProducesResponseTypeMetadata"/> with a <see cref="HttpValidationProblemDetails"/> type
@@ -54,6 +54,6 @@ public static class OpenApiExtensions
     /// <param name="contentType">The response content type. Defaults to "application/problem+json".</param>
     /// <returns>A <see cref="RouteGroupBuilder"/> that can be used to further customize the endpoint.</returns>
     public static RouteGroupBuilder ProducesValidationProblem(this RouteGroupBuilder builder, int statusCode = 400, string contentType = null) 
-        => builder.WithMetadata(new ProducesResponseTypeMetadata(typeof(HttpValidationProblemDetails), statusCode, contentType ?? "application/problem+json"));
+        => builder.WithMetadata(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), new[] { contentType ?? "application/problem+json" }));
 }
 #endif

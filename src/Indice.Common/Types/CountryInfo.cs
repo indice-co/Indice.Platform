@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Linq;
 
 namespace Indice.Globalization;
 
@@ -368,6 +369,18 @@ public class CountryInfo
             throw new ArgumentOutOfRangeException(nameof(callingCode), $"Unknown calling code {callingCode}");
         }
         return _countries[_callingCodeMap[callingCode.TrimStart('+')]];
+    }
+
+    /// <summary>Search for <see cref="CountryInfo"/> by international calling code. All candidates returned.</summary>
+    /// <param name="phoneNumber">The international phonenumber code without the plus sign</param>
+    /// <returns>The country information found</returns>
+    /// <exception cref="ArgumentNullException"/>
+    public static IEnumerable<CountryInfo> FindCountriesByPhoneNumber(string phoneNumber) {
+        if (string.IsNullOrWhiteSpace(phoneNumber)) {
+            throw new ArgumentNullException(nameof(phoneNumber));
+        }
+        phoneNumber = phoneNumber.TrimStart('0', '+');
+        return _callingCodeMap.Keys.Where(k => phoneNumber.StartsWith(k)).Select(k => _countries[_callingCodeMap[k]]).OrderByDescending(x => x.CallingCodeDefault);
     }
 
     /// <summary>Search for <see cref="CountryInfo"/> by international calling code . Throws if none found.</summary>

@@ -1,10 +1,15 @@
 ﻿using Indice.Globalization;
 using Xunit;
+using Xunit.Sdk;
 
 namespace Indice.Common.Tests;
 
 public class PhoneNumberTests
 {
+    static PhoneNumberTests() {
+        using var reader = new StreamReader(typeof(PhoneNumberTests).Assembly.GetManifestResourceStream("Indice.Common.Tests.Data.PhoneNumberTests.txt"));
+        PhoneNumbersData = reader.ReadToEnd().Split('\n').Select(x => new[] { x }).ToArray();
+    }
     public PhoneNumberTests() {
 
     }
@@ -31,4 +36,13 @@ public class PhoneNumberTests
         Assert.True(result);
         Assert.Equal("GR", phoneNumber.TwoLetterCountryCode);
     }
+
+    [Theory]
+    [MemberData(nameof(PhoneNumbersData))]
+    public void ParsePhoneNumbers_DigitOnly(string number) {
+        var result = PhoneNumber.TryParse(number, out var phoneNumber);
+        Assert.True(result);
+    }
+
+    public static IEnumerable<object[]> PhoneNumbersData { get; }
 }

@@ -32,3 +32,5 @@ This helped alot as well as debuggin the MSBuild logs using this tool here
   </Target>
 ```
 Without the exists condition it would not be able to exclude depending on the host project.
+
+<!-- https://stackoverflow.com/questions/5187671/including-files-with-directory-specified-separately-in-msbuild -->

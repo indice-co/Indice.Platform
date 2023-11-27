@@ -11,25 +11,26 @@ internal class CompleteRegistrationResponseGenerator : IResponseGenerator<Comple
 {
     public CompleteRegistrationResponseGenerator(
         IDevicePasswordHasher devicePasswordHasher,
-        ISystemClock systemClock,
         IUserDeviceStore userDeviceStore,
         ExtendedUserManager<User> userManager
     ) {
         UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         DevicePasswordHasher = devicePasswordHasher ?? throw new ArgumentNullException(nameof(devicePasswordHasher));
-        SystemClock = systemClock ?? throw new ArgumentNullException(nameof(systemClock));
     }
 
+    /// <summary>
+    /// Gets the current time, primarily for unit testing.
+    /// </summary>
+    protected TimeProvider TimeProvider { get; private set; } = TimeProvider.System;
     public IUserDeviceStore UserDeviceStore { get; }
     public ExtendedUserManager<User> UserManager { get; }
     public IDevicePasswordHasher DevicePasswordHasher { get; }
-    public ISystemClock SystemClock { get; }
 
     public async Task<CompleteRegistrationResponse> Generate(CompleteRegistrationRequestValidationResult validationResult) {
         var device = validationResult.Device ?? new UserDevice(Guid.NewGuid()) {
             ClientType = DeviceClientType.Native,
-            DateCreated = SystemClock.UtcNow,
+            DateCreated = TimeProvider.GetUtcNow().UtcDateTime,
             DeviceId = validationResult.DeviceId,
             IsPushNotificationsEnabled = false,
             Name = validationResult.DeviceName,
