@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
+using Indice.Features.Risk.Core.Models;
 using Indice.Features.Risk.Server;
-using Indice.Features.Risk.Server.Models;
 using Indice.Features.Risk.Server.Validators;
 using Microsoft.AspNetCore.Builder;
 
