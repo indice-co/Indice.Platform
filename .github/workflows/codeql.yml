@@ -12,11 +12,6 @@ jobs:
       contents: read
       security-events: write
 
-    strategy:
-        fail-fast: false
-        matrix:
-          language: [ 'csharp' ]
-
     steps:
 
     - name: Checkout repository
@@ -27,15 +22,15 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
-        languages: ${{ matrix.language }}
+        languages: csharp
 
     - name: Use .NET 8
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
         source-url: https://api.nuget.org/v3/index.json
-      # env:
-      #   NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
 
     - name: Create Nuget directory
       shell: pwsh
@@ -65,11 +60,6 @@ jobs:
       contents: read
       security-events: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'javascript-typescript' ]
-
     steps:
 
     - name: Checkout repository
@@ -80,7 +70,7 @@ jobs:
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
-        languages: ${{ matrix.language }}
+        languages: javascript-typescript
 
     - name: Use Node.js 16.x
       uses: actions/setup-node@v4
