@@ -16,7 +16,8 @@ public class CreateCampaignRequestValidator : CampaignRequestValidator<CreateCam
         RuleFor(campaign => campaign)
             .Must(campaign => campaign.RecipientIds?.Count > 0 || campaign.RecipientListId.HasValue || campaign.Recipients?.Count > 0)
             .When(campaign => !campaign.IsGlobal)
-            .WithMessage("Please provide recipientIds, recipientListId or recipients property.");
+            .WithMessage("Please provide recipientIds, recipientListId or recipients property.")
+            .OverridePropertyName("RecipientIds");
 
     }
 }
