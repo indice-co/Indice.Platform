@@ -4,10 +4,10 @@ using IdentityServer4.Models;
 using IdentityServer4.Validation;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
+using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
-using UAParser;
 
 namespace Indice.Features.Identity.Core.Grants;
 
@@ -100,7 +100,7 @@ public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwner
 
     /// <summary>Sets the <see cref="Device"/> property.</summary>
     /// <param name="device">The user device.</param>
-    public void SetDevice(UserDevice device) => _userDevice = device;
+    internal void SetDevice(UserDevice device) => _userDevice = device;
 }
 
 /// <summary>Handles validation of resource owner password credentials.</summary>
@@ -148,21 +148,25 @@ public class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
     private readonly ExtendedSignInManager<TUser> _signInManager;
     private readonly TotpServiceFactory _totpServiceFactory;
     private readonly IdentityMessageDescriber _identityMessageDescriber;
+    private readonly ISignInGuard<TUser> _signInGuard;
 
     /// <summary>Creates a new instance of <see cref="IdentityResourceOwnerPasswordValidator{TUser}"/>.</summary>
     /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="totpServiceFactory">Used to generate, send and verify time based one time passwords.</param>
     /// <param name="identityMessageDescriber">Provides an extensibility point for altering localizing used inside the package.</param>
+    /// <param name="signInGuard"></param>
     public IdentityResourceOwnerPasswordValidator(
         ExtendedUserManager<TUser> userManager,
         ExtendedSignInManager<TUser> signInManager,
         TotpServiceFactory totpServiceFactory,
-        IdentityMessageDescriber identityMessageDescriber) {
+        IdentityMessageDescriber identityMessageDescriber,
+        ISignInGuard<TUser> signInGuard) {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _totpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
         _identityMessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
+        _signInGuard = signInGuard ?? throw new ArgumentNullException(nameof(signInGuard));
     }
 
     /// <inheritdoc />
@@ -183,8 +187,13 @@ public class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.LockedOut);
             return;
         }
-        if (result.IsImpossibleTraveler()) {
-            // in this case, and otp has been sent, or an error has occurred.
+        var signInGuardResult = await _signInGuard.IsSuspiciousLogin(_signInManager.Context, context.User);
+        if (signInGuardResult.Warning == SignInWarning.ImpossibleTravel) {
+            if (_signInGuard.ImpossibleTravelDetector.FlowType == ImpossibleTravelFlowType.DenyLogin) {
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.Blocked);
+                return;
+            }
+            // In this case, an otp has been sent, or an error has occurred.
             await SendOrValidateImpossibleTravelOtp(context);
             if (context.Handled) {
                 return;
