@@ -34,7 +34,7 @@ public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
             return;
         }
         // Check if user has an elevated access token and is already TOTP authenticated.
-        var isOtpAuthenticated = principal.FindFirstValue<bool>(BasicClaimTypes.OtpAuthenticated) ?? false;
+        var isOtpAuthenticated = principal.FindFirstValue<bool>(CustomGrantTypes.Mfa) ?? false;
         if (isOtpAuthenticated) {
             await next();
             return;
@@ -64,7 +64,7 @@ public class RequiresOtpAttribute : Attribute, IAsyncActionFilter
         var purpose = GetTotpPurpose(subject, phoneNumber);
         // No TOTP is present in the request, so will try to send one using the preferred delivery channel.
         if (string.IsNullOrWhiteSpace(totp)) {
-            var deliveryChannel = TotpDeliveryChannel.Sms; //_serviceProvider.GetRequiredService<IOptions<DeviceOptions>>().Value.DefaultTotpDeliveryChannel;
+            var deliveryChannel = TotpDeliveryChannel.Sms;
             await totpService.SendAsync(totp =>
                 totp.ToPrincipal(principal)
                     .WithMessage(GetTotpMessage())

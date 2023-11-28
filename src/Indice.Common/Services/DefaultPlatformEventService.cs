@@ -3,13 +3,13 @@
 namespace Indice.Services;
 
 /// <summary>Implementation of <see cref="IPlatformEventService"/>.</summary>
-public class PlatformEventService : IPlatformEventService
+public class DefaultPlatformEventService : IPlatformEventService
 {
     private readonly IServiceProvider _serviceProvider;
 
-    /// <summary>Creates a new instance of <see cref="PlatformEventService"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="DefaultPlatformEventService"/>.</summary>
     /// <param name="serviceProvider">Defines a mechanism for retrieving a service object; that is, an object that provides custom support to other objects.</param>
-    public PlatformEventService(IServiceProvider serviceProvider) =>
+    public DefaultPlatformEventService(IServiceProvider serviceProvider) =>
         _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
     /// <inheritdoc />

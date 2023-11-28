@@ -19,7 +19,7 @@ public static class PushNotificationsFeatureExtensions
         var options = new PushNotificationAzureOptions();
         configure?.Invoke(builder.Services.BuildServiceProvider(), options);
         builder.Services.AddPushNotificationServiceAzure(configure);
-        builder.Services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+        builder.Services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
         builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new PushNotificationsFeatureProvider()));
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddValidatorsFromAssemblyContaining<PushNotificationsFeatureProvider>();

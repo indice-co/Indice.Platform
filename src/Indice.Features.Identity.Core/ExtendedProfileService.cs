@@ -2,7 +2,6 @@
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Security;
 
 namespace Indice.Features.Identity.Core;
 
@@ -22,13 +21,8 @@ public class ExtendedProfileService<TInner> : IProfileService where TInner : IPr
     }
 
     /// <inheritdoc />
-    public async Task GetProfileDataAsync(ProfileDataRequestContext context) {
+    public async Task GetProfileDataAsync(ProfileDataRequestContext context) => 
         await _inner.GetProfileDataAsync(context);
-        var otpVerifiedClaim = context.Subject.FindFirst(BasicClaimTypes.OtpAuthenticated);
-        if (otpVerifiedClaim is not null) {
-            context.IssuedClaims.Add(otpVerifiedClaim);
-        }
-    }
 
     /// <inheritdoc />
     public async Task IsActiveAsync(IsActiveContext context) {

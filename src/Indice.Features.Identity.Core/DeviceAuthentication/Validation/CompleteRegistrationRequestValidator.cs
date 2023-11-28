@@ -7,13 +7,16 @@ using IdentityServer4.Validation;
 using Indice.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
+using Indice.Features.Identity.Core.DeviceAuthentication.Extensions;
 using Indice.Features.Identity.Core.DeviceAuthentication.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 
@@ -25,12 +28,14 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         ILogger<CompleteRegistrationRequestValidator> logger,
         ITokenValidator tokenValidator,
         TotpServiceFactory totpServiceFactory,
-        ExtendedUserManager<User> userManager
+        ExtendedUserManager<User> userManager,
+        IOptions<DeviceAuthenticationOptions> deviceAuthenticationOptions
     ) : base(clientStore, tokenValidator) {
         CodeChallengeStore = codeChallengeStore;
         Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         TotpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        DeviceAuthenticationOptions = deviceAuthenticationOptions?.Value ?? throw new ArgumentNullException(nameof(deviceAuthenticationOptions));
     }
 
     /// <summary>
@@ -41,6 +46,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
     public ILogger<CompleteRegistrationRequestValidator> Logger { get; }
     public TotpServiceFactory TotpServiceFactory { get; }
     public ExtendedUserManager<User> UserManager { get; }
+    public DeviceAuthenticationOptions DeviceAuthenticationOptions { get; }
 
     public override async Task<CompleteRegistrationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
         Logger.LogDebug($"[{nameof(CompleteRegistrationRequestValidator)}] Started trusted device registration request validation.");
@@ -82,9 +88,9 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         if (authorizationCode.InteractionMode == InteractionMode.Pin) {
             parametersToValidate.Add(RegistrationRequestParameters.Pin);
         }
-        var otpAuthenticatedValue = tokenValidationResult.Claims.FirstOrDefault(x => x.Type == BasicClaimTypes.OtpAuthenticated)?.Value;
-        var otpAuthenticated = !string.IsNullOrWhiteSpace(otpAuthenticatedValue) && bool.Parse(otpAuthenticatedValue);
-        if (!otpAuthenticated) {
+        var amrClaim = tokenValidationResult.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.AuthenticationMethod);
+        var mfaPassed = amrClaim is not null && amrClaim.Value == CustomGrantTypes.Mfa;
+        if (DeviceAuthenticationOptions.AlwaysSendOtp || !mfaPassed) {
             parametersToValidate.Add(RegistrationRequestParameters.OtpCode);
         }
         foreach (var parameter in parametersToValidate) {
@@ -132,7 +138,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
             return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "User does not exists.");
         }
         // Validate OTP code, if needed.
-        if (!otpAuthenticated) {
+        if (DeviceAuthenticationOptions.AlwaysSendOtp || !mfaPassed) {
             var totpResult = await TotpServiceFactory.Create<User>().VerifyAsync(user, parameters.Get(RegistrationRequestParameters.OtpCode), Constants.DeviceAuthenticationOtpPurpose(userId, authorizationCode.DeviceId));
             if (!totpResult.Success) {
                 return Error(totpResult.Error);

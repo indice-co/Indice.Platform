@@ -35,9 +35,12 @@ public static class IdentityServerBuilderExtensions
 
     /// <summary>Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.</summary>
     /// <typeparam name="TUser">The type of user.</typeparam>
+    /// <typeparam name="TIdentityResourceOwnerPasswordValidator">The type of custom resource owner password validator.</typeparam>
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
-    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder) where TUser : User {
-        builder.Services.AddTransient<IResourceOwnerPasswordValidationFilter<TUser>, IdentityResourceOwnerPasswordValidator<TUser>>();
+    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser, TIdentityResourceOwnerPasswordValidator>(this IIdentityServerBuilder builder)
+        where TUser : User
+        where TIdentityResourceOwnerPasswordValidator : class, IResourceOwnerPasswordValidationFilter<TUser> {
+        builder.Services.AddTransient<IResourceOwnerPasswordValidationFilter<TUser>, TIdentityResourceOwnerPasswordValidator>();
         builder.AddResourceOwnerValidator<ExtendedResourceOwnerPasswordValidator<TUser>>();
         var profileServiceImplementation = builder.Services.Where(x => x.ServiceType == typeof(IProfileService)).LastOrDefault()?.ImplementationType;
         if (profileServiceImplementation != null) {
@@ -47,6 +50,12 @@ public static class IdentityServerBuilderExtensions
         }
         return builder;
     }
+
+    /// <summary>Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.</summary>
+    /// <typeparam name="TUser">The type of user.</typeparam>
+    /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
+    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder) where TUser : User => 
+        builder.AddExtendedResourceOwnerPasswordValidator<TUser, IdentityResourceOwnerPasswordValidator<TUser>>();
 
     /// <summary>Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.</summary>
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>

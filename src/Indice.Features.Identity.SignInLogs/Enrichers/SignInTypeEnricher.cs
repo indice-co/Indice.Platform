@@ -20,7 +20,7 @@ public sealed class SignInTypeEnricher : ISignInLogEntryEnricher
 
     private static readonly IReadOnlyList<string> NON_INTERACTIVE_GRANT_TYPES = new List<string> {
         CustomGrantTypes.Delegation,
-        CustomGrantTypes.OtpAuthenticate,
+        CustomGrantTypes.Mfa,
         GrantType.ClientCredentials,
         IdentityServerConstants.PersistedGrantTypes.RefreshToken,
         TotpConstants.GrantType.Totp

@@ -51,7 +51,7 @@ internal class PersistLogsHostedService : BackgroundService
                 .PipeAsync(async logEntry => {
                     await _eventService.Publish(new SignInLogCreatedEvent(logEntry));
                     return logEntry;
-                })
+                }, cancellationToken: stoppingToken)
                 .Batch(_signInLogOptions.DequeueBatchSize)
                 .WithTimeout(_signInLogOptions.DequeueTimeoutInMilliseconds)
                 .ReadAllAsync(stoppingToken);

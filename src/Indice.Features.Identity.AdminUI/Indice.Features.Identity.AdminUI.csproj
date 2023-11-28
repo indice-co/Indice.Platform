@@ -6,7 +6,6 @@
     <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;AdminUI</PackageTags>
-    <!--<Version>7.0.0-beta01</Version>-->
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>

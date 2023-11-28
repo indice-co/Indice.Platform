@@ -27,11 +27,14 @@ public static class DeviceAuthenticationConfiguration
             Configuration = configuration
         };
         configureAction?.Invoke(options);
+        builder.Services.Configure<DeviceAuthenticationOptions>(x => {
+            x.AlwaysSendOtp = options.AlwaysSendOtp;
+        });
         // Register endpoints.
         builder.RegisterEndpoints();
         // Register stores and services.
         builder.Services.AddTransient<IDeviceAuthenticationCodeChallengeStore, DefaultDeviceAuthenticationCodeChallengeStore>();
-        builder.Services.TryAddTransient<IPlatformEventService, PlatformEventService>();
+        builder.Services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
         builder.Services.TryAddScoped<IdentityMessageDescriber>();
         options.AddUserDeviceStoreInMemory();
         // Register custom grant validator.

@@ -164,7 +164,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return SignInResult.Failed;
         }
         if (_stateProvider.ShouldSignInPartially()) {
-            return await DoPartialSignInAsync(user, new string[] { "pwd" });
+            return await DoPartialSignInAsync(user, ["pwd"]);
         }
         var mfaImplicitlyPassed = false;
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {
@@ -287,11 +287,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return attempt;
         }
         var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
-        if (result.Warning is SignInWarning.ImpossibleTravel) {
-            return _signInGuard.ImpossibleTravelDetector.FlowType == ImpossibleTravelFlowType.PromptMfa
-                ? new ExtendedSignInResult(UserState.IsImpossibleTraveler)
-                : SignInResult.NotAllowed;
-        }
         await _eventService.Publish(UserPasswordLoginEvent.Success(user, result.Warning));
         if (ExpireBlacklistedPasswordsOnSignIn) {
             var blacklistPasswordValidator = ExtendedUserManager.PasswordValidators.OfType<NonCommonPasswordValidator<TUser>>().FirstOrDefault();
@@ -518,12 +513,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 /// <summary>Extends the <see cref="SignInResult"/> type.</summary>
 public class ExtendedSignInResult : SignInResult
 {
-    /// <summary>Construct an instance of <see cref="ExtendedSignInResult"/>.</summary>
+    /// <summary>Constructs an instance of <see cref="ExtendedSignInResult"/>.</summary>
     public ExtendedSignInResult(
         bool requiresEmailVerification,
         bool requiresPhoneNumberVerification,
         bool requiresPasswordChange,
-        bool requiresMfaOnboarding, 
+        bool requiresMfaOnboarding,
         bool isImpossibleTraveler) {
         RequiresEmailVerification = requiresEmailVerification;
         RequiresPhoneNumberVerification = requiresPhoneNumberVerification;
@@ -532,7 +527,7 @@ public class ExtendedSignInResult : SignInResult
         IsImpossibleTraveler = isImpossibleTraveler;
     }
 
-    /// <summary>Construct an instance of <see cref="ExtendedSignInResult"/> based on <see cref="UserState"/>.</summary>
+    /// <summary>Constructs an instance of <see cref="ExtendedSignInResult"/> based on <see cref="UserState"/>.</summary>
     public ExtendedSignInResult(UserState state) : this(
         state == UserState.RequiresEmailVerification,
         state == UserState.RequiresPhoneNumberVerification,

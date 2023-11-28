@@ -66,8 +66,6 @@ public static class BasicClaimTypes
     public const string ConsentTermsDate = "consent_terms_date";
     /// <summary>Trusted device authorized client.</summary>
     public const string TrustedDevice = "trusted_device";
-    /// <summary>OTP is already verified.</summary>
-    public const string OtpAuthenticated = "otp_authenticated";
     /// <summary>Tax identification number.</summary>
     public const string Tin = "tin";
     /// <summary>Access token obtained by Microsoft Identity Platform.</summary>

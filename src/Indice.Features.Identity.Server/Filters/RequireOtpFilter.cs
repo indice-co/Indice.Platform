@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using IdentityModel;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
@@ -43,7 +44,7 @@ public static class RequireOtpFilterExtensions
                         return Results.ValidationProblem(ValidationErrors.AddError("Forbidden", "Authenticated user is required"), detail: "Principal is not present or not authenticated.");
                     }
                     // Check if user has an elevated access token and is already TOTP authenticated.
-                    var isOtpAuthenticated = principal.FindFirstValue<bool>(BasicClaimTypes.OtpAuthenticated) ?? false;
+                    var isOtpAuthenticated = principal.FindFirstValue<bool>(JwtClaimTypes.AuthenticationMethod) ?? false;
                     if (isOtpAuthenticated) {
                         return await next(invocationContext);
                     }
