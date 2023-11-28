@@ -19,4 +19,6 @@ public class RiskEvent
     public string Type { get; set; } = string.Empty;
     /// <summary>The data of the event.</summary>
     public dynamic? Data { get; set; }
+    /// <summary>The Id of the source that posted the event.</summary>
+    public string? SourceId { get; set; }
 }

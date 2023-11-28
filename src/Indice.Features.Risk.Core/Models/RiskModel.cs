@@ -17,6 +17,8 @@ public class RiskModel
     public string Type { get; set; } = string.Empty;
     /// <summary>The data of the event.</summary>
     public dynamic? Data { get; set; }
+    /// <summary>The Id of the source that posted the event.</summary>
+    public string? SourceId { get; set; }
 
     /// <summary></summary>
     public RiskEvent ToRiskEvent() => new() {
@@ -27,6 +29,7 @@ public class RiskModel
         Name = Name,
         SubjectId = SubjectId,
         Type = Type,
-        Data = Data
+        Data = Data,
+        SourceId = SourceId
     };
 }
