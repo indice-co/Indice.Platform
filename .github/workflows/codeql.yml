@@ -4,8 +4,61 @@ on:
   workflow_dispatch:
 
 jobs:
-  analyze:
-    name: Analyze
+  analyze_backend:
+    name: Analyze .NET
+    runs-on: windows-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+        fail-fast: false
+        matrix:
+          language: [ 'csharp' ]
+
+    steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+
+    - name: Use .NET 8
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+        source-url: https://api.nuget.org/v3/index.json
+      # env:
+      #   NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
+
+    - name: Create Nuget directory
+      shell: pwsh
+      run: |
+        if (!(Test-Path -Path ".\.nuget" ))
+        {
+          New-Item -ItemType "directory" -Path ".\.nuget"
+        }
+        if (!(Test-Path -Path ".\.nuget\packages" ))
+        {
+          New-Item -ItemType "directory" -Path ".\.nuget\packages"
+        }
+
+    - name: Restore Nuget packages + Build
+      run: ./build.ps1
+
+    - name: Execute CodeQL analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{matrix.language}}"
+
+  analyze_frontend:
+    name: Analyze Javascript + TypeScript
     runs-on: windows-latest
     permissions:
       actions: read
@@ -15,35 +68,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'csharp', 'javascript-typescript' ]
+        language: [ 'javascript-typescript' ]
 
     steps:
 
-    # Clone repository
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-    # Setup CodeQL + .NET SDK + Node.js
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
 
-    - name: Use .NET 8
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
-        source-url: https://api.nuget.org/v3/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
-
     - name: Use Node.js 16.x
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: 16
         check-latest: true
 
-    # Build the solution
     - name: NPM Install + Build Cases UI
       run: |
         cd src/Indice.Features.Cases.App
@@ -61,23 +105,7 @@ jobs:
         cd src/Indice.Features.Messages.App
         npm install --force
         npm run build:template
-
-    - name: Create Nuget directory
-      shell: pwsh
-      run: |
-        if (!(Test-Path -Path ".\.nuget" ))
-        {
-          New-Item -ItemType "directory" -Path ".\.nuget"
-        }
-        if (!(Test-Path -Path ".\.nuget\packages" ))
-        {
-          New-Item -ItemType "directory" -Path ".\.nuget\packages"
-        }
-
-    - name: Restore Nuget packages + Build
-      run: ./build.ps1
     
-    # Execute the actual CodeQL analysis
     - name: Execute CodeQL analysis
       uses: github/codeql-action/analyze@v2
       with:
