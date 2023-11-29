@@ -6,6 +6,10 @@ branches:
 image: Visual Studio 2022
 install:
 - ps: Install-Product node 16.13.0
+- ps: |
+    dotnet tool install -g InheritDocTool
+    Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile dotnet-install.ps1
+    ./dotnet-install.ps1 -Channel 8.0
 before_build:
 - ps: >-
     if (!(Test-Path -Path ".\.nuget" ))
