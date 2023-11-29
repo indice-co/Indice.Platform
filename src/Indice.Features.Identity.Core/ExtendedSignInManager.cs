@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 using IdentityModel;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
@@ -167,18 +168,18 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return await DoPartialSignInAsync(user, ["pwd"]);
         }
         var mfaImplicitlyPassed = false;
+        var deviceId = await _mfaDeviceIdResolver.Resolve();
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {
             if (result.Warning == SignInWarning.ImpossibleTravel || !await IsTwoFactorClientRememberedAsync(user)) {
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
+                Context.Session.SetString("deviceId", JsonSerializer.Serialize(deviceId));
                 await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(userId, loginProvider));
                 return SignInResult.TwoFactorRequired;
             } else {
                 mfaImplicitlyPassed = true;
             }
         }
-        MfaDeviceIdentifier deviceId = null;
         if (user is User) {
-            deviceId = await _mfaDeviceIdResolver.Resolve();
             var userDevice = deviceId?.Value is not null ? user.Devices?.FirstOrDefault(x => x.DeviceId == deviceId.Value) : null;
             if (userDevice is not null) {
                 userDevice.LastSignInDate = DateTimeOffset.UtcNow;
@@ -222,7 +223,11 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         await ExtendedUserManager.UpdateAsync(user);
         await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
         var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
-        await _eventService.Publish(UserLoginEvent.Success(user, result.Warning));
+        await _eventService.Publish(UserLoginEvent.Success(
+            user, 
+            result.Warning, 
+            additionalClaims.Where(claim => claim.Type == JwtClaimTypes.AuthenticationMethod).Select(claim => claim.Value).ToArray()
+        ));
     }
 
     /// <inheritdoc/>

@@ -36,7 +36,15 @@ public sealed class UserLoginEventHandler : IPlatformEventHandler<UserLoginEvent
             if (!string.IsNullOrWhiteSpace(clientId)) {
                 client = await _clientStore.FindClientByIdAsync(clientId);
             }
-            await _eventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(@event.User.UserName, @event.User.Id, @event.User.UserName, clientId: clientId, clientName: client?.ClientName, warning: @event.Warning));
+            await _eventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
+                @event.User.UserName, 
+                @event.User.Id, 
+                @event.User.UserName, 
+                clientId: clientId, 
+                clientName: client?.ClientName, 
+                warning: @event.Warning, 
+                authenticationMethods: @event.AuthenticationMethods
+            ));
         }
     }
 }

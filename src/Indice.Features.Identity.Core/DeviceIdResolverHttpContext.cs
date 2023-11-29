@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using System.Text.Json;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -37,6 +38,12 @@ public class DeviceIdResolverHttpContext : IDeviceIdResolver
             if (!hasDeviceId) {
                 hasDeviceId = _httpContextAccessor.HttpContext.Items.TryGetValue("deviceId", out var deviceIdObject);
                 deviceId = deviceIdObject?.ToString();
+            }
+            if (!hasDeviceId) {
+                hasDeviceId = _httpContextAccessor.HttpContext.Session.TryGetValue("deviceId", out var deviceIdObject);
+                deviceId = deviceIdObject is not null 
+                    ? (await JsonSerializer.DeserializeAsync<MfaDeviceIdentifier>(new MemoryStream(deviceIdObject)))?.Value 
+                    : default;
             }
         }
         return await Task.FromResult(hasDeviceId ? deviceId.ToString() : null);

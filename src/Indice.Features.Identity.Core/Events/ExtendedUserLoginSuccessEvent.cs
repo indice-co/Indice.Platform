@@ -31,6 +31,7 @@ public class ExtendedUserLoginSuccessEvent : UserLoginSuccessEvent
     /// <param name="clientId">The client id.</param>
     /// <param name="clientName">The client name.</param>
     /// <param name="warning">Describes a warning that may occur during a sign in event.</param>
+    /// <param name="authenticationMethods">List of authentication methods used.</param>
     public ExtendedUserLoginSuccessEvent(
         string username,
         string subjectId,
@@ -38,14 +39,18 @@ public class ExtendedUserLoginSuccessEvent : UserLoginSuccessEvent
         bool interactive = true,
         string clientId = null,
         string clientName = null,
-        SignInWarning? warning = null
+        SignInWarning? warning = null,
+        string[] authenticationMethods = null
     ) : base(username, subjectId, name, interactive, clientId) {
         ClientName = clientName;
         Warning = warning;
+        AuthenticationMethods = authenticationMethods;
     }
 
     /// <summary>Describes a warning that may occur during a sign in event.</summary>
     public SignInWarning? Warning { get; }
     /// <summary>The client name.</summary>
     public string ClientName { get; set; }
+    /// <summary>List of authentication methods used.</summary>
+    public string[] AuthenticationMethods { get; set; } = [];
 }
