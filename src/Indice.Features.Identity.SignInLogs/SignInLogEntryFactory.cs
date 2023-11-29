@@ -75,6 +75,9 @@ internal class SignInLogEntryFactory
             logEntry.Review = true;
             logEntry.ExtraData.Warning = @event.Warning.Value;
         }
+        if (@event.AuthenticationMethods.Any()) {
+            logEntry.ExtraData.AuthenticationMethods = @event.AuthenticationMethods;
+        }
         logEntry.ExtraData.OriginalEventType = nameof(ExtendedUserLoginSuccessEvent);
         return logEntry;
     }

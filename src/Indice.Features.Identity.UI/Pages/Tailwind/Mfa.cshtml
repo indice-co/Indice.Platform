@@ -26,7 +26,7 @@
                     <input class="form-control" placeholder="@Localizer["OTP Code"]" asp-for="Input.OtpCode" autofocus />
                     <span asp-validation-for="Input.OtpCode" class="text-danger"></span>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" indice-if="!Model.View.IsExistingBrowser">
                     <div class="form-check custom-checkbox d-inline-block">
                         <label class="form-check-label">
                             <input asp-for="Input.RememberClient" type="checkbox" class="form-check-input text-info" />
@@ -53,7 +53,7 @@
                     </svg>
                     @Localizer["Because you've turned on two-step verification, you need to approve request on your mobile app."]
                 </p>
-                <div class="mb-3">
+                <div class="mb-3" indice-if="!Model.View.IsExistingBrowser">
                     <div class="form-check custom-checkbox d-inline-block">
                         <label class="form-check-label">
                             <input asp-for="Input.RememberClient" type="checkbox" class="form-check-input text-info" />

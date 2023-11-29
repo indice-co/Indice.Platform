@@ -27,4 +27,6 @@ public class SignInLogEntryExtraData
     public SignInWarning? Warning { get; set; }
     /// <summary>The name of the original event occurred.</summary>
     public string OriginalEventType { get; set; }
+    /// <summary>List of authentication methods used.</summary>
+    public string[] AuthenticationMethods { get; set; } = [];
 }

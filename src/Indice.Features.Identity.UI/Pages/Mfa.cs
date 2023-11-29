@@ -29,6 +29,7 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <param name="authenticationMethodProvider">Abstracts interaction with system's various authentication methods.</param>
+    /// <param name="deviceIdResolver">An abstraction used to specify the way to resolve the device identifier using various ways.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseMfaModel(
         IStringLocalizer<BaseMfaModel> localizer,
@@ -37,7 +38,8 @@ public abstract class BaseMfaModel : BasePageModel
         TotpServiceFactory totpServiceFactory,
         IConfiguration configuration,
         IIdentityServerInteractionService interaction,
-        IAuthenticationMethodProvider authenticationMethodProvider
+        IAuthenticationMethodProvider authenticationMethodProvider,
+        IDeviceIdResolver deviceIdResolver
     ) {
         _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -46,6 +48,7 @@ public abstract class BaseMfaModel : BasePageModel
         Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         AuthenticationMethodProvider = authenticationMethodProvider ?? throw new ArgumentNullException(nameof(authenticationMethodProvider));
+        DeviceIdResolver = deviceIdResolver;
     }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
@@ -60,6 +63,8 @@ public abstract class BaseMfaModel : BasePageModel
     protected IIdentityServerInteractionService Interaction { get; }
     /// <summary>Abstracts interaction with system's various authentication methods.</summary>
     protected IAuthenticationMethodProvider AuthenticationMethodProvider { get; }
+    /// <summary>An abstraction used to specify the way to resolve the device identifier using various ways.</summary>
+    protected IDeviceIdResolver DeviceIdResolver { get; }
 
     /// <summary>Login view model.</summary>
     public MfaLoginViewModel View { get; set; } = new MfaLoginViewModel();
@@ -122,11 +127,17 @@ public abstract class BaseMfaModel : BasePageModel
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
         var authenticationMethod = await AuthenticationMethodProvider.GetRequiredAuthenticationMethod(user, tryDowngradeAuthenticationMethod) ?? throw new InvalidOperationException("MFA must be applied but no suitable authentication method was found.");
         var allowDowngradeAuthenticationMethod = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
+        var deviceIdentifier = await DeviceIdResolver.Resolve();
+        UserDevice? browserDevice = null;
+        if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
+            browserDevice = await UserManager.GetDeviceByIdAsync(user, deviceIdentifier.Value);
+        }
         return new MfaLoginViewModel {
             AuthenticationMethod = authenticationMethod,
             AllowDowngradeAuthenticationMethod = allowDowngradeAuthenticationMethod,
             ReturnUrl = returnUrl,
-            User = user
+            User = user,
+            IsExistingBrowser = browserDevice is not null
         };
     }
 }
@@ -140,6 +151,7 @@ internal class MfaModel : BaseMfaModel
         TotpServiceFactory totpServiceFactory,
         IConfiguration configuration,
         IIdentityServerInteractionService interaction,
-        IAuthenticationMethodProvider authenticationMethodProvider
-    ) : base(localizer, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider) { }
+        IAuthenticationMethodProvider authenticationMethodProvider,
+        IDeviceIdResolver deviceIdResolver
+    ) : base(localizer, userManager, signInManager, totpServiceFactory, configuration, interaction, authenticationMethodProvider, deviceIdResolver) { }
 }

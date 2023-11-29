@@ -260,12 +260,12 @@ export interface IIdentityApiService {
      * Adds the requested claims on the current user's account.
      * @return OK
      */
-    addClaims(): Observable<ClaimInfoResultSet>;
+    addClaims(body: CreateClaimRequest[]): Observable<ClaimInfoResultSet>;
     /**
      * Upserts the requested claims on the current user's account.
      * @return OK
      */
-    patchClaims(): Observable<ClaimInfoResultSet>;
+    patchClaims(body: CreateClaimRequest[]): Observable<ClaimInfoResultSet>;
     /**
      * Updates the specified claim for the current user.
      * @return OK
@@ -2995,7 +2995,6 @@ export class IdentityApiService implements IIdentityApiService {
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
             })
         };
 
@@ -3454,8 +3453,6 @@ export class IdentityApiService implements IIdentityApiService {
 
     /**
      * Gets the metadata of a certificate for display.
-     * @param file (optional) File data
-     * @param password (optional) Optional password in case this is a application/x-pkcs12
      * @return OK
      */
     getCertificateMetadata(file?: FileParameter | undefined, password?: string | null | undefined): Observable<SecretInfoBase> {
@@ -4118,14 +4115,18 @@ export class IdentityApiService implements IIdentityApiService {
      * Adds the requested claims on the current user's account.
      * @return OK
      */
-    addClaims(): Observable<ClaimInfoResultSet> {
+    addClaims(body: CreateClaimRequest[]): Observable<ClaimInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/account/claims";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -4195,14 +4196,18 @@ export class IdentityApiService implements IIdentityApiService {
      * Upserts the requested claims on the current user's account.
      * @return OK
      */
-    patchClaims(): Observable<ClaimInfoResultSet> {
+    patchClaims(body: CreateClaimRequest[]): Observable<ClaimInfoResultSet> {
         let url_ = this.baseUrl + "/api/my/account/claims";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(body);
+
         let options_ : any = {
+            body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -8275,7 +8280,6 @@ export class IdentityApiService implements IIdentityApiService {
      * @param claimType (optional) 
      * @param claimValue (optional) 
      * @param userId (optional) 
-     * @param body (optional) 
      * @return OK
      */
     getUsers(page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, claimType?: string | undefined, claimValue?: string | undefined, userId?: string[] | undefined, body?: any | undefined): Observable<UserInfoResultSet> {
@@ -13910,6 +13914,10 @@ export class SignInLogEntryExtraData implements ISignInLogEntryExtraData {
     device?: SignInLogEntryDevice;
     userDevice?: SignInLogEntryUserDevice;
     warning?: SignInWarning;
+    /** The name of the original event occurred. */
+    originalEventType?: string | undefined;
+    /** List of authentication methods used. */
+    authenticationMethods?: string[] | undefined;
 
     constructor(data?: ISignInLogEntryExtraData) {
         if (data) {
@@ -13936,6 +13944,12 @@ export class SignInLogEntryExtraData implements ISignInLogEntryExtraData {
             this.device = _data["device"] ? SignInLogEntryDevice.fromJS(_data["device"]) : <any>undefined;
             this.userDevice = _data["userDevice"] ? SignInLogEntryUserDevice.fromJS(_data["userDevice"]) : <any>undefined;
             this.warning = _data["warning"];
+            this.originalEventType = _data["originalEventType"];
+            if (Array.isArray(_data["authenticationMethods"])) {
+                this.authenticationMethods = [] as any;
+                for (let item of _data["authenticationMethods"])
+                    this.authenticationMethods!.push(item);
+            }
         }
     }
 
@@ -13962,6 +13976,12 @@ export class SignInLogEntryExtraData implements ISignInLogEntryExtraData {
         data["device"] = this.device ? this.device.toJSON() : <any>undefined;
         data["userDevice"] = this.userDevice ? this.userDevice.toJSON() : <any>undefined;
         data["warning"] = this.warning;
+        data["originalEventType"] = this.originalEventType;
+        if (Array.isArray(this.authenticationMethods)) {
+            data["authenticationMethods"] = [];
+            for (let item of this.authenticationMethods)
+                data["authenticationMethods"].push(item);
+        }
         return data;
     }
 }
@@ -13985,6 +14005,10 @@ export interface ISignInLogEntryExtraData {
     device?: SignInLogEntryDevice;
     userDevice?: SignInLogEntryUserDevice;
     warning?: SignInWarning;
+    /** The name of the original event occurred. */
+    originalEventType?: string | undefined;
+    /** List of authentication methods used. */
+    authenticationMethods?: string[] | undefined;
 }
 
 /** Request model for updating a Indice.Features.Identity.SignInLogs.Models.SignInLogEntry instance. */

@@ -11,10 +11,12 @@ public class UserLoginEvent<TUser> : IPlatformEvent where TUser : User
     /// <param name="user">The user entity.</param>
     /// <param name="succeeded">Indicates whether the login was successful or not.</param>
     /// <param name="warning">Describes a warning that may occur during a sign in event.</param>
-    public UserLoginEvent(TUser user, bool succeeded, SignInWarning? warning = null) {
+    /// <param name="authenticationMethods">List of authentication methods used.</param>
+    public UserLoginEvent(TUser user, bool succeeded, SignInWarning? warning = null, string[] authenticationMethods = null) {
         User = user;
         Succeeded = succeeded;
         Warning = warning;
+        AuthenticationMethods = authenticationMethods ?? Array.Empty<string>();
     }
 
     /// <summary>The user entity.</summary>
@@ -23,11 +25,16 @@ public class UserLoginEvent<TUser> : IPlatformEvent where TUser : User
     public bool Succeeded { get; }
     /// <summary>Describes a warning that may occur during a sign in event.</summary>
     public SignInWarning? Warning { get; }
+    /// <summary>List of authentication methods used.</summary>
+    public string[] AuthenticationMethods { get; set; }
 
     /// <summary>Creates a new instance of <see cref="UserLoginEvent{TUser}"/> and sets the value true to <see cref="Succeeded"/> property.</summary>
     /// <param name="user">The user entity.</param>
     /// <param name="warning">Describes a warning that may occur during a sign in event.</param>
-    public static UserLoginEvent Success(TUser user, SignInWarning? warning = null) => new(user, true, warning);
+    /// <param name="authenticationMethods">List of authentication methods used.</param>
+    public static UserLoginEvent Success(TUser user, SignInWarning? warning = null, string[] authenticationMethods = null) => 
+        new(user, true, warning, authenticationMethods);
+
     /// <summary>Creates a new instance of <see cref="UserLoginEvent{TUser}"/> and sets the value false to <see cref="Succeeded"/> property.</summary>
     /// <param name="user">The user entity.</param>
     public static UserLoginEvent Fail(TUser user) => new(user, false);
@@ -40,5 +47,6 @@ public class UserLoginEvent : UserLoginEvent<User>
     /// <param name="user">The user entity.</param>
     /// <param name="succeeded">Indicates whether the login was successful or not.</param>
     /// <param name="warning">Describes a warning that may occur during a sign in event.</param>
-    public UserLoginEvent(User user, bool succeeded, SignInWarning? warning = null) : base(user, succeeded, warning) { }
+    /// <param name="authenticationMethods">List of authentication methods used.</param>
+    public UserLoginEvent(User user, bool succeeded, SignInWarning? warning = null, string[] authenticationMethods = null) : base(user, succeeded, warning, authenticationMethods) { }
 }

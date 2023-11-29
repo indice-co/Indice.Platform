@@ -12,6 +12,8 @@ public class MfaLoginViewModel<TUser> : MfaLoginInputModel where TUser : User, n
     public bool AllowDowngradeAuthenticationMethod { get; set; }
     /// <summary>The authentication method that will be used for MFA.</summary>
     public AuthenticationMethod? AuthenticationMethod { get; set; }
+    /// <summary>Indicates whether the current browser device already exists for the user.</summary>
+    public bool IsExistingBrowser { get; set; }
 }
 
 /// <summary>MFA login view model.</summary>
