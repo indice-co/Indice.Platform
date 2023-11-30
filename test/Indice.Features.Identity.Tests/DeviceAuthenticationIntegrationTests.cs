@@ -218,8 +218,6 @@ public class DeviceAuthenticationIntegrationTests
         Assert.IsType<Guid>(responseDto.RegistrationId);
     }
 
-
-
     [Fact]
     public Task Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint_Test() => 
         Can_Register_Device_Using_Pin_When_Already_Supports_Fingerprint();

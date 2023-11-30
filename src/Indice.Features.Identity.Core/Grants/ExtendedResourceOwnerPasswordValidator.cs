@@ -50,8 +50,10 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
             return;
         }
         var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];
-        var device = await _userManager.GetDeviceByIdAsync(user, deviceId);
-        extendedContext.SetDevice(device);
+        if (!string.IsNullOrWhiteSpace(deviceId)) {
+            var device = await _userManager.GetDeviceByIdAsync(user, deviceId);
+            extendedContext.SetDevice(device);
+        }
         var isError = false;
         foreach (var filter in _filters.OrderBy(x => x.Order)) {
             await filter.ValidateAsync(extendedContext);
