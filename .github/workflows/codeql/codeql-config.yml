@@ -1,3 +1,8 @@
+name: "CodeQL config"
+
+queries:
+  - uses: security-and-quality
+
 paths-ignore:
   - '**/Indice.Features.Messages.App/dist/**'
   - '**/Indice.Features.Cases.App/dist/**'
