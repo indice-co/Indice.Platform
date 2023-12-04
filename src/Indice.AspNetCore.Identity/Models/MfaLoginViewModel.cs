@@ -14,6 +14,8 @@ public class MfaLoginViewModel<TUser> : MfaLoginInputModel where TUser : User
     public bool AllowMfaChannelDowngrade { get; set; }
     /// <summary>The list of name devices that will be notified in case the <see cref="DeliveryChannel"/> is <seealso cref="TotpDeliveryChannel.PushNotification"/>.</summary>
     public IEnumerable<string> DeviceNames { get; set; } = new List<string>();
+    /// <summary>Indicates whether the current browser device already exists for the user.</summary>
+    public bool IsExistingBrowser { get; set; }
 }
 
 /// <summary>MFA login view model.</summary>

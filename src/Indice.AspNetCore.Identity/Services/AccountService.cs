@@ -22,6 +22,7 @@ public class AccountService : IAccountService
     private readonly ExtendedUserManager<User> _userManager;
     private readonly ExtendedSignInManager<User> _signInManager;
     private readonly IConfiguration _configuration;
+    private readonly IDeviceIdResolver _deviceIdResolver;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IAuthenticationSchemeProvider _schemeProvider;
@@ -34,6 +35,7 @@ public class AccountService : IAccountService
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
     /// <param name="signInManager">Provides the APIs for user sign in.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="deviceIdResolver"></param>
     public AccountService(
         IIdentityServerInteractionService interaction,
         IHttpContextAccessor httpContextAccessor,
@@ -41,7 +43,8 @@ public class AccountService : IAccountService
         IClientStore clientStore,
         ExtendedUserManager<User> userManager,
         ExtendedSignInManager<User> signInManager,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IDeviceIdResolver deviceIdResolver
     ) {
         _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -50,6 +53,7 @@ public class AccountService : IAccountService
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        _deviceIdResolver = deviceIdResolver ?? throw new ArgumentNullException(nameof(deviceIdResolver));
     }
 
     /// <inheritdoc />
@@ -128,12 +132,19 @@ public class AccountService : IAccountService
                 deliveryChannel = mfaChannel ?? TotpDeliveryChannel.Sms;
             }
         }
+        var deviceIdentifier = await _deviceIdResolver.Resolve();
+        var isExistingBrowser = false;
+        if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
+            var browserDevice = await _userManager.GetDeviceByIdAsync(user, deviceIdentifier.Value);
+            isExistingBrowser = browserDevice is not null;
+        }
         return new MfaLoginViewModel {
             AllowMfaChannelDowngrade = allowMfaChannelDowngrade,
             DeliveryChannel = deliveryChannel,
             DeviceNames = trustedDevices.Select(x => x.Name),
             ReturnUrl = returnUrl,
-            User = user
+            User = user,
+            IsExistingBrowser = isExistingBrowser
         };
     }
 
