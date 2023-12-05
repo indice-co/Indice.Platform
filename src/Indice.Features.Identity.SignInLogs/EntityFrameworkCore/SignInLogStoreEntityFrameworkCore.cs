@@ -54,19 +54,22 @@ internal class SignInLogStoreEntityFrameworkCore : ISignInLogStore
         IQueryable<Data.DbSignInLogEntry> query = _dbContext.SignInLogs;
         if (filter is not null) {
             if (filter.From.HasValue) {
-                query = query.Where(l => l.CreatedAt >= filter.From.Value);
+                query = query.Where(log => log.CreatedAt >= filter.From.Value);
             }
             if (filter.To.HasValue) {
-                query = query.Where(l => l.CreatedAt < filter.To.Value.AddDays(1));
+                query = query.Where(log => log.CreatedAt < filter.To.Value.AddDays(1));
             }
             if (filter.Succeeded.HasValue) {
-                query = query.Where(l => l.Succeeded == filter.Succeeded.Value);
+                query = query.Where(log => log.Succeeded == filter.Succeeded.Value);
             }
             if (filter.SignInType.HasValue) {
-                query = query.Where(l => l.SignInType == filter.SignInType.Value);
+                query = query.Where(log => log.SignInType == filter.SignInType.Value);
             }
             if (!string.IsNullOrWhiteSpace(filter.Subject)) {
-                query = query.Where(l => l.SubjectId == filter.Subject || l.SubjectName == filter.Subject);
+                query = query.Where(log => log.SubjectId == filter.Subject || log.SubjectName == filter.Subject);
+            }
+            if (!string.IsNullOrWhiteSpace(filter.ActionName)) {
+                query = query.Where(log => log.ActionName == filter.ActionName);
             }
         }
         return await query.Select(ObjectMapping.ToSignInLogEntry).ToResultSetAsync(options, cancellationToken);

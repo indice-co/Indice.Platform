@@ -82,7 +82,7 @@ internal class SignInLogEntryFactory
         return logEntry;
     }
 
-    public static SignInLogEntry CreateFromUserLoginFailureEvent(UserLoginFailureEvent @event) {
+    public static SignInLogEntry CreateFromUserLoginFailureEvent(ExtendedUserLoginFailureEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
             ApplicationId = @event.ClientId,
@@ -91,13 +91,13 @@ internal class SignInLogEntryFactory
             ResourceId = @event.Endpoint,
             ResourceType = "IdentityServer",
             SignInType = SignInType.Interactive,
-            SubjectId = @event.Username,
+            SubjectId = @event.SubjectId,
             SubjectName = @event.Username,
             Succeeded = false,
             ExtraData = new SignInLogEntryExtraData()
         };
         logEntry.ExtraData.ProcessId = @event.ProcessId;
-        logEntry.ExtraData.OriginalEventType = nameof(UserLoginFailureEvent);
+        logEntry.ExtraData.OriginalEventType = nameof(ExtendedUserLoginFailureEvent);
         return logEntry;
     }
 

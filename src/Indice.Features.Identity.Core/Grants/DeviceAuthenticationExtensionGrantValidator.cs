@@ -1,5 +1,6 @@
 ﻿using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Indice.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
@@ -8,7 +9,7 @@ using Indice.Features.Identity.Core.DeviceAuthentication.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Services;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
-using Microsoft.AspNetCore.Authentication;
+using Indice.Features.Identity.Core.Events;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.Features.Identity.Core.Grants;
@@ -19,24 +20,25 @@ internal class DeviceAuthenticationExtensionGrantValidator : RequestChallengeVal
         IDeviceAuthenticationCodeChallengeStore codeChallengeStore,
         IDevicePasswordHasher devicePasswordHasher,
         IUserDeviceStore userDeviceStore,
-        ExtendedUserManager<User> userManager
+        ExtendedUserManager<User> userManager,
+        IEventService eventService
     ) {
         CodeChallengeStore = codeChallengeStore ?? throw new ArgumentNullException(nameof(codeChallengeStore));
         DevicePasswordHasher = devicePasswordHasher ?? throw new ArgumentNullException(nameof(devicePasswordHasher));
         UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
     }
 
     public string GrantType => CustomGrantTypes.DeviceAuthentication;
     public IDeviceAuthenticationCodeChallengeStore CodeChallengeStore { get; }
     public IDevicePasswordHasher DevicePasswordHasher { get; }
 
-    /// <summary>
-    /// Gets the current time, primarily for unit testing.
-    /// </summary>
+    /// <summary>Gets the current time, primarily for unit testing.</summary>
     protected TimeProvider TimeProvider { get; private set; } = TimeProvider.System;
     public IUserDeviceStore UserDeviceStore { get; }
     public ExtendedUserManager<User> UserManager { get; }
+    public IEventService EventService { get; }
 
     public async Task ValidateAsync(ExtensionGrantValidationContext context) {
         var parameters = context.Request.Raw;
@@ -120,7 +122,28 @@ internal class DeviceAuthenticationExtensionGrantValidator : RequestChallengeVal
         }
         await UserDeviceStore.UpdateLastSignInDate(device);
         await UserManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
+        if (context.Result.IsError) {
+            await RaiseUserLoginFailureEvent(user, context);
+        } else {
+            await RaiseUserLoginSuccessEvent(user, context);
+        }
     }
+
+    private Task RaiseUserLoginSuccessEvent(User user, ExtensionGrantValidationContext context) => EventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
+        user.UserName,
+        user.Id,
+        user.UserName,
+        clientId: context.Request.ClientId,
+        clientName: context.Request.Client.ClientName,
+        authenticationMethods: [context.Result.Subject.Identity.AuthenticationType]
+    ));
+
+    private Task RaiseUserLoginFailureEvent(User user, ExtensionGrantValidationContext context) => EventService.RaiseAsync(new ExtendedUserLoginFailureEvent(
+        user.UserName,
+        "Biometric login failure.",
+        clientId: context.Request.ClientId,
+        subjectId: user.Id
+    ));
 
     private async Task<ValidationResult> ValidateAuthorizationCode(string code, DeviceAuthenticationCode authorizationCode, string codeVerifier, Guid registrationId, Client client) {
         // Validate that the current client is not trying to use an authorization code of a different client.
