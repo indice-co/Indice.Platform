@@ -40,10 +40,13 @@ public class DeviceIdResolverHttpContext : IDeviceIdResolver
                 deviceId = deviceIdObject?.ToString();
             }
             if (!hasDeviceId) {
-                hasDeviceId = _httpContextAccessor.HttpContext.Session.TryGetValue("deviceId", out var deviceIdObject);
-                deviceId = deviceIdObject is not null 
-                    ? (await JsonSerializer.DeserializeAsync<MfaDeviceIdentifier>(new MemoryStream(deviceIdObject)))?.Value 
-                    : default;
+                try {
+
+                    hasDeviceId = _httpContextAccessor.HttpContext.Session.TryGetValue("deviceId", out var deviceIdObject);
+                    deviceId = deviceIdObject is not null
+                        ? (await JsonSerializer.DeserializeAsync<MfaDeviceIdentifier>(new MemoryStream(deviceIdObject)))?.Value
+                        : default;
+                } catch (InvalidOperationException) { }
             }
         }
         return await Task.FromResult(hasDeviceId ? deviceId.ToString() : null);

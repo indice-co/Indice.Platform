@@ -53,11 +53,13 @@ public static class ExtendedIdentityDbContextExtensions
                 dbContext.Users.AddRange(seedOptions.InitialUsers);
             }
             if (seedOptions?.InitialUsers?.Any() != true ||
-                !seedOptions.InitialUsers.Any(x => x.Id == adminId ||
-                                                   x.UserName.Equals(adminEmail, StringComparison.OrdinalIgnoreCase) ||
-                                                   x.Email.Equals(adminEmail, StringComparison.OrdinalIgnoreCase))) {
-                // admin not seeded externaly through initial users!
-                // Create admin now
+                !seedOptions.InitialUsers.Any(
+                    x => x.Id == adminId ||
+                    x.UserName.Equals(adminEmail, StringComparison.OrdinalIgnoreCase) ||
+                    x.Email.Equals(adminEmail, StringComparison.OrdinalIgnoreCase)
+                )
+            ) {
+                // Admin not seeded externally through initial users! Create admin now.
                 var admin = new TUser {
                     Admin = true,
                     ConcurrencyStamp = $"{Guid.NewGuid()}",
@@ -83,10 +85,6 @@ public static class ExtendedIdentityDbContextExtensions
                 dbContext.Users.Add(admin);
             }
         }
-
-        
-        
-      
         dbContext.SaveChanges();
     }
 }

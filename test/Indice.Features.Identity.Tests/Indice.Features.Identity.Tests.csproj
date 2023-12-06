@@ -29,5 +29,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Identity.SignInLogs\Indice.Features.Identity.SignInLogs.csproj" />
   </ItemGroup>
 </Project>

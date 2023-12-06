@@ -14,7 +14,7 @@ public static class HttpContextExtensions
         if (headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)) {
             ipAddress = xForwardedFor;
         }
-        var remoteIpAddress = httpContext.Connection.RemoteIpAddress.ToString();
+        var remoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
         if (!string.IsNullOrWhiteSpace(remoteIpAddress)){
             ipAddress = remoteIpAddress;
         }
