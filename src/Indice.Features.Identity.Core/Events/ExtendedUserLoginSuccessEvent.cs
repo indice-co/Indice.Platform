@@ -50,7 +50,7 @@ public class ExtendedUserLoginSuccessEvent : UserLoginSuccessEvent
     /// <summary>Describes a warning that may occur during a sign in event.</summary>
     public SignInWarning? Warning { get; }
     /// <summary>The client name.</summary>
-    public string ClientName { get; set; }
+    public string ClientName { get; }
     /// <summary>List of authentication methods used.</summary>
-    public string[] AuthenticationMethods { get; set; } = [];
+    public string[] AuthenticationMethods { get; } = [];
 }

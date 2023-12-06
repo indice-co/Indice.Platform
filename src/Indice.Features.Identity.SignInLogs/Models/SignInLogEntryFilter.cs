@@ -24,4 +24,6 @@ public class SignInLogEntryFilter : SignInLogEntryFilterBase
     public bool? MarkForReview { get; set; }
     /// <summary>Indicates whether the specified log entry represents a successful attempt or not.</summary>
     public bool? Succeeded { get; set; }
+    /// <summary>The name of the action.</summary>
+    public string ActionName { get; set; }
 }

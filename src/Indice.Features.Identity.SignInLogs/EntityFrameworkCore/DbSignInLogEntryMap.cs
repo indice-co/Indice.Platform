@@ -20,6 +20,7 @@ internal class DbSignInLogEntryMap : IEntityTypeConfiguration<DbSignInLogEntry>
         builder.HasKey(x => x.Id);
         // Configure indexes.
         builder.HasIndex(x => x.ApplicationId);
+        builder.HasIndex(x => x.ActionName);
         builder.HasIndex(x => x.CreatedAt);
         builder.HasIndex(x => x.SessionId);
         builder.HasIndex(x => x.SubjectId);

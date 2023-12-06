@@ -161,7 +161,7 @@ public abstract class BaseLoginModel : BasePageModel
             }
             if (result.IsLockedOut) {
                 Logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsAttempts} unsuccessful login attempts.", UserName, user?.AccessFailedCount);
-                await Events.RaiseAsync(new UserLoginFailureEvent(Input.UserName, "User locked out."));
+                await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName, "User locked out.", subjectId: user?.Id));
                 ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
             }
             var redirectUrl = GetRedirectUrl(result, Input.ReturnUrl);
@@ -169,7 +169,7 @@ public abstract class BaseLoginModel : BasePageModel
                 return Redirect(redirectUrl);
             }
             Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", UserName);
-            await Events.RaiseAsync(new UserLoginFailureEvent(Input.UserName, "Invalid credentials."));
+            await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName, "Invalid credentials.", subjectId: user?.Id));
             ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
         } else {
             ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);

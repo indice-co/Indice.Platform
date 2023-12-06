@@ -1,9 +1,11 @@
 ﻿using System.Text;
 using IdentityModel;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Services;
@@ -17,14 +19,17 @@ namespace Indice.Features.Identity.Core.Grants;
 /// <param name="filters"></param>
 /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
 /// <param name="logger">Represents a type used to perform logging.</param>
+/// <param name="eventService"></param>
 /// <exception cref="ArgumentNullException"></exception>
 public class ExtendedResourceOwnerPasswordValidator<TUser>(
     IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> filters,
     ExtendedUserManager<TUser> userManager,
-    ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> logger
+    ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> logger,
+    IEventService eventService
 ) : IResourceOwnerPasswordValidator where TUser : User
 {
     private readonly ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IEventService _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
     private readonly IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> _filters = filters ?? throw new ArgumentNullException(nameof(filters));
     private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
@@ -68,6 +73,21 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
         if (!isError) {
             var subject = await _userManager.GetUserIdAsync(user);
             context.Result = extendedContext.Result;
+            await _eventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
+                user.UserName,
+                user.Id,
+                user.UserName,
+                clientId: context.Request.ClientId,
+                clientName: context.Request.Client.ClientName,
+                authenticationMethods: [context.Result.Subject.Identity.AuthenticationType]
+            ));
+        } else {
+            await _eventService.RaiseAsync(new ExtendedUserLoginFailureEvent(
+                user.UserName,
+                "Password login failure.",
+                clientId: context.Request.ClientId,
+                subjectId: user.Id
+            ));
         }
     }
 

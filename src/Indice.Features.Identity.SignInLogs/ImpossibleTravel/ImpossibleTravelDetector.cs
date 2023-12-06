@@ -50,7 +50,8 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
             new SignInLogEntryFilter {
                 SignInType = SignInType.Interactive,
                 Subject = user.Id,
-                To = DateTimeOffset.UtcNow
+                To = DateTimeOffset.UtcNow,
+                ActionName = "User Login Success"
             }
         ))
         .Items;
