@@ -35,7 +35,7 @@ CREATE TABLE [dbo].[MessageSender](
 	[CreatedAt] [datetimeoffset](7) NOT NULL,
 	[UpdatedBy] [nvarchar](max) NULL,
 	[UpdatedAt] [datetimeoffset](7) NULL,
- CONSTRAINT [PK_MessageSenders] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_MessageSender] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
