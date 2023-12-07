@@ -37,9 +37,9 @@ public static class SignInLogFeatureExtensions
         var serviceProvider = services.BuildServiceProvider();
         var configuration = serviceProvider.GetRequiredService<IConfiguration>();
         var resolvedOptions = new SignInLogOptions(builder.Services, configuration) {
-            Enable = configuration.GetSignInLogsEnabled() ?? SignInLogOptions.DEFAULT_ENABLE,
-            ImpossibleTravelGuard = configuration.GetImpossibleTravelEnabled() ?? SignInLogOptions.DEFAULT_IMPOSSIBLE_TRAVEL_GUARD
+            Enable = configuration.GetSignInLogsEnabled() ?? SignInLogOptions.DEFAULT_ENABLE
         };
+        resolvedOptions.ImpossibleTravel.Guard = configuration.GetImpossibleTravelEnabled() ?? ImpossibleTravelOptions.DEFAULT_IMPOSSIBLE_TRAVEL_GUARD;
         configure.Invoke(resolvedOptions);
         // Add IdentityServer sink that captures required sign in events.
         if (!resolvedOptions.Enable) {
@@ -59,9 +59,11 @@ public static class SignInLogFeatureExtensions
             options.DatabaseSchema = resolvedOptions.DatabaseSchema;
             options.Enable = resolvedOptions.Enable;
             options.QueueChannelCapacity = resolvedOptions.QueueChannelCapacity;
-            options.ImpossibleTravelGuard = resolvedOptions.ImpossibleTravelGuard;
-            options.ImpossibleTravelAcceptableSpeed = resolvedOptions.ImpossibleTravelAcceptableSpeed;
-            options.ImpossibleTravelFlowType = resolvedOptions.ImpossibleTravelFlowType;
+            options.ImpossibleTravel.Guard = resolvedOptions.ImpossibleTravel.Guard;
+            options.ImpossibleTravel.AcceptableSpeed = resolvedOptions.ImpossibleTravel.AcceptableSpeed;
+            options.ImpossibleTravel.FlowType = resolvedOptions.ImpossibleTravel.FlowType;
+            options.ImpossibleTravel.RecordPasswordEvents = resolvedOptions.ImpossibleTravel.RecordPasswordEvents;
+            options.ImpossibleTravel.RecordTokenEvents = resolvedOptions.ImpossibleTravel.RecordTokenEvents;
             options.DequeueBatchSize = resolvedOptions.DequeueBatchSize;
             options.DequeueTimeoutInMilliseconds = resolvedOptions.DequeueTimeoutInMilliseconds;
         });
@@ -81,7 +83,7 @@ public static class SignInLogFeatureExtensions
         if (resolvedOptions.Cleanup.Enable) {
             services.AddSingleton<IHostedService, LogCleanupHostedService>();
         }
-        if (resolvedOptions.ImpossibleTravelGuard) {
+        if (resolvedOptions.ImpossibleTravel.Guard) {
             // Configure impossible travel feature.
             services.AddScoped<IImpossibleTravelDetector<TUser>, ImpossibleTravelDetector<TUser>>();
             var serviceDescriptor = builder.Services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(ISignInGuard<TUser>));

@@ -34,7 +34,7 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
     }
 
     /// <inheritdoc />
-    public ImpossibleTravelFlowType FlowType => _signInLogOptions.ImpossibleTravelFlowType;
+    public ImpossibleTravelFlowType FlowType => _signInLogOptions.ImpossibleTravel.FlowType;
 
     /// <inheritdoc />
     public async Task<bool> IsImpossibleTravelLogin(HttpContext httpContext, TUser user) {
@@ -71,7 +71,7 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
             }
             var distanceBetweenLogins = currentLoginCoordinates.Distance(previousLoginCoordinates);
             var travelSpeed = distanceBetweenLogins / (DateTimeOffset.UtcNow - previousLogin.CreatedAt).TotalHours;
-            if (travelSpeed > _signInLogOptions.ImpossibleTravelAcceptableSpeed) {
+            if (travelSpeed > _signInLogOptions.ImpossibleTravel.AcceptableSpeed) {
                 result = true;
                 break;
             }

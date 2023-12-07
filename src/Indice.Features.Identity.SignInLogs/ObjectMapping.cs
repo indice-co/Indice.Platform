@@ -11,6 +11,7 @@ internal static class ObjectMapping
 {
     public static Expression<Func<DbSignInLogEntry, SignInLogEntry>> ToSignInLogEntry = (logEntry) => new() {
         ActionName = logEntry.ActionName,
+        EventType = logEntry.EventType,
         ApplicationId = logEntry.ApplicationId,
         ApplicationName = logEntry.ApplicationName,
         Coordinates = logEntry.Coordinates != null ? new GeoPoint(logEntry.Coordinates.Y, logEntry.Coordinates.X, null) : default,
@@ -38,6 +39,7 @@ internal static class ObjectMapping
         var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(4326);
         return new() {
             ActionName = logEntry.ActionName,
+            EventType = logEntry.EventType,
             ApplicationId = logEntry.ApplicationId,
             ApplicationName = logEntry.ApplicationName,
             Coordinates = logEntry.Coordinates is not null ? geometryFactory.CreatePoint(new Coordinate(logEntry.Coordinates.Longitude, logEntry.Coordinates.Latitude)) : default,
