@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New entity `DbMessageSender`
 ### Migration
 ```sql
-CREATE TABLE [dbo].[MessageSenders](
+CREATE TABLE [dbo].[MessageSender](
 	[Id] [uniqueidentifier] NOT NULL,
 	[Sender] [nvarchar](max) NULL,
 	[DisplayName] [nvarchar](max) NULL,
