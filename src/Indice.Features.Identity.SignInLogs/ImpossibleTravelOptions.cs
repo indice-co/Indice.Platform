@@ -14,7 +14,7 @@ public class ImpossibleTravelOptions
     /// </remarks>
     public bool Guard { get; set; } = DEFAULT_IMPOSSIBLE_TRAVEL_GUARD;
     /// <summary>The speed (km/h) used to compare the travel speed between two login attempts. Default is 80 km/h.</summary>
-    public double AcceptableSpeed { get; set; } = 80d;
+    public double AcceptableSpeed { get; set; } = 900d;
     /// <summary>Specifies the flow to follow when impossible travel is detected for the current user. Defaults to <see cref="ImpossibleTravelFlowType.PromptMfa"/>.</summary>
     public ImpossibleTravelFlowType FlowType { get; set; } = ImpossibleTravelFlowType.PromptMfa;
     /// <summary>Determines whether password related events are persisted in the store.</summary>

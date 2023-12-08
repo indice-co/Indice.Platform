@@ -23,7 +23,7 @@ internal class SignInLogEntryQueue
 
     public ValueTask EnqueueAsync(SignInLogEntry logEntry) {
         var skipEvent = (!_signInLogOptions.ImpossibleTravel.RecordTokenEvents && logEntry.EventType == SignInLogEventType.TokenIssued) ||
-                        (!_signInLogOptions.ImpossibleTravel.RecordPasswordEvents && logEntry.EventType == SignInLogEventType.UserPasswordLoginCompleted);
+                        (!_signInLogOptions.ImpossibleTravel.RecordPasswordEvents && logEntry.EventType == SignInLogEventType.UserPasswordValidationCompleted);
         return skipEvent ? ValueTask.CompletedTask : _queue.Writer.WriteAsync(logEntry);
     }
 }

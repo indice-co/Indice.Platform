@@ -8,5 +8,5 @@ public enum SignInLogEventType
     /// <summary>A user performed a full login.</summary>
     UserLoginCompleted,
     /// <summary>A user performed a (possibly) partial login in the system.</summary>
-    UserPasswordLoginCompleted
+    UserPasswordValidationCompleted
 }

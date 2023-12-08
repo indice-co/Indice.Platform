@@ -108,7 +108,7 @@ internal class SignInLogEntryFactory
     public static SignInLogEntry CreateFromUserPasswordLoginSuccessEvent(UserPasswordLoginSuccessEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
-            EventType = SignInLogEventType.UserPasswordLoginCompleted,
+            EventType = SignInLogEventType.UserPasswordValidationCompleted,
             ApplicationId = @event.ClientId,
             ApplicationName = @event.ClientName,
             Description = "A user was successfully provided his credentials.",
