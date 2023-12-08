@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Identity.UI.Models;
+﻿using Indice.Features.Identity.Core.Scopes;
+
+namespace Indice.Features.Identity.UI.Models;
 
 /// <summary>Scope view model for the consent page.</summary>
 public class ScopeViewModel
@@ -18,7 +20,7 @@ public class ScopeViewModel
     /// <summary>Requires Strong customer authentication.</summary>
     public bool RequiresSca { get; set; }
     /// <summary>Extra data for the scope.</summary>
-    public object? Metadata { get; set; }
+    public ParsedScopeMetadata? Metadata { get; set; }
     /// <summary>An id for an optionally selected resource. </summary>
     public string? ResourceId { get; set; }
 }

@@ -29,4 +29,8 @@
             <label for="scopes_@Model.Value">@Html.Raw(Markdown.Convert(Model.Description))</label>
         </div>
     }
+    @if (Model.Metadata is not null)
+    {
+        <vc:parsed-scope model="Model.Metadata" />
+    }
 </li>
