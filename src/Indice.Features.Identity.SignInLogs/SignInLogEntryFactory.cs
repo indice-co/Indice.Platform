@@ -9,6 +9,7 @@ internal class SignInLogEntryFactory
     public static SignInLogEntry CreateFromTokenIssuedSuccessEvent(TokenIssuedSuccessEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
+            EventType = SignInLogEventType.TokenIssued,
             ApplicationId = @event.ClientId,
             ApplicationName = @event.ClientName,
             Description = "A token was successfully issued.",
@@ -34,6 +35,7 @@ internal class SignInLogEntryFactory
     public static SignInLogEntry CreateFromTokenIssuedFailureEvent(TokenIssuedFailureEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
+            EventType = SignInLogEventType.TokenIssued,
             ApplicationId = @event.ClientId,
             ApplicationName = @event.ClientName,
             Description = "A token failed to issue.",
@@ -57,6 +59,7 @@ internal class SignInLogEntryFactory
     public static SignInLogEntry CreateFromUserLoginSuccessEvent(ExtendedUserLoginSuccessEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
+            EventType = SignInLogEventType.UserLoginCompleted,
             ApplicationId = @event.ClientId,
             ApplicationName = @event.ClientName,
             Description = "A user was successfully logged in.",
@@ -85,6 +88,7 @@ internal class SignInLogEntryFactory
     public static SignInLogEntry CreateFromUserLoginFailureEvent(ExtendedUserLoginFailureEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
+            EventType = SignInLogEventType.UserLoginCompleted,
             ApplicationId = @event.ClientId,
             Description = "A user failed to authenticate.",
             IpAddress = @event.RemoteIpAddress,
@@ -104,6 +108,7 @@ internal class SignInLogEntryFactory
     public static SignInLogEntry CreateFromUserPasswordLoginSuccessEvent(UserPasswordLoginSuccessEvent @event) {
         var logEntry = new SignInLogEntry(Guid.NewGuid(), DateTimeOffset.UtcNow) {
             ActionName = @event.Name,
+            EventType = SignInLogEventType.UserPasswordValidationCompleted,
             ApplicationId = @event.ClientId,
             ApplicationName = @event.ClientName,
             Description = "A user was successfully provided his credentials.",
