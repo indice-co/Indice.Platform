@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Identity.UI.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Indice.Features.Identity.UI.Models;
 
 /// <summary>The register input model.</summary>
 public class RegisterInputModel {
