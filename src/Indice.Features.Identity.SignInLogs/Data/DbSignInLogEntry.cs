@@ -10,6 +10,8 @@ internal class DbSignInLogEntry
     public Guid Id { get; set; }
     /// <summary>A timestamp that indicates when the user's sign in log entry occurred.</summary>
     public DateTimeOffset CreatedAt { get; set; }
+    /// <summary>The type of event for sign in log.</summary>
+    public SignInLogEventType EventType { get; set; }
     /// <summary>The name of the action.</summary>
     public string ActionName { get; set; }
     /// <summary>The unique identifier of the application.</summary>

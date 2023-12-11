@@ -205,9 +205,9 @@ public class CustomGrantsIntegrationTests
             .AddSignInLogs(options => {
                 options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(SIGN_IN_LOG_DATABASE_NAME));
                 options.Enable = true;
-                options.ImpossibleTravelGuard = true;
-                options.ImpossibleTravelAcceptableSpeed = 90d;
-                options.ImpossibleTravelFlowType = ImpossibleTravelFlowType.PromptMfa;
+                options.ImpossibleTravel.Guard = true;
+                options.ImpossibleTravel.AcceptableSpeed = 90d;
+                options.ImpossibleTravel.FlowType = ImpossibleTravelFlowType.PromptMfa;
             });
             _serviceProvider = services.BuildServiceProvider();
         });

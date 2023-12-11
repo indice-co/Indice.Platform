@@ -6,10 +6,12 @@ using System.Threading.RateLimiting;
 using FluentValidation;
 using IdentityModel;
 using IdentityServer4.EntityFramework.Services;
+using IdentityServer4.ResponseHandling;
 using Indice.Configuration;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.ResponseHandling;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Options;
 using Indice.Features.Identity.Server.Totp.Models;
@@ -111,6 +113,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         Action<DbContextOptionsBuilder>? configureConfigurationDbContext,
         Action<DbContextOptionsBuilder>? configurePersistedGrantDbContext
     ) {
+        services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
         var identityServerBuilder = services.AddIdentityServer(options => {
             options.IssuerUri = configuration.GetHost();
             options.Events.RaiseErrorEvents = true;

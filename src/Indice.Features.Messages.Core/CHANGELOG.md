@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New entity `DbMessageSender`
 ### Migration
 ```sql
-CREATE TABLE [dbo].[MessageSenders](
+CREATE TABLE [dbo].[MessageSender](
 	[Id] [uniqueidentifier] NOT NULL,
 	[Sender] [nvarchar](max) NULL,
 	[DisplayName] [nvarchar](max) NULL,
@@ -35,7 +35,7 @@ CREATE TABLE [dbo].[MessageSenders](
 	[CreatedAt] [datetimeoffset](7) NOT NULL,
 	[UpdatedBy] [nvarchar](max) NULL,
 	[UpdatedAt] [datetimeoffset](7) NULL,
- CONSTRAINT [PK_MessageSenders] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_MessageSender] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]

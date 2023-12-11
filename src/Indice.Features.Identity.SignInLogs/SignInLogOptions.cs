@@ -10,8 +10,6 @@ public class SignInLogOptions
 {
     /// <summary>Default value for <see cref="Enable"/> property.</summary>
     public const bool DEFAULT_ENABLE = true;
-    /// <summary>Default value for <see cref="ImpossibleTravelGuard"/> property.</summary>
-    public const bool DEFAULT_IMPOSSIBLE_TRAVEL_GUARD = false;
     internal static string GEO_LITE2_CITY_FILE_NAME = "GeoLite2-City.mmdb";
     internal static string GEO_LITE2_COUNTRY_FILE_NAME = "GeoLite2-Country.mmdb";
     private string _apiPrefix = "/api";
@@ -43,17 +41,8 @@ public class SignInLogOptions
     public bool Enable { get; set; } = DEFAULT_ENABLE;
     /// <summary>The maximum number of items the internal queue may store. Defaults to <i>100</i>.</summary>
     public int QueueChannelCapacity { get; set; } = 100;
-    /// <summary>Determines whether impossible travel detection is enabled. Defaults to <i>false</i>.</summary>
-    /// <remarks>
-    /// SignInLogs feature must also be enabled for this to take effect.<br />
-    /// If not set, then the <b>IdentityServer:Features:ImpossibleTravel</b> application setting is used.
-    /// </remarks>
-    public bool ImpossibleTravelGuard { get; set; } = DEFAULT_IMPOSSIBLE_TRAVEL_GUARD;
-    /// <summary>The speed (km/h) used to compare the travel speed between two login attempts. Default is 80 km/h.</summary>
-    public double ImpossibleTravelAcceptableSpeed { get; set; } = 80d;
-    /// <summary>Specifies the flow to follow when impossible travel is detected for the current user. Defaults to <see cref="ImpossibleTravelFlowType.PromptMfa"/>.</summary>
-    public ImpossibleTravelFlowType ImpossibleTravelFlowType { get; set; } = ImpossibleTravelFlowType.PromptMfa;
-
+    /// <summary>Configuration options regarding impossible travel.</summary>
+    public ImpossibleTravelOptions ImpossibleTravel { get; set; } = new ImpossibleTravelOptions();
     /// <summary>Specifies a prefix for the API endpoints. Defaults to <i>/api</i>.</summary>
     public PathString ApiPrefix {
         get => _apiPrefix;
