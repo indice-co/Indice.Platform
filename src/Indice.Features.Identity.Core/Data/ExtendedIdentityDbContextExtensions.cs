@@ -38,11 +38,15 @@ public static class ExtendedIdentityDbContextExtensions
         }
 
         var rolesExist = dbContext.Roles.Any();
+        var roles = default(List<TRole>);
         if (!rolesExist) {
-            dbContext.Roles.AddRange(InitialRoles<TRole>.Get());
+            roles = InitialRoles<TRole>.Get().ToList();
+            dbContext.Roles.AddRange(roles);
             if (seedOptions?.CustomRoles?.Any() == true) {
                 dbContext.Roles.AddRange(seedOptions.CustomRoles);
             }
+        } else {
+            roles = dbContext.Roles.ToList();
         }
 
         var usersExist = dbContext.Users.Any();
@@ -81,7 +85,7 @@ public static class ExtendedIdentityDbContextExtensions
                         new () { ClaimType = BasicClaimTypes.DeveloperTotp, ClaimValue = "123456" }
                     }
                 };
-                InitialRoles<TRole>.Get().ToList().ForEach(role => admin.Roles.Add(new() { RoleId = role.Id }));
+                roles.ForEach(role => admin.Roles.Add(new() { RoleId = role.Id }));
                 dbContext.Users.Add(admin);
             }
         }

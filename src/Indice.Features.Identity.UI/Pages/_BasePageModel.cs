@@ -25,6 +25,7 @@ public abstract class BasePageModel : PageModel
 {
     private IdentityUIOptions? _uiOptions;
     private RequestCulture? _requestCulture;
+    private IIdentityServerInteractionService? _interactionService;
 
     /// <summary>Will propagate to body class</summary>
     [ViewData]
@@ -35,6 +36,8 @@ public abstract class BasePageModel : PageModel
     public IdentityUIOptions UiOptions => _uiOptions ??= ServiceProvider.GetRequiredService<IOptions<IdentityUIOptions>>().Value;
     /// <summary>Request Culture</summary>
     public RequestCulture RequestCulture => _requestCulture ??= Request.HttpContext.Features.Get<IRequestCultureFeature>()!.RequestCulture;
+    /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
+    public IIdentityServerInteractionService InteractionService => _interactionService ??= ServiceProvider.GetRequiredService<IIdentityServerInteractionService>();
 
     /// <summary>Checks if the given return URL is safe for redirection.</summary>
     /// <param name="returnUrl">The URL to validate.</param>
@@ -42,8 +45,7 @@ public abstract class BasePageModel : PageModel
         if (string.IsNullOrWhiteSpace(returnUrl)) {
             return false;
         }
-        var interaction = ServiceProvider.GetRequiredService<IIdentityServerInteractionService>();
-        return interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl) || UiOptions.IsValidReturnUrl(returnUrl);
+        return InteractionService.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl) || UiOptions.IsValidReturnUrl(returnUrl);
     }
 
     /// <summary>Gets the page to redirect based on the <see cref="SignInResult"/>.</summary>
@@ -97,6 +99,14 @@ public abstract class BasePageModel : PageModel
     public virtual async Task SendConfirmationEmail(User user, string? returnUrl = null) {
         var userManager = ServiceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        if (!string.IsNullOrEmpty(returnUrl) && InteractionService.IsValidReturnUrl(returnUrl)) {
+            // if this is a login url use it to extract the client_id param but remove it from the email link
+            // If a return url such as a login url is baked into the confirmation chanses are that it will
+            // 1. either become invild by the time the user clicks his email
+            // 2. it will make the confirmation link so big it will fail on multiple browsers.
+            // so remove the thing.
+            returnUrl = null;
+        }
         var callbackUrl = Url.PageLink("/ConfirmEmail", values: new { userId = user.Id, token, returnUrl, client_id = HttpContext.GetClientIdFromReturnUrl() }, protocol: HttpContext.Request.Scheme ?? null);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();
         var localizer = ServiceProvider.GetRequiredService<IStringLocalizer<BasePageModel>>();
@@ -122,6 +132,14 @@ public abstract class BasePageModel : PageModel
         var token = await userManager.GenerateChangeEmailTokenAsync(user, newEmail);
         var configuration = ServiceProvider.GetRequiredService<IConfiguration>();
         var generalSettings = configuration.GetGeneralSettings();
+        if (!string.IsNullOrEmpty(returnUrl) && InteractionService.IsValidReturnUrl(returnUrl)) {
+            // if this is a login url use it to extract the client_id param but remove it from the email link
+            // If a return url such as a login url is baked into the confirmation chanses are that it will
+            // 1. either become invild by the time the user clicks his email
+            // 2. it will make the confirmation link so big it will fail on multiple browsers.
+            // so remove the thing.
+            returnUrl = null;
+        }
         var callbackUrl = Url.PageLink("/ChangeEmail", values: new { userId = user.Id, token, email = newEmail, returnUrl, client_id = HttpContext.GetClientIdFromReturnUrl() });
         var claims = await userManager.GetClaimsAsync(user);
         var emailService = ServiceProvider.GetRequiredService<IEmailService>();

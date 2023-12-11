@@ -11,26 +11,79 @@
 <div class="content-wrapper">
     <div class="card-wrapper">
         <vc:page-heading title="@title" image-src="" />
-        @if (ViewContext.ModelState.IsValid)
+        @if (Model.View.AlreadyVerified)
         {
             <h1>
-                <span class="header-text">@Localizer["Your email has been confirmed"]!</span>
+                <span class="header-text">@Localizer["Your email is already verified. Thank you"]</span>
             </h1>
-            <p>@Localizer["You can now close this browse window"].</p>
+            <p>
+                <span indice-if="Model.View.HasReturnUrl">
+                    @Localizer["Click"]
+                    <a href="@Model.View.ReturnUrl">@Localizer["here"]</a>
+                    @Localizer["to sign in or go back."]
+                </span>
+                @Localizer["You can now close this browse window."]
+            </p>
         }
-        else if (ViewContext.ModelState.Keys.Contains("EmailVerified"))
+        else if (Model.View.InvalidOrExpiredToken)
         {
             <h1>
-                <span class="header-text">@(ViewContext.ModelState["EmailVerified"]!.Errors.First().ErrorMessage)</span>
+                <span class="header-text">@Localizer["Email verification link has expired."]</span>
             </h1>
-            <p>@Localizer["You can now close this browse window"].</p>
+            <p>
+                @Localizer["Please log in and resend the link."]
+                <a indice-if="Model.View.HasReturnUrl" href="@Model.View.ReturnUrl">@Localizer["here"]</a>
+            </p>
+        }
+        else if (Model.View.Verified)
+        {
+            <h1>
+                <span class="header-text">@Localizer["Your email has been successfully confirmed."]</span>
+            </h1>
+            <p>
+                <span indice-if="Model.View.HasReturnUrl">
+                    @Localizer["Click"]
+                    <a href="@Model.View.ReturnUrl">@Localizer["here"]</a>
+                    @Localizer["to sign in or go back."]
+                </span>
+                @Localizer["You can now close this browse window."]
+            </p>
+        }
+        else if (!ViewContext.ModelState.IsValid)
+        {
+            <h1>
+                <span class="header-text">@Localizer["No action was taken."]</span>
+            </h1>
+            <p>
+                @Localizer["If you feel you got this error by mistake, simply click"]
+                <a asp-page="/Home">@Localizer["here"]</a>
+                @Localizer["to sign in or go back."]
+            </p>
         }
         else
         {
             <h1>
-                <span class="header-text">@Localizer["Something went wrong."]</span>
+                <span class="header-text">@Localizer["Verifying your email."]</span>
             </h1>
-            <partial name="_ValidationSummary" />
+            <p>
+                @Localizer["This may take a moment. Click on the link below to verify your email address."]
+                <strong>@Model.View.Email</strong>
+            </p>
+            <form name="EmailVerificationForm" method="post" asp-route-client_id="@Model.Input.ClientId">
+                <input type="hidden" asp-for="Input.UserId" />
+                <input type="hidden" asp-for="Input.Token" />
+                <input type="hidden" asp-for="Input.ClientId" />
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+                <input type="hidden" asp-for="Input.ShouldRedirect" />
+                <input type="hidden" asp-for="Input.ThrowWhenConfirmed" />
+                <button type="submit" class="btn btn-primary">Verify</button>
+            </form>
+            <script type="text/javascript" csp-nonce="true">
+                function submitform() {
+                    document.forms["EmailVerificationForm"].submit();
+                }
+                window.onload = submitform;
+            </script>
         }
     </div>
 </div>

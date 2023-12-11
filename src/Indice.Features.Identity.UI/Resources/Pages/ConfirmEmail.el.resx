@@ -117,8 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Click" xml:space="preserve">
+    <value>Πατήστε</value>
+  </data>
   <data name="Email Confirmation" xml:space="preserve">
     <value>Επιβεβαίωση Email</value>
+  </data>
+  <data name="Email verification link has expired." xml:space="preserve">
+    <value>Ο σύνδεσμος επιβεβαίωσης έχει λήξει</value>
   </data>
   <data name="here" xml:space="preserve">
     <value>εδώ</value>
@@ -129,13 +135,25 @@
   <data name="No action was taken." xml:space="preserve">
     <value>Καμία ενέργεια δεν πραγματοποιήθηκε.</value>
   </data>
+  <data name="Please log in and resend the link" xml:space="preserve">
+    <value>Παρακαλώ συνδεθείτε για να ξαναστείλετε νέο σύνδεσμο.</value>
+  </data>
+  <data name="This may take a moment. Click on the link below to verify your email address." xml:space="preserve">
+    <value>Ισως μας πάρει λίγο χρόνο. Πατήστε το σύνδεσμο παρακάτω για να επιβεβαιώσετε τη διεύθυνση ηλεκτρονικού ταχυδρομίου</value>
+  </data>
   <data name="to sign in or go back." xml:space="preserve">
     <value>για να συνδεθείτε ή να πάτε πίσω.</value>
+  </data>
+  <data name="Verifying your email." xml:space="preserve">
+    <value>Επιβεβαιώνουμε το email σας.</value>
   </data>
   <data name="You can now close this browse window." xml:space="preserve">
     <value>Μπορείτε τώρα να κλείσετε αυτό το παράθυρο περιήγησης.</value>
   </data>
   <data name="Your email has been successfully confirmed." xml:space="preserve">
     <value>Το email σας έχει επιβεβαιωθεί με επιτυχία.</value>
+  </data>
+  <data name="Your email is already verified. Thank you" xml:space="preserve">
+    <value>Το email σας είναι ήδη επιβεβαιωμένο</value>
   </data>
 </root>

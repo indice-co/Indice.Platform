@@ -17,7 +17,7 @@
         <vc:page-heading title="@title" image-src="" />
         <partial name="_ValidationSummary" />
         <p class="px-8">@Localizer["To register as a new user you will need to fill in the following information."]</p>
-        <form data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form">
+        <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate class="form">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <div class="row">
                 <div class="input-group">
