@@ -15,23 +15,12 @@ namespace Indice.Features.Identity.Core.Grants;
 
 /// <summary>An extended implementation of <see cref="IResourceOwnerPasswordValidator"/> where multiple filters can be registered and validated.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-/// <remarks>Creates a new instance of <see cref="ExtendedResourceOwnerPasswordValidator{TUser}"/>.</remarks>
-/// <param name="filters"></param>
-/// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-/// <param name="logger">Represents a type used to perform logging.</param>
-/// <param name="eventService"></param>
-/// <exception cref="ArgumentNullException"></exception>
-public class ExtendedResourceOwnerPasswordValidator<TUser>(
-    IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> filters,
-    ExtendedUserManager<TUser> userManager,
-    ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> logger,
-    IEventService eventService
-) : IResourceOwnerPasswordValidator where TUser : User
+public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidator where TUser : User
 {
-    private readonly ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    private readonly IEventService _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
-    private readonly IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> _filters = filters ?? throw new ArgumentNullException(nameof(filters));
-    private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    private readonly ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> _logger;
+    private readonly IEventService _eventService;
+    private readonly IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> _filters;
+    private readonly ExtendedUserManager<TUser> _userManager;
 
     private readonly IDictionary<string, string> _errors = new Dictionary<string, string> {
         { ResourceOwnerPasswordErrorCodes.LockedOut, "User is locked out." },
@@ -44,6 +33,24 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
         { ResourceOwnerPasswordErrorCodes.MissingDeviceId, "Device id is missing." },
         { ResourceOwnerPasswordErrorCodes.DeviceNotFound, "Device was not found." }
     };
+
+    /// <summary>Creates a new instance of <see cref="ExtendedResourceOwnerPasswordValidator{TUser}"/>.</summary>
+    /// <param name="filters">List of handlers for validating resource owner password credentials.</param>
+    /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+    /// <param name="logger">Represents a type used to perform logging.</param>
+    /// <param name="eventService">Interface for the event service.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public ExtendedResourceOwnerPasswordValidator(
+        IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> filters,
+        ExtendedUserManager<TUser> userManager,
+        ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> logger,
+        IEventService eventService
+    ) {
+        _filters = filters ?? throw new ArgumentNullException(nameof(filters));
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+    }
 
     /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationContext context) {
@@ -71,7 +78,6 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
             }
         }
         if (!isError) {
-            var subject = await _userManager.GetUserIdAsync(user);
             context.Result = extendedContext.Result;
             await _eventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
                 user.UserName,
@@ -138,11 +144,16 @@ public interface IResourceOwnerPasswordValidationFilter<TUser> where TUser : Use
 
 /// <summary><see cref="IResourceOwnerPasswordValidator"/> that integrates with ASP.NET Identity and is specific to mobile clients.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-/// <remarks>Creates a new instance of <see cref="DeviceResourceOwnerPasswordValidator{TUser}"/>.</remarks>
-/// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-public sealed class DeviceResourceOwnerPasswordValidator<TUser>(ExtendedUserManager<TUser> userManager) : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
+public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
 {
-    private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    private readonly ExtendedUserManager<TUser> _userManager;
+
+    /// <summary>Creates a new instance of <see cref="DeviceResourceOwnerPasswordValidator{TUser}"/>.</summary>
+    /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    public DeviceResourceOwnerPasswordValidator(ExtendedUserManager<TUser> userManager) {
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    }
 
     /// <inheritdoc />
     public int Order => 1;
@@ -183,7 +194,8 @@ public class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
         ExtendedSignInManager<TUser> signInManager,
         TotpServiceFactory totpServiceFactory,
         IdentityMessageDescriber identityMessageDescriber,
-        ISignInGuard<TUser> signInGuard) {
+        ISignInGuard<TUser> signInGuard
+    ) {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _totpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
@@ -308,4 +320,11 @@ internal class ResourceOwnerPasswordErrorCodes
     public const string NotMobileClient = "204";
     public const string MissingDeviceId = "205";
     public const string DeviceNotFound = "206";
+}
+
+/// <summary>Configuration options for resource owner password grant.</summary>
+public class ResourceOwnerPasswordValidatorOptions
+{
+    /// <summary>Determines whether to include an id_token on resource owner password grant response. Defaults to <b>true</b>.</summary>
+    public bool IncludeIdToken { get; set; } = true;
 }

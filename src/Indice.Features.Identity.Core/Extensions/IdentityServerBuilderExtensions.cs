@@ -1,10 +1,14 @@
-﻿using IdentityServer4.EntityFramework.Entities;
+﻿using System;
+using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Options;
+using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Grants;
+using Indice.Features.Identity.Core.ResponseHandling;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -37,9 +41,12 @@ public static class IdentityServerBuilderExtensions
     /// <typeparam name="TUser">The type of user.</typeparam>
     /// <typeparam name="TIdentityResourceOwnerPasswordValidator">The type of custom resource owner password validator.</typeparam>
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
-    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser, TIdentityResourceOwnerPasswordValidator>(this IIdentityServerBuilder builder)
+    /// <param name="action">Configuration options for resource owner password grant.</param>
+    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser, TIdentityResourceOwnerPasswordValidator>(this IIdentityServerBuilder builder, Action<ResourceOwnerPasswordValidatorOptions> action = null)
         where TUser : User
         where TIdentityResourceOwnerPasswordValidator : class, IResourceOwnerPasswordValidationFilter<TUser> {
+        builder.Services.Configure<ResourceOwnerPasswordValidatorOptions>(options => action?.Invoke(options));
+        builder.Services.AddSingleton(serviceProvider => serviceProvider.GetService<IOptions<ResourceOwnerPasswordValidatorOptions>>()?.Value);
         builder.Services.AddTransient<IResourceOwnerPasswordValidationFilter<TUser>, TIdentityResourceOwnerPasswordValidator>();
         builder.AddResourceOwnerValidator<ExtendedResourceOwnerPasswordValidator<TUser>>();
         var profileServiceImplementation = builder.Services.Where(x => x.ServiceType == typeof(IProfileService)).LastOrDefault()?.ImplementationType;
@@ -54,12 +61,15 @@ public static class IdentityServerBuilderExtensions
     /// <summary>Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.</summary>
     /// <typeparam name="TUser">The type of user.</typeparam>
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
-    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder) where TUser : User => 
-        builder.AddExtendedResourceOwnerPasswordValidator<TUser, IdentityResourceOwnerPasswordValidator<TUser>>();
+    /// <param name="action">Configuration options for resource owner password grant.</param>
+    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator<TUser>(this IIdentityServerBuilder builder, Action<ResourceOwnerPasswordValidatorOptions> action = null) where TUser : User =>
+        builder.AddExtendedResourceOwnerPasswordValidator<TUser, IdentityResourceOwnerPasswordValidator<TUser>>(action);
 
     /// <summary>Adds an extended version of the built-in ResourceOwnerPasswordValidator, considering all the custom policies existing in the platform.</summary>
     /// <param name="builder"><see cref="IIdentityServerBuilder"/> builder interface.</param>
-    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator(this IIdentityServerBuilder builder) => builder.AddExtendedResourceOwnerPasswordValidator<User>();
+    /// <param name="action">Configuration options for resource owner password grant.</param>
+    public static IIdentityServerBuilder AddExtendedResourceOwnerPasswordValidator(this IIdentityServerBuilder builder, Action<ResourceOwnerPasswordValidatorOptions> action = null) => 
+        builder.AddExtendedResourceOwnerPasswordValidator<User>(action);
 
     /// <summary>Setup configuration store.</summary>
     /// <param name="options">Options for configuring the configuration context.</param>
