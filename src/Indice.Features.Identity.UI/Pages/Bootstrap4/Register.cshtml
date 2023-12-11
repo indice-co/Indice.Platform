@@ -31,6 +31,7 @@
         <div class="hr-sect">@Localizer["OR"]</div>
     }
     <form asp-route-returnUrl="@Model.View.ReturnUrl" data-sbind="event: { change: formChanged }" method="post" autocomplete="new-password" novalidate>
+        <input type="hidden" asp-for="Input.ReturnUrl" />
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">

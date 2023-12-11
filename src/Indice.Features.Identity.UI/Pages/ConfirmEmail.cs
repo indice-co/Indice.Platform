@@ -2,9 +2,13 @@ using IdentityServer4.Services;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.UI.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Localization;
+using static IdentityServer4.Models.IdentityResources;
 
 namespace Indice.Features.Identity.UI.Pages;
 
@@ -13,69 +17,64 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseConfirmEmailModel : BasePageModel
 {
-    private readonly IStringLocalizer<BaseConfirmEmailModel> _localizer;
-
     /// <summary>Creates a new instance of <see cref="BaseConfirmEmailModel"/> class.</summary>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseConfirmEmailModel"/>.</param>
     /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-    /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public BaseConfirmEmailModel(
         IStringLocalizer<BaseConfirmEmailModel> localizer,
-        ExtendedUserManager<User> userManager,
-        IIdentityServerInteractionService interaction
-    ) {
-        _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+        ExtendedUserManager<User> userManager) : base() {
+        Localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
         UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        Interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
     }
+    /// <summary>Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseConfirmEmailModel"/>.</summary>
+    protected IStringLocalizer<BaseConfirmEmailModel> Localizer { get; }
 
     /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
     protected ExtendedUserManager<User> UserManager { get; }
-    /// <summary>Provide services be used by the user interface to communicate with IdentityServer.</summary>
-    protected IIdentityServerInteractionService Interaction { get; }
 
-    /// <summary>The URL to return to.</summary>
-    public string? ReturnUrl { get; set; }
+    /// <summary>Input model that will bind either on GET via querystring or on POST.</summary>
+    [BindProperty(SupportsGet = true)]
+    public ConfirmEmailInputModel Input { get; set; } = new();
+    /// <summary>View model</summary>
+    public ConfirmEmailViewModel View { get; set; } = new();
 
     /// <summary>Confirm email page GET handler.</summary>
-    public virtual async Task<IActionResult> OnGetAsync(
-        [FromQuery] string? userId,
-        [FromQuery] string? token,
-        [FromQuery] string? returnUrl,
-        [FromQuery(Name = "client_id")] string? clientId,
-        [FromQuery(Name = "twc")] bool throwWhenConfirmed = true,
-        [FromQuery(Name = "sr")] bool shouldRedirect = false
-    ) {
-        ReturnUrl = returnUrl;
-        if (string.IsNullOrWhiteSpace(userId)) {
-            throw new ArgumentNullException(nameof(userId), "Parameter cannot be null.");
-        }
-        if (string.IsNullOrWhiteSpace(token)) {
-            throw new ArgumentNullException(nameof(token), "Parameter cannot be null.");
-        }
-        if (!string.IsNullOrWhiteSpace(ReturnUrl) && !string.IsNullOrWhiteSpace(clientId)) {
-            ReturnUrl = QueryHelpers.AddQueryString(ReturnUrl, "client_id", clientId);
-        }
-        var user = await UserManager.FindByIdAsync(userId);
+    public virtual async Task<IActionResult> OnGetAsync() {
+        var user = await UserManager.FindByIdAsync(Input.UserId);
         if (user is null) {
-            ModelState.AddModelError(string.Empty, string.Empty);
+            ModelState.AddModelError(string.Empty, "user not found");
             return Page();
         }
-        var emailConfirmed = await UserManager.IsEmailConfirmedAsync(user);
-        if (emailConfirmed && throwWhenConfirmed) {
-            ModelState.AddModelError(string.Empty, string.Empty);
+        if (!string.IsNullOrWhiteSpace(Input.ReturnUrl) && !string.IsNullOrWhiteSpace(Input.ClientId)) {
+            View.ReturnUrl = QueryHelpers.AddQueryString(Input.ReturnUrl, "client_id", Input.ClientId);
+        }
+        View.Email = user.Email;
+        View.AlreadyVerified = await UserManager.IsEmailConfirmedAsync(user);
+        return Page();
+    }
+
+    /// <summary>Confirm email page GET handler.</summary>
+    public virtual async Task<IActionResult> OnPostAsync() {
+        var user = await UserManager.FindByIdAsync(Input.UserId);
+        if (user is null) {
+            ModelState.AddModelError(string.Empty, "user not found");
             return Page();
         }
-        if (!emailConfirmed) {
-            var result = await UserManager.ConfirmEmailAsync(user, token);
-            if (!result.Succeeded) {
-                AddModelErrors(result);
+        if (!string.IsNullOrWhiteSpace(Input.ReturnUrl) && !string.IsNullOrWhiteSpace(Input.ClientId)) {
+            View.ReturnUrl = QueryHelpers.AddQueryString(Input.ReturnUrl, "client_id", Input.ClientId);
+        }
+        View.AlreadyVerified = await UserManager.IsEmailConfirmedAsync(user);
+        if (!View.AlreadyVerified) {
+            var result = await UserManager.ConfirmEmailAsync(user, Input.Token);
+            View.Verified = result.Succeeded;
+            View.InvalidOrExpiredToken = !result.Succeeded;
+            if (View.InvalidOrExpiredToken) {
                 return Page();
             }
         }
-        if (shouldRedirect && !string.IsNullOrWhiteSpace(ReturnUrl) && (Interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl))) {
-            return Redirect(ReturnUrl);
+        if (Input.ShouldRedirect && !string.IsNullOrWhiteSpace(Input.ReturnUrl) && IsValidReturnUrl(Input.ReturnUrl)) {
+            return Redirect(Input.ReturnUrl!);
         }
         return Page();
     }
@@ -85,7 +84,6 @@ internal class ConfirmEmailModel : BaseConfirmEmailModel
 {
     public ConfirmEmailModel(
         IStringLocalizer<ConfirmEmailModel> localizer,
-        ExtendedUserManager<User> userManager,
-        IIdentityServerInteractionService interaction
-    ) : base(localizer, userManager, interaction) { }
+        ExtendedUserManager<User> userManager
+    ) : base(localizer, userManager) { }
 }

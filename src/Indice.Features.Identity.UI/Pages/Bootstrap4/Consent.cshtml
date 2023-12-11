@@ -21,7 +21,7 @@
     </div>
     <div class="page-body">
         <partial name="_ValidationSummary" />
-        <form asp-action="Index" asp-controller="Consent" class="consent-form">
+        <form asp-page="/Consent" class="consent-form">
             <input type="hidden" asp-for="Input.ReturnUrl" />
             <div indice-if="Model.View.IdentityScopes.Any()" class="card border-0 mb-3 consent-buttons">
                 <div class="card-body p-0">
