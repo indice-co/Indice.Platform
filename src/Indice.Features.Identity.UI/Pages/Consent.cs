@@ -5,10 +5,11 @@ using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
 using Indice.AspNetCore.Filters;
+using Indice.Features.Identity.Core.Scopes;
 using Indice.Features.Identity.UI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +22,7 @@ namespace Indice.Features.Identity.UI.Pages;
 public abstract class BaseConsentModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseConsentModel> _localizer;
-
+    
     /// <summary>Creates a new instance of <see cref="BaseConsentModel"/> class.</summary>
     /// <param name="logger">A generic interface for logging.</param>
     /// <param name="localizer">Represents an <see cref="IStringLocalizer"/> that provides strings for <see cref="BaseConsentModel"/>.</param>
@@ -135,14 +136,14 @@ public abstract class BaseConsentModel : BasePageModel
     private async Task<ConsentViewModel> BuildViewModelAsync(string returnUrl, ConsentInputModel? model = null) {
         var request = await Interaction.GetAuthorizationContextAsync(returnUrl);
         if (request is not null) {
-            return CreateConsentViewModel(model, returnUrl, request);
+            return await CreateConsentViewModel(model, returnUrl, request);
         } else {
             Logger.LogError("No consent request matching request: {ReturnUrl}", returnUrl);
         }
         return new ConsentViewModel();
     }
 
-    private static ConsentViewModel CreateConsentViewModel(ConsentInputModel? model, string returnUrl, AuthorizationRequest request) {
+    private async Task<ConsentViewModel> CreateConsentViewModel(ConsentInputModel? model, string returnUrl, AuthorizationRequest request) {
         var viewModel = new ConsentViewModel {
             RememberConsent = model?.RememberConsent ?? true,
             ScopesConsented = model?.ScopesConsented ?? Enumerable.Empty<string>(),
@@ -165,7 +166,7 @@ public abstract class BaseConsentModel : BasePageModel
                 .Resources
                 .FindApiScope(parsedScope.ParsedName);
             if (apiScope is not null) {
-                var scopeViewModel = CreateScopeViewModel(parsedScope, apiScope, viewModel.ScopesConsented.Contains(parsedScope.RawValue) || model is null);
+                var scopeViewModel = await CreateScopeViewModel(parsedScope, apiScope, viewModel.ScopesConsented.Contains(parsedScope.RawValue) || model is null);
                 apiScopes.Add(scopeViewModel);
             }
         }
@@ -185,12 +186,20 @@ public abstract class BaseConsentModel : BasePageModel
         Checked = check || identity.Required
     };
 
-    private static ScopeViewModel CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check) {
+    /// <summary>
+    /// Create a scope view model for api resources.
+    /// </summary>
+    /// <param name="parsedScopeValue"></param>
+    /// <param name="apiScope"></param>
+    /// <param name="check"></param>
+    /// <returns></returns>
+    protected virtual async Task<ScopeViewModel> CreateScopeViewModel(ParsedScopeValue parsedScopeValue, ApiScope apiScope, bool check) {
         var displayName = apiScope.DisplayName ?? apiScope.Name;
         if (!string.IsNullOrWhiteSpace(parsedScopeValue.ParsedParameter)) {
             displayName += ":" + parsedScopeValue.ParsedParameter;
         }
-        return new ScopeViewModel {
+
+        var model = new ScopeViewModel {
             Value = parsedScopeValue.RawValue,
             DisplayName = displayName,
             Description = apiScope.Description,
@@ -198,6 +207,24 @@ public abstract class BaseConsentModel : BasePageModel
             Required = apiScope.Required,
             Checked = check || apiScope.Required
         };
+
+        if (string.IsNullOrWhiteSpace(parsedScopeValue.ParsedParameter)) {
+            return model;
+        }
+
+        // Handle dynamic scopes metadata
+        var metadataService = ServiceProvider.GetService<IParsedScopeMetadataService>();
+        if (metadataService is not null) {
+            var metadata = await metadataService.ResolveMetadata(parsedScopeValue, RequestCulture.UICulture);
+            model.RequiresSca = metadata.RequiresSca;
+            model.DisplayName = string.IsNullOrEmpty(metadata.DisplayName)
+                ? model.DisplayName += ":" + parsedScopeValue.ParsedParameter
+                : metadata.DisplayName;
+            model.Description = metadata.Description;
+            model.Metadata = metadata;
+        }
+
+        return model;
     }
 
     private static ScopeViewModel GetOfflineAccessScope(bool check) => new ScopeViewModel {
