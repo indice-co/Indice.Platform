@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿namespace Indice.Features.Identity.UI.Models;
 
-namespace Indice.Features.Identity.UI.Models;
+/// <summary>Confir Email Page View Model</summary>
 public class ConfirmEmailViewModel
 {
     /// <summary>The email address to be verified</summary>
