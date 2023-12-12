@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core;
+﻿using Indice.Events;
+using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Endpoints;
 using Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling;
@@ -7,7 +8,6 @@ using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Grants;
-using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;

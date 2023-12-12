@@ -2,6 +2,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Api;
+using Indice.Events;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 

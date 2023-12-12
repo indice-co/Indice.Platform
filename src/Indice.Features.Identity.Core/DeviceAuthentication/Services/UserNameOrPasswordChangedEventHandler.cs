@@ -1,6 +1,6 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Events;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
-using Indice.Services;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Services;
 

@@ -8,6 +8,7 @@ using IdentityModel;
 using IdentityServer4.EntityFramework.Services;
 using IdentityServer4.ResponseHandling;
 using Indice.Configuration;
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;

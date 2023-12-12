@@ -2,6 +2,7 @@
 using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -10,7 +11,6 @@ using Indice.Features.Identity.Server.Devices.Models;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Features.Identity.Server.Options;
 using Indice.Globalization;
-using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;

@@ -1,5 +1,5 @@
 ﻿using IdentityServer4.Models;
-using Indice.Services;
+using Indice.Events;
 
 namespace Indice.Features.Identity.Core.Events;
 

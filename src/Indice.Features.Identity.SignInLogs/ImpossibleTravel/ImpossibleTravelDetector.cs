@@ -41,10 +41,10 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
         if (_ipAddressLocator is null || _signInLogStore is null || httpContext is null || user is null) {
             return false;
         }
-        var previousLogins = (await _signInLogStore.ListAsync(
+        var previousLogin = (await _signInLogStore.ListAsync(
             new ListOptions {
                 Page = 1,
-                Size = 2,
+                Size = 1,
                 Sort = $"{nameof(DbSignInLogEntry.CreatedAt)}-"
             },
             new SignInLogEntryFilter {
@@ -54,28 +54,22 @@ public class ImpossibleTravelDetector<TUser> : IImpossibleTravelDetector<TUser> 
                 ActionName = "User Login Success"
             }
         ))
-        .Items;
-        if (previousLogins is null || !previousLogins.Any()) {
+        .Items
+        .FirstOrDefault();
+        if (previousLogin is null) {
             return false;
         }
         var ipAddress = httpContext.GetClientIpAddress();
         if (ipAddress is null) {
             return false;
         }
-        var result = false;
-        foreach (var previousLogin in previousLogins) {
-            var currentLoginCoordinates = _ipAddressLocator.GetLocationMetadata(ipAddress)?.Coordinates;
-            var previousLoginCoordinates = previousLogin.Coordinates;
-            if (currentLoginCoordinates is null || previousLoginCoordinates is null) {
-                continue;
-            }
-            var distanceBetweenLogins = currentLoginCoordinates.Distance(previousLoginCoordinates);
-            var travelSpeed = distanceBetweenLogins / (DateTimeOffset.UtcNow - previousLogin.CreatedAt).TotalHours;
-            if (travelSpeed > _signInLogOptions.ImpossibleTravel.AcceptableSpeed) {
-                result = true;
-                break;
-            }
+        var currentLoginCoordinates = _ipAddressLocator.GetLocationMetadata(ipAddress)?.Coordinates;
+        var previousLoginCoordinates = previousLogin.Coordinates;
+        if (currentLoginCoordinates is null || previousLoginCoordinates is null) {
+            return false;
         }
-        return result;
+        var distanceBetweenLogins = currentLoginCoordinates.Distance(previousLoginCoordinates);
+        var travelSpeed = distanceBetweenLogins / (DateTimeOffset.UtcNow - previousLogin.CreatedAt).TotalHours;
+        return travelSpeed > _signInLogOptions.ImpossibleTravel.AcceptableSpeed;
     }
 }

@@ -1,6 +1,6 @@
-﻿using Indice.Features.Identity.Core.Data;
+﻿using Indice.Events;
+using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 

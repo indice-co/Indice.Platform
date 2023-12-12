@@ -1,5 +1,5 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
-using Indice.Services;
+﻿using Indice.Events;
+using Indice.Features.Identity.Core.Data.Models;
 
 namespace Indice.Features.Identity.Core.Events;
 
