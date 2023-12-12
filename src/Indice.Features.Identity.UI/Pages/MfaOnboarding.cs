@@ -12,6 +12,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.MfaOnboardingScheme)]
 [IdentityUI(typeof(MfaOnboardingModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseMfaOnboardingModel : BasePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseMfaOnboardingModel"/> class.</summary>
@@ -43,7 +44,6 @@ public abstract class BaseMfaOnboardingModel : BasePageModel
     }
 
     /// <summary>MFA onboarding page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
             View.AuthenticationMethods = await AuthenticationMethodProvider.GetAllMethodsAsync();

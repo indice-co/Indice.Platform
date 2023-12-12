@@ -14,6 +14,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [AllowAnonymous]
 [IdentityUI(typeof(ForgotPasswordConfirmationModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseForgotPasswordConfirmationModel> _localizer;
@@ -64,7 +65,6 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
     }
 
     /// <summary>Forgot password confirmation page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
         if (!ModelState.IsValid) {
             return Page();

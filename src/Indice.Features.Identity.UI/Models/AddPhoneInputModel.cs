@@ -9,6 +9,6 @@ public class AddPhoneInputModel
     public string? ReturnUrl { get; set; }
     /// <summary>The calling code.</summary>
     public string? CallingCode { get; set; }
-
-    internal string? PhoneNumberWithCallingCode => string.IsNullOrWhiteSpace(CallingCode) ? PhoneNumber : $"{CallingCode} {PhoneNumber}";
+    /// <summary>The calling code plus the number.</summary>
+    public string? PhoneNumberWithCallingCode => string.IsNullOrWhiteSpace(CallingCode) ? PhoneNumber : $"{CallingCode} {PhoneNumber}";
 }

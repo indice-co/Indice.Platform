@@ -19,6 +19,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize]
 [IdentityUI(typeof(ConsentModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseConsentModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseConsentModel> _localizer;
@@ -69,7 +70,6 @@ public abstract class BaseConsentModel : BasePageModel
     }
 
     /// <summary>Consent page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
         var result = await ProcessConsent(Input);
         if (result.IsRedirect) {
@@ -90,7 +90,13 @@ public abstract class BaseConsentModel : BasePageModel
         return RedirectToPage("/Error");
     }
 
-    private async Task<ProcessConsentResult> ProcessConsent(ConsentInputModel inputModel) {
+    /// <summary>
+    /// Process the input model to retrieve the consent result.
+    /// </summary>
+    /// <param name="inputModel">The input model that the user posted</param>
+    /// <returns>The Consent result.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    protected async Task<ProcessConsentResult> ProcessConsent(ConsentInputModel inputModel) {
         if (inputModel is null) {
             throw new ArgumentNullException(nameof(inputModel), "Input model cannot be null.");
         }

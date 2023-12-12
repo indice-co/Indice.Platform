@@ -17,6 +17,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize]
 [IdentityUI(typeof(LogoutModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseLogoutModel : BasePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseLogoutModel"/> class.</summary>
@@ -80,7 +81,6 @@ public abstract class BaseLogoutModel : BasePageModel
     }
 
     /// <summary>Logout page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
         if (User?.Identity?.IsAuthenticated == true) {
             // If there's no current logout context, we need to create one this captures necessary info from the current logged in user. This can still return null if there is no context needed.

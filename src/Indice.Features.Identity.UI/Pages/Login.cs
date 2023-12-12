@@ -23,6 +23,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [AllowAnonymous]
 [IdentityUI(typeof(LoginModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseLoginModel : BasePageModel
 {
     /// <summary>Creates a new instance of <see cref="BaseLoginModel"/> class.</summary>
@@ -108,7 +109,6 @@ public abstract class BaseLoginModel : BasePageModel
     /// <summary>Login page POST handler.</summary>
     /// <param name="button">The value of the button pressed.</param>
     /// <exception cref="Exception"></exception>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync(string button) {
         // Check if we are in the context of an authorization request.
         var context = await Interaction.GetAuthorizationContextAsync(Input.ReturnUrl);

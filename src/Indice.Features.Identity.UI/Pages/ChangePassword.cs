@@ -13,6 +13,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize]
 [IdentityUI(typeof(ChangePasswordModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseChangePasswordModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseChangePasswordModel> _localizer;
@@ -55,7 +56,6 @@ public abstract class BaseChangePasswordModel : BasePageModel
     }
 
     /// <summary>Change password page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
         if (!ModelState.IsValid) {
             return Page();
