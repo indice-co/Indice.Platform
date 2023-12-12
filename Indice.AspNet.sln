@@ -29,6 +29,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{613A1373-9A47-42DD-A076-7F310D0440B9}"
 	ProjectSection(SolutionItems) = preProject
 		test\Directory.Build.props = test\Directory.Build.props
+		test\Directory.Build.targets = test\Directory.Build.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{643960D9-48C5-4EA3-BED5-486CCC694947}"
@@ -103,9 +104,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Risk.Core",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Risk.Server", "src\Indice.Features.Risk.Server\Indice.Features.Risk.Server.csproj", "{4012510C-029F-4AA0-B1C5-13AFB763A848}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Risk.Tests", "test\Indice.Features.Risk.Tests\Indice.Features.Risk.Tests.csproj", "{D39DFEBF-C818-42AB-9B8A-EA080D102606}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Risk.Tests", "test\Indice.Features.Risk.Tests\Indice.Features.Risk.Tests.csproj", "{D39DFEBF-C818-42AB-9B8A-EA080D102606}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Media.AspNetCore", "src\Indice.Features.Media.AspNetCore\Indice.Features.Media.AspNetCore.csproj", "{FDFC28D4-8090-49B1-AD6F-8908D806F297}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Media.AspNetCore", "src\Indice.Features.Media.AspNetCore\Indice.Features.Media.AspNetCore.csproj", "{FDFC28D4-8090-49B1-AD6F-8908D806F297}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
