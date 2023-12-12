@@ -90,7 +90,13 @@ public abstract class BaseConsentModel : BasePageModel
         return RedirectToPage("/Error");
     }
 
-    private async Task<ProcessConsentResult> ProcessConsent(ConsentInputModel inputModel) {
+    /// <summary>
+    /// Process the input model to retrieve the consent result.
+    /// </summary>
+    /// <param name="inputModel">The input model that the user posted</param>
+    /// <returns>The Consent result.</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    protected async Task<ProcessConsentResult> ProcessConsent(ConsentInputModel inputModel) {
         if (inputModel is null) {
             throw new ArgumentNullException(nameof(inputModel), "Input model cannot be null.");
         }
