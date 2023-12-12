@@ -13,6 +13,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize]
 [IdentityUI(typeof(AddPasswordModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseAddPasswordModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseAddPasswordModel> _localizer;
@@ -61,7 +62,6 @@ public abstract class BaseAddPasswordModel : BasePageModel
     }
 
     /// <summary>Add password page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
         if (!ModelState.IsValid) {
             return Page();

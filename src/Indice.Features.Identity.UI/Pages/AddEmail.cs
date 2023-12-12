@@ -13,6 +13,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
 [IdentityUI(typeof(AddEmailModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseAddEmailModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseAddEmailModel> _localizer;
@@ -67,7 +68,6 @@ public abstract class BaseAddEmailModel : BasePageModel
 
     /// <summary>Extended validation add email page POST handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
             return Page();

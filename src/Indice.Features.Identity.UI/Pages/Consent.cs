@@ -19,6 +19,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize]
 [IdentityUI(typeof(ConsentModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseConsentModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseConsentModel> _localizer;
@@ -69,7 +70,6 @@ public abstract class BaseConsentModel : BasePageModel
     }
 
     /// <summary>Consent page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
         var result = await ProcessConsent(Input);
         if (result.IsRedirect) {

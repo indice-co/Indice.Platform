@@ -13,6 +13,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
 [IdentityUI(typeof(VerifyPhoneModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseVerifyPhoneModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseVerifyPhoneModel> _localizer;
@@ -58,7 +59,6 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
     }
 
     /// <summary>Extended validation verify phone page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
             return Page();

@@ -13,6 +13,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.MfaOnboardingScheme)]
 [IdentityUI(typeof(MfaOnboardingVerifyPhoneModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseMfaOnboardingVerifyPhoneModel> _localizer;
@@ -53,7 +54,6 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
     }
 
     /// <summary>MFA onboarding verify phone page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
             return Page();

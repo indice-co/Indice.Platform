@@ -13,6 +13,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.ExtendedValidationUserIdScheme)]
 [IdentityUI(typeof(PasswordExpiredModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BasePasswordExpiredModel : BasePageModel
 {
     private readonly IStringLocalizer<BasePasswordExpiredModel> _localizer;
@@ -59,7 +60,6 @@ public abstract class BasePasswordExpiredModel : BasePageModel
     }
 
     /// <summary>Extended validation password expired page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         if (!ModelState.IsValid) {
             return Page();

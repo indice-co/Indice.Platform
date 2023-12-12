@@ -16,6 +16,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [AllowAnonymous]
 [IdentityUI(typeof(ForgotPasswordModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseForgotPasswordModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseForgotPasswordModel> _localizer;
@@ -63,7 +64,6 @@ public abstract class BaseForgotPasswordModel : BasePageModel
     }
 
     /// <summary>Forgot password page POST handler.</summary>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync() {
         if (!UiOptions.EnableForgotPasswordPage) {
             return Redirect("/404");

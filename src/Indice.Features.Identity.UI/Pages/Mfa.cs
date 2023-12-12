@@ -17,6 +17,7 @@ namespace Indice.Features.Identity.UI.Pages;
 [Authorize(AuthenticationSchemes = ExtendedIdentityConstants.TwoFactorUserIdScheme)]
 [IdentityUI(typeof(MfaModel))]
 [SecurityHeaders]
+[ValidateAntiForgeryToken]
 public abstract class BaseMfaModel : BasePageModel
 {
     private readonly IStringLocalizer<BaseMfaModel> _localizer;
@@ -94,7 +95,6 @@ public abstract class BaseMfaModel : BasePageModel
 
     /// <summary>MFA page POST handler.</summary>
     /// <param name="returnUrl">The return URL.</param>
-    [ValidateAntiForgeryToken]
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         View = await BuildMfaLoginViewModelAsync(Input);
         var signInResult = await SignInManager.TwoFactorSignInAsync(View.AuthenticationMethod?.GetTokenProvider(), Input.OtpCode, Input.RememberMe, Input.RememberClient);
