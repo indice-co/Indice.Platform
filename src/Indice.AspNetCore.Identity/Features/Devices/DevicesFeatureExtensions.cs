@@ -1,10 +1,7 @@
-﻿using System;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Api;
-using Indice.Events;
 using Indice.Services;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -27,7 +24,7 @@ public static class DevicesFeatureExtensions
             x.DefaultTotpDeliveryChannel = options.DefaultTotpDeliveryChannel;
         });
         services.AddPushNotificationServiceNoop();
-        services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
+        services.AddDefaultPlatformEventService();
         builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new DevicesFeatureProvider()));
         services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssemblyContaining<DevicesFeatureProvider>();

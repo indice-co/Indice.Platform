@@ -4,14 +4,14 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Events;
 
-internal class BackgroundPlatformEventServiceQueue<TEvent> where TEvent : IPlatformEvent
+internal class BackgroundPlatformEventServiceQueue
 {
-    private readonly Channel<TEvent> _queue;
+    private readonly Channel<IPlatformEvent> _queue;
     private readonly BackgroundPlatformEventServiceQueueOptions _queueOptions;
 
     public BackgroundPlatformEventServiceQueue(IOptions<BackgroundPlatformEventServiceQueueOptions> signInLogOptions) {
         _queueOptions = signInLogOptions?.Value ?? throw new ArgumentNullException(nameof(signInLogOptions));
-        _queue = Channel.CreateBounded<TEvent>(new BoundedChannelOptions(_queueOptions.QueueChannelCapacity) {
+        _queue = Channel.CreateBounded<IPlatformEvent>(new BoundedChannelOptions(_queueOptions.QueueChannelCapacity) {
             AllowSynchronousContinuations = false,
             SingleReader = true,
             SingleWriter = false,
@@ -19,12 +19,13 @@ internal class BackgroundPlatformEventServiceQueue<TEvent> where TEvent : IPlatf
         });
     }
 
-    public ChannelReader<TEvent> Reader => _queue.Reader;
+    public IAsyncEnumerable<IPlatformEvent> DequeueAsync(CancellationToken cancellationToken = default) => _queue.Reader.ReadAllAsync(cancellationToken);
 
-    public ValueTask EnqueueAsync(TEvent @event) => _queue.Writer.WriteAsync(@event);
+    public ValueTask EnqueueAsync(IPlatformEvent @event) => _queue.Writer.WriteAsync(@event);
 }
 
-internal class BackgroundPlatformEventServiceQueueOptions 
+/// <summary>Options for configuring <see cref="BackgroundPlatformEventServiceQueue"/>.</summary>
+public class BackgroundPlatformEventServiceQueueOptions
 {
     /// <summary>The maximum number of items the internal queue may store. Defaults to <i>100</i>.</summary>
     public int QueueChannelCapacity { get; set; } = 100;

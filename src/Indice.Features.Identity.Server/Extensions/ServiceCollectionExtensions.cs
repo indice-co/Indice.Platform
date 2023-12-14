@@ -236,7 +236,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         builder.Services.AddFeatureManagement(builder.Configuration.GetSection("IdentityServer:Features"));
         builder.Services.AddPushNotificationServiceNoop();
         // Invoke action provided by developer to override default options.
-        builder.Services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
+        builder.Services.AddDefaultPlatformEventService();
         builder.Services.AddClientThemingService();
         // Add authorization policies that are used by the IdentityServer API.
         builder.Services.AddAuthorization(authOptions => {

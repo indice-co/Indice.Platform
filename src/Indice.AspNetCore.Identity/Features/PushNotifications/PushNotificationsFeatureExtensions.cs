@@ -1,10 +1,7 @@
-﻿using System;
-using FluentValidation;
+﻿using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Identity.Api;
-using Indice.Events;
 using Indice.Services;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -20,7 +17,7 @@ public static class PushNotificationsFeatureExtensions
         var options = new PushNotificationAzureOptions();
         configure?.Invoke(builder.Services.BuildServiceProvider(), options);
         builder.Services.AddPushNotificationServiceAzure(configure);
-        builder.Services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
+        builder.Services.AddDefaultPlatformEventService();
         builder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new PushNotificationsFeatureProvider()));
         builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddValidatorsFromAssemblyContaining<PushNotificationsFeatureProvider>();

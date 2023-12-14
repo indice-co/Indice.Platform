@@ -1,5 +1,4 @@
-﻿using Indice.Events;
-using Indice.Features.Identity.Core;
+﻿using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Endpoints;
 using Indice.Features.Identity.Core.DeviceAuthentication.ResponseHandling;
@@ -34,7 +33,7 @@ public static class DeviceAuthenticationConfiguration
         builder.RegisterEndpoints();
         // Register stores and services.
         builder.Services.AddTransient<IDeviceAuthenticationCodeChallengeStore, DefaultDeviceAuthenticationCodeChallengeStore>();
-        builder.Services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
+        builder.Services.AddDefaultPlatformEventService();
         builder.Services.TryAddScoped<IdentityMessageDescriber>();
         options.AddUserDeviceStoreInMemory();
         // Register custom grant validator.

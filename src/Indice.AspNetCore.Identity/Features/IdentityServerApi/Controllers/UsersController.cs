@@ -377,7 +377,7 @@ internal class UsersController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+    [CacheResourceFilter(DependentPaths = ["{userId}"])]
     [HttpPost("{userId}/roles/{roleId}")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
