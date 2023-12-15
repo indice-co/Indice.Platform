@@ -4,6 +4,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
+using Indice.Events;
 using Indice.Features.Messages.AspNetCore;
 using Indice.Features.Messages.AspNetCore.Mvc.Authorization;
 using Indice.Features.Messages.AspNetCore.Mvc.Formatters;

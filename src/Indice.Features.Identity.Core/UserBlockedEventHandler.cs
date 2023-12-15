@@ -1,6 +1,6 @@
 ﻿using IdentityServer4.Services;
+using Indice.Events;
 using Indice.Features.Identity.Core.Events;
-using Indice.Services;
 
 namespace Indice.Features.Identity.Core;
 

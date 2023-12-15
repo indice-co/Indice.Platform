@@ -78,6 +78,7 @@ internal abstract class BaseCaseService
                     Layout = GetSingleOrMultiple(schemaKey, c.CaseType.Layout),
                     LayoutTranslations = c.CaseType.LayoutTranslations,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.CaseType.Translations),
+                    Tags = c.CaseType.Tags,
                     Config = GetSingleOrMultiple(schemaKey, c.CaseType.Config)
                 },
                 CustomerId = c.Customer.CustomerId,

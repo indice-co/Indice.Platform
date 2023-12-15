@@ -1,8 +1,8 @@
 ﻿using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using Indice.Events;
 using Indice.Features.Identity.Core.Events;
-using Indice.Services;
 using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.Core;

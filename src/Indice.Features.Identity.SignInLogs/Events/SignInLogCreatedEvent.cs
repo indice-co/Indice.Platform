@@ -1,5 +1,5 @@
-﻿using Indice.Features.Identity.SignInLogs.Models;
-using Indice.Services;
+﻿using Indice.Events;
+using Indice.Features.Identity.SignInLogs.Models;
 
 namespace Indice.Features.Identity.SignInLogs.Events;
 

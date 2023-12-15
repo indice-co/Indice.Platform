@@ -1,12 +1,13 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
+using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Models;
 using Indice.Security;
-using Indice.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -93,7 +94,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         }
         var result = await base.CreateAsync(user);
         if (result.Succeeded) {
-            await _eventService.Publish(new UserCreatedEvent(user));
+            await _eventService.Publish(new UserCreatedEvent(UserEventContext.InitializeFromUser(user)));
         }
         return result;
     }
@@ -119,7 +120,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
                 await SetPasswordExpiredAsync(user, expired: false);
                 await base.UpdateAsync(user);
             }
-            await _eventService.Publish(new PasswordChangedEvent(user));
+            await _eventService.Publish(new PasswordChangedEvent(UserEventContext.InitializeFromUser(user)));
         }
         return result;
     }
@@ -133,7 +134,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         if (await IsLockedOutAsync(user)) {
             return await SetLockoutEndDateAsync(user, null);
         }
-        await _eventService.Publish(new PasswordChangedEvent(user));
+        await _eventService.Publish(new PasswordChangedEvent(UserEventContext.InitializeFromUser(user)));
         return result;
     }
 
@@ -141,7 +142,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public override async Task<IdentityResult> AccessFailedAsync(TUser user) {
         var result = await base.AccessFailedAsync(user);
         if (await IsLockedOutAsync(user)) {
-            await _eventService.Publish(new AccountLockedEvent(user));
+            await _eventService.Publish(new AccountLockedEvent(UserEventContext.InitializeFromUser(user)));
         }
         return result;
     }
@@ -151,7 +152,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var previousValue = user.UserName;
         var result = await base.SetUserNameAsync(user, userName);
         if (result.Succeeded) {
-            await _eventService.Publish(new UserNameChangedEvent(user, previousValue));
+            await _eventService.Publish(new UserNameChangedEvent(UserEventContext.InitializeFromUser(user), previousValue));
         }
         return result;
     }
@@ -171,7 +172,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public override async Task<IdentityResult> ChangePhoneNumberAsync(TUser user, string phoneNumber, string token) {
         var result = await base.ChangePhoneNumberAsync(user, phoneNumber, token);
         if (result.Succeeded) {
-            await _eventService.Publish(new PhoneNumberConfirmedEvent(user));
+            await _eventService.Publish(new PhoneNumberConfirmedEvent(UserEventContext.InitializeFromUser(user)));
             await StateProvider.ChangeStateAsync(user, UserAction.VerifiedPhoneNumber);
         }
         return result;
@@ -181,7 +182,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public async override Task<IdentityResult> ConfirmEmailAsync(TUser user, string token) {
         var result = await base.ConfirmEmailAsync(user, token);
         if (result.Succeeded) {
-            await _eventService.Publish(new EmailConfirmedEvent(user));
+            await _eventService.Publish(new EmailConfirmedEvent(UserEventContext.InitializeFromUser(user)));
             await StateProvider.ChangeStateAsync(user, UserAction.VerifiedEmail);
         }
         return result;
@@ -297,7 +298,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         if (await IsLockedOutAsync(user)) {
             result = await SetLockoutEndDateAsync(user, null);
         }
-        await _eventService.Publish(new PasswordChangedEvent(user));
+        await _eventService.Publish(new PasswordChangedEvent(UserEventContext.InitializeFromUser(user)));
         return result;
     }
 
@@ -357,7 +358,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var result = await UpdateAsync(user);
         if (result.Succeeded && blocked) {
             // When blocking a user we need to make sure we also revoke all of his tokens.
-            await _eventService.Publish(new UserBlockedEvent(user));
+            await _eventService.Publish(new UserBlockedEvent(UserEventContext.InitializeFromUser(user)));
         }
         return result;
     }
@@ -371,12 +372,8 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
     public async Task<IdentityResult> CreateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
-        if (device is null) {
-            throw new ArgumentNullException(nameof(device));
-        }
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(device);
         var deviceStore = GetDeviceStore();
         if (device.ClientType.HasValue && device.ClientType == DeviceClientType.Native) {
             var userClaims = await GetClaimsAsync(user);
@@ -387,7 +384,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
             }
             var maxDevicesCount = userMaxDevicesCount ?? DefaultAllowedRegisteredDevices ?? int.MaxValue;
             var numberOfUserDevices = await deviceStore.GetDevicesCountAsync(user, UserDeviceListFilter.NativeDevices(), cancellationToken);
-            if (maxDevicesCount == numberOfUserDevices) {
+            if (numberOfUserDevices >= maxDevicesCount) {
                 return IdentityResult.Failed(new IdentityError {
                     Code = nameof(MessageDescriber.MaxNumberOfDevices),
                     Description = MessageDescriber.MaxNumberOfDevices()
@@ -397,7 +394,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         device.UserId = user.Id;
         var result = await deviceStore.CreateDeviceAsync(user, device, cancellationToken);
         if (result.Succeeded) {
-            await _eventService.Publish(new DeviceCreatedEvent(device, user));
+            await _eventService.Publish(new DeviceCreatedEvent(UserDeviceEventContext.InitializeFromUserDevice(device), UserEventContext.InitializeFromUser(user)));
         }
         return result;
     }
@@ -410,16 +407,12 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> or <paramref name="device"/> parameters are null.</exception>
     public async Task<IdentityResult> UpdateDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
-        if (device is null) {
-            throw new ArgumentNullException(nameof(device));
-        }
+        ArgumentNullException.ThrowIfNull(user);
+        ArgumentNullException.ThrowIfNull(device);
         var deviceStore = GetDeviceStore();
         var result = await deviceStore.UpdateDeviceAsync(user, device, cancellationToken);
         if (result.Succeeded) {
-            await _eventService.Publish(new DeviceUpdatedEvent(device, user));
+            await _eventService.Publish(new DeviceUpdatedEvent(UserDeviceEventContext.InitializeFromUserDevice(device), UserEventContext.InitializeFromUser(user)));
         }
         return result;
     }
@@ -432,9 +425,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
     public Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         var deviceStore = GetDeviceStore();
         return deviceStore.GetDevicesAsync(user, filter, cancellationToken);
     }
@@ -447,9 +438,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
     public Task<int> GetDevicesCountAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
-        if (user is null) {
-            throw new ArgumentNullException(nameof(user));
-        }
+        ArgumentNullException.ThrowIfNull(user);
         var deviceStore = GetDeviceStore();
         return deviceStore.GetDevicesCountAsync(user, filter, cancellationToken);
     }
@@ -527,7 +516,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         }
         var deviceStore = GetDeviceStore();
         await deviceStore.RemoveDeviceAsync(user, device, cancellationToken);
-        await _eventService.Publish(new DeviceDeletedEvent(device, user));
+        await _eventService.Publish(new DeviceDeletedEvent(UserDeviceEventContext.InitializeFromUserDevice(device), UserEventContext.InitializeFromUser(user)));
     }
 
     /// <summary>Sets the device state to require username/password in the next login.</summary>
@@ -622,7 +611,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
                 }
             }
             device.TrustActivationDate = DateTimeOffset.UtcNow.Add(TrustActivationDelay ?? TimeSpan.Zero);
-            await _eventService.Publish(new DeviceTrustRequestedEvent(device, user));
+            await _eventService.Publish(new DeviceTrustRequestedEvent(UserDeviceEventContext.InitializeFromUserDevice(device), UserEventContext.InitializeFromUser(user)));
         }
         // b. The user waited for the required delay to pass and now wants to activate device trust.
         var isDeviceTrustRequest = device.TrustActivationDate.HasValue && !device.IsPendingTrustActivation;

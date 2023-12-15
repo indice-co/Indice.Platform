@@ -17,8 +17,4 @@ public class ImpossibleTravelOptions
     public double AcceptableSpeed { get; set; } = 400d;
     /// <summary>Specifies the flow to follow when impossible travel is detected for the current user. Defaults to <see cref="ImpossibleTravelFlowType.PromptMfa"/>.</summary>
     public ImpossibleTravelFlowType FlowType { get; set; } = ImpossibleTravelFlowType.PromptMfa;
-    /// <summary>Determines whether password related events are persisted in the store.</summary>
-    public bool RecordPasswordEvents { get; set; } = false;
-    /// <summary>Determines whether token related events are persisted in the store.</summary>
-    public bool RecordTokenEvents { get; set; } = false;
 }

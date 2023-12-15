@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Security.Claims;
 using Indice.Configuration;
+using Indice.Events;
 using Indice.Services;
 using Indice.Services.Yuboto;
 using Microsoft.Extensions.Configuration;

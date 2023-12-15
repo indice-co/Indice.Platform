@@ -5,12 +5,12 @@ using Indice.AspNetCore.Identity.Api.Data;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.Configuration;
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Models;
 using Indice.Security;
-using Indice.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -45,7 +45,7 @@ public static class IdentityServerApiFeatureExtensions
         // Invoke action provided by developer to override default options.
         services.AddSingleton(apiEndpointsOptions);
         services.AddGeneralSettings(configuration);
-        services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
+        services.AddDefaultPlatformEventService();
         services.TryAddScoped<IClientThemingService<DefaultClientThemeConfig>, ClientThemingService<DefaultClientThemeConfig>>();
         // Register validation filters.
         services.AddScoped<CreateClaimTypeRequestValidationFilter>();
