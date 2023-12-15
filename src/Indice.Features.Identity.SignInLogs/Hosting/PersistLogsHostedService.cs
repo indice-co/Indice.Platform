@@ -1,8 +1,8 @@
-﻿using Indice.Features.Identity.SignInLogs.Abstractions;
+﻿using Indice.Events;
+using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Enrichers;
 using Indice.Features.Identity.SignInLogs.Events;
 using Indice.Features.Identity.SignInLogs.Models;
-using Indice.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -37,7 +37,7 @@ internal class PersistLogsHostedService : BackgroundService
         using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
             var signInLogStore = serviceScope.ServiceProvider.GetRequiredService<ISignInLogStore>();
             var enricherAggregator = serviceScope.ServiceProvider.GetRequiredService<SignInLogEntryEnricherAggregator>();
-            // possible optimization read in batch so that we have fewer roundtrips to database https://stackoverflow.com/questions/63881607/how-to-read-remaining-items-in-channelt-less-than-batch-size-if-there-is-no-n
+            // Possible optimization read in batch so that we have fewer roundtrips to database https://stackoverflow.com/questions/63881607/how-to-read-remaining-items-in-channelt-less-than-batch-size-if-there-is-no-n
             // https://github.com/Open-NET-Libraries/Open.ChannelExtensions#batching
             var events = _signInLogEntryQueue.Reader
                 .PipeAsync(async logEntry => {

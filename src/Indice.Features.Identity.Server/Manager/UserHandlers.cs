@@ -2,15 +2,16 @@
 using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Server.Devices.Models;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Features.Identity.Server.Options;
 using Indice.Globalization;
-using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -268,7 +269,7 @@ internal static class UserHandlers
             return TypedResults.ValidationProblem(errors, detail: errors.Detail());
         }
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        await eventService.Publish(new UserRequestForEmailConfirmationEvent(user, token));
+        await eventService.Publish(new UserRequestForEmailConfirmationEvent(UserEventContext.InitializeFromUser(user), token));
         return TypedResults.NoContent();
     }
 

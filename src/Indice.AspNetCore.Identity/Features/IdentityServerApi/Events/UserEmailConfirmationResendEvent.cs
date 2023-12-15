@@ -1,6 +1,6 @@
 ﻿using System;
+using Indice.Events;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Services;
 
 namespace Indice.AspNetCore.Identity.Api.Events;
 

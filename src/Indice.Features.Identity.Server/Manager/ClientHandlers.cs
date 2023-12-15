@@ -9,15 +9,16 @@ using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Mappers;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Serialization;
-using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -155,7 +156,7 @@ internal static class ClientHandlers
             UserId = currentUser.GetSubjectId()
         });
         await configurationDbContext.SaveChangesAsync();
-        await eventService.Publish(new ClientCreatedEvent(client.ToModel()));
+        await eventService.Publish(new ClientCreatedEvent(ClientEventContext.InitializeFromClient(client)));
         var response = ClientInfo.FromClient(client);
         return TypedResults.CreatedAtRoute(response, nameof(GetClient), new { clientId = client.ClientId });
     }

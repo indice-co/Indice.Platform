@@ -20,15 +20,16 @@ using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Models;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.Configuration;
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Models;
 using Indice.Security;
 using Indice.Serialization;
-using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -228,7 +229,7 @@ internal class ClientsController : ControllerBase
             UserId = UserId
         });
         await _configurationDbContext.SaveChangesAsync();
-        await _eventService.Publish(new ClientCreatedEvent(client.ToModel()));
+        await _eventService.Publish(new ClientCreatedEvent(ClientEventContext.InitializeFromClient(client)));
         var response = ClientInfo.FromClient(client);
         return CreatedAtAction(nameof(GetClient), new { clientId = client.ClientId }, response);
     }

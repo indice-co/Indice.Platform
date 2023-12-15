@@ -1,4 +1,5 @@
-﻿using Indice.Services;
+﻿using Indice.Events;
+using Indice.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -71,4 +72,24 @@ public static class IServiceCollectionExtensions
         services.TryAddTransient(typeof(IZoneInfoProvider), typeof(TZoneInfoProvider));
         return services;
     }
+
+    /// <summary>Adds the default implementation of <see cref="IPlatformEventService"/> which processes events synchronously as part of the request lifecycle.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddDefaultPlatformEventService(this IServiceCollection services) {
+        services.TryAddTransient<IPlatformEventService, DefaultPlatformEventService>();
+        return services;
+    }
+
+#if !NETSTANDARD2_1
+    /// <summary>Adds the default implementation of <see cref="IPlatformEventService"/> which processes events αsynchronously on the background.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="config">Configuration action.</param>
+    public static IServiceCollection AddBackgroundPlatformEventService(this IServiceCollection services, Action<BackgroundPlatformEventServiceQueueOptions> config = null) {
+        services.AddTransient<IPlatformEventService, BackgroundPlatformEventService>();
+        services.AddSingleton<BackgroundPlatformEventServiceQueue>();
+        services.Configure<BackgroundPlatformEventServiceQueueOptions>(options => config?.Invoke(options));
+        services.AddHostedService<BackgroundPlatformEventHostedService>();
+        return services;
+    }
+#endif
 }

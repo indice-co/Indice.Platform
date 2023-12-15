@@ -22,8 +22,8 @@ internal class SignInLogEntryQueue
     public ChannelReader<SignInLogEntry> Reader => _queue.Reader;
 
     public ValueTask EnqueueAsync(SignInLogEntry logEntry) {
-        var skipEvent = (!_signInLogOptions.ImpossibleTravel.RecordTokenEvents && logEntry.EventType == SignInLogEventType.TokenIssued) ||
-                        (!_signInLogOptions.ImpossibleTravel.RecordPasswordEvents && logEntry.EventType == SignInLogEventType.UserPasswordValidationCompleted);
+        var skipEvent = (!_signInLogOptions.Events.TokenEvents && logEntry.EventType == SignInLogEventType.TokenIssued) ||
+                        (!_signInLogOptions.Events.PasswordEvents && logEntry.EventType == SignInLogEventType.UserPasswordValidationCompleted);
         return skipEvent ? ValueTask.CompletedTask : _queue.Writer.WriteAsync(logEntry);
     }
 }
