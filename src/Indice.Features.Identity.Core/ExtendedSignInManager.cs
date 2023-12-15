@@ -6,6 +6,7 @@ using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.Types;
@@ -224,7 +225,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
         var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
         await _eventService.Publish(UserLoginEvent.Success(
-            user, 
+            UserEventContext.InitializeFromUser(user), 
             result.Warning, 
             additionalClaims.Where(claim => claim.Type == JwtClaimTypes.AuthenticationMethod).Select(claim => claim.Value).ToArray()
         ));
@@ -292,7 +293,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return attempt;
         }
         var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
-        await _eventService.Publish(UserPasswordLoginEvent.Success(user, result.Warning));
+        await _eventService.Publish(UserPasswordLoginEvent.Success(UserEventContext.InitializeFromUser(user), result.Warning));
         if (ExpireBlacklistedPasswordsOnSignIn) {
             var blacklistPasswordValidator = ExtendedUserManager.PasswordValidators.OfType<NonCommonPasswordValidator<TUser>>().FirstOrDefault();
             if (blacklistPasswordValidator is not null && await blacklistPasswordValidator.IsBlacklistedAsync(password)) {

@@ -14,6 +14,7 @@ using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Models;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -155,7 +156,7 @@ internal static class ClientHandlers
             UserId = currentUser.GetSubjectId()
         });
         await configurationDbContext.SaveChangesAsync();
-        await eventService.Publish(new ClientCreatedEvent(client.ToModel()));
+        await eventService.Publish(new ClientCreatedEvent(ClientEventContext.InitializeFromClient(client)));
         var response = ClientInfo.FromClient(client);
         return TypedResults.CreatedAtRoute(response, nameof(GetClient), new { clientId = client.ClientId });
     }
