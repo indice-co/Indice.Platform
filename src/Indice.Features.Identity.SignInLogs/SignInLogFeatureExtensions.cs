@@ -62,13 +62,13 @@ public static class SignInLogFeatureExtensions
             options.ImpossibleTravel.Guard = resolvedOptions.ImpossibleTravel.Guard;
             options.ImpossibleTravel.AcceptableSpeed = resolvedOptions.ImpossibleTravel.AcceptableSpeed;
             options.ImpossibleTravel.FlowType = resolvedOptions.ImpossibleTravel.FlowType;
-            options.ImpossibleTravel.RecordPasswordEvents = resolvedOptions.ImpossibleTravel.RecordPasswordEvents;
-            options.ImpossibleTravel.RecordTokenEvents = resolvedOptions.ImpossibleTravel.RecordTokenEvents;
+            options.Events.TokenEvents = resolvedOptions.Events.TokenEvents;
+            options.Events.PasswordEvents = resolvedOptions.Events.PasswordEvents;
             options.DequeueBatchSize = resolvedOptions.DequeueBatchSize;
             options.DequeueTimeoutInMilliseconds = resolvedOptions.DequeueTimeoutInMilliseconds;
         });
         // Add built-in enrichers & filters for the log entry model.
-        services.AddDefaultEnrichers(resolvedOptions.ExcludedEnrichers.ToArray());
+        services.AddDefaultEnrichers([.. resolvedOptions.ExcludedEnrichers]);
         services.AddDefaultFilters();
         services.AddTransient<SignInLogEntryEnricherAggregator>();
         services.AddSingleton<SignInLogEntryQueue>();

@@ -1,5 +1,4 @@
-﻿using Indice.Features.Identity.Core.ImpossibleTravel;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -43,6 +42,8 @@ public class SignInLogOptions
     public int QueueChannelCapacity { get; set; } = 100;
     /// <summary>Configuration options regarding impossible travel.</summary>
     public ImpossibleTravelOptions ImpossibleTravel { get; set; } = new ImpossibleTravelOptions();
+    /// <summary>Configuration options regarding events.</summary>
+    public SignInLogEventOptions Events { get; set; } = new SignInLogEventOptions();
     /// <summary>Specifies a prefix for the API endpoints. Defaults to <i>/api</i>.</summary>
     public PathString ApiPrefix {
         get => _apiPrefix;
@@ -71,4 +72,13 @@ public class LogCleanupOptions
     public bool Enable { get; set; } = true;
     /// <summary>The number of days to maintain a log entry. Defaults to <i>90 days</i>.</summary>
     public ushort RetentionDays { get; set; } = 90;
+}
+
+/// <summary>Options regarding token recording.</summary>
+public class SignInLogEventOptions
+{
+    /// <summary>Determines whether token related events are persisted in the store.</summary>
+    public bool TokenEvents { get; set; } = false;
+    /// <summary>Determines whether password related events are persisted in the store.</summary>
+    public bool PasswordEvents { get; set; } = false;
 }
