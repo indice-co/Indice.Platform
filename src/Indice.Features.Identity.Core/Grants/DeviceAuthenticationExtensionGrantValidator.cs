@@ -2,6 +2,7 @@
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
+using Indice.AspNetCore.Extensions;
 using Indice.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
@@ -10,35 +11,31 @@ using Indice.Features.Identity.Core.DeviceAuthentication.Services;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 using Indice.Features.Identity.Core.Events;
+using Indice.Features.Identity.Core.Extensions;
+using Indice.Security;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.Features.Identity.Core.Grants;
 
-internal class DeviceAuthenticationExtensionGrantValidator : RequestChallengeValidator, IExtensionGrantValidator
+internal class DeviceAuthenticationExtensionGrantValidator(
+    IDeviceAuthenticationCodeChallengeStore codeChallengeStore,
+    IDevicePasswordHasher devicePasswordHasher,
+    IUserDeviceStore userDeviceStore,
+    ExtendedUserManager<User> userManager,
+    IEventService eventService,
+    IHttpContextAccessor httpContextAccessor) : RequestChallengeValidator, IExtensionGrantValidator
 {
-    public DeviceAuthenticationExtensionGrantValidator(
-        IDeviceAuthenticationCodeChallengeStore codeChallengeStore,
-        IDevicePasswordHasher devicePasswordHasher,
-        IUserDeviceStore userDeviceStore,
-        ExtendedUserManager<User> userManager,
-        IEventService eventService
-    ) {
-        CodeChallengeStore = codeChallengeStore ?? throw new ArgumentNullException(nameof(codeChallengeStore));
-        DevicePasswordHasher = devicePasswordHasher ?? throw new ArgumentNullException(nameof(devicePasswordHasher));
-        UserDeviceStore = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
-        UserManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
-    }
-
     public string GrantType => CustomGrantTypes.DeviceAuthentication;
-    public IDeviceAuthenticationCodeChallengeStore CodeChallengeStore { get; }
-    public IDevicePasswordHasher DevicePasswordHasher { get; }
+    public IDeviceAuthenticationCodeChallengeStore CodeChallengeStore { get; } = codeChallengeStore ?? throw new ArgumentNullException(nameof(codeChallengeStore));
+    public IDevicePasswordHasher DevicePasswordHasher { get; } = devicePasswordHasher ?? throw new ArgumentNullException(nameof(devicePasswordHasher));
 
     /// <summary>Gets the current time, primarily for unit testing.</summary>
     protected TimeProvider TimeProvider { get; private set; } = TimeProvider.System;
-    public IUserDeviceStore UserDeviceStore { get; }
-    public ExtendedUserManager<User> UserManager { get; }
-    public IEventService EventService { get; }
+    public IUserDeviceStore UserDeviceStore { get; } = userDeviceStore ?? throw new ArgumentNullException(nameof(userDeviceStore));
+    public ExtendedUserManager<User> UserManager { get; } = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    public IEventService EventService { get; } = eventService ?? throw new ArgumentNullException(nameof(eventService));
+    public IHttpContextAccessor HttpContextAccessor { get; } = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 
     public async Task ValidateAsync(ExtensionGrantValidationContext context) {
         var parameters = context.Request.Raw;
@@ -122,6 +119,27 @@ internal class DeviceAuthenticationExtensionGrantValidator : RequestChallengeVal
         }
         await UserDeviceStore.UpdateLastSignInDate(device);
         await UserManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
+        var ipAddress = HttpContextAccessor.HttpContext.GetClientIpAddress()?.ToString();
+        if (!string.IsNullOrEmpty(ipAddress)) {
+            var existingIpAddressClaim = user.Claims.FirstOrDefault(x => x.ClaimType == BasicClaimTypes.IPAddress);
+            if (existingIpAddressClaim is not null) {
+                user.Claims.Remove(existingIpAddressClaim);
+            }
+            user.Claims.Add(new IdentityUserClaim<string> {
+                ClaimType = BasicClaimTypes.IPAddress,
+                ClaimValue = ipAddress,
+                UserId = user.Id
+            });
+        }
+        var existingDeviceIdClaim = user.Claims.FirstOrDefault(x => x.ClaimType == BasicClaimTypes.DeviceId);
+        if (existingDeviceIdClaim is not null) {
+            user.Claims.Remove(existingDeviceIdClaim);
+        }
+        user.Claims.Add(new IdentityUserClaim<string> {
+            ClaimType = BasicClaimTypes.DeviceId,
+            ClaimValue = device.DeviceId,
+            UserId = user.Id
+        });
         if (context.Result.IsError) {
             await RaiseUserLoginFailureEvent(user, context);
         } else {

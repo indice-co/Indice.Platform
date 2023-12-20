@@ -37,7 +37,6 @@ public static class IdentityBuilderExtensions
             AuthCookie(IdentityConstants.TwoFactorUserIdScheme)(options);
             options.LoginPath = new PathString("/login-with-2fa");
         });
-        builder.Services.AddTransient<IDeviceIdResolver, DeviceIdResolverHttpContext>();
         builder.Services.TryAddTransient<IAuthenticationMethodProvider, AuthenticationMethodProviderInMemory>();
         builder.Services.TryAddSingleton<ISignInGuard<TUser>, SignInGuardNoOp<TUser>>();
         builder.AddSignInManager<ExtendedSignInManager<TUser>>();

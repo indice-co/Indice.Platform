@@ -3,11 +3,13 @@ using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
+using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.Totp;
+using Indice.Security;
 using Indice.Services;
 using Microsoft.Extensions.Logging;
 
@@ -15,12 +17,22 @@ namespace Indice.Features.Identity.Core.Grants;
 
 /// <summary>An extended implementation of <see cref="IResourceOwnerPasswordValidator"/> where multiple filters can be registered and validated.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidator where TUser : User
+/// <remarks>Creates a new instance of <see cref="ExtendedResourceOwnerPasswordValidator{TUser}"/>.</remarks>
+/// <param name="filters">List of handlers for validating resource owner password credentials.</param>
+/// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+/// <param name="logger">Represents a type used to perform logging.</param>
+/// <param name="eventService">Interface for the event service.</param>
+/// <exception cref="ArgumentNullException"></exception>
+public class ExtendedResourceOwnerPasswordValidator<TUser>(
+    IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> filters,
+    ExtendedUserManager<TUser> userManager,
+    ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> logger,
+    IEventService eventService) : IResourceOwnerPasswordValidator where TUser : User
 {
-    private readonly ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> _logger;
-    private readonly IEventService _eventService;
-    private readonly IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> _filters;
-    private readonly ExtendedUserManager<TUser> _userManager;
+    private readonly ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IEventService _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
+    private readonly IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> _filters = filters ?? throw new ArgumentNullException(nameof(filters));
+    private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
     private readonly IDictionary<string, string> _errors = new Dictionary<string, string> {
         { ResourceOwnerPasswordErrorCodes.LockedOut, "User is locked out." },
@@ -33,24 +45,6 @@ public class ExtendedResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
         { ResourceOwnerPasswordErrorCodes.MissingDeviceId, "Device id is missing." },
         { ResourceOwnerPasswordErrorCodes.DeviceNotFound, "Device was not found." }
     };
-
-    /// <summary>Creates a new instance of <see cref="ExtendedResourceOwnerPasswordValidator{TUser}"/>.</summary>
-    /// <param name="filters">List of handlers for validating resource owner password credentials.</param>
-    /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-    /// <param name="logger">Represents a type used to perform logging.</param>
-    /// <param name="eventService">Interface for the event service.</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public ExtendedResourceOwnerPasswordValidator(
-        IEnumerable<IResourceOwnerPasswordValidationFilter<TUser>> filters,
-        ExtendedUserManager<TUser> userManager,
-        ILogger<ExtendedResourceOwnerPasswordValidator<TUser>> logger,
-        IEventService eventService
-    ) {
-        _filters = filters ?? throw new ArgumentNullException(nameof(filters));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _eventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
-    }
 
     /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationContext context) {
@@ -144,16 +138,12 @@ public interface IResourceOwnerPasswordValidationFilter<TUser> where TUser : Use
 
 /// <summary><see cref="IResourceOwnerPasswordValidator"/> that integrates with ASP.NET Identity and is specific to mobile clients.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public sealed class DeviceResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
+/// <remarks>Creates a new instance of <see cref="DeviceResourceOwnerPasswordValidator{TUser}"/>.</remarks>
+/// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+/// <exception cref="ArgumentNullException"></exception>
+public sealed class DeviceResourceOwnerPasswordValidator<TUser>(ExtendedUserManager<TUser> userManager) : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
 {
-    private readonly ExtendedUserManager<TUser> _userManager;
-
-    /// <summary>Creates a new instance of <see cref="DeviceResourceOwnerPasswordValidator{TUser}"/>.</summary>
-    /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    public DeviceResourceOwnerPasswordValidator(ExtendedUserManager<TUser> userManager) {
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-    }
+    private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
     /// <inheritdoc />
     public int Order => 1;
@@ -241,6 +231,13 @@ public class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
         // We need to override the default logic for mobile login.
         if (context.User.AccessFailedCount > 0) {
             await _userManager.ResetAccessFailedCountAsync(context.User);
+        }
+        var ipAddress = _signInManager.Context.GetClientIpAddress()?.ToString();
+        if (!string.IsNullOrWhiteSpace(ipAddress)) {
+            await _userManager.ReplaceClaimAsync(context.User, BasicClaimTypes.IPAddress, ipAddress);
+        }
+        if (!string.IsNullOrWhiteSpace(context.Device?.DeviceId)) {
+            await _userManager.ReplaceClaimAsync(context.User, BasicClaimTypes.DeviceId, context.Device.DeviceId);
         }
         var subject = await _userManager.GetUserIdAsync(context.User);
         context.Result = new GrantValidationResult(subject, OidcConstants.AuthenticationMethods.Password);

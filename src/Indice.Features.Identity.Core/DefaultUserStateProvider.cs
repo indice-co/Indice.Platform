@@ -10,16 +10,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Indice.Features.Identity.Core;
 
 /// <summary>A service used to implement state machine for <see cref="ExtendedUserManager{User}"/> and <see cref="ExtendedSignInManager{User}"/>.</summary>
-public class DefaultUserStateProvider : DefaultUserStateProvider<User>
-{
-    /// <summary>Creates a new instance of <see cref="DefaultUserStateProvider{User}"/>.</summary>
-    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
-    public DefaultUserStateProvider(
-        IConfiguration configuration,
-        IHttpContextAccessor httpContextAccessor
-    ) : base(configuration, httpContextAccessor) { }
-}
+/// <remarks>Creates a new instance of <see cref="DefaultUserStateProvider{User}"/>.</remarks>
+/// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+/// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
+public class DefaultUserStateProvider(
+    IConfiguration configuration,
+    IHttpContextAccessor httpContextAccessor) : DefaultUserStateProvider<User>(configuration, httpContextAccessor) { }
 
 /// <summary>A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</summary>
 public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where TUser : User

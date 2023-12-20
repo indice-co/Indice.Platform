@@ -1,19 +1,20 @@
-﻿using Indice.Features.Identity.Core;
+﻿using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.SignInLogs.Abstractions;
 using Indice.Features.Identity.SignInLogs.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Indice.Features.Identity.SignInLogs.Enrichers;
 
 /// <summary>Enriches the sign in log entry with the device id that performs the sign in operation.</summary>
 public sealed class DeviceIdEnricher : ISignInLogEntryEnricher
 {
-    private readonly IDeviceIdResolver _mfaDeviceIdResolver;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>Creates a new instance of <see cref="DeviceIdEnricher"/> class.</summary>
-    /// <param name="mfaDeviceIdResolver">An abstraction used to specify the way to resolve the device identifier using various ways.</param>
+    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public DeviceIdEnricher(IDeviceIdResolver mfaDeviceIdResolver) {
-        _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
+    public DeviceIdEnricher(IHttpContextAccessor httpContextAccessor) {
+        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
 
     /// <inheritdoc />
@@ -23,7 +24,7 @@ public sealed class DeviceIdEnricher : ISignInLogEntryEnricher
 
     /// <inheritdoc />
     public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
-        var device = await _mfaDeviceIdResolver.Resolve();
+        var device = await _httpContextAccessor.HttpContext.ResolveDeviceId();
         logEntry.DeviceId = device.Value;
         if (device.HasRegistrationId) {
             logEntry.ExtraData.UserDevice = new SignInLogEntryUserDevice {
