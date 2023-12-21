@@ -232,13 +232,6 @@ public class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPassw
         if (context.User.AccessFailedCount > 0) {
             await _userManager.ResetAccessFailedCountAsync(context.User);
         }
-        var ipAddress = _signInManager.Context.GetClientIpAddress()?.ToString();
-        if (!string.IsNullOrWhiteSpace(ipAddress)) {
-            await _userManager.ReplaceClaimAsync(context.User, BasicClaimTypes.IPAddress, ipAddress);
-        }
-        if (!string.IsNullOrWhiteSpace(context.Device?.DeviceId)) {
-            await _userManager.ReplaceClaimAsync(context.User, BasicClaimTypes.DeviceId, context.Device.DeviceId);
-        }
         var subject = await _userManager.GetUserIdAsync(context.User);
         context.Result = new GrantValidationResult(subject, OidcConstants.AuthenticationMethods.Password);
     }

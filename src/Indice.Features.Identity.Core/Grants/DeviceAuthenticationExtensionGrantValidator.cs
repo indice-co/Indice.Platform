@@ -119,27 +119,6 @@ internal class DeviceAuthenticationExtensionGrantValidator(
         }
         await UserDeviceStore.UpdateLastSignInDate(device);
         await UserManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
-        var ipAddress = HttpContextAccessor.HttpContext.GetClientIpAddress()?.ToString();
-        if (!string.IsNullOrEmpty(ipAddress)) {
-            var existingIpAddressClaim = user.Claims.FirstOrDefault(x => x.ClaimType == BasicClaimTypes.IPAddress);
-            if (existingIpAddressClaim is not null) {
-                user.Claims.Remove(existingIpAddressClaim);
-            }
-            user.Claims.Add(new IdentityUserClaim<string> {
-                ClaimType = BasicClaimTypes.IPAddress,
-                ClaimValue = ipAddress,
-                UserId = user.Id
-            });
-        }
-        var existingDeviceIdClaim = user.Claims.FirstOrDefault(x => x.ClaimType == BasicClaimTypes.DeviceId);
-        if (existingDeviceIdClaim is not null) {
-            user.Claims.Remove(existingDeviceIdClaim);
-        }
-        user.Claims.Add(new IdentityUserClaim<string> {
-            ClaimType = BasicClaimTypes.DeviceId,
-            ClaimValue = device.DeviceId,
-            UserId = user.Id
-        });
         if (context.Result.IsError) {
             await RaiseUserLoginFailureEvent(user, context);
         } else {

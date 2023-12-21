@@ -1,10 +1,7 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
-using Indice.AspNetCore.Extensions;
 using Indice.Features.Identity.Core.Data.Models;
-using Indice.Features.Identity.Core.Extensions;
 using Indice.Security;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 
@@ -17,13 +14,11 @@ public class ExtendedUserClaimsPrincipalFactory : ExtendedUserClaimsPrincipalFac
     /// <param name="userManager">The <see cref="ExtendedUserManager{TUser}"/> to retrieve user information from.</param>
     /// <param name="roleManager">The <see cref="RoleManager{TRole}"/> to retrieve a user's roles from.</param>
     /// <param name="optionsAccessor">The configured <see cref="IdentityOptions"/>.</param>
-    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
     public ExtendedUserClaimsPrincipalFactory(
         ExtendedUserManager<User> userManager,
         RoleManager<IdentityRole> roleManager,
-        IOptions<IdentityOptions> optionsAccessor,
-        IHttpContextAccessor httpContextAccessor
-    ) : base(userManager, roleManager, optionsAccessor, httpContextAccessor) { }
+        IOptions<IdentityOptions> optionsAccessor
+    ) : base(userManager, roleManager, optionsAccessor) { }
 
     /// <summary>Generates the claims for a user.</summary>
     /// <param name="user">The user to create a <see cref="ClaimsIdentity"/> from.</param>
@@ -36,18 +31,15 @@ public class ExtendedUserClaimsPrincipalFactory : ExtendedUserClaimsPrincipalFac
 /// <param name="userManager">The <see cref="UserManager{TUser}"/> to retrieve user information from.</param>
 /// <param name="roleManager">The <see cref="RoleManager{TRole}"/> to retrieve a user's roles from.</param>
 /// <param name="optionsAccessor">The configured <see cref="IdentityOptions"/>.</param>
-/// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
 public class ExtendedUserClaimsPrincipalFactory<TUser, TRole>(
     ExtendedUserManager<TUser> userManager,
     RoleManager<TRole> roleManager,
-    IOptions<IdentityOptions> optionsAccessor,
-    IHttpContextAccessor httpContextAccessor
+    IOptions<IdentityOptions> optionsAccessor
 ) : UserClaimsPrincipalFactory<TUser, TRole>(userManager, roleManager, optionsAccessor)
     where TUser : User
     where TRole : IdentityRole
 {
     const string ISOFORMAT = "yyyy-MM-dd\\THH:mm:ss.fffK"; //ISO-8601 used by JavaScript (ALWAYS UTC)
-    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 
     /// <summary>Generates the claims for a user.</summary>
     /// <param name="user">The user to create a <see cref="ClaimsIdentity"/> from.</param>
@@ -76,14 +68,6 @@ public class ExtendedUserClaimsPrincipalFactory<TUser, TRole>(
         }
         if (!identity.HasClaim(x => x.Type == BasicClaimTypes.PasswordExpirationPolicy) && user.PasswordExpirationPolicy.HasValue) {
             additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpirationPolicy, user.PasswordExpirationPolicy.ToString()));
-        }
-        var deviceId = user.Claims.FirstOrDefault(x => x.ClaimType == BasicClaimTypes.DeviceId)?.ClaimValue;
-        if (!identity.HasClaim(x => x.Type == BasicClaimTypes.DeviceId) && !string.IsNullOrWhiteSpace(deviceId)) {
-            additionalClaims.Add(new Claim(BasicClaimTypes.DeviceId, deviceId));
-        }
-        var ipAddress = user.Claims.FirstOrDefault(x => x.ClaimType == BasicClaimTypes.IPAddress)?.ClaimValue;
-        if (!identity.HasClaim(x => x.Type == BasicClaimTypes.IPAddress) && !string.IsNullOrWhiteSpace(ipAddress)) {
-            additionalClaims.Add(new Claim(BasicClaimTypes.IPAddress, ipAddress));
         }
         identity.AddClaims(additionalClaims);
         return identity;

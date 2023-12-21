@@ -1,7 +1,5 @@
 ﻿using System.Security.Claims;
-using System.Text.Json;
 using IdentityModel;
-using IdentityServer4.Extensions;
 using Indice.AspNetCore.Extensions;
 using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
@@ -145,6 +143,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
         var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) && (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
+        var deviceId = await _httpContextAccessor.HttpContext.ResolveDeviceId();
         if (isExternalLogin) {
             await _stateProvider.ChangeStateAsync(user, UserAction.ExternalLogin);
             bypassTwoFactor = true;
@@ -159,8 +158,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return await DoPartialSignInAsync(user, ["pwd"]);
         }
         var mfaImplicitlyPassed = false;
-        //var deviceId = await _mfaDeviceIdManager.GetDeviceId();
-        var deviceId = await _httpContextAccessor.HttpContext.ResolveDeviceId();
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {
             if (result.Warning == SignInWarning.ImpossibleTravel || !await IsTwoFactorClientRememberedAsync(user)) {
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
@@ -211,31 +208,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <inheritdoc/>
     public override async Task SignInWithClaimsAsync(TUser user, AuthenticationProperties authenticationProperties, IEnumerable<Claim> additionalClaims) {
         user.LastSignInDate = DateTimeOffset.UtcNow;
-        var ipAddress = _httpContextAccessor.HttpContext.GetClientIpAddress()?.ToString();
-        if (!string.IsNullOrEmpty(ipAddress)) {
-            var existingIpAddressClaim = user.Claims.FirstOrDefault(x => x.ClaimType == BasicClaimTypes.IPAddress);
-            if (existingIpAddressClaim is not null) {
-                user.Claims.Remove(existingIpAddressClaim);
-            }
-            // TODO: Consider creating an extension method called ReplaceClaim on ICollection<IdentityUserClaim>.
-            user.Claims.Add(new IdentityUserClaim<string> {
-                ClaimType = BasicClaimTypes.IPAddress,
-                ClaimValue = ipAddress,
-                UserId = user.Id
-            });
-        }
-        var deviceId = await _httpContextAccessor.HttpContext.ResolveDeviceId();
-        if (!string.IsNullOrEmpty(deviceId?.Value)) {
-            var existingDeviceIdClaim = user.Claims.FirstOrDefault(x => x.ClaimType == BasicClaimTypes.DeviceId);
-            if (existingDeviceIdClaim is not null) {
-                user.Claims.Remove(existingDeviceIdClaim);
-            }
-            user.Claims.Add(new IdentityUserClaim<string> {
-                ClaimType = BasicClaimTypes.DeviceId,
-                ClaimValue = deviceId.Value,
-                UserId = user.Id
-            });
-        }
         await ExtendedUserManager.UpdateAsync(user);
         await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
         var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
