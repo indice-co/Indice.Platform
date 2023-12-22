@@ -8,18 +8,15 @@ namespace Indice.Features.Identity.Core;
 
 /// <summary>Extends the implementation of <see cref="IProfileService"/> and validates the user based on ASP.NET Identity and custom rules.</summary>
 /// <typeparam name="TInner">The type is decorated.</typeparam>
-public class ExtendedProfileService<TInner> : IProfileService where TInner : IProfileService
+/// <remarks>Creates a new instance of <see cref="ExtendedProfileService{TUser}"/>.</remarks>
+/// <param name="profileService"> This interface allows IdentityServer to connect to your user and profile store.</param>
+/// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+public class ExtendedProfileService<TInner>(
+    TInner profileService, 
+    ExtendedUserManager<User> userManager) : IProfileService where TInner : IProfileService
 {
-    private readonly IProfileService _inner;
-    private readonly ExtendedUserManager<User> _userManager;
-
-    /// <summary>Creates a new instance of <see cref="ExtendedProfileService{TUser}"/>.</summary>
-    /// <param name="profileService"> This interface allows IdentityServer to connect to your user and profile store.</param>
-    /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-    public ExtendedProfileService(TInner profileService, ExtendedUserManager<User> userManager) {
-        _inner = profileService ?? throw new ArgumentNullException(nameof(profileService));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-    }
+    private readonly IProfileService _inner = profileService ?? throw new ArgumentNullException(nameof(profileService));
+    private readonly ExtendedUserManager<User> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
 
     /// <inheritdoc />
     public async Task GetProfileDataAsync(ProfileDataRequestContext context) { 

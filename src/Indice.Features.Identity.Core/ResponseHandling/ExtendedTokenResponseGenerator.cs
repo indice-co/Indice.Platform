@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using IdentityServer4;
-using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.ResponseHandling;
 using IdentityServer4.Services;
@@ -37,6 +36,16 @@ public class ExtendedTokenResponseGenerator(
     IServiceProvider serviceProvider) : TokenResponseGenerator(clock, tokenService, refreshTokenService, scopeParser, resources, clients, logger)
 {
     private readonly IServiceProvider _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+    /// <inheritdoc />
+    protected override Task<TokenResponse> ProcessAuthorizationCodeRequestAsync(TokenRequestValidationResult request) {
+        var httpContext = _serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
+        var ip = httpContext.GetClientIpAddress();
+        request.ValidatedRequest.Subject.AddIdentity(new(claims: [
+            new(BasicClaimTypes.IPAddress, ip == IPAddress.None ? string.Empty : ip.ToString())
+        ]));
+        return base.ProcessAuthorizationCodeRequestAsync(request);
+    }
 
     /// <inheritdoc />
     protected override async Task<TokenResponse> ProcessPasswordRequestAsync(TokenRequestValidationResult request) {

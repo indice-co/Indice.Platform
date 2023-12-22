@@ -11,6 +11,8 @@ using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.Totp;
 using Indice.Security;
 using Indice.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace Indice.Features.Identity.Core.Grants;
@@ -165,33 +167,27 @@ public sealed class DeviceResourceOwnerPasswordValidator<TUser>(ExtendedUserMana
 
 /// <summary><see cref="IResourceOwnerPasswordValidator"/> that integrates with ASP.NET Identity.</summary>
 /// <typeparam name="TUser">The type of the user.</typeparam>
-public class IdentityResourceOwnerPasswordValidator<TUser> : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
+/// <remarks>Creates a new instance of <see cref="IdentityResourceOwnerPasswordValidator{TUser}"/>.</remarks>
+/// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
+/// <param name="signInManager">Provides the APIs for user sign in.</param>
+/// <param name="totpServiceFactory">Used to generate, send and verify time based one time passwords.</param>
+/// <param name="identityMessageDescriber">Provides an extensibility point for altering localizing used inside the package.</param>
+/// <param name="signInGuard">Abstracts the process of running various rules that determine whether a login attempt is suspicious or not.</param>
+/// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>, if one is available.</param>
+public class IdentityResourceOwnerPasswordValidator<TUser>(
+    ExtendedUserManager<TUser> userManager,
+    ExtendedSignInManager<TUser> signInManager,
+    TotpServiceFactory totpServiceFactory,
+    IdentityMessageDescriber identityMessageDescriber,
+    ISignInGuard<TUser> signInGuard, 
+    IHttpContextAccessor httpContextAccessor) : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
 {
-    private readonly ExtendedUserManager<TUser> _userManager;
-    private readonly ExtendedSignInManager<TUser> _signInManager;
-    private readonly TotpServiceFactory _totpServiceFactory;
-    private readonly IdentityMessageDescriber _identityMessageDescriber;
-    private readonly ISignInGuard<TUser> _signInGuard;
-
-    /// <summary>Creates a new instance of <see cref="IdentityResourceOwnerPasswordValidator{TUser}"/>.</summary>
-    /// <param name="userManager">Provides the APIs for managing user in a persistence store.</param>
-    /// <param name="signInManager">Provides the APIs for user sign in.</param>
-    /// <param name="totpServiceFactory">Used to generate, send and verify time based one time passwords.</param>
-    /// <param name="identityMessageDescriber">Provides an extensibility point for altering localizing used inside the package.</param>
-    /// <param name="signInGuard"></param>
-    public IdentityResourceOwnerPasswordValidator(
-        ExtendedUserManager<TUser> userManager,
-        ExtendedSignInManager<TUser> signInManager,
-        TotpServiceFactory totpServiceFactory,
-        IdentityMessageDescriber identityMessageDescriber,
-        ISignInGuard<TUser> signInGuard
-    ) {
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-        _totpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
-        _identityMessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
-        _signInGuard = signInGuard ?? throw new ArgumentNullException(nameof(signInGuard));
-    }
+    private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    private readonly ExtendedSignInManager<TUser> _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+    private readonly TotpServiceFactory _totpServiceFactory = totpServiceFactory ?? throw new ArgumentNullException(nameof(totpServiceFactory));
+    private readonly IdentityMessageDescriber _identityMessageDescriber = identityMessageDescriber ?? throw new ArgumentNullException(nameof(identityMessageDescriber));
+    private readonly ISignInGuard<TUser> _signInGuard = signInGuard ?? throw new ArgumentNullException(nameof(signInGuard));
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     /// <inheritdoc />
     public int Order => 0;

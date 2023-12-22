@@ -236,7 +236,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await _stateProvider.ChangeStateAsync(user, UserAction.MultiFactorAuthenticated);
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
             if (_stateProvider.ShouldSignInPartially()) {
-                return await DoPartialSignInAsync(user, new string[] { "pwd", "mfa" });
+                return await DoPartialSignInAsync(user, ["pwd", "mfa"]);
             }
             return new ExtendedSignInResult(_stateProvider.CurrentState);
         }
