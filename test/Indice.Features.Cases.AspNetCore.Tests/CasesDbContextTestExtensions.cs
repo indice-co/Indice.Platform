@@ -33,14 +33,61 @@ internal static class CasesDbContextTestExtensions
             DataSchema = "{}"
         };
         dbContext.CaseTypes.Add(caseType);
-        dbContext.Cases.Add(new DbCase {
+        dbContext.Cases.AddRange(new DbCase {
             CaseTypeId = caseType.Id,
             Channel = "web",
             CreatedBy = AuditMeta.Create(principal),
             Versions = new List<DbCaseData> {
                 new DbCaseData {
                     CreatedBy = AuditMeta.Create(principal),
-                    Data = "{ \"test\": true }"
+                    Data = new { test = true, customerId = 123 }
+                }
+            }
+        },
+        new DbCase {
+            CaseTypeId = caseType.Id,
+            Channel = "web",
+            CreatedBy = AuditMeta.Create(principal),
+            Versions = new List<DbCaseData> {
+                new DbCaseData {
+                    CreatedBy = AuditMeta.Create(principal),
+                    Data = new { test = true, customerId = 123 }
+                }
+            }
+        },
+
+        new DbCase {
+            CaseTypeId = caseType.Id,
+            Channel = "web",
+            CreatedBy = AuditMeta.Create(principal),
+            Versions = new List<DbCaseData> {
+                new DbCaseData {
+                    CreatedBy = AuditMeta.Create(principal),
+                    Data = new { test = true, customerId = 555 }
+                }
+            }
+        },
+
+        new DbCase {
+            CaseTypeId = caseType.Id,
+            Channel = "web",
+            CreatedBy = AuditMeta.Create(principal),
+            Versions = new List<DbCaseData> {
+                new DbCaseData {
+                    CreatedBy = AuditMeta.Create(principal),
+                    Data = new { test = true, customerId = 667 }
+                }
+            }
+        },
+
+        new DbCase {
+            CaseTypeId = caseType.Id,
+            Channel = "mobile",
+            CreatedBy = AuditMeta.Create(principal),
+            Versions = new List<DbCaseData> {
+                new DbCaseData {
+                    CreatedBy = AuditMeta.Create(principal),
+                    Data = new { test = true, customerId = 123 }
                 }
             }
         });

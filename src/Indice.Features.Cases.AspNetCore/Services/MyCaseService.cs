@@ -139,7 +139,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter Statuses
-        if (options.Filter?.Statuses != null && options.Filter.Statuses.Count() > 0) {
+        if (options.Filter?.Statuses is { Count: > 0 }) {
             var expressions = options.Filter.Statuses.Select(status => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Status == status));
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Status == status1 OR == status2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
@@ -167,7 +167,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter by Checkpoint Code
-        if (options.Filter?.Checkpoints != null && options.Filter.Checkpoints.Count() > 0) {
+        if (options.Filter?.Checkpoints is { Count: > 0 }) {
             var expressions = options.Filter.Checkpoints.Select(checkpoints => (Expression<Func<DbCase, bool>>)(c => c.PublicCheckpoint.CheckpointType.Code == checkpoints));
             // Aggregate the expressions with OR that resolves to SQL: dbCase.PublicCheckpoint.CheckpointType.Code == checkpoint1 OR == checkpoint2 etc
             var aggregatedExpression = expressions.Aggregate((expression, next) => {
@@ -178,7 +178,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
         }
 
         // filter CaseTypeCodes
-        if (options.Filter?.CaseTypeCodes != null && options.Filter.CaseTypeCodes.Count() > 0) {
+        if (options.Filter?.CaseTypeCodes is { Count: > 0 }) {
             dbCaseQueryable = dbCaseQueryable.Where(c => options.Filter.CaseTypeCodes.Contains(c.CaseType.Code));
         }
 
@@ -209,27 +209,29 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             options.Sort = $"{nameof(MyCasePartial.Created)}-";
         }
 
-        var result = await myCasePartialQueryable.ToResultSetAsync(options);
-
         if (options.Filter?.Data != null) {
-            var casesIdList = result.Items.Select(c => c.Id).ToList();
-            // note: this searches all "data history" of case
-            var filteredcasesIdList = await _dbContext.CaseData
+            // Execute the query with all the previous "my cases" filters and 
+            // select the case Ids
+            var caseIds = await dbCaseQueryable.Select(x => x.Id).ToListAsync();
+
+            // For those Ids, execute a second query to filter the cases by caseData json filter
+            var caseData = await _dbContext.CaseData
                 .AsNoTracking()
-                .Where(dbCaseData => casesIdList.Contains(dbCaseData.CaseId))
                 .Where(options.Filter.Data)
-                .Select(d => d.CaseId)
-                .Distinct()
-                .AsQueryable()
+                .Where(x => caseIds.Contains(x.CaseId))
+                .Select(x => x.CaseId)
                 .ToListAsync();
 
-            result.Items = result.Items.Where(x => filteredcasesIdList.Contains(x.Id)).ToArray();
-            result.Count = result.Items.Count();
+            // update the initial queryable, to execute (again) but with paging results
+            myCasePartialQueryable = myCasePartialQueryable.Where(x => caseData.Contains(x.Id));
         }
+
+        // Execute the query to the sql 
+        var result = await myCasePartialQueryable.ToResultSetAsync(options);
 
         // translate
         for (var i = 0; i < result.Items.Length; i++) {
-            result.Items[i] = result.Items[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);            
+            result.Items[i] = result.Items[i].Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
         }
 
         return result;
