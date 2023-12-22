@@ -21,10 +21,17 @@ public class ExtendedProfileService<TInner>(
     /// <inheritdoc />
     public async Task GetProfileDataAsync(ProfileDataRequestContext context) { 
         await _inner.GetProfileDataAsync(context);
-        var userIpClaim = context.Subject.Claims.FirstOrDefault(x => x.Type == BasicClaimTypes.IPAddress);
-        var isIpClaimIssued = context.IssuedClaims.FirstOrDefault(x => x.Type == BasicClaimTypes.IPAddress) is not null;
-        if (userIpClaim is not null && !isIpClaimIssued) { 
-            context.IssuedClaims.Add(userIpClaim);
+        // TODO: We could also configure it from outside of the service.
+        var claimsToIssue = new List<string>([
+            BasicClaimTypes.IPAddress, 
+            BasicClaimTypes.DeviceId
+        ]);
+        foreach (var claim in claimsToIssue) {
+            var userClaim = context.Subject.Claims.FirstOrDefault(x => x.Type == claim);
+            var isAlreadyIssued = context.IssuedClaims.FirstOrDefault(x => x.Type == claim) is not null;
+            if (userClaim is not null && !isAlreadyIssued) {
+                context.IssuedClaims.Add(userClaim);
+            }
         }
     }
 

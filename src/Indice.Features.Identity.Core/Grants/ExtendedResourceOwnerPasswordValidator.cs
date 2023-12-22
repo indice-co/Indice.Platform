@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Net.Http;
+using System.Security.Claims;
+using System.Text;
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
@@ -179,7 +181,7 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
     ExtendedSignInManager<TUser> signInManager,
     TotpServiceFactory totpServiceFactory,
     IdentityMessageDescriber identityMessageDescriber,
-    ISignInGuard<TUser> signInGuard, 
+    ISignInGuard<TUser> signInGuard,
     IHttpContextAccessor httpContextAccessor) : IResourceOwnerPasswordValidationFilter<TUser> where TUser : User
 {
     private readonly ExtendedUserManager<TUser> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -229,7 +231,15 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
             await _userManager.ResetAccessFailedCountAsync(context.User);
         }
         var subject = await _userManager.GetUserIdAsync(context.User);
-        context.Result = new GrantValidationResult(subject, OidcConstants.AuthenticationMethods.Password);
+        var ip = _httpContextAccessor.HttpContext.GetClientIpAddress();
+        var claims = new List<Claim>();
+        if (ip is not null) {
+            claims.Add(new Claim(BasicClaimTypes.IPAddress, ip.ToString()));
+        }
+        if (!string.IsNullOrWhiteSpace(context.Device?.DeviceId)) {
+            claims.Add(new Claim(BasicClaimTypes.DeviceId, context.Device.DeviceId));
+        }
+        context.Result = new GrantValidationResult(subject, OidcConstants.AuthenticationMethods.Password, claims);
     }
 
     /// <summary></summary>
