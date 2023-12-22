@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using IdentityModel;
-using Indice.AspNetCore.Extensions;
 using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
