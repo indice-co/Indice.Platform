@@ -72,6 +72,41 @@ public class MyCaseServiceTests : IDisposable
         var identity = new ClaimsIdentity(claims, "Basic"); // By setting "Basic" we are making the identity "Authenticated" so we can user user.IsAuthenticated() property later in our code
         return new ClaimsPrincipal(identity);
     }
+
+    [Fact]
+    public async Task MyCaseService_FilterData_Pagination() {
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        if (await dbContext.Database.EnsureCreatedAsync() || !dbContext.Cases.Any()) {
+            // seed here.
+            await dbContext.SeedAsync();
+        }
+
+        var mockCaseTypeService = new Mock<ICaseTypeService>();
+        var mockCaseEventService = new Mock<ICaseEventService>();
+        var mockMyCaseMessageService = new Mock<IMyCaseMessageService>();
+        var mockJsonTranslationService = new Mock<IJsonTranslationService>();
+        var mockResourceService = new CaseSharedResourceService(new Mock<IStringLocalizerFactory>().Object);
+        var myOptions = new MyCasesApiOptions();
+
+        var myCaseService = new MyCaseService(dbContext,
+            myOptions,
+            mockCaseTypeService.Object,
+            mockCaseEventService.Object,
+            mockMyCaseMessageService.Object,
+            mockJsonTranslationService.Object,
+            mockResourceService);
+        var options = new ListOptions<GetMyCasesListFilter>() {
+            Page = 1,
+            Size = 1,
+            Filter = new GetMyCasesListFilter() {
+                Data = [FilterClause.Parse("data.customerId::Contains::(string)667")]
+            }
+        };
+
+        var result = await myCaseService.GetCases(User(), options);
+        Assert.NotEmpty(result.Items);
+    }
+
     public void Dispose() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         dbContext.Database.EnsureDeleted();
