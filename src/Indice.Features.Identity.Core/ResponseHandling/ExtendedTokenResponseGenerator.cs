@@ -49,11 +49,6 @@ public class ExtendedTokenResponseGenerator(
 
     /// <inheritdoc />
     protected override async Task<TokenResponse> ProcessPasswordRequestAsync(TokenRequestValidationResult request) {
-        //var httpContext = _serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext;
-        //var ip = httpContext.GetClientIpAddress();
-        //request.ValidatedRequest.Subject.AddIdentity(new(claims: [
-        //    new(BasicClaimTypes.IPAddress, ip == IPAddress.None ? string.Empty : ip.ToString())
-        //]));
         var tokenResponse = await base.ProcessPasswordRequestAsync(request);
         var config = _serviceProvider.GetService<ResourceOwnerPasswordValidatorOptions>();
         if (config?.IncludeIdToken == false) {
