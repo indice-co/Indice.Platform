@@ -24,6 +24,7 @@ public class AggregateRuleExecutionResult
     /// <param name="riskModel"></param>
     public DbAggregateRuleExecutionResult ToRiskResult(RiskModel riskModel) => new() {
         TransactionId = TransactionId,
+        CreatedAt = DateTimeOffset.UtcNow,
         Amount = riskModel.Amount,
         IpAddress = riskModel.IpAddress,
         SubjectId = riskModel.SubjectId,

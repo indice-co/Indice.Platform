@@ -5,6 +5,8 @@ public class DbAggregateRuleExecutionResult
 {
     /// <summary>The id of the transaction.</summary>
     public Guid TransactionId { get; set; }
+    /// <summary>Timestamp regarding event result calculation.</summary>
+    public DateTimeOffset CreatedAt { get; set; }
     /// <summary>An amount relative to the event.</summary>
     public decimal? Amount { get; set; }
     /// <summary>The user IP address related to the event occurred.</summary>
