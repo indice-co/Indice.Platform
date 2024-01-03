@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace Indice.AspNetCore.Middleware;
 
@@ -24,7 +25,13 @@ public class IpOverrideMiddleware
         if (!string.IsNullOrWhiteSpace(ipAddressOption)) {
             var isValidIp = IPAddress.TryParse(ipAddressOption, out var ipAddress);
             if (isValidIp) {
-                context.Connection.RemoteIpAddress = ipAddress;
+                if (_options.UseForwardedFor && context.Request.Headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)) {
+                    var ips = xForwardedFor.ToArray();
+                    ips[0] = ipAddress.ToString();
+                    context.Request.Headers["X-Forwarded-For"] = new StringValues(ips);
+                } else {
+                    context.Connection.RemoteIpAddress = ipAddress;
+                }
             }
         }
         return _next(context);
@@ -32,8 +39,12 @@ public class IpOverrideMiddleware
 }
 
 /// <summary></summary>
-public class IpOverrideMiddlewareOptions 
+public class IpOverrideMiddlewareOptions
 {
-    /// <summary></summary>
+    /// <summary>The client IP address that is impersonated</summary>
     public string IpAddress { get; set; }
+    /// <summary>
+    /// True, when behind proxy
+    /// </summary>
+    public bool UseForwardedFor { get; set; }
 }
