@@ -11,11 +11,9 @@ public static class HttpContextExtensions
     public static IPAddress GetClientIpAddress(this HttpContext httpContext) {
         var headers = httpContext.Request.Headers;
         string ipAddress = null;
-        if (headers.TryGetValue("X-Forwarded-For", out var xForwardedFor)) {
-            ipAddress = xForwardedFor;
-        }
+        // in case of a proxy being used, the UseForwardedHeaders() middleware should be configured to the HTTP request pipeline.
         var remoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
-        if (!string.IsNullOrWhiteSpace(remoteIpAddress)){
+        if (!string.IsNullOrWhiteSpace(remoteIpAddress)) {
             ipAddress = remoteIpAddress;
         }
         if (headers.TryGetValue("REMOTE_ADDR", out var remoteAddress)) {
