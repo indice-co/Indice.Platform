@@ -121,7 +121,8 @@ internal static class Mapper
         MessageChannelKind = Enum.Parse<MessageChannelKind>(string.Join(',', request.Content.Select(x => x.Key)), ignoreCase: true),
         Published = request.Published,
         Title = request.Title,
-        TypeId = request.TypeId
+        TypeId = request.TypeId,
+        AttachmentId = request.AttachmentIds?.Cast<Guid?>().FirstOrDefault()
     };
 
     public static DbContact ToDbContact(CreateDistributionListContactRequest request) => new() {
