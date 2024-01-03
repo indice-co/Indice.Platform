@@ -1,4 +1,5 @@
-﻿using Indice.Events;
+﻿using System.Reflection;
+using Indice.Events;
 using Indice.Services;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -7,6 +8,30 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>Extensions on the <see cref="IServiceCollection"/>.</summary>
 public static class IServiceCollectionExtensions
 {
+    /// <summary>Add a decorator pattern implementation.</summary>
+    /// <typeparam name="TService">The service type to decorate.</typeparam>
+    /// <typeparam name="TDecorator">The decorator.</typeparam>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddDecorator<TService, TDecorator>(this IServiceCollection services)
+        where TService : class
+        where TDecorator : class, TService {
+        var serviceDescriptor = services.Where(x => x.ServiceType == typeof(TService)).LastOrDefault();
+        if (serviceDescriptor is null) {
+            services.AddTransient<TService, TDecorator>();
+            return services;
+        }
+        if (serviceDescriptor.ImplementationType is not null) {
+            services.TryAddTransient(serviceDescriptor.ImplementationType);
+        }
+        return services.AddTransient<TService, TDecorator>(serviceProvider => {
+            var parameters = typeof(TDecorator).GetConstructors(BindingFlags.Public | BindingFlags.Instance).First().GetParameters();
+            var arguments = parameters.Select(x => x.ParameterType.Equals(typeof(TService))
+                ? serviceDescriptor.ImplementationFactory?.Invoke(serviceProvider) ?? serviceProvider.GetRequiredService(serviceDescriptor.ImplementationType)
+                : serviceProvider.GetService(x.ParameterType)).ToArray();
+            return (TDecorator)Activator.CreateInstance(typeof(TDecorator), arguments);
+        });
+    }
+
     /// <summary>Adds a fugazi implementation of <see cref="IPushNotificationService"/> that does nothing.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static IServiceCollection AddPushNotificationServiceNoop(this IServiceCollection services) {
