@@ -19,7 +19,7 @@ public static class HttpContextExtensions
         return new MfaDeviceIdentifier(null);
     }
 
-    private static async Task<string> GetDeviceId(HttpContext httpContext) {
+    private static Task<string> GetDeviceId(HttpContext httpContext) {
         if (httpContext is null) {
             throw new ArgumentNullException(nameof(httpContext));
         }
@@ -33,16 +33,7 @@ public static class HttpContextExtensions
             hasDeviceId = httpContext.Items.TryGetValue("deviceId", out var deviceIdObject);
             deviceId = deviceIdObject?.ToString();
         }
-        if (!hasDeviceId) {
-            try {
-
-                hasDeviceId = httpContext.Session.TryGetValue("deviceId", out var deviceIdObject);
-                deviceId = deviceIdObject is not null
-                    ? (await JsonSerializer.DeserializeAsync<MfaDeviceIdentifier>(new MemoryStream(deviceIdObject)))?.Value
-                    : default;
-            } catch (InvalidOperationException) { }
-        }
-        return hasDeviceId ? deviceId.ToString() : default;
+        return Task.FromResult(hasDeviceId ? deviceId.ToString() : default);
     }
 
     private static Guid? GetRegistrationId(HttpContext httpContext) {

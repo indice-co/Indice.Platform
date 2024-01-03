@@ -80,6 +80,8 @@ public static class BasicClaimTypes
     public const string DeviceId = "device_id";
     /// <summary>User's IP address.</summary>
     public const string IPAddress = "ipaddr";
+    /// <summary>User state for extended validation and mfa.</summary>
+    public const string UserState = "user_state";
 
     /// <summary>All possible user related claims.</summary>
     public static readonly string[] UserClaims = {

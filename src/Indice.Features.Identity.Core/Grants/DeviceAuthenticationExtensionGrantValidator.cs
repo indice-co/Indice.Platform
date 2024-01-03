@@ -1,4 +1,5 @@
-﻿using IdentityServer4.Extensions;
+﻿using System.Security.Claims;
+using IdentityServer4.Extensions;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using IdentityServer4.Validation;
@@ -11,7 +12,6 @@ using Indice.Features.Identity.Core.DeviceAuthentication.Services;
 using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 using Indice.Features.Identity.Core.Events;
-using Indice.Features.Identity.Core.Extensions;
 using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -69,6 +69,14 @@ internal class DeviceAuthenticationExtensionGrantValidator(
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Please provider either authorization code of pin.");
             return;
         }
+        var ip = HttpContextAccessor.HttpContext.GetClientIpAddress();
+        var claims = new List<Claim>();
+        if (ip is not null) {
+            claims.Add(new Claim(BasicClaimTypes.IPAddress, ip.ToString()));
+        }
+        if (!string.IsNullOrWhiteSpace(device.DeviceId)) {
+            claims.Add(new Claim(BasicClaimTypes.DeviceId, device.DeviceId));
+        }
         // If code is present we are heading towards fingerprint login.
         if (hasCode) {
             // Retrieve authorization code from the store.
@@ -106,7 +114,7 @@ internal class DeviceAuthenticationExtensionGrantValidator(
             }
             await UserDeviceStore.UpdatePublicKey(device, publicKey);
             // Grant access token.
-            context.Result = new GrantValidationResult(authorizationCode.Subject.GetSubjectId(), GrantType);
+            context.Result = new GrantValidationResult(authorizationCode.Subject.GetSubjectId(), GrantType, claims: claims);
         }
         // If pin is present we are heading towards a 4-Pin login.
         if (hasPin) {
@@ -115,7 +123,7 @@ internal class DeviceAuthenticationExtensionGrantValidator(
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Wrong pin.");
                 return;
             }
-            context.Result = new GrantValidationResult(device.UserId, GrantType);
+            context.Result = new GrantValidationResult(device.UserId, GrantType, claims: claims);
         }
         await UserDeviceStore.UpdateLastSignInDate(device);
         await UserManager.SetLastSignInDateAsync(user, DateTimeOffset.UtcNow);
