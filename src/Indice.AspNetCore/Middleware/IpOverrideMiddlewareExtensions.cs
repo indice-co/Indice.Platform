@@ -1,4 +1,6 @@
 ﻿using Indice.AspNetCore.Middleware;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -18,6 +20,10 @@ public static class IpOverrideMiddlewareExtensions
         if (!builder.Properties.ContainsKey(IpOverrideMiddlewareAdded)) {
             builder.Properties[IpOverrideMiddlewareAdded] = true;
             var options = new IpOverrideMiddlewareOptions();
+            var useProxy = builder.ApplicationServices.GetRequiredService<IConfiguration>().GetValue<bool>($"Proxy:Enabled");
+            if (useProxy) {
+                options.UseForwardedFor = true;
+            }
             config?.Invoke(options);
             return builder.UseMiddleware<IpOverrideMiddleware>(options);
         }

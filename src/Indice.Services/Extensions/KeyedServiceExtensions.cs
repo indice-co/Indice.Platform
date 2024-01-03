@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection;
 
+// TODO: Rmove this for net8.0 onwards with the native implementation that is better.
+
 /// <summary>Used in order to register named implementations, factories &amp; instances.</summary>
 /// <remarks>Taken from this post https://stackoverflow.com/a/67154320/61577 </remarks>
 public static class KeyedServiceExtensions
