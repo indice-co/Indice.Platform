@@ -178,6 +178,23 @@ public static class IndiceServicesServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>Adds an instance of <see cref="ISmsService"/> using Mstat.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+    /// <param name="configure">Configure the available options. Null to use defaults.</param>
+    public static IServiceCollection AddSmsServiceMstat(this IServiceCollection services, IConfiguration configuration, Action<SmsServiceMstatSettings> configure = null) {
+        services.Configure<SmsServiceMstatSettings>(configuration.GetSection(SmsServiceSettings.Name));
+        services.TryAddTransient<ISmsServiceFactory, DefaultSmsServiceFactory>();
+        var options = new SmsServiceMstatSettings();
+        configure?.Invoke(options);
+        var httpClientBuilder = services.AddHttpClient<ISmsService, SmsServiceMstat>()
+                                        .ConfigureHttpClient(httpClient => {
+                                            httpClient.BaseAddress = new Uri("https://backend.tms.m-stat.gr/api/v1/messages");
+                                        })
+                                        .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+        return services;
+    }
+
     /// <summary>The factory that creates the default instance and configuration for <see cref="EventDispatcherAzure"/>.</summary>
     private static readonly Func<IServiceProvider, Action<IServiceProvider, EventDispatcherAzureOptions>, EventDispatcherAzure> GetEventDispatcherAzure = (serviceProvider, configure) => {
         var options = new EventDispatcherAzureOptions {
