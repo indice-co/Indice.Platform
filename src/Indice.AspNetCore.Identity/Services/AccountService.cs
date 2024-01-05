@@ -6,6 +6,7 @@ using IdentityServer4.Stores;
 using Indice.AspNetCore.Identity.Models;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
+using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Models;
 using Indice.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -16,45 +17,30 @@ using Microsoft.Extensions.Configuration;
 namespace Indice.AspNetCore.Identity;
 
 /// <inheritdoc />
-public class AccountService : IAccountService
+/// <summary>Constructs the <see cref="AccountService"/>.</summary>
+/// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
+/// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>.</param>
+/// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
+/// <param name="clientStore">Retrieval of client configuration.</param>
+/// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
+/// <param name="signInManager">Provides the APIs for user sign in.</param>
+/// <param name="configuration">Represents a set of key/value application configuration properties.</param>
+public class AccountService(
+    IIdentityServerInteractionService interaction,
+    IHttpContextAccessor httpContextAccessor,
+    IAuthenticationSchemeProvider schemeProvider,
+    IClientStore clientStore,
+    ExtendedUserManager<User> userManager,
+    ExtendedSignInManager<User> signInManager,
+    IConfiguration configuration) : IAccountService
 {
-    private readonly IClientStore _clientStore;
-    private readonly ExtendedUserManager<User> _userManager;
-    private readonly ExtendedSignInManager<User> _signInManager;
-    private readonly IConfiguration _configuration;
-    private readonly IDeviceIdResolver _deviceIdResolver;
-    private readonly IIdentityServerInteractionService _interaction;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IAuthenticationSchemeProvider _schemeProvider;
-
-    /// <summary>Constructs the <see cref="AccountService"/>.</summary>
-    /// <param name="interaction">Provide services be used by the user interface to communicate with IdentityServer.</param>
-    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>.</param>
-    /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
-    /// <param name="clientStore">Retrieval of client configuration.</param>
-    /// <param name="userManager">Provides the APIs for managing users and their related data in a persistence store.</param>
-    /// <param name="signInManager">Provides the APIs for user sign in.</param>
-    /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
-    /// <param name="deviceIdResolver"></param>
-    public AccountService(
-        IIdentityServerInteractionService interaction,
-        IHttpContextAccessor httpContextAccessor,
-        IAuthenticationSchemeProvider schemeProvider,
-        IClientStore clientStore,
-        ExtendedUserManager<User> userManager,
-        ExtendedSignInManager<User> signInManager,
-        IConfiguration configuration,
-        IDeviceIdResolver deviceIdResolver
-    ) {
-        _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
-        _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        _schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
-        _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _deviceIdResolver = deviceIdResolver ?? throw new ArgumentNullException(nameof(deviceIdResolver));
-    }
+    private readonly IClientStore _clientStore = clientStore ?? throw new ArgumentNullException(nameof(clientStore));
+    private readonly ExtendedUserManager<User> _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+    private readonly ExtendedSignInManager<User> _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
+    private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+    private readonly IIdentityServerInteractionService _interaction = interaction ?? throw new ArgumentNullException(nameof(interaction));
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+    private readonly IAuthenticationSchemeProvider _schemeProvider = schemeProvider ?? throw new ArgumentNullException(nameof(schemeProvider));
 
     /// <inheritdoc />
     public async Task<LoginViewModel> BuildLoginViewModelAsync(string returnUrl) {
@@ -132,7 +118,7 @@ public class AccountService : IAccountService
                 deliveryChannel = mfaChannel ?? TotpDeliveryChannel.Sms;
             }
         }
-        var deviceIdentifier = await _deviceIdResolver.Resolve();
+        var deviceIdentifier = _httpContextAccessor.HttpContext.ResolveDeviceId();
         var isExistingBrowser = false;
         if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
             var browserDevice = await _userManager.GetDeviceByIdAsync(user, deviceIdentifier.Value);

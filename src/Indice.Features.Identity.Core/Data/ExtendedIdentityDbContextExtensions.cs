@@ -36,7 +36,6 @@ public static class ExtendedIdentityDbContextExtensions
         if (!dbContext.Database.CanConnect()) {
             return;
         }
-
         var rolesExist = dbContext.Roles.Any();
         var roles = default(List<TRole>);
         if (!rolesExist) {
@@ -48,7 +47,6 @@ public static class ExtendedIdentityDbContextExtensions
         } else {
             roles = dbContext.Roles.ToList();
         }
-
         var usersExist = dbContext.Users.Any();
         if (!usersExist) {
             const string adminEmail = "company@indice.gr";
