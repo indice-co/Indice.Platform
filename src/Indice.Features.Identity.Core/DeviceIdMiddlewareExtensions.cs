@@ -14,6 +14,7 @@ public static class DeviceIdMiddlewareExtensions
     /// <summary>A middleware that tries to inspect the device identifier that performed the initial login and add it in the user token.</summary>
     /// <param name="app">Defines a class that provides the mechanisms to configure an application's request pipeline.</param>
     /// <remarks>It is crucial to register this middleware before <see cref="IdentityServerApplicationBuilderExtensions.UseIdentityServer(IApplicationBuilder, IdentityServerMiddlewareOptions)"/>.</remarks>
+    [Obsolete("Please do not use this middleware. It is implemented using a more lightweight way as this middleware is quite resource intensive.", error: true)]
     public static void UseDeviceId(this IApplicationBuilder app) => app.Use(async (httpContext, next) => {
         var request = httpContext.Request;
         if (request.Path.Equals("/connect/token", StringComparison.OrdinalIgnoreCase)) {

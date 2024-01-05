@@ -274,7 +274,7 @@ public class CustomGrantsIntegrationTests
     }
 
     [Fact]
-    public async Task Can_Authorize_Existing_Device_Using_Pin() {
+    public async Task Can_Authenticate_Existing_Device_Using_Pin() {
         var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
         var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
         var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {

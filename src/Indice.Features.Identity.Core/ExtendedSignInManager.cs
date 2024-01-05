@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Text.Json;
 using IdentityModel;
 using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
@@ -7,6 +6,7 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Core.Events.Models;
+using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.ImpossibleTravel;
 using Indice.Features.Identity.Core.PasswordValidation;
 using Indice.Features.Identity.Core.Types;
@@ -32,7 +32,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     private const string XSRF_KEY = "XsrfId";
     private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
     private readonly IUserStore<TUser> _userStore;
-    private readonly IDeviceIdResolver _mfaDeviceIdResolver;
     private readonly ISignInGuard<TUser> _signInGuard;
     private readonly IPlatformEventService _eventService;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -49,7 +48,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="authenticationSchemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
     /// <param name="userStore">Provides an abstraction for a store which manages user accounts.</param>
-    /// <param name="mfaDeviceIdResolver">An abstraction used to specify the way to resolve the device identifier used for MFA.</param>
     /// <param name="userStateProvider">A service used to implement state machine for <see cref="ExtendedUserManager{TUser}"/> and <see cref="ExtendedSignInManager{TUser}"/>.</param>
     /// <param name="signInGuard">Abstracts the process of running various rules that determine whether a login attempt is suspicious or not.</param>
     /// <param name="eventService">Models the event mechanism used to raise events inside the platform.</param>
@@ -64,14 +62,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         IConfiguration configuration,
         IAuthenticationSchemeProvider authenticationSchemeProvider,
         IUserStore<TUser> userStore,
-        IDeviceIdResolver mfaDeviceIdResolver,
         IUserStateProvider<TUser> userStateProvider,
         ISignInGuard<TUser> signInGuard,
         IPlatformEventService eventService
     ) : base(userManager, httpContextAccessor, claimsFactory, optionsAccessor, logger, schemes, confirmation) {
         _authenticationSchemeProvider = authenticationSchemeProvider ?? throw new ArgumentNullException(nameof(authenticationSchemeProvider));
         _userStore = userStore ?? throw new ArgumentNullException(nameof(userStore));
-        _mfaDeviceIdResolver = mfaDeviceIdResolver ?? throw new ArgumentNullException(nameof(mfaDeviceIdResolver));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(_httpContextAccessor));
         _stateProvider = userStateProvider ?? throw new ArgumentNullException(nameof(userStateProvider));
         _signInGuard = signInGuard ?? throw new ArgumentNullException(nameof(signInGuard));
@@ -135,15 +131,6 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     /// <inheritdoc/>
-    public override async Task SignInAsync(TUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null) {
-        await base.SignInAsync(user, authenticationProperties, authenticationMethod);
-        if (user is User) {
-            user.LastSignInDate = DateTimeOffset.UtcNow;
-            await ExtendedUserManager.UpdateAsync(user);
-        }
-    }
-
-    /// <inheritdoc/>
     public override async Task<bool> CanSignInAsync(TUser user) {
         if (user is User && user.Blocked) {
             Logger.LogWarning(0, "User {userId} cannot sign in. User is blocked by the administrator.", await ExtendedUserManager.GetUserIdAsync(user));
@@ -155,6 +142,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
         var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) && (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
+        var deviceId = _httpContextAccessor.HttpContext.ResolveDeviceId();
         if (isExternalLogin) {
             await _stateProvider.ChangeStateAsync(user, UserAction.ExternalLogin);
             bypassTwoFactor = true;
@@ -169,11 +157,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return await DoPartialSignInAsync(user, ["pwd"]);
         }
         var mfaImplicitlyPassed = false;
-        var deviceId = await _mfaDeviceIdResolver.Resolve();
         if (!bypassTwoFactor && await IsTfaEnabled(user)) {
             if (result.Warning == SignInWarning.ImpossibleTravel || !await IsTwoFactorClientRememberedAsync(user)) {
                 var userId = await ExtendedUserManager.GetUserIdAsync(user);
-                Context.Session.SetString("deviceId", JsonSerializer.Serialize(deviceId));
                 await Context.SignInAsync(IdentityConstants.TwoFactorUserIdScheme, StoreTwoFactorInfo(userId, loginProvider));
                 return SignInResult.TwoFactorRequired;
             } else {
@@ -198,11 +184,11 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             if (mfaImplicitlyPassed) {
                 authenticationMethods.Add("mfa");
             }
-            return await DoPartialSignInAsync(user, authenticationMethods.ToArray());
+            return await DoPartialSignInAsync(user, [.. authenticationMethods]);
         }
         if (loginProvider is null) {
             var additionalClaims = new List<Claim> {
-                new Claim(JwtClaimTypes.AuthenticationMethod, "pwd")
+                new(JwtClaimTypes.AuthenticationMethod, "pwd")
             };
             if (!string.IsNullOrWhiteSpace(deviceId?.Value)) {
                 additionalClaims.Add(new Claim(BasicClaimTypes.DeviceId, deviceId.Value));
@@ -225,8 +211,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
         var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
         await _eventService.Publish(UserLoginEvent.Success(
-            UserEventContext.InitializeFromUser(user), 
-            result.Warning, 
+            UserEventContext.InitializeFromUser(user),
+            result.Warning,
             additionalClaims.Where(claim => claim.Type == JwtClaimTypes.AuthenticationMethod).Select(claim => claim.Value).ToArray()
         ));
     }
@@ -249,7 +235,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await _stateProvider.ChangeStateAsync(user, UserAction.MultiFactorAuthenticated);
             await DoTwoFactorSignInAsync(user, twoFactorInfo, isPersistent, rememberClient);
             if (_stateProvider.ShouldSignInPartially()) {
-                return await DoPartialSignInAsync(user, new string[] { "pwd", "mfa" });
+                return await DoPartialSignInAsync(user, ["pwd", "mfa"]);
             }
             return new ExtendedSignInResult(_stateProvider.CurrentState);
         }
@@ -328,7 +314,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
         var isRemembered = result?.Principal is not null && result.Principal.FindFirstValue(JwtClaimTypes.Name) == userId;
-        var deviceId = await _mfaDeviceIdResolver.Resolve();
+        var deviceId = _httpContextAccessor.HttpContext.ResolveDeviceId();
         if (!string.IsNullOrWhiteSpace(deviceId.Value) && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
             isRemembered = device is not null &&
@@ -430,7 +416,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     private async Task<ClaimsPrincipal> StoreRememberClient(TUser user) {
-        var deviceId = await _mfaDeviceIdResolver.Resolve();
+        var deviceId =  _httpContextAccessor.HttpContext.ResolveDeviceId();
         if (PersistTrustedBrowsers && !string.IsNullOrWhiteSpace(deviceId.Value)) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
             if (device is not null) {

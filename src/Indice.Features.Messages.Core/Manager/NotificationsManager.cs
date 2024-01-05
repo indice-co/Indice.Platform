@@ -84,7 +84,7 @@ public class NotificationsManager
             RecipientIds = recipientIds?.ToList(),
             Title = title,
             TypeId = typeId,
-            Attachments = [attachment],
+            Attachments = attachment is null ? [] : [attachment],
         };
         return await CreateCampaignInternal(request);
     }
@@ -191,7 +191,7 @@ public class NotificationsManager
             }
             
             try { 
-                var createAttachmentTasks = request.Attachments.Select(x => CampaignAttachmentService.Create(x));
+                var createAttachmentTasks = request.Attachments.Where(x => x is not null).Select(x => CampaignAttachmentService.Create(x));
                 var attachments = await Task.WhenAll(createAttachmentTasks);
                 request.AttachmentIds = attachments.Select(x => x.Id).ToList();
             } catch (Exception ex) {
