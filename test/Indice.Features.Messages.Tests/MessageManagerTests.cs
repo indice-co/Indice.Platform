@@ -39,6 +39,7 @@ public class MessageManagerTests : IAsyncDisposable
             .AddSingleton(configuration)
             .AddTransient<NotificationsManager>()
             .AddTransient<ICampaignService, CampaignService>()
+            .AddTransient<ICampaignAttachmentService, CampaignAttachmentService>()
             .AddTransient<IContactService, ContactService>()
             .AddTransient<IMessageTypeService, MessageTypeService>()
             .AddTransient<IDistributionListService, DistributionListService>()
@@ -49,8 +50,8 @@ public class MessageManagerTests : IAsyncDisposable
             .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
             .AddTransient<IUserNameAccessor, UserNameAccessorNoOp>()
             .AddTransient<UserNameAccessorAggregate>()
-            //.AddKeyedService<IFileService, FileServiceInMemory, string>(KeyedServiceNames.FileServiceKey, ServiceLifetime.Singleton)
-            //.AddFiles(x => x.AddFilesInMemory())
+            .AddKeyedService<IFileService, FileServiceInMemory, string>(KeyedServiceNames.FileServiceKey, ServiceLifetime.Singleton)
+            .AddFiles(x => x.AddFilesInMemory())
             .AddOptions()
             .Configure<MessageManagementOptions>(configuration);
         ServiceProvider = services.BuildServiceProvider();
