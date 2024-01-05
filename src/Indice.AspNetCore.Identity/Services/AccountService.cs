@@ -118,7 +118,7 @@ public class AccountService(
                 deliveryChannel = mfaChannel ?? TotpDeliveryChannel.Sms;
             }
         }
-        var deviceIdentifier = await _httpContextAccessor.HttpContext.ResolveDeviceId();
+        var deviceIdentifier = _httpContextAccessor.HttpContext.ResolveDeviceId();
         var isExistingBrowser = false;
         if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
             var browserDevice = await _userManager.GetDeviceByIdAsync(user, deviceIdentifier.Value);

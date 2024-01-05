@@ -23,13 +23,14 @@ public sealed class DeviceIdEnricher : ISignInLogEntryEnricher
     public SignInLogEnricherRunType RunType => SignInLogEnricherRunType.Synchronous;
 
     /// <inheritdoc />
-    public async ValueTask EnrichAsync(SignInLogEntry logEntry) {
-        var device = await _httpContextAccessor.HttpContext.ResolveDeviceId();
+    public ValueTask EnrichAsync(SignInLogEntry logEntry) {
+        var device = _httpContextAccessor.HttpContext.ResolveDeviceId();
         logEntry.DeviceId = device.Value;
         if (device.HasRegistrationId) {
             logEntry.ExtraData.UserDevice = new SignInLogEntryUserDevice {
                 Id = device.RegistrationId.Value
             };
         }
+        return ValueTask.CompletedTask;
     }
 }

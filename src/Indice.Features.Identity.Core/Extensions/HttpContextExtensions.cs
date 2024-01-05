@@ -11,15 +11,15 @@ public static class HttpContextExtensions
 {
     /// <summary>Tries to resolve the device id using the <see cref="HttpContext"/>.</summary>
     /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
-    public static async Task<MfaDeviceIdentifier> ResolveDeviceId(this HttpContext httpContext) {
+    public static MfaDeviceIdentifier ResolveDeviceId(this HttpContext httpContext) {
         var request = httpContext?.Request;
         if (request is not null) {
-            return new MfaDeviceIdentifier(await GetDeviceId(httpContext), GetRegistrationId(httpContext));
+            return new MfaDeviceIdentifier(GetDeviceId(httpContext), GetRegistrationId(httpContext));
         }
         return new MfaDeviceIdentifier(null);
     }
 
-    private static Task<string> GetDeviceId(HttpContext httpContext) {
+    private static string GetDeviceId(HttpContext httpContext) {
         if (httpContext is null) {
             throw new ArgumentNullException(nameof(httpContext));
         }
@@ -33,7 +33,7 @@ public static class HttpContextExtensions
             hasDeviceId = httpContext.Items.TryGetValue("deviceId", out var deviceIdObject);
             deviceId = deviceIdObject?.ToString();
         }
-        return Task.FromResult(hasDeviceId ? deviceId.ToString() : default);
+        return hasDeviceId ? deviceId.ToString() : default;
     }
 
     private static Guid? GetRegistrationId(HttpContext httpContext) {

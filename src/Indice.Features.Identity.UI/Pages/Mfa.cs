@@ -123,7 +123,7 @@ public abstract class BaseMfaModel : BasePageModel
         var user = await SignInManager.GetTwoFactorAuthenticationUserAsync() ?? throw new InvalidOperationException("User cannot be null");
         var authenticationMethod = await AuthenticationMethodProvider.GetRequiredAuthenticationMethod(user, tryDowngradeAuthenticationMethod) ?? throw new InvalidOperationException("MFA must be applied but no suitable authentication method was found.");
         var allowDowngradeAuthenticationMethod = Configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
-        var deviceIdentifier = await HttpContext.ResolveDeviceId();
+        var deviceIdentifier = HttpContext.ResolveDeviceId();
         UserDevice? browserDevice = null;
         if (!string.IsNullOrWhiteSpace(deviceIdentifier.Value)) {
             browserDevice = await UserManager.GetDeviceByIdAsync(user, deviceIdentifier.Value);

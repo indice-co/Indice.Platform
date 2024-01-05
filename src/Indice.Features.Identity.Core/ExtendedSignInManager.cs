@@ -142,7 +142,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     /// <inheritdoc/>
     protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
         var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) && (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
-        var deviceId = await _httpContextAccessor.HttpContext.ResolveDeviceId();
+        var deviceId = _httpContextAccessor.HttpContext.ResolveDeviceId();
         if (isExternalLogin) {
             await _stateProvider.ChangeStateAsync(user, UserAction.ExternalLogin);
             bypassTwoFactor = true;
@@ -314,7 +314,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var userId = await ExtendedUserManager.GetUserIdAsync(user);
         var result = await Context.AuthenticateAsync(IdentityConstants.TwoFactorRememberMeScheme);
         var isRemembered = result?.Principal is not null && result.Principal.FindFirstValue(JwtClaimTypes.Name) == userId;
-        var deviceId = await _httpContextAccessor.HttpContext.ResolveDeviceId();
+        var deviceId = _httpContextAccessor.HttpContext.ResolveDeviceId();
         if (!string.IsNullOrWhiteSpace(deviceId.Value) && (isRemembered || (!isRemembered && RememberTrustedBrowserAcrossSessions))) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
             isRemembered = device is not null &&
@@ -416,7 +416,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     private async Task<ClaimsPrincipal> StoreRememberClient(TUser user) {
-        var deviceId = await _httpContextAccessor.HttpContext.ResolveDeviceId();
+        var deviceId =  _httpContextAccessor.HttpContext.ResolveDeviceId();
         if (PersistTrustedBrowsers && !string.IsNullOrWhiteSpace(deviceId.Value)) {
             var device = await ExtendedUserManager.GetDeviceByIdAsync(user, deviceId.Value);
             if (device is not null) {
