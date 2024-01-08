@@ -39,6 +39,7 @@ public class RiskDbContext : DbContext
 
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().ToTable("RiskResult");
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasKey(x => x.TransactionId);
+        modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasIndex(x => x.CreatedAt);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Amount).HasColumnType("money");
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
