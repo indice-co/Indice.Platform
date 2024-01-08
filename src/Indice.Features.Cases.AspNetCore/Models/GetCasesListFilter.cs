@@ -10,32 +10,35 @@ namespace Indice.Features.Cases.Models;
 public class GetCasesListFilter
 {
     /// <summary>The Id of the customer to filter.</summary>
-    public List<FilterClause> CustomerIds { get; set; } = new List<FilterClause>();
+    public List<FilterClause> CustomerIds { get; set; } = new();
 
     /// <summary>The name of the customer to filter.</summary>
-    public List<FilterClause> CustomerNames { get; set; } = new List<FilterClause>();
+    public List<FilterClause> CustomerNames { get; set; } = new();
 
     /// <summary>The created date of the case, starting from, to filter.</summary>
     public DateTimeOffset? From { get; set; }
 
-    /// <summary>The create date of the case, ending to, to filter.</summary>
+    /// <summary>The creation date of the case, ending to, to filter.</summary>
     public DateTimeOffset? To { get; set; }
 
     /// <summary>The list of case type codes to filter.</summary>
-    public List<FilterClause> CaseTypeCodes { get; set; } = new List<FilterClause>();
+    public List<FilterClause> CaseTypeCodes { get; set; } = new();
 
     /// <summary>The list of checkpoint type Ids to filter.</summary>
-    internal List<FilterClause> CheckpointTypeIds { get; set; } = new List<FilterClause>();
+    internal List<FilterClause> CheckpointTypeIds { get; set; } = new();
 
     /// <summary>The list of checkpoint type codes to filter.</summary>
-    public List<FilterClause> CheckpointTypeCodes { get; set; } = new List<FilterClause>();
+    public List<FilterClause> CheckpointTypeCodes { get; set; } = new();
 
     /// <summary>The list of groupIds to filter.</summary>
-    public List<FilterClause> GroupIds { get; set; } = new List<FilterClause>();
+    public List<FilterClause> GroupIds { get; set; } = new();
 
     /// <summary>Construct filter clauses based on the metadata you are adding to the cases in your installation.</summary>
     public List<FilterClause> Metadata { get; set; }
 
     /// <summary>The reference number of the case to filter.</summary>
-    public List<FilterClause> ReferenceNumbers { get; set; } = new List<FilterClause>();
+    public List<FilterClause> ReferenceNumbers { get; set; } = new();
+
+    /// <summary>Construct filter clauses based on case data.</summary>
+    public List<FilterClause> Data { get; set; } = new();
 }

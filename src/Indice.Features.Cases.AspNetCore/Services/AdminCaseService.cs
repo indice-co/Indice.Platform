@@ -241,19 +241,32 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         // filter by group ID, if it is present
         if (options.Filter.GroupIds.Any()) {
             foreach (var groupId in options.Filter.GroupIds) {
-                switch (groupId.Operator) {
-                    case (FilterOperator.Eq):
-                        query = query.Where(c => c.GroupId.Equals(groupId.Value));
-                        break;
-                    case (FilterOperator.Neq):
-                        query = query.Where(c => !c.GroupId.Equals(groupId.Value));
-                        break;
-                    case (FilterOperator.Contains):
-                        query = query.Where(c => c.GroupId.Contains(groupId.Value));
-                        break;
-                }
+                query = groupId.Operator switch {
+                    FilterOperator.Eq => query.Where(c => c.GroupId.Equals(groupId.Value)),
+                    FilterOperator.Neq => query.Where(c => !c.GroupId.Equals(groupId.Value)),
+                    FilterOperator.Contains => query.Where(c => c.GroupId.Contains(groupId.Value)),
+                    _ => query
+                };
             }
         }
+
+        if (options.Filter.Data.Any()) {
+            // Execute the query with all the previous filters and 
+            // select the case Ids
+            var caseIds = (await query.ToListAsync()).Select(x => x.Id);
+
+            // For those Ids, execute a second query to filter the cases by caseData json filter
+            var caseData = await _dbContext.CaseData
+                .AsNoTracking()
+                .Where(options.Filter.Data)
+                .Where(x => caseIds.Contains(x.CaseId))
+                .Select(x => x.CaseId)
+                .ToListAsync();
+
+            // update the initial queryable, to execute (again) but with paging results
+            query = query.Where(x => caseData.Contains(x.Id));
+        }
+
         // sorting option
         if (string.IsNullOrEmpty(options?.Sort)) {
             options!.Sort = $"{nameof(CasePartial.CreatedByWhen)}";
