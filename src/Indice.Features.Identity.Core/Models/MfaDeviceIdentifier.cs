@@ -7,4 +7,7 @@ public record MfaDeviceIdentifier(string Value, Guid? RegistrationId = null)
 {
     /// <summary>Determines if there is a value for <see cref="RegistrationId"/>.</summary>
     public bool HasRegistrationId => RegistrationId.HasValue;
+
+    /// <summary>Check for empty value</summary>
+    public bool IsEmpty => string.IsNullOrWhiteSpace(Value) && HasRegistrationId;
 }

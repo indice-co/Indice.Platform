@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
+﻿using System.Security.Claims;
 using Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 using Indice.Features.Identity.Core.Models;
+using Indice.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
@@ -27,11 +28,15 @@ public static class HttpContextExtensions
         var hasDeviceId = httpContext.Request.HasFormContentType && (
             httpContext.Request.Form.TryGetValue("DeviceId", out deviceId) ||
             httpContext.Request.Form.TryGetValue("Input.DeviceId", out deviceId) ||
-            httpContext.Request.Form.TryGetValue(RegistrationRequestParameters.DeviceId, out deviceId)
-        );
-        if (!hasDeviceId) {
-            hasDeviceId = httpContext.Items.TryGetValue("deviceId", out var deviceIdObject);
+            httpContext.Request.Form.TryGetValue(RegistrationRequestParameters.DeviceId, out deviceId) 
+        ) && !string.IsNullOrWhiteSpace(deviceId);
+        if (!hasDeviceId && httpContext.Items.TryGetValue("deviceId", out var deviceIdObject)) {
             deviceId = deviceIdObject?.ToString();
+            hasDeviceId = !string.IsNullOrWhiteSpace(deviceId);
+        }
+        if (!hasDeviceId) {
+            deviceId = httpContext.User.FindFirstValue(BasicClaimTypes.DeviceId);
+            hasDeviceId = !string.IsNullOrWhiteSpace(deviceId);
         }
         return hasDeviceId ? deviceId.ToString() : default;
     }
@@ -41,6 +46,6 @@ public static class HttpContextExtensions
         var hasRegistrationId = httpContext.Request.HasFormContentType &&
                                 httpContext.Request.Form.TryGetValue(RegistrationRequestParameters.RegistrationId, out var registrationIdText) &&
                                 Guid.TryParse(registrationIdText, out registrationId);
-        return hasRegistrationId ? registrationId : default;
+        return hasRegistrationId ? registrationId : null;
     }
 }
