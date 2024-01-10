@@ -228,7 +228,7 @@ public static class CasesApiFeatureExtensions
         });
 
         var cleanUpOptions = configuration.GetSection("Elsa").GetSection("CleanUpOptions");
-        if (cleanUpOptions.GetSection("Enabled").Get<bool?>() ?? false) {
+        if (cleanUpOptions.GetSection("Enabled").Get<bool?>() ?? true) {
             services.AddRetentionServices(options => {
                 options.BatchSize = cleanUpOptions.GetSection("BatchSize").Get<int?>() ?? 100;
                 options.TimeToLive = Duration.FromDays(cleanUpOptions.GetSection("TimeToLiveInDays").Get<int?>() ?? 30);
