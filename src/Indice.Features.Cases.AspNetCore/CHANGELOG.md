@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - `AuthenticationBasedHttpEndpointAuthorizationHandler` for Elsa HttpActivities, so the Authorization Policies can work.
+Configuration sample with new handler
+```js
+{
+    "Elsa":{
+        "Server": {
+            "BaseUrl": "http:localhost:2000", // the base url of the CaseApi
+            "BasePath": "custom-activities" // the subpath that the http activities will use by-default (can be null)
+        }
+    }
+}
+```
 
 ## [7.14.1] - 2023-12-22
 ### Bugfix
