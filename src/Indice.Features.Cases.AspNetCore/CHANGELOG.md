@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Changed
+- Default behaviour for Elsa CleanUp options set to `true`. Check version `7.7.0` for more.
+
+#### Action required
+If you want the default retention policy to be ignored, make sure you have the following configuration
+```json
+{
+    "Elsa":{
+        "CleanUpOptions": {
+            "Enabled": false            
+        }
+    }
+}
+```
+
 ## [7.14.1] - 2023-12-22
 ### Bugfix
 - GetMyCases now properly paginates when there is CaseData filter.
