@@ -13,7 +13,7 @@ Configuration sample with new handler
 {
     "Elsa":{
         "Server": {
-            "BaseUrl": "http:localhost:2000", // the base url of the CaseApi
+            "BaseUrl": "https://localhost:2000", // the base url of the CaseApi
             "BasePath": "custom-activities" // the subpath that the http activities will use by-default (can be null)
         }
     }
