@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Elsa;
+using Elsa.Activities.Http.Services;
 using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Elsa.Persistence.Specifications;
@@ -215,7 +216,12 @@ public static class CasesApiFeatureExtensions
         services.AddElsa(elsa => {
             elsa.UseEntityFrameworkPersistence(ef => ef.UseSqlServer(configuration.GetConnectionString("WorkflowDb")), false)
                 .AddQuartzTemporalActivities()
-                .AddHttpActivities(configuration.GetSection("Elsa").GetSection("Server").Bind)
+                .AddHttpActivities(http => {
+                    http.HttpEndpointAuthorizationHandlerFactory =
+                        ActivatorUtilities.GetServiceOrCreateInstance<AuthenticationBasedHttpEndpointAuthorizationHandler>;
+                    http.BaseUrl = new Uri(configuration["Elsa:Server:BaseUrl"]);
+                    http.BasePath = configuration["Elsa:Server:BasePath"];
+                })
                 .AddEmailActivities(configuration.GetSection("Elsa").GetSection("Smtp").Bind)
                 .AddUserTaskActivities()
                 .AddActivitiesFrom(typeof(BaseCaseActivity).Assembly);
