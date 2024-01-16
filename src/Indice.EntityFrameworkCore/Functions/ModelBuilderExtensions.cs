@@ -109,4 +109,84 @@ public static class ModelBuilderExtensions
                     })
                     .HasSchema(string.Empty);
     }
+
+
+
+    /// <summary>Applies configuration so that we can user <see cref="JsonFunctions.JsonValue(object, string)"/></summary>
+    /// <param name="modelBuilder"></param>
+    /// <returns></returns>
+    public static DbFunctionBuilder ApplyNpgJsonValue(this ModelBuilder modelBuilder) {
+        if (modelBuilder is null) {
+            throw new ArgumentNullException(nameof(modelBuilder));
+        }
+
+        var functionBuilder = modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.JsonValue)))
+                    .HasTranslation(args => {
+#if NET5_0_OR_GREATER
+                        return new SqlFunctionExpression("jsonb_path_query_first", args, nullable: true, argumentsPropagateNullability: args.Select(x => true), typeof(string), null);
+#else
+                        return SqlFunctionExpression.Create("jsonb_path_query_first", args, typeof(string), null);
+#endif
+                    })
+                    .HasSchema(string.Empty);
+        functionBuilder.HasParameter("column").Metadata.TypeMapping = new StringTypeMapping("text", null);
+        return functionBuilder;
+    }
+
+    /// <summary>Applies configuration so that we can user <see cref="JsonFunctions.CastToDate(string)"/></summary>
+    /// <param name="modelBuilder"></param>
+    /// <returns></returns>
+    public static DbFunctionBuilder ApplyNpgJsonCastToDate(this ModelBuilder modelBuilder) {
+        if (modelBuilder is null) {
+            throw new ArgumentNullException(nameof(modelBuilder));
+        }
+        return modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDate)))
+                    .HasTranslation(args => {
+                        var datetime2 = new SqlFragmentExpression("timestampz");
+                        var convertArgs = new SqlExpression[] { datetime2 }.Concat(args);
+#if NET8_0_OR_GREATER
+                        return new SqlFunctionExpression("Convert", convertArgs, nullable: true, argumentsPropagateNullability: convertArgs.Select(x => true), typeof(DateTime), null);
+#else
+#if NET5_0_OR_GREATER
+                        return new SqlFunctionExpression("Convert", convertArgs, nullable: true, argumentsPropagateNullability: convertArgs.Select(x => true), typeof(DateTime?), null);                  
+#else
+                        return SqlFunctionExpression.Create("Convert", convertArgs, typeof(DateTime?), null);
+#endif
+#endif
+                    })
+                    .HasSchema(string.Empty);
+    }
+
+    /// <summary>Applies configuration so that we can user <see cref="JsonFunctions.CastToDouble(string)"/></summary>
+    /// <param name="modelBuilder"></param>
+    /// <returns></returns>
+    public static DbFunctionBuilder ApplyNpgJsonCastToDouble(this ModelBuilder modelBuilder) {
+        if (modelBuilder is null) {
+            throw new ArgumentNullException(nameof(modelBuilder));
+        }
+        return modelBuilder.HasDbFunction(typeof(JsonFunctions).GetMethod(nameof(JsonFunctions.CastToDouble)))
+                    .HasTranslation(args => {
+                        var float32 = new SqlFragmentExpression("real");
+                        var convertArgs = new SqlExpression[] { float32 }.Concat(args);
+#if NET5_0_OR_GREATER
+                        return new SqlFunctionExpression("Convert", convertArgs, nullable: true, argumentsPropagateNullability: convertArgs.Select(x => true), typeof(double?), null);
+#else
+                        return SqlFunctionExpression.Create("Convert", convertArgs, typeof(double?), null);
+#endif
+                    })
+                    .HasSchema(string.Empty);
+    }
+
+    /// <summary>Applies configuration for all <see cref="JsonFunctions"/></summary>
+    /// <param name="modelBuilder"></param>
+    /// <returns></returns>
+    public static ModelBuilder ApplyNpgJsonFunctions(this ModelBuilder modelBuilder) {
+        if (modelBuilder is null) {
+            throw new ArgumentNullException(nameof(modelBuilder));
+        }
+        modelBuilder.ApplyNpgJsonValue();
+        modelBuilder.ApplyNpgJsonCastToDate();
+        modelBuilder.ApplyNpgJsonCastToDouble();
+        return modelBuilder;
+    }
 }

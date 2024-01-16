@@ -12,14 +12,16 @@ public class FilterClauseQueryableExtensionTests : IDisposable
 {
     public FilterClauseQueryableExtensionTests() {
         var inMemorySettings = new Dictionary<string, string> {
-            ["ConnectionStrings:TestDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.FilterClause.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
+            //["ConnectionStrings:TestDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.FilterClause.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
+            ["ConnectionStrings:TestDb"] = $"Server=127.0.0.1;Port=5432;Database=Indice.FilterClause.Test_{Environment.Version.Major}_{Guid.NewGuid()};User Id=indicedb;Password=1nD1c3_@;",
             //...populate as needed for the test
         };
         IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
             .Build();
         var collection = new ServiceCollection()
-            .AddDbContext<DummyDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("TestDb")), ServiceLifetime.Singleton)
+            //.AddDbContext<DummyDbContext>(builder => builder.UseSqlServer(configuration.GetConnectionString("TestDb")), ServiceLifetime.Singleton)
+            .AddDbContext<DummyDbContext>(builder => builder.UseNpgsql(configuration.GetConnectionString("TestDb")), ServiceLifetime.Singleton)
             .AddSingleton(configuration);
         ServiceProvider = collection.BuildServiceProvider();
     }
@@ -80,9 +82,9 @@ public class DummyDbContext : DbContext
     public DummyDbContext(DbContextOptions<DummyDbContext> options) : base(options) {
         if (Database.EnsureCreated()) {
             Dummies.AddRange(
-                new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" } , Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
-                new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
-                new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
+                new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" } , Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28).ToUniversalTime(), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
+                new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24).ToUniversalTime(), Balance = 360.23 } },
+                new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1).ToUniversalTime(), Balance = 1260.23 } }
             );
             SaveChanges();
         }
@@ -92,10 +94,10 @@ public class DummyDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
         modelBuilder.Entity<Dummy>().HasKey(x => x.Id);
-        modelBuilder.Entity<Dummy>().Property(x => x.Data).HasJsonConversion();
-        modelBuilder.Entity<Dummy>().Property(x => x.Extras).HasJsonConversion();
-        modelBuilder.Entity<Dummy>().Property(x => x.Metadata).HasJsonConversion();
-        modelBuilder.ApplyJsonFunctions();
+        modelBuilder.Entity<Dummy>().Property(x => x.Data).HasColumnType("jsonb").HasJsonConversion();
+        modelBuilder.Entity<Dummy>().Property(x => x.Extras).HasColumnType("jsonb").HasJsonConversion();
+        modelBuilder.Entity<Dummy>().Property(x => x.Metadata).HasColumnType("jsonb").HasJsonConversion();
+        modelBuilder.ApplyNpgJsonFunctions();
         base.OnModelCreating(modelBuilder);
     }
 }
