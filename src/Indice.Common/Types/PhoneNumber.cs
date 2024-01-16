@@ -120,6 +120,7 @@ public partial struct PhoneNumber : IFormattable
     /// <summary>Converts a Phone Number to String of the corresponding format.</summary>
     /// <param name="format">
     /// - G: The generic format (ex. +30 69xxxxxxxx)
+    /// - O: The generic no whitespace format (ex. +3069xxxxxxxx)
     /// - A: No plus sign format (ex. 30 69xxxxxxxx)
     /// - D: Digits only format (ex. 3069xxxxxxx)
     /// - N: Only the number without the calling code (ex. 69xxxxxxxx)
