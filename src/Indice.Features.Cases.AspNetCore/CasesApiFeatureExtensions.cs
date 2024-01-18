@@ -219,8 +219,12 @@ public static class CasesApiFeatureExtensions
                 .AddHttpActivities(http => {
                     http.HttpEndpointAuthorizationHandlerFactory =
                         ActivatorUtilities.GetServiceOrCreateInstance<AuthenticationBasedHttpEndpointAuthorizationHandler>;
-                    http.BaseUrl = new Uri(configuration["Elsa:Server:BaseUrl"]);
-                    http.BasePath = configuration["Elsa:Server:BasePath"];
+                    if (configuration["Elsa:Server:BaseUrl"] is { } baseUrl) {
+                        http.BaseUrl = new Uri(baseUrl);
+                    }
+                    if (configuration["Elsa:Server:BasePath"] is { } basePath) {
+                        http.BasePath = basePath;
+                    }
                 })
                 .AddEmailActivities(configuration.GetSection("Elsa").GetSection("Smtp").Bind)
                 .AddUserTaskActivities()
