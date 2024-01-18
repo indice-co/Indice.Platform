@@ -134,6 +134,7 @@ public static class CasesApiFeatureExtensions
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
+            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
 
         // Post configure MVC options.

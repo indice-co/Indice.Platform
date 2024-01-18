@@ -8,6 +8,7 @@ using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Controllers;
 
@@ -29,6 +30,7 @@ internal class AdminCasesController : ControllerBase
     private readonly IAdminCaseMessageService _adminCaseMessageService;
     private readonly ICaseApprovalService _caseApprovalService;
     private readonly ICaseEventService _caseEventService;
+    private readonly AdminCasesApiOptions _options;
 
     public AdminCasesController(
         IAdminCaseService adminCaseService,
@@ -37,7 +39,8 @@ internal class AdminCasesController : ControllerBase
         ICaseActionsService caseBookmarkService,
         IAdminCaseMessageService adminCaseMessageService,
         ICaseApprovalService caseApprovalService,
-        ICaseEventService caseEventService) {
+        ICaseEventService caseEventService,
+        IOptions<AdminCasesApiOptions> options) {
         _adminCaseService = adminCaseService ?? throw new ArgumentNullException(nameof(adminCaseService));
         _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
         _caseTemplateService = caseTemplateService ?? throw new ArgumentNullException(nameof(caseTemplateService));
@@ -45,6 +48,7 @@ internal class AdminCasesController : ControllerBase
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _caseApprovalService = caseApprovalService ?? throw new ArgumentNullException(nameof(caseApprovalService));
         _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     /// <summary>Create a new case in draft mode.</summary>
@@ -83,10 +87,8 @@ internal class AdminCasesController : ControllerBase
             ModelState.AddModelError(nameof(file), "File is empty.");
             return BadRequest(new ValidationProblemDetails(ModelState));
         }
-        // TODO: remove hardcoded values
-        var permittedExtensions = new[] { ".pdf", ".jpeg", ".jpg", ".tif", ".tiff" };
-        var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
-        if (string.IsNullOrEmpty(fileExtension) || !permittedExtensions.Any(s => string.Equals(s, fileExtension))) {
+        var fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+        if (!_options.PermittedAttachmentFileExtensions.Contains(fileExtension)) {
             throw new Exception("File type is not acceptable.");
         }
         var attachmentId = await _adminCaseMessageService.Send(caseId, User, new Message { File = file });
