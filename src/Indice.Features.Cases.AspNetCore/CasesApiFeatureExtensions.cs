@@ -3,7 +3,6 @@ using Elsa;
 using Elsa.Activities.Http.Services;
 using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
-using Elsa.Persistence.Specifications;
 using Elsa.Retention.Contracts;
 using Elsa.Retention.Extensions;
 using Elsa.Retention.Specifications;
@@ -66,6 +65,7 @@ public static class CasesApiFeatureExtensions
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
+            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
 
         // Post configure MVC options.
@@ -134,7 +134,7 @@ public static class CasesApiFeatureExtensions
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
-            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions;
+            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
 
         // Post configure MVC options.

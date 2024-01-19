@@ -89,7 +89,9 @@ internal class AdminCasesController : ControllerBase
         }
         var fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
         if (!_options.PermittedAttachmentFileExtensions.Contains(fileExtension)) {
-            throw new Exception("File type is not acceptable.");
+            return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
+                { $"{nameof(fileExtension)}", new[] { "File type extension is not acceptable." } }
+            }));
         }
         var attachmentId = await _adminCaseMessageService.Send(caseId, User, new Message { File = file });
         return Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });
