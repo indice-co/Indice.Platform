@@ -19,6 +19,10 @@ public class RiskModel
     public dynamic? Data { get; set; }
     /// <summary>The Id of the source that posted the event.</summary>
     public string? SourceId { get; set; }
+    /// <summary>The id of the associated result.</summary>
+    public Guid? ResultId { get; set; }
+    /// <summary>The id of the associated transaction.</summary>
+    public Guid? TransactionId { get; set; }
 
     /// <summary></summary>
     public RiskEvent ToRiskEvent() => new() {
@@ -30,6 +34,8 @@ public class RiskModel
         SubjectId = SubjectId,
         Type = Type,
         Data = Data,
-        SourceId = SourceId
+        SourceId = SourceId,
+        ResultId = ResultId,
+        TransactionId = TransactionId
     };
 }

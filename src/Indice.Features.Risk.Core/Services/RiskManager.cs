@@ -62,4 +62,8 @@ public class RiskManager
         }
         return new AggregateRuleExecutionResult(@event.Id, Rules.Count(), results);
     }
+
+    internal async Task UpdateRiskResultWithTransactionIdAsync(Guid? resultId, Guid? transactionId) {
+        _riskResultStore.UpdateRiskResultWithTransactionIdAsync(resultId, transactionId);
+    }
 }

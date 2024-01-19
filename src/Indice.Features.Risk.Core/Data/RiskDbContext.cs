@@ -26,6 +26,7 @@ public class RiskDbContext : DbContext
         // Risk event configuration.
         modelBuilder.Entity<RiskEvent>().ToTable(nameof(RiskEvent));
         modelBuilder.Entity<RiskEvent>().HasKey(x => x.Id);
+        modelBuilder.Entity<RiskEvent>().HasIndex(x => x.ResultId);
         modelBuilder.Entity<RiskEvent>().HasIndex(x => x.CreatedAt);
         modelBuilder.Entity<RiskEvent>().HasIndex(x => x.SubjectId);
         modelBuilder.Entity<RiskEvent>().HasIndex(x => x.Type);
@@ -38,7 +39,8 @@ public class RiskDbContext : DbContext
         modelBuilder.Entity<RiskEvent>().Property(x => x.SourceId).HasMaxLength(TextSizePresets.M256);
 
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().ToTable("RiskResult");
-        modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasKey(x => x.TransactionId);
+        modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasKey(x => x.Id);
+        modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasIndex(x => x.TransactionId);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasIndex(x => x.CreatedAt);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Amount).HasColumnType("money");
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);

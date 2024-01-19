@@ -5,6 +5,10 @@ public class RiskEvent
 {
     /// <summary>The unique id of the event.</summary>
     public Guid Id { get; internal set; }
+    /// <summary>The id of the associated result.</summary>
+    public Guid? ResultId { get; set; }
+    /// <summary>The id of the associated transaction.</summary>
+    public Guid? TransactionId { get; set; }
     /// <summary>An amount relative to the event.</summary>
     public decimal? Amount { get; set; }
     /// <summary>The user IP address related to the event occurred.</summary>

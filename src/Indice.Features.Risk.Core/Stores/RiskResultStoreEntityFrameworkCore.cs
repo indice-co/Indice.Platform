@@ -16,4 +16,10 @@ internal class RiskResultStoreEntityFrameworkCore : IRiskResultStore
         _dbContext.RiskResults.Add(riskResult);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task UpdateRiskResultWithTransactionIdAsync(Guid? resultId, Guid? transactionId) {
+        var riskResult = await _dbContext.RiskResults.FindAsync(resultId);
+        riskResult.TransactionId = transactionId;
+        await _dbContext.SaveChangesAsync(); 
+    }
 }
