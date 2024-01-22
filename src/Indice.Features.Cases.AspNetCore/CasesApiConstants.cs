@@ -75,6 +75,13 @@ public static class CasesApiConstants
             public const string Save = nameof(Save);
         }
     }
+
+    /// <summary>Cases API keys for validation errors.</summary>
+    public static class ValidationErrorKeys
+    {
+        /// <summary>Indicates that the case attachment file extension is not acceptable.</summary>
+        public const string FileExtension = "FILE_EXTENSION";
+    }
 }
 
 /// <summary>Constant values for Cases Api Groups.</summary>

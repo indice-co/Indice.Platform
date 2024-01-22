@@ -97,7 +97,7 @@ internal class MyCasesController : ControllerBase
         var fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
         if (!_options.PermittedAttachmentFileExtensions.Contains(fileExtension)) {
             return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                { $"{nameof(fileExtension)}", new[] { "File type extension is not acceptable." } }
+                { CasesApiConstants.ValidationErrorKeys.FileExtension, new[] { "File type extension is not acceptable." } }
             }));
         }
         var attachmentId = await _caseMessageService.Send(caseId, User, new Message { File = file });
