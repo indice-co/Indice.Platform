@@ -7,8 +7,8 @@ namespace Indice.Features.Risk.Core;
 /// <summary>Describes the result that was created after executing all the rules registered in the system.</summary>
 public class AggregateRuleExecutionResult
 {
-    internal AggregateRuleExecutionResult(Guid transactionId, int numberOfRulesExecuted, IEnumerable<RuleExecutionResult>? results) {
-        Id = transactionId;
+    internal AggregateRuleExecutionResult(Guid id, int numberOfRulesExecuted, IEnumerable<RuleExecutionResult>? results) {
+        Id = id;
         NumberOfRulesExecuted = numberOfRulesExecuted;
         Results = results ?? new List<RuleExecutionResult>();
     }
