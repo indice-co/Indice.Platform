@@ -22,7 +22,7 @@ public class RiskModel
     /// <summary>The id of the associated result.</summary>
     public Guid? ResultId { get; set; }
     /// <summary>The id of the associated transaction.</summary>
-    public Guid? TransactionId { get; set; }
+    public string? TransactionId { get; set; }
 
     /// <summary></summary>
     public RiskEvent ToRiskEvent() => new() {
