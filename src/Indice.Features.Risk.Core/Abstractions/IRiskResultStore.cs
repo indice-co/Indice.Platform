@@ -9,8 +9,8 @@ public interface IRiskResultStore
     /// <param name="riskResult">The calculated risk result.</param>
     Task CreateAsync(DbAggregateRuleExecutionResult riskResult);
 
-    /// <summary>Updates the risk result with an event Id.</summary>
+    /// <summary>Adds an event Id to risk result.</summary>
     /// <param name="resultId">The Id of the risk result.</param>
     /// <param name="eventId">The Id of the risk event.</param>
-    Task UpdateRiskResultWithEventIdAsync(Guid resultId, Guid eventId);
+    Task AddEventIdAsync(Guid resultId, Guid eventId);
 }
