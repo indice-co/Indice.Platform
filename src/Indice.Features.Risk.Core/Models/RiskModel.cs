@@ -35,7 +35,6 @@ public class RiskModel
         Type = Type,
         Data = Data,
         SourceId = SourceId,
-        ResultId = ResultId,
         TransactionId = TransactionId
     };
 }

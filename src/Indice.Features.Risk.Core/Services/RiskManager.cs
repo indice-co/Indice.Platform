@@ -63,7 +63,10 @@ public class RiskManager
         return new AggregateRuleExecutionResult(@event.Id, Rules.Count(), results);
     }
 
-    internal async Task UpdateRiskResultWithTransactionIdAsync(Guid? resultId, Guid? transactionId) {
-        _riskResultStore.UpdateRiskResultWithTransactionIdAsync(resultId, transactionId);
+    /// <summary>Updates the risk result with an event Id.</summary>
+    /// <param name="resultId">The Id of the risk result.</param>
+    /// <param name="eventId">The Id of the risk event.</param>
+    internal async Task UpdateRiskResultWithEventIdAsync(Guid resultId, Guid eventId) {
+        await _riskResultStore.UpdateRiskResultWithEventIdAsync(resultId, eventId);
     }
 }

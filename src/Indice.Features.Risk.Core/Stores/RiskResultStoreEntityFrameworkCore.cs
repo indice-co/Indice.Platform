@@ -17,9 +17,9 @@ internal class RiskResultStoreEntityFrameworkCore : IRiskResultStore
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateRiskResultWithTransactionIdAsync(Guid? resultId, Guid? transactionId) {
-        var riskResult = await _dbContext.RiskResults.FindAsync(resultId);
-        riskResult.TransactionId = transactionId;
+    public async Task UpdateRiskResultWithEventIdAsync(Guid resultId, Guid eventId) {
+        var riskResult = await _dbContext.RiskResults.FindAsync(resultId) ?? throw new Exception("Risk Result not found.");
+        riskResult.EventId = eventId;
         await _dbContext.SaveChangesAsync(); 
     }
 }
