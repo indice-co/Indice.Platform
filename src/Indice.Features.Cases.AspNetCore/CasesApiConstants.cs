@@ -33,6 +33,9 @@ public static class CasesApiConstants
     /// <summary>The default name for the ReferenceNumber sequence.</summary>
     public const string ReferenceNumberSequence = "ReferenceNumberSequence";
 
+    /// <summary>The default permitted file extensions to check when uploading an attachment to an existing case.</summary>
+    public static IReadOnlyCollection<string> DefaultPermittedAttachmentFileExtensions = new HashSet<string> { ".pdf", ".jpeg", ".jpg", ".tif", ".tiff" };
+
     /// <summary>Cases API policies.</summary>
     public static class Policies
     {
@@ -71,6 +74,13 @@ public static class CasesApiConstants
             /// <summary>Outcome for "Save".</summary>
             public const string Save = nameof(Save);
         }
+    }
+
+    /// <summary>Cases API keys for validation errors.</summary>
+    public static class ValidationErrorKeys
+    {
+        /// <summary>Indicates that the case attachment file extension is not acceptable.</summary>
+        public const string FileExtension = "FILE_EXTENSION";
     }
 }
 
