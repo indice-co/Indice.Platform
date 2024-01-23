@@ -21,4 +21,6 @@ public class RiskEvent
     public dynamic? Data { get; set; }
     /// <summary>The Id of the source that posted the event.</summary>
     public string? SourceId { get; set; }
+    /// <summary>The id of the associated transaction.</summary>
+    public string? SourceTransId { get; set; }
 }

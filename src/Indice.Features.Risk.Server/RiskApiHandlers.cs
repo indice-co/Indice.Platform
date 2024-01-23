@@ -26,6 +26,9 @@ internal static class RiskApiHandlers
     ) {
         var riskEvent = request.ToRiskEvent();
         await riskManager.CreateRiskEventAsync(riskEvent);
+        if (request.ResultId != null) {
+            await riskManager.AddEventIdToRiskResultAsync((Guid)request.ResultId, riskEvent.Id);
+        }
         return TypedResults.StatusCode(StatusCodes.Status201Created);
     }
 }
