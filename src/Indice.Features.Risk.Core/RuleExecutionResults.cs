@@ -7,14 +7,14 @@ namespace Indice.Features.Risk.Core;
 /// <summary>Describes the result that was created after executing all the rules registered in the system.</summary>
 public class AggregateRuleExecutionResult
 {
-    internal AggregateRuleExecutionResult(Guid transactionId, int numberOfRulesExecuted, IEnumerable<RuleExecutionResult>? results) {
-        TransactionId = transactionId;
+    internal AggregateRuleExecutionResult(Guid id, int numberOfRulesExecuted, IEnumerable<RuleExecutionResult>? results) {
+        Id = id;
         NumberOfRulesExecuted = numberOfRulesExecuted;
         Results = results ?? new List<RuleExecutionResult>();
     }
 
-    /// <summary>The id of the transaction.</summary>
-    public Guid TransactionId { get; }
+    /// <summary>The unique id of the result.</summary>
+    public Guid Id { get; }
     /// <summary>The total number of rules executed.</summary>
     public int NumberOfRulesExecuted { get; }
     /// <summary>The result of each individual rule run by the engine.</summary>
@@ -23,7 +23,7 @@ public class AggregateRuleExecutionResult
     /// <summary>Converts a <see cref="AggregateRuleExecutionResult"/> to a <see cref="DbAggregateRuleExecutionResult"/></summary>
     /// <param name="riskModel"></param>
     public DbAggregateRuleExecutionResult ToRiskResult(RiskModel riskModel) => new() {
-        TransactionId = TransactionId,
+        Id = Id,
         CreatedAt = DateTimeOffset.UtcNow,
         Amount = riskModel.Amount,
         IpAddress = riskModel.IpAddress,

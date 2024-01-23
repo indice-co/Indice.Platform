@@ -2,7 +2,7 @@
 
 namespace Indice.Features.Risk.Core.Models;
 
-/// <summary></summary>
+/// <summary>Describes the risk request model</summary>
 public class RiskModel
 {
     /// <summary>An amount relative to the event.</summary>
@@ -19,8 +19,12 @@ public class RiskModel
     public dynamic? Data { get; set; }
     /// <summary>The Id of the source that posted the event.</summary>
     public string? SourceId { get; set; }
+    /// <summary>The id of the associated transaction.</summary>
+    public string? SourceTransId { get; set; }
+    /// <summary>The id of the associated result.</summary>
+    public Guid? ResultId { get; set; }
 
-    /// <summary></summary>
+    /// <summary>Converts a <see cref="RiskModel"/> to a <see cref="RiskEvent"/></summary>
     public RiskEvent ToRiskEvent() => new() {
         Amount = Amount,
         CreatedAt = DateTimeOffset.UtcNow,
@@ -30,6 +34,7 @@ public class RiskModel
         SubjectId = SubjectId,
         Type = Type,
         Data = Data,
-        SourceId = SourceId
+        SourceId = SourceId,
+        SourceTransId = SourceTransId
     };
 }

@@ -8,6 +8,7 @@ using Indice.Types;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Cases.Controllers;
 
@@ -28,18 +29,21 @@ internal class MyCasesController : ControllerBase
     private readonly ICasePdfService _casePdfService;
     private readonly ICaseEventService _caseEventService;
     private readonly IMyCaseMessageService _caseMessageService;
+    private readonly MyCasesApiOptions _options;
 
     public MyCasesController(
         IMyCaseService myCaseService,
         ICaseTemplateService caseTemplateService,
         ICasePdfService casePdfService,
         IMyCaseMessageService caseMessageService,
-        ICaseEventService caseEventService) {
+        ICaseEventService caseEventService,
+        IOptions<MyCasesApiOptions> options) {
         _myCaseService = myCaseService ?? throw new ArgumentNullException(nameof(myCaseService));
         _caseTemplateService = caseTemplateService ?? throw new ArgumentNullException(nameof(caseTemplateService));
         _casePdfService = casePdfService ?? throw new ArgumentNullException(nameof(casePdfService));
         _caseMessageService = caseMessageService ?? throw new ArgumentNullException(nameof(caseMessageService));
         _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+        _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
     /// <summary>Get the list of the customer's cases.</summary>
@@ -89,6 +93,12 @@ internal class MyCasesController : ControllerBase
         if (file == null) {
             ModelState.AddModelError(nameof(file), "File is empty.");
             return BadRequest(new ValidationProblemDetails(ModelState));
+        }
+        var fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
+        if (!_options.PermittedAttachmentFileExtensions.Contains(fileExtension)) {
+            return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
+                { CasesApiConstants.ValidationErrorKeys.FileExtension, new[] { "File type extension is not acceptable." } }
+            }));
         }
         var attachmentId = await _caseMessageService.Send(caseId, User, new Message { File = file });
         return Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });

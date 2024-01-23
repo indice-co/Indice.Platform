@@ -26,20 +26,20 @@ public class RiskDbContext : DbContext
         // Risk event configuration.
         modelBuilder.Entity<RiskEvent>().ToTable(nameof(RiskEvent));
         modelBuilder.Entity<RiskEvent>().HasKey(x => x.Id);
-        modelBuilder.Entity<RiskEvent>().HasIndex(x => x.CreatedAt);
         modelBuilder.Entity<RiskEvent>().HasIndex(x => x.SubjectId);
-        modelBuilder.Entity<RiskEvent>().HasIndex(x => x.Type);
         modelBuilder.Entity<RiskEvent>().Property(x => x.Amount).HasColumnType("money");
         modelBuilder.Entity<RiskEvent>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
-        modelBuilder.Entity<RiskEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
         modelBuilder.Entity<RiskEvent>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();
+        modelBuilder.Entity<RiskEvent>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
         modelBuilder.Entity<RiskEvent>().Property(x => x.Type).HasMaxLength(TextSizePresets.M256).IsRequired();
         modelBuilder.Entity<RiskEvent>().Property(x => x.Data).HasJsonConversion();
         modelBuilder.Entity<RiskEvent>().Property(x => x.SourceId).HasMaxLength(TextSizePresets.M256);
-
+        modelBuilder.Entity<RiskEvent>().Property(x => x.SourceTransId).HasMaxLength(TextSizePresets.M128);
+        // Risk Result configuration.
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().ToTable("RiskResult");
-        modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasKey(x => x.TransactionId);
-        modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasIndex(x => x.CreatedAt);
+        modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasKey(x => x.Id);
+        modelBuilder.Entity<DbAggregateRuleExecutionResult>().HasIndex(x => x.SubjectId);
+        modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.EventId).HasMaxLength(TextSizePresets.M128);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Amount).HasColumnType("money");
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.IpAddress).HasMaxLength(TextSizePresets.M128);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.SubjectId).HasMaxLength(TextSizePresets.M256).IsRequired();

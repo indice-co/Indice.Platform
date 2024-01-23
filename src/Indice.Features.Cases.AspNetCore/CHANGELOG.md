@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.18.3] - 2024-01-22
+### Added
+`PermittedAttachmentFileExtensions` config property in `CasesApiOptions` (base, `AdminCasesApiOptions` or `MyCasesApiOptions`) which specifies the permitted file extensions to check when uploading an attachment to an existing case. Can be configured via `appsettings` level.
+
+#### Default values:
+```
+".pdf", ".jpeg", ".jpg", ".tif", ".tiff"
+```
+
+### Changed
+- Replaced hardcoded file extension checks in `UploadAdminCaseAttachment` of `AdminCasesController` to use the new `PermittedAttachmentFileExtensions`.
+- **Breaking change:** Added file extension checks in `UploadCaseAttachment` of `MyCasesController` to use the new `PermittedAttachmentFileExtensions`.
+- If no `PermittedAttachmentFileExtensions` are provided in project level, the default values will be used.
+- In case of failure, `400 Bad Request` will be returned.
+
+#### Action required
+If you want to set dedicated file extension rules on your project, make sure you have the following example configuration in the options of your preference (`CasesApiOptions`, `AdminCasesApiOptions` or/and `MyCasesApiOptions`)
+### AdminCasesApiOptions Example
+```json
+{
+    "AdminCasesApiOptions": {
+      "PermittedAttachmentFileExtensions": [ ".pdf", ".txt" ]
+    }
+}
+```
+
 ## [7.18.2] - 2024-01-18
 ### Bugfix
 - Fix startup crashing when case management did not have `Elsa:Server:BaseUrl` and `Elsa:Server:BasePath` app settings configured.
