@@ -32,4 +32,13 @@ public interface IExtendedUserStore<TUser> where TUser : User
     /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp, CancellationToken cancellationToken);
+    /// <summary>
+    /// Sets the previous username in history for the specified user
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="previousUsername"></param>
+    /// <param name="dateCreated"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task SetUsernameChangeAsync(TUser user, string previousUsername, DateTimeOffset dateCreated, CancellationToken cancellationToken = default);
 }

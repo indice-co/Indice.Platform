@@ -223,4 +223,19 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
         }
         return IdentityResult.Success;
     }
+
+    /// <inheritdoc/>
+    public async Task SetUsernameChangeAsync(TUser user, string previousUsername, DateTimeOffset dateCreated, CancellationToken cancellationToken = default) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+
+        await Context.Set<UserUsername>()
+            .AddAsync(new UserUsername {
+                UserId = user.Id,
+                DateCreated = dateCreated,
+                PreviousUsername = previousUsername
+            }, cancellationToken);
+
+        await SaveChanges(cancellationToken);
+    }
 }

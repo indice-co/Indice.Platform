@@ -65,6 +65,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         TrustActivationDelay = configuration.GetIdentityOption<TimeSpan?>($"{nameof(IdentityOptions.User)}:Devices", nameof(TrustActivationDelay));
         EmailAsUserName = configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.User)}", nameof(EmailAsUserName)) ?? false;
         MfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
+        UsernameHistoryEnabled = configuration.GetValue<bool?>($"{IdentityServerFeatures.Section}:{nameof(IdentityServerFeatures.UsernameHistory)}") ?? false;
     }
 
     /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
@@ -81,6 +82,8 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     public int? DefaultAllowedRegisteredDevices { get; }
     /// <summary>Gets a flag indicating whether the backing user store supports user name that are the same as emails.</summary>
     public bool EmailAsUserName { get; }
+    /// <summary>Gets a flag indicating whether the UsernameHistory feature is enabled.</summary>
+    public bool UsernameHistoryEnabled { get; }
     /// <summary>MFA policy applied for new users.</summary>
     public MfaPolicy MfaPolicy { get; }
     /// <summary>Describes the state of the current principal.</summary>
@@ -152,6 +155,10 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var previousValue = user.UserName;
         var result = await base.SetUserNameAsync(user, userName);
         if (result.Succeeded) {
+            if (UsernameHistoryEnabled) {
+                var userStore = GetUserStore();
+                await userStore.SetUsernameChangeAsync(user, previousValue, DateTimeOffset.UtcNow);
+            }
             await _eventService.Publish(new UserNameChangedEvent(UserEventContext.InitializeFromUser(user), previousValue));
         }
         return result;

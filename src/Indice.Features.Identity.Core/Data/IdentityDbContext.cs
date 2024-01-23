@@ -34,6 +34,8 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
     public DbSet<UserDevice> UserDevices { get; set; }
     /// <summary>Application settings stored in the database.</summary>
     public DbSet<DbAppSetting> AppSettings { get; set; }
+    /// <summary>Stores all previous usernames of a user for auditing purposes.</summary>
+    public DbSet<UserUsername> UserUsernameHistory { get; set; }
 
     /// <summary>Configures schema needed for the Identity framework.</summary>
     /// <param name="builder">Class used to create and apply a set of data model conventions.</param>
@@ -45,6 +47,7 @@ public class IdentityDbContext<TUser, TRole> : IdentityDbContext<TUser, TRole, s
         builder.Entity<IdentityUserRole<string>>().ToTable("UserRole", "auth");
         builder.Entity<IdentityUserToken<string>>().ToTable("UserToken", "auth");
         builder.Entity<IdentityUserLogin<string>>().ToTable("UserLogin", "auth");
+        builder.ApplyConfiguration(new UserUsernameMap<TUser>());
         builder.ApplyConfiguration(new UserMap<TUser>());
         builder.ApplyConfiguration(new UserPasswordMap<TUser>());
         builder.ApplyConfiguration(new UserDeviceMap<TUser>());
