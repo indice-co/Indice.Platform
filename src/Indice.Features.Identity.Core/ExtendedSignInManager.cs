@@ -381,13 +381,10 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var userClaims = await ExtendedUserManager.GetClaimsAsync(user);
         var firstName = userClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.GivenName)?.Value;
         var lastName = userClaims.FirstOrDefault(x => x.Type == JwtClaimTypes.FamilyName)?.Value;
-        var isEmailConfirmed = await ExtendedUserManager.IsEmailConfirmedAsync(user);
-        var isPhoneConfirmed = await ExtendedUserManager.IsPhoneNumberConfirmedAsync(user);
+        var isEmailConfirmed = user.EmailConfirmed;
+        var isPhoneConfirmed = user.PhoneNumberConfirmed;
         var isPasswordExpired = user.HasExpiredPassword();
-        var userId = await ExtendedUserManager.GetUserIdAsync(user);
-        //var isEmailConfirmed = user.EmailConfirmed;
-        //var isPhoneConfirmed = user.PhoneNumberConfirmed;
-        //var userId = user.Id;
+        var userId = user.Id;
         var returnUrl = Context.Request.Query["ReturnUrl"];
         await Context.SignInAsync(scheme, ClaimsPrincipalFromValidationInfo(userId, deviceId, isEmailConfirmed, isPhoneConfirmed, isPasswordExpired, firstName, lastName, user.UserName, authenticationMethods), new AuthenticationProperties {
             RedirectUri = returnUrl,
@@ -397,7 +394,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     private async Task<bool> IsTfaEnabled(TUser user)
-        => ExtendedUserManager.SupportsUserTwoFactor && await ExtendedUserManager.GetTwoFactorEnabledAsync(user) && (await ExtendedUserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
+        => ExtendedUserManager.SupportsUserTwoFactor && user.TwoFactorEnabled && (await ExtendedUserManager.GetValidTwoFactorProvidersAsync(user)).Count > 0;
 
     private static ClaimsPrincipal ClaimsPrincipalFromValidationInfo(string userId, MfaDeviceIdentifier deviceId, bool isEmailConfirmed, bool isPhoneConfirmed, bool isPasswordExpired, string firstName, string lastName, string userName, string[] authenticationMethods) {
         var identity = new ClaimsIdentity(ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
@@ -501,10 +498,10 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             return;
         }
         await ResetLockout(user);
-        var claims = new List<Claim> {
-            new Claim(JwtClaimTypes.AuthenticationMethod, "pwd"),
-            new Claim(JwtClaimTypes.AuthenticationMethod, "mfa")
-        };
+        List<Claim> claims = [ 
+            new(JwtClaimTypes.AuthenticationMethod, "pwd"), 
+            new(JwtClaimTypes.AuthenticationMethod, "mfa") 
+        ];
         if (twoFactorInfo.LoginProvider is not null) {
             claims.Add(new Claim(ClaimTypes.AuthenticationMethod, twoFactorInfo.LoginProvider));
             await Context.SignOutAsync(IdentityConstants.ExternalScheme);
