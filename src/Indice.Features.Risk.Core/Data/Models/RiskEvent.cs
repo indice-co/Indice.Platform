@@ -5,8 +5,6 @@ public class RiskEvent
 {
     /// <summary>The unique id of the event.</summary>
     public Guid Id { get; internal set; }
-    /// <summary>The id of the associated transaction.</summary>
-    public string? TransactionId { get; set; }
     /// <summary>An amount relative to the event.</summary>
     public decimal? Amount { get; set; }
     /// <summary>The user IP address related to the event occurred.</summary>
@@ -23,4 +21,6 @@ public class RiskEvent
     public dynamic? Data { get; set; }
     /// <summary>The Id of the source that posted the event.</summary>
     public string? SourceId { get; set; }
+    /// <summary>The id of the associated transaction.</summary>
+    public string? SourceTransId { get; set; }
 }
