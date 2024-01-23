@@ -465,8 +465,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var deviceIdentity = new ClaimsIdentity(IdentityConstants.TwoFactorRememberMeScheme);
         deviceIdentity.AddClaim(new Claim(JwtClaimTypes.Name, userId));
         if (ExtendedUserManager.SupportsUserSecurityStamp) {
-            var stamp = await ExtendedUserManager.GetSecurityStampAsync(user);
-            deviceIdentity.AddClaim(new Claim(Options.ClaimsIdentity.SecurityStampClaimType, stamp));
+            deviceIdentity.AddClaim(new Claim(Options.ClaimsIdentity.SecurityStampClaimType, user.SecurityStamp ?? string.Empty));
         }
         return new ClaimsPrincipal(deviceIdentity);
     }
