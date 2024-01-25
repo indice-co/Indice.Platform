@@ -70,7 +70,7 @@ public static class IServiceCollectionFileExtensions
 
     /// <summary>Adds <see cref="FileServiceInMemory"/> implementation.</summary>
     public static FileServiceConfigurationBuilder AddFilesInMemory(this FileServiceConfigurationBuilder builder, string name) {
-        builder.Services.AddKeyedService<IFileService, FileServiceInMemory, string>(name, serviceLifetime: ServiceLifetime.Transient);
+        builder.Services.AddKeyedTransient<IFileService, FileServiceInMemory>(serviceKey: name);
         return builder;
     }
 
@@ -82,11 +82,7 @@ public static class IServiceCollectionFileExtensions
 
     /// <summary>Adds <see cref="FileServiceLocal"/> implementation.</summary>
     public static FileServiceConfigurationBuilder AddFileSystem(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceLocalOptions> configure = null) {
-        builder.Services.AddKeyedService<IFileService, FileServiceLocal, string>(
-            key: name,
-            serviceProvider => GetFileServiceLocal(serviceProvider, configure),
-            serviceLifetime: ServiceLifetime.Transient
-        );
+        builder.Services.AddKeyedTransient<IFileService, FileServiceLocal>(serviceKey: name, implementationFactory: (sp, serviceKey) => GetFileServiceLocal(sp, configure));
         return builder;
     }
 
@@ -98,11 +94,7 @@ public static class IServiceCollectionFileExtensions
 
     /// <summary>Adds <see cref="FileServiceAzureStorage"/> implementation.</summary>
     public static FileServiceConfigurationBuilder AddAzureStorage(this FileServiceConfigurationBuilder builder, string name, Action<FileServiceAzureOptions> configure = null) {
-        builder.Services.AddKeyedService<IFileService, FileServiceAzureStorage, string>(
-            key: name,
-            serviceProvider => GetFileServiceAzureStorage(serviceProvider, configure),
-            serviceLifetime: ServiceLifetime.Transient
-        );
+        builder.Services.AddKeyedTransient<IFileService, FileServiceAzureStorage>(serviceKey: name, implementationFactory: (sp, serviceKey) => GetFileServiceAzureStorage(sp, configure));
         return builder;
     }
 
