@@ -170,7 +170,7 @@ internal class ResourcesController : ControllerBase
     [HttpPost("identity/{resourceId:int}/claims")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
-    [CacheResourceFilter(DependentPaths = new string[] { "identity/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["identity/{resourceId}"])]
     public async Task<IActionResult> AddIdentityResourceClaims([FromRoute] int resourceId, [FromBody] string[] claims) {
         var resource = await _configurationDbContext.IdentityResources.SingleOrDefaultAsync(x => x.Id == resourceId);
         if (resource == null) {
@@ -191,7 +191,7 @@ internal class ResourcesController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "identity/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["identity/{resourceId}"])]
     [HttpDelete("identity/{resourceId:int}/claims/{claim}")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -420,7 +420,7 @@ internal class ResourcesController : ControllerBase
     /// <response code="200">OK</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["protected/{resourceId}"])]
     [HttpPost("protected/{resourceId:int}/secrets")]
     [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SecretInfo))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -454,7 +454,7 @@ internal class ResourcesController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["protected/{resourceId}"])]
     [HttpDelete("protected/{resourceId:int}/secrets/{secretId}")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -481,7 +481,7 @@ internal class ResourcesController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["protected/{resourceId}"])]
     [HttpPost("protected/{resourceId:int}/claims")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -505,7 +505,7 @@ internal class ResourcesController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["protected/{resourceId}"])]
     [HttpDelete("protected/{resourceId:int}/claims/{claim}")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -533,7 +533,7 @@ internal class ResourcesController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["protected/{resourceId}"])]
     [HttpPost("protected/{resourceId:int}/scopes")]
     [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ApiScopeInfo))]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -591,7 +591,7 @@ internal class ResourcesController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["protected/{resourceId}"])]
     [HttpPut("protected/{resourceId:int}/scopes/{scopeId:int}")]
     [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -622,7 +622,7 @@ internal class ResourcesController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["protected/{resourceId}"])]
     [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -652,7 +652,7 @@ internal class ResourcesController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["protected/{resourceId}"])]
     [HttpPost("protected/{resourceId:int}/scopes/{scopeId:int}/claims")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -682,7 +682,7 @@ internal class ResourcesController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "protected/{resourceId}" })]
+    [CacheResourceFilter(DependentPaths = ["protected/{resourceId}"])]
     [HttpDelete("protected/{resourceId:int}/scopes/{scopeId:int}/claims/{claim}")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]

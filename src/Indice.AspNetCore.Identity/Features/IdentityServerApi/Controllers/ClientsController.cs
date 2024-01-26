@@ -210,7 +210,7 @@ internal class ClientsController : ControllerBase
     /// <response code="201">Created</response>
     /// <response code="400">Bad Request</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentStaticPaths = new string[] { "api/dashboard/summary" })]
+    [CacheResourceFilter(DependentStaticPaths = ["api/dashboard/summary"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpPost]
     [Produces(MediaTypeNames.Application.Json)]
@@ -308,7 +308,7 @@ internal class ClientsController : ControllerBase
     /// <response code="201">Created</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
+    [CacheResourceFilter(DependentPaths = ["{clientId}"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpPost("{clientId}/claims")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -342,7 +342,7 @@ internal class ClientsController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
+    [CacheResourceFilter(DependentPaths = ["{clientId}"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpDelete("{clientId}/claims/{claimId:int}")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -371,7 +371,7 @@ internal class ClientsController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
+    [CacheResourceFilter(DependentPaths = ["{clientId}"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpPost("{clientId}/urls")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -418,7 +418,7 @@ internal class ClientsController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
+    [CacheResourceFilter(DependentPaths = ["{clientId}"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpPost("{clientId}/resources")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -444,7 +444,7 @@ internal class ClientsController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
+    [CacheResourceFilter(DependentPaths = ["{clientId}"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpDelete("{clientId}/resources")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -475,7 +475,7 @@ internal class ClientsController : ControllerBase
     /// <response code="200">OK</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
+    [CacheResourceFilter(DependentPaths = ["{clientId}"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpPost("{clientId}/grant-types/{grantType}")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -506,7 +506,7 @@ internal class ClientsController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
+    [CacheResourceFilter(DependentPaths = ["{clientId}"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpDelete("{clientId}/grant-types/{grantType}")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -535,7 +535,7 @@ internal class ClientsController : ControllerBase
     /// <response code="201">Created</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
+    [CacheResourceFilter(DependentPaths = ["{clientId}"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpPost("{clientId}/secrets")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -573,7 +573,7 @@ internal class ClientsController : ControllerBase
     [AllowedFileExtensions(".cer")]
     [AllowedFileSize(2097152)] // 2 MegaBytes
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
+    [CacheResourceFilter(DependentPaths = ["{clientId}"])]
     [Consumes("multipart/form-data")]
     [HttpPost("{clientId}/certificates")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -704,7 +704,7 @@ internal class ClientsController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{clientId}" })]
+    [CacheResourceFilter(DependentPaths = ["{clientId}"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpDelete("{clientId}/secrets/{secretId}")]
     [Produces(MediaTypeNames.Application.Json)]
@@ -732,7 +732,7 @@ internal class ClientsController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeClientsWriter)]
-    [CacheResourceFilter(DependentStaticPaths = new string[] { "api/dashboard/summary" })]
+    [CacheResourceFilter(DependentStaticPaths = ["api/dashboard/summary"])]
     [Consumes(MediaTypeNames.Application.Json)]
     [HttpDelete("{clientId}")]
     [Produces(MediaTypeNames.Application.Json)]
