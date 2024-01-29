@@ -32,6 +32,9 @@ public abstract class CasesApiOptions
 
     /// <summary>Enables the Case `ReferenceNumber` feature. Defaults to <see langword="false"/>.</summary>
     public bool ReferenceNumberEnabled { get; set; }
+
+    /// <summary>Specifies the permitted file extensions to check when uploading an attachment to an existing case.</summary>
+    public IReadOnlyCollection<string> PermittedAttachmentFileExtensions { get; set; } = CasesApiConstants.DefaultPermittedAttachmentFileExtensions;
 }
 
 /// <summary>

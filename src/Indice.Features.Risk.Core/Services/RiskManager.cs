@@ -62,4 +62,11 @@ public class RiskManager
         }
         return new AggregateRuleExecutionResult(@event.Id, Rules.Count(), results);
     }
+
+    /// <summary>Adds an event Id to risk result.</summary>
+    /// <param name="resultId">The Id of the risk result.</param>
+    /// <param name="eventId">The Id of the risk event.</param>
+    internal async Task AddEventIdToRiskResultAsync(Guid resultId, Guid eventId) {
+        await _riskResultStore.AddEventIdAsync(resultId, eventId);
+    }
 }

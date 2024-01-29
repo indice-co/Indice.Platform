@@ -14,6 +14,7 @@ public class PhoneNumberFormatInfo : IFormatProvider, ICustomFormatter
         var phoneNumber = (PhoneNumber)arg;
         return format.ToUpperInvariant() switch {
             "G" => $"+{phoneNumber.CallingCode} {phoneNumber.Number}",
+            "O" => $"+{phoneNumber.CallingCode}{phoneNumber.Number}",
             "A" => $"{phoneNumber.CallingCode} {phoneNumber.Number}",
             "D" => $"{phoneNumber.CallingCode.TrimStart('0').Replace("-", "")}{phoneNumber.Number}",
             "N" => phoneNumber.TwoLetterCountryCode == "GR" ? phoneNumber.Number : $"+{phoneNumber.CallingCode} {phoneNumber.Number}",

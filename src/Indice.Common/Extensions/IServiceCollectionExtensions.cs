@@ -35,6 +35,7 @@ public static class IServiceCollectionExtensions
     /// <summary>Adds a fugazi implementation of <see cref="IPushNotificationService"/> that does nothing.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static IServiceCollection AddPushNotificationServiceNoop(this IServiceCollection services) {
+        services.TryAddTransient<IPushNotificationServiceFactory, DefaultPushNotificationServiceFactory>();
         services.TryAddSingleton<IPushNotificationService, PushNotificationServiceNoop>();
         return services;
     }
@@ -49,6 +50,7 @@ public static class IServiceCollectionExtensions
     /// <summary>Adds a fugazi implementation of <see cref="ILockManager"/> that does nothing.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static IServiceCollection AddEventDispatcherNoop(this IServiceCollection services) {
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
         services.TryAddSingleton<IEventDispatcher, EventDispatcherNoop>();
         return services;
     }

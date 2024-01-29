@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace Indice.Features.Messages.AspNetCore;
 
-internal class MessageFeatureProvider : IApplicationFeatureProvider<ControllerFeature>
+internal class MessageFeatureProvider(bool includeManagementApi = true, bool includeInboxApi = true) : IApplicationFeatureProvider<ControllerFeature>
 {
     private static IReadOnlyList<TypeInfo> ManagementApiControllerTypes => new List<TypeInfo>() {
         typeof(CampaignsController).GetTypeInfo(),
@@ -21,13 +21,8 @@ internal class MessageFeatureProvider : IApplicationFeatureProvider<ControllerFe
         typeof(TrackingController).GetTypeInfo()
     };
 
-    public MessageFeatureProvider(bool includeManagementApi = true, bool includeInboxApi = true) {
-        IncludeManagementApi = includeManagementApi;
-        IncludeInboxApi = includeInboxApi;
-    }
-
-    public bool IncludeManagementApi { get; }
-    public bool IncludeInboxApi { get; }
+    public bool IncludeManagementApi { get; } = includeManagementApi;
+    public bool IncludeInboxApi { get; } = includeInboxApi;
 
     public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {
         if (IncludeManagementApi) {

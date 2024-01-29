@@ -414,7 +414,7 @@ internal class UsersController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+    [CacheResourceFilter(DependentPaths = ["{userId}"])]
     [HttpDelete("{userId}/roles/{roleId}")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -470,7 +470,7 @@ internal class UsersController : ControllerBase
     /// <response code="201">Created</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+    [CacheResourceFilter(DependentPaths = ["{userId}"])]
     [HttpPost("{userId}/claims")]
     [ProducesResponseType(statusCode: StatusCodes.Status201Created, type: typeof(ClaimInfo))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -500,7 +500,7 @@ internal class UsersController : ControllerBase
     /// <response code="200">OK</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+    [CacheResourceFilter(DependentPaths = ["{userId}"])]
     [HttpPut("{userId}/claims/{claimId}")]
     [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(ClaimInfo))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -524,7 +524,7 @@ internal class UsersController : ControllerBase
     /// <response code="204">No Content</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+    [CacheResourceFilter(DependentPaths = ["{userId}"])]
     [HttpDelete("{userId}/claims/{claimId}")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent)]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ProblemDetails))]
@@ -656,7 +656,7 @@ internal class UsersController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+    [CacheResourceFilter(DependentPaths = ["{userId}"])]
     [HttpPut("{userId}/block")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status404NotFound, type: typeof(ValidationProblemDetails))]
@@ -679,7 +679,7 @@ internal class UsersController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+    [CacheResourceFilter(DependentPaths = ["{userId}"])]
     [HttpPut("{userId}/unlock")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]
@@ -707,7 +707,7 @@ internal class UsersController : ControllerBase
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersWriter)]
-    [CacheResourceFilter(DependentPaths = new string[] { "{userId}" })]
+    [CacheResourceFilter(DependentPaths = ["{userId}"])]
     [HttpPut("{userId}/set-password")]
     [ProducesResponseType(statusCode: StatusCodes.Status204NoContent, type: typeof(void))]
     [ProducesResponseType(statusCode: StatusCodes.Status400BadRequest, type: typeof(ValidationProblemDetails))]

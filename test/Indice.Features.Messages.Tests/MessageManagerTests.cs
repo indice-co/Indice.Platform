@@ -46,12 +46,11 @@ public class MessageManagerTests : IAsyncDisposable
             .AddTransient<ITemplateService, TemplateService>()
             .AddTransient<CreateCampaignRequestValidator>()
             .AddTransient<CreateMessageTypeRequestValidator>()
-            .AddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop())
+            .AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>()
             .AddTransient(serviceProvider => new DatabaseSchemaNameResolver("cmp"))
             .AddTransient<IUserNameAccessor, UserNameAccessorNoOp>()
             .AddTransient<UserNameAccessorAggregate>()
-            .AddKeyedService<IFileService, FileServiceInMemory, string>(KeyedServiceNames.FileServiceKey, ServiceLifetime.Singleton)
-            .AddFiles(x => x.AddFilesInMemory())
+            .AddFiles(x => x.AddFilesInMemory(KeyedServiceNames.FileServiceKey))
             .AddOptions()
             .Configure<MessageManagementOptions>(configuration);
         ServiceProvider = services.BuildServiceProvider();

@@ -17,18 +17,13 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [Route("_tracking")]
-internal class TrackingController : ControllerBase
+internal class TrackingController(
+    ICampaignService campaignService,
+    IOptions<MessageInboxOptions> campaignEndpointOptions
+    ) : ControllerBase
 {
-    public TrackingController(
-        ICampaignService campaignService,
-        IOptions<MessageInboxOptions> campaignEndpointOptions
-    ) {
-        CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
-        CampaignInboxOptions = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
-    }
-    
-    public ICampaignService CampaignService { get; }
-    public MessageInboxOptions CampaignInboxOptions { get; }
+    public ICampaignService CampaignService { get; } = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
+    public MessageInboxOptions CampaignInboxOptions { get; } = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
     public string UserCode => User.FindFirstValue(CampaignInboxOptions.UserClaimType);
 
     [AllowAnonymous]

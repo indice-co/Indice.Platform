@@ -26,39 +26,28 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 [Route($"{ApiPrefixes.CampaignManagementEndpoints}/campaigns")]
-internal class CampaignsController : CampaignsControllerBase
+internal class CampaignsController(
+    ICampaignService campaignService,
+    IDistributionListService distributionListService,
+    IContactService contactService,
+    IFileServiceFactory fileServiceFactory,
+    IEventDispatcherFactory eventDispatcherFactory,
+    IOptions<GeneralSettings> generalSettings,
+    IPlatformEventService eventService,
+    ICampaignAttachmentService campaignAttachmentService,
+    NotificationsManager notificationsManager
+    ) : CampaignsControllerBase(fileServiceFactory)
 {
     public const string Name = "Campaigns";
 
-    public CampaignsController(
-        ICampaignService campaignService,
-        IDistributionListService distributionListService,
-        IContactService contactService,
-        Func<string, IFileService> getFileService,
-        Func<string, IEventDispatcher> getEventDispatcher,
-        IOptions<GeneralSettings> generalSettings,
-        IPlatformEventService eventService,
-        ICampaignAttachmentService campaignAttachmentService,
-        NotificationsManager notificationsManager
-    ) : base(getFileService) {
-        CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
-        DistributionListService = distributionListService ?? throw new ArgumentNullException(nameof(distributionListService));
-        ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
-        EventService = eventService ?? throw new ArgumentNullException(nameof(eventService));
-        CampaignAttachmentService = campaignAttachmentService ?? throw new ArgumentNullException(nameof(campaignAttachmentService));
-        NotificationsManager = notificationsManager ?? throw new ArgumentNullException(nameof(notificationsManager));
-        GeneralSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
-        EventDispatcher = getEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
-    }
-
-    public ICampaignService CampaignService { get; }
-    public IDistributionListService DistributionListService { get; }
-    public IContactService ContactService { get; }
-    public IPlatformEventService EventService { get; }
-    public ICampaignAttachmentService CampaignAttachmentService { get; }
-    public NotificationsManager NotificationsManager { get; }
-    public GeneralSettings GeneralSettings { get; }
-    public IEventDispatcher EventDispatcher { get; }
+    public ICampaignService CampaignService { get; } = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
+    public IDistributionListService DistributionListService { get; } = distributionListService ?? throw new ArgumentNullException(nameof(distributionListService));
+    public IContactService ContactService { get; } = contactService ?? throw new ArgumentNullException(nameof(contactService));
+    public IPlatformEventService EventService { get; } = eventService ?? throw new ArgumentNullException(nameof(eventService));
+    public ICampaignAttachmentService CampaignAttachmentService { get; } = campaignAttachmentService ?? throw new ArgumentNullException(nameof(campaignAttachmentService));
+    public NotificationsManager NotificationsManager { get; } = notificationsManager ?? throw new ArgumentNullException(nameof(notificationsManager));
+    public GeneralSettings GeneralSettings { get; } = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
+    public IEventDispatcher EventDispatcher { get; } = eventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey) ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
 
     /// <summary>Gets the list of all campaigns using the provided <see cref="ListOptions"/>.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

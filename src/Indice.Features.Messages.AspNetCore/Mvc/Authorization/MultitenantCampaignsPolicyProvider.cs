@@ -6,22 +6,16 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.AspNetCore.Mvc.Authorization;
 
-internal class MultitenantCampaignsPolicyProvider : IAuthorizationPolicyProvider
+internal class MultitenantCampaignsPolicyProvider(
+    IOptions<AuthorizationOptions> options,
+    IOptions<MessageManagementOptions> apiOptions,
+    IOptions<MessageMultitenancyOptions> multitenancyOptions
+    ) : IAuthorizationPolicyProvider
 {
-    private readonly MessageManagementOptions _apiOptions;
-    private readonly MessageMultitenancyOptions _multitenancyOptions;
+    private readonly MessageManagementOptions _apiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
+    private readonly MessageMultitenancyOptions _multitenancyOptions = multitenancyOptions?.Value ?? throw new ArgumentNullException(nameof(multitenancyOptions));
 
-    public MultitenantCampaignsPolicyProvider(
-        IOptions<AuthorizationOptions> options,
-        IOptions<MessageManagementOptions> apiOptions,
-        IOptions<MessageMultitenancyOptions> multitenancyOptions
-    ) {
-        FallbackPolicyProvider = new DefaultAuthorizationPolicyProvider(options);
-        _apiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
-        _multitenancyOptions = multitenancyOptions?.Value ?? throw new ArgumentNullException(nameof(multitenancyOptions));
-    }
-
-    public DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; }
+    public DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; } = new DefaultAuthorizationPolicyProvider(options);
 
     public Task<AuthorizationPolicy> GetDefaultPolicyAsync() => FallbackPolicyProvider.GetDefaultPolicyAsync();
 
