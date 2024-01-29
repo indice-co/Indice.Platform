@@ -42,8 +42,10 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <summary>Adds an Azure specific implementation of <see cref="IPushNotificationService"/> for sending push notifications.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
-    public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>
-        services.AddTransient<IPushNotificationService>(serviceProvider => GetPushNotificationServiceAzure(serviceProvider, configure));
+    public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) {
+        services.TryAddTransient<IPushNotificationServiceFactory, DefaultPushNotificationServiceFactory>();
+        return services.AddTransient<IPushNotificationService>(serviceProvider => GetPushNotificationServiceAzure(serviceProvider, configure));
+    }
 
     /// <summary>
     /// Adds an Azure specific implementation, under the specified key, of <see cref="IPushNotificationService"/> for sending push notifications.
@@ -52,8 +54,11 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="name">The key under which the specified implementation is registered.</param>
     /// <param name="configure">Configure the available options for push notifications. Null to use defaults.</param>
-    public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, string name, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) =>
+    public static IServiceCollection AddPushNotificationServiceAzure(this IServiceCollection services, string name, Action<IServiceProvider, PushNotificationAzureOptions> configure = null) {
+        services.TryAddTransient<IPushNotificationServiceFactory, DefaultPushNotificationServiceFactory>();
         services.AddKeyedTransient<IPushNotificationService, PushNotificationServiceAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetPushNotificationServiceAzure(serviceProvider, configure));
+        return services;
+    }
     
     /// <summary>Adds an instance of <see cref="IEmailService"/> using SMTP settings in configuration.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
@@ -214,21 +219,25 @@ public static class IndiceServicesServiceCollectionExtensions
     /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
-        services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => GetEventDispatcherAzure(serviceProvider, configure));
+    public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) {
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        return services.AddTransient<IEventDispatcher, EventDispatcherAzure>(serviceProvider => GetEventDispatcherAzure(serviceProvider, configure));
+    }
 
     /// <summary>Adds <see cref="IEventDispatcher"/> using Azure Storage as a queuing mechanism.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="name">The key under which the specified implementation is registered.</param>
     /// <param name="configure">Configure the available options. Null to use defaults.</param>
-    public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) =>
-        services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzure(serviceProvider, configure));
+    public static IServiceCollection AddEventDispatcherAzure(this IServiceCollection services, string name, Action<IServiceProvider, EventDispatcherAzureOptions> configure = null) {
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        return services.AddKeyedTransient<IEventDispatcher, EventDispatcherAzure>(serviceKey: name, implementationFactory: (serviceProvider, serviceKey) => GetEventDispatcherAzure(serviceProvider, configure));
+    }
 
     /// <summary>Adds <see cref="IEventDispatcher"/> using an in-memory <seealso cref="Queue"/> as a backing store.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static IServiceCollection AddEventDispatcherInMemory(this IServiceCollection services) {
-        services.AddTransient<IEventDispatcher, EventDispatcherInMemory>();
-        return services;
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        return services.AddTransient<IEventDispatcher, EventDispatcherInMemory>();
     }
 
     /// <summary>Registers an implementation of <see cref="ILockManager"/> that uses Microsoft Azure Blob Storage as a backing store.</summary>

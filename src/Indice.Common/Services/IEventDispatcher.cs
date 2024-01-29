@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Services;
 
@@ -124,3 +125,25 @@ public class EventDispatcherRaiseOptionsBuilder : IEventDispatcherRaiseOptionsBu
         return this;
     }
 }
+
+/// <summary>
+/// Used to create named instances of an <see cref="IEventDispatcher"/>.
+/// </summary>
+public interface IEventDispatcherFactory
+{
+    /// <summary>Creates an instance of an <see cref="IEventDispatcher"/></summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    IEventDispatcher Create(string name);
+}
+
+/// <inheritdoc/>
+/// <remarks>Default implementation using DI <see cref="IServiceProvider"/> and keyed service resolution</remarks>
+public class DefaultEventDispatcherFactory(IServiceProvider serviceProvider) : IEventDispatcherFactory
+{
+    private IServiceProvider _serviceProvider { get; } = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+    /// <inheritdoc />
+    public IEventDispatcher Create(string name) => _serviceProvider.GetKeyedService<IEventDispatcher>(name) ?? new EventDispatcherNoop();
+}
+

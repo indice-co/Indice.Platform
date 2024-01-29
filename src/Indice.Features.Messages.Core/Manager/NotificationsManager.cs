@@ -11,37 +11,26 @@ using Indice.Types;
 namespace Indice.Features.Messages.Core.Manager;
 
 /// <summary>A manager class that helps work with the Campaigns API infrastructure.</summary>
-public class NotificationsManager
+/// <remarks>Creates a new instance of <see cref="NotificationsManager"/>.</remarks>
+public class NotificationsManager(
+    ICampaignService campaignService,
+    ICampaignAttachmentService campaignAttachmentService,
+    IMessageTypeService messageTypeService,
+    IDistributionListService distributionListService,
+    ITemplateService templateService,
+    CreateCampaignRequestValidator createCampaignValidator,
+    CreateMessageTypeRequestValidator messageTypeValidator,
+    IEventDispatcherFactory eventDispatcherFactory
+    )
 {
-    /// <summary>Creates a new instance of <see cref="NotificationsManager"/>.</summary>
-    public NotificationsManager(
-        ICampaignService campaignService,
-        ICampaignAttachmentService campaignAttachmentService,
-        IMessageTypeService messageTypeService,
-        IDistributionListService distributionListService,
-        ITemplateService templateService,
-        CreateCampaignRequestValidator createCampaignValidator,
-        CreateMessageTypeRequestValidator messageTypeValidator,
-        Func<string, IEventDispatcher> getEventDispatcher
-    ) {
-        CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
-        CampaignAttachmentService = campaignAttachmentService ?? throw new ArgumentNullException(nameof(campaignAttachmentService));
-        MessageTypeService = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
-        DistributionListService = distributionListService ?? throw new ArgumentNullException(nameof(distributionListService));
-        TemplateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
-        CreateCampaignValidator = createCampaignValidator ?? throw new ArgumentNullException(nameof(createCampaignValidator));
-        MessageTypeValidator = messageTypeValidator ?? throw new ArgumentNullException(nameof(messageTypeValidator));
-        EventDispatcher = getEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey) ?? throw new ArgumentNullException(nameof(getEventDispatcher));
-    }
-
-    private ICampaignService CampaignService { get; }
-    private ICampaignAttachmentService CampaignAttachmentService { get; }
-    private IMessageTypeService MessageTypeService { get; }
-    private IDistributionListService DistributionListService { get; }
-    private ITemplateService TemplateService { get; }
-    private CreateCampaignRequestValidator CreateCampaignValidator { get; }
-    private CreateMessageTypeRequestValidator MessageTypeValidator { get; }
-    private IEventDispatcher EventDispatcher { get; }
+    private ICampaignService CampaignService { get; } = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
+    private ICampaignAttachmentService CampaignAttachmentService { get; } = campaignAttachmentService ?? throw new ArgumentNullException(nameof(campaignAttachmentService));
+    private IMessageTypeService MessageTypeService { get; } = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
+    private IDistributionListService DistributionListService { get; } = distributionListService ?? throw new ArgumentNullException(nameof(distributionListService));
+    private ITemplateService TemplateService { get; } = templateService ?? throw new ArgumentNullException(nameof(templateService));
+    private CreateCampaignRequestValidator CreateCampaignValidator { get; } = createCampaignValidator ?? throw new ArgumentNullException(nameof(createCampaignValidator));
+    private CreateMessageTypeRequestValidator MessageTypeValidator { get; } = messageTypeValidator ?? throw new ArgumentNullException(nameof(messageTypeValidator));
+    private IEventDispatcher EventDispatcher { get; } = eventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey) ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
 
     /// <summary>Creates a new campaign.</summary>
     /// <param name="campaign">The request model used to create a new campaign.</param>

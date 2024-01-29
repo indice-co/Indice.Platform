@@ -1,4 +1,6 @@
-﻿namespace Indice.Services;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace Indice.Services;
 
 /// <summary>Factory for <see cref="IFileService"/>.</summary>
 public interface IFileServiceFactory
@@ -24,4 +26,23 @@ public static class IFileServiceFactoryExtensions
     /// <returns>The <see cref="IFileService"/> for the requested channel.</returns>
     /// <exception cref="NotSupportedException"></exception>
     public static IFileService Create(this IFileServiceFactory factory) => factory.Create(null);
+}
+
+
+/// <summary>Default Service factory. Makes use of keyed services</summary>
+public class DefaultFileServiceFactory : IFileServiceFactory
+{
+    private readonly IServiceProvider _serviceProvider;
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="serviceProvider"></param>
+    public DefaultFileServiceFactory(IServiceProvider serviceProvider) {
+        _serviceProvider = serviceProvider;
+    }
+
+    /// <inheritdoc/>
+    public IFileService Create(string name) => name is null ? 
+                                               _serviceProvider.GetRequiredService<IFileService>() : _serviceProvider.GetKeyedService<IFileService>(name);
 }

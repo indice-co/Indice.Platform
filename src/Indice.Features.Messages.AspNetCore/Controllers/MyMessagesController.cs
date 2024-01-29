@@ -21,25 +21,18 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [Route(ApiPrefixes.MessageInboxEndpoints)]
-internal class MyMessagesController : CampaignsControllerBase
+internal class MyMessagesController(
+    IMessageService messageService,
+    ICampaignService campaignService,
+    IMessageTypeService messageTypeService,
+    IOptions<MessageInboxOptions> campaignEndpointOptions,
+    IFileServiceFactory fileServiceFactory
+    ) : CampaignsControllerBase(fileServiceFactory)
 {
-    public MyMessagesController(
-        IMessageService messageService,
-        ICampaignService campaignService,
-        IMessageTypeService messageTypeService,
-        IOptions<MessageInboxOptions> campaignEndpointOptions,
-        Func<string, IFileService> getFileService
-    ) : base(getFileService) {
-        MessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
-        CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
-        MessageTypeService = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
-        CampaignInboxOptions = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
-    }
-
-    public IMessageService MessageService { get; }
-    public ICampaignService CampaignService { get; }
-    public IMessageTypeService MessageTypeService { get; }
-    public MessageInboxOptions CampaignInboxOptions { get; }
+    public IMessageService MessageService { get; } = messageService ?? throw new ArgumentNullException(nameof(messageService));
+    public ICampaignService CampaignService { get; } = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
+    public IMessageTypeService MessageTypeService { get; } = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
+    public MessageInboxOptions CampaignInboxOptions { get; } = campaignEndpointOptions?.Value ?? throw new ArgumentNullException(nameof(campaignEndpointOptions));
     public string UserCode => User.FindFirstValue(CampaignInboxOptions.UserClaimType);
 
     /// <summary>Gets the list of all user messages using the provided <see cref="ListOptions"/>.</summary>

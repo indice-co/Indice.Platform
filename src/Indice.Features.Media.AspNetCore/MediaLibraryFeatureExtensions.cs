@@ -41,7 +41,8 @@ public static class MediaLibraryFeatureExtensions
         services.TryAddTransient<IMediaSettingService, MediaSettingService>();
         services.TryAddTransient<IUserNameAccessor, UserNameFromHttpContextAccessor>();
         services.TryAddTransient<MediaManager>();
-        services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());
+        services.TryAddTransient<IFileService, FileServiceNoop>(); // registers default fileservice factory plus no op fileservice
+        services.TryAddScoped<IFileServiceFactory, DefaultFileServiceFactory>(); // registers default fileservice factory plus no op fileservice
         // Register validators
         services.AddEndpointParameterFluentValidation(typeof(MediaLibraryApi).Assembly);
         if (!apiOptions.UseSoftDelete) {

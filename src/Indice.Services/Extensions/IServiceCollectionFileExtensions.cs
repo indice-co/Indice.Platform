@@ -1,5 +1,6 @@
 ﻿using Indice.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -48,16 +49,23 @@ public static class IServiceCollectionFileExtensions
     /// <summary>Adds <see cref="IFileService"/> using in-memory storage as the backing store. Only for testing purposes.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     public static IServiceCollection AddFilesInMemory(this IServiceCollection services) {
+        services.AddSingleton<IFileService, FileServiceInMemory>();
+        return services;
+    }
+
+    /// <summary>Adds <see cref="IFileService"/> using in-memory storage as the backing store. Only for testing purposes.</summary>
+    /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
+    public static IServiceCollection AddFilesNoop(this IServiceCollection services) {
         services.AddTransient<IFileService, FileServiceInMemory>();
         return services;
     }
 
     /// <summary>Adds <see cref="IFileService"/> using in-memory storage as the backing store. Only for testing purposes.</summary>
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
-    /// <param name="configure">Configuration action.</param>
-    public static IServiceCollection AddFiles(this IServiceCollection services, Action<FileServiceConfigurationBuilder> configure) {
+    /// <param name="configure">Configuration action. To configure additional services</param>
+    public static IServiceCollection AddFiles(this IServiceCollection services, Action<FileServiceConfigurationBuilder> configure = null) {
         var builder = new FileServiceConfigurationBuilder(services);
-        services.AddScoped<IFileServiceFactory, DefaultFileServiceFactory>();
+        services.TryAddScoped<IFileServiceFactory, DefaultFileServiceFactory>();
         configure?.Invoke(builder);
         return services;
     }
@@ -70,7 +78,7 @@ public static class IServiceCollectionFileExtensions
 
     /// <summary>Adds <see cref="FileServiceInMemory"/> implementation.</summary>
     public static FileServiceConfigurationBuilder AddFilesInMemory(this FileServiceConfigurationBuilder builder, string name) {
-        builder.Services.AddKeyedTransient<IFileService, FileServiceInMemory>(serviceKey: name);
+        builder.Services.AddKeyedSingleton<IFileService, FileServiceInMemory>(serviceKey: name);
         return builder;
     }
 
@@ -109,16 +117,6 @@ public static class IServiceCollectionFileExtensions
 
         /// <summary>Specifies the contract for a collection of service descriptors.</summary>
         public IServiceCollection Services { get; }
-    }
-
-    internal class DefaultFileServiceFactory : IFileServiceFactory
-    {
-        private readonly IServiceProvider _serviceProvider;
-
-        public DefaultFileServiceFactory(IServiceProvider serviceProvider) {
-            _serviceProvider = serviceProvider;
-        }
-
-        public IFileService Create(string name) => name is null ? _serviceProvider.GetRequiredService<IFileService>() : _serviceProvider.GetRequiredService<Func<string, IFileService>>()?.Invoke(name);
-    }
+    }   
 }
+

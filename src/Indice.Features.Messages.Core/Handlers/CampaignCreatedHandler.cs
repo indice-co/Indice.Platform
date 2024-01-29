@@ -11,18 +11,18 @@ namespace Indice.Features.Messages.Core.Handlers;
 public sealed class CampaignCreatedHandler : ICampaignJobHandler<CampaignCreatedEvent>
 {
     /// <summary>Creates a new instance of <see cref="CampaignCreatedHandler"/>.</summary>
-    /// <param name="getEventDispatcher">Provides methods that allow application components to communicate with each other by dispatching events.</param>
+    /// <param name="eventDispatcherFactory">Provides methods that allow application components to communicate with each other by dispatching events.</param>
     /// <param name="contactService">A service that contains contact related operations.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public CampaignCreatedHandler(
-        Func<string, IEventDispatcher> getEventDispatcher,
+        IEventDispatcherFactory eventDispatcherFactory,
         IContactService contactService
     ) {
-        GetEventDispatcher = getEventDispatcher ?? throw new ArgumentNullException(nameof(getEventDispatcher));
+        EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
         ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
     }
 
-    private Func<string, IEventDispatcher> GetEventDispatcher { get; }
+    private IEventDispatcherFactory EventDispatcherFactory { get; }
     private IContactService ContactService { get; }
 
     /// <summary>Distributes a campaign for further processing base on the <see cref="CampaignCreatedEvent.MessageChannelKind"/>.</summary>
@@ -30,7 +30,7 @@ public sealed class CampaignCreatedHandler : ICampaignJobHandler<CampaignCreated
     public async Task Process(CampaignCreatedEvent campaign) {
         // If campaign is global and has push notification as delivery channel, then we short-circuit the flow and we immediately broadcast the message.
         if (campaign.IsGlobal && campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
-            var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
+            var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
             await eventDispatcher.RaiseEventAsync(
                 payload: SendPushNotificationEvent.FromCampaignCreatedEvent(campaign, broadcast: true),
                 configure: builder =>
@@ -50,7 +50,7 @@ public sealed class CampaignCreatedHandler : ICampaignJobHandler<CampaignCreated
                 });
                 contacts.AddRange(contactsResultSet.Items);
             }
-            var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
+            var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
             foreach (var contact in contacts) {
                 await eventDispatcher.RaiseEventAsync(ResolveMessageEvent.FromCampaignCreatedEvent(campaign, contact), builder => builder.WrapInEnvelope().WithQueueName(EventNames.ResolveMessage));
             }

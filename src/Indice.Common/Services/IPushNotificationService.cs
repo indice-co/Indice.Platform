@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using Indice.Serialization;
 using Indice.Types;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Services;
 
@@ -126,4 +127,25 @@ public static class PushNotificationServiceExtensions
         var dataJson = data is not null ? JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings()) : null;
         return service.BroadcastAsync(title, body, dataJson, classification);
     }
+}
+
+/// <summary>
+/// Used to create named instances of an <see cref="IPushNotificationService"/>.
+/// </summary>
+public interface IPushNotificationServiceFactory
+{
+    /// <summary>Creates an instance of an <see cref="IPushNotificationService"/></summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    IPushNotificationService Create(string name);
+}
+
+/// <inheritdoc/>
+/// <remarks>Default implementation using DI <see cref="IServiceProvider"/> and keyed service resolution</remarks>
+public class DefaultPushNotificationServiceFactory(IServiceProvider serviceProvider) : IPushNotificationServiceFactory
+{
+    private IServiceProvider _serviceProvider { get; } = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+
+    /// <inheritdoc />
+    public IPushNotificationService Create(string name) => _serviceProvider.GetKeyedService<IPushNotificationService>(name) ?? new PushNotificationServiceNoop();
 }

@@ -41,7 +41,7 @@ public class MessagesIntegrationTests : IDisposable
         });
         builder.ConfigureServices(services => {
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
-            services.AddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
+            services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
             services.AddControllers()
                     .AddMessageEndpoints(options => {
                         options.ApiPrefix = "api";

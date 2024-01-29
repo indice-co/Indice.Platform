@@ -20,13 +20,9 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 [Route($"{ApiPrefixes.CampaignManagementEndpoints}/templates")]
-internal class TemplatesController : ControllerBase
+internal class TemplatesController(ITemplateService templateService) : ControllerBase
 {
-    public TemplatesController(ITemplateService templateService) {
-        TemplateService = templateService;
-    }
-
-    public ITemplateService TemplateService { get; }
+    public ITemplateService TemplateService { get; } = templateService;
 
     /// <summary>Gets the list of all templates using the provided <see cref="ListOptions"/>.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

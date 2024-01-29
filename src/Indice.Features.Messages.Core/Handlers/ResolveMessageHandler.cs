@@ -16,7 +16,7 @@ namespace Indice.Features.Messages.Core.Handlers;
 public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
 {
     /// <summary>Creates a new instance of <see cref="ResolveMessageHandler"/>.</summary>
-    /// <param name="getEventDispatcher">Provides methods that allow application components to communicate with each other by dispatching events.</param>
+    /// <param name="eventDispatcherFactory">Provides methods that allow application components to communicate with each other by dispatching events.</param>
     /// <param name="contactResolver">Contains information that help gather contact information from other systems.</param>
     /// <param name="contactService">A service that contains contact related operations.</param>
     /// <param name="messageService">A service that contains message related operations.</param>
@@ -24,14 +24,14 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
     /// <param name="options">Configuration for workers.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public ResolveMessageHandler(
-        Func<string, IEventDispatcher> getEventDispatcher,
+        IEventDispatcherFactory eventDispatcherFactory,
         IContactResolver contactResolver,
         IContactService contactService,
         IMessageService messageService,
         ILogger<ResolveMessageHandler> logger,
         Microsoft.Extensions.Options.IOptions<MessageWorkerOptions> options
     ) {
-        GetEventDispatcher = getEventDispatcher ?? throw new ArgumentNullException(nameof(getEventDispatcher));
+        EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
         ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
         ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
         MessageService = messageService ?? throw new ArgumentNullException(nameof(messageService));
@@ -39,7 +39,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
         Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
     }
 
-    private Func<string, IEventDispatcher> GetEventDispatcher { get; }
+    private IEventDispatcherFactory EventDispatcherFactory { get; }
     private IContactResolver ContactResolver { get; }
     private IContactService ContactService { get; }
     private IMessageService MessageService { get; }
@@ -115,7 +115,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
             Content = campaign.Content,
             RecipientId = contact.RecipientId
         });
-        var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
+        var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
         if (campaign.MessageChannelKind.HasFlag(MessageChannelKind.PushNotification)) {
             await eventDispatcher.RaiseEventAsync(SendPushNotificationEvent.FromContactResolutionEvent(@event, contact, broadcast: false, messageId: messageId),
                 options => options.WrapInEnvelope().At(campaign.ActivePeriod?.From?.DateTime ?? DateTime.UtcNow).WithQueueName(EventNames.SendPushNotification));

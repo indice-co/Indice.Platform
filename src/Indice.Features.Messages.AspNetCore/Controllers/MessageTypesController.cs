@@ -20,18 +20,13 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 [Route($"{ApiPrefixes.CampaignManagementEndpoints}/message-types")]
-internal class MessageTypesController : ControllerBase
+internal class MessageTypesController(
+    ICampaignService campaignService,
+    IMessageTypeService messageTypeService
+    ) : ControllerBase
 {
-    public MessageTypesController(
-        ICampaignService campaignService,
-        IMessageTypeService messageTypeService
-    ) {
-        CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
-        MessageTypeService = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
-    }
-
-    public ICampaignService CampaignService { get; }
-    public IMessageTypeService MessageTypeService { get; }
+    public ICampaignService CampaignService { get; } = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
+    public IMessageTypeService MessageTypeService { get; } = messageTypeService ?? throw new ArgumentNullException(nameof(messageTypeService));
 
     /// <summary>Gets the list of available message types.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

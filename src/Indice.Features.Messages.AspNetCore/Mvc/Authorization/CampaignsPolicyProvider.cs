@@ -5,19 +5,14 @@ using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.AspNetCore.Mvc.Authorization;
 
-internal class CampaignsPolicyProvider : IAuthorizationPolicyProvider
+internal class CampaignsPolicyProvider(
+    IOptions<AuthorizationOptions> options,
+    IOptions<MessageManagementOptions> apiOptions
+    ) : IAuthorizationPolicyProvider
 {
-    private readonly MessageManagementOptions _apiOptions;
+    private readonly MessageManagementOptions _apiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
 
-    public CampaignsPolicyProvider(
-        IOptions<AuthorizationOptions> options,
-        IOptions<MessageManagementOptions> apiOptions
-    ) {
-        FallbackPolicyProvider = new DefaultAuthorizationPolicyProvider(options);
-        _apiOptions = apiOptions?.Value ?? throw new ArgumentNullException(nameof(apiOptions));
-    }
-
-    public DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; }
+    public DefaultAuthorizationPolicyProvider FallbackPolicyProvider { get; } = new DefaultAuthorizationPolicyProvider(options);
 
     public Task<AuthorizationPolicy> GetDefaultPolicyAsync() => FallbackPolicyProvider.GetDefaultPolicyAsync();
 
