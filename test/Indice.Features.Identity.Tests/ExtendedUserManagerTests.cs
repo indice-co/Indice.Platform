@@ -132,7 +132,8 @@ public class ExtendedUserManagerTests
         var newPhone = "6990000000";
 
         var user = await userManager.FindByIdAsync(userId);
-        var x = await userManager.SetPhoneNumberAsync(user, newPhone);
+        await userManager.SetPhoneNumberAsync(user, newPhone);
+        user.PhoneNumberConfirmed = true;
 
         _mockPlatformEventService.Verify(x => x.Publish(It.IsAny<PhoneNumberChangedEvent>()), expectedInvocations);
     }
