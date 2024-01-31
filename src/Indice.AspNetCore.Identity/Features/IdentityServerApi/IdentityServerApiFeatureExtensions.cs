@@ -53,7 +53,7 @@ public static class IdentityServerApiFeatureExtensions
         services.TryAddScoped<IdentityMessageDescriber>();
         // Try register the extended version of UserManager<User>.
         services.TryAddScoped<ExtendedUserManager<User>>(); 
-        services.AddTransient<CacheResourceKeysManager>();
+        services.TryAddTransient<CacheResourceKeysManager>();
         // Register the authentication handler, using a custom scheme name, for local APIs.
         services.AddAuthentication()
                 .AddLocalApi(IdentityServerApi.AuthenticationScheme, options => {
