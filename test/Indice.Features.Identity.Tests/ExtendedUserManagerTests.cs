@@ -9,9 +9,7 @@ using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.Events;
 using Indice.Security;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -19,13 +17,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using Xunit.Abstractions;
-using ApiResource = IdentityServer4.Models.ApiResource;
-using ApiScope = IdentityServer4.Models.ApiScope;
-using Client = IdentityServer4.Models.Client;
-using ClientClaim = IdentityServer4.Models.ClientClaim;
-using IdentityResource = IdentityServer4.Models.IdentityResource;
-using Secret = IdentityServer4.Models.Secret;
 
 namespace Indice.Features.Identity.Tests;
 
@@ -33,18 +24,16 @@ public class ExtendedUserManagerTests
 {
     private IServiceProvider _serviceProvider;
     private const string IDENTITY_DATABASE_NAME = "IdentityDb";
-    private const string BASE_URL = "https://server";
     private const string CLIENT_ID = "ppk-client";
     private const string CLIENT_SECRET = "JUEKX2XugFv5XrX3";
-    private readonly HttpClient _httpClient;
-    private readonly ITestOutputHelper _output;
+    private const string MOCK_USER_ID = "713EBE91-8720-45C5-BBE6-CFABB6E58E31";
 
-    private readonly Mock<IPlatformEventService> _mockPlatformEventService;
+    private Mock<IPlatformEventService> _mockPlatformEventService;
 
-    public ExtendedUserManagerTests(ITestOutputHelper output) {
-        _output = output;
+    public ExtendedUserManagerTests() {
         var builder = new WebHostBuilder();
 
+        // setup Mock IPlatformEventService
         _mockPlatformEventService = new Mock<IPlatformEventService>();
 
         _mockPlatformEventService
@@ -57,26 +46,19 @@ public class ExtendedUserManagerTests
 
         builder.ConfigureAppConfiguration(builder => {
             builder.AddInMemoryCollection(new Dictionary<string, string> {
-                ["IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices"] = "20",
-                ["IdentityOptions:User:Devices:MaxAllowedRegisteredDevices"] = "40",
-                ["IdentityOptions:User:Devices:RequirePasswordAfterUserUpdate"] = "true",
-                ["Totp:EnableDeveloperTotp"] = "true"
+                ["IdentityOptions:User:Devices:DefaultAllowedRegisteredDevices"] = "1",
+                ["IdentityOptions:User:Devices:MaxAllowedRegisteredDevices"] = "3",
+                ["IdentityOptions:User:Devices:RequirePasswordAfterUserUpdate"] = "false",
             });
         });
         builder.ConfigureServices((ctx, services) => {
-            services.AddTotpServiceFactory(ctx.Configuration)
-                    .AddSmsServiceNoop()
-                    .AddPushNotificationServiceNoop()
-                    .AddLocalization()
-                    .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(IDENTITY_DATABASE_NAME));
+            services.AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase($"IDENTITY_DATABASE_NAME-{Guid.NewGuid()}"));
             services.AddTransient<IUserStateProvider<User>, UserStateProviderNoop>();
             services.AddTransient<IPlatformEventService>(_ => _mockPlatformEventService.Object);
             services.AddIdentity<User, Role>()
                     .AddExtendedUserManager()
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
-                    .AddExtendedSignInManager()
-                    .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
-                    .AddExtendedPhoneNumberTokenProvider(ctx.Configuration);
+                    .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>();
             services.AddIdentityServer(options => {
                 options.EmitStaticAudienceClaim = true;
                 options.Events.RaiseErrorEvents = true;
@@ -84,40 +66,29 @@ public class ExtendedUserManagerTests
                 options.Events.RaiseFailureEvents = true;
                 options.Events.RaiseSuccessEvents = true;
             })
-            .AddInMemoryIdentityResources(GetIdentityResources())
-            .AddInMemoryApiScopes(GetApiScopes())
-            .AddInMemoryApiResources(GetApiResources())
             .AddInMemoryClients(GetClients())
-            .AddAspNetIdentity<User>()
-            .AddInMemoryPersistedGrants()
-            .AddExtendedResourceOwnerPasswordValidator()
+            .AddInMemoryApiResources(GetApiResources())
             .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
-            .AddDeveloperSigningCredential(persistKey: false);
+            .AddAspNetIdentity<User>();
         });
         builder.Configure(app => {
-            app.UseForwardedHeaders(new() {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor
-            });
-            app.UseIdentityServer();
             app.IdentityStoreSetup();
         });
+
         var server = new TestServer(builder);
         var handler = server.CreateHandler();
         _serviceProvider = server.Services;
-        _httpClient = new HttpClient(handler) {
-            BaseAddress = new Uri(BASE_URL)
-        };
     }
 
     [Fact]
     public async Task EmailChangedEventPublished() {
+        await CreateMockUser();
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var expectedInvocations = Times.Once;
 
-        var userId = "ab9769f1-d532-4b7d-9922-3da003157ebd";
-        var newEmail = "company2@indice.gr";
+        var newEmail = "company@indice.gr";
 
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await userManager.FindByIdAsync(MOCK_USER_ID);
         await userManager.SetEmailAsync(user, newEmail);
 
         _mockPlatformEventService.Verify(x => x.Publish(It.IsAny<EmailChangedEvent>()), expectedInvocations);
@@ -125,17 +96,32 @@ public class ExtendedUserManagerTests
 
     [Fact]
     public async Task PhoneNumberChangedEventPublished() {
+        await CreateMockUser();
         var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
         var expectedInvocations = Times.Once;
 
-        var userId = "ab9769f1-d532-4b7d-9922-3da003157ebd";
         var newPhone = "6990000000";
 
-        var user = await userManager.FindByIdAsync(userId);
+        var user = await userManager.FindByIdAsync(MOCK_USER_ID);
         await userManager.SetPhoneNumberAsync(user, newPhone);
-        user.PhoneNumberConfirmed = true;
 
         _mockPlatformEventService.Verify(x => x.Publish(It.IsAny<PhoneNumberChangedEvent>()), expectedInvocations);
+    }
+
+    private async Task CreateMockUser() {
+        var userManager = _serviceProvider.GetRequiredService<ExtendedUserManager<User>>();
+
+        var user = new User {
+            CreateDate = DateTimeOffset.UtcNow,
+            Email = "testuser@indice.gr",
+            EmailConfirmed = true,
+            Id = MOCK_USER_ID,
+            PhoneNumber = "69XXXXXXXX",
+            PhoneNumberConfirmed = true,
+            UserName = "testuser"
+        };
+
+        await userManager.CreateAsync(user, password: "123abc!", validatePassword: false);
     }
 
     private static List<Client> GetClients() => new() {
@@ -167,31 +153,6 @@ public class ExtendedUserManagerTests
                 new ClientClaim(BasicClaimTypes.MobileClient, "true", ClaimValueTypes.Boolean)
             }
         }
-    };
-
-    private static List<IdentityResource> GetIdentityResources() => new() {
-        new IdentityResources.OpenId(),
-        new IdentityResources.Phone(),
-        new IdentityResources.Email(),
-        new IdentityResources.Profile(),
-        new IdentityResources.Address()
-    };
-
-    private static List<ApiScope> GetApiScopes() => new() {
-        new ApiScope(name: "scope1", displayName: "Scope No. 1", userClaims: new string[] {
-            JwtClaimTypes.Email,
-            JwtClaimTypes.EmailVerified,
-            JwtClaimTypes.FamilyName,
-            JwtClaimTypes.GivenName,
-            JwtClaimTypes.PhoneNumber,
-            JwtClaimTypes.PhoneNumberVerified,
-            JwtClaimTypes.Subject
-        }),
-        new ApiScope(name: "scope2", displayName: "Scope No. 2", userClaims: new string[] {
-            JwtClaimTypes.Email,
-            JwtClaimTypes.PhoneNumber,
-            JwtClaimTypes.Subject
-        })
     };
 
     private static List<ApiResource> GetApiResources() => new() {
