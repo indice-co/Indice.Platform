@@ -167,8 +167,8 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
                 }
                 this.selectedSenderId = new MenuOption(`${sender.displayName} <${sender.sender}>`, sender.id, undefined, sender);
             }
-            this.activePeriodFrom = this._datePipe.transform(campaign.activePeriod?.from || this.now, 'yyyy-MM-ddThh:mm');
-            this.activePeriodTo = campaign.activePeriod?.to ? this._datePipe.transform(campaign.activePeriod.to, 'yyyy-MM-ddThh:mm') : null;
+            this.activePeriodFrom = this._datePipe.transform(campaign.activePeriod?.from || this.now, 'yyyy-MM-ddTHH:mm');
+            this.activePeriodTo = campaign.activePeriod?.to ? this._datePipe.transform(campaign.activePeriod.to, 'yyyy-MM-ddTHH:mm') : null;
             if (this._distributionListCombobox) {
                 this._distributionListCombobox.value = campaign.distributionList?.name || '';
             }
