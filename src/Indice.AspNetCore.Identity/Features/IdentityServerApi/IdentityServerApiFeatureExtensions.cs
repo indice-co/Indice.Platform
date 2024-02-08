@@ -1,17 +1,15 @@
-﻿using System;
-using Indice.AspNetCore.Identity.Api;
+﻿using Indice.AspNetCore.Identity.Api;
 using Indice.AspNetCore.Identity.Api.Configuration;
 using Indice.AspNetCore.Identity.Api.Data;
 using Indice.AspNetCore.Identity.Api.Filters;
 using Indice.AspNetCore.Identity.Api.Security;
 using Indice.Configuration;
-using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Models;
 using Indice.Security;
-using Microsoft.AspNetCore.Antiforgery;
+using Indice.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -54,7 +52,8 @@ public static class IdentityServerApiFeatureExtensions
         services.AddIdentityApiAuthorization();
         services.TryAddScoped<IdentityMessageDescriber>();
         // Try register the extended version of UserManager<User>.
-        services.TryAddScoped<ExtendedUserManager<User>>();
+        services.TryAddScoped<ExtendedUserManager<User>>(); 
+        services.TryAddTransient<CacheResourceKeysManager>();
         // Register the authentication handler, using a custom scheme name, for local APIs.
         services.AddAuthentication()
                 .AddLocalApi(IdentityServerApi.AuthenticationScheme, options => {
