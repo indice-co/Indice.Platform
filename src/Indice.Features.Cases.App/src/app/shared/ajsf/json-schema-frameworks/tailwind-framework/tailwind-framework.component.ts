@@ -254,6 +254,9 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
       case 'fieldset':
         this.widgetOptions.title = this.options.title;
         return null;
+      case 'label-only':
+        this.widgetOptions.title = this.options.title;
+        return null;
       default:
         this.widgetOptions.title = null;
         return this.jsf.setItemTitle(this);

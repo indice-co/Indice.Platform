@@ -1,0 +1,12 @@
+<div [class]="options?.htmlClass || ''">
+    <h2 *ngIf="options?.title"
+        class="block text-sm bold-label"
+        [attr.for]="'control' + layoutNode?._id"
+        [class]="options?.labelHtmlClass || ''"
+        [style.display]="options?.notitle ? 'none' : ''"
+        [innerHTML]="options?.title">
+    </h2>
+    <div class="mt-1">
+        <p>{{ controlValue }}</p>
+    </div>
+</div>

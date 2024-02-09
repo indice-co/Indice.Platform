@@ -30,8 +30,7 @@ import { WysiwygWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-f
 import { DeleteQueryModalComponent } from './components/delete-query-modal/delete-query-modal.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { HrefWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-framework/href-widget/href-widget.component';
-
-
+import { LabelOnlyComponent } from './ajsf/json-schema-frameworks/tailwind-framework/label-only/label-only.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +58,7 @@ import { HrefWidgetComponent } from './ajsf/json-schema-frameworks/tailwind-fram
     LookupSelectorWidgetComponent,
     WysiwygWidgetComponent,
     HrefWidgetComponent,
+    LabelOnlyComponent,
     // pipes
     BeautifyBooleanPipe
   ],
