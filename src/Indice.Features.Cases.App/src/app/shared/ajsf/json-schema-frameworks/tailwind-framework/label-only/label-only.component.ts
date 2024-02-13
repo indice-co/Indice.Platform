@@ -8,7 +8,7 @@ import { Component, Input, OnInit } from '@angular/core';
  * @example
  * ```
   {
-    "title": "Πεδίο",
+    "title": "Field",
     "labelHtmlClass": "font-bold",
     "type": "label-only",
     "flex": "1 1 50px"
@@ -54,7 +54,7 @@ export class LabelOnlyComponent implements OnInit {
     "type": "label-only",
     "extraType": "currency",
     "flex": "1 1 280px",
-    "title": "Αμοθντ"
+    "title": "Amount"
   }
  * ```
  */
