@@ -32,6 +32,8 @@ export class LabelOnlyComponent implements OnInit {
   @Input() layoutIndex: number[] = [];
   @Input() dataIndex: number[] = [];
 
+  displayValue: any;
+
   constructor(
     private jsf: JsonSchemaFormService
   ) { }
@@ -39,12 +41,35 @@ export class LabelOnlyComponent implements OnInit {
   ngOnInit() {
     this.options = this.layoutNode.options || {};
     this.jsf.initializeControl(this);
-    this.trySetEnumType();
-    this.trySetCurrencyType();
+    this.tryResolveValue();
+  }
+
+  private tryResolveValue() {
+    if (this.options.extraType !== 'blankspace' &&
+      !this.options.notitle &&
+      (!this.controlValue || this.controlValue === '')) {
+      this.resolveNullOrEmptyValue();
+    } else if (this.layoutNode.options.extraType == 'currency') {
+      this.resolveCurrencyValue();
+    } else if (typeof this.controlValue === 'boolean') {
+      this.resolveBoolValue();
+    } else if (this.hasEnumType()) {
+      this.resolveEnumValue();
+    }
+
+    if (!this.hasEnumType()) {
+      this.displayValue = this.controlValue;
+    }
+    this.jsf.updateValue(this, this.controlValue);
+  }
+
+  /** Resolves null, undefined or empty*/
+  private resolveNullOrEmptyValue() {
+    this.controlValue = "-";
   }
 
   /**
- * Configures label to be in currency format if passed as extraType option
+ * Resolves currency
  * 
  * @example
  * ```
@@ -58,26 +83,25 @@ export class LabelOnlyComponent implements OnInit {
   }
  * ```
  */
-  private trySetCurrencyType() {
-    if (this.layoutNode.options.extraType == 'currency') {
-      this.controlValue = parseFloat(this.formControl.value).toLocaleString('el');
-      this.jsf.updateValue(this, this.controlValue);
-    }
+  private resolveCurrencyValue() {
+    this.controlValue = parseFloat(this.formControl.value).toLocaleString('el');
   }
 
-  /** Attempts to set enumeration to corresponding values if exist*/
-  private trySetEnumType() {
-    if (this.hasEnumType()) {
-      (this.options.enum as string[]).forEach((enumValue, index) => {
-        if (this.controlValue === enumValue) {
-          this.controlValue = this.options.enumNames[index];
-          this.jsf.updateValue(this, this.controlValue);
-        }
-      });
-    }
+  /** Resolves bool */
+  private resolveBoolValue() {
+    this.controlValue = this.controlValue ? "Ναι" : "Όχι";
   }
 
-/** Checks whether layoutNode contains enumeration values */
+  /** Resolves enumeration*/
+  private resolveEnumValue() {
+    (this.options.enum as string[]).forEach((enumValue, index) => {
+      if (this.controlValue === enumValue) {
+        this.displayValue = this.options.enumNames[index];
+      }
+    });
+  }
+
+  /** Checks whether layoutNode contains enumeration values */
   private hasEnumType(): boolean {
     return this.options.enum &&
       this.options.enumNames &&

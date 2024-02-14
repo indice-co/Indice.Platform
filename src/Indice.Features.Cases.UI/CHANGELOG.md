@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.19.1] - 2024-02-14
+### Added
+- `label-only` widget component to handle form input data as a simple label in cases BackOffice. Supports _enum_, _currency_ & _bool_ type conversions.
+- **Disables** Add button from _readonly array_ types & other improvements.
+
 ## [7.4.1] - 2023-08-29
 ### Added
 - `href` widget component to handle links in cases backoffice.
