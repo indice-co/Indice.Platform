@@ -40,11 +40,11 @@ export class CampaignBasicInfoComponent implements OnInit {
     }
 
     public onCampaignStartInput(event: any): void {
-        this.from.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddThh:mm'));
+        this.from.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddTHH:mm'));
     }
 
     public onCampaignEndInput(event: any): void {
-        this.to.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddThh:mm'));
+        this.to.setValue(this._datePipe.transform(event.target.value, 'yyyy-MM-ddTHH:mm'));
     }
 
     public onNeedsTemplateChanged(event: any): void {
@@ -102,7 +102,7 @@ export class CampaignBasicInfoComponent implements OnInit {
                 Validators.required,
                 Validators.maxLength(128)
             ]),
-            from: new FormControl(this._datePipe.transform(this.now, 'yyyy-MM-ddThh:mm')),
+            from: new FormControl(this._datePipe.transform(this.now, 'yyyy-MM-ddTHH:mm')),
             to: new FormControl(),
             actionLinkText: new FormControl(undefined, [Validators.maxLength(128)]),
             actionLinkHref: new FormControl(undefined, [
