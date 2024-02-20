@@ -32,12 +32,13 @@ public class AggregateRuleExecutionResult
         Type = riskModel.Type,
         Data = riskModel.Data,
         NumberOfRulesExecuted = NumberOfRulesExecuted,
-        Results = Results.Select(x => new DbRuleExecutionResult {
-            RiskLevel = x.RiskLevel,
-            RiskScore = x.RiskScore,
-            Reason = x.Reason,
-            RuleName = x.RuleName
-        })
+        Results = Results
+            .Select(x => new DbRuleExecutionResult {
+                RiskLevel = x.RiskLevel,
+                RiskScore = x.RiskScore,
+                Reason = x.Reason,
+                RuleName = x.RuleName
+            })
     };
 }
 
