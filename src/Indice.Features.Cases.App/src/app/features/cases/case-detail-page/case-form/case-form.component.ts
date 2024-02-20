@@ -168,11 +168,11 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                 .pipe(
                   tap(() => {
                     this._fileUploadService.reset();
-                    this._toaster.show(ToastType.Success, 'Επιτυχής Καταχώριση', `Η αρχική καταχώριση της αίτησης ολοκληρώθηκε.`, 5000);
+                    this._toaster.show(ToastType.Success, 'Επιτυχής Καταχώριση', `Η αρχική καταχώριση της υπόθεσης ολοκληρώθηκε.`, 5000);
                     this.updateDataEvent.emit({ draft: true });
                   }),
                   catchError((err: ProblemDetails) => { // error during case submit
-                    this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
+                    this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της υπόθεσής σας.`, 5000);
                     this.router.navigate(['/cases']);
                     return EMPTY;
                   })

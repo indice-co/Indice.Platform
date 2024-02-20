@@ -25,7 +25,7 @@ export class CaseTypeDeleteModalComponent implements OnInit {
   deleteCaseType() {
     this._api.deleteCaseType(this.id).pipe(
       tap(_ => {
-        this.toaster.show(ToastType.Success, "Επιτυχία!", "Η διαγραφή του τύπου αίτησης ολοκληρώθηκε");
+        this.toaster.show(ToastType.Success, "Επιτυχία!", "Η διαγραφή του τύπου υπόθεσης ολοκληρώθηκε");
         this.closeModal(true);
       }),
       catchError(err => {
