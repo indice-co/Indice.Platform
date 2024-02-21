@@ -1,4 +1,4 @@
-<lib-view-layout [title]="'Λεπτομέρειες Αίτησης'"
+<lib-view-layout [title]="'Λεπτομέρειες Υπόθεσης'"
                  *ngIf="model$ | async as model">
     <ng-container *ngIf="caseActions$ | async as caseActions">
         <main class="details-view-container">
@@ -7,7 +7,7 @@
                     <section aria-labelledby="menu"
                              class="min-w-full">
                         <div class="bg-white shadow rounded-sm">
-                            <app-case-detail-info [title]="'Βασικά στοιχεία αίτησης'"
+                            <app-case-detail-info [title]="'Βασικά στοιχεία υπόθεσης'"
                                                   [keyValuePairs]="{
                                                     'caseDetails.caseId': model?.id,
                                                     'caseDetails.referenceNumber': model?.referenceNumber?.toString(),

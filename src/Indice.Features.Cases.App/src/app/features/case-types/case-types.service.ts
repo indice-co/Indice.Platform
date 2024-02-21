@@ -78,7 +78,7 @@ export class CaseTypesService {
     public layout: any = [
         {
             "type": "section",
-            "title": "Τύπος Αίτησης",
+            "title": "Τύπος Υπόθεσης",
             "labelHtmlClass": "px-2",
             "items": [
                 {
@@ -188,7 +188,7 @@ export class CaseTypesService {
                     "items": [
                         {
                             "key": "canCreateRoles",
-                            "title": "Επιτρεπτοί Ρόλοι για Δημιουργία αίτησης (csv χωρίς κενά πχ Role1,Role2)",
+                            "title": "Επιτρεπτοί Ρόλοι για Δημιουργία υπόθεσης (csv χωρίς κενά πχ Role1,Role2)",
                             "htmlClass": "px-2 my-2"
                         }
                     ]
@@ -250,7 +250,7 @@ export class CaseTypesService {
         });
         this._api.createCaseType(undefined, request).pipe(
             tap(_ => {
-                this.toaster.show(ToastType.Success, "Επιτυχία", "Η δημιουργία τύπου αίτησης ήταν επιτυχής.")
+                this.toaster.show(ToastType.Success, "Επιτυχία", "Η δημιουργία τύπου υπόθεσης ήταν επιτυχής.")
                 this.router.navigate(['/case-types']);
             }),
             catchError(err => {
@@ -277,7 +277,7 @@ export class CaseTypesService {
         })
         this._api.updateCaseType(caseTypeId, undefined, request).pipe(
             tap(_ => {
-                this.toaster.show(ToastType.Success, "Επιτυχία!", "Η επεξεργασία του τύπου αίτησης ήταν επιτυχής")
+                this.toaster.show(ToastType.Success, "Επιτυχία!", "Η επεξεργασία του τύπου υπόθεσης ήταν επιτυχής")
             }),
             catchError(err => {
                 this.toaster.show(ToastType.Error, "Whoops!", err.detail)

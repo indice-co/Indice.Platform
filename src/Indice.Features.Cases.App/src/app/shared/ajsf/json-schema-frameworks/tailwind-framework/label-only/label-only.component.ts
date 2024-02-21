@@ -45,9 +45,7 @@ export class LabelOnlyComponent implements OnInit {
   }
 
   private tryResolveValue() {
-    if (this.options.extraType !== 'blankspace' &&
-      !this.options.notitle &&
-      (!this.controlValue || this.controlValue === '')) {
+    if (this.shouldDisplay() && !this.hasValue()) {
       this.resolveNullOrEmptyValue();
     } else if (this.layoutNode.options.extraType == 'currency') {
       this.resolveCurrencyValue();
@@ -58,13 +56,17 @@ export class LabelOnlyComponent implements OnInit {
     }
 
     if (!this.hasEnumType()) {
-      this.displayValue = this.controlValue;
+      this.displayValue = this.shouldDisplay() && !this.hasValue() ? "-" : this.controlValue;
     }
     this.jsf.updateValue(this, this.controlValue);
   }
 
   /** Resolves null, undefined or empty*/
   private resolveNullOrEmptyValue() {
+    if (this.layoutNode.dataType === 'number') {
+      return;
+    }
+
     this.controlValue = "-";
   }
 
@@ -108,5 +110,15 @@ export class LabelOnlyComponent implements OnInit {
       Array.isArray(this.options.enum) &&
       Array.isArray(this.options.enumNames) &&
       this.options.enum.length === this.options.enumNames.length;
+  }
+
+  /** Checks whether controlValue has Value */
+  private hasValue(): boolean {
+    return this.controlValue !== null && this.controlValue !== undefined && this.controlValue !== '';
+  } 
+
+  /** Checks whether should display current node */
+  private shouldDisplay(): boolean {
+    return this.options.extraType !== 'blankspace' && !this.options.notitle;
   }
 }

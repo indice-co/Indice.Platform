@@ -1,7 +1,7 @@
-<lib-side-view-layout [title]="title || 'Υποβολή Αίτησης - Επιλογή τύπου αίτησης'"
+<lib-side-view-layout [title]="title || 'Υποβολή Υπόθεσης - Επιλογή τύπου υπόθεσης'"
                       (ok)="createDraft()"
                       [ok-close-dialog]="true"
-                      ok-label="Νέα αίτηση"
+                      ok-label="Νέα υπόθεση"
                       [disabled]="!(customer && caseTypeCode)">
     <form class="space-y-8 divide-y divide-gray-200 py-5">
         <app-select-case-type (selectedCaseTypeEvent)="caseTypeCode = $event"
