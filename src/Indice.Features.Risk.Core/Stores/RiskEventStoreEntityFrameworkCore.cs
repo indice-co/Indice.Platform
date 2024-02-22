@@ -37,21 +37,31 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
     }
 
     private IQueryable<RiskEvent> ApplyFilter(IQueryable<RiskEvent> query, FilterClause[] filter) {
-        var dateFromClause = filter.FirstOrDefault(c => c.Member.ToLower() == "from");
-        var dateToClause = filter.FirstOrDefault(c => c.Member.ToLower() == "to");
-
-        if (DateTimeOffset.TryParse(dateFromClause.Value, out var dateFrom) && DateTimeOffset.TryParse(dateToClause.Value, out var dateTo)) {
-            if (dateFrom == dateTo) {
-                dateTo = dateTo.Date.AddDays(1).AddTicks(-1);
-            }
-
-            query = query.Where(c => c.CreatedAt >= dateFrom);
-            query = query.Where(c => c.CreatedAt <= dateTo);
-        }
-
         foreach (var clause in filter) {
             if (string.IsNullOrWhiteSpace(clause.Member)) {
                 continue;
+            }
+
+            if (clause.Member.ToLower() == "from" && DateTimeOffset.TryParse(clause.Value, out var dateFrom)) {
+                query = query.Where(c => c.CreatedAt >= dateFrom);
+            }
+
+            if (clause.Member.ToLower() == "from" && DateTimeOffset.TryParse(clause.Value, out var dateTo)) {
+                query = query.Where(c => c.CreatedAt <= dateTo);
+            }
+
+            if (clause.Member.Equals(nameof(RiskEvent.Id), StringComparison.OrdinalIgnoreCase)) {
+                switch (clause.Operator) {
+                    case FilterOperator.Eq:
+                        query = query.Where(x => x.Id.ToString().Equals(clause.Value));
+                        break;
+                    case FilterOperator.Neq:
+                        query = query.Where(x => !x.Id.ToString().Equals(clause.Value));
+                        break;
+                    case FilterOperator.Contains:
+                        query = query.Where(x => x.Id.ToString().Contains(clause.Value));
+                        break;
+                }
             }
 
             if (clause.Member.Equals(nameof(RiskEvent.SubjectId), StringComparison.OrdinalIgnoreCase)) {
