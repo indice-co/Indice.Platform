@@ -5,7 +5,6 @@
     <SpaProjectName>risks-app</SpaProjectName>
     <SpaSourceFolder>..\Indice.Features.Risk.App</SpaSourceFolder>
     <SpaDistFolder>$(SpaSourceFolder)\dist</SpaDistFolder>
-    <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <VersionPrefix>$(VersionPrefixRisk)</VersionPrefix>
   </PropertyGroup>
