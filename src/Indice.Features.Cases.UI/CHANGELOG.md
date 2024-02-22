@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.20.2] - 2024-02-22
+### Changed
+- Global renaming on case name greek wording.
+  - "Αίτηση" → "Υπόθεση"
+- Row height of Case & Case Type list View has been reduced.
+- Case custom Action buttons have been aligned to the left to conform with case form elements.
+
+### Added
+- `label-only` widget component has been extended to handle `href` elements.
+- `label-only` widget component has been extended to handle elements that need data-binding from other form data, eg. `extraType = "data-bind"`.
+
+### Bugfix
+- Number data types on `label-only` widget component are now displayed correctly.
+
 ## [7.20.1] - 2024-02-14
 ### Added
 - `label-only` widget component to handle form input data as a simple label in cases BackOffice. Supports _enum_, _currency_ & _bool_ type conversions.

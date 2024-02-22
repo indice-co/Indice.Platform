@@ -18,7 +18,7 @@ import { FileWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/
 import { LookupSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
 import { WysiwygWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
 import { HrefWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/href-widget/href-widget.component';
-import { LabelOnlyComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/label-only/label-only.component';
+import { LabelOnlyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/label-only-widget/label-only-widget.component';
 
 @Component({
   selector: 'app-case-form',
@@ -49,7 +49,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     "textarea": TextAreaWidgetComponent,
     "wysiwyg": WysiwygWidgetComponent,
     "href": HrefWidgetComponent,
-    "label-only": LabelOnlyComponent
+    "label-only": LabelOnlyWidgetComponent
   };
   // Add custom framework
   public framework = {

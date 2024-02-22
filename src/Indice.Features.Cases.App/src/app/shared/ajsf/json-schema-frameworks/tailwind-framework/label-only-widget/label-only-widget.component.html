@@ -6,10 +6,10 @@
         [style.display]="options?.notitle ? 'none' : ''"
         [innerHTML]="options?.title">
     </h2>
-    <div *ngIf="options?.extraType !== 'href'" class="mt-1">
+    <div *ngIf="!options?.extraType?.includes('href')" class="mt-1">
         <p>{{ displayValue }}</p>
     </div>
-    <a *ngIf="options?.extraType === 'href'"
+    <a *ngIf="options?.extraType?.includes('href')"
        [href]="displayValue"
        [title]="options?.title"
        [class]="options?.fieldHtmlClass || ''"

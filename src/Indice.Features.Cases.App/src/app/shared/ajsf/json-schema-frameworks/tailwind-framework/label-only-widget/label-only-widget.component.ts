@@ -16,11 +16,11 @@ import { Component, Input, OnInit } from '@angular/core';
  * ```
  */
 @Component({
-  selector: 'app-label-only',
-  templateUrl: './label-only.component.html',
-  styleUrls: ['./label-only.component.scss']
+  selector: 'app-label-only-widget',
+  templateUrl: './label-only-widget.component.html',
+  styleUrls: ['./label-only-widget.component.scss']
 })
-export class LabelOnlyComponent implements OnInit {
+export class LabelOnlyWidgetComponent implements OnInit {
   formControl: any;
   controlName: string | undefined;
   controlValue: string | undefined;
@@ -47,18 +47,50 @@ export class LabelOnlyComponent implements OnInit {
   private tryResolveValue() {
     if (this.shouldDisplay() && !this.hasValue()) {
       this.resolveNullOrEmptyValue();
-    } else if (this.layoutNode.options.extraType == 'currency') {
+    } else if (this.layoutNode.options.extraType === 'currency') {
       this.resolveCurrencyValue();
     } else if (typeof this.controlValue === 'boolean') {
       this.resolveBoolValue();
     } else if (this.hasEnumType()) {
       this.resolveEnumValue();
+    } else if (this.shouldBindData()) {
+      this.resolveDataBindValue();
     }
 
     if (!this.hasEnumType()) {
       this.displayValue = this.shouldDisplay() && !this.hasValue() ? "-" : this.controlValue;
     }
     this.jsf.updateValue(this, this.controlValue);
+  }
+
+ /**
+ * Resolves currency
+ * 
+ * @example A data-binding href field. `baseAddress` & `id` must exist & be populated in dataSchema
+ * ```
+  {
+    "title": "Field with data binding",
+    "type": "label-only",
+    "extraType": "data-bind href",
+    "data": "{baseAddress}/api/update/{id}",
+    "linkText": "Update",
+    "flex": "1 1 280px",
+    "labelHtmlClass": "font-bold",
+    "fieldHtmlClass": "text-blue-600 font-bold font-mono"
+  }
+ * ```
+ */
+  private resolveDataBindValue() {
+    // Regular expression to match placeholders like '{value1}', '{value2}', etc.
+    const placeholderRegex = /{([^}]+)}/g;
+
+    this.controlValue = (this.options.data as string)?.replace(placeholderRegex, (match, placeholder) => {
+      if (this.jsf.data?.hasOwnProperty(placeholder)) {
+        return this.jsf.data[placeholder];
+      } else {
+        return match;
+      }
+    });
   }
 
   /** Resolves null, undefined or empty*/
@@ -70,7 +102,7 @@ export class LabelOnlyComponent implements OnInit {
     this.controlValue = "-";
   }
 
-  /**
+ /**
  * Resolves currency
  * 
  * @example
@@ -115,10 +147,15 @@ export class LabelOnlyComponent implements OnInit {
   /** Checks whether controlValue has Value */
   private hasValue(): boolean {
     return this.controlValue !== null && this.controlValue !== undefined && this.controlValue !== '';
-  } 
+  }
 
   /** Checks whether should display current node */
   private shouldDisplay(): boolean {
-    return this.options.extraType !== 'blankspace' && !this.options.notitle;
+    return this.options.extraType !== 'blankspace' && !this.options.notitle && !this.options.data;
+  }
+
+  /** Checks whether controlValue needs data binding from other data in the jsf*/
+  private shouldBindData(): boolean {
+    return this.layoutNode.options.extraType?.includes('data-bind');
   }
 }
