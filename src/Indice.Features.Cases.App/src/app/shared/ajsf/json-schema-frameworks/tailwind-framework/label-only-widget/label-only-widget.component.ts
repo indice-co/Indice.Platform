@@ -64,7 +64,7 @@ export class LabelOnlyWidgetComponent implements OnInit {
   }
 
  /**
- * Resolves currency
+ * Resolves elements that need data-binding
  * 
  * @example A data-binding href field. `baseAddress` & `id` must exist & be populated in dataSchema
  * ```
