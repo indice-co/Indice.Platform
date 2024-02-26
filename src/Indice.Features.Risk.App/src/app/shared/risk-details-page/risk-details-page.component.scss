@@ -1,0 +1,10 @@
+:host {
+    --ngx-json-font-family: 'Roboto', sans-serif; 
+    --ngx-json-font-size: 16px; 
+}
+  
+.json-viewer {
+    font-family: var(--ngx-json-font-family) !important;
+    font-size: var(--ngx-json-font-size) !important;
+}
+  
