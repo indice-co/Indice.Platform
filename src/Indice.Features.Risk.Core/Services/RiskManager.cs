@@ -60,7 +60,7 @@ public class RiskManager
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;
             results.Add(result);
         }
-        return new AggregateRuleExecutionResult(@event.Id, Rules.Count(), results);
+        return new AggregateRuleExecutionResult(@event.Id, Rules.Count(), results, RiskEngineOptions.RiskLevelRangeMapping);
     }
 
     /// <summary>Adds an event Id to risk result.</summary>

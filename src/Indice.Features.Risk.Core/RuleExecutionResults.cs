@@ -1,28 +1,40 @@
 ﻿using Indice.Features.Risk.Core.Configuration;
 using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Types;
 
 namespace Indice.Features.Risk.Core;
 
 /// <summary>Describes the result that was created after executing all the rules registered in the system.</summary>
 public class AggregateRuleExecutionResult
 {
-    internal AggregateRuleExecutionResult(Guid id, int numberOfRulesExecuted, IEnumerable<RuleExecutionResult>? results) {
-        Id = id;
-        NumberOfRulesExecuted = numberOfRulesExecuted;
-        Results = results ?? new List<RuleExecutionResult>();
-    }
-
     /// <summary>The unique id of the result.</summary>
     public Guid Id { get; }
     /// <summary>The total number of rules executed.</summary>
     public int NumberOfRulesExecuted { get; }
     /// <summary>The result of each individual rule run by the engine.</summary>
     public IEnumerable<RuleExecutionResult> Results { get; } = new List<RuleExecutionResult>();
+    /// <summary>The aggregate risk score of all rules run by the engine.</summary>
+    public int RiskScore { get; }
+    /// <summary>The aggregate risk level based on risk scores of all rules run by the engine.</summary>
+    public RiskLevel RiskLevel { get; }
+
+    internal AggregateRuleExecutionResult(
+        Guid id, 
+        int numberOfRulesExecuted, 
+        IEnumerable<RuleExecutionResult>? results,
+        RiskLevelRangeDictionary riskLevelRangeMapping
+    ) {
+        Id = id;
+        NumberOfRulesExecuted = numberOfRulesExecuted;
+        Results = results ?? new List<RuleExecutionResult>();
+        RiskScore = GetAggregateRiskScore();
+        RiskLevel = GetAggregateRiskLevel(riskLevelRangeMapping);
+    }
 
     /// <summary>Converts a <see cref="AggregateRuleExecutionResult"/> to a <see cref="DbAggregateRuleExecutionResult"/></summary>
     /// <param name="riskModel"></param>
-    public DbAggregateRuleExecutionResult ToRiskResult(RiskModel riskModel) => new() {
+    public DbAggregateRuleExecutionResult ToDbAggregateExecutionRiskResult(RiskModel riskModel) => new() {
         Id = Id,
         CreatedAt = DateTimeOffset.UtcNow,
         Amount = riskModel.Amount,
@@ -37,8 +49,25 @@ public class AggregateRuleExecutionResult
             RiskScore = x.RiskScore,
             Reason = x.Reason,
             RuleName = x.RuleName
-        })
+        }),
+        RiskScore = RiskScore,
+        RiskLevel = RiskLevel.ToString()
     };
+
+    /// <summary>
+    /// Business choice to sum all risk scores run by the engine.
+    /// TODO: Should be abstract using strategy pattern.
+    /// </summary>
+    private int GetAggregateRiskScore() {
+        return Results.Select(x => x.RiskScore ?? 0).Sum();
+    }
+
+    /// <summary>
+    /// Gets aggregate Risk Level based on configured Risk Level Range Mapping
+    /// </summary>
+    private RiskLevel GetAggregateRiskLevel(RiskLevelRangeDictionary riskLevelRangeMapping) {
+        return riskLevelRangeMapping.GetRiskLevel(RiskScore) ?? RiskLevel.None;
+    }
 }
 
 /// <summary>Models an event of a transaction.</summary>

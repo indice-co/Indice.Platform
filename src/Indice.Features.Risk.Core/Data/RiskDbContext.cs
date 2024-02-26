@@ -48,6 +48,8 @@ public class RiskDbContext : DbContext
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Data).HasJsonConversion();
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.NumberOfRulesExecuted);
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.Results).HasJsonConversion();
+        modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.RiskScore).IsRequired();
+        modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.RiskLevel).HasMaxLength(TextSizePresets.S64).IsRequired();
         modelBuilder.ApplyJsonFunctions();
     }
 }

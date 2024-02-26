@@ -25,6 +25,10 @@ public class DbAggregateRuleExecutionResult
     public int NumberOfRulesExecuted { get; set; }
     /// <summary>The result of each individual rule run by the engine.</summary>
     public IEnumerable<DbRuleExecutionResult>? Results { get; set; }
+    /// <summary>The aggregate risk score of all rules run by the engine.</summary>
+    public int RiskScore { get; set; }
+    /// <summary>The aggregate risk level based on risk scores of all rules run by the engine.</summary>
+    public string RiskLevel { get; set; } = Core.RiskLevel.None.ToString();
 }
 
 /// <summary>Describes the result that was calculated after executing an individual rule registered in the system.</summary>

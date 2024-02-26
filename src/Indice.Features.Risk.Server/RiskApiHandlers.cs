@@ -15,7 +15,7 @@ internal static class RiskApiHandlers
     ) {
         var riskEvent = request.ToRiskEvent();
         var result = await riskManager.GetRiskAsync(riskEvent);
-        var riskResult = result.ToRiskResult(request);
+        var riskResult = result.ToDbAggregateExecutionRiskResult(request);
         await riskManager.CreateRiskResultAsync(riskResult);
         return TypedResults.Ok(result);
     }
