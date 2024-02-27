@@ -1,5 +1,6 @@
 using Indice.Features.Risk.Core;
 using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Enums;
 using Indice.Features.Risk.Core.Extensions;
 using Indice.Features.Risk.Core.Services;
 using Indice.Features.Risk.Core.Types;
