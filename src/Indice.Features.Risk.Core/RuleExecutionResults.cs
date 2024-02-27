@@ -62,7 +62,7 @@ public class AggregateRuleExecutionResult
     /// </summary>
     private int GetAggregateRiskScore(RiskAggregateScoreResolutionType? aggregateScoreResolutionType) {
         return aggregateScoreResolutionType switch {
-            RiskAggregateScoreResolutionType.Highest => Results
+            RiskAggregateScoreResolutionType.Maximum => Results
                                 .Where(x => x.RiskScore.HasValue)
                                 .OrderByDescending(x => x.RiskScore)
                                 .FirstOrDefault()?

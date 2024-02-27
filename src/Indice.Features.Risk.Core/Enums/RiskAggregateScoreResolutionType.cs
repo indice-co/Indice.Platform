@@ -6,6 +6,6 @@ public enum RiskAggregateScoreResolutionType
     /// <summary>The aggregate risk score will be calculated by summing all individual risk scores.</summary>
     Sum,
 
-    /// <summary>The aggregate risk score will be calculated by selecting the highest individual risk score.</summary>
-    Highest
+    /// <summary>The aggregate risk score will be calculated by selecting the maximum individual risk score.</summary>
+    Maximum
 }
