@@ -3,8 +3,9 @@ using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Configuration;
 using Indice.Features.Risk.Core.Services;
 using Indice.Features.Risk.Core.Stores;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Indice.Features.Risk.Core.Extensions;
 
 /// <summary>Extension methods for configuring risk engine.</summary>
 public static class IServiceCollectionExtensions
