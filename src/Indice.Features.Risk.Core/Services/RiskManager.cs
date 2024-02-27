@@ -1,6 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Configuration;
 using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Enums;
 using Indice.Features.Risk.Core.Models;
 using Indice.Types;
 using Microsoft.Extensions.Options;
@@ -62,7 +63,7 @@ public class RiskManager
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;
             results.Add(result);
         }
-        return new AggregateRuleExecutionResult(@event.Id, Rules.Count(), results, RiskEngineOptions.RiskLevelRangeMapping);
+        return new AggregateRuleExecutionResult(@event.Id, Rules.Count(), results, RiskEngineOptions);
     }
 
     /// <summary>

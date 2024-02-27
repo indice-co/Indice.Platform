@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Risk.Core.Configuration;
 using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Enums;
 using Indice.Features.Risk.Core.Models;
 using Indice.Features.Risk.Core.Types;
 
@@ -23,13 +24,15 @@ public class AggregateRuleExecutionResult
         Guid id, 
         int numberOfRulesExecuted, 
         IEnumerable<RuleExecutionResult>? results,
-        RiskLevelRangeDictionary riskLevelRangeMapping
+        RiskEngineOptions riskEngineOptions
     ) {
+        ArgumentNullException.ThrowIfNull(riskEngineOptions, nameof(riskEngineOptions));
+
         Id = id;
         NumberOfRulesExecuted = numberOfRulesExecuted;
         Results = results ?? new List<RuleExecutionResult>();
-        RiskScore = GetAggregateRiskScore();
-        RiskLevel = GetAggregateRiskLevel(riskLevelRangeMapping);
+        RiskScore = GetAggregateRiskScore(riskEngineOptions.RiskAggregateScoreResolution);
+        RiskLevel = GetAggregateRiskLevel(riskEngineOptions.RiskLevelRangeMapping);
     }
 
     /// <summary>Converts a <see cref="AggregateRuleExecutionResult"/> to a <see cref="DbAggregateRuleExecutionResult"/></summary>
@@ -55,11 +58,17 @@ public class AggregateRuleExecutionResult
     };
 
     /// <summary>
-    /// Business choice to sum all risk scores run by the engine.
-    /// TODO: Should be abstract using strategy pattern.
+    /// Gets aggregate Risk Score based on configured <see cref="RiskAggregateScoreResolutionType"/>
     /// </summary>
-    private int GetAggregateRiskScore() {
-        return Results.Select(x => x.RiskScore ?? 0).Sum();
+    private int GetAggregateRiskScore(RiskAggregateScoreResolutionType? aggregateScoreResolutionType) {
+        return aggregateScoreResolutionType switch {
+            RiskAggregateScoreResolutionType.Highest => Results
+                                .Where(x => x.RiskScore.HasValue)
+                                .OrderByDescending(x => x.RiskScore)
+                                .FirstOrDefault()?
+                                .RiskScore ?? 0,
+            _ => Results.Select(x => x.RiskScore ?? 0).Sum()
+        };
     }
 
     /// <summary>
@@ -110,6 +119,13 @@ public class RuleExecutionResult
     public string? Reason { get; }
     /// <summary>The name of the rule.</summary>
     public string RuleName { get; internal set; } = string.Empty;
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.None"/> risk level.</summary>
+    /// <param name="reason">A reason accompanying the provided risk level.</param>
+    public static RuleExecutionResult NoRisk(string? reason) => new(RiskLevel.None, riskScore: 0, reason);
+
+    /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.None"/> risk level.</summary>
+    public static RuleExecutionResult NoRisk() => NoRisk(null);
 
     /// <summary>Creates an instance of <see cref="RuleExecutionResult"/> with a <see cref="RiskLevel.Low"/> risk level.</summary>
     /// <param name="exactRiskScore">The risk score that came up after a rule run by the engine.</param>

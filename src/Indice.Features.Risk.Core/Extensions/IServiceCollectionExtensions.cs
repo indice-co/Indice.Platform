@@ -24,6 +24,7 @@ public static class IServiceCollectionExtensions
         }
         services.Configure<RiskEngineOptions>(riskOptions => {
             riskOptions.RiskLevelRangeMapping = options.RiskLevelRangeMapping;
+            riskOptions.RiskAggregateScoreResolution = options.RiskAggregateScoreResolution;
         });
         services.AddTransient<RiskManager>();
         services.AddSingleton<IRiskEventStore, RiskEventStoreNoOp>();
