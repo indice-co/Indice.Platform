@@ -9,5 +9,5 @@ public record MfaDeviceIdentifier(string Value, Guid? RegistrationId = null)
     public bool HasRegistrationId => RegistrationId.HasValue;
 
     /// <summary>Check for empty value</summary>
-    public bool IsEmpty => string.IsNullOrWhiteSpace(Value) && HasRegistrationId;
+    public bool IsEmpty => string.IsNullOrWhiteSpace(Value);
 }
