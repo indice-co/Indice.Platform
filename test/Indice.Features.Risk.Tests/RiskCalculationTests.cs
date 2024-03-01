@@ -1,5 +1,6 @@
 using Indice.Features.Risk.Core;
 using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Models;
 using Indice.Features.Risk.Core.Services;
 using Indice.Features.Risk.Core.Types;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +23,7 @@ public class RiskCalculationTests
                 [RiskLevel.High] = new IntegerRange(2001, 3000)
             });
         })
-        .AddRule("TransactionOver1000", riskEvent =>
+        .AddRule<RuleOptionsBase>("TransactionOver1000", riskEvent =>
             ValueTask.FromResult(
                 riskEvent.Type == "Transaction" && riskEvent.Amount >= 1000
                     ? RuleExecutionResult.HighRisk()
