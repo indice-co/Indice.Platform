@@ -14,7 +14,10 @@ public abstract class RiskRule
 
     /// <summary>The name of the rule.</summary>
     public string Name { get; }
-    
+
+    /// <summary>Whether the rule is enabled or not.</summary>
+    public bool Enabled { get; set; }
+
     /// <summary>Executes the rule asynchronously.</summary>
     /// <param name="event">The event occurred.</param>
     /// <returns>The result of rule execution.</returns>

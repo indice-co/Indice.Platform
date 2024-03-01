@@ -54,7 +54,7 @@ public class RiskManager
     /// <param name="event">The event occurred for which to calculate the risk score.</param>
     public async Task<AggregateRuleExecutionResult> GetRiskAsync(RiskEvent @event) {
         var results = new List<RuleExecutionResult>();
-        foreach (var rule in Rules) {
+        foreach (var rule in Rules.Where(x => x.Enabled)) {
             var result = await rule.ExecuteAsync(@event);
             result.RuleName = rule.Name;
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;
