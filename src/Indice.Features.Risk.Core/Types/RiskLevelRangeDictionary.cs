@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Risk.Core.Types;
+﻿using Indice.Features.Risk.Core.Enums;
+
+namespace Indice.Features.Risk.Core.Types;
 
 /// <summary>A type for defining the mapping between <see cref="RiskLevel"/> and it's associated <see cref="IntegerRange"/>.</summary>
 public class RiskLevelRangeDictionary : Dictionary<RiskLevel, IntegerRange>

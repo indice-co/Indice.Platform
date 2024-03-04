@@ -4,12 +4,12 @@
       <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
       <VersionPrefixBase>7.20</VersionPrefixBase>
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
-      <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
-      <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
-      <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
+      <VersionPrefixIdentity>$(VersionPrefixBase).1</VersionPrefixIdentity>
+      <VersionPrefixIdentityUI>$(VersionPrefixBase).1</VersionPrefixIdentityUI>
+      <VersionPrefixCases>$(VersionPrefixBase).2</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
+      <VersionPrefixRisk>$(VersionPrefixBase).1</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->

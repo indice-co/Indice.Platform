@@ -1,6 +1,9 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Configuration;
 using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Enums;
+using Indice.Features.Risk.Core.Models;
+using Indice.Types;
 using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Risk.Core.Services;
@@ -60,7 +63,25 @@ public class RiskManager
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;
             results.Add(result);
         }
-        return new AggregateRuleExecutionResult(@event.Id, Rules.Count(), results);
+        return new AggregateRuleExecutionResult(@event.Id, Rules.Count(), results, RiskEngineOptions);
+    }
+
+    /// <summary>
+    /// Gets the list of events using a given filter
+    /// </summary>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public async Task<ResultSet<RiskEvent>> GetRiskEventsAsync(ListOptions<AdminRiskFilter> options) {
+        return await _riskEventStore.GetList(options);
+    }
+
+    /// <summary>
+    /// Gets the list of aggregate risk results using a given filter
+    /// </summary>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetRiskResultsAsync(ListOptions<AdminRiskFilter> options) {
+        return await _riskResultStore.GetList(options);
     }
 
     /// <summary>Adds an event Id to risk result.</summary>
