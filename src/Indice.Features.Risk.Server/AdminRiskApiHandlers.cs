@@ -52,16 +52,11 @@ internal static class AdminRiskApiHandlers
         [FromBody] JsonElement request,
         string ruleName
     ) {
-        var validator = serviceProvider.GetRequiredKeyedService<IValidator>(ruleName);
-        if (validator is null) {
-            return TypedResults.BadRequest();
-        }
-
+        var validator = serviceProvider.GetKeyedService<IValidator>(ruleName);
         var result = validator?.ValidateDynamic(request);
         if (!result.IsValid) {
             return TypedResults.ValidationProblem(result.ToDictionary());
         }
-
         await riskManager.UpdateRiskRuleOptionsAsync(ruleName, request);
         return TypedResults.NoContent();
     }

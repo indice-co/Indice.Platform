@@ -40,9 +40,6 @@ internal class RiskRuleStoreEntityFrameworkCore : IRiskRuleStore
             return;
         }
         var jsonString = JsonSerializer.Serialize(jsonElement, JsonSerializerOptionDefaults.GetDefaultSettings());
-        if (string.IsNullOrWhiteSpace(jsonString)) {
-            return;
-        }
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString))) {
             var configurationBuilder = new ConfigurationBuilder();
             configurationBuilder.AddJsonStream(stream);
