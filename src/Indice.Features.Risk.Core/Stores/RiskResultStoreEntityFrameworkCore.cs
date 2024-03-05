@@ -1,7 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data;
 using Indice.Features.Risk.Core.Data.Models;
-using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Models.Requests;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,10 +23,10 @@ internal class RiskResultStoreEntityFrameworkCore : IRiskResultStore
     public async Task AddEventIdAsync(Guid resultId, Guid eventId) {
         var riskResult = await _dbContext.RiskResults.FindAsync(resultId) ?? throw new Exception("Risk Result not found.");
         riskResult.EventId = eventId;
-        await _dbContext.SaveChangesAsync(); 
+        await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskFilter> options) {
+    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskFilterRequest> options) {
         var query = _dbContext.RiskResults.AsNoTracking().AsQueryable();
         query = ApplyFilters(query, options.Filter.Filter);
         return await query.ToResultSetAsync(options);

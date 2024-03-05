@@ -1,7 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data;
 using Indice.Features.Risk.Core.Data.Models;
-using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Models.Requests;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,7 +30,7 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
         return await query.ToListAsync();
     }
 
-    public async Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskFilter> options) {
+    public async Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskFilterRequest> options) {
         var query = _dbContext.RiskEvents.AsNoTracking().AsQueryable();
         query = ApplyFilter(query, options.Filter.Filter);
         return await query.ToResultSetAsync(options);

@@ -1,5 +1,8 @@
 ﻿using Indice.Configuration;
 using Indice.EntityFrameworkCore;
+using Indice.Extensions.Configuration.Database;
+using Indice.Extensions.Configuration.Database.Data;
+using Indice.Extensions.Configuration.Database.Data.Models;
 using Indice.Features.Risk.Core.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -7,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Indice.Features.Risk.Core.Data;
 
 /// <summary>A <see cref="DbContext"/> for persisting events and their related data.</summary>
-public class RiskDbContext : DbContext
+public class RiskDbContext : DbContext, IAppSettingsDbContext
 {
     /// <summary>Creates a new instance of <see cref="RiskDbContext"/> class.</summary>
     /// <param name="dbContextOptions"></param>
@@ -19,6 +22,16 @@ public class RiskDbContext : DbContext
 
     /// <summary>Risk results table.</summary>
     public DbSet<DbAggregateRuleExecutionResult> RiskResults => Set<DbAggregateRuleExecutionResult>();
+
+    /// <summary>
+    /// Lookup risk rules table.
+    /// </summary>
+    public DbSet<DbRiskRule> RiskRules => Set<DbRiskRule>();
+
+    /// <summary>
+    /// Risk rules definitions table.
+    /// </summary>
+    public DbSet<DbAppSetting> AppSettings { get; set; }
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
@@ -51,5 +64,11 @@ public class RiskDbContext : DbContext
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.RiskScore).IsRequired();
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.RiskLevel).HasMaxLength(TextSizePresets.S64).IsRequired();
         modelBuilder.ApplyJsonFunctions();
+        // Risk rules lookup configuration
+        modelBuilder.Entity<DbRiskRule>().ToTable("RiskRule");
+        modelBuilder.Entity<RiskEvent>().HasKey(x => x.Id);
+        modelBuilder.Entity<DbRiskRule>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
+        // Risk rules definitions configuration.
+        modelBuilder.ApplyConfiguration(new AppSettingMap());
     }
 }

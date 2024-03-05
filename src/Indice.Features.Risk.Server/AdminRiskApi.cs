@@ -22,16 +22,17 @@ public static class AdminRiskApi
     public static IEndpointRouteBuilder MapAdminRisk(this IEndpointRouteBuilder builder) {
         var options = builder.ServiceProvider.GetService<IOptions<RiskApiOptions>>()?.Value ?? new RiskApiOptions();
         var group = builder.MapGroup($"{options.ApiPrefix}")
-                           .WithGroupName("risk")
-                           .WithTags("AdminRisk")
-                           .ProducesProblem(StatusCodes.Status401Unauthorized)
-                           .ProducesProblem(StatusCodes.Status403Forbidden)
-                           .ProducesProblem(StatusCodes.Status500InternalServerError)
-                           .RequireAuthorization(policy => policy
-                              .AddAuthenticationSchemes(options.AuthenticationScheme)
-                              .RequireAuthenticatedUser()
-                              .RequireAssertion(context => context.User.HasScope(options.ApiScope) || context.User.IsSystemClient())
-                           );
+            .WithGroupName("risk")
+            .WithTags("AdminRisk")
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .RequireAuthorization(policy => policy
+                .AddAuthenticationSchemes(options.AuthenticationScheme)
+                .RequireAuthenticatedUser()
+                .RequireAssertion(context => context.User.HasScope(options.ApiScope) || context.User.IsSystemClient())
+            );
+
         var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
@@ -48,6 +49,33 @@ public static class AdminRiskApi
             .WithName(nameof(AdminRiskApiHandlers.GetRiskResults))
             .WithSummary("Fetch risk results.")
             .Produces(StatusCodes.Status200OK, typeof(ResultSet<DbAggregateRuleExecutionResult>));
+
+        // GET: api/risk-rules
+        group
+            .AllowAnonymous()
+            .MapGet("risk-rules", AdminRiskApiHandlers.GetRiskRules)
+            .WithName(nameof(AdminRiskApiHandlers.GetRiskRules))
+            .WithSummary("Fetch registered risk rules.")
+            .Produces(StatusCodes.Status200OK, typeof(IEnumerable<string>));
+
+        // GET: api/risk-rule/{ruleName}
+        group
+            .AllowAnonymous()
+            .MapGet("risk-rule/{ruleName}", AdminRiskApiHandlers.GetRiskRuleOptions)
+            .WithName(nameof(AdminRiskApiHandlers.GetRiskRuleOptions))
+            .WithSummary("Fetch the configuration options given a rule name.")
+            .Produces(StatusCodes.Status200OK, typeof(Dictionary<string, string>))
+            .Produces(StatusCodes.Status404NotFound);
+
+        // POST: api/risk-rule/{ruleName}
+        group
+            .AllowAnonymous()
+            .MapPost("risk-rule/{ruleName}", AdminRiskApiHandlers.UpdateRiskRuleOptions)
+            .WithName(nameof(AdminRiskApiHandlers.UpdateRiskRuleOptions))
+            .WithSummary("Update the configuration options given a rule name.")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status404NotFound);
 
         return builder;
     }

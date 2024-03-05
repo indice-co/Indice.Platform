@@ -28,7 +28,7 @@ public class IntegerRange
 
     /// <summary>Check if the current range is overlapped by another given range.</summary>
     /// <param name="other">The range to compare to.</param>
-    public bool IsOverlapped(IntegerRange other) => 
+    public bool IsOverlapped(IntegerRange other) =>
         LowerLimit.CompareTo(other.UpperLimit) < 0 && other.LowerLimit.CompareTo(UpperLimit) < 0;
 
     /// <inheritdoc />
