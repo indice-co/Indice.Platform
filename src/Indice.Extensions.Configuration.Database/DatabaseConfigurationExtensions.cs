@@ -14,16 +14,16 @@ public static class DatabaseConfigurationExtensions
     /// <param name="configureAction">The <see cref="EntityConfigurationOptions"/> to use.</param>
     /// <returns>The <see cref="IHostBuilder"/>.</returns>
     public static IWebHostBuilder AddDatabaseSettings<TContext>(this IWebHostBuilder webHostBuilder, Action<EntityConfigurationOptions, IConfiguration> configureAction) where TContext : DbContext, IAppSettingsDbContext =>
-        webHostBuilder.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => {
-            var options = new EntityConfigurationOptions();
-            configureAction?.Invoke(options, configurationBuilder.Build());
-            var result = options.Validate();
-            if (!result.Succedded) {
-                throw new ArgumentException(result.Error);
-            }
-            configurationBuilder.Add(new EntityConfigurationSource<TContext>(options));
-        })
-        .ConfigureServices((context, services) => {
-            services.AddTransient<IAppSettingsDbContext, TContext>();
-        });
+       webHostBuilder.ConfigureAppConfiguration((hostBuilderContext, configurationBuilder) => {
+           var options = new EntityConfigurationOptions();
+           configureAction?.Invoke(options, configurationBuilder.Build());
+           var result = options.Validate();
+           if (!result.Succedded) {
+               throw new ArgumentException(result.Error);
+           }
+           configurationBuilder.Add(new EntityConfigurationSource<TContext>(options));
+       })
+       .ConfigureServices((context, services) => {
+           services.AddTransient<IAppSettingsDbContext, TContext>();
+       });
 }

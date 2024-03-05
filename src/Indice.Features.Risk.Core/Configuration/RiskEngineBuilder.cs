@@ -14,6 +14,8 @@ namespace Indice.Features.Risk.Core.Configuration;
 /// <summary>Builder class used to configure the risk engine feature.</summary>
 public class RiskEngineBuilder
 {
+    private const string RULE_OPTIONS_SECTION = "RuleOptions";
+
     private readonly List<string> _ruleNames = new();
     private readonly IServiceCollection _services;
 
