@@ -72,7 +72,9 @@ public static class AdminRiskApi
             .MapPost("risk-rule/{ruleName}", AdminRiskApiHandlers.UpdateRiskRuleOptions<TOptions>)
             .WithName(nameof(AdminRiskApiHandlers.UpdateRiskRuleOptions))
             .WithSummary("Update the configuration options given a rule name.")
-            .WithParameterValidation<TOptions>();
+            .WithParameterValidation<TOptions>()
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status400BadRequest);
 
         return builder;
     }
