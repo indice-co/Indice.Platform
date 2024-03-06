@@ -68,7 +68,6 @@ public static class AdminRiskApi
 
         // POST: api/risk-rule/{ruleName}
         group
-            .AllowAnonymous()
             .MapPost("risk-rule/{ruleName}", AdminRiskApiHandlers.UpdateRiskRuleOptions<TOptions>)
             .WithName(nameof(AdminRiskApiHandlers.UpdateRiskRuleOptions))
             .WithSummary("Update the configuration options given a rule name.")
