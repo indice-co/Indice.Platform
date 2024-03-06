@@ -2,15 +2,9 @@
 
 namespace Indice.Features.Risk.Core.Abstractions;
 
-/// <summary>Store for risk rule lookup names.</summary>
-public interface IRiskRuleStore
+/// <summary>Store for risk rule configuration.</summary>
+public interface IRiskRuleOptionsStore
 {
-    /// <summary>
-    /// Fetches the risk rule names registered in the system.
-    /// </summary>
-    /// <returns></returns>
-    Task<IEnumerable<string>> GetList();
-
     /// <summary>
     /// Fetches the risk options for a given rule name.
     /// </summary>

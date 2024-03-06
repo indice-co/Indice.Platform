@@ -14,8 +14,6 @@ namespace Indice.Features.Risk.Core.Configuration;
 /// <summary>Builder class used to configure the risk engine feature.</summary>
 public class RiskEngineBuilder
 {
-    private const string RULE_OPTIONS_SECTION = "RuleOptions";
-
     private readonly List<string> _ruleNames = new();
     private readonly IServiceCollection _services;
 
@@ -34,7 +32,7 @@ public class RiskEngineBuilder
         where TOptions : RuleOptionsBase, new()
         where TValidator : RuleOptionsBaseValidator<TOptions>, new() {
         CheckAndAddRuleName(name);
-        _services.AddKeyedTransient<IValidator, TValidator>(name);
+        _services.AddTransient<IValidator<TOptions>, TValidator>();
         _services.AddOptions<TOptions>().BindConfiguration($"{Constants.RuleOptionsSectionName}:{name}");
         _services.AddTransient<RiskRule, TRule>();
         return this;
@@ -50,9 +48,9 @@ public class RiskEngineBuilder
         string name,
         Func<IServiceProvider, RiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
     ) where TOptions : RuleOptionsBase, new()
-      where TValidator : RuleOptionsBaseValidator<TOptions>, new() {
+        where TValidator : RuleOptionsBaseValidator<TOptions>, new() {
         CheckAndAddRuleName(name);
-        _services.AddKeyedTransient<IValidator, TValidator>(name);
+        _services.AddTransient<IValidator<TOptions>, TValidator>();
         _services.AddOptions<TOptions>().BindConfiguration($"{Constants.RuleOptionsSectionName}:{name}");
         _services.AddTransient<RiskRule>(serviceProvider => new GenericRule(name, serviceProvider, ruleDelegate));
         return this;
@@ -75,7 +73,7 @@ public class RiskEngineBuilder
     /// <param name="dbContextOptionsBuilderAction">The builder being used to configure the context.</param>
     public void AddEntityFrameworkCoreStore(Action<DbContextOptionsBuilder> dbContextOptionsBuilderAction) {
         _services.AddDbContext<RiskDbContext>(dbContextOptionsBuilderAction);
-        _services.AddTransient<IRiskRuleStore, RiskRuleStoreEntityFrameworkCore>();
+        _services.AddTransient<IRiskRuleOptionsStore, RiskRuleStoreEntityFrameworkCore>();
         _services.AddTransient<IRiskEventStore, RiskEventStoreEntityFrameworkCore>();
         _services.AddTransient<IRiskResultStore, RiskResultStoreEntityFrameworkCore>();
     }

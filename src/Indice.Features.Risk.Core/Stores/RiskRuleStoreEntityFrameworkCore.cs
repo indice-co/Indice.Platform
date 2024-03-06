@@ -8,17 +8,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Indice.Features.Risk.Core.Stores;
-internal class RiskRuleStoreEntityFrameworkCore : IRiskRuleStore
+internal class RiskRuleStoreEntityFrameworkCore : IRiskRuleOptionsStore
 {
     private readonly RiskDbContext _context;
 
     public RiskRuleStoreEntityFrameworkCore(RiskDbContext context) {
         _context = context ?? throw new ArgumentNullException(nameof(context));
-    }
-
-    public async Task<IEnumerable<string>> GetList() {
-        var results = await _context.RiskRules.AsNoTracking().Select(x => x.Name).ToListAsync();
-        return results;
     }
 
     public async Task<Dictionary<string, string>> GetRiskRuleOptions(string ruleName) {

@@ -24,11 +24,6 @@ public class RiskDbContext : DbContext, IAppSettingsDbContext
     public DbSet<DbAggregateRuleExecutionResult> RiskResults => Set<DbAggregateRuleExecutionResult>();
 
     /// <summary>
-    /// Lookup risk rules table.
-    /// </summary>
-    public DbSet<DbRiskRule> RiskRules => Set<DbRiskRule>();
-
-    /// <summary>
     /// Risk rules definitions table.
     /// </summary>
     public DbSet<DbAppSetting> AppSettings { get; set; }
@@ -64,10 +59,6 @@ public class RiskDbContext : DbContext, IAppSettingsDbContext
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.RiskScore).IsRequired();
         modelBuilder.Entity<DbAggregateRuleExecutionResult>().Property(x => x.RiskLevel).HasMaxLength(TextSizePresets.S64).IsRequired();
         modelBuilder.ApplyJsonFunctions();
-        // Risk rules lookup configuration
-        modelBuilder.Entity<DbRiskRule>().ToTable("RiskRule");
-        modelBuilder.Entity<RiskEvent>().HasKey(x => x.Id);
-        modelBuilder.Entity<DbRiskRule>().Property(x => x.Name).HasMaxLength(TextSizePresets.M256);
         // Risk rules definitions configuration.
         modelBuilder.ApplyConfiguration(new AppSettingMap());
     }

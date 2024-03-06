@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Models;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
@@ -19,7 +20,7 @@ public static class AdminRiskApi
     /// </summary>
     /// <param name="builder"></param>
     /// <returns></returns>
-    public static IEndpointRouteBuilder MapAdminRisk(this IEndpointRouteBuilder builder) {
+    public static IEndpointRouteBuilder MapAdminRisk<TOptions>(this IEndpointRouteBuilder builder) where TOptions : RuleOptionsBase {
         var options = builder.ServiceProvider.GetService<IOptions<RiskApiOptions>>()?.Value ?? new RiskApiOptions();
         var group = builder.MapGroup($"{options.ApiPrefix}")
             .WithGroupName("risk")
@@ -56,7 +57,7 @@ public static class AdminRiskApi
             .MapGet("risk-rules", AdminRiskApiHandlers.GetRiskRules)
             .WithName(nameof(AdminRiskApiHandlers.GetRiskRules))
             .WithSummary("Fetch registered risk rules.")
-            .Produces(StatusCodes.Status200OK, typeof(IEnumerable<string>));
+            .Produces(StatusCodes.Status200OK, typeof(List<string>));
 
         // GET: api/risk-rule/{ruleName}
         group
@@ -70,12 +71,10 @@ public static class AdminRiskApi
         // POST: api/risk-rule/{ruleName}
         group
             .AllowAnonymous()
-            .MapPost("risk-rule/{ruleName}", AdminRiskApiHandlers.UpdateRiskRuleOptions)
+            .MapPost("risk-rule/{ruleName}", AdminRiskApiHandlers.UpdateRiskRuleOptions<TOptions>)
             .WithName(nameof(AdminRiskApiHandlers.UpdateRiskRuleOptions))
             .WithSummary("Update the configuration options given a rule name.")
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status404NotFound);
+            .WithParameterValidation<TOptions>();
 
         return builder;
     }

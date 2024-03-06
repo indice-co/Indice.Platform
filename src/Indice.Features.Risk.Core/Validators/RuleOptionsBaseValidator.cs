@@ -13,7 +13,7 @@ public class RuleOptionsBaseValidator<TOptions> : AbstractValidator<TOptions> wh
     /// The validation rules.
     /// </summary>
     public RuleOptionsBaseValidator() {
-        RuleFor(x => x.Name).NotEmpty();
+        RuleFor(x => x.FriendlyName).NotEmpty();
         RuleFor(x => x.Description).NotEmpty();
     }
 }

@@ -8,7 +8,7 @@ public class RuleOptionsBase
     /// <summary>
     /// Name of the rule.
     /// </summary>
-    public string Name { get; set; }
+    public string FriendlyName { get; set; }
 
     /// <summary>
     /// A description of the rule.
@@ -23,5 +23,5 @@ public class RuleOptionsBase
     /// <summary>
     /// Eligible events for executing the associated rule, if any.
     /// </summary>
-    public IEnumerable<string> EligibleEvents { get; set; } = Enumerable.Empty<string>();
+    public List<string> EligibleEvents { get; set; } = [];
 }
