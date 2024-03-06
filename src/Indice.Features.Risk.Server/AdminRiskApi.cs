@@ -53,7 +53,6 @@ public static class AdminRiskApi
 
         // GET: api/risk-rules
         group
-            .AllowAnonymous()
             .MapGet("risk-rules", AdminRiskApiHandlers.GetRiskRules)
             .WithName(nameof(AdminRiskApiHandlers.GetRiskRules))
             .WithSummary("Fetch registered risk rules.")
