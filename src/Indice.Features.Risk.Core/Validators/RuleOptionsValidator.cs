@@ -16,9 +16,5 @@ public class RuleOptionsValidator<TOptions> : AbstractValidator<TOptions> where 
         RuleFor(x => x.FriendlyName)
             .NotEmpty()
             .NotNull();
-
-        RuleFor(x => x.Description)
-            .NotEmpty()
-            .NotNull();
     }
 }

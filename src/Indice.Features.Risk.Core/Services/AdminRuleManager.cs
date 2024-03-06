@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Indice.Features.Risk.Core.Abstractions;
+﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Models;
 
 namespace Indice.Features.Risk.Core.Services;

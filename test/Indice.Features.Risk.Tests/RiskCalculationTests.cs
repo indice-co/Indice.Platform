@@ -1,4 +1,5 @@
 using Indice.Features.Risk.Core;
+using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Enums;
 using Indice.Features.Risk.Core.Extensions;
@@ -11,6 +12,19 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Risk.Tests;
+
+public class TestRule : RiskRule
+{
+    public TestRule() : base("TransactionOver1000", "TransactionOver1000") {}
+
+    public override ValueTask<RuleExecutionResult> ExecuteAsync(RiskEvent @event) {
+        return ValueTask.FromResult(
+            @event.Type == "Transaction" && @event.Amount >= 1000
+                ? RuleExecutionResult.HighRisk()
+                : RuleExecutionResult.LowRisk()
+        );
+    }
+}
 
 public class RiskCalculationTests
 {
@@ -26,13 +40,7 @@ public class RiskCalculationTests
                 [RiskLevel.High] = new IntegerRange(2001, 3000)
             });
         })
-        .AddRule<RuleOptionsBase, RuleOptionsBaseValidator<RuleOptionsBase>>("TransactionOver1000", riskEvent =>
-            ValueTask.FromResult(
-                riskEvent.Type == "Transaction" && riskEvent.Amount >= 1000
-                    ? RuleExecutionResult.HighRisk()
-                    : RuleExecutionResult.LowRisk()
-            )
-        )
+        .AddRule<TestRule, RuleOptions, RuleOptionsValidator<RuleOptions>>("TransactionOver1000")
         .AddEntityFrameworkCoreStore(builder => {
             builder.UseInMemoryDatabase("RiskDb");
         });

@@ -1,9 +1,7 @@
 ﻿using FluentValidation;
 using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data;
-using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Models;
-using Indice.Features.Risk.Core.Rules;
 using Indice.Features.Risk.Core.Stores;
 using Indice.Features.Risk.Core.Validators;
 using Microsoft.EntityFrameworkCore;
@@ -37,37 +35,6 @@ public class RiskEngineBuilder
         _services.AddTransient<RiskRule, TRule>();
         return this;
     }
-
-    /// <summary>Adds a new rule to the risk engine by providing a lambda expression.</summary>
-    /// <typeparam name="TOptions">The options associated with the rule.</typeparam>
-    /// <typeparam name="TValidator">The validator associated with the rule options.</typeparam>
-    /// <param name="name">The name of the rule.</param>
-    /// <param name="ruleDelegate">The delegate method to when a new event occurs.</param>
-    /// <returns>The instance of <see cref="RiskEngineBuilder"/>.</returns>
-    public RiskEngineBuilder AddRule<TOptions, TValidator>(
-        string name,
-        Func<IServiceProvider, RiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
-    ) where TOptions : RuleOptions, new()
-        where TValidator : RuleOptionsValidator<TOptions>, new() {
-        CheckAndAddRuleName(name);
-        _services.AddTransient<IValidator<TOptions>, TValidator>();
-        _services.AddOptions<TOptions>().BindConfiguration($"{Constants.RuleOptionsSectionName}:{name}");
-        _services.AddTransient<RiskRule>(serviceProvider => new GenericRule(name, serviceProvider, ruleDelegate));
-        return this;
-    }
-
-    /// <summary>Adds a new rule to the risk engine by providing a lambda expression.</summary>
-    /// <typeparam name="TOptions">The options associated with the rule.</typeparam>
-    /// <typeparam name="TValidator">The validator associated with the rule options.</typeparam>
-    /// <param name="name">The name of the rule.</param>
-    /// <param name="ruleDelegate">The delegate method to when a new event occurs.</param>
-    /// <returns>The instance of <see cref="RiskEngineBuilder"/>.</returns>
-    public RiskEngineBuilder AddRule<TOptions, TValidator>(
-        string name,
-        Func<RiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
-    ) where TOptions : RuleOptions, new()
-        where TValidator : RuleOptionsValidator<TOptions>, new()
-            => AddRule<TOptions, TValidator>(name, (serviceProvider, @event) => ruleDelegate(@event));
 
     /// <summary>Registers an implementation of <see cref="IRiskEventStore"/> where Entity Framework Core is used as a persistent mechanism.</summary>
     /// <param name="dbContextOptionsBuilderAction">The builder being used to configure the context.</param>

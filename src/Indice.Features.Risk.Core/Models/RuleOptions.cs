@@ -6,14 +6,9 @@
 public class RuleOptions
 {
     /// <summary>
-    /// Name of the rule.
+    /// Friendly name of the rule.
     /// </summary>
     public string FriendlyName { get; set; }
-
-    /// <summary>
-    /// A description of the rule.
-    /// </summary>
-    public string Description { get; set; }
 
     /// <summary>
     /// Whether the rule is enabled or not.
