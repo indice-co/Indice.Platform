@@ -30,7 +30,7 @@ public class RiskEngineBuilder
     public RiskEngineBuilder AddRule<TRule, TOptions, TValidator>(string name)
         where TRule : RiskRule
         where TOptions : RuleOptions, new()
-        where TValidator : RuleOptionsBaseValidator<TOptions>, new() {
+        where TValidator : RuleOptionsValidator<TOptions>, new() {
         CheckAndAddRuleName(name);
         _services.AddTransient<IValidator<TOptions>, TValidator>();
         _services.AddOptions<TOptions>().BindConfiguration($"{Constants.RuleOptionsSectionName}:{name}");
@@ -48,7 +48,7 @@ public class RiskEngineBuilder
         string name,
         Func<IServiceProvider, RiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
     ) where TOptions : RuleOptions, new()
-        where TValidator : RuleOptionsBaseValidator<TOptions>, new() {
+        where TValidator : RuleOptionsValidator<TOptions>, new() {
         CheckAndAddRuleName(name);
         _services.AddTransient<IValidator<TOptions>, TValidator>();
         _services.AddOptions<TOptions>().BindConfiguration($"{Constants.RuleOptionsSectionName}:{name}");
@@ -66,7 +66,7 @@ public class RiskEngineBuilder
         string name,
         Func<RiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
     ) where TOptions : RuleOptions, new()
-        where TValidator : RuleOptionsBaseValidator<TOptions>, new()
+        where TValidator : RuleOptionsValidator<TOptions>, new()
             => AddRule<TOptions, TValidator>(name, (serviceProvider, @event) => ruleDelegate(@event));
 
     /// <summary>Registers an implementation of <see cref="IRiskEventStore"/> where Entity Framework Core is used as a persistent mechanism.</summary>

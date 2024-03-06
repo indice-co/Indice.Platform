@@ -3,6 +3,7 @@ using System.Text.Json;
 using Indice.Extensions.Configuration.Database.Data.Models;
 using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data;
+using Indice.Features.Risk.Core.Models;
 using Indice.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -30,7 +31,7 @@ internal class RiskRuleStoreEntityFrameworkCore : IRiskRuleOptionsStore
         return results;
     }
 
-    public async Task UpdateRiskRuleOptions(string ruleName, JsonElement jsonElement) {
+    public async Task UpdateRiskRuleOptions(string ruleName, RuleOptions jsonElement) {
         if (string.IsNullOrWhiteSpace(ruleName)) {
             return;
         }

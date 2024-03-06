@@ -7,13 +7,18 @@ namespace Indice.Features.Risk.Core.Validators;
 /// Base validator for validating <see cref="RuleOptions"/>
 /// </summary>
 /// <typeparam name="TOptions"></typeparam>
-public class RuleOptionsBaseValidator<TOptions> : AbstractValidator<TOptions> where TOptions : RuleOptions
+public class RuleOptionsValidator<TOptions> : AbstractValidator<TOptions> where TOptions : RuleOptions
 {
     /// <summary>
     /// The validation rules.
     /// </summary>
-    public RuleOptionsBaseValidator() {
-        RuleFor(x => x.FriendlyName).NotEmpty();
-        RuleFor(x => x.Description).NotEmpty();
+    public RuleOptionsValidator() {
+        RuleFor(x => x.FriendlyName)
+            .NotEmpty()
+            .NotNull();
+
+        RuleFor(x => x.Description)
+            .NotEmpty()
+            .NotNull();
     }
 }

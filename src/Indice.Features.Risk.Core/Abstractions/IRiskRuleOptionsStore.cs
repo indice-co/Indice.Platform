@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Indice.Features.Risk.Core.Models;
 
 namespace Indice.Features.Risk.Core.Abstractions;
 
@@ -17,5 +18,5 @@ public interface IRiskRuleOptionsStore
     /// </summary>
     /// <param name="ruleName"></param>
     /// <returns></returns>
-    Task UpdateRiskRuleOptions(string ruleName, JsonElement jsonElement);
+    Task UpdateRiskRuleOptions(string ruleName, RuleOptions jsonElement);
 }

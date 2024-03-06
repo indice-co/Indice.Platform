@@ -1,10 +1,11 @@
 ﻿using System.Text.Json;
 using Indice.Features.Risk.Core.Abstractions;
+using Indice.Features.Risk.Core.Models;
 
 namespace Indice.Features.Risk.Core.Services;
 
 /// <summary>Manages the risk rule configurations registered in the risk engine.</summary>
-public class AdminRiskManager
+public class AdminRuleManager
 {
     /// <summary>The collection of rules registered in the risk engine.</summary>
     private readonly IEnumerable<RiskRule> _rules;
@@ -13,11 +14,11 @@ public class AdminRiskManager
     private readonly IRiskRuleOptionsStore _riskRuleOptionsStore;
 
     /// <summary>
-    /// Creates a new instance of <see cref="AdminRiskManager"/>.
+    /// Creates a new instance of <see cref="AdminRuleManager"/>.
     /// </summary>
     /// <param name="rules">Collection of rules registered in the engine.<</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public AdminRiskManager(
+    public AdminRuleManager(
         IEnumerable<RiskRule> rules,
         IRiskRuleOptionsStore riskRuleOptionsStore) {
         _rules = rules ?? throw new ArgumentNullException(nameof(rules));
@@ -47,7 +48,7 @@ public class AdminRiskManager
     /// <param name="ruleName"></param>
     /// <param name="jsonData"></param>
     /// <returns></returns>
-    public async Task UpdateRiskRuleOptionsAsync(string ruleName, JsonElement jsonData) {
+    public async Task UpdateRiskRuleOptionsAsync(string ruleName, RuleOptions jsonData) {
         await _riskRuleOptionsStore.UpdateRiskRuleOptions(ruleName, jsonData);
     }
 }

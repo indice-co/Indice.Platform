@@ -32,14 +32,14 @@ internal static class AdminRiskApiHandlers
     }
 
     internal static Ok<List<string>> GetRiskRules(
-        [FromServices] AdminRiskManager adminRiskManager
+        [FromServices] AdminRuleManager adminRiskManager
     ) {
         var results = adminRiskManager.GetRiskRules();
         return TypedResults.Ok(results);
     }
 
     internal static async Task<Results<Ok<Dictionary<string, string>>, NotFound>> GetRiskRuleOptions(
-        [FromServices] AdminRiskManager adminRiskManager,
+        [FromServices] AdminRuleManager adminRiskManager,
         string ruleName
     ) {
         var results = await adminRiskManager.GetRiskRuleOptionsAsync(ruleName);
@@ -47,13 +47,11 @@ internal static class AdminRiskApiHandlers
     }
 
     internal static async Task<Results<NoContent, ValidationProblem>> UpdateRiskRuleOptions<TOptions>(
-        [FromServices] AdminRiskManager adminRiskManager,
+        [FromServices] AdminRuleManager adminRiskManager,
         [FromBody] TOptions request,
         string ruleName
     ) where TOptions : RuleOptions {
-        var options = JsonSerializerOptionDefaults.GetDefaultSettings();
-        var jsonElement = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(request, options));
-        await adminRiskManager.UpdateRiskRuleOptionsAsync(ruleName, jsonElement);
+        await adminRiskManager.UpdateRiskRuleOptionsAsync(ruleName, request);
         return TypedResults.NoContent();
     }
 }
