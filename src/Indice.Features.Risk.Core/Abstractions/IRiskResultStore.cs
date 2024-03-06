@@ -1,5 +1,5 @@
 ﻿using Indice.Features.Risk.Core.Data.Models;
-using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Models.Requests;
 using Indice.Types;
 
 namespace Indice.Features.Risk.Core.Abstractions;
@@ -21,5 +21,5 @@ public interface IRiskResultStore
     /// </summary>
     /// <param name="options"></param>
     /// <returns></returns>
-    Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskFilter> options);
+    Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskFilterRequest> options);
 }

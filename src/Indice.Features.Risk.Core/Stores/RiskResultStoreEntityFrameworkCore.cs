@@ -1,7 +1,7 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Data;
 using Indice.Features.Risk.Core.Data.Models;
-using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Models.Requests;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +26,7 @@ internal class RiskResultStoreEntityFrameworkCore : IRiskResultStore
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskFilter> options) {
+    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetList(ListOptions<AdminRiskFilterRequest> options) {
         var query = _dbContext.RiskResults.AsNoTracking().AsQueryable();
         query = ApplyFilters(query, options.Filter.Filter);
         return await query.ToResultSetAsync(options);

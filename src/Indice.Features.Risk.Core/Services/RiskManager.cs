@@ -2,7 +2,7 @@
 using Indice.Features.Risk.Core.Configuration;
 using Indice.Features.Risk.Core.Data.Models;
 using Indice.Features.Risk.Core.Enums;
-using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Models.Requests;
 using Indice.Types;
 using Microsoft.Extensions.Options;
 
@@ -19,6 +19,7 @@ public class RiskManager
     /// <param name="riskEngineOptions">Options used to configure the core risk engine.</param>
     /// <param name="riskEventStore"></param>
     /// <param name="riskResultStore"></param>
+    /// <param name="riskRuleStore"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public RiskManager(
         IEnumerable<RiskRule> rules,
@@ -71,7 +72,7 @@ public class RiskManager
     /// </summary>
     /// <param name="options"></param>
     /// <returns></returns>
-    public async Task<ResultSet<RiskEvent>> GetRiskEventsAsync(ListOptions<AdminRiskFilter> options) {
+    public async Task<ResultSet<RiskEvent>> GetRiskEventsAsync(ListOptions<AdminRiskFilterRequest> options) {
         return await _riskEventStore.GetList(options);
     }
 
@@ -80,7 +81,7 @@ public class RiskManager
     /// </summary>
     /// <param name="options"></param>
     /// <returns></returns>
-    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetRiskResultsAsync(ListOptions<AdminRiskFilter> options) {
+    public async Task<ResultSet<DbAggregateRuleExecutionResult>> GetRiskResultsAsync(ListOptions<AdminRiskFilterRequest> options) {
         return await _riskResultStore.GetList(options);
     }
 

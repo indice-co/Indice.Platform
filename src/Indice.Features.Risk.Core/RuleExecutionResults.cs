@@ -21,8 +21,8 @@ public class AggregateRuleExecutionResult
     public RiskLevel RiskLevel { get; }
 
     internal AggregateRuleExecutionResult(
-        Guid id, 
-        int numberOfRulesExecuted, 
+        Guid id,
+        int numberOfRulesExecuted,
         IEnumerable<RuleExecutionResult>? results,
         RiskEngineOptions riskEngineOptions
     ) {
