@@ -4,10 +4,10 @@ using Indice.Features.Risk.Core.Models;
 namespace Indice.Features.Risk.Core.Validators;
 
 /// <summary>
-/// Base validator for validating <see cref="RuleOptionsBase"/>
+/// Base validator for validating <see cref="RuleOptions"/>
 /// </summary>
 /// <typeparam name="TOptions"></typeparam>
-public class RuleOptionsBaseValidator<TOptions> : AbstractValidator<TOptions> where TOptions : RuleOptionsBase
+public class RuleOptionsBaseValidator<TOptions> : AbstractValidator<TOptions> where TOptions : RuleOptions
 {
     /// <summary>
     /// The validation rules.

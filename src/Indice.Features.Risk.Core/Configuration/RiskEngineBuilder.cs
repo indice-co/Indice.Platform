@@ -29,7 +29,7 @@ public class RiskEngineBuilder
     /// <returns>The instance of <see cref="RiskEngineBuilder"/>.</returns>
     public RiskEngineBuilder AddRule<TRule, TOptions, TValidator>(string name)
         where TRule : RiskRule
-        where TOptions : RuleOptionsBase, new()
+        where TOptions : RuleOptions, new()
         where TValidator : RuleOptionsBaseValidator<TOptions>, new() {
         CheckAndAddRuleName(name);
         _services.AddTransient<IValidator<TOptions>, TValidator>();
@@ -47,7 +47,7 @@ public class RiskEngineBuilder
     public RiskEngineBuilder AddRule<TOptions, TValidator>(
         string name,
         Func<IServiceProvider, RiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
-    ) where TOptions : RuleOptionsBase, new()
+    ) where TOptions : RuleOptions, new()
         where TValidator : RuleOptionsBaseValidator<TOptions>, new() {
         CheckAndAddRuleName(name);
         _services.AddTransient<IValidator<TOptions>, TValidator>();
@@ -65,7 +65,7 @@ public class RiskEngineBuilder
     public RiskEngineBuilder AddRule<TOptions, TValidator>(
         string name,
         Func<RiskEvent, ValueTask<RuleExecutionResult>> ruleDelegate
-    ) where TOptions : RuleOptionsBase, new()
+    ) where TOptions : RuleOptions, new()
         where TValidator : RuleOptionsBaseValidator<TOptions>, new()
             => AddRule<TOptions, TValidator>(name, (serviceProvider, @event) => ruleDelegate(@event));
 

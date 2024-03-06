@@ -20,7 +20,7 @@ public static class AdminRiskApi
     /// </summary>
     /// <param name="builder"></param>
     /// <returns></returns>
-    public static IEndpointRouteBuilder MapAdminRisk<TOptions>(this IEndpointRouteBuilder builder) where TOptions : RuleOptionsBase {
+    public static IEndpointRouteBuilder MapAdminRisk<TOptions>(this IEndpointRouteBuilder builder) where TOptions : RuleOptions {
         var options = builder.ServiceProvider.GetService<IOptions<RiskApiOptions>>()?.Value ?? new RiskApiOptions();
         var group = builder.MapGroup($"{options.ApiPrefix}")
             .WithGroupName("risk")
@@ -68,6 +68,7 @@ public static class AdminRiskApi
 
         // POST: api/risk-rule/{ruleName}
         group
+            .AllowAnonymous()
             .MapPost("risk-rule/{ruleName}", AdminRiskApiHandlers.UpdateRiskRuleOptions<TOptions>)
             .WithName(nameof(AdminRiskApiHandlers.UpdateRiskRuleOptions))
             .WithSummary("Update the configuration options given a rule name.")

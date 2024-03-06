@@ -3,7 +3,7 @@
 /// <summary>
 /// Contains the basic options for each rule registered in the Risk Engine.
 /// </summary>
-public class RuleOptionsBase
+public class RuleOptions
 {
     /// <summary>
     /// Name of the rule.

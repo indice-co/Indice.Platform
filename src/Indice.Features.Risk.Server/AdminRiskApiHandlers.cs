@@ -50,7 +50,7 @@ internal static class AdminRiskApiHandlers
         [FromServices] AdminRiskManager adminRiskManager,
         [FromBody] TOptions request,
         string ruleName
-    ) where TOptions : RuleOptionsBase {
+    ) where TOptions : RuleOptions {
         var options = JsonSerializerOptionDefaults.GetDefaultSettings();
         var jsonElement = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(request, options));
         await adminRiskManager.UpdateRiskRuleOptionsAsync(ruleName, jsonElement);
