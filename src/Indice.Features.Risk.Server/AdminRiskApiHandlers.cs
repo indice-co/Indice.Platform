@@ -46,7 +46,7 @@ internal static class AdminRiskApiHandlers
         return (results.Count() == 0) ? TypedResults.NotFound() : TypedResults.Ok(results);
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateRiskRuleOptions<TOptions>(
+    internal static async Task<Results<NoContent, ValidationProblem>> UpdateRiskRuleOptions<TOptions>(
         [FromServices] AdminRiskManager adminRiskManager,
         [FromBody] TOptions request,
         string ruleName

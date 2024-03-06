@@ -61,7 +61,6 @@ public static class AdminRiskApi
 
         // GET: api/risk-rule/{ruleName}
         group
-            .AllowAnonymous()
             .MapGet("risk-rule/{ruleName}", AdminRiskApiHandlers.GetRiskRuleOptions)
             .WithName(nameof(AdminRiskApiHandlers.GetRiskRuleOptions))
             .WithSummary("Fetch the configuration options given a rule name.")
@@ -70,7 +69,6 @@ public static class AdminRiskApi
 
         // POST: api/risk-rule/{ruleName}
         group
-            .AllowAnonymous()
             .MapPost("risk-rule/{ruleName}", AdminRiskApiHandlers.UpdateRiskRuleOptions<TOptions>)
             .WithName(nameof(AdminRiskApiHandlers.UpdateRiskRuleOptions))
             .WithSummary("Update the configuration options given a rule name.")
