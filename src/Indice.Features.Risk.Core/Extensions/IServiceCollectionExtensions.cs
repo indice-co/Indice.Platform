@@ -27,6 +27,7 @@ public static class IServiceCollectionExtensions
             riskOptions.RiskAggregateScoreResolution = options.RiskAggregateScoreResolution;
         });
         services.AddTransient<RiskManager>();
+        services.AddTransient<AdminRuleManager>();
         services.AddSingleton<IRiskEventStore, RiskEventStoreNoOp>();
         return builder;
     }

@@ -1,5 +1,5 @@
 ﻿using Indice.Features.Risk.Core.Data.Models;
-using Indice.Features.Risk.Core.Models;
+using Indice.Features.Risk.Core.Models.Requests;
 using Indice.Types;
 
 namespace Indice.Features.Risk.Core.Abstractions;
@@ -20,5 +20,5 @@ public interface IRiskEventStore
     /// Fetches risk events from the store
     /// </summary>
     /// <param name="options"></param>
-    Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskFilter> options);
+    Task<ResultSet<RiskEvent>> GetList(ListOptions<AdminRiskFilterRequest> options);
 }
