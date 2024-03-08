@@ -14,7 +14,7 @@ public abstract class RiskRule
         Description = description ?? throw new ArgumentNullException(nameof(description));
     }
 
-    /// <summary>The name of the rule.</summary>
+    /// <summary>The name of the rule. Also used as a unique RuleId in the system.</summary>
     public string Name { get; }
 
     /// <summary>Whether the rule is enabled or not.</summary>

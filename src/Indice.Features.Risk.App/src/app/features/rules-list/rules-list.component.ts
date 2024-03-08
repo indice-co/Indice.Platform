@@ -10,10 +10,10 @@ import { ParamsService } from 'src/app/core/services/params.service';
 import { RiskApiService, RiskRuleDto, RiskRuleDtoResultSet } from 'src/app/core/services/risk-api.service';
 
 @Component({
-    selector: 'app-risk-configuration',
-    templateUrl: './risk-configuration.component.html'
+    selector: 'app-rules-list',
+    templateUrl: './rules-list.component.html'
 })
-export class RiskConfigurationComponent extends BaseListComponent<RiskRuleDto> implements OnInit {
+export class RulesListComponent extends BaseListComponent<RiskRuleDto> implements OnInit {
     newItemLink: string;
     public formActions: ViewAction[] = [
         new ViewAction('refresh', 'refresh', null, Icons.Refresh, 'Ανανέωση στοιχείων')

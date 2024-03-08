@@ -7,7 +7,7 @@ import { HomeComponent } from './features/home/home.component';
 import { RiskEventsComponent } from './features/risk-events/risk-events.component';
 import { RiskResultsComponent } from './features/risk-results/risk-results.component';
 import { RiskDetailsPageComponent } from './shared/risk-details-page/risk-details-page.component';
-import { RiskConfigurationComponent } from './features/risk-configuration/risk-configuration.component';
+import { RulesListComponent } from './features/rules-list/rules-list.component';
 import { RuleOptionsPageComponent } from './shared/rule-options-page/rule-options-page.component';
 
 const routes: Routes = [
@@ -20,7 +20,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'risk-events', pathMatch: 'full' },
       { path: 'risk-events', component: RiskEventsComponent },
       { path: 'risk-results', component: RiskResultsComponent },
-      { path: 'rules', component: RiskConfigurationComponent }
+      { path: 'rules', component: RulesListComponent }
     ]
   },
   { path: 'details', component: RiskDetailsPageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { paneSize: SidePaneSize.Small25 } },
