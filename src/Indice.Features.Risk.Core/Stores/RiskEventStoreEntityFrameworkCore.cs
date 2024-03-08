@@ -53,31 +53,6 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
         return await query.ToResultSetAsync(options);
     }
 
-    public async Task<IEnumerable<RiskEvent>> GetHistoricalRiskEvents(
-        string subjectId,
-        DateTime startDate,
-        DateTime? endDate = null,
-        List<FilterClause>? filters = null,
-        string? type = null
-    ) {
-        var query = _dbContext.RiskEvents
-            .AsNoTracking()
-            .Where(r => r.SubjectId == subjectId &&
-                        r.CreatedAt >= startDate);
-
-        if (endDate.HasValue) {
-            query = query.Where(x => x.CreatedAt <= endDate);
-        }
-        if (filters?.Any() == true) {
-            query = query.Where(filters);
-        }
-        if (!string.IsNullOrWhiteSpace(type)) {
-            query = query.Where(x => x.Type == type);
-        }
-
-        return await query.ToListAsync();
-    }
-
     private IQueryable<RiskEvent> ApplyFilter(IQueryable<RiskEvent> query, FilterClause[] filter) {
         foreach (var clause in filter) {
             if (string.IsNullOrWhiteSpace(clause.Member)) {
