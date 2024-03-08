@@ -16,6 +16,8 @@ import { RiskResultsComponent } from './features/risk-results/risk-results.compo
 import { RISK_API_BASE_URL } from './core/services/risk-api.service';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { RiskDetailsPageComponent } from './shared/risk-details-page/risk-details-page.component';
+import { RiskConfigurationComponent } from './features/risk-configuration/risk-configuration.component';
+import { RuleOptionsPageComponent } from './shared/rule-options-page/rule-options-page.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +25,9 @@ import { RiskDetailsPageComponent } from './shared/risk-details-page/risk-detail
     RiskEventsComponent,
     RiskResultsComponent,
     HomeComponent,
-    RiskDetailsPageComponent
+    RiskDetailsPageComponent,
+    RiskConfigurationComponent,
+    RuleOptionsPageComponent
   ],
   imports: [
     NgxJsonViewerModule,

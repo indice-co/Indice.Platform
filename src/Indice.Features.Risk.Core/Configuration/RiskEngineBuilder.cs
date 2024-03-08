@@ -40,7 +40,7 @@ public class RiskEngineBuilder
     /// <param name="dbContextOptionsBuilderAction">The builder being used to configure the context.</param>
     public void AddEntityFrameworkCoreStore(Action<DbContextOptionsBuilder> dbContextOptionsBuilderAction) {
         _services.AddDbContext<RiskDbContext>(dbContextOptionsBuilderAction);
-        _services.AddTransient<IRiskRuleOptionsStore, RiskRuleStoreEntityFrameworkCore>();
+        _services.AddTransient<IRuleOptionsStore, RuleStoreEntityFrameworkCore>();
         _services.AddTransient<IRiskEventStore, RiskEventStoreEntityFrameworkCore>();
         _services.AddTransient<IRiskResultStore, RiskResultStoreEntityFrameworkCore>();
     }

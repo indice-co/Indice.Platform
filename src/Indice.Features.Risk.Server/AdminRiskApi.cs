@@ -56,7 +56,7 @@ public static class AdminRiskApi
             .MapGet("risk-rules", AdminRiskApiHandlers.GetRiskRules)
             .WithName(nameof(AdminRiskApiHandlers.GetRiskRules))
             .WithSummary("Fetch registered risk rules.")
-            .Produces(StatusCodes.Status200OK, typeof(List<string>));
+            .Produces(StatusCodes.Status200OK, typeof(ResultSet<RiskRuleDto>));
 
         // GET: api/risk-rule/{ruleName}
         group

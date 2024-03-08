@@ -11,6 +11,11 @@ public class RuleOptions
     public string FriendlyName { get; set; }
 
     /// <summary>
+    /// The description of the rule.
+    /// </summary>
+    public string Description { get; set; }
+
+    /// <summary>
     /// Whether the rule is enabled or not.
     /// </summary>
     public bool Enabled { get; set; } = true;

@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Risk.Core.Abstractions;
 using Indice.Features.Risk.Core.Models;
+using Indice.Types;
 
 namespace Indice.Features.Risk.Core.Services;
 
@@ -10,7 +11,7 @@ public class AdminRuleManager
     private readonly IEnumerable<RiskRule> _rules;
 
     /// <summary>The risk rules configuration store.</summary>
-    private readonly IRiskRuleOptionsStore _riskRuleOptionsStore;
+    private readonly IRuleOptionsStore _ruleOptionsStore;
 
     /// <summary>
     /// Creates a new instance of <see cref="AdminRuleManager"/>.
@@ -19,17 +20,26 @@ public class AdminRuleManager
     /// <exception cref="ArgumentNullException"></exception>
     public AdminRuleManager(
         IEnumerable<RiskRule> rules,
-        IRiskRuleOptionsStore riskRuleOptionsStore) {
+        IRuleOptionsStore riskRuleOptionsStore) {
         _rules = rules ?? throw new ArgumentNullException(nameof(rules));
-        _riskRuleOptionsStore = riskRuleOptionsStore ?? throw new ArgumentNullException(nameof(riskRuleOptionsStore));
+        _ruleOptionsStore = riskRuleOptionsStore ?? throw new ArgumentNullException(nameof(riskRuleOptionsStore));
     }
 
     /// <summary>
     /// Gets the list of risk rules registered in the system.
     /// </summary>
     /// <returns></returns>
-    public List<string> GetRiskRules() {
-        return _rules.Select(x => x.Name).ToList();
+    public async Task<ResultSet<RiskRuleDto>> GetRiskRulesAsync() {
+        var friendlyNames = await Task.WhenAll(_rules.Select(x => _ruleOptionsStore.GetRuleFriendlyName(x.Name)));
+        var result = _rules
+            .Select((x, index) => new RiskRuleDto {
+                Name = x.Name,
+                Description = x.Description,
+                Enabled = x.Enabled,
+                FriendlyName = friendlyNames[index]
+            })
+            .ToResultSet();
+        return result;
     }
 
     /// <summary>
@@ -38,16 +48,16 @@ public class AdminRuleManager
     /// <param name="ruleName"></param>
     /// <returns></returns>
     public async Task<Dictionary<string, string>> GetRiskRuleOptionsAsync(string ruleName) {
-        return await _riskRuleOptionsStore.GetRiskRuleOptions(ruleName);
+        return await _ruleOptionsStore.GetRuleOptions(ruleName);
     }
 
     /// <summary>
     /// Updates the rule options, given a rule name.
     /// </summary>
     /// <param name="ruleName"></param>
-    /// <param name="jsonData"></param>
+    /// <param name="ruleOptions"></param>
     /// <returns></returns>
-    public async Task UpdateRiskRuleOptionsAsync(string ruleName, RuleOptions jsonData) {
-        await _riskRuleOptionsStore.UpdateRiskRuleOptions(ruleName, jsonData);
+    public async Task UpdateRiskRuleOptionsAsync(string ruleName, RuleOptions ruleOptions) {
+        await _ruleOptionsStore.UpdateRuleOptions(ruleName, ruleOptions);
     }
 }
