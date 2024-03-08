@@ -18,14 +18,6 @@ internal class RuleStoreEntityFrameworkCore : IRuleOptionsStore
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    public async Task<string?> GetRuleFriendlyName(string ruleName) {
-        return await _context.AppSettings
-           .AsNoTracking()
-           .Where(x => x.Key.StartsWith($"{Constants.RuleOptionsSectionName}:{ruleName}:{nameof(RuleOptions.FriendlyName)}"))
-           .Select(x => x.Value)
-           .FirstOrDefaultAsync();
-    }
-
     public async Task<Dictionary<string, string>> GetRuleOptions(string ruleName) {
         if (string.IsNullOrWhiteSpace(ruleName)) {
             return new Dictionary<string, string>();

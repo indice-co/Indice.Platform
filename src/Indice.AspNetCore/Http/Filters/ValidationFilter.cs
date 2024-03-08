@@ -3,9 +3,9 @@ using System.Reflection;
 using Indice.AspNetCore.Http.Validation;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using MiniValidation;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -104,25 +104,28 @@ public static partial class ValidationFilterExtensions
     /// <typeparam name="TException"></typeparam>
     /// <param name="builder">A builder for defining groups of endpoints with a common prefix.</param>
     /// <param name="statusCode">The HTTP status code.</param>
+    /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation.</param>
     /// <returns>The builder.</returns>
-    public static RouteGroupBuilder WithHandledException<TException>(this RouteGroupBuilder builder, int statusCode = StatusCodes.Status400BadRequest)
-        where TException : Exception => WithHandledException<RouteGroupBuilder, TException>(builder, statusCode);
+    public static RouteGroupBuilder WithHandledException<TException>(this RouteGroupBuilder builder, int statusCode = StatusCodes.Status400BadRequest, Func<TException, ValidationProblem> exceptionHandler = null)
+        where TException : Exception => WithHandledException<RouteGroupBuilder, TException>(builder, statusCode, exceptionHandler);
 
     /// <summary>Adds exception handling for the specified exception.</summary>
     /// <typeparam name="TException"></typeparam>
     /// <param name="builder">A builder for defining groups of endpoints with a common prefix.</param>
     /// <param name="statusCode">The HTTP status code.</param>
+    /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation.</param>
     /// <returns>The builder.</returns>
-    public static RouteHandlerBuilder WithHandledException<TException>(this RouteHandlerBuilder builder, int statusCode = StatusCodes.Status400BadRequest)
-        where TException : Exception => WithHandledException<RouteHandlerBuilder, TException>(builder, statusCode);
+    public static RouteHandlerBuilder WithHandledException<TException>(this RouteHandlerBuilder builder, int statusCode = StatusCodes.Status400BadRequest, Func<TException, ValidationProblem> exceptionHandler = null)
+        where TException : Exception => WithHandledException<RouteHandlerBuilder, TException>(builder, statusCode, exceptionHandler);
 
     /// <summary>Adds the validation of input parameters and <see cref="HttpValidationProblemDetails"/> automatic response when something is out of place.</summary>
     /// <typeparam name="TBuilder"></typeparam>
     /// <typeparam name="TException"></typeparam>
     /// <param name="builder">A builder for defining groups of endpoints with a common prefix.</param>
     /// <param name="statusCode">The HTTP status code.</param>
+    /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation.</param>
     /// <returns>The builder.</returns>
-    public static TBuilder WithHandledException<TBuilder, TException>(this TBuilder builder, int statusCode)
+    public static TBuilder WithHandledException<TBuilder, TException>(this TBuilder builder, int statusCode, Func<TException, IResult> exceptionHandler = null)
         where TBuilder : IEndpointConventionBuilder
         where TException : Exception {
         builder.Add(endpointBuilder => {
@@ -131,17 +134,29 @@ public static partial class ValidationFilterExtensions
                 return;
             }
             // We can respond with problem details if there's a validation error.
-            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), new[] { "application/problem+json" }));
+            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), ["application/problem+json"]));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
                     try {
                         return await next(invocationContext);
                     } catch (TException exception) {
-                        if (exception is BusinessException businessException) {
-                            return Results.ValidationProblem(businessException.Errors, detail: exception.Message, extensions: new Dictionary<string, object>() { ["code"] = businessException.Code });
-                        } else {
-                            return Results.Problem(detail: exception.Message, statusCode: statusCode, extensions: new Dictionary<string, object>() { ["code"] = typeof(TException).Name });
+                        if (exceptionHandler is not null) {
+                            return exceptionHandler.Invoke(exception);
                         }
+
+                        if (exception is BusinessException businessException) {
+                            return Results.ValidationProblem(
+                                errors: businessException.Errors,
+                                detail: exception.Message,
+                                extensions: new Dictionary<string, object>() { ["code"] = businessException.Code }
+                            );
+                        }
+
+                        return Results.Problem(
+                            detail: exception.Message,
+                            statusCode: statusCode,
+                            extensions: new Dictionary<string, object>() { ["code"] = typeof(TException).Name }
+                        );
                     }
                 });
             });

@@ -19,7 +19,6 @@ public class RiskManager
     /// <param name="riskEngineOptions">Options used to configure the core risk engine.</param>
     /// <param name="riskEventStore"></param>
     /// <param name="riskResultStore"></param>
-    /// <param name="riskRuleStore"></param>
     /// <exception cref="ArgumentNullException"></exception>
     public RiskManager(
         IEnumerable<RiskRule> rules,
@@ -58,7 +57,7 @@ public class RiskManager
     /// <param name="event">The event occurred for which to calculate the risk score.</param>
     public async Task<AggregateRuleExecutionResult> GetRiskAsync(RiskEvent @event) {
         var results = new List<RuleExecutionResult>();
-        foreach (var rule in Rules.Where(x => x.Enabled)) {
+        foreach (var rule in Rules.Where(x => x.Options.Enabled)) {
             var result = await rule.ExecuteAsync(@event);
             result.RuleName = rule.Name;
             result.RiskLevel = RiskEngineOptions.RiskLevelRangeMapping.GetRiskLevel(result.RiskScore) ?? RiskLevel.None;

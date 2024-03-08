@@ -29,14 +29,13 @@ public class AdminRuleManager
     /// Gets the list of risk rules registered in the system.
     /// </summary>
     /// <returns></returns>
-    public async Task<ResultSet<RiskRuleDto>> GetRiskRulesAsync() {
-        var friendlyNames = await Task.WhenAll(_rules.Select(x => _ruleOptionsStore.GetRuleFriendlyName(x.Name)));
+    public ResultSet<RiskRuleDto> GetRiskRules() {
         var result = _rules
             .Select((x, index) => new RiskRuleDto {
                 Name = x.Name,
-                Description = x.Description,
-                Enabled = x.Enabled,
-                FriendlyName = friendlyNames[index]
+                Description = x.Options.Description,
+                Enabled = x.Options.Enabled,
+                FriendlyName = x.Options.FriendlyName
             })
             .ToResultSet();
         return result;
