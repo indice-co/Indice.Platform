@@ -29,10 +29,10 @@ internal static class AdminRiskApiHandlers
         return TypedResults.Ok(results);
     }
 
-    internal static async Task<Ok<ResultSet<RiskRuleDto>>> GetRiskRules(
+    internal static Ok<ResultSet<RiskRuleDto>> GetRiskRules(
         [FromServices] AdminRuleManager adminRiskManager
     ) {
-        var results = await adminRiskManager.GetRiskRulesAsync();
+        var results = adminRiskManager.GetRiskRules();
         return TypedResults.Ok(results);
     }
 
