@@ -15,7 +15,9 @@ namespace Indice.Features.Risk.Tests;
 
 public class TestRule : RiskRule
 {
-    public TestRule() : base("TransactionOver1000", "TransactionOver1000") {}
+    public TestRule() : base("TransactionOver1000") {
+        Options = new RuleOptions { Enabled = true };
+    }
 
     public override ValueTask<RuleExecutionResult> ExecuteAsync(RiskEvent @event) {
         return ValueTask.FromResult(
@@ -56,7 +58,7 @@ public class RiskCalculationTests
 
     [Fact]
     public async void High_Risk_On_Transaction_Over_1000() {
-        var riskManager = ServiceProvider.GetRequiredService<RiskManager>();
+        var riskManager = ServiceProvider.GetRequiredService<RiskService>();
         var result = await riskManager.GetRiskAsync(new RiskEvent {
             Amount = 1001,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -73,7 +75,7 @@ public class RiskCalculationTests
 
     [Fact]
     public async void Low_Risk_On_Transaction_Under_1000() {
-        var riskManager = ServiceProvider.GetRequiredService<RiskManager>();
+        var riskManager = ServiceProvider.GetRequiredService<RiskService>();
         var result = await riskManager.GetRiskAsync(new RiskEvent {
             Amount = 999,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -91,7 +93,7 @@ public class RiskCalculationTests
     [Fact]
     public async void Can_Create_Risk_Events() {
         const string SUBJECT_ID = "4075C988-ECDB-434D-8164-970F7DF39DC3";
-        var riskManager = ServiceProvider.GetRequiredService<RiskManager>();
+        var riskManager = ServiceProvider.GetRequiredService<RiskStoreService>();
         await riskManager.CreateRiskEventAsync(new RiskEvent {
             Amount = 1001,
             CreatedAt = DateTimeOffset.UtcNow,

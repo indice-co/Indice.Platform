@@ -49,7 +49,7 @@ export interface IRiskApiService {
      * @param body (optional) 
      * @return No Content
      */
-    updateRiskRuleOptions(ruleName: string, body?: RuleOptionsRoot | undefined): Observable<void>;
+    updateRiskRuleOptions(ruleName: string, body?: RuleOptions | undefined): Observable<void>;
     /**
      * Fetch registered risk rules.
      * @return OK
@@ -447,7 +447,7 @@ export class RiskApiService implements IRiskApiService {
      * @param body (optional) 
      * @return No Content
      */
-    updateRiskRuleOptions(ruleName: string, body?: RuleOptionsRoot | undefined): Observable<void> {
+    updateRiskRuleOptions(ruleName: string, body?: RuleOptions | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/risk-rule/{ruleName}";
         if (ruleName === undefined || ruleName === null)
             throw new Error("The parameter 'ruleName' must be defined.");
@@ -1401,22 +1401,19 @@ export interface IRuleExecutionResult {
     ruleName?: string | undefined;
 }
 
-export class RuleOptionsRoot implements IRuleOptionsRoot {
+export class RuleOptions implements IRuleOptions {
     friendlyName?: string | undefined;
     description?: string | undefined;
     enabled?: boolean;
     eligibleEvents?: string[] | undefined;
 
-    protected _discriminator: string;
-
-    constructor(data?: IRuleOptionsRoot) {
+    constructor(data?: IRuleOptions) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
                     (<any>this)[property] = (<any>data)[property];
             }
         }
-        this._discriminator = "RuleOptionsRoot";
     }
 
     init(_data?: any) {
@@ -1432,21 +1429,15 @@ export class RuleOptionsRoot implements IRuleOptionsRoot {
         }
     }
 
-    static fromJS(data: any): RuleOptionsRoot {
+    static fromJS(data: any): RuleOptions {
         data = typeof data === 'object' ? data : {};
-        if (data["_type"] === "TransactionOverMinimumAmountRuleOptions") {
-            let result = new TransactionOverMinimumAmountRuleOptions();
-            result.init(data);
-            return result;
-        }
-        let result = new RuleOptionsRoot();
+        let result = new RuleOptions();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["_type"] = this._discriminator;
         data["friendlyName"] = this.friendlyName;
         data["description"] = this.description;
         data["enabled"] = this.enabled;
@@ -1459,57 +1450,11 @@ export class RuleOptionsRoot implements IRuleOptionsRoot {
     }
 }
 
-export interface IRuleOptionsRoot {
+export interface IRuleOptions {
     friendlyName?: string | undefined;
     description?: string | undefined;
     enabled?: boolean;
     eligibleEvents?: string[] | undefined;
-}
-
-export class TransactionOverMinimumAmountRuleOptions extends RuleOptionsRoot implements ITransactionOverMinimumAmountRuleOptions {
-    amountThreshold?: number;
-
-    [key: string]: any;
-
-    constructor(data?: ITransactionOverMinimumAmountRuleOptions) {
-        super(data);
-        this._discriminator = "TransactionOverMinimumAmountRuleOptions";
-    }
-
-    init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            for (var property in _data) {
-                if (_data.hasOwnProperty(property))
-                    this[property] = _data[property];
-            }
-            this.amountThreshold = _data["amountThreshold"];
-        }
-    }
-
-    static fromJS(data: any): TransactionOverMinimumAmountRuleOptions {
-        data = typeof data === 'object' ? data : {};
-        let result = new TransactionOverMinimumAmountRuleOptions();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        for (var property in this) {
-            if (this.hasOwnProperty(property))
-                data[property] = this[property];
-        }
-        data["amountThreshold"] = this.amountThreshold;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface ITransactionOverMinimumAmountRuleOptions extends IRuleOptionsRoot {
-    amountThreshold?: number;
-
-    [key: string]: any;
 }
 
 export class SwaggerException extends Error {
