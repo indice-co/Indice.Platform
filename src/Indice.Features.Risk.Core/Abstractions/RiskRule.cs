@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Models;
 
 namespace Indice.Features.Risk.Core.Abstractions;
 
@@ -7,21 +8,16 @@ public abstract class RiskRule
 {
     /// <summary>Creates a new instance of <see cref="RiskRule"/>.</summary>
     /// <param name="ruleName">The name of the rule.</param>
-    /// <param name="description">The description of the rule.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public RiskRule(string ruleName, string description) {
+    public RiskRule(string ruleName) {
         Name = ruleName ?? throw new ArgumentNullException(nameof(ruleName));
-        Description = description ?? throw new ArgumentNullException(nameof(description));
     }
 
-    /// <summary>The name of the rule.</summary>
+    /// <summary>The name of the rule. Also used as a unique RuleId in the system.</summary>
     public string Name { get; }
 
-    /// <summary>Whether the rule is enabled or not.</summary>
-    public bool Enabled { get; set; } = true;
-
-    /// <summary>The description of the rule.</summary>
-    public string Description { get; set; }
+    /// <summary>The options of the rule.</summary>
+    public RuleOptions Options { get; set; }
 
     /// <summary>Executes the rule asynchronously.</summary>
     /// <param name="event">The event occurred.</param>

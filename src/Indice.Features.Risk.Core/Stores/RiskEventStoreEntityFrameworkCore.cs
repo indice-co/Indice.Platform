@@ -20,13 +20,30 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<RiskEvent>> GetList(string subjectId, string[]? types) {
+    public async Task<IEnumerable<RiskEvent>> GetList(
+        string subjectId, 
+        string[]? types,
+        DateTime? startDate,
+        DateTime? endDate,
+        List<FilterClause>? filters
+    ) {
         var query = _dbContext
             .RiskEvents
             .Where(x => x.SubjectId == subjectId);
+
         if (types?.Any() == true) {
             query = query.Where(x => types.Contains(x.Type));
         }
+        if (startDate.HasValue) {
+            query = query.Where(x => x.CreatedAt >= startDate);
+        }
+        if (endDate.HasValue) {
+            query = query.Where(x => x.CreatedAt <= endDate);
+        }
+        if (filters?.Any() == true) {
+            query = query.Where(filters);
+        }
+
         return await query.ToListAsync();
     }
 

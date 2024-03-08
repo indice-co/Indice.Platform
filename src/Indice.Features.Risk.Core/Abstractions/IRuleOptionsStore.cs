@@ -3,19 +3,20 @@
 namespace Indice.Features.Risk.Core.Abstractions;
 
 /// <summary>Store for risk rule configuration.</summary>
-public interface IRiskRuleOptionsStore
+public interface IRuleOptionsStore
 {
     /// <summary>
     /// Fetches the risk options for a given rule name.
     /// </summary>
     /// <param name="ruleName"></param>
     /// <returns></returns>
-    Task<Dictionary<string, string>> GetRiskRuleOptions(string ruleName);
+    Task<Dictionary<string, string>> GetRuleOptions(string ruleName);
 
     /// <summary>
     /// Updates the risk options for a given rule name.
     /// </summary>
     /// <param name="ruleName"></param>
+    /// <param name="ruleOptions"></param>
     /// <returns></returns>
-    Task UpdateRiskRuleOptions(string ruleName, RuleOptions jsonElement);
+    Task UpdateRuleOptions(string ruleName, RuleOptions ruleOptions);
 }

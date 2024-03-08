@@ -12,7 +12,8 @@ export class AppLinks implements IAppLinks {
             map(user => {
                 const headerMenu = [
                     new NavLink('Risk Events', '/risk-events', true),
-                    new NavLink('Risk Results', '/risk-results', true)
+                    new NavLink('Risk Results', '/risk-results', true),
+                    new NavLink('Rules', '/rules', true)
                 ]
                 return headerMenu;
             }),

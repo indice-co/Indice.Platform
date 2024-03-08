@@ -40,6 +40,22 @@ export interface IRiskApiService {
      */
     getRiskResults(filter: string[], page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined): Observable<DbAggregateRuleExecutionResultResultSet>;
     /**
+     * Fetch the configuration options given a rule name.
+     * @return OK
+     */
+    getRiskRuleOptions(ruleName: string): Observable<{ [key: string]: string; }>;
+    /**
+     * Update the configuration options given a rule name.
+     * @param body (optional) 
+     * @return No Content
+     */
+    updateRiskRuleOptions(ruleName: string, body?: RuleOptionsRoot | undefined): Observable<void>;
+    /**
+     * Fetch registered risk rules.
+     * @return OK
+     */
+    getRiskRules(): Observable<RiskRuleDtoResultSet>;
+    /**
      * Records a risk event in the store.
      * @return Created
      */
@@ -338,6 +354,249 @@ export class RiskApiService implements IRiskApiService {
     }
 
     /**
+     * Fetch the configuration options given a rule name.
+     * @return OK
+     */
+    getRiskRuleOptions(ruleName: string): Observable<{ [key: string]: string; }> {
+        let url_ = this.baseUrl + "/api/risk-rule/{ruleName}";
+        if (ruleName === undefined || ruleName === null)
+            throw new Error("The parameter 'ruleName' must be defined.");
+        url_ = url_.replace("{ruleName}", encodeURIComponent("" + ruleName));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetRiskRuleOptions(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetRiskRuleOptions(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<{ [key: string]: string; }>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<{ [key: string]: string; }>;
+        }));
+    }
+
+    protected processGetRiskRuleOptions(response: HttpResponseBase): Observable<{ [key: string]: string; }> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (resultData200) {
+                result200 = {} as any;
+                for (let key in resultData200) {
+                    if (resultData200.hasOwnProperty(key))
+                        (<any>result200)![key] = resultData200[key] !== undefined ? resultData200[key] : <any>null;
+                }
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<{ [key: string]: string; }>(null as any);
+    }
+
+    /**
+     * Update the configuration options given a rule name.
+     * @param body (optional) 
+     * @return No Content
+     */
+    updateRiskRuleOptions(ruleName: string, body?: RuleOptionsRoot | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/risk-rule/{ruleName}";
+        if (ruleName === undefined || ruleName === null)
+            throw new Error("The parameter 'ruleName' must be defined.");
+        url_ = url_.replace("{ruleName}", encodeURIComponent("" + ruleName));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateRiskRuleOptions(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateRiskRuleOptions(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateRiskRuleOptions(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return _observableOf<void>(null as any);
+            }));
+        } else if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("Bad Request", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<void>(null as any);
+    }
+
+    /**
+     * Fetch registered risk rules.
+     * @return OK
+     */
+    getRiskRules(): Observable<RiskRuleDtoResultSet> {
+        let url_ = this.baseUrl + "/api/risk-rules";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetRiskRules(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetRiskRules(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RiskRuleDtoResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RiskRuleDtoResultSet>;
+        }));
+    }
+
+    protected processGetRiskRules(response: HttpResponseBase): Observable<RiskRuleDtoResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = RiskRuleDtoResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf<RiskRuleDtoResultSet>(null as any);
+    }
+
+    /**
      * Records a risk event in the store.
      * @return Created
      */
@@ -415,6 +674,8 @@ export class AggregateRuleExecutionResult implements IAggregateRuleExecutionResu
     readonly id?: string;
     readonly numberOfRulesExecuted?: number;
     readonly results?: RuleExecutionResult[] | undefined;
+    readonly riskScore?: number;
+    riskLevel?: RiskLevel;
 
     constructor(data?: IAggregateRuleExecutionResult) {
         if (data) {
@@ -434,6 +695,8 @@ export class AggregateRuleExecutionResult implements IAggregateRuleExecutionResu
                 for (let item of _data["results"])
                     (<any>this).results!.push(RuleExecutionResult.fromJS(item));
             }
+            (<any>this).riskScore = _data["riskScore"];
+            this.riskLevel = _data["riskLevel"];
         }
     }
 
@@ -453,6 +716,8 @@ export class AggregateRuleExecutionResult implements IAggregateRuleExecutionResu
             for (let item of this.results)
                 data["results"].push(item.toJSON());
         }
+        data["riskScore"] = this.riskScore;
+        data["riskLevel"] = this.riskLevel;
         return data;
     }
 }
@@ -461,6 +726,8 @@ export interface IAggregateRuleExecutionResult {
     id?: string;
     numberOfRulesExecuted?: number;
     results?: RuleExecutionResult[] | undefined;
+    riskScore?: number;
+    riskLevel?: RiskLevel;
 }
 
 export class DbAggregateRuleExecutionResult implements IDbAggregateRuleExecutionResult {
@@ -475,6 +742,8 @@ export class DbAggregateRuleExecutionResult implements IDbAggregateRuleExecution
     data?: any | undefined;
     numberOfRulesExecuted?: number;
     results?: DbRuleExecutionResult[] | undefined;
+    riskScore?: number;
+    riskLevel?: string | undefined;
 
     constructor(data?: IDbAggregateRuleExecutionResult) {
         if (data) {
@@ -502,6 +771,8 @@ export class DbAggregateRuleExecutionResult implements IDbAggregateRuleExecution
                 for (let item of _data["results"])
                     this.results!.push(DbRuleExecutionResult.fromJS(item));
             }
+            this.riskScore = _data["riskScore"];
+            this.riskLevel = _data["riskLevel"];
         }
     }
 
@@ -529,6 +800,8 @@ export class DbAggregateRuleExecutionResult implements IDbAggregateRuleExecution
             for (let item of this.results)
                 data["results"].push(item.toJSON());
         }
+        data["riskScore"] = this.riskScore;
+        data["riskLevel"] = this.riskLevel;
         return data;
     }
 }
@@ -545,6 +818,8 @@ export interface IDbAggregateRuleExecutionResult {
     data?: any | undefined;
     numberOfRulesExecuted?: number;
     results?: DbRuleExecutionResult[] | undefined;
+    riskScore?: number;
+    riskLevel?: string | undefined;
 }
 
 export class DbAggregateRuleExecutionResultResultSet implements IDbAggregateRuleExecutionResultResultSet {
@@ -982,6 +1257,102 @@ export interface IRiskModel {
     resultId?: string | undefined;
 }
 
+export class RiskRuleDto implements IRiskRuleDto {
+    name?: string | undefined;
+    friendlyName?: string | undefined;
+    description?: string | undefined;
+    enabled?: boolean;
+
+    constructor(data?: IRiskRuleDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.friendlyName = _data["friendlyName"];
+            this.description = _data["description"];
+            this.enabled = _data["enabled"];
+        }
+    }
+
+    static fromJS(data: any): RiskRuleDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RiskRuleDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["friendlyName"] = this.friendlyName;
+        data["description"] = this.description;
+        data["enabled"] = this.enabled;
+        return data;
+    }
+}
+
+export interface IRiskRuleDto {
+    name?: string | undefined;
+    friendlyName?: string | undefined;
+    description?: string | undefined;
+    enabled?: boolean;
+}
+
+export class RiskRuleDtoResultSet implements IRiskRuleDtoResultSet {
+    count?: number;
+    items?: RiskRuleDto[] | undefined;
+
+    constructor(data?: IRiskRuleDtoResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(RiskRuleDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): RiskRuleDtoResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new RiskRuleDtoResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IRiskRuleDtoResultSet {
+    count?: number;
+    items?: RiskRuleDto[] | undefined;
+}
+
 export class RuleExecutionResult implements IRuleExecutionResult {
     riskLevel?: RiskLevel;
     readonly riskScore?: number | undefined;
@@ -1028,6 +1399,117 @@ export interface IRuleExecutionResult {
     riskScore?: number | undefined;
     reason?: string | undefined;
     ruleName?: string | undefined;
+}
+
+export class RuleOptionsRoot implements IRuleOptionsRoot {
+    friendlyName?: string | undefined;
+    description?: string | undefined;
+    enabled?: boolean;
+    eligibleEvents?: string[] | undefined;
+
+    protected _discriminator: string;
+
+    constructor(data?: IRuleOptionsRoot) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        this._discriminator = "RuleOptionsRoot";
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.friendlyName = _data["friendlyName"];
+            this.description = _data["description"];
+            this.enabled = _data["enabled"];
+            if (Array.isArray(_data["eligibleEvents"])) {
+                this.eligibleEvents = [] as any;
+                for (let item of _data["eligibleEvents"])
+                    this.eligibleEvents!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): RuleOptionsRoot {
+        data = typeof data === 'object' ? data : {};
+        if (data["_type"] === "TransactionOverMinimumAmountRuleOptions") {
+            let result = new TransactionOverMinimumAmountRuleOptions();
+            result.init(data);
+            return result;
+        }
+        let result = new RuleOptionsRoot();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["_type"] = this._discriminator;
+        data["friendlyName"] = this.friendlyName;
+        data["description"] = this.description;
+        data["enabled"] = this.enabled;
+        if (Array.isArray(this.eligibleEvents)) {
+            data["eligibleEvents"] = [];
+            for (let item of this.eligibleEvents)
+                data["eligibleEvents"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IRuleOptionsRoot {
+    friendlyName?: string | undefined;
+    description?: string | undefined;
+    enabled?: boolean;
+    eligibleEvents?: string[] | undefined;
+}
+
+export class TransactionOverMinimumAmountRuleOptions extends RuleOptionsRoot implements ITransactionOverMinimumAmountRuleOptions {
+    amountThreshold?: number;
+
+    [key: string]: any;
+
+    constructor(data?: ITransactionOverMinimumAmountRuleOptions) {
+        super(data);
+        this._discriminator = "TransactionOverMinimumAmountRuleOptions";
+    }
+
+    init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            for (var property in _data) {
+                if (_data.hasOwnProperty(property))
+                    this[property] = _data[property];
+            }
+            this.amountThreshold = _data["amountThreshold"];
+        }
+    }
+
+    static fromJS(data: any): TransactionOverMinimumAmountRuleOptions {
+        data = typeof data === 'object' ? data : {};
+        let result = new TransactionOverMinimumAmountRuleOptions();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        for (var property in this) {
+            if (this.hasOwnProperty(property))
+                data[property] = this[property];
+        }
+        data["amountThreshold"] = this.amountThreshold;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface ITransactionOverMinimumAmountRuleOptions extends IRuleOptionsRoot {
+    amountThreshold?: number;
+
+    [key: string]: any;
 }
 
 export class SwaggerException extends Error {
