@@ -16,7 +16,9 @@ namespace Indice.Features.Risk.Tests;
 public class TestRule : RiskRule
 {
     public TestRule() : base("TransactionOver1000") {
-        Options = new RuleOptions { Enabled = true };
+        Options = new RuleOptions {
+            Enabled = true
+        };
     }
 
     public override ValueTask<RuleExecutionResult> ExecuteAsync(RiskEvent @event) {
