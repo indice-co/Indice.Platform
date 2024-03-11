@@ -37,9 +37,13 @@ internal class RuleStoreEntityFrameworkCore : IRuleOptionsStore
         if (string.IsNullOrWhiteSpace(ruleName)) {
             return;
         }
+
         var serializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         serializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString;
         var jsonString = JsonSerializer.Serialize(ruleOptions, ruleOptions.GetType(), serializerOptions);
+
+        // Creating an IConfiguration instance and enumerating it is faster and safe.
+        // It avoids the need to map and name the JSON properties to appropriate key/value pairs.
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString))) {
             var configurationBuilder = new ConfigurationBuilder();
             configurationBuilder.AddJsonStream(stream);

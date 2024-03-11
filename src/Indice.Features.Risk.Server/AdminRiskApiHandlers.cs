@@ -12,44 +12,44 @@ namespace Indice.Features.Risk.Server;
 internal static class AdminRiskApiHandlers
 {
     internal static async Task<Ok<ResultSet<RiskEvent>>> GetRiskEvents(
-        [FromServices] RiskManager riskManager,
+        [FromServices] RiskStoreService riskStoreService,
         [AsParameters] ListOptions options,
         [AsParameters] AdminRiskFilterRequest filter
     ) {
-        var results = await riskManager.GetRiskEventsAsync(ListOptions.Create(options, filter));
+        var results = await riskStoreService.GetRiskEventsAsync(ListOptions.Create(options, filter));
         return TypedResults.Ok(results);
     }
 
     internal static async Task<Ok<ResultSet<DbAggregateRuleExecutionResult>>> GetRiskResults(
-        [FromServices] RiskManager riskManager,
+        [FromServices] RiskStoreService riskStoreService,
         [AsParameters] ListOptions options,
         [AsParameters] AdminRiskFilterRequest filter
     ) {
-        var results = await riskManager.GetRiskResultsAsync(ListOptions.Create(options, filter));
+        var results = await riskStoreService.GetRiskResultsAsync(ListOptions.Create(options, filter));
         return TypedResults.Ok(results);
     }
 
     internal static Ok<ResultSet<RiskRuleDto>> GetRiskRules(
-        [FromServices] AdminRuleManager adminRiskManager
+        [FromServices] AdminRuleService adminRuleService
     ) {
-        var results = adminRiskManager.GetRiskRules();
+        var results = adminRuleService.GetRiskRules();
         return TypedResults.Ok(results);
     }
 
     internal static async Task<Results<Ok<Dictionary<string, string>>, NotFound>> GetRiskRuleOptions(
-        [FromServices] AdminRuleManager adminRiskManager,
+        [FromServices] AdminRuleService adminRuleService,
         string ruleName
     ) {
-        var results = await adminRiskManager.GetRiskRuleOptionsAsync(ruleName);
+        var results = await adminRuleService.GetRiskRuleOptionsAsync(ruleName);
         return (results.Count() == 0) ? TypedResults.NotFound() : TypedResults.Ok(results);
     }
 
     internal static async Task<Results<NoContent, ValidationProblem>> UpdateRiskRuleOptions<TOptions>(
-        [FromServices] AdminRuleManager adminRiskManager,
+        [FromServices] AdminRuleService adminRuleService,
         [FromBody] TOptions request,
         string ruleName
     ) where TOptions : RuleOptions {
-        await adminRiskManager.UpdateRiskRuleOptionsAsync(ruleName, request);
+        await adminRuleService.UpdateRiskRuleOptionsAsync(ruleName, request);
         return TypedResults.NoContent();
     }
 }

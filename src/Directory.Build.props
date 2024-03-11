@@ -9,7 +9,7 @@
       <VersionPrefixCases>$(VersionPrefixBase).2</VersionPrefixCases>
       <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
-      <VersionPrefixRisk>$(VersionPrefixBase).3</VersionPrefixRisk>
+      <VersionPrefixRisk>$(VersionPrefixBase).4</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->

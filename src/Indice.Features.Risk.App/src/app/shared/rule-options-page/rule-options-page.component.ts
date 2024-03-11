@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DataService } from 'src/app/core/services/data.service';
-import { RiskApiService, RuleOptionsRoot } from 'src/app/core/services/risk-api.service';
+import { RiskApiService, RuleOptions } from 'src/app/core/services/risk-api.service';
 import { ToasterService, ToastType } from "@indice/ng-components";
 
 @Component({
@@ -18,7 +18,8 @@ export class RuleOptionsPageComponent implements OnInit {
 
     private eligibleEventsKey: string = 'eligibleEvents';
     private ruleIdKey: string = 'name'
-    private baseOptionsKeys = ['friendlyName', 'description', 'enabled'];
+    private enabledKey: string = 'enabled'
+    private baseOptionsKeys = ['friendlyName', 'description', this.enabledKey];
 
     constructor(
         private dataService: DataService,
@@ -28,14 +29,15 @@ export class RuleOptionsPageComponent implements OnInit {
 
     saveRuleOptions() {
         // set the type discriminator
-        this.ruleOptions['_type'] = `${this.ruleOptions['name']}Options`;
+        this.ruleOptions[this.ruleIdKey] = `${this.ruleOptions[this.ruleIdKey]}RuleOptions`;
         
-        const request: RuleOptionsRoot = JSON.parse(JSON.stringify(this.ruleOptions)) as RuleOptionsRoot;
+        const request: RuleOptions = JSON.parse(JSON.stringify(this.ruleOptions)) as RuleOptions;
         if (this.ruleOptions[this.eligibleEventsKey].trim() !== '') {
             request.eligibleEvents = this.ruleOptions[this.eligibleEventsKey].split(',');
         } else {
             request.eligibleEvents = [];
         }
+        console.log(request);
         this._api
             .updateRiskRuleOptions(this.title, request)
             .pipe()
@@ -58,7 +60,7 @@ export class RuleOptionsPageComponent implements OnInit {
     }
 
     onToggleChanged(event: any) {
-        this.ruleOptions['enabled'] = (event === true) ? 'True' : 'False';
+        this.ruleOptions[this.enabledKey] = (event === true) ? 'True' : 'False';
     }
 
     ngOnInit(): void {
@@ -66,12 +68,12 @@ export class RuleOptionsPageComponent implements OnInit {
             this.ruleOptions = data;
 
             this.basicOptions = Object.fromEntries(
-                Object.entries(this.ruleOptions).filter(([key, value]) => key !== this.eligibleEventsKey && key !== this.ruleIdKey)
+                Object.entries(this.ruleOptions).filter(([key, value]) => !key.startsWith(this.eligibleEventsKey) && key !== this.ruleIdKey)
             );
 
             this.splitOptions(this.basicOptions);
 
-            this.title = this.ruleOptions['name']
+            this.title = this.ruleOptions[this.ruleIdKey]
         });
     }
 
