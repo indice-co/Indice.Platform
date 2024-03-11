@@ -35,9 +35,9 @@ public class RiskStoreService
 
     /// <summary>Gets the list of events using the specified criteria.</summary>
     /// <param name="subjectId">The subject id.</param>
-    /// <param name="types">The event types.</param>
-    public Task<IEnumerable<RiskEvent>> GetRiskEventsAsync(string subjectId, string[]? types = null) =>
-        _riskEventStore.GetList(subjectId, types);
+    /// <param name="names">The event names.</param>
+    public Task<IEnumerable<RiskEvent>> GetRiskEventsAsync(string subjectId, string[]? names = null) =>
+        _riskEventStore.GetList(subjectId, names);
 
     /// <summary>
     /// Gets the list of events using a given filter

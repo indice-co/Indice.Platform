@@ -22,7 +22,7 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
 
     public async Task<IEnumerable<RiskEvent>> GetList(
         string subjectId, 
-        string[]? types,
+        string[]? names,
         DateTime? startDate,
         DateTime? endDate,
         List<FilterClause>? filters
@@ -31,8 +31,8 @@ internal class RiskEventStoreEntityFrameworkCore : IRiskEventStore
             .RiskEvents
             .Where(x => x.SubjectId == subjectId);
 
-        if (types?.Any() == true) {
-            query = query.Where(x => types.Contains(x.Type));
+        if (names?.Any() == true) {
+            query = query.Where(x => names.Contains(x.Name));
         }
         if (startDate.HasValue) {
             query = query.Where(x => x.CreatedAt >= startDate);
