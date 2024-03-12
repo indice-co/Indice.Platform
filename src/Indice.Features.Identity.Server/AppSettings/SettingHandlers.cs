@@ -1,6 +1,5 @@
-﻿using Indice.Extensions.Configuration.Database.Data.Models;
-using Indice.Features.Identity.Core.Data;
-using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Extensions.Configuration.Database;
+using Indice.Extensions.Configuration.Database.Data.Models;
 using Indice.Features.Identity.Server.AppSettings.Models;
 using Indice.Types;
 using Microsoft.AspNetCore.Hosting;
@@ -16,7 +15,7 @@ namespace Indice.Features.Identity.Server.AppSettings;
 internal class SettingHandlers
 {
     internal static async Task<Ok<ResultSet<AppSettingInfo>>> GetSettings(
-        [FromServices] ExtendedIdentityDbContext<User, Role> dbContext,
+        [FromServices] IAppSettingsDbContext dbContext,
         [AsParameters] ListOptions options
     ) {
         var query = dbContext.AppSettings.AsNoTracking().AsQueryable();
@@ -34,7 +33,7 @@ internal class SettingHandlers
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> LoadFromAppSettingsJson(
         [FromServices] IWebHostEnvironment webHostEnvironment,
-        [FromServices] ExtendedIdentityDbContext<User, Role> dbContext,
+        [FromServices] IAppSettingsDbContext dbContext,
         bool hardRefresh = false
     ) {
         if (!webHostEnvironment.IsDevelopment()) {
@@ -61,7 +60,7 @@ internal class SettingHandlers
     }
 
     internal static async Task<Results<Ok<AppSettingInfo>, NotFound>> GetSettingByKey(
-        [FromServices] ExtendedIdentityDbContext<User, Role> dbContext,
+        [FromServices] IAppSettingsDbContext dbContext,
         string key
     ) {
         var setting = await dbContext
@@ -79,7 +78,7 @@ internal class SettingHandlers
     }
 
     internal static async Task<CreatedAtRoute<AppSettingInfo>> CreateSetting(
-        [FromServices] ExtendedIdentityDbContext<User, Role> dbContext,
+        [FromServices] IAppSettingsDbContext dbContext,
         CreateAppSettingRequest request
     ) {
         var setting = new DbAppSetting {
@@ -95,7 +94,7 @@ internal class SettingHandlers
     }
 
     internal static async Task<Results<Ok<AppSettingInfo>, NotFound>> UpdateSetting(
-        [FromServices] ExtendedIdentityDbContext<User, Role> dbContext,
+        [FromServices] IAppSettingsDbContext dbContext,
         string key,
         UpdateAppSettingRequest request
     ) {
@@ -114,7 +113,7 @@ internal class SettingHandlers
     }
 
     internal static async Task<Results<NoContent, NotFound>> DeleteSetting(
-        [FromServices] ExtendedIdentityDbContext<User, Role> dbContext,
+        [FromServices] IAppSettingsDbContext dbContext,
         string key
     ) {
         var setting = await dbContext.AppSettings.AsNoTracking().SingleOrDefaultAsync(x => x.Key == key);

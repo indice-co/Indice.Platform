@@ -56,7 +56,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
             const caseTypeSearchOption: SearchOption = {
                 field: 'caseTypeCodes',
-                name: 'ΤΥΠΟΣ ΑΙΤΗΣΗΣ',
+                name: 'ΤΥΠΟΣ ΥΠΟΘΕΣΗΣ',
                 dataType: 'array',
                 options: [],
                 multiTerm: true
@@ -78,7 +78,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             if (this.tableFilters.CustomerId) {
                 this.searchOptions.push({
                     field: 'referenceNumber',
-                    name: 'ΑΡΙΘΜΟΣ ΑΙΤΗΣΗΣ',
+                    name: 'ΑΡΙΘΜΟΣ ΥΠΟΘΕΣΗΣ',
                     dataType: 'string'
                 });
             }
@@ -135,7 +135,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
                 (caseTypesForCaseCreation: CasePartialResultSet) => {
                     if (caseTypesForCaseCreation.count !== 0) {
                         this.formActions.unshift(
-                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'Υποβολή νέας αίτησης', 'Νέα αίτηση')
+                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'Υποβολή νέας υπόθεσης', 'Νέα υπόθεση')
                         );
                     }
                 }

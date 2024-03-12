@@ -1,0 +1,19 @@
+<div [class]="options?.htmlClass || ''">
+    <h2 *ngIf="options?.title"
+        class="block text-sm"
+        [attr.for]="'control' + layoutNode?._id"
+        [class]="options?.labelHtmlClass || ''"
+        [style.display]="options?.notitle ? 'none' : ''"
+        [innerHTML]="options?.title">
+    </h2>
+    <div *ngIf="!options?.extraType?.includes('href')" class="mt-1">
+        <p>{{ displayValue }}</p>
+    </div>
+    <a *ngIf="options?.extraType?.includes('href')"
+       [href]="displayValue"
+       [title]="options?.title"
+       [class]="options?.fieldHtmlClass || ''"
+       target="_blank">
+        {{ options?.linkText }}
+    </a>
+</div>

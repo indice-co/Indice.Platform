@@ -83,13 +83,13 @@ export class ApprovalButtonsComponent implements OnInit {
     this._api.submitApproval(this.caseId!, undefined, approvalRequest)
       .subscribe(_ => {
         if (action === 'Approve') {
-          this._toaster.show(ToastType.Success, undefined, `Η αίτηση εγκρίθηκε.`, 5000);
+          this._toaster.show(ToastType.Success, undefined, `Η υπόθεση εγκρίθηκε.`, 5000);
         } else {
-          this._toaster.show(ToastType.Success, undefined, `Η αίτηση απορρίφθηκε.`, 5000);
+          this._toaster.show(ToastType.Success, undefined, `Η υπόθεση απορρίφθηκε.`, 5000);
         }
         this.router.navigate(['/cases']);
       }, _ => {
-        this._toaster.show(ToastType.Error, 'Αποτυχία Επεξεργασίας', `Δεν κατέστη εφικτή η επεξεργασία της αίτησης.`, 5000);
+        this._toaster.show(ToastType.Error, 'Αποτυχία Επεξεργασίας', `Δεν κατέστη εφικτή η επεξεργασία της υπόθεσης.`, 5000);
         this.router.navigate(['/cases']);
       });
   }

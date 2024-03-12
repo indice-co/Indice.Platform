@@ -1,4 +1,4 @@
-﻿namespace Indice.Features.Risk.Core;
+﻿namespace Indice.Features.Risk.Core.Enums;
 
 /// <summary>Describes the risk level that was calculated after a rule one or more rules were run by the engine.</summary>
 public enum RiskLevel : byte

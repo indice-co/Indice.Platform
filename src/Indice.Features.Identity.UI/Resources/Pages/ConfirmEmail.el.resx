@@ -144,6 +144,9 @@
   <data name="to sign in or go back." xml:space="preserve">
     <value>για να συνδεθείτε ή να πάτε πίσω.</value>
   </data>
+  <data name="Verify" xml:space="preserve">
+    <value>Επιβεβαίωση</value>
+  </data>
   <data name="Verifying your email." xml:space="preserve">
     <value>Επιβεβαιώνουμε το email σας.</value>
   </data>

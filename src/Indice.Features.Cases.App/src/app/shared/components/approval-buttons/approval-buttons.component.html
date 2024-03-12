@@ -3,13 +3,13 @@
     <hr class="mb-3">
     <div class="col-span-4">
         <h3 class="text-lg leading-6 font-medium text-gray-900 mb-2">
-            Απόφαση Αίτησης
+            Απόφαση Υπόθεσης
         </h3>
         <lib-toggle-button id="inbox"
                            [value]="true"
                            (valueChange)="onToggleButtonChange()"
-                           [text-true]="'Η αίτηση θα εγκριθεί!'"
-                           [text-false]="'Η αίτηση θα απορριφθεί!'">
+                           [text-true]="'Η υπόθεση θα εγκριθεί!'"
+                           [text-false]="'Η υπόθεση θα απορριφθεί!'">
         </lib-toggle-button>
     </div>
     <ng-container *ngIf="rejectionOptions$ | async as rejectionOptions">
@@ -39,7 +39,7 @@
         <button href="#"
                 class="btn-success mr-1"
                 [ngClass]="{'opacity-50 cursor-not-allowed': formValid === false || approveButtonDisabled === true || buttonsDisabled === true}"
-                title="Έγκριση Αίτησης"
+                title="Έγκριση Υπόθεσης"
                 (click)="approveCase()"
                 [disabled]="!formValid || approveButtonDisabled || buttonsDisabled">
             <p>Έγκριση</p>&nbsp;
@@ -49,7 +49,7 @@
                 href="#"
                 class="btn-error"
                 [ngClass]="{'opacity-50 cursor-not-allowed': approveButtonDisabled === false || buttonsDisabled === true}"
-                title="Απόρριψη Αίτησης"
+                title="Απόρριψη Υπόθεσης"
                 (click)="rejectCase()"
                 [disabled]="!approveButtonDisabled || buttonsDisabled">
             <p>Απόρριψη</p>&nbsp;

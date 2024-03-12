@@ -17,8 +17,8 @@ public class CreateCampaignRequest : CampaignRequestBase
     /// </summary>
     public List<ContactAnonymous> Recipients { get; set; } = new List<ContactAnonymous>();
 
-    [JsonIgnore]
     /// <summary>List of file attachments. These can only be attached to the sending channel of email and inbox.</summary>
+    [JsonIgnore]
     internal List<FileAttachment> Attachments { get; set; } = new List<FileAttachment>();
 
     internal IEnumerable<Contact> GetIncludedContacts() {

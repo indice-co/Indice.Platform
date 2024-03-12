@@ -267,6 +267,54 @@ public class JsonSerializerTests
         result = Newtonsoft.Json.JsonConvert.DeserializeObject<DateTime>("\"1981-01-27T22:00:00\"", options);
         Assert.Equal(source.ToUniversalTime(), result.ToUniversalTime());
     }
+    [Fact]
+    public void DynamicTypeSerializationGetsPropertyNameConventionApplied() {
+        var settings = JsonSerializerOptionDefaults.GetDefaultSettings();
+        var jsonText = @"{
+        ""customData"": {
+            ""Branch"": 0,
+            ""Advance"": 200,
+            ""Paid"": 200,
+            ""BalanceDue"": 600,
+            ""MunicipalTax"": null,
+            ""Adults"": 6,
+            ""Children"": 0,
+            ""TotalPersons"": 6,
+            ""PricePerPersonPerDayNet"": null,
+            ""RoomType"": """",
+            ""Room"": """",
+            ""ChannelCode"": """",
+            ""Comment"": """",
+            ""ChannelComments"": null,
+            ""Nights"": 8,
+            ""AdvancePaymentMethod"": null,
+            ""MyDataAdvancePaymentCategory"": ""2"",
+            ""BalancePaymentMethod"": null,
+            ""MyDataBalancePaymentCategory"": ""5"",
+            ""InvoicePayments"": [
+                {
+                    ""ClientPaymentDate"": ""2024-03-08T00:00:00"",
+                    ""PaymentApplicationDate"": ""2024-03-08T00:00:00"",
+                    ""Amount"": 100,
+                    ""PaymentDocument"": ""Απόδειξη Είσπραξης για κάρτες-6"",
+                    ""Option"": 0,
+                    ""Description"": ""12131231 ""
+                },
+                {
+                    ""ClientPaymentDate"": ""2024-03-08T00:00:00"",
+                    ""PaymentApplicationDate"": ""2024-03-08T00:00:00"",
+                    ""Amount"": 100,
+                    ""PaymentDocument"": ""Απόδειξη Είσπραξης για κάρτες-6"",
+                    ""Option"": 0,
+                    ""Description"": ""12131231 ""
+                }
+            ],
+            ""SyncErrors"": null
+        } }";
+        dynamic json = JsonSerializer.Deserialize<dynamic>(jsonText, settings);
+        var text = JsonSerializer.Serialize(json, settings);
+        Assert.True(true);
+    }
 
     private static void RoundtripSerialize<T>(PocoValue<T> source, JsonSerializerOptions options) {
         var json = JsonSerializer.Serialize(source, options);

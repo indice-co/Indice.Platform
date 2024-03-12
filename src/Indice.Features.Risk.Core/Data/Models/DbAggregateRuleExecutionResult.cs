@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Risk.Core.Data.Models;
+﻿using Indice.Features.Risk.Core.Enums;
+
+namespace Indice.Features.Risk.Core.Data.Models;
 
 /// <summary>Models a risk event that was calculated by the system.</summary>
 public class DbAggregateRuleExecutionResult
@@ -25,17 +27,21 @@ public class DbAggregateRuleExecutionResult
     public int NumberOfRulesExecuted { get; set; }
     /// <summary>The result of each individual rule run by the engine.</summary>
     public IEnumerable<DbRuleExecutionResult>? Results { get; set; }
+    /// <summary>The aggregate risk score of all rules run by the engine.</summary>
+    public int RiskScore { get; set; }
+    /// <summary>The aggregate risk level based on risk scores of all rules run by the engine.</summary>
+    public string RiskLevel { get; set; } = Enums.RiskLevel.None.ToString();
 }
 
 /// <summary>Describes the result that was calculated after executing an individual rule registered in the system.</summary>
 public class DbRuleExecutionResult
 {
     /// <summary>The risk level that came up after a rule run by the engine.</summary>
-    public RiskLevel RiskLevel { get; internal set; }
+    public RiskLevel RiskLevel { get; set; }
     /// <summary>The risk score that came up after a rule run by the engine.</summary>
-    public int? RiskScore { get; internal set; }
+    public int? RiskScore { get; set; }
     /// <summary>A reason accompanying the provided risk level.</summary>
     public string? Reason { get; set; }
     /// <summary>The name of the rule.</summary>
-    public string RuleName { get; internal set; } = string.Empty;
+    public string RuleName { get; set; } = string.Empty;
 }

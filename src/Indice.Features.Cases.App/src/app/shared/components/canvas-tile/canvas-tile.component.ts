@@ -52,7 +52,7 @@ export class CanvasTileComponent implements OnInit {
         labels: labels,
         datasets: [
           {
-            label: 'Πλήθος αιτήσεων',
+            label: 'Πλήθος υποθέσεων',
             data: counts,
             backgroundColor: this.backgroundColors,
           }

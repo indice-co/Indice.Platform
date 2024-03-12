@@ -31,7 +31,6 @@ public static class OpenApiExtensions
                     [scheme] = requiredScopes.ToList() ?? new List<string>()
                 }
             },
-            //RequestBody = operation.RequestBody
         });
     }
     /// <summary>

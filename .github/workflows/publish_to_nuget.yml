@@ -52,6 +52,13 @@ jobs:
         cd src/Indice.Features.Messages.App
         npm install --force
         npm run build:template
+
+    # Npm Install and build Risk UI
+    - name: NPM Install and Build Risk UI
+      run: |
+        cd src/Indice.Features.Risk.App
+        npm install --force
+        npm run build:template
     
     #Create .nuget dir
     - name: Create .nuget dir
