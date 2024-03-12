@@ -23,7 +23,7 @@ public class TestRule : RiskRule
 
     public override ValueTask<RuleExecutionResult> ExecuteAsync(RiskEvent @event) {
         return ValueTask.FromResult(
-            @event.Type == "Transaction" && @event.Amount >= 1000
+            @event.Name == "Transaction" && @event.Amount >= 1000
                 ? RuleExecutionResult.HighRisk()
                 : RuleExecutionResult.LowRisk()
         );
@@ -60,14 +60,13 @@ public class RiskCalculationTests
 
     [Fact]
     public async void High_Risk_On_Transaction_Over_1000() {
-        var riskManager = ServiceProvider.GetRequiredService<RiskManager>();
+        var riskManager = ServiceProvider.GetRequiredService<RiskService>();
         var result = await riskManager.GetRiskAsync(new RiskEvent {
             Amount = 1001,
             CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
-            Name = "domestic_transaction_e3f9f3bf-7ab7-414f-9307-0c815922ef0c",
-            SubjectId = "4075C988-ECDB-434D-8164-970F7DF39DC3",
-            Type = "Transaction"
+            Name = "Transaction",
+            SubjectId = "4075C988-ECDB-434D-8164-970F7DF39DC3"
         });
         Assert.Single(result.Results);
         Assert.Equal(1, result.NumberOfRulesExecuted);
@@ -77,14 +76,13 @@ public class RiskCalculationTests
 
     [Fact]
     public async void Low_Risk_On_Transaction_Under_1000() {
-        var riskManager = ServiceProvider.GetRequiredService<RiskManager>();
+        var riskManager = ServiceProvider.GetRequiredService<RiskService>();
         var result = await riskManager.GetRiskAsync(new RiskEvent {
             Amount = 999,
             CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
-            Name = "domestic_transaction_e3f9f3bf-7ab7-414f-9307-0c815922ef0c",
-            SubjectId = "4075C988-ECDB-434D-8164-970F7DF39DC3",
-            Type = "Transaction"
+            Name = "Transaction",
+            SubjectId = "4075C988-ECDB-434D-8164-970F7DF39DC3"
         });
         Assert.Single(result.Results);
         Assert.Equal(1, result.NumberOfRulesExecuted);
@@ -95,24 +93,22 @@ public class RiskCalculationTests
     [Fact]
     public async void Can_Create_Risk_Events() {
         const string SUBJECT_ID = "4075C988-ECDB-434D-8164-970F7DF39DC3";
-        var riskManager = ServiceProvider.GetRequiredService<RiskManager>();
+        var riskManager = ServiceProvider.GetRequiredService<RiskStoreService>();
         await riskManager.CreateRiskEventAsync(new RiskEvent {
             Amount = 1001,
             CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
-            Name = "domestic_transaction_e3f9f3bf-7ab7-414f-9307-0c815922ef0c",
-            SubjectId = SUBJECT_ID,
-            Type = "Transaction"
+            Name = "Transaction",
+            SubjectId = SUBJECT_ID
         });
         await riskManager.CreateRiskEventAsync(new RiskEvent {
             Amount = null,
             CreatedAt = DateTimeOffset.UtcNow,
             IpAddress = "127.0.0.1",
-            Name = "profile_update_30A9FA5D-E69F-40FD-A331-9E1718A3C524",
-            SubjectId = SUBJECT_ID,
-            Type = "ProfileUpdate"
+            Name = "ProfileUpdate",
+            SubjectId = SUBJECT_ID
         });
-        var events = await riskManager.GetRiskEventsAsync(SUBJECT_ID, types: new string[] { "Transaction", "ProfileUpdate" });
+        var events = await riskManager.GetRiskEventsAsync(SUBJECT_ID, names: new string[] { "Transaction", "ProfileUpdate" });
         Assert.Equal(2, events.Count());
     }
 }

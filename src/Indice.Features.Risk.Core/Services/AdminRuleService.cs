@@ -5,7 +5,7 @@ using Indice.Types;
 namespace Indice.Features.Risk.Core.Services;
 
 /// <summary>Manages the risk rule configurations registered in the risk engine.</summary>
-public class AdminRuleManager
+public class AdminRuleService
 {
     /// <summary>The collection of rules registered in the risk engine.</summary>
     private readonly IEnumerable<RiskRule> _rules;
@@ -14,12 +14,12 @@ public class AdminRuleManager
     private readonly IRuleOptionsStore _ruleOptionsStore;
 
     /// <summary>
-    /// Creates a new instance of <see cref="AdminRuleManager"/>.
+    /// Creates a new instance of <see cref="AdminRuleService"/>.
     /// </summary>
     /// <param name="rules">Collection of rules registered in the engine.</param>
     /// <param name="riskRuleOptionsStore">Rule store</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public AdminRuleManager(
+    public AdminRuleService(
         IEnumerable<RiskRule> rules,
         IRuleOptionsStore riskRuleOptionsStore) {
         _rules = rules ?? throw new ArgumentNullException(nameof(rules));
@@ -31,7 +31,7 @@ public class AdminRuleManager
     /// </summary>
     /// <returns></returns>
     public ResultSet<RiskRuleDto> GetRiskRules() {
-        var result = _rules
+        return _rules
             .Select((x, index) => new RiskRuleDto {
                 Name = x.Name,
                 Description = x.Options.Description,
@@ -39,7 +39,6 @@ public class AdminRuleManager
                 FriendlyName = x.Options.FriendlyName
             })
             .ToResultSet();
-        return result;
     }
 
     /// <summary>

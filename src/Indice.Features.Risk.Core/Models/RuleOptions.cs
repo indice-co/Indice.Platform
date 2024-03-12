@@ -18,7 +18,7 @@ public class RuleOptions
     /// <summary>
     /// Whether the rule is enabled or not.
     /// </summary>
-    public bool Enabled { get; set; } = true;
+    public bool Enabled { get; set; } = false;
 
     /// <summary>
     /// Eligible events for executing the associated rule, if any.

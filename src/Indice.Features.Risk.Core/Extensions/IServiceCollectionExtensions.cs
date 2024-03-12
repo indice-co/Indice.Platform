@@ -26,8 +26,9 @@ public static class IServiceCollectionExtensions
             riskOptions.RiskLevelRangeMapping = options.RiskLevelRangeMapping;
             riskOptions.RiskAggregateScoreResolution = options.RiskAggregateScoreResolution;
         });
-        services.AddTransient<RiskManager>();
-        services.AddTransient<AdminRuleManager>();
+        services.AddTransient<RiskStoreService>();
+        services.AddTransient<RiskService>();
+        services.AddTransient<AdminRuleService>();
         services.AddSingleton<IRiskEventStore, RiskEventStoreNoOp>();
         return builder;
     }
