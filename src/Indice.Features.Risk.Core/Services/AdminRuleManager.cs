@@ -16,7 +16,8 @@ public class AdminRuleManager
     /// <summary>
     /// Creates a new instance of <see cref="AdminRuleManager"/>.
     /// </summary>
-    /// <param name="rules">Collection of rules registered in the engine.<</param>
+    /// <param name="rules">Collection of rules registered in the engine.</param>
+    /// <param name="riskRuleOptionsStore">Rule store</param>
     /// <exception cref="ArgumentNullException"></exception>
     public AdminRuleManager(
         IEnumerable<RiskRule> rules,
