@@ -19,8 +19,10 @@
 
                 <lib-list-column [title]="'Active'">
                     <ng-template let-item>
-                        <img *ngIf="item.enabled" [height]="22" [width]="22" src="./assets/images/enabled.png" alt="Enabled Icon" />
-                        <img *ngIf="!item.enabled" [height]="22" [width]="22" src="./assets/images/disabled.png" alt="Disabled Icon" />
+                        <div class="ml-2">
+                            <img *ngIf="item.enabled" [height]="24" [width]="24" src="./assets/images/enabled.svg" alt="Enabled Icon" />
+                            <img *ngIf="!item.enabled" [height]="24" [width]="24" src="./assets/images/disabled.svg" alt="Disabled Icon" />
+                        </div>
                       </ng-template>
                 </lib-list-column>
 
@@ -40,7 +42,7 @@
                     <ng-template let-item>
                         <a (click)="openRuleOptionsPane(item.name)"
                         class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
-                         <span>{{ 'Configure' }}</span>
+                         <span>{{ 'Edit' }}</span>
                      </a>
                     </ng-template>
                 </lib-list-column>

@@ -50,7 +50,7 @@
                     <ng-template let-item>
                         <a *ngIf="item.eventId !== undefined" (click)="inspectRiskEvent(item.eventId)"
                            class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
-                            <span>{{ 'Inspect risk event' }}</span>
+                            <span>{{ 'Inspect' }}</span>
                         </a>
                         <span *ngIf="item.eventId === undefined">
                             {{'-'}}
