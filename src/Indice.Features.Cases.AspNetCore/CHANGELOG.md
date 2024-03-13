@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- New `HttpEndpointWithValidation` Activity that validates body with the provided json schema.
+### Bugfix
+- Add hardcoded reference `<PackageReference Include="MediatR" Version="12.2.0" />` to resolve keyed service exceptions in net8.
+
 ## [7.18.3] - 2024-01-22
 ### Added
 `PermittedAttachmentFileExtensions` config property in `CasesApiOptions` (base, `AdminCasesApiOptions` or `MyCasesApiOptions`) which specifies the permitted file extensions to check when uploading an attachment to an existing case. Can be configured via `appsettings` level.
