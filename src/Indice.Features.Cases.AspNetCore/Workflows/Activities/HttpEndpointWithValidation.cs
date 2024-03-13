@@ -43,7 +43,7 @@ public class HttpEndpointWithValidationBookmarkkProvider : BookmarkProvider<Http
 {
     public override async ValueTask<IEnumerable<BookmarkResult>> GetBookmarksAsync(BookmarkProviderContext<HttpEndpointWithValidation> context, CancellationToken cancellationToken) {
         var path = ToLower((await context.ReadActivityPropertyAsync(x => x.Path, cancellationToken))!);
-        var methods = new[] { "post" };
+        var methods = (await context.ReadActivityPropertyAsync(x => x.Methods, cancellationToken))?.Select(ToLower) ?? Enumerable.Empty<string>();
 
         BookmarkResult CreateBookmark(string method) => Result(new(path, method), nameof(HttpEndpoint));
         return methods.Select(CreateBookmark);
