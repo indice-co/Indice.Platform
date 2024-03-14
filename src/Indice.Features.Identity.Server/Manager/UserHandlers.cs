@@ -22,10 +22,11 @@ namespace Indice.Features.Identity.Server.Manager;
 
 internal static class UserHandlers
 {
-    internal static async Task<Ok<ResultSet<UserInfo>>> GetUsers(
+    internal static async Task<Results<Ok<ResultSet<UserInfo>>, ValidationProblem>> GetUsers(
         ExtendedIdentityDbContext<User, Role> dbContext,
         [AsParameters] ListOptions options,
-        [AsParameters] UserListFilter filter
+        [AsParameters] UserListFilter filter,
+        string[]? expandClaims
     ) {
         var query = dbContext.Users.AsNoTracking();
         if (filter != null) {
@@ -62,6 +63,47 @@ internal static class UserHandlers
                 LastSignInDate = user.LastSignInDate,
                 PasswordExpirationDate = user.PasswordExpirationDate
             };
+        if (expandClaims?.Length > 3) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(expandClaims), "Cannot expand more than three claim types"));
+        }
+        foreach (var claimType in expandClaims ?? []) {
+            if (string.IsNullOrWhiteSpace(claimType)) {
+                continue;
+            }
+            usersQuery =
+                from user in usersQuery
+                join ctl in dbContext.UserClaims
+                on new { user.Id, ClaimType = claimType }
+                equals new { Id = ctl.UserId, ctl.ClaimType } into ctLeft
+                from ct in ctLeft.DefaultIfEmpty()
+                select new UserInfo {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    EmailConfirmed = user.EmailConfirmed,
+                    PhoneNumber = user.PhoneNumber,
+                    PhoneNumberConfirmed = user.PhoneNumberConfirmed,
+                    UserName = user.UserName,
+                    CreateDate = user.CreateDate,
+                    LockoutEnabled = user.LockoutEnabled,
+                    LockoutEnd = user.LockoutEnd,
+                    TwoFactorEnabled = user.TwoFactorEnabled,
+                    Blocked = user.Blocked,
+                    PasswordExpirationPolicy = user.PasswordExpirationPolicy,
+                    IsAdmin = user.IsAdmin,
+                    AccessFailedCount = user.AccessFailedCount,
+                    LastSignInDate = user.LastSignInDate,
+                    PasswordExpirationDate = user.PasswordExpirationDate,
+                    Claims = ct == null ? user.Claims : user.Claims.Concat(new List<BasicClaimInfo> {
+                        new() {
+                            Type = claimType,
+                            Value = ct.ClaimValue
+                        }
+                    }).ToList()
+                };
+        }
+
         if (options?.Search?.Length > 2) {
             var userSearchFilterExpression = await IdentityDbContextOptions.UserSearchFilter(dbContext, options.Search);
             usersQuery = usersQuery.Where(userSearchFilterExpression);
