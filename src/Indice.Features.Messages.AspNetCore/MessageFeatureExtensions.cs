@@ -274,11 +274,13 @@ public static class MessageFeatureExtensions
 
     private static void UseIdentityContactResolverInternal(CampaignOptionsBase options, Action<ContactResolverIdentityOptions> configure) {
         var serviceOptions = new ContactResolverIdentityOptions();
+        serviceOptions.UserClaimType = options.UserClaimType;
         configure.Invoke(serviceOptions);
         options.Services.Configure<ContactResolverIdentityOptions>(config => {
             config.BaseAddress = serviceOptions.BaseAddress;
             config.ClientId = serviceOptions.ClientId;
             config.ClientSecret = serviceOptions.ClientSecret;
+            config.UserClaimType = serviceOptions.UserClaimType;
         });
         options.Services.AddDistributedMemoryCache();
         options.Services.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {
