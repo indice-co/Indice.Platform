@@ -1,6 +1,10 @@
-﻿using Indice.Features.Cases;
+﻿using Elsa.Persistence;
+using Elsa.Services;
+using Elsa.Services.Bookmarks;
+using Indice.Features.Cases;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Events;
+using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Factories;
 using Indice.Features.Cases.Handlers;
 using Indice.Features.Cases.Interfaces;
@@ -10,8 +14,12 @@ using Indice.Features.Cases.Server.Options;
 using Indice.Features.Cases.Services;
 using Indice.Features.Cases.Services.CaseMessageService;
 using Indice.Features.Cases.Services.NoOpServices;
+using Indice.Features.Cases.Workflows.Interfaces;
+using Indice.Features.Cases.Workflows.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -45,13 +53,57 @@ public static class CaseServerBuilderExtensions
     /// <returns>The builder</returns>
     public static ICaseServerBuilder AddWorkflow(this ICaseServerBuilder builder)
     {
+        // Register internal handlers
+        //builder.Services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
         return builder;
     }
 
     /// <summary>Add the Backoffice configuration. This includes both apis and services to run backoffice operations</summary>
     /// <param name="builder">The builder</param>
     /// <returns>The builder</returns>
-    public static ICaseServerBuilder AddCaseManagerEndpoints(this ICaseServerBuilder builder) {
+    public static ICaseServerBuilder AddCaseManagerEndpoints(this ICaseServerBuilder builder, Action<AdminCasesApiOptions>? setupAction = null) {
+
+        // Configure options given by the consumer.
+        var casesApiOptions = new AdminCasesApiOptions();
+        setupAction?.Invoke(casesApiOptions);
+        builder.Services.Configure<AdminCasesApiOptions>(options => {
+            options.ApiPrefix = casesApiOptions.ApiPrefix;
+            options.ConfigureDbContext = casesApiOptions.ConfigureDbContext;
+            options.DatabaseSchema = casesApiOptions.DatabaseSchema;
+            options.ExpectedScope = casesApiOptions.ExpectedScope;
+            PrincipalExtensions.Scope = casesApiOptions.ExpectedScope;
+            options.UserClaimType = casesApiOptions.UserClaimType;
+            options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
+            options.GroupName = casesApiOptions.GroupName;
+            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
+        }).AddSingleton(casesApiOptions);
+
+        builder.Services.TryAddTransient<IAdminCaseService, AdminCaseService>();
+        builder.Services.AddTransient<IAdminReportService, AdminReportService>();
+        builder.Services.AddTransient<IQueryService, QueryService>();
+        builder.Services.AddTransient<ICaseAuthorizationService, MemberAuthorizationService>();
+        //TODO: Add missing dependecies!
+
+
+        //builder.Services.AddTransient<ICaseApprovalService, CaseApprovalService>();
+        //builder.Services.AddTransient<ICaseActionsService, CaseActionsService>();
+        builder.Services.AddTransient<IAdminCaseMessageService, AdminCaseMessageService>();
+        builder.Services.AddTransient<ISchemaValidator, SchemaValidator>();
+        builder.Services.AddTransient<INotificationSubscriptionService, NotificationSubscriptionService>();
+        
+
+        /*builder.Services.AddSmsServiceYubotoOmni(builder.Configuration)
+    .AddViberServiceYubotoOmni(builder.Configuration)
+    .AddEmailServiceSparkPost(builder.Configuration)
+    .WithMvcRazorRendering();*/
+        
+        builder.Services.AddTransient<CasesMessageDescriber>();
+        builder.Services.AddTransient<IJsonTranslationService, JsonTranslationService>();
+        builder.Services.AddSingleton<CaseSharedResourceService>(); // Add the service even if there is no resx file, so the runtime will not throw exception
+
+        //add the provider that filters through all available ICaseAuthorizationServices
+        builder.Services.AddTransient<ICaseAuthorizationProvider, AggregateCaseAuthorizationProvider>();
+
         return builder;
     }
 
@@ -60,10 +112,11 @@ public static class CaseServerBuilderExtensions
     /// <param name="builder">The builder</param>
     /// <param name="setupAction"></param>
     /// <returns>The builder</returns>
-    public static ICaseServerBuilder AddMyCasesEndpoints(this ICaseServerBuilder builder, Action<CaseServerEndpointOptions>? setupAction = null)
+    public static ICaseServerBuilder AddMyCasesEndpoints(this ICaseServerBuilder builder, Action<MyCasesApiOptions>? setupAction = null)
     {
         // Configure options given by the consumer.
-        var casesApiOptions = new CaseServerEndpointOptions();
+        /*
+         var casesApiOptions = new CaseServerEndpointOptions();
         setupAction?.Invoke(casesApiOptions);
         builder.Services.Configure<CaseServerEndpointOptions>(options => {
             options.ApiPrefix = casesApiOptions.ApiPrefix;
@@ -73,6 +126,20 @@ public static class CaseServerBuilderExtensions
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
         });
+        */
+        // Configure options given by the consumer.
+        var casesApiOptions = new MyCasesApiOptions();
+        setupAction?.Invoke(casesApiOptions);
+        builder.Services.Configure<MyCasesApiOptions>(options => {
+            options.ApiPrefix = casesApiOptions.ApiPrefix;
+            options.ConfigureDbContext = casesApiOptions.ConfigureDbContext;
+            options.DatabaseSchema = casesApiOptions.DatabaseSchema;
+            options.ExpectedScope = casesApiOptions.ExpectedScope;
+            options.UserClaimType = casesApiOptions.UserClaimType;
+            options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
+            options.GroupName = casesApiOptions.GroupName;
+            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
+        }).AddSingleton(casesApiOptions);
 
         return builder;
     }
@@ -98,23 +165,23 @@ public static class CaseServerBuilderExtensions
         builder.Services.TryAddTransient<ILookupServiceFactory, DefaultLookupServiceFactory>();
 
         // Register custom services.
+
         builder.Services.TryAddTransient<IMyCaseService, MyCaseService>();
         builder.Services.TryAddTransient<ICaseTypeService, CaseTypeService>();
         builder.Services.TryAddTransient<ISchemaValidator, SchemaValidator>();
         builder.Services.TryAddTransient<ICheckpointTypeService, CheckpointTypeService>();
-        builder.Services.TryAddTransient<ICaseTemplateService, CaseTemplateService>();
+        //builder.Services.TryAddTransient<ICaseTemplateService, CaseTemplateService>();
         builder.Services.TryAddTransient<IMyCaseMessageService, MyCaseMessageService>();
         builder.Services.TryAddTransient<IJsonTranslationService, JsonTranslationService>();
         builder.Services.TryAddSingleton<CaseSharedResourceService>(); // Add the service even if there is no resx file, so the runtime will not throw exception
+       
+
 
         // Register events.
         builder.Services.AddTransient<ICaseEventService, CaseEventService>();
 
-        // Register internal handlers
-        builder.Services.AddCaseEventHandler<CaseSubmittedEvent, StartWorkflowHandler>();
-
         // Register application DbContext.
-        builder.Services.AddDbContext<CasesDbContext>(serverOptions.ConfigureDbContext ?? (sqlBuilder => sqlBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))));
+        builder.Services.AddDbContext<CasesDbContext>(serverOptions.ConfigureDbContext ?? (sqlBuilder => sqlBuilder.UseSqlServer(builder.Configuration.GetConnectionString("StorageConnection"))));
 
         return builder;
 

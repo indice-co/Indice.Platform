@@ -9,6 +9,6 @@ internal class NoOpLookupService : ILookupService
 {
     public string Name => nameof(NoOpLookupService);
 
-    public Task<ResultSet<LookupItem>> Get(ListOptions<LookupFilter> options = null) =>
+    public Task<ResultSet<LookupItem>> Get(ListOptions<List<FilterClause>> options = null) =>
         throw new NotImplementedException("Implement this interface with your own data sources.");
 }
