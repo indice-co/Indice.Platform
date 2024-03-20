@@ -33,10 +33,19 @@ public class HttpEndpointWithValidation : HttpEndpoint
     private IActivityExecutionResult ExecuteInternal(ActivityExecutionContext context) {
         Output = context.GetInput<HttpRequestModel>()!;
         context.JournalData.Add("Inbound Request", Output);
+
+        //Skip validation when there is no Schema
+        if (this.Schema is null) {
+            return Done();
+        }
+        //There is schema by the body is null
+        else if (Output.Body is null) {
+            return Outcome(CasesApiConstants.WorkflowVariables.OutcomeNames.Failed);
+        }
+        //Validate body with schema
         if (!_schemaValidator.IsValid(this.Schema, Output.Body)) {
             return Outcome(CasesApiConstants.WorkflowVariables.OutcomeNames.Failed);
         }
-
         return Done();
     }
 }
