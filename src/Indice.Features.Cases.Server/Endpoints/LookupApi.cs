@@ -27,11 +27,11 @@ public static class LookupApi
                     .ProducesProblem(StatusCodes.Status400BadRequest);
             group.WithGroupName(options.GroupName);
             var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
-            group.RequireAuthorization(policy => policy
-                .RequireAuthenticatedUser()
-                .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme)
-                .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-            ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+        group.RequireAuthorization(policy => policy
+            .RequireAuthenticatedUser()
+            .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme)
+            .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
+        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
             group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
             group.MapGet("{lookupName}", LookupHandler.GetLookup)
                         .WithName(nameof(LookupHandler.GetLookup))

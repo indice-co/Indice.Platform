@@ -17,12 +17,12 @@ public static class AdminCheckpointTypesApi
         group.WithTags("AdminCheckpointTypes");
         group.WithGroupName("Cases");
         var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
-        
+
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme)
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

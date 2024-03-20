@@ -1,6 +1,4 @@
-﻿using Elsa.Persistence;
-using Elsa.Services;
-using Elsa.Services.Bookmarks;
+﻿using Esprima.Ast;
 using Indice.Features.Cases;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Events;
@@ -17,9 +15,6 @@ using Indice.Features.Cases.Services.NoOpServices;
 using Indice.Features.Cases.Workflows.Interfaces;
 using Indice.Features.Cases.Workflows.Services;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -60,6 +55,7 @@ public static class CaseServerBuilderExtensions
 
     /// <summary>Add the Backoffice configuration. This includes both apis and services to run backoffice operations</summary>
     /// <param name="builder">The builder</param>
+    /// <param name="setupAction"></param>
     /// <returns>The builder</returns>
     public static ICaseServerBuilder AddCaseManagerEndpoints(this ICaseServerBuilder builder, Action<AdminCasesApiOptions>? setupAction = null) {
 
@@ -82,20 +78,23 @@ public static class CaseServerBuilderExtensions
         builder.Services.AddTransient<IAdminReportService, AdminReportService>();
         builder.Services.AddTransient<IQueryService, QueryService>();
         builder.Services.AddTransient<ICaseAuthorizationService, MemberAuthorizationService>();
-        //TODO: Add missing dependecies!
+
+        builder.Services.AddWorkflow(builder.Configuration, typeof(Program).Assembly);
+        builder.Services.AddElsaSwagger();
 
 
-        //builder.Services.AddTransient<ICaseApprovalService, CaseApprovalService>();
-        //builder.Services.AddTransient<ICaseActionsService, CaseActionsService>();
+        builder.Services.TryAddTransient<IAwaitApprovalInvoker, AwaitApprovalInvoker>();
+        builder.Services.AddTransient<ICaseApprovalService, CaseApprovalService>();
+        builder.Services.AddTransient<ICaseActionsService, CaseActionsService>();
         builder.Services.AddTransient<IAdminCaseMessageService, AdminCaseMessageService>();
         builder.Services.AddTransient<ISchemaValidator, SchemaValidator>();
         builder.Services.AddTransient<INotificationSubscriptionService, NotificationSubscriptionService>();
         
 
-        /*builder.Services.AddSmsServiceYubotoOmni(builder.Configuration)
+        builder.Services.AddSmsServiceYubotoOmni(builder.Configuration)
     .AddViberServiceYubotoOmni(builder.Configuration)
     .AddEmailServiceSparkPost(builder.Configuration)
-    .WithMvcRazorRendering();*/
+    .WithMvcRazorRendering();
         
         builder.Services.AddTransient<CasesMessageDescriber>();
         builder.Services.AddTransient<IJsonTranslationService, JsonTranslationService>();
@@ -165,12 +164,11 @@ public static class CaseServerBuilderExtensions
         builder.Services.TryAddTransient<ILookupServiceFactory, DefaultLookupServiceFactory>();
 
         // Register custom services.
-
         builder.Services.TryAddTransient<IMyCaseService, MyCaseService>();
         builder.Services.TryAddTransient<ICaseTypeService, CaseTypeService>();
         builder.Services.TryAddTransient<ISchemaValidator, SchemaValidator>();
         builder.Services.TryAddTransient<ICheckpointTypeService, CheckpointTypeService>();
-        //builder.Services.TryAddTransient<ICaseTemplateService, CaseTemplateService>();
+        builder.Services.TryAddTransient<ICaseTemplateService, CaseTemplateService>();
         builder.Services.TryAddTransient<IMyCaseMessageService, MyCaseMessageService>();
         builder.Services.TryAddTransient<IJsonTranslationService, JsonTranslationService>();
         builder.Services.TryAddSingleton<CaseSharedResourceService>(); // Add the service even if there is no resx file, so the runtime will not throw exception
@@ -181,7 +179,7 @@ public static class CaseServerBuilderExtensions
         builder.Services.AddTransient<ICaseEventService, CaseEventService>();
 
         // Register application DbContext.
-        builder.Services.AddDbContext<CasesDbContext>(serverOptions.ConfigureDbContext ?? (sqlBuilder => sqlBuilder.UseSqlServer(builder.Configuration.GetConnectionString("StorageConnection"))));
+        builder.Services.AddDbContext<CasesDbContext>(serverOptions.ConfigureDbContext ?? (sqlBuilder => sqlBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))));
 
         return builder;
 

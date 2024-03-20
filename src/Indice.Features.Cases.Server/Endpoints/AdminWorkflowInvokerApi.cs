@@ -25,12 +25,12 @@ public static class AdminWorkflowInvokerApi
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .ProducesProblem(StatusCodes.Status403Forbidden)
             .ProducesProblem(StatusCodes.Status400BadRequest);
-        group.WithGroupName(ApiGroups.CasesApiGroupNamePlaceholder);
+        group.WithGroupName(options.GroupName);
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme)
             .RequireClaim(BasicClaimTypes.Scope, options.ApiScope)
-        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", options.ApiScope);
         group.MapPost("cases/{caseId}/approve", AdminWorkflowInvokerHandler.SubmitApproval)
             .WithName(nameof(AdminWorkflowInvokerHandler.SubmitApproval))

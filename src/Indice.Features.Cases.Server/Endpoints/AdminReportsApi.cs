@@ -16,14 +16,14 @@ public static class AdminReportsApi
         var options = routes.ServiceProvider.GetRequiredService<IOptions<CaseServerEndpointOptions>>().Value;
         var group = routes.MapGroup($"{options.ApiPrefix}/manage/reports");
         group.WithTags("AdminReports");
-        group.WithGroupName(ApiGroups.CasesApiGroupNamePlaceholder);
+        group.WithGroupName(options.GroupName);
         var allowedScopes = new[] { options.ApiScope }.Where(x => x != null).Cast<string>().ToArray();
-        
+
         group.RequireAuthorization(policy => policy
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme)
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         
         group.ProducesProblem(StatusCodes.Status500InternalServerError)

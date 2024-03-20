@@ -22,7 +22,7 @@ public static class AdminCasesApi
             .RequireAuthenticatedUser()
             .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme)
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
-        ).RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
+        );//.RequireAuthorization(CasesApiConstants.Policies.BeCasesManager);
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
