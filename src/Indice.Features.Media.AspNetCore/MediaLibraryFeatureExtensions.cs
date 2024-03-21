@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Media.AspNetCore;
+using Indice.Features.Media.AspNetCore.Authorization;
 using Indice.Features.Media.AspNetCore.Services;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Indice.Features.Media.AspNetCore.Stores;
@@ -20,7 +21,7 @@ public static class MediaLibraryFeatureExtensions
     /// <param name="configureAction">Configuration for several options of Media API feature.</param>
     public static IServiceCollection AddMediaLibrary(this IServiceCollection services, Action<MediaApiOptions>? configureAction = null) {
         // Register Default Policy Provider.
-        //services.AddSingleton<IAuthorizationPolicyProvider, MediaLibraryPolicyProvider>();
+        services.AddSingleton<IAuthorizationPolicyProvider, MediaLibraryPolicyProvider>();
         // Configure options.
         var apiOptions = new MediaApiOptions(services);
         configureAction?.Invoke(apiOptions);
