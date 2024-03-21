@@ -20,8 +20,6 @@ public static class MediaLibraryFeatureExtensions
     /// <param name="services">An interface for configuring services.</param>
     /// <param name="configureAction">Configuration for several options of Media API feature.</param>
     public static IServiceCollection AddMediaLibrary(this IServiceCollection services, Action<MediaApiOptions>? configureAction = null) {
-        // Register Default Policy Provider.
-        services.AddSingleton<IAuthorizationPolicyProvider, MediaLibraryPolicyProvider>();
         // Configure options.
         var apiOptions = new MediaApiOptions(services);
         configureAction?.Invoke(apiOptions);
@@ -53,6 +51,15 @@ public static class MediaLibraryFeatureExtensions
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register application DbContext.
         services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ?? ((serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaLibraryDbConnection"))));
+
+        // Register Default Policy Provider.
+        // Add authorization policies that are used by the IdentityServer API.
+        services.AddAuthorization(authOptions => {
+            authOptions.AddPolicy(MediaLibraryApi.Policies.BeMediaLibraryManager, policy => {
+                policy.RequireMediaLibraryManager(apiOptions);
+            });
+        });
+
         return services;
     }
 
