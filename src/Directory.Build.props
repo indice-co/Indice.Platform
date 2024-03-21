@@ -7,10 +7,10 @@
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).0</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).1</VersionPrefixMessages>
+      <VersionPrefixMessages>$(VersionPrefixBase).2</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
-      <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
+      <VersionPrefixMedia>$(VersionPrefixBase).1</VersionPrefixMedia>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->
       <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
