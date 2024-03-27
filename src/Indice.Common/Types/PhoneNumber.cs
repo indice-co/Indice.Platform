@@ -8,7 +8,7 @@ namespace Indice.Globalization;
 [DebuggerDisplay("{ToString(),nq} ({TwoLetterCountryCode,nq})")]
 public partial struct PhoneNumber : IFormattable
 {
-    private const string RegexPatternString = @"(\+(?<CallingCode>\d+(-\d+)?) (?<Number>[\d() -]{5,15}))|(?<GreekNumber>69\d{8})|(?<GreekNumber>69\d{8})|(?<GreekNumberLand>2\d{9})|(?<InternationalNumber>((00)|\+)?\s?\d{11,15})||(?<UnidentifiedNumber>\d{5,10})";
+    private const string RegexPatternString = @"(\+(?<CallingCode>\d+(-\d+)?) (?<Number>[\d() -]{5,15}))|(?<GreekNumber>69\d{8})|(?<GreekNumber>69\d{8})|(?<GreekNumberLand>2\d{9})|(?<InternationalNumber>((00)|\+)?\s?\d{10,15})||(?<UnidentifiedNumber>\d{5,9})";
                                                                                                                                                                                                         //^\+[0-9]{1,3}\.[0-9]{4,14}(?:x.+)?$
     private const char PlusSign = '+';
     private static readonly Regex _Pattern = PhoneNumberFormat();
