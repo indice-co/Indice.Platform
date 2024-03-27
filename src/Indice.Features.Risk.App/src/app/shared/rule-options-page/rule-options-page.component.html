@@ -5,10 +5,9 @@
                         [ok-close-dialog]="true">
 
     <form class="space-y-8 divide-y divide-gray-200 py-5">
-        <div class="options-section">Basic options</div>
-        <div *ngFor="let option of basicOptions | keyvalue">
+        <div class="option-key" *ngFor="let option of basicOptions | keyvalue">
             <ng-container>
-              <h4>{{ option.key }}</h4>
+              <h4 class="mb-2">{{ option.key }}</h4>
 
               <ng-container 
                     *ngIf="option.value.toLowerCase() === 'true' 
@@ -21,22 +20,33 @@
 
               </ng-container>
               <ng-template #textbox>
-                <input 
-                    type="text" 
-                    class="border rounded-md px-3 py-2 focus:outline-none focus:border-green-500"
+                <ng-container *ngIf="option.key.toLowerCase() === 'description'; else inputField">
+                  <textarea 
+                    rows="4"
+                    class="border rounded-md px-3 py-2 focus:outline-none focus:border-green-500 option-description"
                     (ngModelChange)="onOptionValueChanged($event, option.key)"
-                    [readonly]="option.key.toLowerCase() === 'name' ? true : null"
                     [(ngModel)]="option.value"
                     [name]="option.value"
                     [ngModelOptions]="{standalone: true}">
+                  </textarea>
+                </ng-container>
+
+                <ng-template #inputField>
+                  <input 
+                    type="text" 
+                    class="border rounded-md px-3 py-2 focus:outline-none focus:border-green-500"
+                    (ngModelChange)="onOptionValueChanged($event, option.key)"
+                    [(ngModel)]="option.value"
+                    [name]="option.value"
+                    [ngModelOptions]="{standalone: true}">
+                </ng-template>
               </ng-template>
             </ng-container>
           </div>
          
-          <div *ngFor="let option of extraOptions | keyvalue">
-            <div class="options-section mb-4">Advanced options</div>
+          <div class="option-key" *ngFor="let option of extraOptions | keyvalue">
             <ng-container>
-              <h4>{{ option.key }}</h4>
+              <h4 class="mb-2">{{ option.key }}</h4>
 
               <ng-container 
                     *ngIf="option.value.toLowerCase() === 'true' 
@@ -53,7 +63,6 @@
                     type="text" 
                     class="border rounded-md px-3 py-2 focus:outline-none focus:border-green-500"
                     (ngModelChange)="onOptionValueChanged($event, option.key)"
-                    [readonly]="option.key.toLowerCase() === 'name' ? true : null"
                     [(ngModel)]="option.value"
                     [name]="option.value"
                     [ngModelOptions]="{standalone: true}">
