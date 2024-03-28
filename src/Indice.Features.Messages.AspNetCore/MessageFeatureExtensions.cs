@@ -6,6 +6,7 @@ using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Features.Messages.AspNetCore;
+using Indice.Features.Messages.AspNetCore.Authorization;
 using Indice.Features.Messages.AspNetCore.Mvc.Formatters;
 using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
@@ -16,6 +17,7 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Features.Messages.Core.Services.Validators;
 using Indice.Serialization;
 using Indice.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -67,7 +69,8 @@ public static class MessageFeatureExtensions
         configureAction?.Invoke(apiOptions);
 
         // Configure authorization. It's important to register the authorization policy provider at this point.
-        mvcBuilder.Services.AddAuthorization(policy => policy.AddCampaignsManagementPolicy(apiOptions.RequiredScope));
+        mvcBuilder.Services.AddAuthorization(policy => policy.AddCampaignsManagementPolicy(apiOptions.RequiredScope))
+                           .AddTransient<IAuthorizationHandler, BeCampaignsManagerHandler>();
 
         // Configure campaigns system core requirements.
         mvcBuilder.AddCampaignCore(apiOptions);

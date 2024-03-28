@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Indice.Features.Messages.Core;
+﻿using Indice.Features.Messages.Core;
 using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -15,7 +10,7 @@ namespace Indice.Features.Messages.AspNetCore.Authorization;
 public class BeCampaignsManagerRequirement : IAuthorizationRequirement
 {
     /// <summary>The policy name corresponding to this requirement.</summary>
-    public const string PolicyName = "BeCampaignsManager";
+    public const string PolicyName = MessagesApi.Policies.BeCampaignManager;
 
     /// <summary>Creates a new instance of <see cref="BeCampaignsManagerRequirement"/>.</summary>
     public BeCampaignsManagerRequirement() {
