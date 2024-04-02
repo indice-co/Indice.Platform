@@ -54,19 +54,13 @@ public static class MediaLibraryFeatureExtensions
 
         // Register Default Policy Provider.
         // Add authorization policies that are used by the IdentityServer API.
-        services.AddAuthorization(authOptions => {
-            authOptions.AddPolicy(MediaLibraryApi.Policies.BeMediaLibraryManager, policy => {
-                policy.RequireMediaLibraryManager(apiOptions);
-            });
-        });
+
+        // Configure authorization. It's important to register the authorization policy provider at this point.
+        services.AddAuthorization(policy => policy.AddMediaLibraryManagementPolicy(apiOptions.ApiScope))
+                           .AddTransient<IAuthorizationHandler, BeMediaLibraryManagerHandler>();
 
         return services;
     }
-
-    /// <summary>Adds <see cref="IAuthorizationPolicyProvider"/> using custom policy provider.</summary>
-    /// <param name="options">Options used to configure the Media API feature.</param>
-    public static void UsePolicyProvider<TAuthorizationPolicyProvider>(this MediaApiOptions options) where TAuthorizationPolicyProvider : IAuthorizationPolicyProvider =>
-        options.Services?.AddSingleton(typeof(IAuthorizationPolicyProvider), typeof(TAuthorizationPolicyProvider));
 
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>
     /// <param name="options">Options used to configure the Media API feature.</param>

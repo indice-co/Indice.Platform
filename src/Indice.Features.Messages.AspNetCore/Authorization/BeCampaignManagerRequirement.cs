@@ -2,39 +2,37 @@
 using Indice.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Indice.Features.Messages.AspNetCore.Authorization;
 
 /// <summary>This authorization requirement specifies that an endpoint must be accessible only to Messaging tool managers.</summary>
-public class BeCampaignsManagerRequirement : IAuthorizationRequirement
+public class BeCampaignManagerRequirement : IAuthorizationRequirement
 {
     /// <summary>The policy name corresponding to this requirement.</summary>
     public const string PolicyName = MessagesApi.Policies.BeCampaignManager;
 
-    /// <summary>Creates a new instance of <see cref="BeCampaignsManagerRequirement"/>.</summary>
-    public BeCampaignsManagerRequirement() {
+    /// <summary>Creates a new instance of <see cref="BeCampaignManagerRequirement"/>.</summary>
+    public BeCampaignManagerRequirement() {
         
     }
 
     /// <inheritdoc/>
-    public override string ToString() => $"{nameof(BeCampaignsManagerRequirement)}.";
+    public override string ToString() => $"{nameof(BeCampaignManagerRequirement)}.";
 }
 
-/// <summary>Authorization handler corresponding to the <see cref="BeCampaignsManagerRequirement"/>.</summary>
-public class BeCampaignsManagerHandler : AuthorizationHandler<BeCampaignsManagerRequirement>
+/// <summary>Authorization handler corresponding to the <see cref="BeCampaignManagerRequirement"/>.</summary>
+public class BeCampaignManagerHandler : AuthorizationHandler<BeCampaignManagerRequirement>
 {
-    private readonly ILogger<BeCampaignsManagerHandler> _logger;
+    private readonly ILogger<BeCampaignManagerHandler> _logger;
 
-    /// <summary>Creates a new instance of <see cref="BeCampaignsManagerHandler"/>.</summary>
+    /// <summary>Creates a new instance of <see cref="BeCampaignManagerHandler"/>.</summary>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    /// <param name="apiOptions"></param>
-    public BeCampaignsManagerHandler(ILogger<BeCampaignsManagerHandler> logger, IOptions<MessageManagementOptions> apiOptions) {
+    public BeCampaignManagerHandler(ILogger<BeCampaignManagerHandler> logger) {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <inheritdoc/>
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, BeCampaignsManagerRequirement requirement) {
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, BeCampaignManagerRequirement requirement) {
         var userIsAnonymous = context.User?.Identity == null || !context.User.Identities.Any(identity => identity.IsAuthenticated);
         if (userIsAnonymous) {
             return Task.CompletedTask;

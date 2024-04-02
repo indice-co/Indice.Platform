@@ -70,7 +70,7 @@ public static class MessageFeatureExtensions
 
         // Configure authorization. It's important to register the authorization policy provider at this point.
         mvcBuilder.Services.AddAuthorization(policy => policy.AddCampaignsManagementPolicy(apiOptions.RequiredScope))
-                           .AddTransient<IAuthorizationHandler, BeCampaignsManagerHandler>();
+                           .AddTransient<IAuthorizationHandler, BeCampaignManagerHandler>();
 
         // Configure campaigns system core requirements.
         mvcBuilder.AddCampaignCore(apiOptions);
