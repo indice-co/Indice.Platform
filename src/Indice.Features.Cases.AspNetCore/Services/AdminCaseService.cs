@@ -127,68 +127,62 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 if (!int.TryParse(refNumber.Value, out var value)) {
                     continue;
                 }
-                switch (refNumber.Operator) {
-                    case (FilterOperator.Eq):
-                        query = query.Where(c => (c.ReferenceNumber ?? 0) == value);
-                        break;
-                    case (FilterOperator.Neq):
-                        query = query.Where(c => (c.ReferenceNumber ?? 0) != value);
-                        break;
-                    case (FilterOperator.Contains):
-                        query = query.Where(c => c.ReferenceNumber.HasValue && c.ReferenceNumber.ToString().Contains(value.ToString()));
-                        break;
-                }
+                query = refNumber.Operator switch {
+                    FilterOperator.Eq => query.Where(c => (c.ReferenceNumber ?? 0) == value),
+                    FilterOperator.Neq => query.Where(c => (c.ReferenceNumber ?? 0) != value),
+                    FilterOperator.Contains => query.Where(c =>
+                        c.ReferenceNumber.HasValue && c.ReferenceNumber.ToString().Contains(value.ToString())),
+                    _ => query
+                };
             }
         }
 
         // filter CustomerId
         if (options.Filter.CustomerIds.Any()) {
             foreach (var customerId in options.Filter.CustomerIds) {
-                switch (customerId.Operator) {
-                    case (FilterOperator.Eq):
-                        query = query.Where(c => c.CustomerId.Equals(customerId.Value));
-                        break;
-                    case (FilterOperator.Neq):
-                        query = query.Where(c => !c.CustomerId.Equals(customerId.Value));
-                        break;
-                    case (FilterOperator.Contains):
-                        query = query.Where(c => c.CustomerId.Contains(customerId.Value));
-                        break;
-                }
+                query = customerId.Operator switch {
+                    FilterOperator.Eq => query.Where(c => c.CustomerId.Equals(customerId.Value)),
+                    FilterOperator.Neq => query.Where(c => !c.CustomerId.Equals(customerId.Value)),
+                    FilterOperator.Contains => query.Where(c => c.CustomerId.Contains(customerId.Value)),
+                    _ => query
+                };
             }
 
         }
         // filter CustomerName
         if (options.Filter.CustomerNames.Any()) {
             foreach (var customerName in options.Filter.CustomerNames) {
-                switch (customerName.Operator) {
-                    case (FilterOperator.Eq):
-                        query = query.Where(c => c.CustomerName.ToLower().Equals(customerName.Value.ToLower()));
-                        break;
-                    case (FilterOperator.Neq):
-                        query = query.Where(c => !c.CustomerName.ToLower().Equals(customerName.Value.ToLower()));
-                        break;
-                    case (FilterOperator.Contains):
-                        query = query.Where(c => c.CustomerName.ToLower().Contains(customerName.Value.ToLower()));
-                        break;
-                }
+                query = customerName.Operator switch {
+                    FilterOperator.Eq => query.Where(c =>
+                        c.CustomerName.ToLower().Equals(customerName.Value.ToLower())),
+                    FilterOperator.Neq => query.Where(c =>
+                        !c.CustomerName.ToLower().Equals(customerName.Value.ToLower())),
+                    FilterOperator.Contains => query.Where(c =>
+                        c.CustomerName.ToLower().Contains(customerName.Value.ToLower())),
+                    _ => query
+                };
             }
         }
+
         if (options.Filter.From != null) {
             query = query.Where(c => c.CreatedByWhen >= options.Filter.From.Value.Date);
         }
+
         if (options.Filter.To != null) {
             query = query.Where(c => c.CreatedByWhen <= options.Filter.To.Value.Date.AddDays(1));
         }
+
         // filter CaseTypeCodes. You can reach this with an empty array only if you are admin/systemic user
         if (options.Filter.CaseTypeCodes.Any()) {
             // Create a different expression based on the filter operator
             var expressionsEq = options.Filter.CaseTypeCodes
                 .Where(x => x.Operator == FilterOperator.Eq)
-                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CaseType.Code == f.Value));
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CaseType.Code == f.Value))
+                .ToList();
             var expressionsNeq = options.Filter.CaseTypeCodes
                 .Where(x => x.Operator == FilterOperator.Neq)
-                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CaseType.Code != f.Value));
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CaseType.Code != f.Value))
+                .ToList();
             if (expressionsEq.Any()) {
                 // Aggregate the expressions with OR in SQL
                 var aggregatedExpressionEq = expressionsEq.Aggregate((expression, next) => {
@@ -217,10 +211,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             // Create a different expression based on the filter operator
             var expressionsEq = options.Filter.CheckpointTypeIds
                 .Where(x => x.Operator == FilterOperator.Eq)
-                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointType.Id.ToString() == f.Value));
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointType.Id.ToString() == f.Value))
+                .ToList();
             var expressionsNeq = options.Filter.CheckpointTypeIds
                 .Where(x => x.Operator == FilterOperator.Neq)
-                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointType.Id.ToString() != f.Value));
+                .Select(f => (Expression<Func<CasePartial, bool>>)(c => c.CheckpointType.Id.ToString() != f.Value))
+                .ToList();
             if (expressionsEq.Any()) {
                 // Aggregate the expressions with OR in SQL
                 var aggregatedExpressionEq = expressionsEq.Aggregate((expression, next) => {
@@ -238,6 +234,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 query = query.Where(aggregatedExpressionNeq);
             }
         }
+
         // filter by group ID, if it is present
         if (options.Filter.GroupIds.Any()) {
             foreach (var groupId in options.Filter.GroupIds) {
@@ -268,10 +265,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         }
 
         // sorting option
-        if (string.IsNullOrEmpty(options?.Sort)) {
-            options!.Sort = $"{nameof(CasePartial.CreatedByWhen)}";
+        if (options.Sort is null) {
+            options.Sort = $"{nameof(CasePartial.CreatedByWhen)}";
         }
+
         var result = await query.ToResultSetAsync(options);
+
         // translate case types
         foreach (var item in result.Items) {
             item.CaseType = item.CaseType?.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
