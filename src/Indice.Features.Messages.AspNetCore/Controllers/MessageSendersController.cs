@@ -20,18 +20,13 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 [Route($"{ApiPrefixes.CampaignManagementEndpoints}/message-senders")]
-internal class MessageSendersController : ControllerBase
+internal class MessageSendersController(
+    ICampaignService campaignService,
+    IMessageSenderService messageSenderService
+    ) : ControllerBase
 {
-    public MessageSendersController(
-        ICampaignService campaignService,
-        IMessageSenderService messageSenderService
-    ) {
-        CampaignService = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
-        MessageSenderService = messageSenderService ?? throw new ArgumentNullException(nameof(messageSenderService));
-    }
-
-    public ICampaignService CampaignService { get; }
-    public IMessageSenderService MessageSenderService { get; }
+    public ICampaignService CampaignService { get; } = campaignService ?? throw new ArgumentNullException(nameof(campaignService));
+    public IMessageSenderService MessageSenderService { get; } = messageSenderService ?? throw new ArgumentNullException(nameof(messageSenderService));
 
     /// <summary>Gets the list of available message senders.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

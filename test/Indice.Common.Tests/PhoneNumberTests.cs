@@ -27,6 +27,7 @@ public class PhoneNumberTests
         Assert.True(result);
     }
 
+    [Trait("Tag", "PhoneNumber")]
     [Theory]
     [InlineData("6972233445")]
     [InlineData("+30 6972233445")]
@@ -37,6 +38,7 @@ public class PhoneNumberTests
         Assert.Equal("GR", phoneNumber.TwoLetterCountryCode);
     }
 
+    [Trait("Tag", "PhoneNumber")]
     [Theory]
     [MemberData(nameof(PhoneNumbersData))]
     public void ParsePhoneNumbers_DigitOnly(string number) {

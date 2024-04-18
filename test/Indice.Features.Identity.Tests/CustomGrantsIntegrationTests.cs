@@ -172,9 +172,8 @@ public class CustomGrantsIntegrationTests
                 ["Totp:EnableDeveloperTotp"] = "true"
             });
         });
-        builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
-            services.AddTotpServiceFactory(configuration)
+        builder.ConfigureServices((ctx, services) => {
+            services.AddTotpServiceFactory(ctx.Configuration)
                     .AddSmsServiceNoop()
                     .AddPushNotificationServiceNoop()
                     .AddLocalization()
@@ -185,7 +184,7 @@ public class CustomGrantsIntegrationTests
                     .AddUserStore<ExtendedUserStore<ExtendedIdentityDbContext<User, Role>, User, Role>>()
                     .AddExtendedSignInManager()
                     .AddEntityFrameworkStores<ExtendedIdentityDbContext<User, Role>>()
-                    .AddExtendedPhoneNumberTokenProvider(configuration);
+                    .AddExtendedPhoneNumberTokenProvider(ctx.Configuration);
             services.AddIdentityServer(options => {
                 options.EmitStaticAudienceClaim = true;
                 options.Events.RaiseErrorEvents = true;
@@ -209,7 +208,6 @@ public class CustomGrantsIntegrationTests
                 options.ImpossibleTravel.AcceptableSpeed = 90d;
                 options.ImpossibleTravel.FlowType = ImpossibleTravelFlowType.PromptMfa;
             });
-            _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
             app.UseForwardedHeaders(new() {
@@ -220,6 +218,7 @@ public class CustomGrantsIntegrationTests
         });
         var server = new TestServer(builder);
         var handler = server.CreateHandler();
+        _serviceProvider = server.Services;
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };

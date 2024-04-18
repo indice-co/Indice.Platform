@@ -13,17 +13,17 @@ namespace Indice.Features.Messages.Core.Services;
 public class CampaignAttachmentService : ICampaignAttachmentService
 {
     /// <summary>Creates a new instance of <see cref="CampaignService"/>.</summary>
-    /// <param name="getFileService">File storage abstraction.</param>
+    /// <param name="fileServiceFactory">File storage abstraction.</param>
     /// <param name="dbContext">The <see cref="Microsoft.EntityFrameworkCore.DbContext"/> for Campaigns API feature.</param>
     /// <param name="campaignManagementOptions">Options used to configure the Campaigns management API feature.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public CampaignAttachmentService(
-        Func<string, IFileService> getFileService,
+        IFileServiceFactory fileServiceFactory,
         CampaignsDbContext dbContext,
         IOptions<MessageManagementOptions> campaignManagementOptions
     ) {
         DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-        FileService = getFileService(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
+        FileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(FileService));
         CampaignManagementOptions = campaignManagementOptions?.Value ?? throw new ArgumentNullException(nameof(campaignManagementOptions));
     }
 

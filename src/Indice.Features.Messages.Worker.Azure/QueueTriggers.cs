@@ -17,14 +17,14 @@ internal class QueueTriggers
 
     public QueueTriggers(
         MessageJobHandlerFactory campaignJobHandlerFactory,
-        Func<string, IEventDispatcher> getEventDispatcher
+        IEventDispatcherFactory eventDispatcherFactory
     ) {
         CampaignJobHandlerFactory = campaignJobHandlerFactory ?? throw new ArgumentNullException(nameof(campaignJobHandlerFactory));
-        GetEventDispatcher = getEventDispatcher ?? throw new ArgumentNullException(nameof(getEventDispatcher));
+        EventDispatcherFactory = eventDispatcherFactory ?? throw new ArgumentNullException(nameof(eventDispatcherFactory));
     }
 
     private MessageJobHandlerFactory CampaignJobHandlerFactory { get; }
-    private Func<string, IEventDispatcher> GetEventDispatcher { get; }
+    private IEventDispatcherFactory EventDispatcherFactory { get; }
 
     [Function(EventNames.CampaignCreated)]
     public async Task CampaignPublishedHandler(
@@ -40,8 +40,8 @@ internal class QueueTriggers
         if (campaignStart > DateTimeOffset.UtcNow) {
             var nextExecutionTimeSpan = campaignStart.Value - DateTimeOffset.UtcNow;
             var visibilityWindow = nextExecutionTimeSpan > TimeSpan.FromDays(5) ? TimeSpan.FromDays(5) : nextExecutionTimeSpan;
-            var eventDispatcher = GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey);
-            await GetEventDispatcher(KeyedServiceNames.EventDispatcherServiceKey).RaiseEventAsync(envelope, options => options.WrapInEnvelope(false).Delay(visibilityWindow).WithQueueName(EventNames.CampaignCreated));
+            var eventDispatcher = EventDispatcherFactory.Create(KeyedServiceNames.EventDispatcherServiceKey);
+            await eventDispatcher.RaiseEventAsync(envelope, options => options.WrapInEnvelope(false).Delay(visibilityWindow).WithQueueName(EventNames.CampaignCreated));
             return;
         }
         await CampaignJobHandlerFactory.CreateFor<CampaignCreatedEvent>().Process(payload);

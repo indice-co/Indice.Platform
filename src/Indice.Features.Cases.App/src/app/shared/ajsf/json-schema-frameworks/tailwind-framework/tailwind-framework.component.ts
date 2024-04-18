@@ -173,6 +173,13 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
           break;
         // Containers - arrays and fieldsets
         case 'array':
+          this.options.messageLocation = 'top';
+          if (this.widgetOptions.readonly) {
+            this.widgetOptions.addable = false;
+            this.widgetOptions.orderable = false;
+            this.widgetOptions.removable = false;
+          }
+          break;
         case 'fieldset':
         case 'section':
         case 'conditional':
@@ -193,6 +200,13 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
           break;
         // 'Add' buttons - references
         case '$ref':
+          // Apply max items on parent readonly array.
+          // This will disable Add button from showing up.
+          var parentNode = this.jsf.getParentNode(this);
+          if (parentNode?.type == 'array' && parentNode?.options?.readonly) {
+            this.widgetOptions.maxItems = parentNode.options.listItems;
+            break;
+          }
           this.widgetOptions.fieldHtmlClass = addClasses(
             this.widgetOptions.fieldHtmlClass, 'btn btn-info float-right m-2');
           this.widgetOptions.fieldHtmlClass = addClasses(
@@ -253,6 +267,10 @@ export class TailwindFrameworkComponent implements OnInit, OnChanges {
         return null;
       case 'fieldset':
         this.widgetOptions.title = this.options.title;
+        return null;
+      case 'label-only':
+        this.widgetOptions.title = this.options.title;
+        this.widgetOptions.extraType = this.options.extraType;
         return null;
       default:
         this.widgetOptions.title = null;

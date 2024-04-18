@@ -1,0 +1,74 @@
+<lib-view-layout title="Risk Results"
+                 [busy]="!items"
+                 [actions]="formActions"
+                 [meta-items]="metaItems"
+                 (onAction)="actionHandler($event)"
+                 (onSearch)="searchChanged($event)">
+
+<lib-list-view  [items]="items"
+                [search-options]="searchOptions"
+                [filters]="filters"
+                [page]="page"
+                [page-size]="pageSize"
+                [count]="count"
+                [sort-options]="sortOptions"
+                [sort]="sort"
+                [sort-dir]="sortdir"
+                [busy]="!items"
+                (advancedSearchChanged)="advancedSearchChanged($event)"
+                (pageChanged)="pageChanged($event)"
+                (pageSizeChanged)="pageSizeChanged($event)"
+                (sortChanged)="sortChanged($event)"
+                (sortdirChanged)="sortdirChanged($event)">
+
+                <lib-list-column [title]="'Date created'">
+                    <ng-template let-item>{{ item.createdAt | date: 'dd/MM/yy, HH:mm' || '-' }}</ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Subject ID'">
+                    <ng-template let-item>{{ item.subjectId || '-' }}</ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Client IP address'">
+                    <ng-template let-item>{{ item.ipAddress || '-' }}</ng-template>
+                </lib-list-column>
+
+
+                <lib-list-column [title]="'Amount'">
+                    <ng-template let-item>{{ item.amount || '-' }}</ng-template>
+                </lib-list-column>
+               
+                <lib-list-column [title]="'Name'">
+                    <ng-template let-item>{{ item.name || '-' }}</ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Type'">
+                    <ng-template let-item>{{ item.type || '-' }}</ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Event ID'">
+                    <ng-template let-item>
+                        <a *ngIf="item.eventId !== undefined" (click)="inspectRiskEvent(item.eventId)"
+                           class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
+                            <span>{{ 'Inspect' }}</span>
+                        </a>
+                        <span *ngIf="item.eventId === undefined">
+                            {{'-'}}
+                        </span>
+                    </ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Results'">
+                    <ng-template let-item>
+                        <a *ngIf="item.results !== undefined" (click)="openRiskDetailsPane(item.results)"
+                           class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
+                            <span>{{ 'More details' }}</span>
+                        </a>
+                        <span *ngIf="item.results === undefined">
+                            {{'-'}}
+                        </span>
+                    </ng-template>
+                </lib-list-column>
+</lib-list-view>
+
+</lib-view-layout>

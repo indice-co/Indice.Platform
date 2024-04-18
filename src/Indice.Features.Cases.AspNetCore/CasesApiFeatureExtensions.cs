@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using Elsa;
+using Elsa.Activities.Http.Services;
 using Elsa.Activities.UserTask.Extensions;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
-using Elsa.Persistence.Specifications;
 using Elsa.Retention.Contracts;
 using Elsa.Retention.Extensions;
 using Elsa.Retention.Specifications;
@@ -65,6 +65,7 @@ public static class CasesApiFeatureExtensions
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
+            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
 
         // Post configure MVC options.
@@ -133,6 +134,7 @@ public static class CasesApiFeatureExtensions
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
+            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
 
         // Post configure MVC options.
@@ -215,7 +217,16 @@ public static class CasesApiFeatureExtensions
         services.AddElsa(elsa => {
             elsa.UseEntityFrameworkPersistence(ef => ef.UseSqlServer(configuration.GetConnectionString("WorkflowDb")), false)
                 .AddQuartzTemporalActivities()
-                .AddHttpActivities(configuration.GetSection("Elsa").GetSection("Server").Bind)
+                .AddHttpActivities(http => {
+                    http.HttpEndpointAuthorizationHandlerFactory =
+                        ActivatorUtilities.GetServiceOrCreateInstance<AuthenticationBasedHttpEndpointAuthorizationHandler>;
+                    if (configuration["Elsa:Server:BaseUrl"] is { } baseUrl) {
+                        http.BaseUrl = new Uri(baseUrl);
+                    }
+                    if (configuration["Elsa:Server:BasePath"] is { } basePath) {
+                        http.BasePath = basePath;
+                    }
+                })
                 .AddEmailActivities(configuration.GetSection("Elsa").GetSection("Smtp").Bind)
                 .AddUserTaskActivities()
                 .AddActivitiesFrom(typeof(BaseCaseActivity).Assembly);
@@ -228,7 +239,7 @@ public static class CasesApiFeatureExtensions
         });
 
         var cleanUpOptions = configuration.GetSection("Elsa").GetSection("CleanUpOptions");
-        if (cleanUpOptions.GetSection("Enabled").Get<bool?>() ?? false) {
+        if (cleanUpOptions.GetSection("Enabled").Get<bool?>() ?? true) {
             services.AddRetentionServices(options => {
                 options.BatchSize = cleanUpOptions.GetSection("BatchSize").Get<int?>() ?? 100;
                 options.TimeToLive = Duration.FromDays(cleanUpOptions.GetSection("TimeToLiveInDays").Get<int?>() ?? 30);

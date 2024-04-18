@@ -6,7 +6,7 @@ using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
 using Indice.Events;
 using Indice.Features.Messages.AspNetCore;
-using Indice.Features.Messages.AspNetCore.Mvc.Authorization;
+using Indice.Features.Messages.AspNetCore.Authorization;
 using Indice.Features.Messages.AspNetCore.Mvc.Formatters;
 using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
@@ -35,11 +35,10 @@ public static class MessageFeatureExtensions
     /// <param name="configureAction">Configuration for several options of Campaigns API feature.</param>
     public static IMvcBuilder AddMessageEndpoints(this IMvcBuilder mvcBuilder, Action<MessageEndpointOptions> configureAction = null) {
         var services = mvcBuilder.Services;
-        // Configure authorization. It's important to register the authorization policy provider at this point.
-        services.AddSingleton<IAuthorizationPolicyProvider, CampaignsPolicyProvider>();
         // Configure options.
         var apiOptions = new MessageEndpointOptions(services);
         configureAction?.Invoke(apiOptions);
+
         return mvcBuilder.AddMessageManagementEndpoints(options => {
             options.ApiPrefix = apiOptions.ApiPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
@@ -61,11 +60,18 @@ public static class MessageFeatureExtensions
     /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns management API feature.</param>
     public static IMvcBuilder AddMessageManagementEndpoints(this IMvcBuilder mvcBuilder, Action<MessageManagementOptions> configureAction = null) {
+
+
         mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new MessageFeatureProvider(includeManagementApi: true, includeInboxApi: false)));
         var services = mvcBuilder.Services;
         // Configure options.
         var apiOptions = new MessageManagementOptions(services);
         configureAction?.Invoke(apiOptions);
+
+        // Configure authorization. It's important to register the authorization policy provider at this point.
+        mvcBuilder.Services.AddAuthorization(policy => policy.AddCampaignsManagementPolicy(apiOptions.RequiredScope))
+                           .AddTransient<IAuthorizationHandler, BeCampaignManagerHandler>();
+
         // Configure campaigns system core requirements.
         mvcBuilder.AddCampaignCore(apiOptions);
         services.Configure<MessageManagementOptions>(options => {
@@ -167,7 +173,8 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IMessageService, MessageService>();
         services.TryAddScoped<IUserNameAccessor, UserNameFromClaimsAccessor>();
         services.TryAddScoped<UserNameAccessorAggregate>();
-        services.TryAddSingleton<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());
+        services.TryAddTransient<IFileService, FileServiceNoop>();
+        services.TryAddTransient<IFileServiceFactory, DefaultFileServiceFactory>();
         // Register application DbContext.
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
@@ -254,7 +261,9 @@ public static class MessageFeatureExtensions
     /// <param name="options">Options used to configure the Messages API feature.</param>
     /// <param name="accessLevel">The minimum access level required.</param>
     public static MessageEndpointOptions UseMultiTenancy(this MessageEndpointOptions options, int accessLevel) {
-        UseMultiTenancyInternal(options, accessLevel);
+        // Configure authorization. It's important to register the authorization policy provider at this point.
+        options.Services.AddAuthorization(policy => policy.AddMultitenantCampaignsManagementPolicy(accessLevel, options.RequiredScope));
+        options.Services.Configure<MessageMultitenancyOptions>(options => options.AccessLevel = accessLevel);
         return options;
     }
 
@@ -262,22 +271,20 @@ public static class MessageFeatureExtensions
     /// <param name="options">Options used to configure the Messages management API feature.</param>
     /// <param name="accessLevel">The minimum access level required.</param>
     public static MessageManagementOptions UseMultiTenancy(this MessageManagementOptions options, int accessLevel) {
-        UseMultiTenancyInternal(options, accessLevel);
+        // Configure authorization. It's important to register the authorization policy provider at this point.
+        options.Services.AddAuthorization(policy => policy.AddMultitenantCampaignsManagementPolicy(accessLevel, options.RequiredScope));
+        options.Services.Configure<MessageMultitenancyOptions>(options => options.AccessLevel = accessLevel);
         return options;
     }
-
-    private static void UseMultiTenancyInternal(CampaignOptionsBase options, int accessLevel) {
-        options.Services.AddSingleton<IAuthorizationPolicyProvider, MultitenantCampaignsPolicyProvider>();
-        options.Services.Configure<MessageMultitenancyOptions>(options => options.AccessLevel = accessLevel);
-    }
-
     private static void UseIdentityContactResolverInternal(CampaignOptionsBase options, Action<ContactResolverIdentityOptions> configure) {
         var serviceOptions = new ContactResolverIdentityOptions();
+        serviceOptions.UserClaimType = options.UserClaimType;
         configure.Invoke(serviceOptions);
         options.Services.Configure<ContactResolverIdentityOptions>(config => {
             config.BaseAddress = serviceOptions.BaseAddress;
             config.ClientId = serviceOptions.ClientId;
             config.ClientSecret = serviceOptions.ClientSecret;
+            config.UserClaimType = serviceOptions.UserClaimType;
         });
         options.Services.AddDistributedMemoryCache();
         options.Services.AddHttpClient<IContactResolver, ContactResolverIdentity>(httpClient => {

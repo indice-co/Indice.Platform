@@ -48,12 +48,14 @@ internal abstract class BaseCaseMessageService
                 throw new Exception("Invalid reply to comment id. Not found on the current case.");
             }
         }
+
         if (message.File == null && message.CheckpointTypeName == null && message.Data == null) {
             await AddComment(user, caseId, message.Comment, message.ReplyToCommentId, message.PrivateComment);
         } else if (message.File != null && message.CheckpointTypeName == null) {
             var attachment = await AddAttachment(user, @case, message.Comment, message.File);
             attachmentId = attachment.Id;
         } else if (message.File == null && message.CheckpointTypeName != null) {
+            //TODO: if message has both Data and Checkpoint name, then Data does not save (check 64 line)
             var checkpoint = await AddCheckpoint(user, @case, newCheckpointType);
             if (!string.IsNullOrWhiteSpace(message.Comment)) {
                 message.PrivateComment ??= newCheckpointType.Private;

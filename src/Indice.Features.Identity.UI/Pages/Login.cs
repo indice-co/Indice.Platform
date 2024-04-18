@@ -155,21 +155,21 @@ public abstract class BaseLoginModel : BasePageModel
                     return Redirect(Input.ReturnUrl);
                 } else {
                     // User might have clicked on a malicious link - should be logged.
-                    Logger.LogError("User '{UserName}' might have clicked a malicious link during login: {ReturnUrl}.", UserName, Input.ReturnUrl);
+                    Logger.LogError("User '{UserName}' might have clicked a malicious link during login: {ReturnUrl}.", Input.UserName, Input.ReturnUrl);
                     throw new Exception("Invalid return URL.");
                 }
             }
             if (result.IsLockedOut) {
-                Logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsAttempts} unsuccessful login attempts.", UserName, user?.AccessFailedCount);
-                await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName, "User locked out.", subjectId: user?.Id));
+                Logger.LogWarning("User '{UserName}' was locked out after {WrongLoginsAttempts} unsuccessful login attempts.", Input.UserName, user?.AccessFailedCount);
+                await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName, "User locked out.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
                 ModelState.AddModelError(string.Empty, "Your account is temporarily locked. Please contact system administrator.");
             }
             var redirectUrl = GetRedirectUrl(result, Input.ReturnUrl);
             if (redirectUrl is not null && user is not null) {
                 return Redirect(redirectUrl);
             }
-            Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", UserName);
-            await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName, "Invalid credentials.", subjectId: user?.Id));
+            Logger.LogWarning("User '{UserName}' entered invalid credentials during login.", Input.UserName);
+            await Events.RaiseAsync(new ExtendedUserLoginFailureEvent(Input.UserName, "Invalid credentials.", subjectId: user?.Id, clientId: context?.Client?.ClientId, clientName: context?.Client?.ClientName));
             ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);
         } else {
             ModelState.AddModelError(string.Empty, Localizer["Please check your credentials."]);

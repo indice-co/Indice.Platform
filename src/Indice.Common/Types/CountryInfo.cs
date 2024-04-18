@@ -66,7 +66,7 @@ public class CountryInfo
             ["BQ"] = new CountryInfo("NA", "BQ", "BES", 535, "Bonaire, Sint Eustatius and Saba", "", "nl", "599-7") ,
             ["BA"] = new CountryInfo("EU", "BA", "BIH", 70, "Bosnia and Herzegovina", "Sarajevo", "bs,hr,sr", "387") ,
             ["BW"] = new CountryInfo("AF", "BW", "BWA", 72, "Botswana", "Gaborone", "en,tn", "267") ,
-            ["BV"] = new CountryInfo("AN", "BV", "BVT", 74, "Bouvet Island", "", "no", "47") ,
+            //["BV"] = new CountryInfo("AN", "BV", "BVT", 74, "Bouvet Island", "", "no", "47") , // collision with Norway
             ["BR"] = new CountryInfo("SA", "BR", "BRA", 76, "Brazil", "Brasilia", "pt,es", "55") ,
             ["IO"] = new CountryInfo("AS", "IO", "IOT", 86, "British Indian Ocean Territory", "Diego Garcia", "en", "246") ,
             ["VG"] = new CountryInfo("NA", "VG", "VGB", 92, "British Virgin Islands", "Road Town", "en", "1-284") ,

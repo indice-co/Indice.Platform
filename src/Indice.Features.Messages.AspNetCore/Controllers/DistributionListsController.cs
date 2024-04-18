@@ -18,18 +18,13 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 [Route($"{ApiPrefixes.CampaignManagementEndpoints}/distribution-lists")]
-internal class DistributionListsController : ControllerBase
+internal class DistributionListsController(
+    IDistributionListService distributionListService,
+    IContactService contactService
+    ) : ControllerBase
 {
-    public DistributionListsController(
-        IDistributionListService distributionListService,
-        IContactService contactService
-    ) {
-        DistributionListService = distributionListService ?? throw new ArgumentNullException(nameof(distributionListService));
-        ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
-    }
-
-    public IDistributionListService DistributionListService { get; }
-    public IContactService ContactService { get; }
+    public IDistributionListService DistributionListService { get; } = distributionListService ?? throw new ArgumentNullException(nameof(distributionListService));
+    public IContactService ContactService { get; } = contactService ?? throw new ArgumentNullException(nameof(contactService));
 
     /// <summary>Gets the list of available campaign types.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

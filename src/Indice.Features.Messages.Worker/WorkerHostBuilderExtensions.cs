@@ -94,12 +94,11 @@ public static class WorkerHostBuilderExtensions
     }
 
     private static void AddCoreServices(this IServiceCollection services, MessageJobsOptions options, IConfiguration configuration) {
-        options.Services.AddKeyedService<IEventDispatcher, EventDispatcherHosting, string>(
-            key: KeyedServiceNames.EventDispatcherServiceKey,
-            serviceProvider => new EventDispatcherHosting(new MessageQueueFactory(serviceProvider)),
-            serviceLifetime: ServiceLifetime.Transient
+        options.Services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        options.Services.AddKeyedTransient<IEventDispatcher, EventDispatcherHosting>(
+            serviceKey: KeyedServiceNames.EventDispatcherServiceKey,
+            (serviceProvider, key) => new EventDispatcherHosting(new MessageQueueFactory(serviceProvider))
         );
-        services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
         services.AddEmailServiceNoop();
         services.AddPushNotificationServiceNoop();
         services.AddSmsServiceNoop();

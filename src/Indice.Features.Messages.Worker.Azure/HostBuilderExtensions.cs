@@ -48,9 +48,9 @@ public static class HostBuilderExtensions
         });
 
     private static IServiceCollection AddCoreServices(this IServiceCollection services, MessageOptions options, IConfiguration configuration) {
-        services.TryAddTransient<Func<string, IPushNotificationService>>(serviceProvider => key => new PushNotificationServiceNoop());
-        services.TryAddTransient<Func<string, IEventDispatcher>>(serviceProvider => key => new EventDispatcherNoop());
-        services.TryAddTransient<Func<string, IFileService>>(serviceProvider => serviceKey => new FileServiceNoop());
+        services.AddPushNotificationServiceNoop();
+        services.TryAddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
+        services.TryAddTransient<IFileServiceFactory, DefaultFileServiceFactory>();
         services.TryAddTransient<IEmailService, EmailServiceNoop>();
         services.TryAddTransient<IContactResolver, ContactResolverNoop>();
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));

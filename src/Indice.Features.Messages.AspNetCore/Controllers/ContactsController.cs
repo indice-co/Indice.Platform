@@ -20,15 +20,10 @@ namespace Indice.Features.Messages.AspNetCore.Controllers;
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status403Forbidden)]
 [Route($"{ApiPrefixes.CampaignManagementEndpoints}/contacts")]
-internal class ContactsController : ControllerBase
+internal class ContactsController(IContactService contactService, IContactResolver contactResolver) : ControllerBase
 {
-    public ContactsController(IContactService contactService, IContactResolver contactResolver) {
-        ContactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
-        ContactResolver = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
-    }
-
-    public IContactService ContactService { get; }
-    public IContactResolver ContactResolver { get; }
+    public IContactService ContactService { get; } = contactService ?? throw new ArgumentNullException(nameof(contactService));
+    public IContactResolver ContactResolver { get; } = contactResolver ?? throw new ArgumentNullException(nameof(contactResolver));
 
     /// <summary>Gets the list of all contacts using the provided <see cref="ListOptions"/>.</summary>
     /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>

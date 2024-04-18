@@ -11,6 +11,6 @@ public static class LookupServiceExtensions
     /// <param name="key"></param>
     public static void AddLookupService<TLookupService>(this IServiceCollection services, string key)
         where TLookupService : class, ILookupService {
-        services.AddKeyedService<ILookupService, TLookupService, string>(key, ServiceLifetime.Transient);
+        services.AddKeyedTransient<ILookupService, TLookupService>(key);
     }
 }

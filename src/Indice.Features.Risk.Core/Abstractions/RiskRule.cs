@@ -1,4 +1,5 @@
 ﻿using Indice.Features.Risk.Core.Data.Models;
+using Indice.Features.Risk.Core.Models;
 
 namespace Indice.Features.Risk.Core.Abstractions;
 
@@ -12,9 +13,12 @@ public abstract class RiskRule
         Name = ruleName ?? throw new ArgumentNullException(nameof(ruleName));
     }
 
-    /// <summary>The name of the rule.</summary>
+    /// <summary>The name of the rule. Also used as a unique RuleId in the system.</summary>
     public string Name { get; }
-    
+
+    /// <summary>The options of the rule.</summary>
+    public RuleOptions Options { get; set; }
+
     /// <summary>Executes the rule asynchronously.</summary>
     /// <param name="event">The event occurred.</param>
     /// <returns>The result of rule execution.</returns>

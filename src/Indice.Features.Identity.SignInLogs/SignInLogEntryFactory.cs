@@ -90,6 +90,7 @@ internal class SignInLogEntryFactory
             ActionName = @event.Name,
             EventType = SignInLogEventType.UserLoginCompleted,
             ApplicationId = @event.ClientId,
+            ApplicationName = @event.ClientName,
             Description = "A user failed to authenticate.",
             IpAddress = @event.RemoteIpAddress,
             ResourceId = @event.Endpoint,

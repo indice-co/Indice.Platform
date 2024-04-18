@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ViewAction } from '@indice/ng-components';
-import { FilterClause, SearchOption } from '@indice/ng-components/lib/controls/advanced-search/models';
+import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, SearchOption, ViewAction } from '@indice/ng-components';
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
@@ -57,7 +56,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
             const caseTypeSearchOption: SearchOption = {
                 field: 'caseTypeCodes',
-                name: 'ΤΥΠΟΣ ΑΙΤΗΣΗΣ',
+                name: 'ΤΥΠΟΣ ΥΠΟΘΕΣΗΣ',
                 dataType: 'array',
                 options: [],
                 multiTerm: true
@@ -79,7 +78,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
             if (this.tableFilters.CustomerId) {
                 this.searchOptions.push({
                     field: 'referenceNumber',
-                    name: 'ΑΡΙΘΜΟΣ ΑΙΤΗΣΗΣ',
+                    name: 'ΑΡΙΘΜΟΣ ΥΠΟΘΕΣΗΣ',
                     dataType: 'string'
                 });
             }
@@ -136,7 +135,7 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
                 (caseTypesForCaseCreation: CasePartialResultSet) => {
                     if (caseTypesForCaseCreation.count !== 0) {
                         this.formActions.unshift(
-                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'Υποβολή νέας αίτησης', 'Νέα αίτηση')
+                            new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'Υποβολή νέας υπόθεσης', 'Νέα υπόθεση')
                         );
                     }
                 }
@@ -188,8 +187,8 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         this.filters?.filter(f => f.member === 'referenceNumber')?.forEach(f => referenceNumbers.push(this.stringifyFilterClause(f)));
         let groupIds: string[] = [];
         this.filters?.filter(f => f.member === 'groupIds')?.forEach(f => groupIds?.push(this.stringifyFilterClause(f)));
-        let from = this.filters?.find(f => f.member === 'from')?.value;
-        let to = this.filters?.find(f => f.member === 'to')?.value;
+        let from = this.filters?.find(f => f.member === 'dateRange' && f.operator === Operators.GREATER_THAN_EQUAL.value as FilterClause.Op)?.value;
+        let to = this.filters?.find(f => f.member === 'dateRange' && f.operator === Operators.LESS_THAN_EQUAL.value as FilterClause.Op)?.value;
         let caseTypeCodes: string[] = [];
         this.filters?.filter(f => f.member === 'caseTypeCodes')?.forEach(f => caseTypeCodes?.push(this.stringifyFilterClause(f)));
         let checkpointTypeCodes: string[] = [];

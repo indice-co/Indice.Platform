@@ -31,7 +31,7 @@ public class MediaManager
         IMediaFileStore fileStore, 
         IMediaFolderStore folderStore,
         IMediaSettingService settingService,
-        Func<string, IFileService> getFileService, 
+        IFileServiceFactory fileServiceFactory, 
         IDistributedCache cache,
         IOptions<MediaApiOptions> mediaApiOptions,
         IOptions<GeneralSettings> generalSettings
@@ -39,7 +39,7 @@ public class MediaManager
         _fileStore = fileStore ?? throw new ArgumentNullException(nameof(fileStore));
         _folderStore = folderStore ?? throw new ArgumentNullException(nameof(folderStore));
         _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
-        _fileService = getFileService(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
+        _fileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory));
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         _mediaApiOptions = mediaApiOptions?.Value ?? throw new ArgumentNullException(nameof(mediaApiOptions));
         _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));

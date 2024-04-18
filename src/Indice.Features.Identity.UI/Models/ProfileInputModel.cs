@@ -30,5 +30,6 @@ public class ProfileInputModel
     /// <summary></summary>
     public string? ZoneInfo { get; set; }
 
-    internal string? PhoneNumberWithCallingCode => string.IsNullOrWhiteSpace(CallingCode) ? PhoneNumber : $"{CallingCode} {PhoneNumber}";
+    /// <summary>A calculated field that holds the <see cref="PhoneNumber"/> padded with its international <seealso cref="CallingCode"/>.</summary>
+    public string? PhoneNumberWithCallingCode => string.IsNullOrWhiteSpace(CallingCode) ? PhoneNumber : $"{CallingCode} {PhoneNumber}";
 }

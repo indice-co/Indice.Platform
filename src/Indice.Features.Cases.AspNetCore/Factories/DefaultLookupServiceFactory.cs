@@ -1,20 +1,18 @@
 ﻿using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Services.NoOpServices;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Indice.Features.Cases.Factories;
 
 /// <summary>Default lookup service factory.</summary>
-public class DefaultLookupServiceFactory : ILookupServiceFactory
+/// <remarks>Constructs the factory given all the available implementations of the <see cref="ILookupService"/>.</remarks>
+/// <param name="serviceProvider"></param>
+public class DefaultLookupServiceFactory(IServiceProvider serviceProvider) : ILookupServiceFactory
 {
-    /// <summary>Constructs the factory given all the available implementations of the <see cref="ILookupService"/>.</summary>
-    /// <param name="getLookupService"></param>
-    public DefaultLookupServiceFactory(Func<string, ILookupService> getLookupService) {
-        _getLookupService = getLookupService ?? throw new ArgumentNullException(nameof(getLookupService));
-    }
-
-    private Func<string, ILookupService> _getLookupService { get; }
+    private IServiceProvider _serviceProvider { get; } = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
     /// <inheritdoc />
     public ILookupService Create(string name) {
-        return _getLookupService(name);
+        return _serviceProvider.GetKeyedService<ILookupService>(name) ?? new NoOpLookupService();
     }
 }

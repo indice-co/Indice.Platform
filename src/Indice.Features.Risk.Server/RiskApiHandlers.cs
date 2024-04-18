@@ -10,22 +10,26 @@ namespace Indice.Features.Risk.Server;
 internal static class RiskApiHandlers
 {
     internal static async Task<Ok<AggregateRuleExecutionResult>> GetRisk(
-        [FromServices] RiskManager riskManager,
+        [FromServices] RiskStoreService riskStoreService,
+        [FromServices] RiskService riskService,
         [FromBody] RiskModel request
     ) {
         var riskEvent = request.ToRiskEvent();
-        var result = await riskManager.GetRiskAsync(riskEvent);
-        var riskResult = result.ToRiskResult(request);
-        await riskManager.CreateRiskResultAsync(riskResult);
+        var result = await riskService.GetRiskAsync(riskEvent);
+        var riskResult = result.ToDbAggregateExecutionRiskResult(request);
+        await riskStoreService.CreateRiskResultAsync(riskResult);
         return TypedResults.Ok(result);
     }
 
     internal static async Task<StatusCodeHttpResult> CreateRiskEvent(
-        [FromServices] RiskManager riskManager,
+        [FromServices] RiskStoreService riskStoreService,
         [FromBody] RiskModel request
     ) {
         var riskEvent = request.ToRiskEvent();
-        await riskManager.CreateRiskEventAsync(riskEvent);
+        await riskStoreService.CreateRiskEventAsync(riskEvent);
+        if (request.ResultId != null) {
+            await riskStoreService.AddEventIdToRiskResultAsync((Guid)request.ResultId, riskEvent.Id);
+        }
         return TypedResults.StatusCode(StatusCodes.Status201Created);
     }
 }

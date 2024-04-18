@@ -34,7 +34,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   /** shows the warning modal conditionally */
   public showWarningModal: boolean = false;
-  public warningModalState = { title: 'Έγκριση αίτησης', description: 'Δεν έχετε τυπώσει το PDF της αίτησης, θέλετε να προχωρήσετε στην έγκρισή της;' };
+  public warningModalState = { title: 'Έγκριση υπόθεσης', description: 'Δεν έχετε τυπώσει το PDF της υπόθεσης, θέλετε να προχωρήσετε στην έγκρισή της;' };
 
   constructor(
     private api: CasesApiService,
@@ -107,7 +107,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   }
 
   onCaseDiscarded() {
-    this.toaster.show(ToastType.Info, 'Ακύρωση αίτησης', 'Η αίτηση έχει ακυρωθεί');
+    this.toaster.show(ToastType.Info, 'Ακύρωση υπόθεσης', 'Η υπόθεση έχει ακυρωθεί');
     this.router.navigate(['/cases']);
   }
 

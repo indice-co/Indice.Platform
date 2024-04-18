@@ -87,7 +87,7 @@ internal class DashboardController : ControllerBase
     /// <response code="401">Unauthorized</response>
     /// <response code="403">Forbidden</response>
     [Authorize(AuthenticationSchemes = IdentityServerApi.AuthenticationScheme, Policy = IdentityServerApi.Policies.BeUsersOrClientsReader)]
-    [CacheResourceFilter(Expiration = 5, VaryByClaimType = new string[] { JwtClaimTypes.Subject })]
+    [CacheResourceFilter(Expiration = 5, VaryByClaimType = [JwtClaimTypes.Subject])]
     [HttpGet("summary")]
     [ProducesResponseType(statusCode: StatusCodes.Status200OK, type: typeof(SummaryInfo))]
     [ProducesResponseType(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ProblemDetails))]

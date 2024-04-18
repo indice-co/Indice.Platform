@@ -12,10 +12,10 @@ export class AppLinks implements IAppLinks {
             map(user => {
                 const headerMenu = [
                     new NavLink('Αρχική', '/dashboard', true),
-                    new NavLink('Αιτήσεις', '/cases', true)
+                    new NavLink('Υποθέσεις', '/cases', true)
                 ]
                 if (this.authService.isAdmin()) {
-                    headerMenu.push(new NavLink('Διαχείριση Αιτήσεων', '/case-types', true));
+                    headerMenu.push(new NavLink('Διαχείριση Υποθέσεων', '/case-types', true));
                 } else {
                     headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true));
                 }

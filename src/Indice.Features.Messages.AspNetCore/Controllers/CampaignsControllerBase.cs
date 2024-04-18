@@ -7,13 +7,9 @@ using Microsoft.Net.Http.Headers;
 
 namespace Indice.Features.Messages.AspNetCore.Controllers;
 
-internal abstract class CampaignsControllerBase : ControllerBase
+internal abstract class CampaignsControllerBase(IFileServiceFactory fileServiceFactory) : ControllerBase
 {
-    public CampaignsControllerBase(Func<string, IFileService> getFileService) {
-        FileService = getFileService(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(getFileService));
-    }
-
-    public IFileService FileService { get; }
+    public IFileService FileService { get; } = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory));
 
     protected virtual async Task<IActionResult> GetFile(string rootFolder, Guid fileGuid, string format) {
         if (format.StartsWith('.')) {

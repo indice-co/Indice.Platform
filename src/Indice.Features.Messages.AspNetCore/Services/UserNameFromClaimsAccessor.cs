@@ -6,15 +6,11 @@ using Microsoft.AspNetCore.Http;
 namespace Indice.Features.Messages.AspNetCore.Services;
 
 /// <summary>An implementation of <see cref="IUserNameAccessor"/> that resolves the username using user claims.</summary>
-public class UserNameFromClaimsAccessor : IUserNameAccessor
+/// <remarks>Creates a new instance of <see cref="UserNameFromClaimsAccessor"/>.</remarks>
+/// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>.</param>
+public class UserNameFromClaimsAccessor(IHttpContextAccessor httpContextAccessor) : IUserNameAccessor
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    /// <summary>Creates a new instance of <see cref="UserNameFromClaimsAccessor"/>.</summary>
-    /// <param name="httpContextAccessor">Provides access to the current <see cref="HttpContext"/>.</param>
-    public UserNameFromClaimsAccessor(IHttpContextAccessor httpContextAccessor) {
-        _httpContextAccessor = httpContextAccessor;
-    }
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     /// <inheritdoc />
     public int Priority => 1;

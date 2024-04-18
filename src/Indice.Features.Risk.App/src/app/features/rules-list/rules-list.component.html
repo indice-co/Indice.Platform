@@ -1,0 +1,51 @@
+<lib-view-layout title="Registered Rules"
+                 [busy]="!items"
+                 [actions]="formActions"
+                 [meta-items]="metaItems"
+                 (onAction)="actionHandler($event)">
+
+<lib-list-view  [items]="items"
+                [page]="page"
+                [page-size]="pageSize"
+                [count]="count"
+                [sort-options]="sortOptions"
+                [sort]="sort"
+                [sort-dir]="sortdir"
+                [busy]="!items"
+                (pageChanged)="pageChanged($event)"
+                (pageSizeChanged)="pageSizeChanged($event)"
+                (sortChanged)="sortChanged($event)"
+                (sortdirChanged)="sortdirChanged($event)">
+
+                <lib-list-column [title]="'Active'">
+                    <ng-template let-item>
+                        <div class="ml-2">
+                            <img *ngIf="item.enabled" [height]="24" [width]="24" src="./assets/images/enabled.svg" alt="Enabled Icon" />
+                            <img *ngIf="!item.enabled" [height]="24" [width]="24" src="./assets/images/disabled.svg" alt="Disabled Icon" />
+                        </div>
+                      </ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Technical name'">
+                    <ng-template let-item>{{ item.name || '-' }}</ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Name'">
+                    <ng-template let-item>{{ item.friendlyName || '-' }}</ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Description'">
+                    <ng-template let-item>{{ item.description || '-' }}</ng-template>
+                </lib-list-column>
+
+                <lib-list-column [title]="'Actions'">
+                    <ng-template let-item>
+                        <a (click)="openRuleOptionsPane(item.name)"
+                        class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
+                         <span>{{ 'Edit' }}</span>
+                     </a>
+                    </ng-template>
+                </lib-list-column>
+</lib-list-view>
+
+</lib-view-layout>

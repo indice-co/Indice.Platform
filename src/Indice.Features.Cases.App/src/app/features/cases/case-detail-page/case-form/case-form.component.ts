@@ -18,6 +18,7 @@ import { FileWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/
 import { LookupSelectorWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/lookup-selector-widget/lookup-selector-widget.component';
 import { WysiwygWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/wysiwyg-widget/wysiwyg-widget.component';
 import { HrefWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/href-widget/href-widget.component';
+import { LabelOnlyWidgetComponent } from 'src/app/shared/ajsf/json-schema-frameworks/tailwind-framework/label-only-widget/label-only-widget.component';
 
 @Component({
   selector: 'app-case-form',
@@ -47,7 +48,8 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     "number": InputWidgetComponent,
     "textarea": TextAreaWidgetComponent,
     "wysiwyg": WysiwygWidgetComponent,
-    "href": HrefWidgetComponent
+    "href": HrefWidgetComponent,
+    "label-only": LabelOnlyWidgetComponent
   };
   // Add custom framework
   public framework = {
@@ -166,11 +168,11 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
                 .pipe(
                   tap(() => {
                     this._fileUploadService.reset();
-                    this._toaster.show(ToastType.Success, 'Επιτυχής Καταχώριση', `Η αρχική καταχώριση της αίτησης ολοκληρώθηκε.`, 5000);
+                    this._toaster.show(ToastType.Success, 'Επιτυχής Καταχώριση', `Η αρχική καταχώριση της υπόθεσης ολοκληρώθηκε.`, 5000);
                     this.updateDataEvent.emit({ draft: true });
                   }),
                   catchError((err: ProblemDetails) => { // error during case submit
-                    this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της αίτησης σας.`, 5000);
+                    this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της υπόθεσής σας.`, 5000);
                     this.router.navigate(['/cases']);
                     return EMPTY;
                   })

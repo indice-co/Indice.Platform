@@ -33,10 +33,10 @@ public class MessageService : IMessageService
     private IContactResolver ContactResolver { get; }
 
     /// <inheritdoc />
-    public async Task<ResultSet<Message>> GetList(string userCode, ListOptions<MessagesFilter> options) {
-        var userMessages = await GetUserMessagesQuery(userCode, options?.Filter).ToResultSetAsync(options);
+    public async Task<ResultSet<Message>> GetList(string recipientId, ListOptions<MessagesFilter> options) {
+        var userMessages = await GetUserMessagesQuery(recipientId, options?.Filter).ToResultSetAsync(options);
         if (userMessages?.Items != null && userMessages.Items.Any(i => i.RequiresSubstitutions)) {
-            await ApplyHandlebarsSubstitutions(userCode, userMessages);
+            await ApplyHandlebarsSubstitutions(recipientId, userMessages);
         }
         return userMessages;
     }

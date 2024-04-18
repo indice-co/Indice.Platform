@@ -1,0 +1,74 @@
+<lib-side-view-layout   [title]="title || 'Rule Options'"
+                        [cancel-show]="true"
+                        [showActions]="true"
+                        (ok)="saveRuleOptions()"
+                        [ok-close-dialog]="true">
+
+    <form class="space-y-8 divide-y divide-gray-200 py-5">
+        <div class="option-key" *ngFor="let option of basicOptions | keyvalue">
+            <ng-container>
+              <h4 class="mb-2">{{ option.key }}</h4>
+
+              <ng-container 
+                    *ngIf="option.value.toLowerCase() === 'true' 
+                    || option.value.toLowerCase() === 'false'; else textbox">
+                <lib-toggle-button 
+                    [id]="option.key" 
+                    [value]="option.value.toLowerCase() === 'true'"
+                    (valueChange)="onToggleChanged($event)">
+                </lib-toggle-button>
+
+              </ng-container>
+              <ng-template #textbox>
+                <ng-container *ngIf="option.key.toLowerCase() === 'description'; else inputField">
+                  <textarea 
+                    rows="4"
+                    class="border rounded-md px-3 py-2 focus:outline-none focus:border-green-500 option-description"
+                    (ngModelChange)="onOptionValueChanged($event, option.key)"
+                    [(ngModel)]="option.value"
+                    [name]="option.value"
+                    [ngModelOptions]="{standalone: true}">
+                  </textarea>
+                </ng-container>
+
+                <ng-template #inputField>
+                  <input 
+                    type="text" 
+                    class="border rounded-md px-3 py-2 focus:outline-none focus:border-green-500"
+                    (ngModelChange)="onOptionValueChanged($event, option.key)"
+                    [(ngModel)]="option.value"
+                    [name]="option.value"
+                    [ngModelOptions]="{standalone: true}">
+                </ng-template>
+              </ng-template>
+            </ng-container>
+          </div>
+         
+          <div class="option-key" *ngFor="let option of extraOptions | keyvalue">
+            <ng-container>
+              <h4 class="mb-2">{{ option.key }}</h4>
+
+              <ng-container 
+                    *ngIf="option.value.toLowerCase() === 'true' 
+                    || option.value.toLowerCase() === 'false'; else textbox">
+                <lib-toggle-button 
+                    [id]="option.key" 
+                    [value]="option.value.toLowerCase() === 'true'"
+                    (valueChange)="onToggleChanged($event)">
+                </lib-toggle-button>
+
+              </ng-container>
+              <ng-template #textbox>
+                <input 
+                    type="text" 
+                    class="border rounded-md px-3 py-2 focus:outline-none focus:border-green-500"
+                    (ngModelChange)="onOptionValueChanged($event, option.key)"
+                    [(ngModel)]="option.value"
+                    [name]="option.value"
+                    [ngModelOptions]="{standalone: true}">
+              </ng-template>
+            </ng-container>
+          </div>
+    </form>
+
+</lib-side-view-layout>
