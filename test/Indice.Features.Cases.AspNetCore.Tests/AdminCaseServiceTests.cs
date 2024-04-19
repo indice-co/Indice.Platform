@@ -2,7 +2,6 @@
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
-using Indice.Features.Cases.Models.Responses;
 using Indice.Features.Cases.Services;
 using Indice.Security;
 using Indice.Types;
@@ -17,7 +16,7 @@ public class AdminCaseServiceTests : IDisposable
 {
     public AdminCaseServiceTests() {
         var inMemorySettings = new Dictionary<string, string> {
-            ["ConnectionStrings:CasesDb"] = "Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.Test;Trusted_Connection=True;MultipleActiveResultSets=true",
+            ["ConnectionStrings:CasesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
         };
         Microsoft.Extensions.Configuration.IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)
