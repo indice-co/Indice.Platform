@@ -41,4 +41,6 @@ public class GetCasesListFilter
 
     /// <summary>Construct filter clauses based on case data.</summary>
     public List<FilterClause> Data { get; set; } = [];
+    /// <summary>Determines whether case data should be included in result.</summary>
+    public bool IncludeData { get; set; }
 }

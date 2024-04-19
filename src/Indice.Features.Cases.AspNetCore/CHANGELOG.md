@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- `Data` filter property to `GetCasesListFilter` for `IAdminCaseService.GetCases` method.
+- `Data` & `IncludeData` filter property to `GetCasesListFilter` for `IAdminCaseService.GetCases` method.
 
 ## [7.21.1] - 2024-03-14
 ### Bugfix

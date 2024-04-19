@@ -108,7 +108,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                     Description = @case.Checkpoint.CheckpointType.Description,
                     Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
                 },
-                AssignedToName = @case.AssignedTo.Name
+                AssignedToName = @case.AssignedTo.Name,
+                Data = options.Filter.IncludeData ? @case.Data : null
             });
 
         // TODO: not crazy about this one
