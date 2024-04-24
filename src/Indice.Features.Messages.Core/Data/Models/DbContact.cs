@@ -22,5 +22,5 @@ public class DbContact
     /// <summary>Indicates when contact info were last updated.</summary>
     public DateTimeOffset UpdatedAt { get; set; }
     /// <summary>Contact - Distribution list join entity type.</summary>
-    public List<DbDistributionListContact> DistributionListContacts { get; set; } = new List<DbDistributionListContact>();
+    public List<DbDistributionListContact> DistributionListContacts { get; set; } = [];
 }

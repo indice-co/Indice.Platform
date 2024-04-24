@@ -11,7 +11,7 @@ public class DbCampaign : DbAuditableEntity
     /// <summary>The title of the campaign.</summary>
     public string Title { get; set; }
     /// <summary>The contents of the template.</summary>
-    public MessageContentDictionary Content { get; set; } = new MessageContentDictionary();
+    public MessageContentDictionary Content { get; set; } = [];
     /// <summary>Defines a (call-to-action) link.</summary>
     public Hyperlink ActionLink { get; set; }
     /// <summary>Determines if a campaign is published.</summary>
