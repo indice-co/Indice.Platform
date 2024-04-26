@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bugfix
 - `HttpEndpointWithValidation` : Ignore validation if JSON Schema is null. Null check HTTP Body if there is a Schema to validate it with.
 
-## [7.21.1] - 2024-03-13
+## [7.21.0] - 2024-03-13
 ### Added
 - New `HttpEndpointWithValidation` Activity that validates body with the provided json schema.
 ### Bugfix
