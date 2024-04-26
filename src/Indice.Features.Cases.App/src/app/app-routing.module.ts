@@ -40,6 +40,9 @@ const routes: Routes = [
           { path: 'create', component: CaseTypeCreateComponent, pathMatch: 'full' },
           { path: ':caseTypeId/edit', component: CaseTypeEditComponent, pathMatch: 'full' }
         ]
+      },
+      {
+        path: 'menu-items/:caseTypeId', component: CasesComponent
       }
     ]
   },
