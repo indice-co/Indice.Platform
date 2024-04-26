@@ -14,7 +14,7 @@ import * as app from 'src/app/core/models/settings';
 import { HomeComponent } from './features/home/home.component';
 import { ShellConfig } from './shell.config';
 import { LogOutComponent } from './core/services/logout/logout.component';
-import { CASES_API_BASE_URL } from './core/services/cases-api.service';
+import { CASES_API_BASE_URL, CasesApiService } from './core/services/cases-api.service';
 import { SharedModule } from './shared/shared.module';
 import { CasesModule } from './features/cases/cases.module';
 import { NotificationsModule } from './features/notifications/notifications.module';
@@ -54,7 +54,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
   providers: [
     ModalService,
     AuthService,
-    { provide: APP_LINKS, useFactory: (authService: AuthService) => new AppLinks(authService), deps: [AuthService] },
+    CasesApiService,
+    { provide: APP_LINKS, useFactory: (authService: AuthService, caseApiService: CasesApiService) => new AppLinks(authService, caseApiService), deps: [AuthService, CasesApiService] },
     { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
     { provide: CASES_API_BASE_URL, useFactory: () => app.settings.api_url },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },

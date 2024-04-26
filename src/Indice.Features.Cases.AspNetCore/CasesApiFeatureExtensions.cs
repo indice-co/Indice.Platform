@@ -148,6 +148,7 @@ public static class CasesApiFeatureExtensions
 
         // Register custom services.
         services.AddTransient<IAdminCaseService, AdminCaseService>();
+        services.AddTransient<ICaseTypeMenuService, CaseTypeMenuService>();
         services.AddTransient<IAdminReportService, AdminReportService>();
         services.AddTransient<IQueryService, QueryService>();
         services.AddTransient<ICaseAuthorizationService, MemberAuthorizationService>();

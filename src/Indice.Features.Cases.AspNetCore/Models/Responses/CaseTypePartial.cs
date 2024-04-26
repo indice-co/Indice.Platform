@@ -35,12 +35,6 @@ public class CaseTypePartial
     /// <summary>The order which the case type will be shown.</summary>
     public int? Order { get; set; }
 
-    public bool IsMenuItem { get; set; }
-
-    public string? GridFilterConfig { get; set; }
-
-    public string? GridColumnConfig { get; set; }
-
     /// <summary>The allowed Roles For case Creation.</summary>
     public List<string> CanCreateRoles { get; set; }
 

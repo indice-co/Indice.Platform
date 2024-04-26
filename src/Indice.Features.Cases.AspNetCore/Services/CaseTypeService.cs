@@ -73,9 +73,6 @@ internal class CaseTypeService : ICaseTypeService
                 Order = c.Order,
                 Tags = c.Tags,
                 Config = c.Config,
-                GridColumnConfig = c.GridColumnConfig,
-                IsMenuItem = c.IsMenuItem,
-                GridFilterConfig = c.GridFilterConfig,
                 Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
             })
             .ToListAsync();
