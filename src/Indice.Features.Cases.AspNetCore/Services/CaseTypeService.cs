@@ -73,6 +73,9 @@ internal class CaseTypeService : ICaseTypeService
                 Order = c.Order,
                 Tags = c.Tags,
                 Config = c.Config,
+                GridColumnConfig = c.GridColumnConfig,
+                IsMenuItem = c.IsMenuItem,
+                GridFilterConfig = c.GridFilterConfig,
                 Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
             })
             .ToListAsync();
@@ -98,7 +101,10 @@ internal class CaseTypeService : ICaseTypeService
             Tags = caseType.Tags,
             Config = caseType.Config,
             CanCreateRoles = caseType.CanCreateRoles,
-            Order = caseType.Order
+            Order = caseType.Order,
+            GridFilterConfig = caseType.GridFilterConfig,
+            IsMenuItem = caseType.IsMenuItem,
+            GridColumnConfig = caseType.GridColumnConfig,
         };
 
         await _dbContext.CaseTypes.AddAsync(newCaseType);
@@ -157,7 +163,10 @@ internal class CaseTypeService : ICaseTypeService
                 Roles = caseTypeRoles
                     .Where(roleCaseType => roleCaseType.CheckpointTypeId == checkpointType.Id)
                     .Select(roleCaseType => roleCaseType.RoleName)
-            })
+            }),
+            GridColumnConfig = dbCaseType.GridColumnConfig,
+            IsMenuItem = dbCaseType.IsMenuItem,
+            GridFilterConfig = dbCaseType.GridFilterConfig
         };
 
         return caseType;
@@ -183,6 +192,9 @@ internal class CaseTypeService : ICaseTypeService
         dbCaseType.Config = caseType.Config;
         dbCaseType.CanCreateRoles = caseType.CanCreateRoles;
         dbCaseType.Order = caseType.Order;
+        dbCaseType.IsMenuItem = caseType.IsMenuItem;
+        dbCaseType.GridColumnConfig = caseType.GridColumnConfig;
+        dbCaseType.GridFilterConfig = caseType.GridFilterConfig;
 
         _dbContext.CaseTypes.Update(dbCaseType);
 

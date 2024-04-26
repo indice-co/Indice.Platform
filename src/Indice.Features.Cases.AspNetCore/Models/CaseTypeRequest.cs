@@ -38,4 +38,10 @@ public class CaseTypeRequest
     
     /// <summary>The order of the case type.</summary>
     public int? Order { get; set; }
+
+    public bool IsMenuItem { get; set; }
+
+    public string? GridFilterConfig { get; set; }
+
+    public string? GridColumnConfig { get; set; }
 }

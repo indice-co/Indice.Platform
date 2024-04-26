@@ -36,6 +36,12 @@ public class CaseType
     /// <summary>The allowed Roles that can create a new Case.</summary>
     public string CanCreateRoles { get; set; }
 
+    public bool IsMenuItem { get; set; }
+
+    public string? GridFilterConfig { get; set; }
+
+    public string? GridColumnConfig { get; set; }
+
     /// <summary>The checkpoints for this case type.</summary>
     public IEnumerable<CheckpointTypeDetails> CheckpointTypes { get; set; }
 

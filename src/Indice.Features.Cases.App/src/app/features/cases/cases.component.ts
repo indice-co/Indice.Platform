@@ -156,6 +156,8 @@ export class CasesComponent extends BaseListComponent<CasePartial> implements On
         this.tableFilters.CheckpointTypeCodes = filters.some(filter => filter === "CheckpointTypeCodes");
     }
 
+    // check environment variables and
+    // switch on or off the list of predefined columns
     loadColumnSettings(): void {
         if (settings.caseListColumns === '') return;
         const columns = settings.caseListColumns.split(',')
