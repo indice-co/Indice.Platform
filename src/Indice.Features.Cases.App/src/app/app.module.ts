@@ -16,7 +16,7 @@ import { ShellConfig } from './shell.config';
 import { LogOutComponent } from './core/services/logout/logout.component';
 import { CASES_API_BASE_URL, CasesApiService } from './core/services/cases-api.service';
 import { SharedModule } from './shared/shared.module';
-import { CasesModule } from './features/cases/cases.module';
+import { CasesBaseModule } from './features/cases/cases.base.module';
 import { NotificationsModule } from './features/notifications/notifications.module';
 import { CaseTypesModule } from './features/case-types/case-types.module';
 import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-http-interceptor.service';
@@ -39,7 +39,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     IndiceAuthModule.forRoot(),
     IndiceComponentsModule.forRoot(),
     SharedModule,
-    CasesModule,
+    CasesBaseModule,
     CaseTypesModule,
     NotificationsModule,
     JsonSchemaFormModule,

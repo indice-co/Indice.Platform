@@ -3,6 +3,7 @@ import { AuthService } from '@indice/ng-auth';
 import { IAppLinks, NavLink } from '@indice/ng-components';
 import { Observable, of, ReplaySubject, zip } from 'rxjs';
 import { CasesApiService } from './core/services/cases-api.service';
+import { Params } from '@angular/router';
 
 export class AppLinks implements IAppLinks {
 
@@ -38,7 +39,9 @@ export class AppLinks implements IAppLinks {
   //   })).subscribe();
   // }
 
-  constructor(private authService: AuthService, private _api: CasesApiService) {
+  constructor(
+    private authService: AuthService,
+    private _api: CasesApiService) {
     this.authService.user$.pipe(
       map(user => {
         const headerMenu = [
@@ -63,12 +66,20 @@ export class AppLinks implements IAppLinks {
     this._api.getMenuItems().subscribe(data => {
       if (data.items) {
         for (const item of data.items) {
-          headerMenu.push(new NavLink(`${item.title}`, `/menu-items/${item.id}`, true));
+          const queryParams: Params = {
+            view: 'table',
+            page: '1',
+            pagesize: '10',
+            search: '',
+            sort: 'createdByWhen',
+            dir: 'desc',
+            filter: 'caseTypeCodes::eq::Pothen'
+          };
+          headerMenu.push(new NavLink(item.title ?? "", '/cases/Pothen', true, undefined, undefined, undefined, queryParams));
         }
       }
     });
   }
-
 
   public public: Observable<NavLink[]> = of([]);
   public profileActions: Observable<NavLink[]> = of([]);

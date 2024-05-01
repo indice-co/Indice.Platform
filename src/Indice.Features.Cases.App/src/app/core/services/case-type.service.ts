@@ -1,7 +1,8 @@
 import { DataService } from './data.service';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { CasesApiService, CaseTypePartialResultSet, FilterTerm } from './cases-api.service';
+import { CasePartialResultSet, CasesApiService, CaseTypePartialResultSet, FilterTerm } from './cases-api.service';
+import { filter, map, find } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -18,10 +19,15 @@ export class CaseTypeService extends DataService {
         return this.getDataFromCacheOrHttp(this.setCacheKey(filter_FilterTerms), this._api.getCaseTypes());
     }
 
-    public getCaseType(code: string) {
-      this.getCaseTypeMenuItems().subscribe(caseTypes => {
-        return caseTypes.items?.find(x=> x.code == code);
-      })
+    //TODO Pass code
+    public getCaseType(code?: string): Observable<any> {
+      const observable = this.getCaseTypeMenuItems().pipe(
+        map(caseTypes => {
+          return caseTypes.items?.find(x => x.code == "Pothen")
+        })
+      );
+
+      return observable;
     }
 
     private setCacheKey(filter_FilterTerms?: FilterTerm[] | undefined): string {

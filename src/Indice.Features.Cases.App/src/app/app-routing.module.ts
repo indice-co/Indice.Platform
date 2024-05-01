@@ -6,7 +6,7 @@ import { AuthGuardService } from '@indice/ng-auth';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { HomeComponent } from './features/home/home.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
-import { CasesComponent } from './features/cases/cases.component';
+import { CasesBase } from './features/cases/cases.base.component';
 import { CaseDetailPageComponent } from './features/cases/case-detail-page/case-detail-page.component';
 import { NotificationsComponent } from './features/notifications/notifications.component';
 import { CaseCreatePageComponent } from './features/cases/case-create-page/case-create-page.component';
@@ -15,6 +15,8 @@ import { AdminGuardService } from './core/services/admin-guard.service';
 import { CaseTypeCreateComponent } from './features/case-types/case-type-create/case-type-create.component';
 import { CaseTypeEditComponent } from './features/case-types/case-type-edit/case-type-edit.component';
 import { QueriesPageComponent } from './features/cases/queries-page/queries-page.component';
+import { CasesTypeMenuItemsComponent } from './features/cases/case-type-menu-item/case-type-menu-item.component';
+import { CasesComponent } from './features/cases/cases/cases.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -25,7 +27,13 @@ const routes: Routes = [
     path: '', canActivate: [AuthGuardService], children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
-      { path: 'cases', component: CasesComponent },
+      {
+        path: 'cases',
+        children: [
+          { path: '', component: CasesComponent },
+          { path: 'Pothen', component: CasesTypeMenuItemsComponent },
+        ]
+      },
       {
         path: 'cases/:caseId', pathMatch: 'prefix',
         children: [
@@ -40,9 +48,6 @@ const routes: Routes = [
           { path: 'create', component: CaseTypeCreateComponent, pathMatch: 'full' },
           { path: ':caseTypeId/edit', component: CaseTypeEditComponent, pathMatch: 'full' }
         ]
-      },
-      {
-        path: 'menu-items/:caseTypeId', component: CasesComponent
       }
     ]
   },

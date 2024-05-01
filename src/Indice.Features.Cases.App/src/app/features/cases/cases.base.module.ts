@@ -7,7 +7,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { IndiceComponentsModule } from "@indice/ng-components";
 import { SharedModule } from "src/app/shared/shared.module";
-import { CasesComponent } from "./cases.component";
+import { CasesBase } from "./cases.base.component";
 import { CaseAssignmentComponent } from "./case-detail-page/case-assignment/case-assignment.component";
 import { CaseTimelineComponent } from "./case-detail-page/case-timeline/case-timeline.component";
 import { CaseUnassignmentComponent } from "./case-detail-page/case-unassignment/case-unassignment.component";
@@ -19,10 +19,12 @@ import { CasePrintPdfComponent } from './case-detail-page/case-print-pdf/case-pr
 import { CaseWarningModalComponent } from "../../shared/components/case-warning-modal/case-warning-modal.component";
 import { QueriesModalComponent } from "src/app/shared/components/query-modal/query-modal.component";
 import { QueriesPageComponent } from "./queries-page/queries-page.component";
+import { CasesComponent } from "./cases/cases.component";
+import { CasesTypeMenuItemsComponent } from "./case-type-menu-item/case-type-menu-item.component";
 
 @NgModule({
     declarations: [
-        CasesComponent,
+        CasesBase,
         CaseAssignmentComponent,
         CaseUnassignmentComponent,
         CaseTimelineComponent,
@@ -33,7 +35,9 @@ import { QueriesPageComponent } from "./queries-page/queries-page.component";
         CaseDiscardDraftComponent,
         CasePrintPdfComponent,
         CaseWarningModalComponent,
-        QueriesModalComponent
+        QueriesModalComponent,
+        CasesComponent,
+        CasesTypeMenuItemsComponent
     ],
     imports: [
         BrowserModule,
@@ -46,11 +50,11 @@ import { QueriesPageComponent } from "./queries-page/queries-page.component";
         IndiceComponentsModule
     ],
     exports: [
-        CasesComponent,
+        CasesBase,
         CaseAssignmentComponent,
         CaseUnassignmentComponent,
         CaseTimelineComponent,
         CaseDetailPageComponent
     ]
 })
-export class CasesModule { }
+export class CasesBaseModule { }
