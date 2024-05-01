@@ -1,4 +1,5 @@
-﻿using System.Dynamic;
+﻿#if NET6_0_OR_GREATER
+using System.Dynamic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -127,4 +128,4 @@ public class ObjectAsPrimitiveConverter(ObjectAsPrimitiveConverter.FloatKind flo
     }
 
 }
-
+#endif
