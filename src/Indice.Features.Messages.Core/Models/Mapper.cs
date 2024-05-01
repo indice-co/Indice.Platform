@@ -13,7 +13,7 @@ internal static class Mapper
     public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
         ActionLink = campaign.ActionLink,
         ActivePeriod = campaign.ActivePeriod,
-        Content = campaign.Content ?? [],
+        Content = campaign.Content ?? new (),
         CreatedAt = campaign.CreatedAt,
         CreatedBy = campaign.CreatedBy,
         UpdatedAt = campaign.UpdatedAt,
@@ -84,7 +84,7 @@ internal static class Mapper
             Size = campaign.Attachment.ContentLength,
             PermaLink = $"/campaigns/attachments/{(Base64Id)campaign.Attachment.Guid}.{Path.GetExtension(campaign.Attachment.Name).TrimStart('.')}"
         } : null,
-        Content = campaign.Content ?? [],
+        Content = campaign.Content ?? new(),
         CreatedAt = campaign.CreatedAt,
         CreatedBy = campaign.CreatedBy,
         UpdatedAt = campaign.UpdatedAt,
