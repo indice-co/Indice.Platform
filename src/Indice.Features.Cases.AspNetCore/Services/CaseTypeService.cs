@@ -73,7 +73,9 @@ internal class CaseTypeService : ICaseTypeService
                 Order = c.Order,
                 Tags = c.Tags,
                 Config = c.Config,
-                Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
+                Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations),
+                GridFilterConfig = c.GridFilterConfig,
+                GridColumnConfig = c.GridColumnConfig
             })
             .ToListAsync();
         TranslateCaseTypes(caseTypes);
@@ -99,8 +101,8 @@ internal class CaseTypeService : ICaseTypeService
             Config = caseType.Config,
             CanCreateRoles = caseType.CanCreateRoles,
             Order = caseType.Order,
-            GridFilterConfig = caseType.GridFilterConfig,
             IsMenuItem = caseType.IsMenuItem,
+            GridFilterConfig = caseType.GridFilterConfig,
             GridColumnConfig = caseType.GridColumnConfig,
         };
 
@@ -161,9 +163,9 @@ internal class CaseTypeService : ICaseTypeService
                     .Where(roleCaseType => roleCaseType.CheckpointTypeId == checkpointType.Id)
                     .Select(roleCaseType => roleCaseType.RoleName)
             }),
-            GridColumnConfig = dbCaseType.GridColumnConfig,
             IsMenuItem = dbCaseType.IsMenuItem,
-            GridFilterConfig = dbCaseType.GridFilterConfig
+            GridColumnConfig = dbCaseType.GridColumnConfig,
+            GridFilterConfig = dbCaseType.GridFilterConfig,
         };
 
         return caseType;
@@ -192,6 +194,7 @@ internal class CaseTypeService : ICaseTypeService
         dbCaseType.IsMenuItem = caseType.IsMenuItem;
         dbCaseType.GridColumnConfig = caseType.GridColumnConfig;
         dbCaseType.GridFilterConfig = caseType.GridFilterConfig;
+        dbCaseType.IsMenuItem = caseType.IsMenuItem;
 
         _dbContext.CaseTypes.Update(dbCaseType);
 
@@ -222,7 +225,9 @@ internal class CaseTypeService : ICaseTypeService
                     Code = c.Code,
                     Tags = c.Tags,
                     Order = c.Order,
-                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations)
+                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations),
+                    GridFilterConfig = c.GridFilterConfig,
+                    GridColumnConfig = c.GridColumnConfig
                 })
                 .ToListAsync();
         TranslateCaseTypes(caseTypes);

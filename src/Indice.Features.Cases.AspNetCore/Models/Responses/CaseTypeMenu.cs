@@ -14,6 +14,11 @@ public class CaseTypeMenu
     /// <summary>The case type title.</summary>
     public string Title { get; set; }
 
+    /// <summary>
+    /// The case type code
+    /// </summary>
+    public string Code { get; set; }
+
     /// <summary>Flag that promotes a case type to menu item.</summary>
     public bool IsMenuItem { get; set; }
 

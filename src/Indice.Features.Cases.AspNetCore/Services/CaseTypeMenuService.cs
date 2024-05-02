@@ -32,7 +32,8 @@ public class CaseTypeMenuService(CasesDbContext dbContext) : ICaseTypeMenuServic
                                .Where(x => x.IsMenuItem)
                                .Select(x => new CaseTypeMenu {
                                    Id = x.Id,
-                                   Title = x.Title
+                                   Title = x.Title,
+                                   Code = x.Code
                                })
                                .ToResultSetAsync(options);
 
