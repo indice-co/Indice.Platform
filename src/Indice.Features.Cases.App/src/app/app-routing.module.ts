@@ -6,7 +6,6 @@ import { AuthGuardService } from '@indice/ng-auth';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { HomeComponent } from './features/home/home.component';
 import { LogOutComponent } from './core/services/logout/logout.component';
-import { CasesBase } from './features/cases/cases.base.component';
 import { CaseDetailPageComponent } from './features/cases/case-detail-page/case-detail-page.component';
 import { NotificationsComponent } from './features/notifications/notifications.component';
 import { CaseCreatePageComponent } from './features/cases/case-create-page/case-create-page.component';
@@ -31,7 +30,7 @@ const routes: Routes = [
         path: 'cases',
         children: [
           { path: '', component: CasesComponent },
-          { path: 'Pothen', component: CasesTypeMenuItemsComponent },
+          { path: '**', component: CasesTypeMenuItemsComponent },
         ]
       },
       {

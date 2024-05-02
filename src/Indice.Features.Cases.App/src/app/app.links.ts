@@ -66,16 +66,18 @@ export class AppLinks implements IAppLinks {
     this._api.getMenuItems().subscribe(data => {
       if (data.items) {
         for (const item of data.items) {
-          const queryParams: Params = {
-            view: 'table',
-            page: '1',
-            pagesize: '10',
-            search: '',
-            sort: 'createdByWhen',
-            dir: 'desc',
-            filter: 'caseTypeCodes::eq::Pothen'
-          };
-          headerMenu.push(new NavLink(item.title ?? "", '/cases/Pothen', true, undefined, undefined, undefined, queryParams));
+          if (item.title) {
+            const queryParams: Params = {
+              view: 'table',
+              page: '1',
+              pagesize: '10',
+              search: '',
+              sort: 'createdByWhen',
+              dir: 'desc',
+              filter: `caseTypeCodes::eq::${item.code}`
+            };
+            headerMenu.push(new NavLink(item.title, `/cases/${item.code}`, true, undefined, undefined, undefined, queryParams));
+          }
         }
       }
     });

@@ -1,8 +1,8 @@
 import { DataService } from './data.service';
-import { Observable, of } from 'rxjs';
+import { EMPTY, Observable, of } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { CasePartialResultSet, CasesApiService, CaseTypePartialResultSet, FilterTerm } from './cases-api.service';
-import { filter, map, find } from 'rxjs/operators';
+import { CasesApiService, CaseTypePartial, CaseTypePartialResultSet, FilterTerm } from './cases-api.service';
+import { map, switchMap } from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root'
@@ -19,16 +19,20 @@ export class CaseTypeService extends DataService {
         return this.getDataFromCacheOrHttp(this.setCacheKey(filter_FilterTerms), this._api.getCaseTypes());
     }
 
-    //TODO Pass code
-    public getCaseType(code?: string): Observable<any> {
-      const observable = this.getCaseTypeMenuItems().pipe(
-        map(caseTypes => {
-          return caseTypes.items?.find(x => x.code == "Pothen")
+    public getCaseType(code: string): Observable<CaseTypePartial> {
+      return this.getCaseTypeMenuItems().pipe(
+        map(caseTypes => caseTypes.items?.find(x => x.code === code)),
+        //using switchMap to filter out "undefined"
+        switchMap(result => {
+          if (result) {
+            return of(result);
+          } else {
+            return EMPTY;
+          }
         })
       );
-
-      return observable;
     }
+
 
     private setCacheKey(filter_FilterTerms?: FilterTerm[] | undefined): string {
         let cacheKey = this.menuItems;

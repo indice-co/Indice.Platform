@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, SearchOption, ViewAction } from '@indice/ng-components';
-import { forkJoin, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
@@ -51,13 +51,13 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
       this._paramsService.resetParams();
     }
 
-    //TODO: use params here
-    this._route.queryParams.subscribe((params: Params) => {
-      const storedParams = this._paramsService.getParams();
-      if (storedParams) {
-        this._router.navigate(['/cases'], { queryParams: storedParams });
-      }
-    });
+    //TODO: commenting caching for now - use params here
+    // this._route.queryParams.subscribe((params: Params) => {
+    //   const storedParams = this._paramsService.getParams();
+    //   if (storedParams) {
+    //     this._router.navigate(['/cases'], { queryParams: storedParams });
+    //   }
+    // });
 
     // Are there any filters in queryParams?
     this._route.queryParams.subscribe((params: Params) => {
@@ -119,7 +119,7 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
   }
 
   loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
-    const filterObject = this.getFilters();
+    const filterObject = this.buildFilters();
     return this.getFilteredCases(filterObject);
   }
 
@@ -149,7 +149,8 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     return response;
   }
 
-  private getFilters() {
+  private buildFilters() {
+
     let customerIds: string[] = [];
     this.filters?.filter(f => f.member === 'customerId')?.forEach(f => customerIds.push(this.stringifyFilterClause(f)));
     let customerNames: string[] = [];
@@ -166,6 +167,9 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(this.stringifyFilterClause(f)));
     let filterMetadata: string[] = [];
     this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
+
+    this.buildExtraFilters(filterMetadata);
+
     this._paramsService.setParams({
       view: this.view,
       page: this.page,
@@ -191,6 +195,25 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     return filterObject;
   }
 
+  private buildExtraFilters(filterMetadata: string[]) {
+    const code = this.getCodeFromParams();
+
+    if (code) {
+      //assuming every case type is of type "menu item"
+      this._caseTypeMenuItemService.getCaseType(code).pipe(
+        // Filter out any undefined or null gridFilterConfig
+        map(caseType => caseType.gridFilterConfig ? JSON.parse(caseType.gridFilterConfig) : []),
+        // Extract the "field" values from each object in the array
+        map(gridFilterConfig => gridFilterConfig.map((config: any) => config.field))
+      ).subscribe((fields: string[]) => {
+        //add every "field" as "filter"
+        for (const field of fields) {
+          this.filters?.filter(f => f.member === field)?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
+        }
+      });
+    }
+  }
+
   // TODO: make this public in Indice.Angular
   private stringifyFilters(filters: FilterClause[] | undefined) {
     return filters?.map((f: FilterClause) => {
@@ -203,6 +226,11 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
 
   private stringifyFilterClause(filter: FilterClause): string {
     return `${filter.member}::${filter.operator}::${filter.value}`;
+  }
+
+  getCodeFromParams() {
+    const lastSegment = this._route.snapshot.url[this._route.snapshot.url.length - 1]?.path;
+    return lastSegment;
   }
 }
 

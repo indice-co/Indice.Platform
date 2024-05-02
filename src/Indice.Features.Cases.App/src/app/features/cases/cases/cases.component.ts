@@ -106,13 +106,13 @@ export class CasesComponent extends CasesBase {
           dataType: 'daterange'
         });
       }
-
       if (this.tableFilters.CaseTypeCodes) {
         this.searchOptions.push(caseTypeSearchOption);
       }
       if (this.tableFilters.CheckpointTypeCodes) {
         this.searchOptions.push(checkpointTypeSearchOption);
       }
+
       // now that we have the searchOptions, call parent's ngOnInit!
       super.ngOnInit();
     });

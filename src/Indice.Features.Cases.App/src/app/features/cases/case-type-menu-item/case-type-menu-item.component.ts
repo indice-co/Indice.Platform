@@ -34,10 +34,12 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
   }
 
   initializeSearchOptions() {
+
     forkJoin({
-      caseType: this._caseTypeMenuItemService.getCaseType(),
-      checkpointTypes: this._api.getDistinctCheckpointTypes()
+      caseType: this._caseTypeMenuItemService.getCaseType(this.getCodeFromParams()),
+      checkpointTypes: this._api.getDistinctCheckpointTypes(),
     }).pipe(take(1)).subscribe(({ caseType, checkpointTypes }) => {
+
       const caseTypeSearchOption: SearchOption = {
         field: 'caseTypeCodes',
         name: 'ΤΥΠΟΣ ΥΠΟΘΕΣΗΣ',
@@ -110,6 +112,13 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
       }
       if (this.tableFilters.CheckpointTypeCodes) {
         this.searchOptions.push(checkpointTypeSearchOption);
+      }
+
+      //pass every filter from config
+      const filtersArray = JSON.parse(caseType.gridFilterConfig!);
+
+      for (const item of filtersArray) {
+        this.searchOptions.push(item)
       }
 
       // now that we have the searchOptions, call parent's ngOnInit!
