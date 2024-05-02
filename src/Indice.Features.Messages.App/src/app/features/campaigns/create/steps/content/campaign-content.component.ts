@@ -163,7 +163,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
                         subject: [content.title, Validators.required],
                         body: [content.body, Validators.required]
                     });
-                    const channelState = this.channelsState[channel];
+                    const channelState = this.getChannelState(channel);
                     if (channelState) {
                         channelState.checked = true;
                     }
@@ -283,6 +283,16 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
         // this.onBodyInput(this._contentForm!);
         this.showSidePane = false;
     };
+
+    public getChannelState(key: string) {
+        let lowerKey = key.toLowerCase();
+        switch (lowerKey) {
+            case 'pushnotification':
+                return this.channelsState['pushNotification'];
+            default:
+                return this.channelsState[lowerKey];
+        }
+    }
 
     private _setSubjectPreview(value: string | undefined): void {
         if (!value) {

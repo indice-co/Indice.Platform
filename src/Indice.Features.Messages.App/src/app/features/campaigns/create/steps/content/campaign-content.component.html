@@ -54,7 +54,7 @@
                         </fieldset>
                     </div>
                 </lib-tab>
-                <lib-tab [labelText]="channelsState[contentForm.value.channel].name"
+                <lib-tab [labelText]="getChannelState(contentForm.value.channel).name"
                     *ngFor="let contentForm of channelsContent.controls; let i = index">
                     <ng-container
                         *ngTemplateOutlet="contentTemplate; context: { $implicit: contentForm }"></ng-container>
