@@ -2,7 +2,7 @@ import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit,
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import * as Handlebars from 'handlebars';
-import { LibTabComponent, LibTabGroupComponent, MenuOption } from '@indice/ng-components';
+import { LibTabComponent, LibTabGroupComponent, MenuOption, SidePaneComponent } from '@indice/ng-components';
 import { MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
@@ -17,7 +17,8 @@ import { settings } from 'src/app/core/models/settings';
 declare var tinymce: any;
 @Component({
     selector: 'app-campaign-content',
-    templateUrl: './campaign-content.component.html'
+    templateUrl: './campaign-content.component.html',
+    styleUrl: './campaign-content.component.scss'
 })
 export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChecked {
     private _samplePayload: any = {
@@ -36,6 +37,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
 
     private _currentValidDataObject: any = undefined;
     @ViewChild('tabGroup', { static: true }) private _tabGroup: LibTabGroupComponent | undefined;
+    @ViewChild('rightPane', { static: false }) public rightPaneComponent!: SidePaneComponent;
 
     constructor(
         private _validationService: ValidationService,
@@ -71,7 +73,6 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     public hideMetadata = true;
     public selectedSenderId: any;
     public messageSenders: MenuOption[] = [];
-    public showSidePane: boolean = false;
     public enableRichTextEditor = settings.enableRichTextEditor;
 
     public get samplePayload(): any {
@@ -257,12 +258,12 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     }
 
     public openSidePane(content: FormGroup) {
-        this.showSidePane = true;
+        this.rightPaneComponent.show();
         this._contentForm = content;
     }
 
     public closeSidePane() {
-        this.showSidePane = false;
+        this.rightPaneComponent.hide();
     }
 
     public async addToTextArea (file: MediaFile | undefined) {
@@ -281,7 +282,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
 
         // this._contentForm!.controls['body'].setValue(`${textarea.value.substring(0, start_position)}${text}${textarea.value.substring(end_position, textarea.value.length)}`);
         // this.onBodyInput(this._contentForm!);
-        this.showSidePane = false;
+        this.rightPaneComponent.hide();
     };
 
     public getChannelState(key: string) {

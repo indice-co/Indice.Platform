@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 
-import { MenuOption } from '@indice/ng-components';
+import { MenuOption, SidePaneComponent } from '@indice/ng-components';
 import { map } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { Contact, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -13,6 +13,7 @@ import { ListContactCreateComponent } from 'src/app/shared/components/list-conta
 })
 export class CampaignRecipientsComponent implements OnInit {
     @ViewChild('contactCreateComponent', { static: false }) public contactCreateComponent!: ListContactCreateComponent;
+    @ViewChild('rightPane', { static: false }) public rightPaneComponent!: SidePaneComponent;
     constructor(private _api: MessagesApiClient) { }
 
     // Form Controls
@@ -27,7 +28,6 @@ export class CampaignRecipientsComponent implements OnInit {
 
     public distributionLists: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
     public form!: UntypedFormGroup;
-    public showSidePane: boolean = false;
     public apiUrl = settings.api_url;
 
     public ngOnInit(): void {
@@ -66,6 +66,14 @@ export class CampaignRecipientsComponent implements OnInit {
     public setRecipients(recipients: Contact[]) {
         this.recipients.setValue(recipients);
         this.recipients.markAsTouched();
+    }
+
+    public openSidePane() {
+        this.rightPaneComponent.show();
+    }
+
+    public closeSidePane() {
+        this.rightPaneComponent.hide();
     }
 
     private _loadDistributionLists(): void {

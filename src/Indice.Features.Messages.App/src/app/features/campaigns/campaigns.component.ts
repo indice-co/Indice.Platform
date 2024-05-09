@@ -32,7 +32,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
     public newItemLink: string | null = null;
     public full = true;
 
-    public ngOnInit(): void {
+    public override ngOnInit(): void {
         super.ngOnInit();
         this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add-campaign', null, null));
     }
@@ -43,7 +43,7 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
             .pipe(map((result: CampaignResultSet) => (result as IResultSet<Campaign>)));
     }
 
-    public actionHandler(action: ViewAction): void {
+    public override actionHandler(action: ViewAction): void {
         if (action.icon === Icons.Refresh) {
             this.search = '';
             this.refresh();

@@ -42,7 +42,7 @@
                             </div>
                             <div class="w-full xl:w-96">
                                    <div *ngIf="sendVia.value === 'distribution-list'">
-                                          <label for="distributionList" class="field-label hidden"
+                                          <label for="distributionList" class="hidden"
                                                  aria-hidden="true">distribution list id</label>
                                           <div class="flex rounded-sm">
                                                  <lib-local-drop-down-menu id="distributionList" name="distributionList"
@@ -53,7 +53,7 @@
                                           </div>
                                    </div>
                                    <div *ngIf="sendVia.value === 'recipient-ids'">
-                                          <label for="recipientIds" class="field-label hidden"
+                                          <label for="recipientIds" class="hidden"
                                                  aria-hidden="true">Τύπος</label>
                                           <div class="mt-1 flex rounded-sm">
                                                  <textarea id="recipientIds" name="recipientIds" rows="6"
@@ -67,7 +67,7 @@
                                                  class="flex items-center space-x-5">
                                                  <p class="field-info">Δεν έχετε προσθέσει παραλήπτες στη λίστα.
                                                  </p>
-                                                 <button class="h-10 w-10 rounded-full border-black border" (click)="showSidePane=true">
+                                                 <button class="h-10 w-10 rounded-full border-black border" (click)="openSidePane()">
                                                         <i class="ms-Icon ms-Icon--Add"></i>
                                                  </button>
                                           </div>
@@ -88,7 +88,7 @@
                                                                       {{recipients.value.length - 4}}
                                                                </div>
                                                         </div>
-                                                        <button class="h-10 w-10 rounded-full border-black border ml-2" (click)="showSidePane=true">
+                                                        <button class="h-10 w-10 rounded-full border-black border ml-2" (click)="openSidePane()">
                                                                <i class="ms-Icon ms-Icon--Edit"></i>
                                                         </button>
                                                  </div>
@@ -116,10 +116,10 @@
        </div>
 </form>
 
-<lib-side-pane #rightPane [visible]="showSidePane">
+<lib-side-pane #rightPane>
        <div class="mt-4 pb-4 h-screen flex flex-col justify-between">
-              <app-list-contact-create class="overflow-auto min-h-[500px]" #contactCreateComponent (onSubmit)="setRecipients($event); showSidePane = false;"
-                     (onCancel)="setRecipients($event); showSidePane = false;"></app-list-contact-create>
+              <app-list-contact-create class="overflow-auto min-h-[500px]" #contactCreateComponent (onSubmit)="setRecipients($event); closeSidePane()"
+                     (onCancel)="setRecipients($event); closeSidePane()"></app-list-contact-create>
               <div class="side-view-layout-actions-container">
                      <button type="button" class="side-view-layout-action-button-cancel"
                             (click)="contactCreateComponent.cancel()">

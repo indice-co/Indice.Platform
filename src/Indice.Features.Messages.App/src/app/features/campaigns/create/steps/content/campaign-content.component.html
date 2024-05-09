@@ -21,7 +21,7 @@
                             <div class="text-base font-medium text-gray-900" aria-hidden="true">
                                 Κανάλια επικοινωνίας (*)
                             </div>
-                            <label for="campaignType" class="field-label hidden" aria-hidden="true">
+                            <label for="campaignType" class="hidden" aria-hidden="true">
                                 Κανάλια επικοινωνίας (*)
                             </label>
                             <div class="grid grid-cols-2 gap-4">
@@ -67,7 +67,7 @@
                 <fieldset>
                     <legend class="sr-only">Μεταδεδομένα</legend>
                     <div class="text-base font-medium text-gray-900" aria-hidden="true">Μεταδεδομένα</div>
-                    <label for="campaignMetadata" class="field-label hidden" aria-hidden="true">Μεταδεδομένα</label>
+                    <label for="campaignMetadata" class="hidden" aria-hidden="true">Μεταδεδομένα</label>
                     <div class="mt-1 flex rounded-sm">
                         <textarea id="campaignMetadata" name="campaignMetadata" formControlName="data" rows="6"
                             (input)="onCampaignMetadataInput($event)"
@@ -86,7 +86,7 @@
                 <fieldset>
                     <legend class="sr-only">Δεδομένα μηνύματος</legend>
                     <div class="text-base font-medium text-gray-900" aria-hidden="true">Δεδομένα μηνύματος</div>
-                    <label for="campaignSamplePayload" class="field-label hidden" aria-hidden="true">Δεδομένα
+                    <label for="campaignSamplePayload" class="hidden" aria-hidden="true">Δεδομένα
                         μηνύματος</label>
                     <div class="mt-2 flex rounded-sm border">
                         <pre>
@@ -111,7 +111,7 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2 sm:col-span-1">
-                    <label for="sender" class="field-label hidden" aria-hidden="true">
+                    <label for="sender" class="hidden" aria-hidden="true">
                         Αποστολέας (*)
                     </label>
                     <lib-local-drop-down-menu id="messageSender" name="messageSender" class="w-full"
@@ -128,7 +128,7 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2 sm:col-span-1">
-                    <label for="subject" class="field-label hidden" aria-hidden="true">
+                    <label for="subject" class="hidden" aria-hidden="true">
                         Θέμα (*)
                     </label>
                     <div class="mt-1 flex rounded-sm col-span-3">
@@ -142,7 +142,7 @@
                     </p>
                 </div>
                 <div class="mt-1 col-span-2 sm:col-span-1 border border-dashed">
-                    <label class="field-label hidden" aria-hidden="true">
+                    <label class="hidden" aria-hidden="true">
                         Προεπισκόπηση
                     </label>
                     <div class="flex rounded-sm col-span-3">
@@ -161,7 +161,7 @@
             <ng-container *ngIf="enableRichTextEditor && (contentForm.controls['channel'].value === 'email' || contentForm.controls['channel'].value === 'inbox')">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
-                        <label for="body" class="field-label hidden" aria-hidden="true">
+                        <label for="body" class="hidden" aria-hidden="true">
                             Σώμα (*)
                         </label>
                         <textarea [id]="'tinymce-editor-'+contentForm.controls['channel'].value" name="body" formControlName="body" class="code-editor tinymce-editor"
@@ -179,7 +179,7 @@
             <ng-container *ngIf="!enableRichTextEditor || (contentForm.controls['channel'].value !== 'email' && contentForm.controls['channel'].value !== 'inbox')">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2 md:col-span-1">
-                        <label for="body" class="field-label hidden" aria-hidden="true">
+                        <label for="body" class="hidden" aria-hidden="true">
                             Σώμα (*)
                         </label>
                         <div class="mt-1 flex rounded-sm col-span-3">
@@ -195,7 +195,7 @@
                         </p>
                     </div>
                     <div class="mt-2 col-span-2 sm:col-span-1 border border-dashed">
-                        <label class="field-label hidden" aria-hidden="true">
+                        <label class="hidden" aria-hidden="true">
                             Προεπισκόπηση
                         </label>
                         <div class="flex rounded-sm col-span-3">
@@ -209,8 +209,8 @@
     </div>
 </ng-template>
 
-<lib-side-pane #rightPane [visible]="showSidePane">
-    <div class="side-view-layout-container h-screen">
+<lib-side-pane #rightPane>
+    <div class="side-view-layout-container">
         <div class="side-view-layout-container-inner">
             <div class="side-view-layout-header-margins">
                 <div class="side-view-layout-header-container">
