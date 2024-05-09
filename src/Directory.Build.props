@@ -7,7 +7,7 @@
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).3</VersionPrefixIdentityUI>
       <VersionPrefixCases>$(VersionPrefixBase).1</VersionPrefixCases>
-      <VersionPrefixMessages>$(VersionPrefixBase).4</VersionPrefixMessages>
+      <VersionPrefixMessages>$(VersionPrefixBase).5</VersionPrefixMessages>
       <VersionPrefixMultitenancy>$(VersionPrefixBase).0</VersionPrefixMultitenancy>
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).4</VersionPrefixMedia>
