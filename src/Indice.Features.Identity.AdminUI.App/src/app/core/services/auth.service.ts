@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 
 import { map } from 'rxjs/operators';
 import { Observable, from, throwError } from 'rxjs';
-import { UserManager, User, SignoutResponse, Profile, Log } from 'oidc-client';
+import { UserManager, User, SignoutResponse, UserProfile, Log } from 'oidc-client-ts';
 import { LoggerService } from './logger.service';
 import * as app from '../models/settings';
 import { RoleNames } from '../models/roles';
@@ -19,8 +19,8 @@ export class AuthService {
 
     constructor(private _logger: LoggerService, private _router: Router) {
         if (!app.settings.production) {
-            Log.logger = console;
-            Log.level = Log.INFO;
+            Log.setLogger(console);
+            Log.setLevel(Log.INFO);
         }
         this._userManager = new UserManager(app.settings.auth_settings);
         this.loadUser().subscribe();
@@ -59,7 +59,7 @@ export class AuthService {
         }));
     }
 
-    public getUserProfile(): Profile {
+    public getUserProfile(): UserProfile {
         return this.user?.profile;
     }
 
@@ -138,7 +138,7 @@ export class AuthService {
 
     public signinRedirect(location: string): void {
         this._userManager
-            .signinRedirect({ data: { url: location } })
+            .signinRedirect({ url_state:  location } )
             .catch((error: any) => this._logger.log(error));
     }
 
@@ -156,10 +156,9 @@ export class AuthService {
         return from(this._userManager.signinSilent());
     }
 
-    public signinSilentCallback(): Observable<User> {
-        return from(this._userManager.signinSilentCallback()).pipe(map((user: User) => {
-            this.user = user;
-            return user;
+    public signinSilentCallback(): Observable<void> {
+        return from(this._userManager.signinSilentCallback()).pipe(map(() => {
+            
         }, (error: any) => {
             throwError(error);
             return null;

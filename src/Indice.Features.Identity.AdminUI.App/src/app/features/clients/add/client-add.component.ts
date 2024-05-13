@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild, ComponentFactoryResolver } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators, UntypedFormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { forkJoin, of, Subscription } from 'rxjs';
@@ -30,7 +30,7 @@ export class ClientAddComponent implements OnInit {
     private _wizardService: ClientsWizardService,
     private _changeDetectionRef: ChangeDetectorRef,
     private _componentFactoryResolver: ComponentFactoryResolver,
-    private _formBuilder: FormBuilder,
+    private _formBuilder: UntypedFormBuilder,
     private _api: IdentityApiService,
     private _router: Router,
     private _route: ActivatedRoute,
@@ -43,7 +43,7 @@ export class ClientAddComponent implements OnInit {
   public clientTypeSteps: WizardStepDescriptor[] = [];
   public wizardStepIndex = 0;
   public client: CreateClientRequest = new CreateClientRequest();
-  public form: FormGroup;
+  public form: UntypedFormGroup;
   public hostFormValidated = false;
   public problemDetails: HttpValidationProblemDetails;
 
@@ -155,12 +155,12 @@ export class ClientAddComponent implements OnInit {
       });
   }
 
-  private validateFormFields(formGroup: FormGroup) {
+  private validateFormFields(formGroup: UntypedFormGroup) {
     Object.keys(formGroup.controls).forEach((field: string) => {
       const control = formGroup.get(field);
-      if (control instanceof FormControl) {
+      if (control instanceof UntypedFormControl) {
         control.markAsTouched({ onlySelf: true });
-      } else if (control instanceof FormGroup) {
+      } else if (control instanceof UntypedFormGroup) {
         this.validateFormFields(control);
       }
     });
