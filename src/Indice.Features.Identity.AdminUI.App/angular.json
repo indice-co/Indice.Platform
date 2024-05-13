@@ -140,7 +140,6 @@
       }
     }
   },
-  "defaultProject": "adminui-app",
   "cli": {
     "analytics": "d201a9dd-b639-4103-9891-dfe7ae06c018"
   }
