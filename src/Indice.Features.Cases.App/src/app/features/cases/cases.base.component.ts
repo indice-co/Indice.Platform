@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, SearchOption, ViewAction } from '@indice/ng-components';
+import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
-import { CasePartial, CasePartialResultSet, CasesApiService, CaseTypePartialResultSet, } from 'src/app/core/services/cases-api.service';
+import { CasePartial, CasePartialResultSet, CasesApiService, } from 'src/app/core/services/cases-api.service';
 import { ParamsService } from 'src/app/core/services/params.service';
 import { QueriesModalComponent } from 'src/app/shared/components/query-modal/query-modal.component';
 
@@ -45,12 +45,11 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     super.ngOnInit();
   }
 
-  setupParams(): void {
+  public setupParams(): void {
     // Are we already on "/cases"? If yes, reset params and return
     if (this._router.url === '/cases') {
       this._paramsService.resetParams();
     }
-
     //TODO: commenting caching for now - use params here
     // this._route.queryParams.subscribe((params: Params) => {
     //   const storedParams = this._paramsService.getParams();
@@ -58,14 +57,13 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     //     this._router.navigate(['/cases'], { queryParams: storedParams });
     //   }
     // });
-
     // Are there any filters in queryParams?
     this._route.queryParams.subscribe((params: Params) => {
       this.queryParamsHasFilter = params['filter'] ? true : false;
     });
   }
 
-  fetchCaseTypesAvailableForCreation(): void {
+  public fetchCaseTypesAvailableForCreation(): void {
     // independent call to fetch the case Types that the user can select for Case Creation
     this._api.getCaseTypes(true)
       .pipe(take(1))
@@ -80,10 +78,9 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
       );
   }
 
-  loadFilterSettings(): void {
+  public loadFilterSettings(): void {
     if (settings.caseListFilters === '') return;
     const filters = settings.caseListFilters.split(',')
-
     this.tableFilters.ReferenceNumber = filters.some(filter => filter === "ReferenceNumber");
     this.tableFilters.CustomerId = filters.some(filter => filter === "CustomerId");
     this.tableFilters.CustomerName = filters.some(filter => filter === "CustomerName");
@@ -96,10 +93,9 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
 
   // check environment variables and
   // switch on or off the list of predefined columns
-  loadColumnSettings(): void {
+  public loadColumnSettings(): void {
     if (settings.caseListColumns === '') return;
     const columns = settings.caseListColumns.split(',')
-
     this.tableColumns.ReferenceNumber = columns.some(column => column === "ReferenceNumber");
     this.tableColumns.CustomerId = columns.some(column => column === "CustomerId");
     this.tableColumns.CustomerName = columns.some(column => column === "CustomerName");
@@ -111,16 +107,21 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     this.tableColumns.SubmitDate = columns.some(column => column === "SubmitDate");
   }
 
-  openQueryModal(): void {
+  public openQueryModal(): void {
     this._modalService.show(QueriesModalComponent, {
       backdrop: 'static',
       keyboard: false
     });
   }
 
-  loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
+  public loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
     const filterObject = this.buildFilters();
     return this.getFilteredCases(filterObject);
+  }
+
+  public getCodeFromParams() {
+    const lastSegment = this._route.snapshot.url[this._route.snapshot.url.length - 1]?.path;
+    return lastSegment;
   }
 
   private getFilteredCases(filterObject: any) {
@@ -145,12 +146,10 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
         take(1),
         map((result: CasePartialResultSet) => (result as IResultSet<CasePartial>))
       );
-
     return response;
   }
 
   private buildFilters() {
-
     let customerIds: string[] = [];
     this.filters?.filter(f => f.member === 'customerId')?.forEach(f => customerIds.push(this.stringifyFilterClause(f)));
     let customerNames: string[] = [];
@@ -167,9 +166,7 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(this.stringifyFilterClause(f)));
     let filterMetadata: string[] = [];
     this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
-
     this.buildExtraFilters(filterMetadata);
-
     this._paramsService.setParams({
       view: this.view,
       page: this.page,
@@ -179,7 +176,6 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
       dir: this.sortdir,
       filter: this.stringifyFilters(this.filters)
     });
-
     const filterObject = {
       "customerIds": customerIds,
       "customerNames": customerNames,
@@ -191,13 +187,11 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
       "checkpointTypeCodes": checkpointTypeCodes,
       "filterMetadata": filterMetadata,
     }
-
     return filterObject;
   }
 
   private buildExtraFilters(filterMetadata: string[]) {
     const code = this.getCodeFromParams();
-
     if (code) {
       //assuming every case type is of type "menu item"
       this._caseTypeMenuItemService.getCaseType(code).pipe(
@@ -226,11 +220,6 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
 
   private stringifyFilterClause(filter: FilterClause): string {
     return `${filter.member}::${filter.operator}::${filter.value}`;
-  }
-
-  getCodeFromParams() {
-    const lastSegment = this._route.snapshot.url[this._route.snapshot.url.length - 1]?.path;
-    return lastSegment;
   }
 }
 

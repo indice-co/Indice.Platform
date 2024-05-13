@@ -33,7 +33,6 @@ export class CaseTypeService extends DataService {
       );
     }
 
-
     private setCacheKey(filter_FilterTerms?: FilterTerm[] | undefined): string {
         let cacheKey = this.menuItems;
         if (filter_FilterTerms) {

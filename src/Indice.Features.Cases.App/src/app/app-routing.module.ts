@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-
 import { AuthCallbackComponent, AuthRenewComponent, PageNotFoundComponent, SidePaneSize } from '@indice/ng-components';
 import { AuthGuardService } from '@indice/ng-auth';
 import { DashboardComponent } from './features/dashboard/dashboard.component';

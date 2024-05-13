@@ -33,13 +33,11 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
     this.fetchCaseTypesAvailableForCreation();
   }
 
-  initializeSearchOptions() {
-
+  private initializeSearchOptions() {
     forkJoin({
       caseType: this._caseTypeMenuItemService.getCaseType(this.getCodeFromParams()),
       checkpointTypes: this._api.getDistinctCheckpointTypes(),
     }).pipe(take(1)).subscribe(({ caseType, checkpointTypes }) => {
-
       const caseTypeSearchOption: SearchOption = {
         field: 'caseTypeCodes',
         name: 'ΤΥΠΟΣ ΥΠΟΘΕΣΗΣ',
@@ -47,9 +45,7 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
         options: [],
         multiTerm: true
       }
-
       caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
-
       const checkpointTypeSearchOption: SearchOption = {
         field: 'checkpointTypeCodes',
         name: 'ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ',
@@ -57,11 +53,9 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
         options: [],
         multiTerm: true
       }
-
       for (let checkpointType of checkpointTypes) { // fill checkpointTypeSearchOption's SelectInputOptions
         checkpointTypeSearchOption.options?.push({ value: checkpointType?.code, label: checkpointType?.title ?? checkpointType?.code! })
       }
-
       this.searchOptions = [];
       if (this.tableFilters.CustomerId) {
         this.searchOptions.push({
@@ -106,21 +100,17 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
           dataType: 'daterange'
         });
       }
-
       if (this.tableFilters.CaseTypeCodes) {
         this.searchOptions.push(caseTypeSearchOption);
       }
       if (this.tableFilters.CheckpointTypeCodes) {
         this.searchOptions.push(checkpointTypeSearchOption);
       }
-
       //pass every filter from config
       const filtersArray = JSON.parse(caseType.gridFilterConfig!);
-
       for (const item of filtersArray) {
         this.searchOptions.push(item)
       }
-
       // now that we have the searchOptions, call parent's ngOnInit!
       super.ngOnInit();
     });

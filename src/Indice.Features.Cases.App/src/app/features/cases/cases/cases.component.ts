@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { CasesBase } from '../cases.base.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
-import { CasesApiService, CaseTypePartialResultSet } from 'src/app/core/services/cases-api.service';
+import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { ParamsService } from 'src/app/core/services/params.service';
 import { ModalService, SearchOption } from '@indice/ng-components';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { take } from 'rxjs/operators';
 
 @Component({
@@ -33,7 +33,7 @@ export class CasesComponent extends CasesBase {
     this.fetchCaseTypesAvailableForCreation();
   }
 
-  initializeSearchOptions() {
+  private initializeSearchOptions() {
     forkJoin({
       caseTypes: this._caseTypeMenuItemService.getCaseTypeMenuItems(),
       checkpointTypes: this._api.getDistinctCheckpointTypes()
@@ -45,11 +45,9 @@ export class CasesComponent extends CasesBase {
         options: [],
         multiTerm: true
       }
-
       for (let caseType of caseTypes.items!) { // fill caseTypeSearchOption's SelectInputOptions
         caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
       }
-
       const checkpointTypeSearchOption: SearchOption = {
         field: 'checkpointTypeCodes',
         name: 'ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ',
@@ -57,11 +55,9 @@ export class CasesComponent extends CasesBase {
         options: [],
         multiTerm: true
       }
-
       for (let checkpointType of checkpointTypes) { // fill checkpointTypeSearchOption's SelectInputOptions
         checkpointTypeSearchOption.options?.push({ value: checkpointType?.code, label: checkpointType?.title ?? checkpointType?.code! })
       }
-
       this.searchOptions = [];
       if (this.tableFilters.CustomerId) {
         this.searchOptions.push({
@@ -112,7 +108,6 @@ export class CasesComponent extends CasesBase {
       if (this.tableFilters.CheckpointTypeCodes) {
         this.searchOptions.push(checkpointTypeSearchOption);
       }
-
       // now that we have the searchOptions, call parent's ngOnInit!
       super.ngOnInit();
     });
