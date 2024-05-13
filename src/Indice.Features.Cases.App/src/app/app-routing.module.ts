@@ -29,7 +29,7 @@ const routes: Routes = [
         path: 'cases',
         children: [
           { path: '', component: CasesComponent },
-          { path: '**', component: CasesTypeMenuItemsComponent },
+          { path: ':caseTypeCode', component: CasesTypeMenuItemsComponent },
         ]
       },
       {

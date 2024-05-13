@@ -120,8 +120,8 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
   }
 
   public getCodeFromParams() {
-    const lastSegment = this._route.snapshot.url[this._route.snapshot.url.length - 1]?.path;
-    return lastSegment;
+    const lastSegment = this._route.snapshot.paramMap.get('caseTypeCode');
+    return lastSegment!;
   }
 
   private getFilteredCases(filterObject: any) {
