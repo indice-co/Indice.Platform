@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, importProvidersFrom } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -10,6 +10,7 @@ import { SideMenuComponent } from './components/dashboard-shell/side-menu/side-m
 import { SharedModule } from '../shared/shared.module';
 import { AppToastsComponent } from './components/dashboard-shell/toast/toast.component';
 import { NgProgressModule } from 'ngx-progressbar';
+import { NgProgressHttpModule } from 'ngx-progressbar/http';
 
 @NgModule({
     declarations: [
@@ -25,6 +26,7 @@ import { NgProgressModule } from 'ngx-progressbar';
         SharedModule,
         NgbDropdownModule,
         NgProgressModule,
+        NgProgressHttpModule,
         NgbToastModule
     ]
 })
