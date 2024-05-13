@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { User } from 'oidc-client';
+import { User } from 'oidc-client-ts';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -15,7 +15,7 @@ export class AuthCallbackComponent implements OnInit {
         this._authService.signinRedirectCallback().subscribe((user: User) => {
             if (user && this._authService.userHasAccess()) {
                 const target = 'app/dashboard';
-                this._router.navigateByUrl(user.state.url || target);
+                this._router.navigateByUrl(user.url_state || target);
             }
         });
     }
