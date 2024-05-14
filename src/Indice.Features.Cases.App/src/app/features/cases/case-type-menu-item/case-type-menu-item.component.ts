@@ -112,6 +112,10 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
       for (const item of filtersArray) {
         this.searchOptions.push(item)
       }
+      const columnArray = JSON.parse(caseType.gridColumnConfig!);
+      for (const item of columnArray) {
+        this.columns.push(item)
+      }
       // now that we have the searchOptions, call parent's ngOnInit!
       super.ngOnInit();
     });

@@ -24,11 +24,11 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
   public tableFilters = new TableFilters();
   public tableColumns = new TableColumns();
 
-  columns = [
+  public columns = [
     { key: 'ReferenceNumber' },
     { key: 'CustomerId' },
     { key: 'CustomerName' },
-    { key: 'TaxId', itemProperty: 'metadata.taxId' },
+    { key: 'TaxId', itemProperty: 'metadata.TaxId' },
     { key: 'GroupId' },
     { key: 'CaseType', itemProperty: 'caseType.title' },
     { key: 'CheckpointType', itemProperty: 'checkpointType.title' },
@@ -59,10 +59,9 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     super.ngOnInit();
   }
 
-  getItemValue(item: any, column: any) {
+  public getItemValue(item: any, column: any) {
     const value = this.findAccordingValue(item, column);
     let formattedValue = value;
-
     if (value instanceof Date) {
       // Format date using DatePipe
       formattedValue = this.datePipe.transform(value, 'dd/MM/yy, HH:mm') || '-';
@@ -70,40 +69,36 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     if (value === undefined || value === null) {
       formattedValue = '-';
     }
-
     return formattedValue;
   }
 
-  findAccordingValue(item: any, column: any): any {
+  private findAccordingValue(item: any, column: any): any {
     if (column.itemProperty) {
       return this.getValueFromProperty(item, column.itemProperty)
     }
-
     const itemProperty = column.key;
     const formattedProperty = itemProperty[0].toLowerCase() + itemProperty.slice(1);
     return item[formattedProperty];
   }
 
-  getValueFromProperty(obj: any, propPath: any) {
-    let props = propPath.split('.');
-
-    for (let i = 0; i < props.length; i++) {
-      obj = obj[props[i]];
+  private getValueFromProperty(obj: any, propPath: any) {
+    const props = propPath.split('.');
+    for (const prop of props) {
+      obj = obj[prop];
       if (obj === undefined) {
         return obj;
       }
     }
-
     return obj;
   }
 
   public setupParams(): void {
-    //TODO why do we have this?
-    // Are we already on "/cases"? If yes, reset params and return
-    // if (this._router.url === '/cases') {
-    //   this._filterCachingService.resetParams();
-    // }
     const code = this.getCodeFromParams();
+    //TODO why do we have this?
+    //Are we already on "/cases"? If yes, reset params and return
+    // if (this._router.url === '/cases') {
+    //   this._filterCachingService.resetParams(code ?? "cases");
+    // }
     const storedParams = this._filterCachingService.getParams(code ?? "cases");
     if (storedParams) {
       //Get current url then add queryparams
@@ -135,31 +130,19 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
 
   public loadFilterSettings(): void {
     if (settings.caseListFilters === '') return;
-    const filters = settings.caseListFilters.split(',')
-    this.tableFilters.ReferenceNumber = filters.some(filter => filter === "ReferenceNumber");
-    this.tableFilters.CustomerId = filters.some(filter => filter === "CustomerId");
-    this.tableFilters.CustomerName = filters.some(filter => filter === "CustomerName");
-    this.tableFilters.TaxId = filters.some(filter => filter === "TaxId");
-    this.tableFilters.GroupIds = filters.some(filter => filter === "GroupIds");
-    this.tableFilters.DateRange = filters.some(filter => filter === "DateRange");
-    this.tableFilters.CaseTypeCodes = filters.some(filter => filter === "CaseTypeCodes");
-    this.tableFilters.CheckpointTypeCodes = filters.some(filter => filter === "CheckpointTypeCodes");
+    const filters = settings.caseListFilters.split(',');
+    for (const key of Object.keys(this.tableFilters)) {
+      this.tableFilters[key as keyof TableFilters] = filters.includes(key);
+    }
   }
 
-  // check environment variables and
-  // switch on or off the list of predefined columns
+  // check environment variables and switch on/off the list of predefined columns
   public loadColumnSettings(): void {
-    if (settings.caseListColumns === '') return;
-    const columns = settings.caseListColumns.split(',')
-    this.tableColumns.ReferenceNumber = columns.some(column => column === "ReferenceNumber");
-    this.tableColumns.CustomerId = columns.some(column => column === "CustomerId");
-    this.tableColumns.CustomerName = columns.some(column => column === "CustomerName");
-    this.tableColumns.TaxId = columns.some(column => column === "TaxId");
-    this.tableColumns.GroupId = columns.some(column => column === "GroupId");
-    this.tableColumns.CaseType = columns.some(column => column === "CaseType");
-    this.tableColumns.CheckpointType = columns.some(column => column === "CheckpointType");
-    this.tableColumns.AssignedTo = columns.some(column => column === "AssignedTo");
-    this.tableColumns.SubmitDate = columns.some(column => column === "SubmitDate");
+    const defaultColumns = ["CustomerId", "CustomerName", "TaxId", "GroupId", "CaseType", "CheckpointType", "AssignedTo", "SubmitDate"];
+    const configColumns = settings.caseListColumns === '' ? defaultColumns : settings.caseListColumns.split(',');
+    for (const column of this.columns) {
+      this.tableColumns[column.key] = configColumns.includes(column.key);
+    }
   }
 
   public openQueryModal(): void {
@@ -235,7 +218,6 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
       filter: this.stringifyFilters(this.filters)
     };
     this._filterCachingService.setParams(code ?? "cases", filterParams);
-
     const filterObject = {
       "customerIds": customerIds,
       "customerNames": customerNames,
@@ -293,13 +275,4 @@ class TableFilters {
 
 class TableColumns {
   [key: string]: boolean;
-  ReferenceNumber: boolean = false;
-  CustomerId: boolean = true;
-  CustomerName: boolean = true;
-  TaxId: boolean = true;
-  GroupId: boolean = true;
-  CaseType: boolean = true;
-  CheckpointType: boolean = true;
-  AssignedTo: boolean = true;
-  SubmitDate: boolean = true;
 }
