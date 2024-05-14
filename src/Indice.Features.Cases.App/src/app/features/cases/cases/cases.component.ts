@@ -7,6 +7,7 @@ import { FilterCachingService } from 'src/app/core/services/filter-caching.servi
 import { ModalService, SearchOption } from '@indice/ng-components';
 import { forkJoin } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-cases-component',
@@ -19,9 +20,10 @@ export class CasesComponent extends CasesBase {
     protected _caseTypeMenuItemService: CaseTypeService,
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
-    protected _modalService: ModalService
+    protected _modalService: ModalService,
+    protected _datePipe: DatePipe
   ) {
-    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeMenuItemService);
+    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeMenuItemService, _datePipe);
   }
 
   ngOnInit() {

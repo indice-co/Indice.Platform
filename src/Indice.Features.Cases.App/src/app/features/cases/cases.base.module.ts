@@ -1,5 +1,5 @@
 import { JsonSchemaFormModule } from "@ajsf-extended/core";
-import { CommonModule } from "@angular/common";
+import { CommonModule, DatePipe } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -23,38 +23,39 @@ import { CasesComponent } from "./cases/cases.component";
 import { CasesTypeMenuItemsComponent } from "./case-type-menu-item/case-type-menu-item.component";
 
 @NgModule({
-    declarations: [
-        CasesBase,
-        CaseAssignmentComponent,
-        CaseUnassignmentComponent,
-        CaseTimelineComponent,
-        CaseDetailPageComponent,
-        CaseFormComponent,
-        CaseCreatePageComponent,
-        QueriesPageComponent,
-        CaseDiscardDraftComponent,
-        CasePrintPdfComponent,
-        CaseWarningModalComponent,
-        QueriesModalComponent,
-        CasesComponent,
-        CasesTypeMenuItemsComponent
-    ],
-    imports: [
-        BrowserModule,
-        CommonModule,
-        FormsModule,
-        HttpClientModule,
-        RouterModule,
-        SharedModule,
-        JsonSchemaFormModule,
-        IndiceComponentsModule
-    ],
-    exports: [
-        CasesBase,
-        CaseAssignmentComponent,
-        CaseUnassignmentComponent,
-        CaseTimelineComponent,
-        CaseDetailPageComponent
-    ]
+  declarations: [
+    CasesBase,
+    CaseAssignmentComponent,
+    CaseUnassignmentComponent,
+    CaseTimelineComponent,
+    CaseDetailPageComponent,
+    CaseFormComponent,
+    CaseCreatePageComponent,
+    QueriesPageComponent,
+    CaseDiscardDraftComponent,
+    CasePrintPdfComponent,
+    CaseWarningModalComponent,
+    QueriesModalComponent,
+    CasesComponent,
+    CasesTypeMenuItemsComponent
+  ],
+  imports: [
+    BrowserModule,
+    CommonModule,
+    FormsModule,
+    HttpClientModule,
+    RouterModule,
+    SharedModule,
+    JsonSchemaFormModule,
+    IndiceComponentsModule
+  ],
+  exports: [
+    CasesBase,
+    CaseAssignmentComponent,
+    CaseUnassignmentComponent,
+    CaseTimelineComponent,
+    CaseDetailPageComponent
+  ],
+  providers: [DatePipe]
 })
 export class CasesBaseModule { }

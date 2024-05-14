@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, ViewAction } from '@indice/ng-components';
@@ -23,13 +24,26 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
   public tableFilters = new TableFilters();
   public tableColumns = new TableColumns();
 
+  columns = [
+    { key: 'ReferenceNumber' },
+    { key: 'CustomerId' },
+    { key: 'CustomerName' },
+    { key: 'TaxId', itemProperty: 'metadata.taxId' },
+    { key: 'GroupId' },
+    { key: 'CaseType', itemProperty: 'caseType.title' },
+    { key: 'CheckpointType', itemProperty: 'checkpointType.title' },
+    { key: 'AssignedTo', itemProperty: 'assignedToName' },
+    { key: 'SubmitDate', itemProperty: 'createdByWhen' }
+  ];
+
   constructor(
     protected _route: ActivatedRoute,
     protected _router: Router,
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
-    protected _caseTypeMenuItemService: CaseTypeService
+    protected _caseTypeMenuItemService: CaseTypeService,
+    protected datePipe: DatePipe
   ) {
     super(_route, _router);
     this.view = ListViewType.Table;
@@ -43,6 +57,44 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
 
   public ngOnInit(): void {
     super.ngOnInit();
+  }
+
+  getItemValue(item: any, column: any) {
+    const value = this.findAccordingValue(item, column);
+    let formattedValue = value;
+
+    if (value instanceof Date) {
+      // Format date using DatePipe
+      formattedValue = this.datePipe.transform(value, 'dd/MM/yy, HH:mm') || '-';
+    }
+    if (value === undefined || value === null) {
+      formattedValue = '-';
+    }
+
+    return formattedValue;
+  }
+
+  findAccordingValue(item: any, column: any): any {
+    if (column.itemProperty) {
+      return this.getValueFromProperty(item, column.itemProperty)
+    }
+
+    const itemProperty = column.key;
+    const formattedProperty = itemProperty[0].toLowerCase() + itemProperty.slice(1);
+    return item[formattedProperty];
+  }
+
+  getValueFromProperty(obj: any, propPath: any) {
+    let props = propPath.split('.');
+
+    for (let i = 0; i < props.length; i++) {
+      obj = obj[props[i]];
+      if (obj === undefined) {
+        return obj;
+      }
+    }
+
+    return obj;
   }
 
   public setupParams(): void {
@@ -169,8 +221,10 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     this.filters?.filter(f => f.member === 'checkpointTypeCodes')?.forEach(f => checkpointTypeCodes?.push(this.stringifyFilterClause(f)));
     let filterMetadata: string[] = [];
     this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
-    this.buildExtraFilters(filterMetadata);
     const code = this.getCodeFromParams();
+    if (code) {
+      this.buildExtraFilters(filterMetadata, code);
+    }
     const filterParams = {
       view: this.view,
       page: this.page,
@@ -196,22 +250,19 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     return filterObject;
   }
 
-  private buildExtraFilters(filterMetadata: string[]) {
-    const code = this.getCodeFromParams();
-    if (code) {
-      //assuming every case type is of type "menu item"
-      this._caseTypeMenuItemService.getCaseType(code).pipe(
-        // Filter out any undefined or null gridFilterConfig
-        map(caseType => caseType.gridFilterConfig ? JSON.parse(caseType.gridFilterConfig) : []),
-        // Extract the "field" values from each object in the array
-        map(gridFilterConfig => gridFilterConfig.map((config: any) => config.field))
-      ).subscribe((fields: string[]) => {
-        //add every "field" as "filter"
-        for (const field of fields) {
-          this.filters?.filter(f => f.member === field)?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
-        }
-      });
-    }
+  private buildExtraFilters(filterMetadata: string[], code: string) {
+    //assuming every case type is of type "menu item"
+    this._caseTypeMenuItemService.getCaseType(code).pipe(
+      // Filter out any undefined or null gridFilterConfig
+      map(caseType => caseType.gridFilterConfig ? JSON.parse(caseType.gridFilterConfig) : []),
+      // Extract the "field" values from each object in the array
+      map(gridFilterConfig => gridFilterConfig.map((config: any) => config.field))
+    ).subscribe((fields: string[]) => {
+      //add every "field" as "filter"
+      for (const field of fields) {
+        this.filters?.filter(f => f.member === field)?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
+      }
+    });
   }
 
   // TODO: make this public in Indice.Angular
@@ -241,6 +292,7 @@ class TableFilters {
 }
 
 class TableColumns {
+  [key: string]: boolean;
   ReferenceNumber: boolean = false;
   CustomerId: boolean = true;
   CustomerName: boolean = true;

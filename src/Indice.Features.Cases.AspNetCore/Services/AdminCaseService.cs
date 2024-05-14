@@ -104,7 +104,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                     Id = @case.Checkpoint.CheckpointType.Id,
                     Status = @case.Checkpoint.CheckpointType.Status,
                     Code = @case.Checkpoint.CheckpointType.Code,
-                    Title = @case.Checkpoint.CheckpointType.Title,
+                    Title = @case.Checkpoint.CheckpointType.Title ?? @case.Checkpoint.CheckpointType.Code,
                     Description = @case.Checkpoint.CheckpointType.Description,
                     Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
                 },
