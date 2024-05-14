@@ -31,7 +31,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20.13.1
-        cache: 'npm'
     
     # Npm Install and build Cases UI
     - name: NPM Install and Build Cases UI
