@@ -6,7 +6,7 @@ import { map, take } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { CasePartial, CasePartialResultSet, CasesApiService, } from 'src/app/core/services/cases-api.service';
-import { ParamsService } from 'src/app/core/services/params.service';
+import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { QueriesModalComponent } from 'src/app/shared/components/query-modal/query-modal.component';
 
 @Component({
@@ -27,7 +27,7 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     protected _route: ActivatedRoute,
     protected _router: Router,
     protected _api: CasesApiService,
-    protected _paramsService: ParamsService,
+    protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
     protected _caseTypeMenuItemService: CaseTypeService
   ) {
@@ -46,19 +46,22 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
   }
 
   public setupParams(): void {
+    //TODO why do we have this?
     // Are we already on "/cases"? If yes, reset params and return
-    if (this._router.url === '/cases') {
-      this._paramsService.resetParams();
+    // if (this._router.url === '/cases') {
+    //   this._filterCachingService.resetParams();
+    // }
+    const code = this.getCodeFromParams();
+    const storedParams = this._filterCachingService.getParams(code ?? "cases");
+    if (storedParams) {
+      //Get current url then add queryparams
+      this._router.navigate([], {
+        relativeTo: this._route,
+        queryParams: storedParams
+      });
     }
-    //TODO: commenting caching for now - use params here
-    // this._route.queryParams.subscribe((params: Params) => {
-    //   const storedParams = this._paramsService.getParams();
-    //   if (storedParams) {
-    //     this._router.navigate(['/cases'], { queryParams: storedParams });
-    //   }
-    // });
-    // Are there any filters in queryParams?
     this._route.queryParams.subscribe((params: Params) => {
+      // Are there any filters in queryParams?
       this.queryParamsHasFilter = params['filter'] ? true : false;
     });
   }
@@ -167,7 +170,8 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     let filterMetadata: string[] = [];
     this.filters?.filter(f => f.member === 'TaxId')?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
     this.buildExtraFilters(filterMetadata);
-    this._paramsService.setParams({
+    const code = this.getCodeFromParams();
+    const filterParams = {
       view: this.view,
       page: this.page,
       pagesize: this.pageSize,
@@ -175,7 +179,9 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
       sort: this.sort,
       dir: this.sortdir,
       filter: this.stringifyFilters(this.filters)
-    });
+    };
+    this._filterCachingService.setParams(code ?? "cases", filterParams);
+
     const filterObject = {
       "customerIds": customerIds,
       "customerNames": customerNames,

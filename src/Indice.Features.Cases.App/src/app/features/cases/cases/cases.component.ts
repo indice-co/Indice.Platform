@@ -3,7 +3,7 @@ import { CasesBase } from '../cases.base.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
-import { ParamsService } from 'src/app/core/services/params.service';
+import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { ModalService, SearchOption } from '@indice/ng-components';
 import { forkJoin } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -18,17 +18,16 @@ export class CasesComponent extends CasesBase {
     protected _router: Router,
     protected _caseTypeMenuItemService: CaseTypeService,
     protected _api: CasesApiService,
-    protected _paramsService: ParamsService,
+    protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService
   ) {
-    super(_route, _router, _api, _paramsService, _modalService, _caseTypeMenuItemService);
+    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeMenuItemService);
   }
 
   ngOnInit() {
-    super.ngOnInit();
+    this.setupParams();
     this.loadFilterSettings();
     this.loadColumnSettings();
-    this.setupParams();
     this.initializeSearchOptions();
     this.fetchCaseTypesAvailableForCreation();
   }
