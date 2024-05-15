@@ -4,8 +4,10 @@ branches:
   - master
   - develop
 image: Visual Studio 2022
+environment:
+  nodejs_version: "20"
 install:
-- ps: Install-Product node 18.13.0
+- ps: Install-Product node $env:nodejs_version
 - ps: |
     Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile dotnet-install.ps1
     ./dotnet-install.ps1 -Channel 7.0
