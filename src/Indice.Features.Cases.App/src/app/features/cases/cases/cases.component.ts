@@ -27,7 +27,6 @@ export class CasesComponent extends CasesBase {
   }
 
   ngOnInit() {
-    this.setupParams();
     this.loadFilterSettings();
     this.loadColumnSettings();
     this.initializeSearchOptions();

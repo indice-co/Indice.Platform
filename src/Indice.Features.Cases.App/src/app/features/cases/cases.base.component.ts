@@ -43,7 +43,7 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
     protected _caseTypeMenuItemService: CaseTypeService,
-    protected datePipe: DatePipe
+    protected datePipe: DatePipe,
   ) {
     super(_route, _router);
     this.view = ListViewType.Table;
@@ -57,6 +57,7 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
 
   public ngOnInit(): void {
     super.ngOnInit();
+    this.setupParams();
   }
 
   public getItemValue(item: any, column: any) {

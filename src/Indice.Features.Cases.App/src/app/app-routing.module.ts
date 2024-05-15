@@ -27,9 +27,16 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       {
         path: 'cases',
+        data: { breadcrumb: { title: 'Υποθέσεις' } },
         children: [
           { path: '', component: CasesComponent },
-          { path: ':caseTypeCode', component: CasesTypeMenuItemsComponent },
+        ]
+      },
+      {
+        path: 'cases/:caseTypeCode', pathMatch: 'prefix',
+        data: { breadcrumb: { title: '' } },
+        children: [
+          { path: '', component: CasesTypeMenuItemsComponent },
         ]
       },
       {
@@ -41,6 +48,7 @@ const routes: Routes = [
       },
       {
         path: 'case-types', pathMatch: 'prefix', canActivate: [AdminGuardService],
+        data: { breadcrumb: { title: 'Τύποι Υποθέσεων' } },
         children: [
           { path: '', component: CaseTypesComponent },
           { path: 'create', component: CaseTypeCreateComponent, pathMatch: 'full' },
