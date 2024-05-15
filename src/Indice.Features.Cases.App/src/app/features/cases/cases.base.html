@@ -36,7 +36,7 @@
                 <a href="#"
                    [routerLinkActive]="['nav-link-profile-active']"
                    [routerLinkActiveOptions]="{ exact: true }"
-                   [routerLink]="[item.id]"
+                   [routerLink]="['/cases', item.id, 'details']"
                    class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
                     <span>{{'cases.choose' | translate}}</span>
                 </a>
