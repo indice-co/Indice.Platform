@@ -36,6 +36,7 @@ public static class GovGrKycConfigurationExtensions
         });
         services.AddTransient(sp => new Func<RgWsPublic>(sp.GetRequiredService<RgWsPublic>));
         services.AddTransient<GovGrKycScopeDescriber>();
+        services.AddDistributedMemoryCache();
         return services;
     }
 }
