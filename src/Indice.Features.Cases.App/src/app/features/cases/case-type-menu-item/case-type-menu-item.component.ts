@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { CasesBase } from '../cases.base.component';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
 import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { ModalService, SearchOption } from '@indice/ng-components';
 import { take } from 'rxjs/operators';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -14,6 +14,8 @@ import { DatePipe } from '@angular/common';
   templateUrl: '../cases.base.html'
 })
 export class CasesTypeMenuItemsComponent extends CasesBase {
+  private routerSubscription: Subscription = new Subscription();
+
   constructor(
     protected _route: ActivatedRoute,
     protected _router: Router,
@@ -21,18 +23,30 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
-    protected _datePipe: DatePipe
+    protected _datePipe: DatePipe,
   ) {
     super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeMenuItemService, _datePipe);
   }
 
   ngOnInit() {
-    this.setupParams();
     this.loadFilterSettings();
     this.loadColumnSettings();
     this.initializeSearchOptions();
     this.fetchCaseTypesAvailableForCreation();
+    this.routerSubscription = this._router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.setupParams();
+        this.initializeSearchOptions();
+      }
+    });
   }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe(); // Unsubscribe from router events to prevent memory leaks
+    }
+  }
+
 
   private initializeSearchOptions() {
     forkJoin({
@@ -108,11 +122,11 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
         this.searchOptions.push(checkpointTypeSearchOption);
       }
       //pass every filter from config
-      const filtersArray = JSON.parse(caseType.gridFilterConfig!);
+      const filtersArray = JSON.parse(caseType.gridFilterConfig!) || [];
       for (const item of filtersArray) {
         this.searchOptions.push(item)
       }
-      const columnArray = JSON.parse(caseType.gridColumnConfig!);
+      const columnArray = JSON.parse(caseType.gridColumnConfig!) || [];
       for (const item of columnArray) {
         this.columns.push(item)
       }
