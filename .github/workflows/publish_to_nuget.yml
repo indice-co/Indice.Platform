@@ -15,11 +15,11 @@ jobs:
     steps:
     # Checkout
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     
     #Setup .NET Core
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
         source-url: https://api.nuget.org/v3/index.json
@@ -28,7 +28,7 @@ jobs:
         
     # Setup Node.js
     - name: Use Node.js 20.x
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: 20.13.1
     
