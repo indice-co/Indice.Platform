@@ -25,24 +25,22 @@ export class CaseTypeService extends DataService {
     );
   }
 
+  // Get case types, filter only menu items, cast to CaseTypeMenu
   public getCaseTypeMenuItems(): Observable<CaseTypeMenu[]> {
-    // Get case types, filter only menu items, cast to CaseTypeMenu
     return this.getCaseTypes().pipe(
-      map(caseTypes => {
-        const menuItems = caseTypes.items?.filter(item => item.isMenuItem) || [];
-        return menuItems.map(item => {
-          const menu = new CaseTypeMenu();
-          menu.id = item.id;
-          menu.title = item.title;
-          menu.code = item.code;
-          menu.isMenuItem = item.isMenuItem ?? false;
-          menu.gridFilterConfig = item.gridFilterConfig
-          menu.gridColumnConfig = item.gridColumnConfig
-          return menu;
-        });
-      })
+      map(caseTypes =>
+        (caseTypes.items?.filter(item => item.isMenuItem) || []).map(item => ({
+          id: item.id,
+          title: item.title,
+          code: item.code,
+          isMenuItem: item.isMenuItem ?? false,
+          gridFilterConfig: item.gridFilterConfig,
+          gridColumnConfig: item.gridColumnConfig
+        }))
+      )
     );
   }
+
 }
 
 class CaseTypeMenu {
