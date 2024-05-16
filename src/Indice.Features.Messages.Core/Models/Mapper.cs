@@ -12,6 +12,7 @@ internal static class Mapper
 {
     public static Expression<Func<DbCampaign, Campaign>> ProjectToCampaign = campaign => new() {
         ActionLink = campaign.ActionLink,
+        MediaBaseHref = campaign.MediaBaseHref,
         ActivePeriod = campaign.ActivePeriod,
         Content = campaign.Content ?? new (),
         CreatedAt = campaign.CreatedAt,
@@ -76,6 +77,7 @@ internal static class Mapper
 
     public static Expression<Func<DbCampaign, CampaignDetails>> ProjectToCampaignDetails = campaign => new() {
         ActionLink = campaign.ActionLink,
+        MediaBaseHref = campaign.MediaBaseHref,
         ActivePeriod = campaign.ActivePeriod,
         Attachment = campaign.Attachment != null ? new AttachmentLink {
             Id = campaign.Attachment.Id,
@@ -111,6 +113,7 @@ internal static class Mapper
 
     public static DbCampaign ToDbCampaign(CreateCampaignRequest request) => new() {
         ActionLink = request.ActionLink,
+        MediaBaseHref = request.MediaBaseHref,
         ActivePeriod = request.ActivePeriod,
         Content = request.Content,
         CreatedAt = DateTime.UtcNow,

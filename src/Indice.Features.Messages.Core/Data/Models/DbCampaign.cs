@@ -24,6 +24,8 @@ public class DbCampaign : DbAuditableEntity
     public dynamic Data { get; set; }
     /// <summary>The delivery channel of a campaign.</summary>
     public MessageChannelKind MessageChannelKind { get; set; }
+    /// <summary>The base href to access the media.</summary>
+    public string MediaBaseHref { get; set; }
     /// <summary>Foreign key to the <see cref="DbMessageType"/>.</summary>
     public Guid? TypeId { get; set; }
     /// <summary>Foreign key to the <see cref="DbAttachment"/>.</summary>

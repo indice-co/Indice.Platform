@@ -34,9 +34,12 @@ export class CampaignContentEditComponent implements OnInit {
                 this.basicInfoData.title = campaign.title;
                 this.basicInfoData.type = campaign.type?.name;
                 this.basicInfoData.actionLink = new Hyperlink({
-                    text: campaign.actionLink?.text,
-                    href: campaign.actionLink?.href
+                    text: campaign.actionLink?.text ?? "",
+                    href: campaign.actionLink?.href ?? ""
                 });
+                if (this.campaign.mediaBaseHref) {
+                    this.basicInfoData.mediaBaseHref = this.campaign.mediaBaseHref;
+                }
                 this.campaignData = campaign.data;
                 this.content = campaign.content;
             });
@@ -54,6 +57,8 @@ export class CampaignContentEditComponent implements OnInit {
                 body: item.body
             })
         }
+        this.campaign.mediaBaseHref = this._contentComponent?.additionalData?.mediaBaseHref;
+        debugger
         this.campaign.content = content;
         const data = this._contentComponent?.form.controls.data.value;
         this.campaign.data = data ? data : null;

@@ -2,8 +2,9 @@ import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit,
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
 import * as Handlebars from 'handlebars';
+import * as app from 'src/app/core/models/settings';
 import { LibTabComponent, LibTabGroupComponent, MenuOption, SidePaneComponent } from '@indice/ng-components';
-import { MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
+import { Hyperlink, MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { ChannelState } from './channel-state';
@@ -55,7 +56,6 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
         data: new FormControl(null, this._validationService.invalidJsonValidator()),
         content: this._formBuilder.array([])
     });
-
     @Input() set data(value: any) {
         this.form.controls['data'].setValue(value);
     }
@@ -144,6 +144,27 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     };
 
     public ngOnInit(): void {
+        if (!this.additionalData.actionLink) {
+            this.additionalData.actionLink = new Hyperlink({
+                text: "",
+                href: ""
+            })
+        }
+        if (!this.additionalData.title) {
+            this.additionalData.title = ""
+        }
+        if (!this.additionalData.mediaBaseHref) {
+            this.additionalData.mediaBaseHref = `${app.settings.api_url}`;
+            if (app.settings.enableMediaLibrary) {
+                this._store.getMediaSetting('Media CDN')
+                .subscribe(x => {
+                    this.additionalData.mediaBaseHref = `${app.settings.api_url}/api/media`;
+                    if (x?.value) {
+                        this.additionalData.mediaBaseHref = x.value.endsWith('/') ? x.value.substring(0,  x.value.length - 1) : x.value;
+                    }
+                })
+            }
+        }
     }
     public ngAfterViewChecked(): void {
       if (this.enableRichTextEditor && (!tinymce.get("tinymce-editor-email") || !tinymce.get("tinymce-editor-inbox"))) {

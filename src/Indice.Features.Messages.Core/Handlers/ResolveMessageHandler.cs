@@ -102,6 +102,7 @@ public class ResolveMessageHandler : ICampaignJobHandler<ResolveMessageEvent>
                     href = !string.IsNullOrEmpty(campaign.ActionLink?.Href) ? $"_tracking/messages/cta/{(Base64Id)campaign.Id}" : null,
                     text = campaign.ActionLink?.Text,
                 },
+                mediaBaseHref = campaign.MediaBaseHref,
                 now = DateTimeOffset.UtcNow,
 #if NET7_0_OR_GREATER
                 contact = contact is not null

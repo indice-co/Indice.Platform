@@ -22,6 +22,8 @@ public class CampaignCreatedEvent
     public dynamic Data { get; set; }
     /// <summary>The delivery channel of a campaign.</summary>
     public MessageChannelKind MessageChannelKind { get; set; }
+    /// <summary>The base href to access the media.</summary>
+    public string MediaBaseHref { get; set; }
     /// <summary>The distribution list of the campaign.</summary>
     public Guid? DistributionListId { get; set; }
     /// <summary>Determines whether the distribution list already exists or is new.</summary>
@@ -50,6 +52,7 @@ public class CampaignCreatedEvent
         Title = campaign.Title,
         Type = campaign.Type,
         ActionLink = campaign.ActionLink,
+        MediaBaseHref = campaign.MediaBaseHref,
         IsGlobal = campaign.IsGlobal,
         IsNewDistributionList = isNewDistributionList,
         Published = campaign.Published,
