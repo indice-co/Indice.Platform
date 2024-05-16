@@ -31,13 +31,13 @@ export class CaseTypeMenuItemComponent extends CasesBase {
   ngOnInit() {
     this.loadFilterSettings();
     this.loadColumnSettings();
-    this.initializeSearchOptions();
+    this.addSearchOptions();
     this.fetchCaseTypesAvailableForCreation();
     //TODO: change if to also make this to only apply to "/cases"
     this.routerSubscription = this._router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.setupParams();
-        this.initializeSearchOptions();
+        this.addSearchOptions();
       }
     });
   }
@@ -49,80 +49,35 @@ export class CaseTypeMenuItemComponent extends CasesBase {
   }
 
 
-  private initializeSearchOptions() {
+  private addSearchOptions() {
     forkJoin({
       caseType: this._caseTypeService.getCaseType(this.getCodeFromParams()),
       checkpointTypes: this._api.getDistinctCheckpointTypes(),
     }).pipe(take(1)).subscribe(({ caseType, checkpointTypes }) => {
-      const caseTypeSearchOption: SearchOption = {
-        field: 'caseTypeCodes',
-        name: 'ΤΥΠΟΣ ΥΠΟΘΕΣΗΣ',
-        dataType: 'array',
-        options: [],
-        multiTerm: true
-      }
-      caseTypeSearchOption.options?.push({ value: caseType?.code, label: caseType?.title! })
-      const checkpointTypeSearchOption: SearchOption = {
-        field: 'checkpointTypeCodes',
-        name: 'ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ',
-        dataType: 'array',
-        options: [],
-        multiTerm: true
-      }
-      for (let checkpointType of checkpointTypes) { // fill checkpointTypeSearchOption's SelectInputOptions
-        checkpointTypeSearchOption.options?.push({ value: checkpointType?.code, label: checkpointType?.title ?? checkpointType?.code! })
-      }
-      this.searchOptions = [];
-      if (this.tableFilters.CustomerId) {
-        this.searchOptions.push({
-          field: 'referenceNumber',
-          name: 'ΑΡΙΘΜΟΣ ΥΠΟΘΕΣΗΣ',
-          dataType: 'string'
-        });
-      }
-      if (this.tableFilters.CustomerId) {
-        this.searchOptions.push({
-          field: 'customerId',
-          name: 'ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ',
-          dataType: 'string'
-        });
-      }
-      if (this.tableFilters.CustomerName) {
-        this.searchOptions.push({
-          field: 'customerName',
-          name: 'ΟΝΟΜΑ ΠΕΛΑΤΗ',
-          dataType: 'string'
-        });
-      }
-      if (this.tableFilters.TaxId) {
-        this.searchOptions.push({
-          field: 'TaxId', // this must be exactly the same "case-wise" with db's json property!
-          name: 'Α.Φ.Μ. ΠΕΛΑΤΗ',
-          dataType: 'string'
-        });
-      }
-      if (this.tableFilters.GroupIds) {
-        this.searchOptions.push({
-          field: 'groupIds',
-          name: 'ΑΡΙΘΜΟΣ ΚΑΤΑΣΤΗΜΑΤΟΣ',
-          dataType: 'string',
-          multiTerm: true
-        });
-      }
-      if (this.tableFilters.DateRange) {
-        this.searchOptions.push({
-          field: 'dateRange',
-          name: 'ΗΜ. ΥΠΟΒΟΛΗΣ',
-          dataType: 'daterange'
-        });
-      }
       if (this.tableFilters.CaseTypeCodes) {
+        const caseTypeSearchOption: SearchOption = {
+          field: 'caseTypeCodes',
+          name: 'ΤΥΠΟΣ ΥΠΟΘΕΣΗΣ',
+          dataType: 'array',
+          options: [{ value: caseType?.code, label: caseType?.title! }],
+          multiTerm: true
+        }
         this.searchOptions.push(caseTypeSearchOption);
       }
       if (this.tableFilters.CheckpointTypeCodes) {
+        const checkpointTypeSearchOption: SearchOption = {
+          field: 'checkpointTypeCodes',
+          name: 'ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ',
+          dataType: 'array',
+          options: checkpointTypes.map(checkpointType => ({
+            value: checkpointType?.code,
+            label: checkpointType?.title ?? checkpointType?.code!
+          })),
+          multiTerm: true
+        };
         this.searchOptions.push(checkpointTypeSearchOption);
       }
-      //pass every filter from config
+      //add filters from the case type configuration
       const filtersArray = JSON.parse(caseType?.gridFilterConfig!) || [];
       for (const item of filtersArray) {
         this.searchOptions.push(item)

@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, ViewAction } from '@indice/ng-components';
+import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, SearchOption, ViewAction } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
@@ -57,6 +57,7 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
 
   public ngOnInit(): void {
     super.ngOnInit();
+    this.searchOptions = this.createSearchOptions();
     this.setupParams();
   }
 
@@ -257,6 +258,33 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
 
   private stringifyFilterClause(filter: FilterClause): string {
     return `${filter.member}::${filter.operator}::${filter.value}`;
+  }
+
+  private createSearchOptions() {
+    const searchOptions: SearchOption[] = [];
+
+    if (this.tableFilters.CustomerId) {
+      searchOptions.push({ field: 'referenceNumber', name: 'ΑΡΙΘΜΟΣ ΥΠΟΘΕΣΗΣ', dataType: 'string' });
+      searchOptions.push({ field: 'customerId', name: 'ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ', dataType: 'string' });
+    }
+
+    if (this.tableFilters.CustomerName) {
+      searchOptions.push({ field: 'customerName', name: 'ΟΝΟΜΑ ΠΕΛΑΤΗ', dataType: 'string' });
+    }
+
+    if (this.tableFilters.TaxId) {
+      searchOptions.push({ field: 'TaxId', name: 'Α.Φ.Μ. ΠΕΛΑΤΗ', dataType: 'string' });
+    }
+
+    if (this.tableFilters.GroupIds) {
+      searchOptions.push({ field: 'groupIds', name: 'ΑΡΙΘΜΟΣ ΚΑΤΑΣΤΗΜΑΤΟΣ', dataType: 'string', multiTerm: true });
+    }
+
+    if (this.tableFilters.DateRange) {
+      searchOptions.push({ field: 'dateRange', name: 'ΗΜ. ΥΠΟΒΟΛΗΣ', dataType: 'daterange' });
+    }
+
+    return searchOptions;
   }
 }
 
