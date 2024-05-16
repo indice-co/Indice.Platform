@@ -20,7 +20,7 @@ import { CaseWarningModalComponent } from "../../shared/components/case-warning-
 import { QueriesModalComponent } from "src/app/shared/components/query-modal/query-modal.component";
 import { QueriesPageComponent } from "./queries-page/queries-page.component";
 import { CasesComponent } from "./cases/cases.component";
-import { CasesTypeMenuItemsComponent } from "./case-type-menu-item/case-type-menu-item.component";
+import { CaseTypeMenuItemComponent } from "./case-type-menu-item/case-type-menu-item.component";
 
 @NgModule({
   declarations: [
@@ -37,7 +37,7 @@ import { CasesTypeMenuItemsComponent } from "./case-type-menu-item/case-type-men
     CaseWarningModalComponent,
     QueriesModalComponent,
     CasesComponent,
-    CasesTypeMenuItemsComponent
+    CaseTypeMenuItemComponent
   ],
   imports: [
     BrowserModule,

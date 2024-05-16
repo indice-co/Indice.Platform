@@ -12,7 +12,7 @@ import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-framewo
 @Injectable({
     providedIn: 'root'
 })
-export class CaseTypesService {
+export class CaseTypeUpdateService {
 
     constructor(
         private _api: CasesApiService,

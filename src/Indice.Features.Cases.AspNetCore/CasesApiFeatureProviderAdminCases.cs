@@ -18,8 +18,7 @@ internal class CasesApiFeatureProviderAdminCases : IApplicationFeatureProvider<C
         typeof(AdminIntegrationController).GetTypeInfo(),
         typeof(LookupController).GetTypeInfo(),
         typeof(AdminQueriesController).GetTypeInfo(),
-        typeof(AdminReportsController).GetTypeInfo(),
-        typeof(AdminMenuItemController).GetTypeInfo()
+        typeof(AdminReportsController).GetTypeInfo()
     };
 
     public void PopulateFeature(IEnumerable<ApplicationPart> parts, ControllerFeature feature) {

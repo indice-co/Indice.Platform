@@ -13,7 +13,7 @@ import { AdminGuardService } from './core/services/admin-guard.service';
 import { CaseTypeCreateComponent } from './features/case-types/case-type-create/case-type-create.component';
 import { CaseTypeEditComponent } from './features/case-types/case-type-edit/case-type-edit.component';
 import { QueriesPageComponent } from './features/cases/queries-page/queries-page.component';
-import { CasesTypeMenuItemsComponent } from './features/cases/case-type-menu-item/case-type-menu-item.component';
+import { CaseTypeMenuItemComponent } from './features/cases/case-type-menu-item/case-type-menu-item.component';
 import { CasesComponent } from './features/cases/cases/cases.component';
 
 const routes: Routes = [
@@ -34,9 +34,9 @@ const routes: Routes = [
       },
       {
         path: 'cases/:caseTypeCode', pathMatch: 'prefix',
-        data: { breadcrumb: { title: '' } },
+        data: { breadcrumb: { title: 'Υποθέσεις Συγκεκριμένου Τύπου' } },
         children: [
-          { path: '', component: CasesTypeMenuItemsComponent },
+          { path: '', component: CaseTypeMenuItemComponent },
         ]
       },
       {

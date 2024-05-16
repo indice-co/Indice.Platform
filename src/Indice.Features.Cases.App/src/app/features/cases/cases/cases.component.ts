@@ -17,13 +17,13 @@ export class CasesComponent extends CasesBase {
   constructor(
     protected _route: ActivatedRoute,
     protected _router: Router,
-    protected _caseTypeMenuItemService: CaseTypeService,
+    protected _caseTypeService: CaseTypeService,
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
     protected _datePipe: DatePipe
   ) {
-    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeMenuItemService, _datePipe);
+    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService, _datePipe);
   }
 
   ngOnInit() {
@@ -35,7 +35,7 @@ export class CasesComponent extends CasesBase {
 
   private initializeSearchOptions() {
     forkJoin({
-      caseTypes: this._caseTypeMenuItemService.getCaseTypeMenuItems(),
+      caseTypes: this._caseTypeService.getCaseTypeMenuItems(),
       checkpointTypes: this._api.getDistinctCheckpointTypes()
     }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
       const caseTypeSearchOption: SearchOption = {
@@ -45,7 +45,7 @@ export class CasesComponent extends CasesBase {
         options: [],
         multiTerm: true
       }
-      for (let caseType of caseTypes.items!) { // fill caseTypeSearchOption's SelectInputOptions
+      for (let caseType of caseTypes) { // fill caseTypeSearchOption's SelectInputOptions
         caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
       }
       const checkpointTypeSearchOption: SearchOption = {

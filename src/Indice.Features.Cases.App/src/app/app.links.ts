@@ -1,9 +1,9 @@
 import { map, tap } from 'rxjs/operators';
 import { AuthService } from '@indice/ng-auth';
 import { IAppLinks, NavLink } from '@indice/ng-components';
-import { Observable, of, ReplaySubject, zip } from 'rxjs';
-import { CasesApiService } from './core/services/cases-api.service';
+import { Observable, of, ReplaySubject } from 'rxjs';
 import { Params } from '@angular/router';
+import { CaseTypeService } from './core/services/case-type.service';
 
 export class AppLinks implements IAppLinks {
 
@@ -41,7 +41,7 @@ export class AppLinks implements IAppLinks {
 
   constructor(
     private authService: AuthService,
-    private _api: CasesApiService) {
+  private _caseTypeService: CaseTypeService) {
     this.authService.user$.pipe(
       map(user => {
         const headerMenu = [

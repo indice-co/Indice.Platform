@@ -22,6 +22,7 @@ import { CaseTypesModule } from './features/case-types/case-types.module';
 import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-http-interceptor.service';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { CaseTypeService } from './core/services/case-type.service';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
     ModalService,
     AuthService,
     CasesApiService,
-    { provide: APP_LINKS, useFactory: (authService: AuthService, caseApiService: CasesApiService) => new AppLinks(authService, caseApiService), deps: [AuthService, CasesApiService] },
+    { provide: APP_LINKS, useFactory: (authService: AuthService, caseTypeService: CaseTypeService) => new AppLinks(authService, caseTypeService), deps: [AuthService, CaseTypeService] },
     { provide: AUTH_SETTINGS, useFactory: () => app.settings.auth_settings },
     { provide: CASES_API_BASE_URL, useFactory: () => app.settings.api_url },
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },

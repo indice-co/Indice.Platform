@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
-import { CasePartial, CasePartialResultSet, CasesApiService, } from 'src/app/core/services/cases-api.service';
+import { CasePartial, CasePartialResultSet, CasesApiService, CaseTypePartial, } from 'src/app/core/services/cases-api.service';
 import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { QueriesModalComponent } from 'src/app/shared/components/query-modal/query-modal.component';
 
@@ -42,7 +42,7 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
-    protected _caseTypeMenuItemService: CaseTypeService,
+    protected _caseTypeService: CaseTypeService,
     protected datePipe: DatePipe,
   ) {
     super(_route, _router);
@@ -234,16 +234,13 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
   }
 
   private buildExtraFilters(filterMetadata: string[], code: string) {
-    //assuming every case type is of type "menu item"
-    this._caseTypeMenuItemService.getCaseType(code).pipe(
-      // Filter out any undefined or null gridFilterConfig
-      map(caseType => caseType.gridFilterConfig ? JSON.parse(caseType.gridFilterConfig) : []),
-      // Extract the "field" values from each object in the array
-      map(gridFilterConfig => gridFilterConfig.map((config: any) => config.field))
-    ).subscribe((fields: string[]) => {
-      //add every "field" as "filter"
-      for (const field of fields) {
-        this.filters?.filter(f => f.member === field)?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
+    this._caseTypeService.getCaseType(code).subscribe((caseType: CaseTypePartial | undefined) => {
+      if (caseType && caseType.gridFilterConfig) {
+        const gridFilterConfig = JSON.parse(caseType.gridFilterConfig);
+        const fields: string[] = gridFilterConfig.map((config: any) => config.field);
+        for (const field of fields) {
+          this.filters?.filter(f => f.member === field)?.forEach(f => filterMetadata?.push(`metadata.${this.stringifyFilterClause(f)}`));
+        }
       }
     });
   }

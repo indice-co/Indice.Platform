@@ -36,10 +36,13 @@ public class CaseType
     /// <summary>The allowed Roles that can create a new Case.</summary>
     public string CanCreateRoles { get; set; }
 
+    /// <summary>The flag for checking if the case type is a menu item or not.</summary>
     public bool IsMenuItem { get; set; }
 
+    /// <summary>The filter configuration for the cases of the specified case type.</summary>
     public string? GridFilterConfig { get; set; }
 
+    /// <summary>The column configuration for the cases of the specified case type.</summary>
     public string? GridColumnConfig { get; set; }
 
     /// <summary>The checkpoints for this case type.</summary>

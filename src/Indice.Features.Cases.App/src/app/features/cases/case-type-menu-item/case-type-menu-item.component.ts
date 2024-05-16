@@ -13,19 +13,19 @@ import { DatePipe } from '@angular/common';
   selector: 'app-cases-type-menu-item-component',
   templateUrl: '../cases.base.html'
 })
-export class CasesTypeMenuItemsComponent extends CasesBase {
+export class CaseTypeMenuItemComponent extends CasesBase {
   private routerSubscription: Subscription = new Subscription();
 
   constructor(
     protected _route: ActivatedRoute,
     protected _router: Router,
-    protected _caseTypeMenuItemService: CaseTypeService,
+    protected _caseTypeService: CaseTypeService,
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
     protected _datePipe: DatePipe,
   ) {
-    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeMenuItemService, _datePipe);
+    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService, _datePipe);
   }
 
   ngOnInit() {
@@ -33,6 +33,7 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
     this.loadColumnSettings();
     this.initializeSearchOptions();
     this.fetchCaseTypesAvailableForCreation();
+    //TODO: change if to also make this to only apply to "/cases"
     this.routerSubscription = this._router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.setupParams();
@@ -50,7 +51,7 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
 
   private initializeSearchOptions() {
     forkJoin({
-      caseType: this._caseTypeMenuItemService.getCaseType(this.getCodeFromParams()),
+      caseType: this._caseTypeService.getCaseType(this.getCodeFromParams()),
       checkpointTypes: this._api.getDistinctCheckpointTypes(),
     }).pipe(take(1)).subscribe(({ caseType, checkpointTypes }) => {
       const caseTypeSearchOption: SearchOption = {
@@ -60,7 +61,7 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
         options: [],
         multiTerm: true
       }
-      caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
+      caseTypeSearchOption.options?.push({ value: caseType?.code, label: caseType?.title! })
       const checkpointTypeSearchOption: SearchOption = {
         field: 'checkpointTypeCodes',
         name: 'ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ',
@@ -122,11 +123,11 @@ export class CasesTypeMenuItemsComponent extends CasesBase {
         this.searchOptions.push(checkpointTypeSearchOption);
       }
       //pass every filter from config
-      const filtersArray = JSON.parse(caseType.gridFilterConfig!) || [];
+      const filtersArray = JSON.parse(caseType?.gridFilterConfig!) || [];
       for (const item of filtersArray) {
         this.searchOptions.push(item)
       }
-      const columnArray = JSON.parse(caseType.gridColumnConfig!) || [];
+      const columnArray = JSON.parse(caseType?.gridColumnConfig!) || [];
       for (const item of columnArray) {
         this.columns.push(item)
       }

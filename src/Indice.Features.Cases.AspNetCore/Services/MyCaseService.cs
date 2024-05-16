@@ -253,7 +253,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             Order = dbCaseType.Order,
             Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations),
             GridFilterConfig = dbCaseType.GridFilterConfig,
-            GridColumnConfig = dbCaseType.GridColumnConfig
+            GridColumnConfig = dbCaseType.GridColumnConfig,
+            IsMenuItem = dbCaseType.IsMenuItem
         };
 
         caseType = TranslateCaseType(caseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
@@ -291,7 +292,8 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                 Order = dbCaseType.Order,
                 Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations),
                 GridFilterConfig = dbCaseType.GridFilterConfig,
-                GridColumnConfig = dbCaseType.GridColumnConfig
+                GridColumnConfig = dbCaseType.GridColumnConfig,
+                IsMenuItem = dbCaseType.IsMenuItem
             })
             .ToListAsync();
         TranslateCaseTypes(caseTypes);

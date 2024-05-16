@@ -75,7 +75,8 @@ internal class CaseTypeService : ICaseTypeService
                 Config = c.Config,
                 Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations),
                 GridFilterConfig = c.GridFilterConfig,
-                GridColumnConfig = c.GridColumnConfig
+                GridColumnConfig = c.GridColumnConfig,
+                IsMenuItem = c.IsMenuItem,
             })
             .ToListAsync();
         TranslateCaseTypes(caseTypes);
@@ -227,7 +228,8 @@ internal class CaseTypeService : ICaseTypeService
                     Order = c.Order,
                     Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(c.Translations),
                     GridFilterConfig = c.GridFilterConfig,
-                    GridColumnConfig = c.GridColumnConfig
+                    GridColumnConfig = c.GridColumnConfig,
+                    IsMenuItem = c.IsMenuItem
                 })
                 .ToListAsync();
         TranslateCaseTypes(caseTypes);

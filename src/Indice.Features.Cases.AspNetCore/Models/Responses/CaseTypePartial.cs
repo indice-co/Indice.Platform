@@ -43,14 +43,15 @@ public class CaseTypePartial
 
     /// <summary>The translations for the case type metadata (eg title).</summary>
     public TranslationDictionary<CaseTypeTranslation> Translations { get; set; }
-    /// <summary>
-    /// If case type is menu item then adds additional filters to the case
-    /// </summary>
-    public string GridFilterConfig { get; set; }
-    /// <summary>
-    /// If case type is menu item then the case has configured columns
-    /// </summary>
-    public string GridColumnConfig { get; set; }
+
+    /// <summary>The flag for checking if the case type is a menu item or not.</summary>
+    public bool IsMenuItem { get; set; }
+
+    /// <summary>The filter configuration for the cases of the specified case type.</summary>
+    public string? GridFilterConfig { get; set; }
+
+    /// <summary>The column configuration for the cases of the specified case type.</summary>
+    public string? GridColumnConfig { get; set; }
 
     #region Methods
 
