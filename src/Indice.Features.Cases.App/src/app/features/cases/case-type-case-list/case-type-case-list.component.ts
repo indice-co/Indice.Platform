@@ -35,15 +35,6 @@ export class CaseTypeCaseListComponent extends BaseCaseListComponent {
     this.loadColumnSettings();
     this.fetchCaseTypesAvailableForCreation();
     this.setColumnsFromConfig()
-
-    //TODO: change if to also make this to only apply to "/cases"
-    this.routerSubscription = this._router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.setupParams();
-        this.setColumnsFromConfig()
-        this.setSearchOptions();
-      }
-    });
   }
 
   ngOnDestroy(): void {
