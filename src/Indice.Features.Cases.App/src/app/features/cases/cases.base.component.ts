@@ -57,7 +57,6 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
 
   public ngOnInit(): void {
     super.ngOnInit();
-    this.searchOptions = this.createSearchOptions();
     this.setupParams();
   }
 
@@ -160,8 +159,8 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
   }
 
   public getCodeFromParams() {
-    const lastSegment = this._route.snapshot.paramMap.get('caseTypeCode');
-    return lastSegment!;
+    const code = this._route.snapshot.paramMap.get('caseTypeCode');
+    return code!;
   }
 
   private getFilteredCases(filterObject: any) {
@@ -260,7 +259,7 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
     return `${filter.member}::${filter.operator}::${filter.value}`;
   }
 
-  private createSearchOptions() {
+  protected getCommonSearchOptions(): SearchOption[] {
     const searchOptions: SearchOption[] = [];
 
     if (this.tableFilters.CustomerId) {

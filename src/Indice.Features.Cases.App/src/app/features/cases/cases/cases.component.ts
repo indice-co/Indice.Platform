@@ -27,17 +27,22 @@ export class CasesComponent extends CasesBase {
   }
 
   ngOnInit() {
+    this.setSearchOptions();
+    super.ngOnInit();
+
     this.loadFilterSettings();
     this.loadColumnSettings();
-    this.addSearchOptions();
     this.fetchCaseTypesAvailableForCreation();
   }
 
-  private addSearchOptions() {
+  private setSearchOptions() {
     forkJoin({
       caseTypes: this._caseTypeService.getCaseTypeMenuItems(),
       checkpointTypes: this._api.getDistinctCheckpointTypes()
     }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
+      const commonSearchOptions = this.getCommonSearchOptions();
+      const specificSearchOptions = [];
+
       if (this.tableFilters.CaseTypeCodes) {
         const caseTypeSearchOption: SearchOption = {
           field: 'caseTypeCodes',
@@ -46,7 +51,7 @@ export class CasesComponent extends CasesBase {
           options: caseTypes.map(caseType => ({ value: caseType.code, label: caseType?.title! })),
           multiTerm: true
         }
-        this.searchOptions.push(caseTypeSearchOption);
+        specificSearchOptions.push(caseTypeSearchOption);
       }
       if (this.tableFilters.CheckpointTypeCodes) {
         const checkpointTypeSearchOption: SearchOption = {
@@ -59,10 +64,9 @@ export class CasesComponent extends CasesBase {
           })),
           multiTerm: true
         };
-        this.searchOptions.push(checkpointTypeSearchOption);
+        specificSearchOptions.push(checkpointTypeSearchOption);
       }
-      // now that we have the searchOptions, call parent's ngOnInit!
-      super.ngOnInit();
+      this.searchOptions = [...commonSearchOptions, ...specificSearchOptions];
     });
   }
 }
