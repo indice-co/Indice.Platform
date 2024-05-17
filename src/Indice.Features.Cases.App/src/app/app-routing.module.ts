@@ -13,8 +13,8 @@ import { AdminGuardService } from './core/services/admin-guard.service';
 import { CaseTypeCreateComponent } from './features/case-types/case-type-create/case-type-create.component';
 import { CaseTypeEditComponent } from './features/case-types/case-type-edit/case-type-edit.component';
 import { QueriesPageComponent } from './features/cases/queries-page/queries-page.component';
-import { CaseTypeCaseListComponent } from './features/cases/case-type-menu-item/case-type-case-list.component';
-import { GeneralCaseListComponent } from './features/cases/cases/general-case-list.component';
+import { CaseTypeCaseListComponent } from './features/cases/case-type-case-list/case-type-case-list.component';
+import { GeneralCaseListComponent } from './features/cases/general-case-list/general-case-list.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },

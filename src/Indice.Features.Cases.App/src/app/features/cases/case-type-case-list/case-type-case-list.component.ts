@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { BaseCaseListComponent } from '../base-case-list.component';
+import { BaseCaseListComponent } from '../base-case-list/base-case-list.component';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
@@ -11,7 +11,7 @@ import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-cases-type-menu-item-component',
-  templateUrl: '../base-case-list.html'
+  templateUrl: '../base-case-list/base-case-list.html'
 })
 export class CaseTypeCaseListComponent extends BaseCaseListComponent {
   private routerSubscription: Subscription = new Subscription();
