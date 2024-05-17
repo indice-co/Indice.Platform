@@ -63,7 +63,7 @@ export class AppLinks implements IAppLinks {
   }
 
   appendMenuItems(headerMenu: NavLink[]) {
-    this._api.getMenuItems().subscribe(data => {
+    this._caseTypeService.getMenuItems().subscribe(data => {
       if (data.items) {
         for (const item of data.items) {
           if (item.title) {
