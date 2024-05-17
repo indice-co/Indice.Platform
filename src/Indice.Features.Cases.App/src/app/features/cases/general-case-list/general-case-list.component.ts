@@ -28,10 +28,10 @@ export class GeneralCaseListComponent extends BaseCaseListComponent {
 
   ngOnInit() {
     this.setSearchOptions();
-    super.ngOnInit();
     this.loadFilterSettings();
     this.loadColumnSettings();
     this.fetchCaseTypesAvailableForCreation();
+    super.ngOnInit();
   }
 
   private setSearchOptions() {

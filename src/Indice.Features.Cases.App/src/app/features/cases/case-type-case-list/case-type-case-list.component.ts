@@ -29,12 +29,10 @@ export class CaseTypeCaseListComponent extends BaseCaseListComponent {
   }
 
   ngOnInit() {
-    super.ngOnInit();
     this.setSearchOptions();
     this.loadFilterSettings();
     this.loadColumnSettings();
     this.fetchCaseTypesAvailableForCreation();
-    this.setColumnsFromConfig()
   }
 
   ngOnDestroy(): void {
@@ -82,6 +80,7 @@ export class CaseTypeCaseListComponent extends BaseCaseListComponent {
       //add filters from the case type configuration
       specificSearchOptions.push(...JSON.parse(caseType?.gridFilterConfig!) || [])
       this.searchOptions = [...commonSearchOptions, ...specificSearchOptions];
+      this.setColumnsFromConfig();
     });
   }
 
@@ -91,6 +90,7 @@ export class CaseTypeCaseListComponent extends BaseCaseListComponent {
       for (const item of columnArray) {
         this.columns.push(item)
       }
+      super.ngOnInit();
     });
   }
 }
