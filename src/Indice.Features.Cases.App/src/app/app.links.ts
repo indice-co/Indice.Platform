@@ -63,9 +63,8 @@ export class AppLinks implements IAppLinks {
   }
 
   appendMenuItems(headerMenu: NavLink[]) {
-    this._caseTypeService.getMenuItems().subscribe(data => {
-      if (data.items) {
-        for (const item of data.items) {
+    this._caseTypeService.getCaseTypeMenuItems().subscribe(data => {
+        for (const item of data) {
           if (item.title) {
             const queryParams: Params = {
               view: 'table',
@@ -79,7 +78,6 @@ export class AppLinks implements IAppLinks {
             headerMenu.push(new NavLink(item.title, `/cases/${item.code}`, true, undefined, undefined, undefined, queryParams));
           }
         }
-      }
     });
   }
 
