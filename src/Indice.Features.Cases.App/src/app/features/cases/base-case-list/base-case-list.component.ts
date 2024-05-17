@@ -21,7 +21,7 @@ export class BaseCaseListComponent extends BaseListComponent<CasePartial> implem
     new ViewAction('refresh', 'refresh', null, Icons.Refresh, 'Ανανέωση στοιχείων')
   ];
   public queryParamsHasFilter = false;
-  public tableFilters = new TableFilters();
+  public filterConfig = new FilterConfig();
   public tableColumns = new TableColumns();
 
   public columns = [
@@ -132,8 +132,8 @@ export class BaseCaseListComponent extends BaseListComponent<CasePartial> implem
   public loadFilterSettings(): void {
     if (settings.caseListFilters === '') return;
     const filters = settings.caseListFilters.split(',');
-    for (const key of Object.keys(this.tableFilters)) {
-      this.tableFilters[key as keyof TableFilters] = filters.includes(key);
+    for (const key of Object.keys(this.filterConfig)) {
+      this.filterConfig[key as keyof FilterConfig] = filters.includes(key);
     }
   }
 
@@ -261,27 +261,27 @@ export class BaseCaseListComponent extends BaseListComponent<CasePartial> implem
 
   protected getCommonSearchOptions(): SearchOption[] {
     const searchOptions: SearchOption[] = [];
-    if (this.tableFilters.CustomerId) {
+    if (this.filterConfig.CustomerId) {
       searchOptions.push({ field: 'referenceNumber', name: 'ΑΡΙΘΜΟΣ ΥΠΟΘΕΣΗΣ', dataType: 'string' });
       searchOptions.push({ field: 'customerId', name: 'ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ', dataType: 'string' });
     }
-    if (this.tableFilters.CustomerName) {
+    if (this.filterConfig.CustomerName) {
       searchOptions.push({ field: 'customerName', name: 'ΟΝΟΜΑ ΠΕΛΑΤΗ', dataType: 'string' });
     }
-    if (this.tableFilters.TaxId) {
+    if (this.filterConfig.TaxId) {
       searchOptions.push({ field: 'TaxId', name: 'Α.Φ.Μ. ΠΕΛΑΤΗ', dataType: 'string' });
     }
-    if (this.tableFilters.GroupIds) {
+    if (this.filterConfig.GroupIds) {
       searchOptions.push({ field: 'groupIds', name: 'ΑΡΙΘΜΟΣ ΚΑΤΑΣΤΗΜΑΤΟΣ', dataType: 'string', multiTerm: true });
     }
-    if (this.tableFilters.DateRange) {
+    if (this.filterConfig.DateRange) {
       searchOptions.push({ field: 'dateRange', name: 'ΗΜ. ΥΠΟΒΟΛΗΣ', dataType: 'daterange' });
     }
     return searchOptions;
   }
 }
 
-class TableFilters {
+class FilterConfig {
   ReferenceNumber: boolean = false;
   CustomerId: boolean = true;
   CustomerName: boolean = true;

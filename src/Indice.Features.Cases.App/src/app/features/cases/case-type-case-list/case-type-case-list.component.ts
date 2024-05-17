@@ -56,7 +56,7 @@ export class CaseTypeCaseListComponent extends BaseCaseListComponent {
     ).subscribe(({ caseType, checkpointTypes }) => {
       const commonSearchOptions = this.getCommonSearchOptions();
       const specificSearchOptions: SearchOption[] = [];
-      if (this.tableFilters.CaseTypeCodes) {
+      if (this.filterConfig.CaseTypeCodes) {
         const caseTypeSearchOption: SearchOption = {
           field: 'caseTypeCodes',
           name: 'ΤΥΠΟΣ ΥΠΟΘΕΣΗΣ',
@@ -66,7 +66,7 @@ export class CaseTypeCaseListComponent extends BaseCaseListComponent {
         }
         specificSearchOptions.push(caseTypeSearchOption);
       }
-      if (this.tableFilters.CheckpointTypeCodes) {
+      if (this.filterConfig.CheckpointTypeCodes) {
         const checkpointTypeSearchOption: SearchOption = {
           field: 'checkpointTypeCodes',
           name: 'ΤΡΕΧΟΝ ΣΗΜΕΙΟ ΕΛΕΓΧΟΥ',

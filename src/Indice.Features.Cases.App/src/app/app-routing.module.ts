@@ -28,9 +28,7 @@ const routes: Routes = [
       {
         path: 'cases',
         data: { breadcrumb: { title: 'Υποθέσεις' } },
-        children: [
-          { path: '', component: GeneralCaseListComponent },
-        ]
+        component: GeneralCaseListComponent
       },
       {
         path: 'cases/:caseTypeCode', pathMatch: 'prefix',
