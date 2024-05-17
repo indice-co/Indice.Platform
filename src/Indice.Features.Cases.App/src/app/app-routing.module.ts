@@ -13,8 +13,8 @@ import { AdminGuardService } from './core/services/admin-guard.service';
 import { CaseTypeCreateComponent } from './features/case-types/case-type-create/case-type-create.component';
 import { CaseTypeEditComponent } from './features/case-types/case-type-edit/case-type-edit.component';
 import { QueriesPageComponent } from './features/cases/queries-page/queries-page.component';
-import { CaseTypeMenuItemComponent } from './features/cases/case-type-menu-item/case-type-menu-item.component';
-import { CasesComponent } from './features/cases/cases/cases.component';
+import { CaseTypeCaseListComponent } from './features/cases/case-type-menu-item/case-type-case-list.component';
+import { GeneralCaseListComponent } from './features/cases/cases/general-case-list.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent },
@@ -29,14 +29,14 @@ const routes: Routes = [
         path: 'cases',
         data: { breadcrumb: { title: 'Υποθέσεις' } },
         children: [
-          { path: '', component: CasesComponent },
+          { path: '', component: GeneralCaseListComponent },
         ]
       },
       {
         path: 'cases/:caseTypeCode', pathMatch: 'prefix',
         data: { breadcrumb: { title: 'Υποθέσεις Συγκεκριμένου Τύπου' } },
         children: [
-          { path: '', component: CaseTypeMenuItemComponent },
+          { path: '', component: CaseTypeCaseListComponent },
         ]
       },
       {

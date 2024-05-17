@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CasesBase } from '../cases.base.component';
+import { BaseCaseListComponent } from '../base-case-list.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
@@ -11,9 +11,9 @@ import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-cases-component',
-  templateUrl: '../cases.base.html'
+  templateUrl: '../base-case-list.html'
 })
-export class CasesComponent extends CasesBase {
+export class GeneralCaseListComponent extends BaseCaseListComponent {
   constructor(
     protected _route: ActivatedRoute,
     protected _router: Router,
@@ -29,7 +29,6 @@ export class CasesComponent extends CasesBase {
   ngOnInit() {
     this.setSearchOptions();
     super.ngOnInit();
-
     this.loadFilterSettings();
     this.loadColumnSettings();
     this.fetchCaseTypesAvailableForCreation();
@@ -42,7 +41,6 @@ export class CasesComponent extends CasesBase {
     }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
       const commonSearchOptions = this.getCommonSearchOptions();
       const specificSearchOptions = [];
-
       if (this.tableFilters.CaseTypeCodes) {
         const caseTypeSearchOption: SearchOption = {
           field: 'caseTypeCodes',

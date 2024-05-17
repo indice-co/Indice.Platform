@@ -12,9 +12,9 @@ import { QueriesModalComponent } from 'src/app/shared/components/query-modal/que
 
 @Component({
   selector: 'app-cases',
-  templateUrl: './cases.base.html'
+  templateUrl: './base-case-list.html'
 })
-export class CasesBase extends BaseListComponent<CasePartial> implements OnInit {
+export class BaseCaseListComponent extends BaseListComponent<CasePartial> implements OnInit {
   public newItemLink = 'new-case';
   public formActions: ViewAction[] = [
     new RouterViewAction(Icons.EntryView, 'queries', 'rightpane', 'Οι αναζητήσεις μου', 'Οι αναζητήσεις μου'),
@@ -261,28 +261,22 @@ export class CasesBase extends BaseListComponent<CasePartial> implements OnInit 
 
   protected getCommonSearchOptions(): SearchOption[] {
     const searchOptions: SearchOption[] = [];
-
     if (this.tableFilters.CustomerId) {
       searchOptions.push({ field: 'referenceNumber', name: 'ΑΡΙΘΜΟΣ ΥΠΟΘΕΣΗΣ', dataType: 'string' });
       searchOptions.push({ field: 'customerId', name: 'ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ', dataType: 'string' });
     }
-
     if (this.tableFilters.CustomerName) {
       searchOptions.push({ field: 'customerName', name: 'ΟΝΟΜΑ ΠΕΛΑΤΗ', dataType: 'string' });
     }
-
     if (this.tableFilters.TaxId) {
       searchOptions.push({ field: 'TaxId', name: 'Α.Φ.Μ. ΠΕΛΑΤΗ', dataType: 'string' });
     }
-
     if (this.tableFilters.GroupIds) {
       searchOptions.push({ field: 'groupIds', name: 'ΑΡΙΘΜΟΣ ΚΑΤΑΣΤΗΜΑΤΟΣ', dataType: 'string', multiTerm: true });
     }
-
     if (this.tableFilters.DateRange) {
       searchOptions.push({ field: 'dateRange', name: 'ΗΜ. ΥΠΟΒΟΛΗΣ', dataType: 'daterange' });
     }
-
     return searchOptions;
   }
 }

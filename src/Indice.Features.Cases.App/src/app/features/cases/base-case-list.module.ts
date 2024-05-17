@@ -7,7 +7,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { IndiceComponentsModule } from "@indice/ng-components";
 import { SharedModule } from "src/app/shared/shared.module";
-import { CasesBase } from "./cases.base.component";
+import { BaseCaseListComponent } from "./base-case-list.component";
 import { CaseAssignmentComponent } from "./case-detail-page/case-assignment/case-assignment.component";
 import { CaseTimelineComponent } from "./case-detail-page/case-timeline/case-timeline.component";
 import { CaseUnassignmentComponent } from "./case-detail-page/case-unassignment/case-unassignment.component";
@@ -19,12 +19,12 @@ import { CasePrintPdfComponent } from './case-detail-page/case-print-pdf/case-pr
 import { CaseWarningModalComponent } from "../../shared/components/case-warning-modal/case-warning-modal.component";
 import { QueriesModalComponent } from "src/app/shared/components/query-modal/query-modal.component";
 import { QueriesPageComponent } from "./queries-page/queries-page.component";
-import { CasesComponent } from "./cases/cases.component";
-import { CaseTypeMenuItemComponent } from "./case-type-menu-item/case-type-menu-item.component";
+import { GeneralCaseListComponent } from "./cases/general-case-list.component";
+import { CaseTypeCaseListComponent } from "./case-type-menu-item/case-type-case-list.component";
 
 @NgModule({
   declarations: [
-    CasesBase,
+    BaseCaseListComponent,
     CaseAssignmentComponent,
     CaseUnassignmentComponent,
     CaseTimelineComponent,
@@ -36,8 +36,8 @@ import { CaseTypeMenuItemComponent } from "./case-type-menu-item/case-type-menu-
     CasePrintPdfComponent,
     CaseWarningModalComponent,
     QueriesModalComponent,
-    CasesComponent,
-    CaseTypeMenuItemComponent
+    GeneralCaseListComponent,
+    CaseTypeCaseListComponent
   ],
   imports: [
     BrowserModule,
@@ -50,7 +50,7 @@ import { CaseTypeMenuItemComponent } from "./case-type-menu-item/case-type-menu-
     IndiceComponentsModule
   ],
   exports: [
-    CasesBase,
+    BaseCaseListComponent,
     CaseAssignmentComponent,
     CaseUnassignmentComponent,
     CaseTimelineComponent,
@@ -58,4 +58,4 @@ import { CaseTypeMenuItemComponent } from "./case-type-menu-item/case-type-menu-
   ],
   providers: [DatePipe]
 })
-export class CasesBaseModule { }
+export class BaseCaseListModule { }
