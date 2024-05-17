@@ -251,10 +251,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
             LayoutTranslations = dbCaseType.LayoutTranslations,
             Title = dbCaseType.Title,
             Order = dbCaseType.Order,
-            Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations),
-            GridFilterConfig = dbCaseType.GridFilterConfig,
-            GridColumnConfig = dbCaseType.GridColumnConfig,
-            IsMenuItem = dbCaseType.IsMenuItem
+            Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
         };
 
         caseType = TranslateCaseType(caseType, CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
