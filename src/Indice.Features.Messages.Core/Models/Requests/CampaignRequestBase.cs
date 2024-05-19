@@ -21,6 +21,8 @@ public class CampaignRequestBase
     public Guid? TypeId { get; set; }
     /// <summary>The id of the distribution list.</summary>
     public Guid? RecipientListId { get; set; }
+    /// <summary>The Template to be used for the new Campaign.</summary>
+    public Guid? MessageTemplateId { get; set; }
     /// <summary>Optional data for the campaign.</summary>
     public dynamic Data { get; set; }
 }

@@ -133,6 +133,9 @@ internal class CampaignsController(
     [ProducesResponseType(typeof(Campaign), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateCampaign([FromBody] CreateCampaignRequest request) {
+        if (request != null && string.IsNullOrWhiteSpace(request.MediaBaseHref)) {
+            request.MediaBaseHref = GeneralSettings.Host;
+        }
         var result = await NotificationsManager.CreateCampaignInternal(request, validateRules: false);
         return CreatedAtAction(nameof(GetCampaignById), new { campaignId = result.CampaignId }, result.Campaign);
     }

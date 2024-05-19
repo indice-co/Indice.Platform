@@ -57,7 +57,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
         content: this._formBuilder.array([])
     });
     @Input() set data(value: any) {
-        this.form.controls['data'].setValue(value);
+        this.form.controls['data'].setValue(value instanceof Object ? JSON.stringify(value, undefined, 2) : value);
     }
     public get data(): AbstractControl {
         return this.form.controls['data'];
@@ -146,12 +146,12 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     public ngOnInit(): void {
         if (!this.additionalData.actionLink) {
             this.additionalData.actionLink = new Hyperlink({
-                text: "",
-                href: ""
+                text: "Click me!",
+                href: "https://www.indice.gr"
             })
         }
         if (!this.additionalData.title) {
-            this.additionalData.title = ""
+            this.additionalData.title = "Welcome"
         }
         if (!this.additionalData.mediaBaseHref) {
             this.additionalData.mediaBaseHref = `${app.settings.api_url}`;

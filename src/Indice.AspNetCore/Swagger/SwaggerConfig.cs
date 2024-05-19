@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Indice.AspNetCore.Swagger;
 using Indice.Configuration;
 using Indice.Serialization;
@@ -323,6 +325,9 @@ public static class SwaggerConfig {
             Type = "string",
             Format = "binary"
         });
+        options.MapType<dynamic>(() => new OpenApiSchema { Type = "object" });
+        options.MapType<JsonNode>(() => new OpenApiSchema { Type = "object" });
+        options.MapType<JsonElement>(() => new OpenApiSchema { Type = "object" });
         options.MapType<FilterClause>(() => new OpenApiSchema { Type = "string" });
         options.MapType<GeoPoint>(() => new OpenApiSchema { Type = "string" });
         options.MapType<Base64Id>(() => new OpenApiSchema { Type = "string" });

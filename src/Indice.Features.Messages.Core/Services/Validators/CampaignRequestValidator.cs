@@ -12,11 +12,13 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
 {
     private readonly IMessageTypeService _messageTypeService;
     private readonly IDistributionListService _distributionListService;
+    private readonly ITemplateService _templateService;
 
     /// <summary>Creates a new instance of <see cref="CreateCampaignRequestValidator"/>.</summary>
     public CampaignRequestValidator(IServiceProvider serviceProvider) {
         _messageTypeService = serviceProvider.GetRequiredService<IMessageTypeService>();
         _distributionListService = serviceProvider.GetRequiredService<IDistributionListService>();
+        _templateService = serviceProvider.GetRequiredService<ITemplateService>();
         RuleFor(campaign => campaign.Title)
             .NotEmpty()
             .WithMessage("Please provide a title for the campaign.")
@@ -24,9 +26,15 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
             .WithMessage($"Campaign title cannot exceed {TextSizePresets.M128} characters.");
         RuleFor(campaign => campaign.Content)
             .Must(content => content.Count > 0)
+            .When(campaign => !campaign.MessageTemplateId.HasValue)
             .WithMessage("Please provide content for the campaign.")
             .Must(content => Enum.TryParse<MessageChannelKind>(string.Join(',', content.Select(x => x.Key)), ignoreCase: true, out _))
+            .When(campaign => !campaign.MessageTemplateId.HasValue)
             .WithMessage("Channels provided in the content are not valid.");
+        RuleFor(campaign => campaign.MessageTemplateId)
+            .Must(BeExistingTemplateId)
+            .When(campaign => campaign.MessageTemplateId.HasValue) // Check that TemplateId is valid, when it is provided.
+            .WithMessage("Specified template id is not valid.");
         RuleFor(campaign => campaign.RecipientListId)
             .Must(id => id is null)
             .When(campaign => campaign.IsGlobal) // DistributionListId property must not be provided when campaign is global.
@@ -56,4 +64,6 @@ public class CampaignRequestValidator<TCampaignRequest> : AbstractValidator<TCam
     private bool BeExistingTypeId(Guid? id) => _messageTypeService.GetById(id.Value).Result is not null;
 
     private bool BeExistingDistributionListId(Guid? id) => _distributionListService.GetById(id.Value).Result is not null;
+
+    private bool BeExistingTemplateId(Guid? id) => _templateService.GetById(id.Value).Result is not null;
 }

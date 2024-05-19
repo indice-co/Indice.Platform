@@ -134,7 +134,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
             isGlobal: this._recipientsStep.sendVia.value === 'user-base',
             published: this._previewStep.published.value,
             title: this._basicInfoStep.title.value,
-            data: this._contentStep.data.value,
+            data: JSON.parse(this._contentStep.data.value),
             mediaBaseHref: this._contentStep.additionalData.mediaBaseHref,
             typeId: this._basicInfoStep.type.value?.value || undefined,
             recipientIds: this._recipientsStep.recipientIds.value ? this._recipientsStep.recipientIds.value.split('\n') : null,
