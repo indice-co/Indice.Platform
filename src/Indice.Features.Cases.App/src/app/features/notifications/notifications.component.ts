@@ -6,6 +6,7 @@ import { EMPTY, forkJoin } from "rxjs";
 import { tap, catchError } from "rxjs/operators";
 import { DisplayNotificationSubscriptionsViewModel, NotificationSubscriptionCategoryViewModel, NotificationSubscriptionViewModel } from "src/app/core/models/NotificationSubscriptionsViewModel";
 import { CasesApiService, NotificationSubscription, NotificationSubscriptionRequest } from "src/app/core/services/cases-api.service";
+import { CaseTypeService } from '../../core/services/case-type.service';
 
 @Component({
     selector: 'app-notifications',
@@ -22,7 +23,8 @@ export class NotificationsComponent implements OnInit {
     constructor(
         private _api: CasesApiService,
         private authService: AuthService,
-        private _toaster: ToasterService
+        private _toaster: ToasterService,
+        private caseTypeService: CaseTypeService
     ) { }
 
     public ngOnInit(): void {
@@ -31,7 +33,7 @@ export class NotificationsComponent implements OnInit {
         this.loading = true;
         forkJoin({
             getMySubscriptions: this._api.getMySubscriptions(),
-            getCaseTypes: this._api.getCaseTypes()
+            getCaseTypes: this.caseTypeService.getCaseTypes()
         })
             .subscribe(({ getMySubscriptions: mySubscriptions, getCaseTypes: caseTypes }) => {
                 // create an initial view model that contains all categories and case types (and respects server-side ordering) with no active subs
