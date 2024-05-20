@@ -1,4 +1,4 @@
-import { map, tap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { AuthService } from '@indice/ng-auth';
 import { IAppLinks, NavLink } from '@indice/ng-components';
 import { Observable, of, ReplaySubject } from 'rxjs';
@@ -12,29 +12,31 @@ export class AppLinks implements IAppLinks {
 
   constructor(
     private authService: AuthService,
-  private _caseTypeService: CaseTypeService) {
+    private _caseTypeService: CaseTypeService) {
     this.authService.user$.pipe(
-      map(user => {
-        const headerMenu = [
-          new NavLink('Αρχική', '/dashboard', true, undefined, Icons.Dashboard),
-          new NavLink('Υποθέσεις', '/cases', true, undefined, Icons.Cases)
-        ];
-
-        if (this.authService.isAdmin()) {
-          headerMenu.push(new NavLink('Διαχείριση Υποθέσεων', '/case-types', true, undefined, Icons.CaseTypes));
-          this.appendMenuItems(headerMenu);
-        } else {
-          headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true, undefined, Icons.Notifications));
-        }
-
-        return headerMenu;
-      }),
-      tap(navLinks => this._main.next(navLinks))
-    ).subscribe();
+      switchMap(user => this.buildHeaderMenu())
+    ).subscribe(navLinks => this._main.next(navLinks));
   }
 
-  appendMenuItems(headerMenu: NavLink[]) {
-    this._caseTypeService.getCaseTypeMenuItems().subscribe(data => {
+  buildHeaderMenu(): Observable<NavLink[]> {
+    return of([
+      new NavLink('Αρχική', '/dashboard', true, undefined, Icons.Dashboard),
+      new NavLink('Υποθέσεις', '/cases', true, undefined, Icons.Cases)
+    ]).pipe(
+      switchMap(headerMenu => {
+        if (this.authService.isAdmin()) {
+          return this.appendCaseTypeMenuItem(headerMenu);
+        } else {
+          headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true, undefined, Icons.Notifications));
+          return of(headerMenu);
+        }
+      })
+    );
+  }
+
+  appendCaseTypeMenuItem(headerMenu: NavLink[]): Observable<NavLink[]> {
+    return this._caseTypeService.getCaseTypeMenuItems().pipe(
+      map(data => {
         for (const item of data) {
           if (item.title) {
             const queryParams: Params = {
@@ -49,18 +51,18 @@ export class AppLinks implements IAppLinks {
             headerMenu.push(new NavLink(item.title, `/cases/${item.code}`, true, undefined, Icons.MenuItem, undefined, queryParams));
           }
         }
-    });
+        headerMenu.push(new NavLink('Διαχείριση Υποθέσεων', '/case-types', true, undefined, Icons.CaseTypes));
+        return headerMenu;
+      })
+    );
   }
 
   public public: Observable<NavLink[]> = of([]);
   public profileActions: Observable<NavLink[]> = of([]);
-
   public main: Observable<NavLink[]> = this._main.asObservable();
-
   public profile: Observable<NavLink[]> = of([
     new NavLink('Αποσύνδεση', '/logout', false)
   ]);
-
   public legal: Observable<NavLink[]> = of([]);
   public brand: Observable<NavLink[]> = of([]);
 }
