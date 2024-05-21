@@ -51,7 +51,7 @@ export class ClientUrlsComponent implements OnInit, OnDestroy {
             { prop: 'isCors', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._checkboxTemplate, headerTemplate: this._corsTemplate },
             { prop: 'isPostLogoutRedirect', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._checkboxTemplate, headerTemplate: this._postLogoutRedirectTemplate }
         ];
-        this._clientId = this.route.parent.snapshot.params.id;
+        this._clientId = this.route.parent.snapshot.params['id'];
         this.renderTable();
     }
 

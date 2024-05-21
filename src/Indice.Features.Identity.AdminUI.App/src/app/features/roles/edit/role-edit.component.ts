@@ -26,7 +26,7 @@ export class RoleEditComponent implements OnInit {
 
     public ngOnInit(): void {
         this.canEditRole = this._authService.isAdminUIUsersWriter();
-        this.role = this._route.snapshot.data.role;
+        this.role = this._route.snapshot.data['role'];
     }
 
     public deletePrompt(): void {

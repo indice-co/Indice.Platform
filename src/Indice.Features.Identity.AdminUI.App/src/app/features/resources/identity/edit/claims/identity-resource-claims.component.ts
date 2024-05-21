@@ -37,7 +37,7 @@ export class IdentityResourceClaimsComponent implements OnInit, OnDestroy {
             { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: true },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: true, resizeable: true }
         ];
-        this._identityResourceId = this._route.parent.snapshot.params.id;
+        this._identityResourceId = this._route.parent.snapshot.params['id'];
         const getIdentityResource = this._identityResourceStore.getIdentityResource(this._identityResourceId);
         const getAllClaims = this._identityResourceStore.getAllClaims();
         this._getDataSubscription = forkJoin([getIdentityResource, getAllClaims]).pipe(map((responses: [IdentityResourceInfo, ClaimTypeInfo[]]) => {

@@ -29,7 +29,7 @@ export class ApiResourceDetailsComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.canEditResource = this._authService.isAdminUIClientsWriter();
-        const apiResourceId = +this._route.parent.snapshot.params.id;
+        const apiResourceId = +this._route.parent.snapshot.params['id'];
         this._getDataSubscription = this._apiResourceStore.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
             this.apiResource = apiResource;
         });

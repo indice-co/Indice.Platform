@@ -9,7 +9,7 @@ export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {
         super();
     }
 
-    public parse(value: string): NgbDateStruct {
+    public parse(value: string): NgbDateStruct | null {
         if (value) {
             const dateParts = value.trim().split('-');
             if (dateParts.length === 1 && this.utilities.isNumber(dateParts[0])) {
@@ -35,7 +35,7 @@ export class NgbDateCustomParserFormatter extends NgbDateParserFormatter {
         return null;
     }
 
-    public parseDate(value: Date): NgbDateStruct {
+    public parseDate(value: Date): NgbDateStruct | null {
         if (!value)
             return null;
 

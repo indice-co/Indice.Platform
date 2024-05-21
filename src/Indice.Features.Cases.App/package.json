@@ -7,7 +7,7 @@
     "e2e": "ng e2e",
     "lint": "ng lint",
     "ng": "ng",
-    "start": "ng serve",
+    "serve": "ng serve",
     "test": "ng test",
     "prod-build-dev-onpremises": "ng build --configuration=on-premises-dev"
   },
@@ -37,7 +37,7 @@
     "ngx-quill": "^16.2.1",
     "oidc-client": "1.11.5",
     "rxjs": "6.6.7",
-    "tslib": "2.3.0",
+    "tslib": "^2.6.2",
     "zone.js": "0.11.4"
   },
   "devDependencies": {

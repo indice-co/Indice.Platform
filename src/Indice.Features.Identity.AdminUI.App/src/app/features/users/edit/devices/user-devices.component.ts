@@ -12,7 +12,7 @@ import { UserStore } from '../user-store.service';
     templateUrl: './user-devices.component.html'
 })
 export class UserDevicesComponent implements OnInit, OnDestroy {
-    private _getDataSubscription: Subscription;
+    private _getDataSubscription: Subscription | undefined;
     @ViewChild('userDeviceList', { static: true }) public _userDeviceList: ListViewComponent;
 
     constructor(
@@ -39,7 +39,7 @@ export class UserDevicesComponent implements OnInit, OnDestroy {
             { prop: 'supportsPinLogin', name: '4Pin', draggable: false, canAutoResize: false, sortable: true, resizeable: false, cellTemplate: this._userDeviceList.booleanTemplate },
             // { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
-        const userId = this._route.parent.snapshot.params.id;
+        const userId = this._route.parent.snapshot.params['id'];
         this._getDataSubscription = this._userStore.getUserDevices(userId).subscribe((userDevices: DeviceInfo[]) => this.rows = userDevices);
     }
 

@@ -40,7 +40,7 @@ export class UserRolesComponent implements OnInit, OnDestroy {
             { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: true },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: true, resizeable: true }
         ];
-        const userId = this._route.parent.snapshot.params.id;
+        const userId = this._route.parent.snapshot.params['id'];
         this.currentUserId = this._authService.getSubjectId();
         const getUser = this._userStore.getUser(userId);
         const getRoles = this._userStore.getAllRoles();

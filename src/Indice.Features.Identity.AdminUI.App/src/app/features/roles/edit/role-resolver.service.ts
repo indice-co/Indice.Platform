@@ -9,7 +9,7 @@ export class RoleResolverService  {
     constructor(private api: IdentityApiService) { }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<RoleInfo> {
-        const roleId = route.params.id;
+        const roleId = route.params['id'];
         if (!roleId) {
             return of(new RoleInfo());
         }

@@ -37,7 +37,7 @@
     "oidc-client-ts": "3.0.1",
     "rxjs": "^7.8.1",
     "sweetalert2": "11.11.0",
-    "tslib": "^2.3.1",
+    "tslib": "^2.6.2",
     "zone.js": "0.14.5"
   },
   "devDependencies": {

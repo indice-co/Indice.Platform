@@ -64,7 +64,7 @@ export class ListViewComponent extends ListView implements OnInit, OnDestroy {
     }
 
     private setFilter() {
-        if (this.searchTerm.length === 0) {
+        if (this.searchTerm?.length === 0) {
             this.searchTerm = undefined;
         }
         this.changeSearchLocation();

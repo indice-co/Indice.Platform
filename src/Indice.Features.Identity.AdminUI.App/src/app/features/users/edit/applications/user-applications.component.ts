@@ -32,7 +32,7 @@ export class UserApplicationsComponent implements OnInit, OnDestroy {
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
-        const userId = this._route.parent.snapshot.params.id;
+        const userId = this._route.parent.snapshot.params['id'];
         this._getDataSubscription = this._userStore.getUserApplications(userId).subscribe((userApplications: UserClientInfo[]) => this.rows = userApplications);
     }
 

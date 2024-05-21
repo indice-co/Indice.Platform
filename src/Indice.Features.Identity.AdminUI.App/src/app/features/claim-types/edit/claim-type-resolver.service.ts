@@ -9,7 +9,7 @@ export class ClaimTypeResolverService  {
     constructor(private _api: IdentityApiService) { }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ClaimTypeInfo> {
-        const claimTypeId = route.params.id;
+        const claimTypeId = route.params['id'];
         if (!claimTypeId) {
             return of(new ClaimTypeInfo());
         }
