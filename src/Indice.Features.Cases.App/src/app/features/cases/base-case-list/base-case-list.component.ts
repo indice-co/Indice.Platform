@@ -57,7 +57,6 @@ export class BaseCaseListComponent extends BaseListComponent<CasePartial> implem
 
   public ngOnInit(): void {
     super.ngOnInit();
-    this.setupParams();
   }
 
   public getItemValue(item: any, column: any) {

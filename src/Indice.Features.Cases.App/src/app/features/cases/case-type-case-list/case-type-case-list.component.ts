@@ -29,6 +29,7 @@ export class CaseTypeCaseListComponent extends BaseCaseListComponent {
   }
 
   ngOnInit() {
+    this.setupParams();
     this.setSearchOptions();
     this.loadFilterSettings();
     this.loadColumnSettings();
