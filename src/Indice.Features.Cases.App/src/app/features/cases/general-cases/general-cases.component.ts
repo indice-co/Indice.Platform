@@ -4,6 +4,7 @@ import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuO
 import { forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
+import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { CasePartial, CasePartialResultSet, CasesApiService, CaseTypePartialResultSet, CheckpointType, } from 'src/app/core/services/cases-api.service';
 import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { QueriesModalComponent } from 'src/app/shared/components/query-modal/query-modal.component';
@@ -28,7 +29,8 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     protected _router: Router,
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
-    protected _modalService: ModalService
+    protected _modalService: ModalService,
+    protected _caseTypeService: CaseTypeService
   ) {
     super(_route, _router);
     this.view = ListViewType.Table;
@@ -57,7 +59,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     });
     forkJoin({
       caseTypes: this._api.getCaseTypes(),
-      checkpointTypes: this._api.getDistinctCheckpointTypes()
+      checkpointTypes: this._caseTypeService.getDistinctCheckpointTypes()
     }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
       //todo this should not be needed - we assign this so its available for the async calls
       this.caseTypes = caseTypes;
@@ -178,7 +180,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
 
   private createNewCaseButton(): void {
     // independent call to fetch the case Types that the user can select for Case Creation
-    this._api.getCaseTypes(true)
+    this._caseTypeService.getCanCreateCaseTypes()
       .pipe(take(1))
       .subscribe(
         (caseTypesForCaseCreation: CasePartialResultSet) => {

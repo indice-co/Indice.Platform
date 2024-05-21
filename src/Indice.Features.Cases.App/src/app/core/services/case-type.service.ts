@@ -1,7 +1,7 @@
 import { DataService } from './data.service';
 import { Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { CasesApiService, CaseTypePartial, CaseTypePartialResultSet } from './cases-api.service';
+import { CasesApiService, CaseTypePartial, CaseTypePartialResultSet, CheckpointType } from './cases-api.service';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -9,6 +9,8 @@ import { map } from 'rxjs/operators';
 })
 export class CaseTypeService extends DataService {
   private readonly key: string = 'caseTypeCacheKey';
+  private readonly checkCreationKey: string = 'checkCreationKey';
+  private readonly distinctCheckpointsKey: string = 'distinctCheckpointsKey';
 
   constructor(
     private _api: CasesApiService) {
@@ -41,6 +43,13 @@ export class CaseTypeService extends DataService {
     );
   }
 
+  public getCanCreateCaseTypes(): Observable<CaseTypePartialResultSet> {
+    return this.getDataFromCacheOrHttp(this.checkCreationKey, this._api.getCaseTypes(true));
+  }
+
+  public getDistinctCheckpointTypes():Observable<CheckpointType[]> {
+    return this.getDataFromCacheOrHttp(this.distinctCheckpointsKey, this._api.getDistinctCheckpointTypes());
+  }
 }
 
 class CaseTypeMenu {

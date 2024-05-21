@@ -20,7 +20,7 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     protected _modalService: ModalService,
     protected _caseTypeService: CaseTypeService
   ) {
-    super(_route, _router, _api, _filterCachingService, _modalService);
+    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService);
     this.view = ListViewType.Table;
     this.pageSize = 10;
     this.sort = 'createdByWhen';
