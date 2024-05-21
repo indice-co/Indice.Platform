@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, RouteReuseStrategy, DetachedRouteHandle } from '@angular/router';
-import { CaseTypeCaseListComponent } from '../features/cases/case-type-case-list/case-type-case-list.component';
+import { CaseTypeSpecificCasesComponent } from '../features/cases/case-type-specific-cases/case-type-specific-cases.component';
 
 @Injectable()
 export class CustomRouteReuseStrategy implements RouteReuseStrategy {
@@ -8,7 +8,7 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
     return false;
   }
 
-  store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle | null): void {}
+  store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle | null): void { }
 
   shouldAttach(route: ActivatedRouteSnapshot): boolean {
     return false;
@@ -20,7 +20,7 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
 
   shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
     // Check if the route is CaseTypeCaseListComponent and has different parameters
-    if (future.component === CaseTypeCaseListComponent && curr.component === CaseTypeCaseListComponent) {
+    if (future.component === CaseTypeSpecificCasesComponent && curr.component === CaseTypeSpecificCasesComponent) {
       return false;
     }
     return future.routeConfig === curr.routeConfig;

@@ -21,7 +21,7 @@ export class AppLinks implements IAppLinks {
   buildHeaderMenu(): Observable<NavLink[]> {
     return of([
       new NavLink('Αρχική', '/dashboard', true, undefined, Icons.Dashboard),
-      new NavLink('Υποθέσεις', '/cases', true, undefined, Icons.Cases)
+      new NavLink('Υποθέσεις', '/cases', true, undefined, Icons.Cases),
     ]).pipe(
       switchMap(headerMenu => {
         if (this.authService.isAdmin()) {

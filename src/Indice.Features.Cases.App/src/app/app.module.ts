@@ -16,13 +16,13 @@ import { ShellConfig } from './shell.config';
 import { LogOutComponent } from './core/services/logout/logout.component';
 import { CASES_API_BASE_URL, CasesApiService } from './core/services/cases-api.service';
 import { SharedModule } from './shared/shared.module';
-import { BaseCaseListModule } from './features/cases/base-case-list/base-case-list.module';
 import { NotificationsModule } from './features/notifications/notifications.module';
 import { CaseTypesModule } from './features/case-types/case-types.module';
 import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-http-interceptor.service';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CaseTypeService } from './core/services/case-type.service';
+import { CasesModule } from './features/cases/cases.module';
 
 @NgModule({
   declarations: [
@@ -40,7 +40,7 @@ import { CaseTypeService } from './core/services/case-type.service';
     IndiceAuthModule.forRoot(),
     IndiceComponentsModule.forRoot(),
     SharedModule,
-    BaseCaseListModule,
+    CasesModule,
     CaseTypesModule,
     NotificationsModule,
     JsonSchemaFormModule,
