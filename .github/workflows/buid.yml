@@ -28,7 +28,12 @@ jobs:
       # You can test your matrix by printing the current dotnet version
       - name: Display dotnet version
         run: dotnet --version
-    
+   
+      # Setup Node.js
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20    
       # Npm Install and build Cases UI
       - name: NPM Install and Build Cases UI
         run: |
