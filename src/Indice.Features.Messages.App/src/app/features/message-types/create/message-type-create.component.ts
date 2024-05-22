@@ -34,7 +34,7 @@ export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
             .subscribe({
                 next: (messageType: MessageType) => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'message-type.success-save', `'message-type.success-save-message' '${messageType.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
                 }
             });

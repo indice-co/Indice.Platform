@@ -49,7 +49,7 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο τύπος με όνομα '${this.model.name}' αποθηκεύτηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, '{{"message-type.success-save"}}', `'message-type.success-edit-message' '${this.model.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
                 }
             });

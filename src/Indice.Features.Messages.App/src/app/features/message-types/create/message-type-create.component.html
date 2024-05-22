@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Δημιουργία νέου τύπου"
+<lib-side-view-layout title="{{ 'message-type.create-type' | translate }}"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Δημιουργία'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'message-type.create-save' | translate"
+                      [cancel-label]="'message-type.close-label' | translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!messageTypeForm.valid || submitInProgress"
                       #sideViewLayout>
@@ -13,23 +13,23 @@
                     <!-- Όνομα -->
                     <div class="col-span-4">
                         <label for="messageTypeName"
-                               class="field-label">Όνομα (*)</label>
+                               class="field-label">{{ 'message-type.name-label' | translate }} (*)</label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="messageTypeName"
                                    id="messageTypeName"
                                    [(ngModel)]="model.name"
-                                   placeholder="Το όνομα του τύπου..."
+                                   placeholder="{{ 'message-type.name-placeholder' | translate }}"
                                    maxlength="128"
                                    required
                                    #messageTypeName="ngModel">
                         </div>
                         <p *ngIf="messageTypeName.invalid && (messageTypeName.dirty || messageTypeName.touched)"
                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="messageTypeName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
-                            <span *ngIf="messageTypeName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                            <span *ngIf="messageTypeName.errors!['required']">{{ 'message-type.empty-name-error' | translate }}</span>
+                            <span *ngIf="messageTypeName.errors!['maxlength']">{{ 'message-type.big-name-error' | translate }}</span>
                         </p>
-                        <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται o τύπος της καμπάνιας.</p>
+                        <p class="field-info col-span-3">{{ 'message-type.name-info' | translate }}</p>
                     </div>
                 </div>
             </div>

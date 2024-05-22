@@ -25,7 +25,7 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
         this.sort = 'name';
         this.sortdir = 'asc';
         this.search = '';
-        this.sortOptions = [new MenuOption('Όνομα', 'name')];
+        this.sortOptions = [new MenuOption('message-type.name-label', 'name')];
     }
 
     public newItemLink: string | null = 'create-message-type';
@@ -45,8 +45,8 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'Διαγραφή',
-                message: `Είστε σίγουρος ότι θέλετε να διαγράψετε τον τύπο ${type.name};`,
+                title: 'message-type.delete-type',
+                message: `'message-type.delete-type-warning' ${type.name};`,
                 data: type
             },
             keyboard: true
@@ -54,7 +54,7 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._api.deleteMessageType(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Ο τύπος με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'message-type.success-delete', `'message-type.success-delete-message' '${response.result.data.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
                 });
             }
