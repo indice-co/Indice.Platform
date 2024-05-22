@@ -8,10 +8,14 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Indice.Features.Messages.Tests.Security;
 
-internal class DummyAuthHandler : AuthenticationHandler<DummyAuthOptions>
+#if NET8_0_OR_GREATER
+internal class DummyAuthHandler(IOptionsMonitor<DummyAuthOptions> options, ILoggerFactory logger, UrlEncoder encoder) 
+    : AuthenticationHandler<DummyAuthOptions>(options, logger, encoder)
+#else
+internal class DummyAuthHandler(IOptionsMonitor<DummyAuthOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) 
+: AuthenticationHandler<DummyAuthOptions>(options, logger, encoder, clock)
+#endif
 {
-    public DummyAuthHandler(IOptionsMonitor<DummyAuthOptions> options, ILoggerFactory logger, UrlEncoder encoder, IDataProtectionProvider dataProtection)
-        : base(options, logger, encoder) { }
 
     /// <summary>
     /// Searches the 'Authorization' header for a 'Bearer' token. If the 'Bearer' token is found, it is validated using <see cref="TokenValidationParameters"/> set in the options.
