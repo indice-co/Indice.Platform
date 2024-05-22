@@ -54,7 +54,7 @@ export class DistributionListDetailsEditRightpaneComponent implements OnInit, Af
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Το πρότυπο με όνομα '${this.model.name}' αποθηκεύτηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'distribution-list-edit.details-pane.success-save', `'distribution-list-edit.details-pane.success-save-message' '${this.model.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId]));
                 }
             });

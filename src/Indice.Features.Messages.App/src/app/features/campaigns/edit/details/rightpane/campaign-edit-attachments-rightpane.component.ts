@@ -60,20 +60,20 @@ export class CampaignAttachmentsEditRightpaneComponent implements OnInit {
       }
       this._campaignStore.uploadCampaignAttachment(this._campaignId, attachment)
         .subscribe(() => {
-          this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το επισυναπτόμενο αρχείο ενημερώθηκε με επιτυχία.`);
+          this._toaster.show(ToastType.Success, '{{"campaigns-edit.success-edit"}}', `{{'campaigns-edit.attachments.success-message'}}`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         }, (error) => {
-          this._toaster.show(ToastType.Error, 'Σφάλμα ενημέρωσης', `Υπήρξε κάποιο πρόβλημα με την ενημέρωση των στοιχείων. Παρακαλώ δοκιμάστε αργότερα.`);
+          this._toaster.show(ToastType.Error, '{{"campaigns-edit.attachments.failure"}}', `{{'campaigns-edit.attachments.failure-message'}}`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         });
     }
     else if (this.campaignAttachment?.id) {
       this._campaignStore.deleteCampaignAttachment(this._campaignId, this.campaignAttachment.id)
         .subscribe(() => {
-          this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το επισυναπτόμενο αρχείο διαγράφηκε με επιτυχία.`);
+          this._toaster.show(ToastType.Success, '{{"campaigns-edit.success-edit"}}', `{{'campaigns-edit.attachments.success-delete-message'}}`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         }, (error) => {
-          this._toaster.show(ToastType.Error, 'Σφάλμα ενημέρωσης', `Υπήρξε κάποιο πρόβλημα με την ενημέρωση των στοιχείων. Παρακαλώ δοκιμάστε αργότερα.`);
+          this._toaster.show(ToastType.Error, '{{"campaigns-edit.attachments.failure"}}', `{{'campaigns-edit.attachments.failure-message'}}`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         });
     }

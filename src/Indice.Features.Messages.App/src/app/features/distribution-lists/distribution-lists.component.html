@@ -1,4 +1,4 @@
-<lib-view-layout title="Λίστες Διανομής"
+<lib-view-layout [title]="'distribution-list-edit.title' | translate"
                  [busy]="!items"
                  [actions]="actions"
                  [meta-items]="metaItems"
@@ -16,25 +16,25 @@
                    (pageSizeChanged)="pageSizeChanged($event)"
                    (sortChanged)="sortChanged($event)"
                    (sortdirChanged)="sortdirChanged($event)">
-        <lib-list-column title="ΟΝΟΜΑ">
+        <lib-list-column title="{{ 'distribution-list-edit.name' | translate }}">
             <ng-template let-item>{{ item.name }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
+        <lib-list-column title="{{ 'distribution-list-edit.created-by' | translate }}">
             <ng-template let-item>{{ item.createdBy }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
+        <lib-list-column title="{{ 'distribution-list-edit.created-at' | translate }}">
             <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ">
+        <lib-list-column title="{{ 'distribution-list-edit.updated-by' | translate }}">
             <ng-template let-item>{{ item.updatedBy || '-' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ"
+        <lib-list-column title="{{ 'distribution-list-edit.updated-at' | translate }}"
                          [full-width]="true">
             <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+        <lib-list-column title="{{ 'distribution-list-edit.actions' | translate }}">
             <ng-template let-item>
-                <a title="Επεξεργασία"
+                <a title="{{ 'distribution-list-edit.edit' | translate }}"
                    href="#"
                    [routerLink]="[item.id]"
                    class="nav-link-profile"

@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Επεξεργασία επισυναπτόμενων"
+<lib-side-view-layout title="{{'campaigns-edit.attachments.title'| translate}}"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Αποθήκευση'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'campaigns-edit.save' | translate"
+                      [cancel-label]="'campaigns-edit.close'| translate"
                       (ok)="onSubmit()"
                       [disabled]="isLoading || !attachmentChanged"
                       #sideViewLayout>
@@ -10,7 +10,7 @@
             <div class="grid grid-cols-4 gap-4">
                 <div class="col-span-4 py-5">
                     <span class="mt-1 max-w-2xl text-sm text-gray-500">
-                        Τα επισυναπτόμενα αρχεία χρησιμοποιούνται μόνο εφόσον επιλεγεί ως κανάλι επικοινωνίας <strong>Inbox</strong> ή <strong>Email</strong>.
+                        {{'campaigns-edit.attachments.description'|translate}} <strong>Inbox</strong>,<strong>Email</strong>.
                     </span>
                     <div class="mt-10" *ngIf="!isLoading">
                         <app-file-upload #fileUploadComponent [extendedView]="true" [existingFile]="campaignAttachment" [maxSize]="6*1024*1024" (fileChange)="onFileChange($event)"></app-file-upload>

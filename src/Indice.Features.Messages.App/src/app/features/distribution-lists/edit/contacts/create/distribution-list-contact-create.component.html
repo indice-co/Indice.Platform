@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Αναζήτηση"
+<lib-side-view-layout title="{{'contacts.search' |translate}}"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Προσθήκη'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'contacts.add'| translate"
+                      [cancel-label]="'contacts.close' | translate"
                       (ok)="contactCreateComponent.submit()"
                       [disabled]="submitInProgress"
                       #sideViewLayout>

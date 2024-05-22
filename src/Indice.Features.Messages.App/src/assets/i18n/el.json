@@ -1,0 +1,273 @@
+{
+    "general": {
+        "yes": "Ναι",
+        "no": "Όχι",
+        "from": "Από",
+        "to": "έως",
+        "please-choose": "Παρακαλώ επιλέξτε...",
+        "close": "Κλείσιμο",
+        "add": "Προσθήκη",
+        "edit": "Επεξεργασία",
+        "publish": "Δημοσίευση",
+        "save": "Αποθήκευση",
+        "previous": "Προηγούμενο",
+        "next": "Επόμενο",
+        "save-publish": "Αποθήκευση & Δημοσίευση",
+        "success-save": "Επιτυχής αποθήκευση",
+        "files-library": "Βιβλιοθήκη Αρχείων",
+        "open-files": "Μετάβαση",
+        "choose-file-from": "Μπορείτε να επιλέξετε ένα υπάρχον αρχείο μέσα από την",
+        "created-by": "Δημιουργήθηκε από",
+        "created-at": "Δημιουργήθηκε στις",
+        "updated-by": "Τροποποιήθηκε από",
+        "updated-at": "Τροποποιήθηκε στις",
+        "published-at": "Δημοσιεύτηκε στις",
+        "data-loading": "Φόρτωση δεδομένων",
+        "campaign": "Καμπάνια"
+    },
+    
+    "message": {
+        "metadata": "Μεταδεδομένα",
+        "metadata-placeholder": "Επιπρόσθετα δεδομένα της καμπάνιας σε JSON μορφή",
+        "metadata-error": "Η μορφή του JSON δεν είναι έγκυρη.",
+        "data": "Δεδομένα μηνύματος",
+        "body": "Σώμα",
+        "body-placeholder": "Το σώμα του μηνύματος",
+        "empty-body-error": "Παρακαλώ συμπληρώστε το σώμα του μηνύματος."
+    },
+
+    "home": {
+        "waiting-title": "Indice Back-Office",
+        "waiting-description": "παρακαλώ περιμένετε"
+    },
+    "dashboard": {
+        "header": "Καλώς ήλθατε",
+        "campaigns": "Καμπάνιες",
+        "active-campaigns": "Ενεργές"
+    },
+
+    "contacts":{
+        "distribution-list": "Λίστα διανομής",
+        "distribution-list-description": "Η λίστα διανομής της καμπάνιας.",
+        "code-list": "Λίστα κωδικών",
+        "send-to":"Αποστολή προς",
+        "type": "Τύπος",
+        "recipients": "παραλήπτες",
+        "added": "Έχετε προσθέσει",
+        "recipients-list": "Λίστα παραληπτών",
+        "recipients-empty-list-error": "Δεν έχετε προσθέσει παραλήπτες στη λίστα.",
+        "distribution-empty-list-error": "Παρακαλώ επιλέξτε μία λίστα διανομής.",
+        "code-empty-list-error": "Παρακαλώ εισάγετε τουλάχιστον ένα κωδικό.",
+        "at-least-one-recipient-error": "Παρακαλώ προσθέστε τουλάχιστον ένα παραλήπτη.",
+        "everyone": "Όλους",
+        "sender": "Αποστολέας",
+        "sender-description-email": "Ο αποστολέας της καμπάνιας για το κανάλι Email.",
+        "communication-channels": "Κανάλια επικοινωνίας",
+        "code-list-placeholder": "Η λίστα χρηστών της καμπάνιας...",
+        "code-list-placeholder-1": "κωδικός_χρήστη_1",
+        "code-list-placeholder-2": "κωδικός_χρήστη_2",
+        "search": "Αναζήτηση",
+        "add": "Προσθήκη",
+        "close": "Κλείσιμο"
+    },
+
+    "contacts-edit": {
+        "title": "Επεξεργασία επαφής",
+        "save": "Αποθήκευση",
+        "save-message": "Η επαφή ενημερώθηκε με επιτυχία. Όνομα:",
+        "close": "Κλείσιμο",
+        "salutation-label": "Προσφώνηση",
+        "salutation-placeholder": "Προσφώνηση...",
+        "salutation-info": "Η προσφώνηση (π.χ κύριε ή κ.).",
+        "firstName-label": "Όνομα",
+        "firstName-placeholder": "Όνομα...",
+        "lastName-label": "Επώνυμο",
+        "lastName-placeholder": "Επώνυμο...",
+        "fullName-label": "Όνομα Εμφάνισης",
+        "fullName-placeholder": "Όνομα Εμφάνισης...",
+        "email-label": "Email",
+        "email-placeholder": "Email...",
+        "phoneNumber-label": "Τηλέφωνο",
+        "phoneNumber-placeholder": "Τηλέφωνο..."
+    },
+    
+    "campaigns": {
+        "status": {
+            "label": "Κατάσταση",
+            "published": "Δημοσιευμένη",
+            "unpublished": "Μη Δημοσιευμένη"
+        },
+        "basic-info-form":{
+            "title": "Τίτλος",
+            "title-placeholder": "Ο τίτλος της καμπάνιας...",
+            "title-description": "Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.",
+            "empty-title-error": "Παρακαλώ συμπληρώστε ένα τίτλο.",
+            "big-title-error": "Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.",
+            "type": "Τύπος",
+            "type-description": "Ο τύπος στον οποίο ανατίθεται η καμπάνια.",
+            "duration": "Διάρκεια",
+            "start-date": "Η ημέρα και ώρα έναρξης της καμπάνιας",
+            "start-date-shortened": "Ημ. Έναρξης",
+            "end-date": "Η ημέρα και ώρα λήξης της καμπάνιας",
+            "end-date-shortened": "Ημ. Λήξης",
+            "call-to-action": "Call to action",
+            "call-to-action-link": "Call-to-action σύνδεσμος",
+            "call-to-action-placeholder": "Πατήστε εδώ για να...",
+            "call-to-action-text": "Κείμενο υπερσυνδέσμου",
+            "call-to-action-url": "URL υπερσυνδέσμου",
+            "invalid-url-error": "Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.",
+            "template-use": "Χρήση template",
+            "empty-template-error": "Παρακαλώ επιλέξτε ένα template."
+            
+        },
+        "content-form": {
+            "step-title": "Περιεχόμενο",
+            "step-description": "Aνά κανάλι επικοινωνίας",
+            "email-description": "Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου",
+            "inbox-description": "Ειδοποίηση μέσω προσωπικού μηνύματος.",
+            "push-notification-description": "Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.",
+            "sms-description": "Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.",
+            "subject": "Θέμα",
+            "subject-placeholder": "Το θέμα του μήνυματος",
+            "empty-subject-error": "Παρακαλώ συμπληρώστε το θέμα.",
+            "subject-preview": "Προεπισκόπηση"
+        },
+        "preview": {
+            "title": "Τίτλος",
+            "type": "Τύπος",
+            "duration": "Διάρκεια",
+            "call-to-action": "Call to action",
+            "template": "Template"
+        },
+        "attachments": {
+            "title": "Επισυναπτόμενα",
+            "description": "Τα επισυναπτόμενα αρχεία χρησιμοποιούνται μόνο εφόσον επιλεγεί ως κανάλι επικοινωνίας"
+        }
+
+    },
+
+    "campaigns-steps":{
+        "basic-info-title": "Γενικά",
+        "basic-info-description": "Βασικές πληροφορίες",
+        "content-title": "Περιεχόμενο",
+        "content-description": "Aνά κανάλι επικοινωνίας",
+        "attachments-title": "Επισυναπτόμενα",
+        "attachments-description": "Επισυναπτόμενα της καμπάνιας",
+        "recipients-title": "Παραλήπτες",
+        "recipients-description": "Παραλήπτες της καμπάνιας",
+        "preview-title": "Επισκόπηση",
+        "preview-description": "Επισκόπηση στοιχείων"
+    },
+    "campaigns-create": {
+        "title": "Δημιουργία Campaign",
+        "description": "Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο campaign.",
+        "success-save-message": "Η καμπάνια δημιουργήθηκε με επιτυχία. Τίτλος καμπάνιας:"
+    },
+    "campaigns-edit": {
+        "title": "Επεξεργασία καμπάνιας",
+        "save": "Αποθήκευση",
+        "close": "Κλείσιμο",
+        "delete": "Διαγραφή",
+        "delete-warning": "Είστε σίγουρος ότι θέλετε να διαγράψετε την καμπάνια",
+        "success-delete": "Επιτυχής διαγραφή",
+        "success-delete-message": "Η καμπάνια διαγράφηκε με επιτυχία. Τίτλος:",
+        "publish": "Δημοσίευση",
+        "publish-warning": "Είστε σίγουρος ότι θέλετε να δημοσιεύσετε την καμπάνια",
+        "success-publish": "Επιτυχής δημοσίευση",
+        "success-publish-message": "Η καμπάνια με τίτλο δημοσιεύτηκε με επιτυχία. Τίτλος:",
+        "success-save": "Επιτυχής αποθήκευση",
+        "success-save-message": "Η καμπάνια με τίτλο αποθηκεύτηκε με επιτυχία. Τίτλος καμπάμνιας:",
+        "success-edit": "Επιτυχής ενημέρωση",
+        "success-edit-message": "Το περιεχόμενο της καμπάνιας ενημερώθηκε με επιτυχία. Τίτλος καμπάνιας:",
+        "content": {
+            "title": "Περιεχόμενο",
+            "description": "Περιεχόμενο της καμπάνιας ανά κανάλι επικοινωνίας."
+        },
+        "basic-info": {
+            "label": "Βασικές πληροφορίες",
+            "description": "Οι βασικές πληροφορίες της καμπάνιας."
+        },
+        "reports": {
+            "label": "Αναφορές",
+            "description": "Διαγράμματα που αφορούν την καμπάνια."
+        },
+        "attachments": {
+            "title": "Επεξεργασία επισυναπτόμενων",
+            "description": "Τα επισυναπτόμενα αρχεία χρησιμοποιούνται μόνο εφόσον επιλεγεί ως κανάλι επικοινωνίας",
+            "success-message": "Το επισυναπτόμενο αρχείο ενημερώθηκε με επιτυχία.",
+            "success-delete-message": "Το επισυναπτόμενο αρχείο διαγράφηκε με επιτυχία.",
+            "failure": "Σφάλμα ενημέρωσης",
+            "failure-message": "Υπήρξε κάποιο πρόβλημα με την ενημέρωση των στοιχείων. Παρακαλώ δοκιμάστε αργότερα."
+        }
+    },
+
+    "distribution-list-contacts" :{
+        "title": "Επαφές Λίστας",
+        "salutation": "ΠΡΟΣΦΩΝΗΣΗ",
+        "firstName": "ΟΝΟΜΑ",
+        "lastName": "ΕΠΩΝΥΜΟ",
+        "fullName": "ΟΝΟΜΑ ΕΜΦΑΝΙΣΗΣ",
+        "email": "EMAIL",
+        "phoneNumber": "ΤΗΛΕΦΩΝΟ",
+        "createdAt": "ΔΗΜΙΟΥΡΓΗΘΗΚΕ",
+        "delete": "Διαγραφή",
+        "delete-warning": "Είστε σίγουρος ότι θέλετε να διαγράψετε την επαφή από τη λίστα;",
+        "success-delete":"Επιτυχής διαγραφή",
+        "success-delete-message": "Η επαφή αφαιρέθηκε από τη λίστα. Όνομα επαφής:",
+        "actions": {
+            "label": "ΕΝΕΡΓΕΙΕΣ",
+            "edit": "Επεξεργασία τύπου"
+        }
+    },
+
+
+    "distribution-list-create": {
+        "label": "Δημιουργία νέας λίστας",
+        "save": "Δημιουργία",
+        "close": "Κλείσιμο",
+        "name": "Όνομα",
+        "name-placeholder": "Το όνομα της λίστας...",
+        "name-description": "Η ονομασία με την οποία θα εμφανίζεται η λίστα διανομής.",
+        "empty-name-error": "Παρακαλώ συμπληρώστε ένα όνομα.",
+        "big-name-error": "Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.",
+        "success-save": "Επιτυχής αποθήκευση",
+        "success-save-message": "Η λίστα δημιουργήθηκε με επιτυχία. Όνομα:"
+    },
+
+    "distribution-list-edit": {
+        "basic-information": "Βασικές πληροφορίες",
+        "contacts": "Επαφές",
+        "details": {
+            "basic-information": "Βασικές Πληροφορίες",
+            "basic-information-description": "Οι βασικές πληροφορίες της λίστας διανομής.",
+            "delete": "Διαγραφή",
+            "delete-warning": "Είστε σίγουρος ότι θέλετε να διαγράψετε τη λίστα διανομής",
+            "success-delete": "Επιτυχής διαγραφή",
+            "success-delete-message": "Η λίστα διανομής διαγράφηκε με επιτυχία. Όνομα:"
+        },
+        "details-pane":{
+            "label": "Επεξεργασία λίστας",
+            "save": "Αποθήκευση",
+            "close": "Κλείσιμο",
+            "title": "Τίτλος",
+            "title-placeholder": "Το όνομα της λίστας...",
+            "title-description": "Η ονομασία με την οποία θα εμφανίζεται η λίστα.",
+            "empty-title-error": "Παρακαλώ συμπληρώστε ένα όνομα.",
+            "big-title-error": "Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.",
+            "success-save": "Επιτυχής αποθήκευση",
+            "success-save-message": "Το πρότυπο αποθηκεύτηκε με επιτυχία. Όνομα:"
+        },
+        "title": "Λίστες Διανομής",
+        "name": "ΟΝΟΜΑ",
+        "created-by": "ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ",
+        "created-at": "ΔΗΜΙΟΥΡΓΗΘΗΚΕ",
+        "updated-by": "ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ",
+        "updated-at": "ΤΡΟΠΟΠΟΙΗΘΗΚΕ",
+        "actions": "ΕΝΕΡΓΕΙΕΣ",
+        "edit": "Επεξεργασία",
+        "delete": "Διαγραφή",
+        "delete-warning": "Είστε σίγουρος ότι θέλετε να διαγράψετε τη λίστα",
+        "success-delete": "Επιτυχής διαγραφή",
+        "success-delete-message": "Η λίστα διαγράφηκε με επιτυχία. Όνομα:"
+    }
+}

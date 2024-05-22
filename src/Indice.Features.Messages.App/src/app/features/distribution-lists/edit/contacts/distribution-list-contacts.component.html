@@ -1,4 +1,4 @@
-<lib-view-layout [title]="'Επαφές Λίστας'"
+<lib-view-layout [title]="'distribution-list-contacts.title' | translate"
                  [busy]="!items"
                  [actions]="actions"
                  [meta-items]="metaItems"
@@ -16,31 +16,31 @@
                    (pageSizeChanged)="pageSizeChanged($event)"
                    (sortChanged)="sortChanged($event)"
                    (sortdirChanged)="sortdirChanged($event)">
-        <lib-list-column title="ΠΡΟΣΦΩΝΗΣΗ">
+        <lib-list-column [title]="'distribution-list-contacts.salutation' | translate">
             <ng-template let-item>{{ item.salutation || '-' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΟΝΟΜΑ">
+        <lib-list-column [title]="'distribution-list-contacts.firstName' | translate">
             <ng-template let-item>{{ item.firstName || '-' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΕΠΩΝΥΜΟ">
+        <lib-list-column [title]="'distribution-list-contacts.lastName' | translate">
             <ng-template let-item>{{ item.lastName || '-' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΟΝΟΜΑ ΕΜΦΑΝΙΣΗΣ">
+        <lib-list-column [title]="'distribution-list-contacts.fullName' | translate">
             <ng-template let-item>{{ item.fullName || '-' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="EMAIL">
+        <lib-list-column [title]="'distribution-list-contacts.email' | translate">
             <ng-template let-item>{{ item.email || '-' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΤΗΛΕΦΩΝΟ">
+        <lib-list-column [title]="'distribution-list-contacts.phoneNumber' | translate">
             <ng-template let-item>{{ item.phoneNumber || '-' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ"
+        <lib-list-column [title]="'distribution-list-contacts.createdAt' | translate"
                          [full-width]="true">
             <ng-template let-item>{{ item.updatedAt | date: 'medium' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+        <lib-list-column title="{{'distribution-list-contacts.actions.label' | translate}}">
             <ng-template let-item>
-                <a title="Επεξεργασία τύπου"
+                <a [title]="'distribution-list-contacts.actions.edit' | translate"
                    [routerLinkActive]="['']"
                    [routerLinkActiveOptions]="{ exact: true }"
                    [routerLink]="['', { outlets: { rightpane: ['edit-contact', item.id] } }]"

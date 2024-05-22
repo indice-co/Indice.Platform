@@ -47,8 +47,8 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'Διαγραφή',
-                message: `Είστε σίγουρος ότι θέλετε να διαγράψετε τη λίστα ${list.name};`,
+                title: 'distribution-list-edit.delete',
+                message: `'distribution-list-edit.delete-warning' ${list.name};`,
                 data: list
             },
             keyboard: true
@@ -56,7 +56,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._api.deleteDistributionList(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Η λίστα με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'distribution-list-edit.success-delete', `'distribution-list-edit.success-delete-message' '${response.result.data.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
                 });
             }

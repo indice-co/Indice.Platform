@@ -37,8 +37,8 @@ export class DistributionListDetailsEditComponent implements OnInit {
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'Διαγραφή',
-                message: `Είστε σίγουρος ότι θέλετε να διαγράψετε τη λίστα διανομής '${this.list?.name}';`,
+                title: 'distribution-list-edit.details.delete',
+                message: `'distribution-list-edit.details.delete-warning' '${this.list?.name}';`,
                 data: this.list
             },
             keyboard: true
@@ -46,7 +46,7 @@ export class DistributionListDetailsEditComponent implements OnInit {
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._api.deleteDistributionList(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Η λίστα διανομής με όνομα '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'distribution-list-edit.details.success-delete', ` 'distribution-list-edit.details.success-delete-message' '${response.result.data.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
                 });
             }

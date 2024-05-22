@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TenantService } from '@indice/ng-auth';
-
+import { TranslateService } from '@ngx-translate/core';
 import { settings } from 'src/app/core/models/settings';
 import { IAppSettings } from './core/models/settings.model';
 
@@ -17,9 +17,12 @@ import { IAppSettings } from './core/models/settings.model';
   `
 })
 export class AppComponent {
-  constructor(tenantService: TenantService) {
+  private _translate = inject(TranslateService)
+  constructor(tenantService: TenantService, private translate: TranslateService) {
     if (settings.tenantId && settings.tenantId !== '') {
       tenantService.storeTenant(settings.tenantId);
+      translate.setDefaultLang('el');
+      translate.use('el');
     }
   }
 

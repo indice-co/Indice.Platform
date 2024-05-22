@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Επεξεργασία καμπάνιας"
+<lib-side-view-layout title="{{'campaigns-edit.title' | translate}}"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Αποθήκευση'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'campaigns-edit.save' | translate"
+                      [cancel-label]="'campaigns-edit.close'| translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!editCampaignForm.valid || submitInProgress"
                       #sideViewLayout>
@@ -26,28 +26,28 @@
 <ng-template #editTitleTemplate>
     <label for="campaignTitle"
            class="field-label">
-        Τίτλος (*)
+           {{'campaigns.basic-info-form.title' | translate}} (*)
     </label>
     <div class="mt-1 flex rounded-sm">
         <input type="text"
                name="campaignTitle"
                id="campaignTitle"
                [(ngModel)]="model.title"
-               placeholder="Ο τίτλος της καμπάνιας..."
+               placeholder="{{'campaigns.basic-info-form.title-placeholder' | translate}}"
                required
                #campaignTitle="ngModel">
     </div>
     <p *ngIf="campaignTitle.invalid && (campaignTitle.dirty || campaignTitle.touched)"
        class="mt-2 text-sm text-red-600">
-        <span *ngIf="campaignTitle.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
-        <span *ngIf="campaignTitle.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+        <span *ngIf="campaignTitle.errors!['required']">{{'campaigns.basic-info-form.empty-title-error' | translate}}</span>
+        <span *ngIf="campaignTitle.errors!['maxlength']">{{'campaigns.basic-info-form.big-title-error' | translate}}</span>
     </p>
-    <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+    <p class="field-info col-span-3">{{'campaigns.basic-info-form.title-description' | translate}}</p>
 </ng-template>
 <ng-template #editTypeTemplate>
     <label for="campaignType"
            class="field-label">
-        Τύπος
+           {{'campaigns.basic-info-form.type' | translate}}
     </label>
     <div class="mt-1 flex rounded-sm">
         <lib-local-drop-down-menu id="campaignType"
@@ -58,12 +58,12 @@
                                   (change)="typeSelectionChanged($event)">
         </lib-local-drop-down-menu>
     </div>
-    <p class="field-info col-span-3">Ο τύπος στον οποίο ανατίθεται η καμπάνια.</p>
+    <p class="field-info col-span-3">{{'campaigns.basic-info-form.type-description' | translate}}</p>
 </ng-template>
 <ng-template #editSenderTemplate>
     <label for="messageSender"
            class="field-label">
-        Αποστολέας
+           {{'contacts.sender' | translate}}
     </label>
     <div class="mt-1 flex rounded-sm">
         <lib-local-drop-down-menu id="messageSender"
@@ -74,12 +74,12 @@
                                   (change)="senderSelectionChanged($event)">
         </lib-local-drop-down-menu>
     </div>
-    <p class="field-info col-span-3">Ο αποστολέας της καμπάνιας για το κανάλι Email.</p>
+    <p class="field-info col-span-3">{{'contacts.sender-description-email' | translate}}</p>
 </ng-template>
 <ng-template #editActivePeriodTemplate>
     <label for="campaignStart"
            class="field-label">
-        Ημ. Έναρξης
+           {{'campaigns.basic-info-form.start-date-shortened'| translate}}
     </label>
     <div class="mt-1 flex rounded-sm">
         <input class="w-full"
@@ -91,10 +91,10 @@
                [min]="now | date: 'yyyy-MM-ddTHH:mm'"
                [max]="model.activePeriod?.to | date: 'yyyy-MM-ddTHH:mm'">
     </div>
-    <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας</p>
+    <p class="field-info">{{'campaigns.basic-info-form.start-date'| translate}}</p>
     <label for="campaignEnd"
            class="field-label">
-        Ημ. Λήξης
+           {{'campaigns.basic-info-form.end-date-shortened'| translate}}
     </label>
     <div class="mt-1 flex rounded-sm">
         <input class="w-full"
@@ -106,7 +106,7 @@
                [min]="model.activePeriod?.from | date: 'yyyy-MM-ddTHH:mm'"
                [readonly]="!model.activePeriod?.from">
     </div>
-    <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας</p>
+    <p class="field-info">{{'campaigns.basic-info-form.end-date'| translate}}</p>
 </ng-template>
 <ng-template #editCtaTemplate>
     <label for="ctaText"
@@ -122,10 +122,10 @@
                maxlength="128"
                #campaignCtaText="ngModel">
     </div>
-    <p class="field-info">Κείμενο υπερσυνδέσμου</p>
+    <p class="field-info">{{'campaigns.basic-info-form.call-to-action-text'| translate}}</p>
     <label for="ctaLink"
            class="field-label">
-        Call-to-action σύνδεσμος
+           {{'campaigns.basic-info-form.call-to-action-link'| translate}}
     </label>
     <ng-container *ngIf="model.actionLink">
         <div class="mt-1 flex rounded-sm">
@@ -139,15 +139,15 @@
         </div>
         <p *ngIf="campaignCtaLink.invalid && (campaignCtaLink.dirty || campaignCtaLink.touched)"
            class="mt-2 text-sm text-red-600">
-            <span *ngIf="campaignCtaLink.errors!['pattern']">Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.</span>
+            <span *ngIf="campaignCtaLink.errors!['pattern']">{{'campaigns.basic-info-form.invalid-url-error'| translate}}</span>
         </p>
-        <p class="field-info">URL υπερσυνδέσμου</p>
+        <p class="field-info">{{'campaigns.basic-info-form.call-to-action-url'| translate}}</p>
     </ng-container>
 </ng-template>
 <ng-template #editListTemplate>
     <div class="col-span-4">
         <label for="campaignDistributionList"
-               class="field-label">Λίστα διανομής</label>
+               class="field-label">{{'contacts.distribution-list' | translate}}</label>
         <lib-combobox id="campaignDistributionList"
                       [items]="distributionLists"
                       [busy]="distributionListsLoading"
@@ -156,6 +156,6 @@
                       [multiple]="false"
                       #distributionListCombobox>
         </lib-combobox>
-        <p class="field-info col-span-3">Η λίστα διανομής της καμπάνιας.</p>
+        <p class="field-info col-span-3">{{'contacts.distribution-list-description' | translate}}</p>
     </div>
 </ng-template>

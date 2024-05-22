@@ -5,9 +5,9 @@
                 <div class="sm:col-span-1">
                     <h2 id="applicant-information-title"
                         class="text-lg leading-6 font-medium text-gray-900">
-                        Βασικές Πληροφορίες
+                        {{'campaigns-edit.basic-info.label' | translate}}
                     </h2>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες της καμπάνιας.</p>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">{{'campaigns-edit.basic-info.description' | translate}}</p>
                 </div>
                 <div class="sm:col-span-1">
                     <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
@@ -16,13 +16,13 @@
                             <button type="button"
                                     (click)="deleteCampaign()"
                                     class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
-                                Διαγραφή
+                                {{'campaigns-edit.delete'| translate}}
                             </button>
                             <button type="button"
                                     (click)="publishCampaign()"
                                     *ngIf="!campaign?.published"
                                     class="side-view-layout-action-button-submit">
-                                Δημοσίευση
+                                {{'campaigns-edit.publish'| translate}}
                             </button>
                         </div>
                     </div>
@@ -31,30 +31,38 @@
         </div>
         <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
             <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Κατάσταση</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ campaign?.published ? 'Δημοσιευμένη' : 'Μη Δημοσιευμένη' }}</dd>
-                </div>
+                    <dt class="text-sm font-medium text-gray-500">{{ 'campaigns.status.label' | translate }}</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                      <ng-container *ngIf="campaign?.published; else unpublished">
+                        {{ 'campaigns.status.published' | translate }}
+                      </ng-container>
+                      <ng-template #unpublished>
+                        {{ 'campaigns.status.unpublished' | translate }}
+                      </ng-template>
+                    </dd>
+                  </div>
                 <div class="sm:col-span-1">
                     <dt class="text-sm font-medium text-gray-500">
-                        Τιτλος
+                        {{'campaigns.basic-info-form.title' | translate}}
                         <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editTitle' }"></ng-container>
                     </dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ campaign?.title }}</dd>
                 </div>
                 <div class="sm:col-span-1">
                     <dt class="text-sm font-medium text-gray-500">
-                        Τύπος
+                        {{'campaigns.basic-info-form.type' | translate}}
                         <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editType' }"></ng-container>
                     </dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ campaign?.type?.name || '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
                     <dt class="text-sm font-medium text-gray-500">
-                        Διάρκεια
+                        {{'campaigns.basic-info-form.duration' | translate}}
                         <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editActivePeriod' }"></ng-container>
                     </dt>
-                    <dd class="mt-1 text-sm text-gray-900">Από {{ campaign?.activePeriod?.from | date: 'medium' }} έως {{ campaign?.activePeriod?.to ? (campaign?.activePeriod?.to | date: 'medium') : '-' }}</dd>
+                    <dd class="mt-1 text-sm text-gray-900">{{'general.from'| translate}} {{ campaign?.activePeriod?.from | date: 'medium' }} {{'general.to' | translate}} {{ campaign?.activePeriod?.to ? (campaign?.activePeriod?.to | date: 'medium') : '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
                     <dt class="text-sm font-medium text-gray-500">
@@ -72,13 +80,22 @@
                         <span *ngIf="!campaign?.actionLink?.text && !campaign?.actionLink?.href">-</span>
                     </dd>
                 </div>
+
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Προς</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ campaign?.distributionList ? 'Λίστα διανομής' : 'Όλους' }}</dd>
-                </div>
+                    <dt class="text-sm font-medium text-gray-500">{{'contacts.send-to' | translate}}</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                      <ng-container *ngIf="campaign?.distributionList; else all">
+                        {{ 'contacts.distribution-list' | translate }}
+                      </ng-container>
+                      <ng-template #all>
+                        {{ 'contacts.everyone' | translate }}
+                      </ng-template>
+                    </dd>
+                  </div>
+                  
                 <div class="sm:col-span-1">
                     <dt class="text-sm font-medium text-gray-500">
-                        Λίστα διανομής
+                        {{ 'contacts.distribution-list' | translate }}
                         <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editList' }"></ng-container>
                     </dt>
                     <dd class="mt-1 text-sm text-gray-900">
@@ -89,27 +106,27 @@
                     </dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Κανάλια επικοινωνίας</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'contacts.communication-channels' | translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ deliveryChannels || '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε από</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'general.created-by' | translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ campaign?.createdBy || '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε στις</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'general.created-at' | translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ campaign?.createdAt ? (campaign?.createdAt | date: 'medium') : '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε από</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'general.updated-by' | translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ campaign?.updatedBy || '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε στις</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'general.updated-at' | translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ campaign?.updatedAt ? (campaign?.updatedAt | date: 'medium') : '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Επισυναπτόμενα 
+                    <dt class="text-sm font-medium text-gray-500">{{'campaigns.attachments.title'| translate}} 
                         <svg xmlns="http://www.w3.org/2000/svg"
                             class="h-4 w-4 inline cursor-pointer"
                             fill="none"
@@ -131,7 +148,7 @@
                 </div>
                 <div class="sm:col-span-1" *ngIf="campaign?.content?.email">
                     <dt class="text-sm font-medium text-gray-500">
-                        Αποστολέας Email
+                        {{'contacts.sender'}} Email
                         <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editSender' }"></ng-container>
                     </dt>
                     <dd *ngIf="campaign?.content?.email?.sender" class="mt-1 text-sm text-gray-900">{{ campaign?.content?.email?.sender?.displayName+" \<"+campaign?.content?.email?.sender?.sender+">" }}</dd>

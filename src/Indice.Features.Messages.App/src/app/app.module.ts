@@ -1,6 +1,6 @@
 import { LOCALE_ID, NgModule, Provider } from '@angular/core';
 import { CommonModule, DatePipe, JsonPipe, registerLocaleData } from '@angular/common';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -77,6 +77,8 @@ import { ReadOnlyViewComponent } from './features/media-library/item-views/read-
 import { MediaSettingsComponent } from './features/settings/media/media-settings.component';
 import { MediaSettingEditComponent } from './features/settings/media/edit/media-setting-edit.component';
 import { EditorModule, TINYMCE_SCRIPT_SRC } from '@tinymce/tinymce-angular';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 registerLocaleData(localeGreek);
 
 const providers: Provider[] = [
@@ -183,9 +185,19 @@ if (app.settings.tenantId) {
     IndiceAuthModule,
     IndiceComponentsModule.forRoot(),
     ReactiveFormsModule,
-    EditorModule
+    EditorModule,
+    TranslateModule.forRoot({
+      loader: {
+          provide: TranslateLoader,
+          useFactory: HttpLoaderFactory,
+          deps: [HttpClient]
+      }
+  })
   ],
   providers: providers,
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+  return new TranslateHttpLoader(http);
+}

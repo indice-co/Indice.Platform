@@ -1,5 +1,5 @@
 <lib-view-layout [meta-items]="metaItems"
-                 title="Φόρτωση δεδομένων"
+                 [title]="'general.data-loading' | translate"
                  #layout>
     <div class="min-h-full">
         <main>
@@ -23,7 +23,7 @@
                                           stroke-linejoin="round"
                                           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span class="truncate">Βασικές πληροφορίες</span>
+                                <span class="truncate">{{ 'distribution-list-edit.basic-information' | translate }}</span>
                             </a>
                             <a [routerLink]="['distribution-list-contacts']"
                                routerLinkActive="vertical-navigation-link-active"
@@ -36,7 +36,7 @@
                                      stroke-width="2">
                                     <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
                                 </svg>
-                                <span class="truncate">Επαφές</span>
+                                <span class="truncate">{{ 'distribution-list-edit.contacts' | translate }}</span>
                             </a>
                         </nav>
                     </div>

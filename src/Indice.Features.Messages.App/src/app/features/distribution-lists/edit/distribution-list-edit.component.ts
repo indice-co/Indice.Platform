@@ -28,7 +28,7 @@ export class DistributionListEditComponent implements OnInit, AfterViewChecked {
         if (this._distributionListId) {
             this._distributionListStore.getDistributionList(this._distributionListId!).subscribe((distributionList: DistributionList) => {
                 this.distributionList = distributionList;
-                this._layout.title = `Λίστα διανομής - ${distributionList.name}`;
+                this._layout.title = `'contacts.distribution-list' - ${distributionList.name}`;
             });
         }
     }

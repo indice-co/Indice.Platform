@@ -30,11 +30,11 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         this.sortdir = 'asc';
         this.search = '';
         this.sortOptions = [
-            new MenuOption('Όνομα', 'firstName'),
-            new MenuOption('Επίθετο', 'lastName'),
-            new MenuOption('Email', 'email'),
-            new MenuOption('Δημιουργήθηκε', 'updatedAt')
-        ];
+            new MenuOption('distribution-list-contacts.firstName', 'firstName'),
+            new MenuOption('distribution-list-contacts.lastName', 'lastName'),
+            new MenuOption('distribution-list-contacts.email', 'email'),
+            new MenuOption('distribution-list-contacts.createdAt', 'createdAt')
+        ];        
     }
 
     public newItemLink: string | null = 'create-contact';
@@ -59,8 +59,8 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'Διαγραφή',
-                message: `Είστε σίγουρος ότι θέλετε να διαγράψετε την επαφή '${contact.fullName || contact.email}' από τη λίστα '${this.distributionList.name}';`,
+                title: 'distribution-list-contacts.delete',
+                message: `'distribution-list-contacts.delete-warning': '${contact.fullName || contact.email}' - '${this.distributionList.name}';`,
                 data: contact
             },
             keyboard: true
@@ -69,7 +69,7 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
             if (response.result?.answer) {
                 const contact = response.result.data;
                 this._api.removeContactFromDistributionList(this._distributionListId, contact.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Η επαφή '${contact.fullName || contact.email}' αφαιρέθηκε από τη λίστα.`);
+                    this._toaster.show(ToastType.Success, 'distribution-list-contacts.success-delete', `'distribution-list-contacts.success-delete-message' '${contact.fullName || contact.email}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
                 });
             }

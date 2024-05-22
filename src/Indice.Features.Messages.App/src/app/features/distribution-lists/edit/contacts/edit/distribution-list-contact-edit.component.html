@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Επεξεργασία επαφής"
+<lib-side-view-layout title="{{ 'contacts-edit.title' | translate }}"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Αποθήκευση'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'contacts-edit.save' | translate"
+                      [cancel-label]="'contacts-edit.close' | translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!contactForm.valid || submitInProgress"
                       #sideViewLayout>
@@ -14,29 +14,29 @@
                     <div class="col-span-4">
                         <label for="salutation"
                                class="field-label">
-                            Προσφώνηση
+                            {{ 'contacts-edit.salutation-label' | translate }}
                         </label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="salutation"
                                    id="salutation"
-                                   placeholder="Προσφώνηση..."
+                                   placeholder="{{ 'contacts-edit.salutation-placeholder' | translate }}"
                                    [(ngModel)]="model.salutation"
                                    #salutation="ngModel">
                         </div>
-                        <p class="field-info col-span-3">Η προσφώνηση (π.χ κύριε ή κ.).</p>
+                        <p class="field-info col-span-3">{{ 'contacts-edit.salutation-info' | translate }}</p>
                     </div>
                     <!-- Όνομα -->
                     <div class="col-span-4">
                         <label for="firstName"
                                class="field-label">
-                            Όνομα
+                            {{ 'contacts-edit.firstName-label' | translate }}
                         </label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="firstName"
                                    id="firstName"
-                                   placeholder="Όνομα..."
+                                   placeholder="{{ 'contacts-edit.firstName-placeholder' | translate }}"
                                    [(ngModel)]="model.firstName"
                                    #firstName="ngModel">
                         </div>
@@ -45,13 +45,13 @@
                     <div class="col-span-4">
                         <label for="lastName"
                                class="field-label">
-                            Επώνυμο
+                            {{ 'contacts-edit.lastName-label' | translate }}
                         </label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="lastName"
                                    id="lastName"
-                                   placeholder="Επώνυμο..."
+                                   placeholder="{{ 'contacts-edit.lastName-placeholder' | translate }}"
                                    [(ngModel)]="model.lastName"
                                    #lastName="ngModel">
                         </div>
@@ -60,13 +60,13 @@
                     <div class="col-span-4">
                         <label for="fullName"
                                class="field-label">
-                            Όνομα Εμφάνισης
+                            {{ 'contacts-edit.fullName-label' | translate }}
                         </label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="fullName"
                                    id="fullName"
-                                   placeholder="Όνομα Εμφάνισης..."
+                                   placeholder="{{ 'contacts-edit.fullName-placeholder' | translate }}"
                                    [(ngModel)]="model.fullName"
                                    #fullName="ngModel">
                         </div>
@@ -75,13 +75,13 @@
                     <div class="col-span-4">
                         <label for="email"
                                class="field-label">
-                            Email
+                            {{ 'contacts-edit.email-label' | translate }}
                         </label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="email"
                                    id="email"
-                                   placeholder="Email..."
+                                   placeholder="{{ 'contacts-edit.email-placeholder' | translate }}"
                                    [(ngModel)]="model.email"
                                    #email="ngModel">
                         </div>
@@ -90,13 +90,13 @@
                     <div class="col-span-4">
                         <label for="phoneNumber"
                                class="field-label">
-                            Τηλέφωνο
+                            {{ 'contacts-edit.phoneNumber-label' | translate }}
                         </label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="phoneNumber"
                                    id="phoneNumber"
-                                   placeholder="Τηλέφωνο..."
+                                   placeholder="{{ 'contacts-edit.phoneNumber-placeholder' | translate }}"
                                    [(ngModel)]="model.phoneNumber"
                                    #phoneNumber="ngModel">
                         </div>

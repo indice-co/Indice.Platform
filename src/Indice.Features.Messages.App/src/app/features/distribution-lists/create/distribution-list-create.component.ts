@@ -34,7 +34,7 @@ export class DistributionListCreateComponent implements OnInit, AfterViewInit {
             .subscribe({
                 next: (messageType: MessageType) => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η λίστα με όνομα '${messageType.name}' δημιουργήθηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'distribution-list-create.success-save', `'distribution-list-create.success-save-message' '${messageType.name}' `);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
                 }
             });

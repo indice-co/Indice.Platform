@@ -5,9 +5,9 @@
                 <div class="sm:col-span-1">
                     <h2 id="applicant-information-title"
                         class="text-lg leading-6 font-medium text-gray-900">
-                        Βασικές Πληροφορίες
+                        {{ 'distribution-list-edit.details.basic-information' | translate }}
                     </h2>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες της λίστας διανομής.</p>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ 'distribution-list-edit.details.basic-information-description' | translate }}</p>
                 </div>
                 <div class="sm:col-span-1">
                     <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
@@ -16,13 +16,13 @@
                             <button type="button"
                                     (click)="deleteTemplate()"
                                     class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
-                                Διαγραφή
+                                {{ 'distribution-list-edit.details.delete' | translate }}
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div>        
         <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
             <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div class="sm:col-span-1">
@@ -33,19 +33,19 @@
                     <dd class="mt-1 text-sm text-gray-900">{{ list?.name }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε από</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'general.created-by' | translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ list?.createdBy || '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε στις</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'general.created-at' | translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ list?.createdAt ? (list?.createdAt | date: 'medium') : '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε από</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'general.updated-by' | translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ list?.updatedBy || '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε στις</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'general.updated-at' | translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ list?.updatedAt ? (list?.updatedAt | date: 'medium') : '-' }}</dd>
                 </div>
             </dl>

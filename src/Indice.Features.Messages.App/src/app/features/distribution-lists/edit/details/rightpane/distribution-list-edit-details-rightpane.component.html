@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Επεξεργασία λίστας"
+<lib-side-view-layout [title]="'distribution-list-edit.details-pane.label' | translate"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Αποθήκευση'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'distribution-list-edit.details-pane.save' | translate"
+                      [cancel-label]="'distribution-list-edit.details-pane.close' | translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!editCampaignForm.valid || submitInProgress"
                       #sideViewLayout>
@@ -26,21 +26,21 @@
 <ng-template #editNameTemplate>
     <label for="listName"
            class="field-label">
-        Τίτλος (*)
+        {{ 'distribution-list-edit.details-pane.title' | translate }} (*)
     </label>
     <div class="mt-1 flex rounded-sm">
         <input type="text"
                name="listName"
                id="listName"
                [(ngModel)]="model.name"
-               placeholder="Το όνομα της λίστας..."
+               [placeholder]="'distribution-list-edit.details-pane.title-placeholder' | translate"
                required
                #listName="ngModel">
     </div>
     <p *ngIf="listName.invalid && (listName.dirty || listName.touched)"
        class="mt-2 text-sm text-red-600">
-        <span *ngIf="listName.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
-        <span *ngIf="listName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+        <span *ngIf="listName.errors!['required']">{{ 'distribution-list-edit.details-pane.empty-title-error' | translate }}</span>
+        <span *ngIf="listName.errors!['maxlength']">{{ 'distribution-list-edit.details-pane.big-title-error' | translate }}</span>
     </p>
-    <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται η λίστα.</p>
+    <p class="field-info col-span-3">{{ 'distribution-list-edit.details-pane.title-description' | translate }}</p>
 </ng-template>

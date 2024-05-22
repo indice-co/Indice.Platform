@@ -58,8 +58,8 @@ export class CampaignDetailsEditComponent implements OnInit {
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'Διαγραφή',
-                message: `Είστε σίγουρος ότι θέλετε να διαγράψετε την καμπάνια '${this.campaign?.title}';`,
+                title: 'campaigns-edit.delete',
+                message: `'campaigns-edit.delete-warning' '${this.campaign?.title}';`,
                 data: this.campaign
             },
             keyboard: true
@@ -67,7 +67,7 @@ export class CampaignDetailsEditComponent implements OnInit {
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._api.deleteCampaign(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Η καμπάνια με τίτλο '${response.result.data.title}' διαγράφηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'campaigns-edit.success-delete', `'campaigns-edit.success-delete-message' '${response.result.data.title}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
                 });
             }
@@ -78,10 +78,10 @@ export class CampaignDetailsEditComponent implements OnInit {
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'Δημοσίευση',
-                message: `Είστε σίγουρος ότι θέλετε να δημοσιεύσετε την καμπάνια '${this.campaign?.title}';`,
+                title: 'campaigns-edit.publish',
+                message: `'campaigns-edit.publish-warning' '${this.campaign?.title}';`,
                 data: this.campaign,
-                acceptText: 'Δημοσίευση',
+                acceptText: 'campaigns-edit.publish',
                 type: 'success'
             },
             keyboard: true
@@ -89,7 +89,7 @@ export class CampaignDetailsEditComponent implements OnInit {
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._campaignStore.publishCampaign(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'Επιτυχής δημοσίευση', `Η καμπάνια με τίτλο '${response.result.data.title}' δημοσιεύτηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'campaigns-edit.success-publish', `'campaigns-edit.success-publish-message' '${response.result.data.title}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
                 });
             }

@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Δημιουργία νέας λίστας"
+<lib-side-view-layout title="{{'distribution-list-create.label' | translate}}"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Δημιουργία'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'distribution-list-create.save' | translate"
+                      [cancel-label]="'distribution-list-create.close' | translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!distributionListForm.valid || submitInProgress"
                       #sideViewLayout>
@@ -13,23 +13,23 @@
                     <!-- Όνομα -->
                     <div class="col-span-4">
                         <label for="distributionListName"
-                               class="field-label">Όνομα (*)</label>
+                               class="field-label">{{'distribution-list-create.name' | translate}} (*)</label>
                         <div class="mt-1 flex rounded-sm">
                             <input type="text"
                                    name="distributionListName"
                                    id="distributionListName"
                                    [(ngModel)]="model.name"
-                                   placeholder="Το όνομα της λίστας..."
+                                   placeholder="{{'distribution-list-create.name-placeholder' | translate}}"
                                    maxlength="128"
                                    required
                                    #distributionListName="ngModel">
                         </div>
                         <p *ngIf="distributionListName.invalid && (distributionListName.dirty || distributionListName.touched)"
                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="distributionListName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
-                            <span *ngIf="distributionListName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                            <span *ngIf="distributionListName.errors!['required']">{{'distribution-list-create.empty-name-error' | translate}}</span>
+                            <span *ngIf="distributionListName.errors!['maxlength']">{{'distribution-list-create.big-name-error' | translate}}</span>
                         </p>
-                        <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται η λίστα διανομής.</p>
+                        <p class="field-info col-span-3">{{'distribution-list-create.name-description' | translate}}</p>
                     </div>
                 </div>
             </div>

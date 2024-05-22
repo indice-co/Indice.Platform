@@ -42,8 +42,8 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
     public submitInProgress = false;
     public templateOutlet!: TemplateRef<any>;
     public model = new CampaignDetails();
-    public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
-    public messageSenders: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+    public messageTypes: MenuOption[] = [new MenuOption('{{"general.please-choose"}}', null)];
+    public messageSenders: MenuOption[] = [new MenuOption('{{"general.please-choose"}}', null)];
     public selectedTypeId: MenuOption | null = null;
     public selectedSenderId: MenuOption | null = null;
     public now: Date = new Date();
@@ -101,7 +101,7 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${this.model.title}' αποθηκεύτηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, '{{"campaigns-edit.success-save"}}', `{{"campaigns-edit.success-save-message"}} '${this.model.title}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
                 }
             });

@@ -65,7 +65,7 @@ export class CampaignContentEditComponent implements OnInit {
             .updateCampaign(this._campaignId, this.campaign)
             .subscribe(_ => {
                 this.updateInProgress = false;
-                this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το περιεχόμενο της καμπάνιας με τίτλο '${this.campaign.title}' ενημερώθηκε με επιτυχία.`);
+                this._toaster.show(ToastType.Success, '{{"campaigns-edit.success-edit"}}', `{{'campaigns-edit.success-edit-message'}} '${this.campaign.title}'`);
             });
     }
 }

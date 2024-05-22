@@ -29,18 +29,18 @@ export class CampaignEditComponent implements OnInit, AfterViewChecked {
         if (this._campaignId) {
             this._campaignStore.getCampaign(this._campaignId!).subscribe((campaign: CampaignDetails) => {
                 this.campaign = campaign;
-                this._layout.title = `Καμπάνια - ${campaign.title}`;
+                this._layout.title = `'general.campaign' - ${campaign.title}`;
                 if (campaign.published) {
                     this.metaItems.push({
                         key: 'status',
                         icon: Icons.Heart,
-                        text: `Δημοσιεύτηκε στις ${new Date()}`
+                        text: `'general.published-at' ${new Date()}`
                     });
                 } else {
                     this.metaItems.push({
                         key: 'status',
                         icon: Icons.HeartBroken,
-                        text: `Μη δημοσιευμένη`
+                        text: `'campaigns.status.unpublished'`
                     });
                 }
             });

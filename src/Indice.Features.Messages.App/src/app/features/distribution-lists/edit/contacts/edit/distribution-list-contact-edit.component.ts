@@ -53,7 +53,7 @@ export class DistributionListContactEditComponent implements OnInit, AfterViewIn
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η επαφή '${this.model.fullName || this.model.email}' ενημερώθηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'contacts-edit.save', `'contacts-edit.save-message' '${this.model.fullName || this.model.email}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
                 }
             });
