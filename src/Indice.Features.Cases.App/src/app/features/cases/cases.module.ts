@@ -2,12 +2,11 @@ import { NgModule } from "@angular/core";
 import { CommonModule, DatePipe } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import { BrowserModule } from "@angular/platform-browser";
-import { RouterModule, RouteReuseStrategy } from "@angular/router";
+import { RouterModule } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { IndiceComponentsModule } from "@indice/ng-components";
 import { SharedModule } from "src/app/shared/shared.module";
 import { JsonSchemaFormModule } from "@ajsf-extended/core";
-import { CustomRouteReuseStrategy } from '../../shared/custom-route-reuse-strategy'; // Import the custom route reuse strategy
 import { CaseAssignmentComponent } from "./case-detail-page/case-assignment/case-assignment.component";
 import { CaseTimelineComponent } from "./case-detail-page/case-timeline/case-timeline.component";
 import { CaseUnassignmentComponent } from "./case-detail-page/case-unassignment/case-unassignment.component";
@@ -55,8 +54,7 @@ import { CaseTypeSpecificCasesComponent } from "./case-type-specific-cases/case-
     CaseDetailPageComponent
   ],
   providers: [
-    DatePipe,
-    { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
+    DatePipe
   ]
 })
 export class CasesModule { }
