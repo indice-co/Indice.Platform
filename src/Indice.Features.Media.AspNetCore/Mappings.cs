@@ -46,13 +46,13 @@ internal static class Mapper
     #region File
     internal static UploadFileCommand ToUploadFileCommand(this UploadFileRequest request) {
         if (request.File is null) {
-            throw new ArgumentNullException(nameof(File));
+            throw new ArgumentOutOfRangeException(nameof(request), "property File is empty.");
         }
-        return new UploadFileCommand(request.File.OpenReadStream) {
-            Name = Path.GetFileName(request.File.FileName),
-            FileExtension = Path.GetExtension(request.File.FileName),
-            ContentLength = (int)request.File.Length,
-            ContentType = request.File.ContentType,
+        return new (
+            request.File.OpenReadStream, 
+            fileName: request.File.FileName, 
+            contentLength: (int)request.File.Length,
+            contentType: request.File.ContentType) {
             FolderId = request.FolderId
         };
         //if (File.Length > 0) {
@@ -84,21 +84,21 @@ internal static class Mapper
         dbFile.Description = command.Description;
         dbFile.FolderId = command.FolderId;
     }
-    internal static MediaFile ToFileDetails(this DbMediaFile dbFile, string permaLinkBaseUrl) => new() {
-        ContentLength = dbFile.ContentLength,
-        ContentType = dbFile.ContentType,
-        FileExtension = dbFile.FileExtension,
-        //Guid = dbFile.Guid,
-        Id = dbFile.Id,
-        Name = dbFile.Name,
-        Description = dbFile.Description,
-        FolderId = dbFile.FolderId,
-        Data = dbFile.Data,
-        CreatedAt = dbFile.CreatedAt,
-        UpdatedAt = dbFile.UpdatedAt,
-        CreatedBy = dbFile.CreatedBy,
-        UpdatedBy = dbFile.UpdatedBy,
-        PermaLink = $"{permaLinkBaseUrl}/{(Base64Id)dbFile.Guid}.{dbFile.FileExtension.TrimStart('.')}"
-    };
+    internal static MediaFile ToFileDetails(this DbMediaFile dbFile, string permaLinkBaseUrl) => new(
+        Id: dbFile.Id,
+        //Guid: dbFile.Guid,
+        ContentLength: dbFile.ContentLength,
+        ContentType: dbFile.ContentType,
+        FileExtension: dbFile.FileExtension,
+        Name: dbFile.Name,
+        Description: dbFile.Description,
+        FolderId: dbFile.FolderId,
+        Data: dbFile.Data,
+        CreatedAt: dbFile.CreatedAt,
+        UpdatedAt: dbFile.UpdatedAt,
+        CreatedBy: dbFile.CreatedBy,
+        UpdatedBy: dbFile.UpdatedBy,
+        PermaLink: $"{permaLinkBaseUrl}/{(Base64Id)dbFile.Guid}.{dbFile.FileExtension.TrimStart('.')}"
+    );
     #endregion
 }

@@ -10,8 +10,8 @@ namespace Indice.Features.Messages.Tests.Security;
 
 internal class DummyAuthHandler : AuthenticationHandler<DummyAuthOptions>
 {
-    public DummyAuthHandler(IOptionsMonitor<DummyAuthOptions> options, ILoggerFactory logger, UrlEncoder encoder, IDataProtectionProvider dataProtection, ISystemClock clock)
-        : base(options, logger, encoder, clock) { }
+    public DummyAuthHandler(IOptionsMonitor<DummyAuthOptions> options, ILoggerFactory logger, UrlEncoder encoder, IDataProtectionProvider dataProtection)
+        : base(options, logger, encoder) { }
 
     /// <summary>
     /// Searches the 'Authorization' header for a 'Bearer' token. If the 'Bearer' token is found, it is validated using <see cref="TokenValidationParameters"/> set in the options.
