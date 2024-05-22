@@ -28,6 +28,10 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     this.sortOptions = [
       new MenuOption('Ημ. Υποβολής', 'createdByWhen')
     ];
+    this._route.params.subscribe(() => {
+      this.initialize();
+      super.loadItems();
+    })
   }
 
   public ngOnInit(): void {

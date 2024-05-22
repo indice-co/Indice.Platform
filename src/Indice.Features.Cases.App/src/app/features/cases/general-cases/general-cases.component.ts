@@ -45,6 +45,11 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   }
 
   public ngOnInit(): void {
+    this.initialize();
+    this.createNewCaseButton();
+  }
+
+  public initialize(): void {
     const key = this.getFilterCacheKey();
     const storedParams = this._filterCachingService.getParams(key);
     if (storedParams) {
@@ -63,36 +68,37 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
       //todo this should not be needed - we assign this so its available for the async calls
       this.caseTypes = caseTypes;
+      const tempSearchOptions: SearchOption[] = [];
       if (this.tableFilters.CustomerId) {
-        this.searchOptions.push({
+        tempSearchOptions.push({
           field: 'referenceNumber',
           name: 'ΑΡΙΘΜΟΣ ΥΠΟΘΕΣΗΣ',
           dataType: 'string'
         });
       }
       if (this.tableFilters.CustomerId) {
-        this.searchOptions.push({
+        tempSearchOptions.push({
           field: 'customerId',
           name: 'ΚΩΔΙΚΟΣ ΠΕΛΑΤΗ',
           dataType: 'string'
         });
       }
       if (this.tableFilters.CustomerName) {
-        this.searchOptions.push({
+        tempSearchOptions.push({
           field: 'customerName',
           name: 'ΟΝΟΜΑ ΠΕΛΑΤΗ',
           dataType: 'string'
         });
       }
       if (this.tableFilters.TaxId) {
-        this.searchOptions.push({
+        tempSearchOptions.push({
           field: 'TaxId', // this must be exactly the same "case-wise" with db's json property!
           name: 'Α.Φ.Μ. ΠΕΛΑΤΗ',
           dataType: 'string'
         });
       }
       if (this.tableFilters.GroupIds) {
-        this.searchOptions.push({
+        tempSearchOptions.push({
           field: 'groupIds',
           name: 'ΑΡΙΘΜΟΣ ΚΑΤΑΣΤΗΜΑΤΟΣ',
           dataType: 'string',
@@ -100,7 +106,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         });
       }
       if (this.tableFilters.DateRange) {
-        this.searchOptions.push({
+        tempSearchOptions.push({
           field: 'dateRange',
           name: 'ΗΜ. ΥΠΟΒΟΛΗΣ',
           dataType: 'daterange'
@@ -108,21 +114,21 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
       }
       if (this.tableFilters.CaseTypeCodes) {
         const caseTypeSearchOption = this.getCaseTypeSearchOption(caseTypes);
-        this.searchOptions.push(caseTypeSearchOption);
+        tempSearchOptions.push(caseTypeSearchOption);
       }
       if (this.tableFilters.CheckpointTypeCodes) {
         const checkpointTypeSearchOption = this.getCaseTypeCheckpoints(checkpointTypes);
-        this.searchOptions.push(checkpointTypeSearchOption);
+        tempSearchOptions.push(checkpointTypeSearchOption);
       }
       const otherSearchOptions = this.getOtherSearchOptions(caseTypes);
       if (otherSearchOptions) {
-        this.searchOptions.push(...otherSearchOptions);
+        tempSearchOptions.push(...otherSearchOptions);
       }
+      this.searchOptions = tempSearchOptions;
       // now that we have the searchOptions, call parent's ngOnInit!
       super.ngOnInit();
     });
 
-    this.createNewCaseButton();
   }
 
   public loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
