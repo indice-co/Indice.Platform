@@ -82,6 +82,9 @@ public static class BasicClaimTypes
     public const string IPAddress = "ipaddr";
     /// <summary>User state for extended validation and mfa.</summary>
     public const string UserState = "user_state";
+    /// <summary>The authorization_details that carries fine-grained authorization 
+    /// data in OAuth messages, as defined in <a href="https://datatracker.ietf.org/doc/html/rfc9396">rfc9396</a>.</summary>
+    public const string AuthorizationDetails = "authorization_details";
 
     /// <summary>All possible user related claims.</summary>
     public static readonly string[] UserClaims = {

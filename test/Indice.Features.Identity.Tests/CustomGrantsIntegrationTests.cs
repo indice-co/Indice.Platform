@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -9,11 +10,14 @@ using IdentityModel;
 using IdentityModel.Client;
 using IdentityServer4;
 using IdentityServer4.Models;
+using IdentityServer4.ResponseHandling;
+using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.ImpossibleTravel;
+using Indice.Features.Identity.Core.ResponseHandling;
 using Indice.Features.Identity.Tests.Models;
 using Indice.Security;
 using Indice.Serialization;
@@ -156,8 +160,33 @@ public class CustomGrantsIntegrationTests
     private const string DEVICE_AUTHORIZATION_URL = $"{BASE_URL}/my/devices/connect/authorize";
     private const string IDENTITY_DATABASE_NAME = "IdentityDb";
     private const string SIGN_IN_LOG_DATABASE_NAME = "SignInLogDb";
+    private const string AUTHORIZATION_DETAILS_PAYLOAD = """
+        [
+           {
+              "type": "payment_initiation",
+              "actions": [
+                 "initiate",
+                 "status",
+                 "cancel"
+              ],
+              "locations": [
+                 "https://example.com/payments"
+              ],
+              "instructedAmount": {
+                 "currency": "EUR",
+                 "amount": "123.50"
+              },
+              "creditorName": "Merchant A",
+              "creditorAccount": {
+                 "iban": "DE02100100109307118603"
+              },
+              "remittanceInformationUnstructured": "Ref Number Merchant"
+           }
+        ]
+        """;
     // Private fields
     private readonly HttpClient _httpClient;
+    private readonly HttpClient _introspectionClient;
     private readonly ITestOutputHelper _output;
     private IServiceProvider _serviceProvider;
 
@@ -208,6 +237,7 @@ public class CustomGrantsIntegrationTests
                 options.ImpossibleTravel.AcceptableSpeed = 90d;
                 options.ImpossibleTravel.FlowType = ImpossibleTravelFlowType.PromptMfa;
             });
+            services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
         });
         builder.Configure(app => {
             app.UseForwardedHeaders(new() {
@@ -382,6 +412,63 @@ public class CustomGrantsIntegrationTests
         tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
         Assert.False(tokenResponse.IsError);
     }
+    #endregion
+
+    #region Authorization Details Tests https://datatracker.ietf.org/doc/html/rfc9396
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD }
+            }
+        });
+        Assert.False(tokenResponse.IsError);
+       
+        var handler = new JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(tokenResponse.AccessToken);
+        Assert.Contains("authorization_details", token.ToString());
+    }
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_UsingBiometrics() {
+        var registrationResult = await RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
+        var codeVerifier = GenerateCodeVerifier();
+        var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var x509SigningCredentials = GetX509SigningCredentials();
+        var signature = SignMessage(challenge, x509SigningCredentials);
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "code", challenge },
+                { "code_signature", signature },
+                { "code_verifier", codeVerifier },
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "public_key", CERTIFICATE_PUBLIC_KEY },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD }
+            }
+        });
+        Assert.False(tokenResponse.IsError);
+
+        var handler = new JwtSecurityTokenHandler();
+        var token = handler.ReadJwtToken(tokenResponse.AccessToken);
+        Assert.Contains("authorization_details", token.ToString());
+    }
+
     #endregion
 
     #region Resource Owner Password Grant Tests
