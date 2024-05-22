@@ -3,7 +3,7 @@
             <div class="px-4 space-y-2 pb-4">
                 <div class="col-span-4">
                     <label for="distribution-list-contact-name"
-                           class="field-label">Όνομα (*)</label>
+                           class="field-label">{{'list-contact-create.name'| translate}} (*)</label>
                     <lib-combobox id="distribution-list-contact-name"
                                   [items]="contacts"
                                   [itemTemplate]="itemTemplate"
@@ -25,12 +25,12 @@
 <ng-template #noResultsTemplate
              let-searchTerm>
     <p class="m-2">
-        Δεν βρέθηκαν αποτελέσματα για '<i>{{ searchTerm }}</i>'. Πατήστε
+        {{'list-contact-create.no-results-found'| translate}} '<i>{{ searchTerm }}</i>'. {{'list-contact-create.press'| translate}}
         <a href="javascript:void(0)"
            class="text-blue-500"
            (click)="onAddNewContact(searchTerm);">
-            εδώ
-        </a> για να προσθέσετε την επαφή.
+           {{'list-contact-create.here'| translate}}
+        </a> {{'list-contact-create.to-add-contact'| translate}}
     </p>
 </ng-template>
 <ng-template let-item
@@ -130,29 +130,29 @@
                                     <div class="col-span-4">
                                         <label [for]="'salutation-' + item._index"
                                                class="field-label">
-                                            Προσφώνηση
+                                            {{'contacts-edit.salutation-label' | translate}}
                                         </label>
                                         <div class="flex rounded-sm">
                                             <input type="text"
                                                    [name]="'salutation-' + item._index"
                                                    [id]="'salutation-' + item._index"
-                                                   placeholder="Προσφώνηση..."
+                                                   placeholder="{{'contacts-edit.salutation-placeholder' | translate}}"
                                                    [(ngModel)]="item.salutation"
                                                    #salutation="ngModel">
                                         </div>
-                                        <p class="field-info col-span-3">Η προσφώνηση (π.χ κύριε ή κ.).</p>
+                                        <p class="field-info col-span-3">{{'contacts-edit.salutation-info' | translate}}</p>
                                     </div>
                                     <!-- Όνομα -->
                                     <div class="col-span-4">
                                         <label [for]="'first-name-' + item._index"
                                                class="field-label">
-                                            Όνομα
+                                               {{'contacts-edit.firstName-label' | translate}}
                                         </label>
                                         <div class="flex rounded-sm">
                                             <input type="text"
                                                    [name]="'first-name-' + item._index"
                                                    [id]="'first-name-' + item._index"
-                                                   placeholder="Όνομα..."
+                                                   placeholder="{{'contacts-edit.firstName-placeholder' | translate}}"
                                                    [(ngModel)]="item.firstName"
                                                    #firstName="ngModel">
                                         </div>
@@ -161,13 +161,13 @@
                                     <div class="col-span-4">
                                         <label [for]="'last-name-' + item._index"
                                                class="field-label">
-                                            Επώνυμο
+                                               {{'contacts-edit.lastName-label' | translate}}
                                         </label>
                                         <div class="flex rounded-sm">
                                             <input type="text"
                                                    [name]="'last-name-' + item._index"
                                                    [id]="'last-name-' + item._index"
-                                                   placeholder="Επώνυμο..."
+                                                   placeholder="{{'contacts-edit.lastName-placeholder' | translate}}"
                                                    [(ngModel)]="item.lastName"
                                                    #lastName="ngModel">
                                         </div>
@@ -176,13 +176,13 @@
                                     <div class="col-span-4">
                                         <label [for]="'full-name-' + item._index"
                                                class="field-label">
-                                            Όνομα Εμφάνισης
+                                               {{'contacts-edit.fullName-label' | translate}}
                                         </label>
                                         <div class="flex rounded-sm">
                                             <input type="text"
                                                    [name]="'full-name-' + item._index"
                                                    [id]="'full-name-' + item._index"
-                                                   placeholder="Όνομα Εμφάνισης..."
+                                                   placeholder="{{'contacts-edit.fullName-placeholder' | translate}}"
                                                    [(ngModel)]="item.fullName"
                                                    #fullName="ngModel">
                                         </div>
@@ -191,13 +191,13 @@
                                     <div class="col-span-4">
                                         <label [for]="'email-' + item._index"
                                                class="field-label">
-                                            Email
+                                               {{'contacts-edit.email-label' | translate}}
                                         </label>
                                         <div class="flex rounded-sm">
                                             <input type="text"
                                                    [name]="'email-' + item._index"
                                                    [id]="'email-' + item._index"
-                                                   placeholder="Email..."
+                                                   placeholder="{{'contacts-edit.email-placeholder' | translate}}"
                                                    [(ngModel)]="item.email"
                                                    #email="ngModel">
                                         </div>
@@ -206,13 +206,13 @@
                                     <div class="col-span-4">
                                         <label [for]="'phone-number-' + item._index"
                                                class="field-label">
-                                            Τηλέφωνο
+                                               {{'contacts-edit.phoneNumber-label' | translate}}
                                         </label>
                                         <div class="flex rounded-sm">
                                             <input type="text"
                                                    [name]="'phone-number-' + item._index"
                                                    [id]="'phone-number-' + item._index"
-                                                   placeholder="Τηλέφωνο..."
+                                                   placeholder="{{'contacts-edit.phoneNumber-placeholder' | translate}}"
                                                    [(ngModel)]="item.phoneNumber"
                                                    #phoneNumber="ngModel">
                                         </div>

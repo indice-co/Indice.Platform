@@ -22,7 +22,7 @@ export class LocalDropDownMenuComponent implements OnInit, ControlValueAccessor 
     @Input() public options: MenuOption[] = [];
     @Input() public value: MenuOption | null = null;
     @Input() public multiple = false;
-    @Input() public placeholder: string = 'Παρακαλώ επιλέξτε...';
+    @Input() public placeholder: string = 'general.please-choose';
     @Output() public change: EventEmitter<MenuOption> = new EventEmitter<MenuOption>();
 
     public get expanded(): boolean {

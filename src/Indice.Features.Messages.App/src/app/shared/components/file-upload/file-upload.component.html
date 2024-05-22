@@ -14,7 +14,7 @@
     </div>
     <div *ngIf="!file" class="flex justify-center pr-3">
         <label class="overflow-hidden text-black text-ellipsis whitespace-pre text-sm">
-            Δεν έχετε προσθέσει κάποιο επισυναπτόμενο αρχείο.
+            {{'file-upload.empty-error' | translate}}
         </label>
     </div>
     <input type="file" id="fileInput" #fileInput class="hidden" (change)="onFilesAdded()" [accept]="accept" />
@@ -32,13 +32,13 @@
       
 </div>
 <p *ngIf="sizeLimitReached" class="mt-2 text-sm text-red-600">
-    Το μέγεθος του αρχείου είναι μεγαλύτερο από το επιτρεπτό ({{maxSizeText}}).
+    {{'file-upload.big-error' | translate}} ({{maxSizeText}}).
 </p>
 <div *ngIf="extendedView && !sizeLimitReached && file" class="space-y-3 pb-4 mt-4 ">
     <fieldset>
-        <legend class="sr-only">Τίτλος</legend>
+        <legend class="sr-only">{{'file-upload.title' | translate}}</legend>
         <div class="text-sm font-medium text-gray-500" aria-hidden="true">
-            Τίτλος
+            {{'file-upload.title' | translate}}
         </div>
         <div class="mt-1 text-sm text-gray-900">
             {{file.title}}
@@ -46,18 +46,18 @@
     </fieldset>
     <fieldset class="flex flex-row gap-4">
         <div>
-            <legend class="sr-only">Τύπος</legend>
+            <legend class="sr-only">{{'file-upload.type' | translate}}</legend>
             <div class="text-sm font-medium text-gray-500" aria-hidden="true">
-                Τύπος
+                {{'file-upload.type' | translate}}
             </div>
             <div class="mt-1 text-sm text-gray-900">
                 {{file.contentType}}
             </div>
         </div>
         <div>
-            <legend class="sr-only">Μέγεθος</legend>
+            <legend class="sr-only">{{'file-upload.size' | translate}}</legend>
             <div class="text-sm font-medium text-gray-500" aria-hidden="true">
-                Μέγεθος
+                {{'file-upload.size' | translate}}
             </div>
             <div class="mt-1 text-sm text-gray-900">
                 {{file.sizeText}}
