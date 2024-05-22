@@ -9,7 +9,7 @@
                         [page-size]="size"
                         (pageChanged)="loadContent($event, this.size)"
                         (pageSizeChanged)="loadContent(1, $event)">
-                        <lib-list-column title="ΟΝΟΜΑ">
+                        <lib-list-column [title]="'list-view.name-title' | translate">
                             <ng-template let-item>
                                 <div *ngIf="item.type === ItemType.Folder || item.type === ItemType.Button"
                                     class="flex flex-row space-x-5">
@@ -28,7 +28,7 @@
                                 </div>
                             </ng-template>
                         </lib-list-column>
-                        <lib-list-column title="ΤΥΠΟΣ">
+                        <lib-list-column [title]="'list-view.type-title' | translate">
                             <ng-template let-item>
                                 <div *ngIf="item.type !== ItemType.Button"
                                     class="max-w-[200px] text-ellipsis overflow-hidden">
@@ -36,25 +36,26 @@
                                 </div>
                             </ng-template>
                         </lib-list-column>
-                        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
+                        <lib-list-column [title]="'list-view.created-by-title' | translate">
                             <ng-template let-item>
                                 <span *ngIf="item.type !== ItemType.Button">
                                     {{ item.createdBy || '-' }}
                                 </span>
                             </ng-template>
                         </lib-list-column>
-                        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
+                        <lib-list-column [title]="'list-view.created-at-title' | translate">
                             <ng-template let-item>
                                 <span *ngIf="item.type !== ItemType.Button">
                                     {{ item.createdAt | date: 'medium' }}
                                 </span>
                             </ng-template>
                         </lib-list-column>
-                        <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+                        <lib-list-column [title]="'list-view.actions-title' | translate">
                             <ng-template let-item>
                                 <ng-container *ngIf="item.type !== ItemType.Button">
-                                    <button title="Επεξεργασία τύπου" (click)="item.type === ItemType.File ? editFile(item) : editFolder(item)"
-                                        class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+                                    <button title="'list-view.edit-action-title' | translate" 
+                                            (click)="item.type === ItemType.File ? editFile(item) : editFolder(item)"
+                                            class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                                             fill="currentColor">
                                             <path
@@ -64,8 +65,9 @@
                                                 clip-rule="evenodd" />
                                         </svg>
                                     </button>
-                                    <button type="button" (click)="item.type === ItemType.File ? deleteFile(item) : deleteFolder(item)"
-                                        class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
+                                    <button type="button" title="'list-view.delete-action-title' | translate" 
+                                            (click)="item.type === ItemType.File ? deleteFile(item) : deleteFolder(item)"
+                                            class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                                             fill="currentColor">
                                             <path fill-rule="evenodd"

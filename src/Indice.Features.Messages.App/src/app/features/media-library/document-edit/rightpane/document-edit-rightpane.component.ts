@@ -32,7 +32,7 @@ export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, On
     public submitInProgress = false;
     public templateOutlet!: TemplateRef<any>;
     public model = new MediaFile();
-    public folders: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+    public folders: MenuOption[] = [new MenuOption('general.please-choose', null)];
     public selectedFolderId: MenuOption | null = null;
 
     public ngOnInit(): void {
@@ -53,7 +53,7 @@ export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, On
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Το αρχείο με όνομα '${this.model.name}' ενημερώθηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, '{{"document-edit.pane.success-save"}}', `'document-edit.pane.success-save-message' '${this.model.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['media', this.model.folderId ?? 'root', this._documentId]));
                 }
             });

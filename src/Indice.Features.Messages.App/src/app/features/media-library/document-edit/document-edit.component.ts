@@ -35,7 +35,7 @@ export class DocumentEditComponent implements OnInit {
             this._mediaStore.getFileDetails(this._documentId!)
               .pipe(mergeMap((file: MediaFile) => {
                   this.file = file;
-                  this._layout.title = `Αρχείο - ${file.name}`;
+                  this._layout.title = `'document-edit.file' - ${file.name}`;
                   return this.file.folderId ? this._mediaStore.getFolderDetails(this.file.folderId).pipe(map((folder: MediaFolder) => folder?.name)) : of(undefined)
               }))
               .subscribe((folderName: string | undefined) => {

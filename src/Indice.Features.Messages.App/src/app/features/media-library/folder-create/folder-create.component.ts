@@ -40,7 +40,7 @@ export class FolderCreateComponent implements OnInit {
             .subscribe({
                 next: (response: string) => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο φάκελος με όνομα '${this.model.name}' δημιουργήθηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'folder-create.success-save', `folder-create.success-save-message' '${this.model.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.model.parentId ? this._router.navigate(['media', this.model.parentId]) : this._router.navigate(['media']));
                 }
             });

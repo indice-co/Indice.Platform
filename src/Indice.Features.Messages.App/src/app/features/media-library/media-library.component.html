@@ -4,39 +4,38 @@
             <div class="flex flex-row items-center">
                 <div>
                     <div class="flex items-center">
-                        <h1 class="view-layout-title">Αρχεία</h1>
+                        <h1 class="view-layout-title">{{ 'media-library.files' | translate }}</h1>
                     </div>
                     <div class="meta-container">
                         <div class="meta-item-container">
                             <i aria-hidden="true" class="meta-icon ms-Icon ms-Icon--Boards"></i>
-                            <span class="meta-text">{{folderContent ? folderContent.totalCount : 0}} αποτελέσματα</span>
+                            <span class="meta-text">{{ folderContent ? folderContent.totalCount : 0 }} {{ 'media-library.results' | translate }}</span>
                         </div>
                     </div>
                 </div>
                 <div class="flex flex-row">
                     <button type="button" class="p-2 flex items-center justify-center w-8 h-8 rounded-lg"
                         [ngClass]="view == 'folder' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-800 '"
-                        title="προσθήκη φακέλου">
+                        title="{{ 'media-library.add-folder' | translate }}">
                         <i class="ms-Icon ms-Icon--Backlog" (click)="selectView('folder')"></i>
                     </button>
                     <button type="button" class="p-2 flex items-center justify-center w-8 h-8 rounded-lg"
                         [ngClass]="view == 'list' ? 'bg-slate-800 text-white' : 'bg-transparent text-slate-800 '"
-                        title="προσθήκη φακέλου">
+                        title="{{ 'media-library.add-folder' | translate }}">
                         <i class="ms-Icon ms-Icon--BulletedList" (click)="selectView('list')"></i>
                     </button>
                 </div>
             </div>
-
         </div>
 
         <div class="view-layout-title-container-far">
-            <button type="button" class="p-2 btn-view-header" title="ανανέωση στοιχείων" (click)="loadContent()"><i
+            <button type="button" class="p-2 btn-view-header" title="{{ 'media-library.refresh' | translate }}" (click)="loadContent()"><i
                     class="ms-Icon ms-Icon--Refresh"></i>
             </button>
-            <button type="button" href="#" class="p-2 btn-view-header" title="προσθήκη φακέλου"><i
+            <button type="button" href="#" class="p-2 btn-view-header" title="{{ 'media-library.add-folder' | translate }}"><i
                     class="ms-Icon ms-Icon--FabricNewFolder" (click)="createFolder()"></i>
             </button>
-            <button type="button" href="#" class="p-2 btn-view-header" title="προσθήκη αρχείου"><i
+            <button type="button" href="#" class="p-2 btn-view-header" title="{{ 'media-library.add-file' | translate }}"><i
                     class="ms-Icon ms-Icon--Upload" (click)="uploadFile()"></i>
             </button>
         </div>

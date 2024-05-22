@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Επεξεργασία αρχείου"
+<lib-side-view-layout [title]="'document-edit.pane.title' | translate"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Αποθήκευση'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'document-edit.pane.save' | translate"
+                      [cancel-label]="'document-edit.pane.close' | translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!editFileForm.valid || submitInProgress"
                       #sideViewLayout>
@@ -26,44 +26,44 @@
 <ng-template #editNameTemplate>
     <label for="documentName"
            class="field-label">
-        Όνομα (*)
+        {{ 'document-edit.pane.name-label' | translate }} (*)
     </label>
     <div class="mt-1 flex rounded-sm">
         <input type="text"
                name="documentName"
                id="documentName"
                [(ngModel)]="model.name"
-               placeholder="Το όνομα του αρχείου..."
+               [placeholder]="'document-edit.pane.name-placeholder' | translate"
                required
                #documentName="ngModel">
     </div>
     <p *ngIf="documentName.invalid && (documentName.dirty || documentName.touched)"
        class="mt-2 text-sm text-red-600">
-        <span *ngIf="documentName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
-        <span *ngIf="documentName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+        <span *ngIf="documentName.errors!['required']">{{ 'document-edit.pane.empty-name-error' | translate }}</span>
+        <span *ngIf="documentName.errors!['maxlength']">{{ 'document-edit.pane.big-name-error' | translate }}</span>
     </p>
-    <p class="field-info col-span-3">Το όνομα με το οποίο θα εμφανίζεται το αρχείο.</p>
+    <p class="field-info col-span-3">{{ 'document-edit.pane.name-info' | translate }}</p>
 </ng-template>
 <ng-template #editDescriptionTemplate>
     <label for="documentDescription"
            class="field-label">
-        Περιγραφή
+        {{ 'document-edit.pane.description-label' | translate }}
     </label>
     <div class="mt-1 flex rounded-sm">
         <input type="text"
                name="documentDescription"
                id="documentDescription"
                [(ngModel)]="model.description"
-               placeholder="Η περιγραφή του αρχείου..."
+               [placeholder]="'document-edit.pane.description-placeholder' | translate"
                required
                #documentDescription="ngModel">
     </div>
-    <p class="field-info col-span-3">Σύντομη περιγραφή του αρχείου.</p>
+    <p class="field-info col-span-3">{{ 'document-edit.pane.description-info' | translate }}</p>
 </ng-template>
 <ng-template #editFolderTemplate>
     <label for="folder"
            class="field-label">
-        Φάκελος
+        {{ 'document-edit.pane.folder-label' | translate }}
     </label>
     <div class="mt-1 flex rounded-sm">
         <lib-local-drop-down-menu id="folder"
@@ -74,5 +74,5 @@
                                   (change)="folderSelectionChanged($event)">
         </lib-local-drop-down-menu>
     </div>
-    <p class="field-info col-span-3">Ο φάκελος που περιέχει το αρχείο.</p>
+    <p class="field-info col-span-3">{{ 'document-edit.pane.folder-info' | translate }}</p>
 </ng-template>

@@ -54,7 +54,7 @@ export class ReadOnlyViewComponent implements OnInit {
 
   public copyToClipboard(file: MediaFile) {
     this._fileUtilitiesService.copyPermaLinkToClipboard(file);
-    this._toaster.show(ToastType.Success, 'Αντιγραφή συνδέσμου', `Ο σύνδεσμος του αρχείου '${file.name}' αντιγράφηκε με επιτυχία.`);
+    this._toaster.show(ToastType.Success, 'folder-view.copy-link', `'folder-view.success-copy-link' '${file.name}'`);
   }
 
   public openInNewTab(file: MediaFile) {

@@ -52,8 +52,8 @@ export class FolderViewComponent implements OnInit {
     const modal = this._modalService.show(BasicModalComponent, {
       animated: true,
       initialState: {
-          title: 'Διαγραφή',
-          message: `Είστε σίγουρος ότι θέλετε να διαγράψετε τον φάκελο '${folder?.name}';`,
+          title: 'folder-view.delete',
+          message: `'folder-view.delete-folder-warning' '${folder?.name}';`,
           data: folder
       },
       keyboard: true
@@ -61,7 +61,7 @@ export class FolderViewComponent implements OnInit {
     modal.onHidden?.subscribe((response: any) => {
         if (response.result?.answer) {
             this._mediaStore.deleteFolder(response.result.data.id).subscribe(() => {
-                this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Ο φάκελος με τίτλο '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
+                this._toaster.show(ToastType.Success, 'folder-view.success-delete', `'folder-view.success-delete-folder-message' '${response.result.data.name}'`);
                 this.itemDeleted.emit();
             });
         }
@@ -71,8 +71,8 @@ export class FolderViewComponent implements OnInit {
     const modal = this._modalService.show(BasicModalComponent, {
       animated: true,
       initialState: {
-          title: 'Διαγραφή',
-          message: `Είστε σίγουρος ότι θέλετε να διαγράψετε το αρχείο '${file?.name}';`,
+          title: 'folder-view.delete',
+          message: `'folder-view.delete-file-warning' '${file?.name}';`,
           data: file
       },
       keyboard: true
@@ -80,7 +80,7 @@ export class FolderViewComponent implements OnInit {
     modal.onHidden?.subscribe((response: any) => {
         if (response.result?.answer) {
             this._mediaStore.deleteFile(response.result.data.id).subscribe(() => {
-                this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Το αρχείο με τίτλο '${response.result.data.name}' διαγράφηκε με επιτυχία.`);
+                this._toaster.show(ToastType.Success, 'folder-view.success-delete', `''folder-view.success-delete-file-message'' '${response.result.data.name}'`);
                 this.itemDeleted.emit();
             });
         }
@@ -109,6 +109,6 @@ export class FolderViewComponent implements OnInit {
   }
   public copyToClipboard(file: MediaFile) {
     this._fileUtilitiesService.copyPermaLinkToClipboard(file);
-    this._toaster.show(ToastType.Success, 'Αντιγραφή συνδέσμου', `Ο σύνδεσμος του αρχείου '${file.name}' αντιγράφηκε με επιτυχία.`);
+    this._toaster.show(ToastType.Success, 'folder-view.copy-link', `'folder-view.success-copy-link' '${file.name}'`);
   }
 }

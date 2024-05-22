@@ -14,7 +14,7 @@ export class FolderEditComponent implements OnInit {
 
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
   
-  public folders: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+  public folders: MenuOption[] = [new MenuOption('general.please-choose', null)];
   public parentFolderId: MenuOption | null = null;
 
     constructor(
@@ -83,7 +83,7 @@ export class FolderEditComponent implements OnInit {
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο φάκελος με όνομα '${this.model.name}' ενημερώθηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'folder-edit.success-save', `'folder-edit.success-save-message' '${this.model.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.model.parentId ? this._router.navigate(['media', this.model.parentId]) : this._router.navigate(['media']));
                 }
             });

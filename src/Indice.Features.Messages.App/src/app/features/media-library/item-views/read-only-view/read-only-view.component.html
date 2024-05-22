@@ -6,7 +6,7 @@
         (pageChanged)="loadContent($event, this.size)"
         (pageSizeChanged)="loadContent(1, $event)">
     </lib-pager>
-    <button type="button" class="p-2" title="ανανέωση στοιχείων" (click)="loadContent(page, size)">
+    <button type="button" class="p-2" title="{{'read-only-view.refresh' |translate}}" (click)="loadContent(page, size)">
         <i class="ms-Icon ms-Icon--Refresh"></i>
     </button>
 </div>
@@ -46,12 +46,12 @@
         
         <div class="flex flex-row items-center absolute top-2 right-2 space-x-2">
             <div class="flex cursor-pointer w-7 h-7 hover:bg-gray-500 bg-gray-100 items-center justify-center rounded-md text-gray-500 hover:text-gray-100" 
-                title="Αντιγραφή συνδέσμου"
+                title="{{'read-only-view.copy-link' |translate}}"
                 (click)="$event.stopPropagation(); copyToClipboard(file)">
                 <i class="ms-Icon ms-Icon--Copy"></i>
             </div>
             <div class="flex cursor-pointer w-7 h-7 hover:bg-gray-500 bg-gray-100 items-center justify-center rounded-md text-gray-500 hover:text-gray-100" 
-                title="Άνοιγμα σε νέα καρτέλα"
+                title="{{'read-only-view.open-new-tab' |translate}}"
                 (click)="$event.stopPropagation(); openInNewTab(file)">
                 <i class="ms-Icon ms-Icon--OpenInNewTab"></i>
             </div>

@@ -36,10 +36,10 @@ export class DocumentUploadComponent implements OnInit {
       }
       this._mediaStore.uploadFile(this._folderId, fileParameter)
         .subscribe(() => {
-          this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το επισυναπτόμενο αρχείο ενημερώθηκε με επιτυχία.`);
+          this._toaster.show(ToastType.Success, 'document-upload.success-save', `'document-upload.success-save-message'`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._folderId ? this._router.navigate(['media', this._folderId]) : this._router.navigate(['media']));
         }, (error) => {
-          this._toaster.show(ToastType.Error, 'Σφάλμα ενημέρωσης', `Υπήρξε κάποιο πρόβλημα με την ενημέρωση των στοιχείων. Παρακαλώ δοκιμάστε αργότερα.`);
+          this._toaster.show(ToastType.Error, 'document-upload.error-save', `'document-upload.error-save-message'`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._folderId ? this._router.navigate(['media', this._folderId]) : this._router.navigate(['media']));
         });
     }

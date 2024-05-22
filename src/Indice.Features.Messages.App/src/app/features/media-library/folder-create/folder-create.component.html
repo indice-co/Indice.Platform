@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Δημιουργία νέου φακέλου"
+<lib-side-view-layout title="{{ 'folder-create.title' | translate }}"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Δημιουργία'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'folder-create.ok-label' | translate"
+                      [cancel-label]="'folder-create.cancel-label' | translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!messageTypeForm.valid || submitInProgress"
                       #sideViewLayout>
@@ -13,40 +13,40 @@
                     <!-- Όνομα -->
                     <div class="col-span-4">
                         <label for="folderName"
-                               class="field-label">Όνομα (*)</label>
+                               class="field-label">{{ 'folder-create.name-label' | translate }} (*)</label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="folderName"
                                    id="folderName"
                                    [(ngModel)]="model.name"
-                                   placeholder="Το όνομα του φακέλου..."
+                                   placeholder="{{ 'folder-create.name-placeholder' | translate }}"
                                    maxlength="128"
                                    required
                                    #folderName="ngModel">
                         </div>
                         <p *ngIf="folderName.invalid && (folderName.dirty || folderName.touched)"
                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="folderName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
-                            <span *ngIf="folderName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
+                            <span *ngIf="folderName.errors!['required']">{{ 'folder-create.empty-name-error' | translate }}</span>
+                            <span *ngIf="folderName.errors!['maxlength']">{{ 'folder-create.big-name-error' | translate }}</span>
                         </p>
-                        <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται o φάκελος.</p>
+                        <p class="field-info col-span-3">{{ 'folder-create.name-description' | translate }}</p>
                     </div>
 
                     <!-- Περιγραφή -->
                     <div class="col-span-4">
                         <label for="folderDescription"
-                               class="field-label">Περιγραφή</label>
+                               class="field-label">{{ 'folder-create.description-label' | translate }}</label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="folderDescription"
                                    id="folderDescription"
                                    [(ngModel)]="model.description"
-                                   placeholder="Η περιγραφή του φακέλου..."
+                                   placeholder="{{ 'folder-create.description-placeholder' | translate }}"
                                    maxlength="512"
                                    #folderDescription="ngModel">
                         </div>
                         
-                        <p class="field-info col-span-3">Σύντομη περιγραφή των περιεχομένων του φακέλου.</p>
+                        <p class="field-info col-span-3">{{ 'folder-create.description-description' | translate }}</p>
                     </div>
                 </div>
             </div>

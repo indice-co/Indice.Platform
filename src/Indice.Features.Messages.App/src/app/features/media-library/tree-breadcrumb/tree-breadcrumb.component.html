@@ -5,7 +5,7 @@
             <span class="max-w-[300px] text-ellipsis overflow-hidden text-slate-800 cursor-pointer"
                 [ngClass]="{'underline font-bold ': !this.activeFolderId}"
                 (click)="goToRoot()">
-                Αρχεία
+                {{'tree-breadcrumb.files'}}
             </span>
         </div>
         <span>{{structure.filesCount}}</span>
