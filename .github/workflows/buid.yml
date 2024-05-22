@@ -7,9 +7,6 @@ jobs:
   build:
 
     runs-on: windows-latest
-    strategy:
-      matrix:
-        dotnet-version: [ '6.0.x', '7.0.x', '8.0.x' ]
 
     steps:
       # Checkout
@@ -17,10 +14,10 @@ jobs:
         uses: actions/checkout@v4
         
       #Setup .NET Core
-      - name: Setup dotnet ${{ matrix.dotnet-version }}
+      - name: Setup dotnet 8.0.x
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+          dotnet-version: 8.0.x
           source-url: https://api.nuget.org/v3/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
@@ -66,11 +63,11 @@ jobs:
       
       # TEST 
       - name: Test with dotnet
-        run: dotnet test --no-build --logger trx --results-directory "TestResults-${{ matrix.dotnet-version }}"
+        run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
       - name: Upload dotnet test results
         uses: actions/upload-artifact@v4
         with:
-          name: dotnet-results-${{ matrix.dotnet-version }}
-          path: TestResults-${{ matrix.dotnet-version }}
+          name: dotnet-results
+          path: TestResults
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}

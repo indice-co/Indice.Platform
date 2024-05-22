@@ -30,36 +30,8 @@ jobs:
     - name: Use Node.js 20.x
       uses: actions/setup-node@v4
       with:
-        node-version: 20.13.1
-    
-    # Npm Install and build Cases UI
-    - name: NPM Install and Build Cases UI
-      run: |
-        cd src/Indice.Features.Cases.App
-        npm install --force
-        npm run build:template
-        
-    # Npm Install and build Admin UI
-    - name: NPM Install and Build Admin UI
-      run: |
-        cd src/Indice.Features.Identity.AdminUI.App
-        npm install --force
-        npm run build:template
-        
-    # Npm Install and build Messages UI
-    - name: NPM Install and Build Messages UI
-      run: |
-        cd src/Indice.Features.Messages.App
-        npm install --force
-        npm run build:template
-
-    # Npm Install and build Risk UI
-    - name: NPM Install and Build Risk UI
-      run: |
-        cd src/Indice.Features.Risk.App
-        npm install --force
-        npm run build:template
-
+        node-version: 20
+  
     # Npm Install and build Identity UI
     - name: NPM Install and Build Identity UI
       run: |
