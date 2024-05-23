@@ -77,10 +77,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "risk-app:build:production"
+              "buildTarget": "risk-app:build:production"
             },
             "development": {
-              "browserTarget": "risk-app:build:development"
+              "buildTarget": "risk-app:build:development"
             }
           },
           "options":{
@@ -91,7 +91,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "risk-app:build"
+            "buildTarget": "risk-app:build"
           }
         },
         "test": {

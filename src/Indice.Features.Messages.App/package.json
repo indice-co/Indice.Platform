@@ -24,7 +24,7 @@
     "@angular/platform-browser-dynamic": "17.3.7",
     "@angular/router": "17.3.7",
     "@indice/ng-auth": "0.3.0",
-    "@indice/ng-components": "0.3.0",
+    "@indice/ng-components": "0.3.1",
     "@tailwindcss/aspect-ratio": "0.4.0",
     "@tailwindcss/forms": "0.5.2",
     "@tailwindcss/line-clamp": "0.4.0",
