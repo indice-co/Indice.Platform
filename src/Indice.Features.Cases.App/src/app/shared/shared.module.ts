@@ -30,7 +30,7 @@ import { LabelOnlyWidgetComponent } from './ajsf/json-schema-frameworks/tailwind
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { QuillModule } from 'ngx-quill';
-import { provideEnvironmentNgxMask } from 'ngx-mask';
+import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 
 @NgModule({
   declarations: [
@@ -80,7 +80,9 @@ import { provideEnvironmentNgxMask } from 'ngx-mask';
         ]
       }
     }),
-    TranslateModule
+    TranslateModule,
+    NgxMaskDirective,
+    NgxMaskPipe
   ],
   exports: [
     // components
@@ -99,7 +101,7 @@ import { provideEnvironmentNgxMask } from 'ngx-mask';
     TranslateModule
   ],
   providers: [
-    provideEnvironmentNgxMask()
+    provideNgxMask()
   ]
 })
 export class SharedModule { }
