@@ -8,7 +8,6 @@
     "lint": "ng lint",
     "ng": "ng",
     "serve": "ng serve",
-    "test": "ng test",
     "prod-build-dev-onpremises": "ng build --configuration=on-premises-dev"
   },
   "private": true,

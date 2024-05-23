@@ -7,8 +7,7 @@
     "e2e": "ng e2e",
     "lint": "ng lint",
     "ng": "ng",
-    "start": "ng serve",
-    "test": "ng test"
+    "start": "ng serve"
   },
   "browser": {
     "fs": false
