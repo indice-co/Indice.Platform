@@ -44,7 +44,6 @@
     "@angular-devkit/build-angular": "17.3.6",
     "@angular/cli": "17.3.6",
     "@angular/compiler-cli": "17.3.7",
-    "@types/handlebars": "^4.1.0",
     "@types/jasmine": "~5.1.0",
     "@types/uuid": "9.0.8",
     "eslint": "^9.3.0",
