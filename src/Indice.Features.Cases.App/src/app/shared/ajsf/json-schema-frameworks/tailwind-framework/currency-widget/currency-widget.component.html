@@ -21,12 +21,13 @@
               type="text"
               mask="separator.2"
               (input)="updateValue($event)"
-              [(ngModel)]="displayValue"
-              [allowNegativeNumbers]="true"
-              [thousandSeparator]="thousandSeparator">
+              [(ngModel)]="displayValue">
        <datalist *ngIf="options?.typeahead?.source"
                  [id]="'control' + layoutNode?._id + 'Autocomplete'">
               <option *ngFor="let word of options?.typeahead?.source"
                       [value]="word">
        </datalist>
 </div>
+<!-- TODO:
+[allowNegativeNumbers]="true"
+[thousandSeparator]="thousandSeparator" -->
