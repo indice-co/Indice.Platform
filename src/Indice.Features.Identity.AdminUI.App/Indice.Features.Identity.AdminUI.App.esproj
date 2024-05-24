@@ -8,5 +8,8 @@
     <ShouldRunBuildScript>true</ShouldRunBuildScript>
     <!-- Folder where production build objects will be placed -->
     <PublishAssetsDirectory>$(MSBuildProjectDirectory)\dist\adminui-app\</PublishAssetsDirectory>
+    <!-- Disable tests -->
+    <JavaScriptTestRoot></JavaScriptTestRoot>
+    <JavaScriptTestFramework></JavaScriptTestFramework>
   </PropertyGroup>
 </Project>

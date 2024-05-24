@@ -15,7 +15,7 @@
   .btn-submit {
     @apply ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 #{!important};
   }
-  // extend class that comes from our library in order to add padding for fluid display
+  /* extend class that comes from our library in order to add padding for fluid display */
   .shell-content-container-inner-fluid {
     @apply px-6;
   }
@@ -84,7 +84,7 @@
   }
 }
 
-// "disableCheckbox" class is used so that ALL checkboxes of the case (booleans in schema) will be "disabled" in VIEW-ONLY mode
+/* "disableCheckbox" class is used so that ALL checkboxes of the case (booleans in schema) will be "disabled" in VIEW-ONLY mode */
 div.form-container.disableCheckbox {
   input[type="checkbox"] {
     pointer-events: none;
