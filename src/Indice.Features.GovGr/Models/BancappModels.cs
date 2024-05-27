@@ -15,7 +15,7 @@ public class BancappGCloudUploadResponse
     internal static BancappGCloudUploadResponse Fail(string error) {
         return new BancappGCloudUploadResponse {
             Succeeded = false,
-            ErrorMessage = "Response file upload to G-Cloud failed."
+            ErrorMessage = $"Response file upload to G-Cloud failed. {error}"
         };
     }
 
