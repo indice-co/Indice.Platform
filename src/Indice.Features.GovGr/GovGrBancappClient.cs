@@ -22,10 +22,16 @@ internal class GovGrBancappClient : IBancappService
     }
     
     private string FunctionUrl => _settings.IsProduction ? FunctionFqdnProd : FunctionFqdnStage;
-    
-    
-    /// <summary>Upload data to eGov Bancapp</summary>
+
+
+    /// <inheritdoc />
     public async Task<BancappGCloudUploadResponse> UploadFile(Stream stream, string fileName) {
+        if (!stream.CanSeek) {
+            return BancappGCloudUploadResponse.Fail("Stream needs to be open/seekable!");
+        }
+        
+        stream.Position = 0;
+        
         if (_settings.IsMock) {
             return BancappGCloudUploadResponse.Success();
         }
