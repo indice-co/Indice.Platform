@@ -38,7 +38,7 @@ export class EmailSendersCreateComponent implements OnInit {
           .subscribe({
               next: (messageSender: MessageSender) => {
                   this.submitInProgress = false;
-                  this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο αποστολέας με όνομα '${messageSender.displayName}' δημιουργήθηκε με επιτυχία.`);
+                  this._toaster.show(ToastType.Success, 'settings.email.success-save', `'settings.email.success-save-message' '${messageSender.displayName}'`);
                   this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['settings']));
               }
           });

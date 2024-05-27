@@ -52,7 +52,7 @@ export class EmailSendersEditComponent implements OnInit, AfterViewInit {
           .subscribe({
               next: () => {
                   this.submitInProgress = false;
-                  this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο αποστολέας με διεύθυνση '${this.model.sender}' αποθηκεύτηκε με επιτυχία.`);
+                  this._toaster.show(ToastType.Success, 'settings.email.success-save', `'settings.email.success-edit-message' '${this.model.sender}'`);
                   this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['settings']));
               }
           });

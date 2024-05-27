@@ -45,7 +45,7 @@ export class MediaSettingEditComponent implements OnInit, AfterViewInit {
           .subscribe({
               next: () => {
                   this.submitInProgress = false;
-                  this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η ρύθμιση με κλειδί '${this._mediaSettingKey}' ενημερώθηκε με επιτυχία.`);
+                  this._toaster.show(ToastType.Success, 'settings.media.success-save', `'settings.media.success-save-message' '${this._mediaSettingKey}' `);
                   this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['settings']));
               }
           });

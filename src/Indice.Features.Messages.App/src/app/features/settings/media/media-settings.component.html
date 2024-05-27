@@ -4,9 +4,9 @@
             <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div class="sm:col-span-1">
                     <h2 id="applicant-information-title" class="text-lg leading-6 font-medium text-gray-900">
-                        Βιβλιοθήκη Αρχείων
+                        {{ 'settings.media.applicant-information-title' | translate }}
                     </h2>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι Ρυθμίσεις της Βιβλιοθήκης Αρχείων.</p>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ 'settings.media.applicant-information-description' | translate }}</p>
                 </div>
             </div>
         </div>
@@ -15,7 +15,7 @@
         <div class="px-4 py-5 sm:px-6">
             <lib-view-layout [show-header]="false" [fluid]="true" [busy]="!settings">
                 <lib-list-view [items]="settings" [busy]="!settings" [show-pager]="false">
-                    <lib-list-column title="ΚΛΕΙΔΙ">
+                    <lib-list-column title="{{ 'settings.media.key' | translate }}">
                         <ng-template let-item>
                             <div class="flex flex-col">
                                 <span>{{ item.key || '-' }}</span>
@@ -23,7 +23,7 @@
                             </div>
                         </ng-template>
                     </lib-list-column>
-                    <lib-list-column title="ΤΙΜΗ">
+                    <lib-list-column title="{{ 'settings.media.value' | translate | uppercase    }}">
                         <ng-template let-item>{{ item.value || '-' }}</ng-template>
                     </lib-list-column>
                     <!-- <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
@@ -32,9 +32,9 @@
                     <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
                         <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
                     </lib-list-column> -->
-                    <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+                    <lib-list-column title="{{ 'settings.media.actions' | translate }}">
                         <ng-template let-item>
-                            <a title="Επεξεργασία τύπου" [routerLinkActive]="['']"
+                            <a title="{{ 'settings.media.edit-type' | translate }}" [routerLinkActive]="['']"
                                 [routerLinkActiveOptions]="{ exact: true }"
                                 [routerLink]="['', { outlets: { rightpane: ['edit-media-setting', item.key] } }]"
                                 class="nav-link-profile"

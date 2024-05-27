@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Επεξεργασία αποστολέα"
+<lib-side-view-layout title="{{'settings.email.edit-recipient'| translate}}"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Αποθήκευση'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'settings.email.edit-save'| translate"
+                      [cancel-label]="'settings.email.close'| translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!messageSenderForm.valid || submitInProgress"
                       #sideViewLayout>
@@ -14,55 +14,55 @@
                     <div class="col-span-4">
                         <label for="messageSenderName"
                                class="field-label">
-                            Αποστολέας (*)
+                               {{'settings.email.address'| translate}} (*)
                         </label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="messageSender"
                                    id="messageSendeρ"
                                    [(ngModel)]="model.sender"
-                                   placeholder="Το όνομα του αποστολέα..."
+                                   placeholder="{{'settings.email.address-placeholder'| translate}}"
                                    maxlength="128"
                                    required
                                    #messageSender="ngModel">
                         </div>
                         <p *ngIf="messageSender.invalid && (messageSender.dirty || messageSender.touched)"
                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="messageSender.errors!['required']">Παρακαλώ συμπληρώστε μία διεύθυνση.</span>
-                            <span *ngIf="messageSender.errors!['maxlength']">Παρακαλώ συμπληρώστε μία μικρότερη διεύθυνση.</span>
+                           <span *ngIf="messageSender.errors!['required']">{{'settings.email.empty-address-error'| translate}}</span>
+                           <span *ngIf="messageSender.errors!['maxlength']">{{'settings.email.big-address-error'| translate}}</span>
                         </p>
-                        <p class="field-info col-span-3">Η διεύθυνση του αποστολέα του Email.</p>
+                        <p class="field-info col-span-3">{{'settings.email.address-description'| translate}}</p>
                     </div>
                     <!-- Όνομα -->
                     <div class="col-span-4">
                         <label for="messageSenderName"
                                class="field-label">
-                            Όνομα (*)
+                               {{'settings.email.recipient-name'| translate}} (*)
                         </label>
                         <div class="flex rounded-sm">
                             <input type="text"
                                    name="messageSenderName"
                                    id="messageSenderName"
                                    [(ngModel)]="model.displayName"
-                                   placeholder="Το όνομα του αποστολέα..."
+                                   placeholder="{{'settings.email.recipient-name-placeholder'| translate}}"
                                    maxlength="128"
                                    required
                                    #messageSenderName="ngModel">
                         </div>
                         <p *ngIf="messageSenderName.invalid && (messageSenderName.dirty || messageSenderName.touched)"
                            class="mt-2 text-sm text-red-600">
-                            <span *ngIf="messageSenderName.errors!['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
-                            <span *ngIf="messageSenderName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.</span>
-                        </p>
-                        <p class="field-info col-span-3">Η ονομασία με την οποία θα εμφανίζεται o αποστολέας του Email.</p>
+                           <span *ngIf="messageSenderName.errors!['required']">{{'settings.email.empty-recipient-name-error'| translate}}</span>
+                           <span *ngIf="messageSenderName.errors!['maxlength']">{{'settings.email.big-recipient-name-error'| translate}}</span>
+                       </p>
+                       <p class="field-info col-span-3">{{'settings.email.recipient-name-description'| translate}}</p>
                     </div>
                     <div class="col-span-4 flex flex-row justify-between items-center">
                         <div>
                             <label for="messageSenderName"
                                 class="field-label">
-                                Προκαθορισμένος Αποστολέας
+                                {{'settings.email.default-recipient'| translate}}
                             </label>
-                            <p class="field-info col-span-3">Επιλέξετε εφόσον επιθυμείτε να εμφανίζεται ως ο προκαθοριμσένος αποστολέας.</p>
+                            <p class="field-info col-span-3">{{'settings.email.default-recipient-description'| translate}}</p>
                         </div>
                         <div class="ml-3 flex items-center h-5">
                             <input [id]="'sender'" 
