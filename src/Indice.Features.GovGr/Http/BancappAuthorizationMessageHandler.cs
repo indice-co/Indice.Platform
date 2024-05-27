@@ -19,8 +19,8 @@ public class BancappAuthorizationMessageHandler : DelegatingHandler
     private readonly IDistributedCache _cache;
     private readonly HttpClient _httpClient;
     private string Scope => $"openid {_options.ClientId} offline_access";
-    private string AccessTokenKey => $"{Scope}|{_options.ClientId}|access-token";
-    private string RefreshTokenKey => $"{Scope}|{_options.ClientId}|refresh-token";
+    private string AccessTokenKey => $"Bancapp|{Scope}|{_options.ClientId}|access-token";
+    private string RefreshTokenKey => $"Bancapp|{Scope}|{_options.ClientId}|refresh-token";
     private string AuthTenant => _options.IsProduction ? TenantNameProd : TenantNameStage;
     private string AuthUrl => $"https://{AuthTenant}.b2clogin.com/{AuthTenant}.onmicrosoft.com/B2C_1_ropcauth/oauth2/v2.0/token";
 

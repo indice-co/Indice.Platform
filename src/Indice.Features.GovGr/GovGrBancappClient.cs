@@ -25,12 +25,12 @@ internal class GovGrBancappClient : IBancappService
     
     
     /// <summary>Upload data to eGov Bancapp</summary>
-    public async Task<BancappGCloudUploadResponse> UploadFile(byte[] fileBytes, string fileName) {
+    public async Task<BancappGCloudUploadResponse> UploadFile(Stream stream, string fileName) {
         if (_settings.IsMock) {
             return BancappGCloudUploadResponse.Success();
         }
         
-        if (fileBytes is not { Length: > 0 }) {
+        if (stream is not { Length: > 0 }) {
             return BancappGCloudUploadResponse.Fail("File content to upload is empty. Please review!");
         }
         
@@ -38,14 +38,14 @@ internal class GovGrBancappClient : IBancappService
             return BancappGCloudUploadResponse.Fail("Filename to upload is empty. Please review!");
         }
         
-        using var fileContent = new ByteArrayContent(fileBytes);
-        fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") {
+        using var streamContent = new StreamContent(stream);
+        streamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data") {
             Name = "\"file\"",
             FileName = $"\"{fileName}\""
         };
-        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
         using var formData = new MultipartFormDataContent();
-        formData.Add(fileContent);
+        formData.Add(streamContent);
 
         try {
             return await BancappGCloudUploadResponse.FromHttpResponseMessage(
