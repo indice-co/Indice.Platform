@@ -41,7 +41,7 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
     public full = true;
     public distributionList = new DistributionList({ name: '' });
 
-    public ngOnInit(): void {
+    public override ngOnInit(): void {
         this._distributionListId = this._activatedRoute.parent?.snapshot.params['distributionListId'];
         super.ngOnInit();
         this._getListSubscription = this._api.getDistributionListById(this._distributionListId).subscribe((list: DistributionList) => {
@@ -76,11 +76,11 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         });
     }
 
-    public ngOnDestroy(): void {
+    public override ngOnDestroy(): void {
         this._getListSubscription?.unsubscribe();
     }
 
-    public actionHandler(action: ViewAction): void {
+    public override actionHandler(action: ViewAction): void {
         if (action.icon === Icons.Refresh) {
             this.search = '';
             this.refresh();

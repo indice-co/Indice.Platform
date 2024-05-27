@@ -1,10 +1,7 @@
 import { JsonSchemaFormModule } from '@ajsf-extended/core';
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
-import { FormsModule } from '@angular/forms';
-import { AuthHttpInterceptor, AuthService, AUTH_SETTINGS, IndiceAuthModule } from '@indice/ng-auth';
 import { APP_LINKS, IndiceComponentsModule, ModalService, SHELL_CONFIG } from '@indice/ng-components';
 import { AppComponent } from './app.component';
 import { AppLinks } from './app.links';
@@ -23,6 +20,9 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CaseTypeService } from './core/services/case-type.service';
 import { CasesModule } from './features/cases/cases.module';
+import { FormsModule } from '@angular/forms';
+import { AUTH_SETTINGS, AuthHttpInterceptor, AuthService, IndiceAuthModule } from '@indice/ng-auth';
+import { NgModule } from '@angular/core';
 
 @NgModule({
   declarations: [

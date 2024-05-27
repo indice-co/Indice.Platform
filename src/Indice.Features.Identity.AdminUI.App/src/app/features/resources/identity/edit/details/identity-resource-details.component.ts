@@ -31,7 +31,7 @@ export class IdentityResourceDetailsComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.canEditResource = this._authService.isAdminUIClientsWriter();
-        const resourceId = +this._route.parent.snapshot.params.id;
+        const resourceId = +this._route.parent.snapshot.params['id'];
         this._getResourceSubscription = this._identityResourceStore.getIdentityResource(resourceId).subscribe((resource: IdentityResourceInfo) => {
             this.identityResource = resource;
         });

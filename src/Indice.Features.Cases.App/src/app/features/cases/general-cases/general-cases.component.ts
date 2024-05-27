@@ -172,6 +172,8 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         groupIds,
         filterMetadata,
         referenceNumbers,
+        undefined,
+        undefined,
         this.page,
         this.pageSize,
         this.sortdir === 'asc' ? this.sort! : this.sort + '-',

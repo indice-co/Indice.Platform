@@ -86,6 +86,7 @@ public class CampaignService : ICampaignService
             throw MessageExceptions.CampaignAlreadyPublished(id);
         }
         campaign.ActionLink = request.ActionLink;
+        campaign.MediaBaseHref = request.MediaBaseHref;
         campaign.ActivePeriod = request.ActivePeriod;
         campaign.Content = request.Content;
         campaign.MessageChannelKind = Enum.Parse<MessageChannelKind>(string.Join(',', request.Content.Select(x => x.Key)), ignoreCase: true);

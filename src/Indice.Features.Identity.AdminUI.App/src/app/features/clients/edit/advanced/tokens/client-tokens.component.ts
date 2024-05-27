@@ -28,7 +28,7 @@ export class ClientTokensComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.canEditClient = this._authService.isAdminUIClientsWriter();
-        const clientId = this._route.parent.parent.snapshot.params.id;
+        const clientId = this._route.parent.parent.snapshot.params['id'];
         this._getDataSubscription = this._clientStore.getClient(clientId).subscribe((client: SingleClientInfo) => this.client = client);
     }
 

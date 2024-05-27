@@ -11,7 +11,7 @@ public class CampaignCreatedEvent
     /// <summary>The title of the campaign.</summary>
     public string Title { get; set; }
     /// <summary>The content of the campaign.</summary>
-    public MessageContentDictionary Content { get; set; } = new MessageContentDictionary();
+    public MessageContentDictionary Content { get; set; } = [];
     /// <summary>Determines if a campaign is published.</summary>
     public bool Published { get; set; }
     /// <summary>Specifies the time period that a campaign is active.</summary>
@@ -22,6 +22,8 @@ public class CampaignCreatedEvent
     public dynamic Data { get; set; }
     /// <summary>The delivery channel of a campaign.</summary>
     public MessageChannelKind MessageChannelKind { get; set; }
+    /// <summary>The base href to access the media.</summary>
+    public string MediaBaseHref { get; set; }
     /// <summary>The distribution list of the campaign.</summary>
     public Guid? DistributionListId { get; set; }
     /// <summary>Determines whether the distribution list already exists or is new.</summary>
@@ -31,9 +33,9 @@ public class CampaignCreatedEvent
     /// <summary>The call to action <see cref="Hyperlink"/> of the campaign.</summary>
     public Hyperlink ActionLink { get; set; }
     /// <summary>Defines a list of user identifiers that constitutes the audience of the campaign.</summary>
-    public List<string> RecipientIds { get; set; } = new List<string>();
+    public List<string> RecipientIds { get; set; } = [];
     /// <summary>List of anonymous contacts not available through any of the existing contact resolvers. Use this list if recipient id is not known/available or the message will be fire and forget.</summary>
-    public List<ContactAnonymous> Recipients { get; set; } = new List<ContactAnonymous>();
+    public List<ContactAnonymous> Recipients { get; set; } = [];
 
     /// <summary>Creates a <see cref="CampaignCreatedEvent"/> instance from a <see cref="Campaign"/> instance.</summary>
     /// <param name="campaign">Models a campaign.</param>
@@ -50,10 +52,11 @@ public class CampaignCreatedEvent
         Title = campaign.Title,
         Type = campaign.Type,
         ActionLink = campaign.ActionLink,
+        MediaBaseHref = campaign.MediaBaseHref,
         IsGlobal = campaign.IsGlobal,
         IsNewDistributionList = isNewDistributionList,
         Published = campaign.Published,
-        RecipientIds = recipientIds ?? new List<string>(),
-        Recipients = recipients ?? new List<ContactAnonymous>()
+        RecipientIds = recipientIds ?? [],
+        Recipients = recipients ?? []
     };
 }

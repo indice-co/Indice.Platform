@@ -1,9 +1,10 @@
 import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
-import * as Handlebars from 'handlebars';
-import { LibTabComponent, LibTabGroupComponent, MenuOption } from '@indice/ng-components';
-import { MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
+import Handlebars from "handlebars";
+import * as app from 'src/app/core/models/settings';
+import { LibTabComponent, LibTabGroupComponent, MenuOption, SidePaneComponent } from '@indice/ng-components';
+import { Hyperlink, MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
 import { ValidationService } from 'src/app/core/services/validation.service';
 import { UtilitiesService } from 'src/app/shared/utilities.service';
 import { ChannelState } from './channel-state';
@@ -12,12 +13,13 @@ import { SettingsStore } from 'src/app/features/settings/settings-store.service'
 import { MediaFile } from 'src/app/core/services/media-api.service';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
 import { Editor } from 'tinymce';
-import "tinymce";
+// Import TinyMCE
+import tinymce from 'tinymce/tinymce';
 import { settings } from 'src/app/core/models/settings';
-declare var tinymce: any;
 @Component({
     selector: 'app-campaign-content',
-    templateUrl: './campaign-content.component.html'
+    templateUrl: './campaign-content.component.html',
+    styleUrl: './campaign-content.component.scss'
 })
 export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChecked {
     private _samplePayload: any = {
@@ -36,6 +38,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
 
     private _currentValidDataObject: any = undefined;
     @ViewChild('tabGroup', { static: true }) private _tabGroup: LibTabGroupComponent | undefined;
+    @ViewChild('rightPane', { static: false }) public rightPaneComponent!: SidePaneComponent;
 
     constructor(
         private _validationService: ValidationService,
@@ -53,9 +56,8 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
         data: new FormControl(null, this._validationService.invalidJsonValidator()),
         content: this._formBuilder.array([])
     });
-
     @Input() set data(value: any) {
-        this.form.controls['data'].setValue(value);
+        this.form.controls['data'].setValue(value instanceof Object ? JSON.stringify(value, undefined, 2) : value);
     }
     public get data(): AbstractControl {
         return this.form.controls['data'];
@@ -71,7 +73,6 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     public hideMetadata = true;
     public selectedSenderId: any;
     public messageSenders: MenuOption[] = [];
-    public showSidePane: boolean = false;
     public enableRichTextEditor = settings.enableRichTextEditor;
 
     public get samplePayload(): any {
@@ -143,6 +144,27 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     };
 
     public ngOnInit(): void {
+        if (!this.additionalData.actionLink) {
+            this.additionalData.actionLink = new Hyperlink({
+                text: "Click me!",
+                href: "https://www.indice.gr"
+            })
+        }
+        if (!this.additionalData.title) {
+            this.additionalData.title = "Welcome"
+        }
+        if (!this.additionalData.mediaBaseHref) {
+            this.additionalData.mediaBaseHref = `${app.settings.api_url}`;
+            if (app.settings.enableMediaLibrary) {
+                this._store.getMediaSetting('Media CDN')
+                .subscribe(x => {
+                    this.additionalData.mediaBaseHref = `${app.settings.api_url}/api/media`;
+                    if (x?.value) {
+                        this.additionalData.mediaBaseHref = x.value.endsWith('/') ? x.value.substring(0,  x.value.length - 1) : x.value;
+                    }
+                })
+            }
+        }
     }
     public ngAfterViewChecked(): void {
       if (this.enableRichTextEditor && (!tinymce.get("tinymce-editor-email") || !tinymce.get("tinymce-editor-inbox"))) {
@@ -163,7 +185,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
                         subject: [content.title, Validators.required],
                         body: [content.body, Validators.required]
                     });
-                    const channelState = this.channelsState[channel];
+                    const channelState = this.getChannelState(channel);
                     if (channelState) {
                         channelState.checked = true;
                     }
@@ -257,12 +279,12 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     }
 
     public openSidePane(content: FormGroup) {
-        this.showSidePane = true;
+        this.rightPaneComponent.show();
         this._contentForm = content;
     }
 
     public closeSidePane() {
-        this.showSidePane = false;
+        this.rightPaneComponent.hide();
     }
 
     public async addToTextArea (file: MediaFile | undefined) {
@@ -281,8 +303,18 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
 
         // this._contentForm!.controls['body'].setValue(`${textarea.value.substring(0, start_position)}${text}${textarea.value.substring(end_position, textarea.value.length)}`);
         // this.onBodyInput(this._contentForm!);
-        this.showSidePane = false;
+        this.rightPaneComponent.hide();
     };
+
+    public getChannelState(key: string) {
+        let lowerKey = key.toLowerCase();
+        switch (lowerKey) {
+            case 'pushnotification':
+                return this.channelsState['pushNotification'];
+            default:
+                return this.channelsState[lowerKey];
+        }
+    }
 
     private _setSubjectPreview(value: string | undefined): void {
         if (!value) {

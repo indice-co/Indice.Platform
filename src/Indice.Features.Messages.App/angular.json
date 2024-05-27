@@ -100,10 +100,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "messages-app:build:production"
+              "buildTarget": "messages-app:build:production"
             },
             "development": {
-              "browserTarget": "messages-app:build:development"
+              "buildTarget": "messages-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -111,7 +111,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "messages-app:build"
+            "buildTarget": "messages-app:build"
           }
         },
         "test": {

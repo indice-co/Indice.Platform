@@ -17,7 +17,7 @@ public class MyCaseServiceTests : IDisposable
 {
     public MyCaseServiceTests() {
         var inMemorySettings = new Dictionary<string, string> {
-            ["ConnectionStrings:CasesDb"] = "Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.Test;Trusted_Connection=True;MultipleActiveResultSets=true",
+            ["ConnectionStrings:CasesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
         };
         Microsoft.Extensions.Configuration.IConfiguration configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(inMemorySettings)

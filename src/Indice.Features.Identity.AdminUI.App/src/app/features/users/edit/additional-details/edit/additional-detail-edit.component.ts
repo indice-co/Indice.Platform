@@ -27,8 +27,8 @@ export class AdditionalDetailEditComponent implements OnInit, OnDestroy {
     public claim: ClaimType;
 
     public ngOnInit(): void {
-        this._userId = this._route.snapshot.parent.params.id;
-        this._claimId = +this._route.snapshot.params.id;
+        this._userId = this._route.snapshot.parent.params['id'];
+        this._claimId = +this._route.snapshot.params['id'];
         const getUser = this._userStore.getUser(this._userId);
         const getClaims = this._userStore.getAllClaims();
         this._getDataSubscription = forkJoin([getUser, getClaims]).pipe(map((responses: [SingleUserInfo, ClaimTypeInfo[]]) => {

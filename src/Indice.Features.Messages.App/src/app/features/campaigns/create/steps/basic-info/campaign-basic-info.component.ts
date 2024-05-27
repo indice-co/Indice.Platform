@@ -67,6 +67,12 @@ export class CampaignBasicInfoComponent implements OnInit {
             this.template.setValue(event);
             const channelsFormArray: FormArray = this.channels as FormArray;
             channelsFormArray.clear();
+            if (!this.actionLinkText.value) {
+                this.actionLinkText.setValue("Click me!");
+            }
+            if (!this.actionLinkHref.value) {
+                this.actionLinkHref.setValue("https://www.indice.gr");
+            }
             event.data.forEach((channel: string) => channelsFormArray.push(new FormControl(channel)));
         } else {
             this.template.setValue(null);

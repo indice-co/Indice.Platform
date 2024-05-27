@@ -1,5 +1,5 @@
 import { AfterContentInit, ContentChildren, Directive, ElementRef, Input, OnChanges, OnDestroy, QueryList, Renderer2 } from '@angular/core';
-import { NavigationEnd, Router, RouterLink, RouterLinkWithHref, Event } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, Event } from '@angular/router';
 
 import { untilDestroy } from '../operators/until-destroy';
 
@@ -26,7 +26,7 @@ export class RouterLinkMatchDirective implements OnDestroy, OnChanges, AfterCont
     }
 
     @ContentChildren(RouterLink, { descendants: true }) public links: QueryList<RouterLink>;
-    @ContentChildren(RouterLinkWithHref, { descendants: true }) public linksWithHrefs: QueryList<RouterLinkWithHref>;
+    @ContentChildren(RouterLink, { descendants: true }) public linksWithHrefs: QueryList<RouterLink>;
     @Input() public routerLinkMatchOptions: { ignoreQueryParams?: boolean };
 
     @Input('routerLinkMatch')

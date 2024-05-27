@@ -187,6 +187,14 @@ public class NotificationsManager(
                 return CreateCampaignResult.Fail("Failed to store the attachments. Check storage or database settings", ex.Message);
             }
         }
+        // use the teplate content if exists
+        if (request.MessageTemplateId.HasValue && request.Content.Count == 0) {
+            var template = await TemplateService.GetById(request.MessageTemplateId.Value);
+            if (template == null) {
+                return CreateCampaignResult.Fail($"The selected Template with Id:({request.MessageTemplateId}) does not exist");
+            }
+            request.Content = template.Content;
+        }
         // Create campaign in the store.
         var createdCampaign = await CampaignService.Create(request);
         // Dispatch event that the campaign was created.

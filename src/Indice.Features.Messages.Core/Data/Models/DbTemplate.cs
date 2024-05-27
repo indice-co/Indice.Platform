@@ -10,5 +10,5 @@ public class DbTemplate : DbAuditableEntity
     /// <summary>The name of the template.</summary>
     public string Name { get; set; }
     /// <summary>The contents of the template.</summary>
-    public MessageContentDictionary Content { get; set; } = new MessageContentDictionary();
+    public MessageContentDictionary Content { get; set; } = [];
 }

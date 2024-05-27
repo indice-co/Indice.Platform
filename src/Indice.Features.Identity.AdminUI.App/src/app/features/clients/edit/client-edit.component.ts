@@ -18,7 +18,7 @@ export class ClientEditComponent implements OnInit, OnDestroy {
     public client = new SingleClientInfo();
 
     public ngOnInit(): void {
-        const clientId = this._route.snapshot.params.id;
+        const clientId = this._route.snapshot.params['id'];
         this._getDataSubscription = this._clientStore.getClient(clientId).subscribe((client: SingleClientInfo) => {
             this.client = client;
         });

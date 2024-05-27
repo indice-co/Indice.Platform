@@ -68,12 +68,14 @@ export interface ICasesApiService {
      * @param filter_CustomerIds (optional) The Id of the customer to filter.
      * @param filter_CustomerNames (optional) The name of the customer to filter.
      * @param filter_From (optional) The created date of the case, starting from, to filter.
-     * @param filter_To (optional) The create date of the case, ending to, to filter.
+     * @param filter_To (optional) The creation date of the case, ending to, to filter.
      * @param filter_CaseTypeCodes (optional) The list of case type codes to filter.
      * @param filter_CheckpointTypeCodes (optional) The list of checkpoint type codes to filter.
      * @param filter_GroupIds (optional) The list of groupIds to filter.
      * @param filter_Metadata (optional) Construct filter clauses based on the metadata you are adding to the cases in your installation.
      * @param filter_ReferenceNumbers (optional) The reference number of the case to filter.
+     * @param filter_Data (optional) Construct filter clauses based on case data.
+     * @param filter_IncludeData (optional) Determines whether case data should be included in result.
      * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
      * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
      * @param sort (optional) The property name used to sort the list.
@@ -81,7 +83,7 @@ export interface ICasesApiService {
      * @param api_version (optional)
      * @return OK
      */
-    getCases(filter_CustomerIds?: string[] | undefined, filter_CustomerNames?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, filter_ReferenceNumbers?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet>;
+    getCases(filter_CustomerIds?: string[] | undefined, filter_CustomerNames?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, filter_ReferenceNumbers?: string[] | undefined, filter_Data?: string[] | undefined, filter_IncludeData?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet>;
     /**
      * Update the case with the business data as defined at the specific case type. This action is allowed only for draft cases.
      * @param caseId The Id of the case.
@@ -415,28 +417,28 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
@@ -454,11 +456,11 @@ export class CasesApiService implements ICasesApiService {
             }
             return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<FileResponse>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -509,53 +511,53 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CaseTypePartialResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CaseTypePartialResultSet>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -605,43 +607,43 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -691,53 +693,53 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CaseType.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CaseType>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -791,53 +793,53 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CaseType.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CaseType>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -885,50 +887,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -979,35 +981,35 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
                 result200 = resultData200 !== undefined ? resultData200 : <any>null;
@@ -1015,11 +1017,11 @@ export class CasesApiService implements ICasesApiService {
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<string>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -1027,12 +1029,14 @@ export class CasesApiService implements ICasesApiService {
      * @param filter_CustomerIds (optional) The Id of the customer to filter.
      * @param filter_CustomerNames (optional) The name of the customer to filter.
      * @param filter_From (optional) The created date of the case, starting from, to filter.
-     * @param filter_To (optional) The create date of the case, ending to, to filter.
+     * @param filter_To (optional) The creation date of the case, ending to, to filter.
      * @param filter_CaseTypeCodes (optional) The list of case type codes to filter.
      * @param filter_CheckpointTypeCodes (optional) The list of checkpoint type codes to filter.
      * @param filter_GroupIds (optional) The list of groupIds to filter.
      * @param filter_Metadata (optional) Construct filter clauses based on the metadata you are adding to the cases in your installation.
      * @param filter_ReferenceNumbers (optional) The reference number of the case to filter.
+     * @param filter_Data (optional) Construct filter clauses based on case data.
+     * @param filter_IncludeData (optional) Determines whether case data should be included in result.
      * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
      * @param size (optional) The size of the list. Default is Indice.Types.ListOptions.DEFAULT_SIZE.
      * @param sort (optional) The property name used to sort the list.
@@ -1040,7 +1044,7 @@ export class CasesApiService implements ICasesApiService {
      * @param api_version (optional)
      * @return OK
      */
-    getCases(filter_CustomerIds?: string[] | undefined, filter_CustomerNames?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, filter_ReferenceNumbers?: string[] | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet> {
+    getCases(filter_CustomerIds?: string[] | undefined, filter_CustomerNames?: string[] | undefined, filter_From?: Date | undefined, filter_To?: Date | undefined, filter_CaseTypeCodes?: string[] | undefined, filter_CheckpointTypeCodes?: string[] | undefined, filter_GroupIds?: string[] | undefined, filter_Metadata?: string[] | undefined, filter_ReferenceNumbers?: string[] | undefined, filter_Data?: string[] | undefined, filter_IncludeData?: boolean | undefined, page?: number | undefined, size?: number | undefined, sort?: string | undefined, search?: string | undefined, api_version?: string | undefined): Observable<CasePartialResultSet> {
         let url_ = this.baseUrl + "/api/manage/cases?";
         if (filter_CustomerIds === null)
             throw new Error("The parameter 'filter_CustomerIds' cannot be null.");
@@ -1078,6 +1082,14 @@ export class CasesApiService implements ICasesApiService {
             throw new Error("The parameter 'filter_ReferenceNumbers' cannot be null.");
         else if (filter_ReferenceNumbers !== undefined)
             filter_ReferenceNumbers && filter_ReferenceNumbers.forEach(item => { url_ += "Filter.ReferenceNumbers=" + encodeURIComponent("" + item) + "&"; });
+        if (filter_Data === null)
+            throw new Error("The parameter 'filter_Data' cannot be null.");
+        else if (filter_Data !== undefined)
+            filter_Data && filter_Data.forEach(item => { url_ += "Filter.Data=" + encodeURIComponent("" + item) + "&"; });
+        if (filter_IncludeData === null)
+            throw new Error("The parameter 'filter_IncludeData' cannot be null.");
+        else if (filter_IncludeData !== undefined)
+            url_ += "Filter.IncludeData=" + encodeURIComponent("" + filter_IncludeData) + "&";
         if (page === null)
             throw new Error("The parameter 'page' cannot be null.");
         else if (page !== undefined)
@@ -1130,46 +1142,46 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CasePartialResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CasePartialResultSet>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -1223,50 +1235,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -1316,53 +1328,53 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Case.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<Case>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -1411,50 +1423,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -1504,28 +1516,28 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
@@ -1543,15 +1555,15 @@ export class CasesApiService implements ICasesApiService {
             }
             return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("Not Found", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<FileResponse>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -1601,50 +1613,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CaseActions.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("Not Found", status, _responseText, _headers);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CaseActions>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -1698,50 +1710,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -1790,50 +1802,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -1882,46 +1894,46 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CaseAttachmentResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CaseAttachmentResultSet>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -1979,53 +1991,53 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CasesAttachmentLink.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CasesAttachmentLink>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -2077,28 +2089,28 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
@@ -2116,18 +2128,18 @@ export class CasesApiService implements ICasesApiService {
             }
             return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<FileResponse>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -2181,50 +2193,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -2274,35 +2286,35 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             if (Array.isArray(resultData200)) {
@@ -2316,11 +2328,11 @@ export class CasesApiService implements ICasesApiService {
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<RejectReason[]>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -2374,50 +2386,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -2467,35 +2479,35 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             if (Array.isArray(resultData200)) {
@@ -2509,18 +2521,18 @@ export class CasesApiService implements ICasesApiService {
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<TimelineEntry[]>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -2574,50 +2586,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -2663,35 +2675,35 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             if (Array.isArray(resultData200)) {
@@ -2705,18 +2717,18 @@ export class CasesApiService implements ICasesApiService {
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CheckpointType[]>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -2772,35 +2784,35 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             if (Array.isArray(resultData200)) {
@@ -2814,11 +2826,11 @@ export class CasesApiService implements ICasesApiService {
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CustomerDetails[]>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -2872,46 +2884,46 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CustomerData.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CustomerData>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -2991,53 +3003,53 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = LookupItemResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<LookupItemResultSet>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -3083,46 +3095,46 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = NotificationSubscriptionResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<NotificationSubscriptionResponse>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -3172,43 +3184,43 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -3254,35 +3266,35 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             if (Array.isArray(resultData200)) {
@@ -3296,11 +3308,11 @@ export class CasesApiService implements ICasesApiService {
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<Query[]>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -3350,43 +3362,43 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -3435,50 +3447,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -3529,35 +3541,35 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             if (Array.isArray(resultData200)) {
@@ -3571,11 +3583,11 @@ export class CasesApiService implements ICasesApiService {
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<GroupByReportResult[]>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -3646,46 +3658,46 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CaseTypePartialResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CaseTypePartialResultSet>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -3735,46 +3747,46 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CaseTypePartial.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CaseTypePartial>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -3905,53 +3917,53 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = MyCasePartialResultSet.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<MyCasePartialResultSet>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -4002,46 +4014,46 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CreateCaseResponse.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CreateCaseResponse>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -4091,46 +4103,46 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = Case.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<Case>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -4184,50 +4196,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -4310,53 +4322,53 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = CasesAttachmentLink.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<CasesAttachmentLink>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -4405,28 +4417,28 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
@@ -4444,11 +4456,11 @@ export class CasesApiService implements ICasesApiService {
             }
             return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<FileResponse>(null as any);
+        return _observableOf(null as any);
     }
 
     /**
@@ -4497,50 +4509,50 @@ export class CasesApiService implements ICasesApiService {
 
         let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
         if (status === 400) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result400: any = null;
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ValidationProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
             }));
         } else if (status === 401) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result401: any = null;
             let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result401 = ProblemDetails.fromJS(resultData401);
             return throwException("Unauthorized", status, _responseText, _headers, result401);
             }));
         } else if (status === 403) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result403: any = null;
             let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result403 = ProblemDetails.fromJS(resultData403);
             return throwException("Forbidden", status, _responseText, _headers, result403);
             }));
         } else if (status === 500) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result500: any = null;
             let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result500 = ProblemDetails.fromJS(resultData500);
             return throwException("Server Error", status, _responseText, _headers, result500);
             }));
         } else if (status === 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
-            return _observableOf<void>(null as any);
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
             }));
         } else if (status === 404) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result404: any = null;
             let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result404 = ProblemDetails.fromJS(resultData404);
             return throwException("Not Found", status, _responseText, _headers, result404);
             }));
         } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap(_responseText => {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             }));
         }
-        return _observableOf<void>(null as any);
+        return _observableOf(null as any);
     }
 }
 

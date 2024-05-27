@@ -1,11 +1,13 @@
-version: 7.17.0.{build}
+version: 7.23.0.{build}
 branches:
   only:
   - master
   - develop
 image: Visual Studio 2022
+environment:
+  nodejs_version: "20"
 install:
-- ps: Install-Product node 16.13.0
+- ps: Install-Product node $env:nodejs_version
 - ps: |
     Invoke-WebRequest 'https://dot.net/v1/dotnet-install.ps1' -OutFile dotnet-install.ps1
     ./dotnet-install.ps1 -Channel 7.0
@@ -25,8 +27,6 @@ before_build:
     }
 - ps: dotnet restore
 build_script:
-- ps: dotnet pack -c Release --property:PublishDir=artifacts
+- ps: dotnet build --no-restore --configuration Release
 test_script:
-- ps: dotnet test
-artifacts:
-- path: artifacts\*.nupkg
+- ps: dotnet test --no-build --configuration Release
