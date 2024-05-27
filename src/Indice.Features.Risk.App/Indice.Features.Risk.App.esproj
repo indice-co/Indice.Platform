@@ -11,5 +11,6 @@
     <!-- Disable tests -->
     <JavaScriptTestRoot></JavaScriptTestRoot>
     <JavaScriptTestFramework></JavaScriptTestFramework>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 </Project>
