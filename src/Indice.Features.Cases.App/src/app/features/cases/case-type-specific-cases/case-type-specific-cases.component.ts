@@ -30,7 +30,6 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     ];
     this._route.params.subscribe(() => {
       this.initialize();
-      super.loadItems();
     })
   }
 
