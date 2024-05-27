@@ -1,5 +1,5 @@
 import { JsonSchemaFormService } from "@ajsf-extended/core";
-import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from "rxjs";
 import { takeUntil, tap } from "rxjs/operators";
 import { LookupItemResultSet } from "src/app/core/services/cases-api.service";
@@ -10,7 +10,7 @@ import { LookupsService } from "src/app/core/services/lookups.service";
   templateUrl: './lookup-widget.component.html',
   styleUrls: ['./lookup-widget.component.scss']
 })
-export class LookupWidgetComponent implements OnInit {
+export class LookupWidgetComponent implements OnInit, OnDestroy {
   formControl: any;
   controlName: string = '';
   controlValue: string | undefined;
@@ -25,7 +25,7 @@ export class LookupWidgetComponent implements OnInit {
   occupations: LookupItemResultSet | undefined;
   searchTerm: any;
   separator = '-';
-  private destroy$ = new Subject();
+  private destroy$ = new Subject<void>(); // Specify type parameter for better type safety
 
   constructor(
     public changeDetector: ChangeDetectorRef,
@@ -65,7 +65,7 @@ export class LookupWidgetComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
+    this.destroy$.next(undefined); // Emit undefined to ensure type safety
     this.destroy$.complete();
   }
 
@@ -79,5 +79,4 @@ export class LookupWidgetComponent implements OnInit {
     }
     this.jsf.updateValue(this, this.searchTerm.substring(0, this.searchTerm.indexOf(' ')));
   }
-
 }

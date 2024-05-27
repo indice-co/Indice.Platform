@@ -1,9 +1,8 @@
 import { PageIllustrationComponent } from './../page-illustration/page-illustration.component';
 import { CaseTypePartialResultSet, CustomerDetails } from './../../../core/services/cases-api.service';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { CasesApiService, CaseTypePartial } from 'src/app/core/services/cases-api.service';
-import { map } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'app-select-case-type',
@@ -18,7 +17,6 @@ export class SelectCaseTypeComponent implements OnInit {
   @Output() sidePanelTitleEvent = new EventEmitter<string>();
   @Output() selectedCustomerEvent = new EventEmitter<CustomerDetails>();
 
-
   constructor(private api: CasesApiService) {
     this.caseTypes$ = this.api.getCaseTypes(true).pipe(
       map((result: CaseTypePartialResultSet) => result.items as CaseTypePartial[])
@@ -27,7 +25,7 @@ export class SelectCaseTypeComponent implements OnInit {
 
   ngOnInit(): void { }
 
-  onSelect(value:any) {
+  onSelect(value: any) {
     this.selectedCaseType = value;
     this.selectedCaseTypeCode = this.selectedCaseTypeCode === value.code ? '' : value.code
     this.selectedCaseTypeEvent.emit(this.selectedCaseTypeCode);

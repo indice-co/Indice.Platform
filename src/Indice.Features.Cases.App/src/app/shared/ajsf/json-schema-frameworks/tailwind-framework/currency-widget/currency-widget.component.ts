@@ -21,10 +21,10 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   @Input() dataIndex: number[] = [];
 
   thousandSeparator: string = ".";
-  // this is the placeholder for the mask input. The actual control value is a hidden input
+  // This is the placeholder for the mask input. The actual control value is a hidden input
   displayValue = '';
-  private destroy$ = new Subject();
-
+  // Specify type parameter for better type safety
+  private destroy$ = new Subject<void>();
   constructor(
     private jsf: JsonSchemaFormService
   ) { }
@@ -32,11 +32,11 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.options = this.layoutNode.options || {};
     this.jsf.initializeControl(this);
-    // initialize displayValue if necessary
+    // Initialize displayValue if necessary
     if (this.formControl.value) {
       this.displayValue = parseFloat(this.formControl.value).toLocaleString('el');
     }
-    // subscribe to formControl value Changes in order to inform UI
+    // Subscribe to formControl value changes in order to inform UI
     this.formControl.valueChanges.pipe(
       takeUntil(this.destroy$),
       map((value: string) =>
@@ -49,13 +49,14 @@ export class CurrencyWidgetComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
+    // Emit undefined to ensure type safety
+    this.destroy$.next(undefined);
     this.destroy$.complete();
   }
 
   updateValue(event: any) {
-    // force replace masked value input into global decimal format (eg 5.125.000,03 --> 5125000.03)
-    const controlValue = parseFloat(event.target.value.replace(/[.]/g, '').replace(/[,]/g, '.')); // do we really need to parseFloat?
+    // Force replace masked value input into global decimal format (eg 5.125.000,03 --> 5125000.03)
+    const controlValue = parseFloat(event.target.value.replace(/[.]/g, '').replace(/[,]/g, '.'));
     this.displayValue = event.target.value;
     this.jsf.updateValue(this, controlValue);
   }
