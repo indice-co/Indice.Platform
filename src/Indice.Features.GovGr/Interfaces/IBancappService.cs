@@ -12,8 +12,9 @@ public interface IBancappService
 /// <summary>BancappServiceExtensions</summary>
 public static class BancappServiceExtensions
 {
-    /// <summary>Covert <see cref="byte"/> <see cref="Array"/> to <see cref="Stream"/>.</summary>
-    public static Stream ConvertToMemoryStream(byte[] byteArray) {
-        return new MemoryStream(byteArray);
+    /// <summary></summary>
+    public static async Task<BancappGCloudUploadResponse> UploadFile(this IBancappService service, byte[] byteArray, string fileName) {
+        using var memoryStream = new MemoryStream(byteArray);
+        return await service.UploadFile(memoryStream, fileName);
     }
 }
