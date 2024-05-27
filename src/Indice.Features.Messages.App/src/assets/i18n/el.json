@@ -427,5 +427,47 @@
         "success-save":"Επιτυχής αποθήκευση",
         "success-save-message": "Ο τύπος με όνομα δημιουργήθηκε με επιτυχία. Όνομα:",
         "success-edit-message": "Ο τύπος αποθηκεύτηκε με επιτυχία. Όνομα:"
+    },
+
+    "settings": {
+        "title": "Ρυθμίσεις",
+        "email":{
+            "create-recipient": "Δημιουργία νέου αποστολέα",
+            "create-save": "Δημιουργία",
+            "edit-recipient": "Επεξεργασία αποστολέα",
+            "edit-save": "Αποθήκευση",
+            "close": "Κλείσιμο",
+            "address": "Διεύθυνση",
+            "address-placeholder": "Η διεύθυνση του αποστολέα...",
+            "address-description": "Η διεύθυνση του αποστολέα του Email.",
+            "empty-address-error": "Παρακαλώ συμπληρώστε μία διεύθυνση.",
+            "big-address-error": "Παρακαλώ συμπληρώστε μία μικρότερη διεύθυνση.",
+            "recipient-name": "Όνομα",
+            "recipient-name-placeholder": "Το όνομα του αποστολέα...",
+            "empty-recipient-name-error": "Παρακαλώ συμπληρώστε ένα όνομα.",
+            "big-recipient-name-error": "Παρακαλώ συμπληρώστε ένα μικρότερο όνομα.",
+            "recipient-name-description": "Η ονομασία με την οποία θα εμφανίζεται o αποστολέας του Email.",
+            "default-recipient": "Προκαθορισμένος Αποστολέας",
+            "default-recipient-description": "Επιλέξετε εφόσον επιθυμείτε να εμφανίζεται ως ο προκαθοριμσένος αποστολέας.",
+            "success-save": "Επιτυχής αποθήκευση",
+            "success-save-message": "Ο αποστολέας δημιουργήθηκε με επιτυχία. Όνομα:",
+            "success-edit-message": "Ο αποστολέας αποθηκεύτηκε με επιτυχία. Διεύθυνση:"
+        },
+        "media": {
+            "applicant-information-title": "Βιβλιοθήκη Αρχείων",
+            "applicant-information-description": "Οι Ρυθμίσεις της Βιβλιοθήκης Αρχείων.",
+            "key": "ΚΛΕΙΔΙ",    
+            "value": "Τιμή",
+            "actions": "ΕΝΕΡΓΕΙΕΣ",
+            "edit-type": "Επεξεργασία τύπου",
+            "edit-setting": "Επεξεργασία ρύθμισης",
+            "save": "Αποθήκευση",
+            "close": "Κλείσιμο",
+            "value-placeholder": "Η τιμή του setting...",
+            "invalid-url": "Παρακαλώ συμπληρώστε μία ορθή διεύθυνση.",
+            "value-info": "Η τιμή της συγκεκριμένης ρύθμισης.",
+            "success-save": "Επιτυχής αποθήκευση",
+            "success-save-message": "Η ρύθμιση ενημερώθηκε με επιτυχία. Κλειδί Ρύθμισης:"
+        }
     }
 }
