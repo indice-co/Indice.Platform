@@ -5,9 +5,9 @@
                 <div class="sm:col-span-1">
                     <h2 id="applicant-information-title"
                         class="text-lg leading-6 font-medium text-gray-900">
-                        Βασικές Πληροφορίες
+                        {{ 'templates.edit.details.title' | translate }}
                     </h2>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι βασικές πληροφορίες του προτύπου.</p>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ 'templates.edit.details.description' | translate }}</p>
                 </div>
                 <div class="sm:col-span-1">
                     <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
@@ -16,7 +16,7 @@
                             <button type="button"
                                     (click)="deleteTemplate()"
                                     class="inline-flex items-center justify-center px-4 py-2 border border-transparent font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-red-500 sm:text-sm">
-                                Διαγραφή
+                                {{ 'templates.edit.delete' | translate }}
                             </button>
                         </div>
                     </div>
@@ -27,25 +27,25 @@
             <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div class="sm:col-span-1">
                     <dt class="text-sm font-medium text-gray-500">
-                        Τιτλος
+                        {{ 'templates.edit.details.name-label' | translate }}
                         <ng-container *ngTemplateOutlet="editIcon; context: { $implicit: 'editName' }"></ng-container>
                     </dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ template?.name }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε από</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{ 'templates.edit.details.created-by' | translate }}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ template?.createdBy || '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Δημιουργήθηκε στις</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{ 'templates.edit.details.created-at' | translate }}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ template?.createdAt ? (template?.createdAt | date: 'medium') : '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε από</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{ 'templates.edit.details.updated-by' | translate }}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ template?.updatedBy || '-' }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                    <dt class="text-sm font-medium text-gray-500">Τροποποιήθηκε στις</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{ 'templates.edit.details.updated-at' | translate }}</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ template?.updatedAt ? (template?.updatedAt | date: 'medium') : '-' }}</dd>
                 </div>
             </dl>

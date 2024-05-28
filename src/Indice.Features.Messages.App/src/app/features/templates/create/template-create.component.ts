@@ -29,7 +29,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
 
     public ngOnInit(): void {
         this.metaItems = [
-            { key: 'info', icon: Icons.Details, text: 'Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο πρότυπο.' }
+            { key: 'info', icon: Icons.Details, text: 'templates.create.info' }
         ];
     }
 
@@ -54,7 +54,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
             .createTemplate(new CreateTemplateRequest(this.template))
             .subscribe(_ => {
                 this.saveInProgress = false;
-                this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το πρότυπο με όνομα '${name}' δημιουργήθηκε με επιτυχία.`);
+                this._toaster.show(ToastType.Success, 'templates.create.success-save', `'templates.create.success-save-message' '${name}' `);
                 this._router.navigate(['templates']);
             });
     }

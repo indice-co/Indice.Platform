@@ -1,4 +1,4 @@
-<lib-view-layout title="Πρότυπα"
+<lib-view-layout title="{{ 'templates.title' | translate }}"
                  [busy]="!items"
                  [actions]="actions"
                  [meta-items]="metaItems"
@@ -16,23 +16,22 @@
                    (pageSizeChanged)="pageSizeChanged($event)"
                    (sortChanged)="sortChanged($event)"
                    (sortdirChanged)="sortdirChanged($event)">
-        <lib-list-column title="ΟΝΟΜΑ">
+        <lib-list-column title="{{ 'templates.name' | translate }}">
             <ng-template let-item>{{ item.name }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
+        <lib-list-column title="{{ 'templates.created-by' | translate }}">
             <ng-template let-item>{{ item.createdBy }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
+        <lib-list-column title="{{ 'templates.created-at' | translate }}">
             <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ ΑΠΟ">
+        <lib-list-column title="{{ 'templates.updated-by' | translate }}">
             <ng-template let-item>{{ item.updatedBy || '-' }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΤΡΟΠΟΠΟΙΗΘΗΚΕ"
-                         [full-width]="true">
+        <lib-list-column title="{{ 'templates.updated-at' | translate }}" [full-width]="true">
             <ng-template let-item>{{ !item.updatedAt ? '-' : (item.updatedAt | date: 'medium') }}</ng-template>
         </lib-list-column>
-        <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+        <lib-list-column title="{{ 'templates.actions' | translate }}">
             <ng-template let-item>
                 <a href="#"
                    [routerLink]="[item.id]"

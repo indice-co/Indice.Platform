@@ -1,7 +1,7 @@
-<lib-side-view-layout title="Επεξεργασία καμπάνιας"
+<lib-side-view-layout title="{{ 'templates.edit.details.pane.title' | translate }}"
                       [ok-close-dialog]="false"
-                      [ok-label]="'Αποθήκευση'"
-                      [cancel-label]="'Κλείσιμο'"
+                      [ok-label]="'templates.edit.save' | translate"
+                      [cancel-label]="'templates.edit.close' | translate"
                       (ok)="submitButton.nativeElement.click()"
                       [disabled]="!editCampaignForm.valid || submitInProgress"
                       #sideViewLayout>
@@ -18,7 +18,7 @@
             <button type="submit"
                     [style.visibility]="'hidden'"
                     #submitBtn>
-                Submit
+                {{ 'templates.edit.details.pane.submit' | translate }}
             </button>
         </form>
     </div>
@@ -26,21 +26,27 @@
 <ng-template #editNameTemplate>
     <label for="templateName"
            class="field-label">
-        Τίτλος (*)
+        {{ 'templates.edit.details.pane.name-label' | translate }}
     </label>
     <div class="mt-1 flex rounded-sm">
         <input type="text"
                name="templateName"
                id="templateName"
                [(ngModel)]="model.name"
-               placeholder="Το όνομα του προτύπου..."
+               placeholder="{{ 'templates.edit.details.pane.name-placeholder' | translate }}"
                required
                #templateName="ngModel">
     </div>
     <p *ngIf="templateName.invalid && (templateName.dirty || templateName.touched)"
        class="mt-2 text-sm text-red-600">
-        <span *ngIf="templateName.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
-        <span *ngIf="templateName.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+        <span *ngIf="templateName.errors!['required']">
+            {{ 'templates.edit.details.pane.name-required-error' | translate }}
+        </span>
+        <span *ngIf="templateName.errors!['maxlength']">
+            {{ 'templates.edit.details.pane.name-maxlength-error' | translate }}
+        </span>
     </p>
-    <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+    <p class="field-info col-span-3">
+        {{ 'templates.edit.details.pane.name-info' | translate }}
+    </p>
 </ng-template>

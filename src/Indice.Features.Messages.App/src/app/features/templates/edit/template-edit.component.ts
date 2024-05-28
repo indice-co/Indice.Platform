@@ -28,7 +28,7 @@ export class TemplateEditComponent implements OnInit, AfterViewChecked {
         if (this._templateId) {
             this._templateStore.getTemplate(this._templateId!).subscribe((template: Template) => {
                 this.template = template;
-                this._layout.title = `Πρότυπο - ${template.name}`;
+                this._layout.title = `'templates.edit.layout-title' - ${template.name}`;
             });
         }
     }

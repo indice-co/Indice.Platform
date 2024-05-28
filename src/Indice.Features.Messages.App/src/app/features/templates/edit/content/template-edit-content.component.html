@@ -5,9 +5,11 @@
                 <div class="sm:col-span-1">
                     <h2 id="applicant-information-title"
                         class="text-lg leading-6 font-medium text-gray-900">
-                        Περιεχόμενο
+                        {{ 'templates.edit.content.title' | translate }}
                     </h2>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Περιεχόμενο της καμπάνιας ανά κανάλι επικοινωνίας.</p>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                        {{ 'templates.edit.content.description' | translate }}
+                    </p>
                 </div>
                 <div class="sm:col-span-1">
                     <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
@@ -17,7 +19,7 @@
                                     (click)="updateContent()"
                                     class="side-view-layout-action-button-submit"
                                     [disabled]="!contentStep.form.valid || updateInProgress">
-                                Αποθήκευση
+                                {{ 'templates.edit.save' | translate }}
                             </button>
                         </div>
                     </div>

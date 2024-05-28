@@ -1,4 +1,4 @@
-<lib-view-layout title="Δημιουργία Προτύπου"
+<lib-view-layout title="{{ 'templates.create.title' | translate }}"
                  [meta-items]="metaItems">
     <div class="min-h-full">
         <main>
@@ -9,7 +9,7 @@
                             class="side-view-layout-action-button-submit"
                             (click)="saveTemplate()"
                             [disabled]="!templateContent.form.valid || !templateForm.form.valid || saveInProgress">
-                        Αποθήκευση
+                        {{ 'templates.create.save' | translate }}
                     </button>
                 </div>
             </div>
@@ -20,29 +20,33 @@
                             <div class="px-4 space-y-2 mt-4">
                                 <form #templateForm="ngForm">
                                     <fieldset>
-                                        <legend class="sr-only">Τίτλος</legend>
+                                        <legend class="sr-only">{{ 'templates.create.title' | translate }}</legend>
                                         <div class="text-base font-medium text-gray-900"
                                              aria-hidden="true">
-                                            Όνομα (*)
+                                            {{ 'templates.create.name' | translate }}
                                         </div>
                                         <label for="templateName"
                                                class="hidden">
-                                            Όνομα (*)
+                                            {{ 'templates.create.name' | translate }}
                                         </label>
                                         <div class="mt-1 flex rounded-sm">
                                             <input type="text"
                                                    id="templateName"
                                                    name="templateName"
                                                    [(ngModel)]="template.name"
-                                                   placeholder="Το όνομα του προτύπου..."
+                                                   placeholder="{{ 'templates.create.name-placeholder' | translate }}"
                                                    required
                                                    #templateName="ngModel">
                                         </div>
                                         <p *ngIf="templateName.invalid && (templateName.dirty || templateName.touched)"
                                            class="mt-2 text-sm text-red-600">
-                                            <span *ngIf="templateName.errors && templateName.errors['required']">Παρακαλώ συμπληρώστε ένα όνομα.</span>
+                                            <span *ngIf="templateName.errors && templateName.errors['required']">
+                                                {{ 'templates.create.name-required-error' | translate }}
+                                            </span>
                                         </p>
-                                        <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται το πρότυπο.</p>
+                                        <p class="field-info col-span-3">
+                                            {{ 'templates.create.name-info' | translate }}
+                                        </p>
                                     </fieldset>
                                 </form>
                             </div>

@@ -1,5 +1,5 @@
 <lib-view-layout [meta-items]="metaItems"
-                 title="Φόρτωση δεδομένων"
+                 title="{{'general.data-loading' | translate}}"
                  #layout>
     <div class="min-h-full">
         <main>
@@ -24,7 +24,7 @@
                                           stroke-linejoin="round"
                                           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span class="truncate">Βασικές πληροφορίες</span>
+                                <span class="truncate">{{'templates.edit.details.title' | translate}}</span>
                             </a>
                             <a [routerLink]="['template-content']"
                                routerLinkActive="vertical-navigation-link-active"
@@ -40,7 +40,7 @@
                                           stroke-linejoin="round"
                                           d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                                 </svg>
-                                <span class="truncate">Περιεχόμενο</span>
+                                <span class="truncate">{{'templates.edit.content.title' | translate}}</span>
                             </a>
                         </nav>
                     </div>

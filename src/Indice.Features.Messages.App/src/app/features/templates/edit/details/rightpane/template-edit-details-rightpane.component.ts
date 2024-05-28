@@ -54,7 +54,7 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Το πρότυπο με όνομα '${this.model.name}' αποθηκεύτηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'templates.edit.success-save', `'templates.edit.details.pane.success-save-message' '${this.model.name}' `);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates', this._templateId]));
                 }
             });

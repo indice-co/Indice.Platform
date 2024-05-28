@@ -51,7 +51,7 @@ export class TemplateContentEditComponent implements OnInit {
             .updateTemplate(this._templateId, this.template)
             .subscribe(_ => {
                 this.updateInProgress = false;
-                this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το περιεχόμενο του προτύπου με όνομα '${this.template.name}' ενημερώθηκε με επιτυχία.`);
+                this._toaster.show(ToastType.Success, 'templates.edit.success-save', `'templates.edit.content.success-save-message' '${this.template.name}' `);
             });
     }
 }
