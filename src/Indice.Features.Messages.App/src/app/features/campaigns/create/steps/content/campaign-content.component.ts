@@ -92,10 +92,10 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     }
 
     public channelsState: { [key: string]: ChannelState; } = {
-        'inbox': { name: 'Inbox', description: 'Ειδοποίηση μέσω πρoσωπικού μήνυμα.', value: MessageChannelKind.Inbox, checked: false },
-        'pushNotification': { name: 'Push Notification', description: 'Ειδοποίηση μέσω push notification στις εγγεγραμμένες συσκευές.', value: MessageChannelKind.PushNotification, checked: false },
-        'email': { name: 'Email', description: 'Ειδοποίηση μέσω ηλεκτρονικού ταχυδρομείου', value: MessageChannelKind.Email, checked: false },
-        'sms': { name: 'SMS', description: 'Ειδοποίηση μέσω σύντομου γραπτού μηνύματος.', value: MessageChannelKind.SMS, checked: false }
+        'inbox': { name: 'Inbox', description: 'campaigns.content-form.inbox-description', value: MessageChannelKind.Inbox, checked: false },
+        'pushNotification': { name: 'Push Notification', description: 'campaigns.content-form.push-notification-description', value: MessageChannelKind.PushNotification, checked: false },
+        'email': { name: 'Email', description: 'campaigns.content-form.email-description', value: MessageChannelKind.Email, checked: false },
+        'sms': { name: 'SMS', description: 'campaigns.content-form.sms-description.', value: MessageChannelKind.SMS, checked: false }
     };
     public tinyMceEditor?: Editor;
     public tinyMceOptions = {
@@ -342,7 +342,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
                     ? new MenuOption(`${this.content.email.sender.displayName} <${this.content.email.sender.sender}>`, this.content.email.sender.id, undefined, this.content?.email?.sender)
                     : undefined;
                 if (messageSenders.items) {
-                    this.messageSenders = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+                    this.messageSenders = [new MenuOption('general.please-choose"', null)];
                     this.messageSenders.push(...messageSenders.items.map(s => {
                         let sender = {
                             id: s.id,

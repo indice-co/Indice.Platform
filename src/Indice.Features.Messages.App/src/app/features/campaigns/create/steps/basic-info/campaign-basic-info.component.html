@@ -2,40 +2,40 @@
     <div class="px-4 space-y-2 pb-4 mt-4">
         <!-- Τίτλος -->
         <fieldset>
-            <legend class="sr-only">Τίτλος</legend>
+            <legend class="sr-only">{{'campaigns.basic-info-form.title' | translate}}</legend>
             <div class="text-base font-medium text-gray-900"
                  aria-hidden="true">
-                Τίτλος (*)
+                {{'campaigns.basic-info-form.title' | translate}} (*)
             </div>
             <label for="campaignTitle"
                    class="hidden">
-                Τίτλος (*)
+                   {{'campaigns.basic-info-form.title' | translate}} (*)
             </label>
             <div class="mt-1 flex rounded-sm">
                 <input type="text"
                        name="campaignTitle"
                        id="campaignTitle"
                        formControlName="title"
-                       placeholder="Ο τίτλος της καμπάνιας...">
+                       placeholder="{{'campaigns.basic-info-form.title-placeholder' | translate}}">
             </div>
             <p *ngIf="title.invalid && (title.dirty || title.touched)"
                class="mt-2 text-sm text-red-600">
-                <span *ngIf="title.errors!['required']">Παρακαλώ συμπληρώστε ένα τίτλο.</span>
-                <span *ngIf="title.errors!['maxlength']">Παρακαλώ συμπληρώστε ένα μικρότερο τίτλο.</span>
+                <span *ngIf="title.errors!['required']">{{'campaigns.basic-info-form.empty-title-error' | translate}}</span>
+                <span *ngIf="title.errors!['maxlength']">{{'campaigns.basic-info-form.big-title-error' | translate}}</span>
             </p>
-            <p class="field-info col-span-3">Η ονομασία η οποία θα εμφανίζεται για την καμπάνια.</p>
+            <p class="field-info col-span-3">{{'campaigns.basic-info-form.title-description' | translate}}p>
         </fieldset>
         <!-- Τύπος -->
         <fieldset>
-            <legend class="sr-only">Τύπος</legend>
+            <legend class="sr-only">{{'campaigns.basic-info-form.type' | translate}}</legend>
             <div class="text-base font-medium text-gray-900"
                  aria-hidden="true">
-                Τύπος
+                 {{'campaigns.basic-info-form.type' | translate}}
             </div>
             <label for="campaignType"
                    class="hidden"
                    aria-hidden="true">
-                Τύπος
+                   {{'campaigns.basic-info-form.type' | translate}}
             </label>
             <div class="mt-1 flex rounded-sm">
                 <lib-local-drop-down-menu id="campaignType"
@@ -49,10 +49,10 @@
         </fieldset>
         <!-- Διάρκεια -->
         <fieldset>
-            <legend class="sr-only">Διάρκεια</legend>
+            <legend class="sr-only">{{'campaigns.basic-info-form.duration' | translate}}</legend>
             <div class="text-base font-medium text-gray-900"
                  aria-hidden="true">
-                Διάρκεια
+                 {{'campaigns.basic-info-form.duration' | translate}}
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <!-- Από -->
@@ -60,7 +60,7 @@
                     <label for="campaignStart"
                            class="hidden"
                            aria-hidden="true">
-                        Ημ. Έναρξης
+                           {{'campaigns.basic-info-form.start-date-shortened' | translate}}
                     </label>
                     <div class="mt-1 flex rounded-sm col-span-3">
                         <input class="w-full"
@@ -72,14 +72,14 @@
                                [min]="now | date: 'yyyy-MM-ddTHH:mm'"
                                [max]="to.value | date: 'yyyy-MM-ddTHH:mm'">
                     </div>
-                    <p class="field-info">Η ημέρα και ώρα έναρξης της καμπάνιας</p>
+                    <p class="field-info">{{'campaigns.basic-info-form.start-date' | translate}}</p>
                 </div>
                 <!-- Έως -->
                 <div class="col-span-2 sm:col-span-1">
                     <label for="campaignEnd"
                            class="hidden"
                            aria-hidden="true">
-                        Ημ. Λήξης
+                           {{'campaigns.basic-info-form.end-date-shortened' | translate}}
                     </label>
                     <div class="mt-1 flex rounded-sm col-span-3">
                         <input class="w-full"
@@ -91,16 +91,16 @@
                                [min]="from.value | date: 'yyyy-MM-ddTHH:mm'"
                                [readonly]="!from.value">
                     </div>
-                    <p class="field-info">Η ημέρα και ώρα λήξης της καμπάνιας</p>
+                    <p class="field-info">{{'campaigns.basic-info-form.end-date' | translate}}</p>
                 </div>
             </div>
         </fieldset>
         <!-- Call to action -->
         <fieldset>
-            <legend class="sr-only">Call to action</legend>
+            <legend class="sr-only">{{'campaigns.basic-info-form.call-to-action' | translate}}</legend>
             <div class="text-base font-medium text-gray-900"
                  aria-hidden="true">
-                Call to action
+                 {{'campaigns.basic-info-form.call-to-action' | translate}}
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <!-- Call to action κείμενο -->
@@ -115,16 +115,16 @@
                                name="campaignClickToActionText"
                                id="campaignClickToActionText"
                                formControlName="actionLinkText"
-                               placeholder="Πατήστε εδώ για να...">
+                               placeholder="'{{'campaigns.basic-info-form.call-to-action-placeholder' | translate}}'">
                     </div>
-                    <p class="field-info">Κείμενο υπερσυνδέσμου</p>
+                    <p class="field-info">{{'campaigns.basic-info-form.call-to-action-text' | translate}}</p>
                 </div>
                 <!-- Call to action σύνδεσμος -->
                 <div class="col-span-2 sm:col-span-1">
                     <label for="campaignClickToActionLink"
                            class="hidden"
                            aria-hidden="true">
-                        Call-to-action σύνδεσμος
+                           {{'campaigns.basic-info-form.call-to-action-link'| translate}}
                     </label>
                     <div class="mt-1 flex rounded-sm">
                         <input type="text"
@@ -133,20 +133,20 @@
                                formControlName="actionLinkHref"
                                placeholder="https://example.com">
                     </div>
-                    <p class="field-info">URL υπερσυνδέσμου</p>
+                    <p class="field-info">{{'campaigns.basic-info-form.call-to-action-url' | translate}}</p>
                     <p *ngIf="actionLinkHref.invalid && (actionLinkHref.dirty || actionLinkHref.touched)"
                        class="mt-2 text-sm text-red-600">
-                        <span *ngIf="actionLinkHref.errors!['pattern']">Παρακαλώ συμπληρώστε έναν έγκυρο σύνδεσμο.</span>
+                        <span *ngIf="actionLinkHref.errors!['pattern']">{{'campaigns.basic-info-form.invalid-url-error' | translate}}</span>
                     </p>
                 </div>
             </div>
         </fieldset>
         <!-- Χρήση template -->
         <fieldset>
-            <legend class="sr-only">Χρήση template</legend>
+            <legend class="sr-only">{{'campaigns.basic-info-form.template-use' | translate}}</legend>
             <div class="text-base font-medium text-gray-900"
                  aria-hidden="true">
-                Χρήση template
+                 {{'campaigns.basic-info-form.template-use' | translate}}
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div class="col-span-2 sm:col-span-1">
@@ -160,7 +160,7 @@
                                class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
                         <label for="template-no"
                                class="ml-3 block text-sm font-medium text-gray-700">
-                            Όχι
+                            {{'general.no' | translate}}
                         </label>
                         <input id="template-yes"
                                name="needsTemplate"
@@ -171,7 +171,7 @@
                                class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 ml-4">
                         <label for="template-yes"
                                class="ml-3 block text-sm font-medium text-gray-700">
-                            Ναι
+                            {{'general.yes' | translate}}
                         </label>
                     </div>
                 </div>
@@ -194,7 +194,7 @@
                     </div>
                     <p *ngIf="template.invalid && (template.dirty || template.touched)"
                        class="mt-2 text-sm text-red-600">
-                        <span *ngIf="template.errors!['required']">Παρακαλώ επιλέξτε ένα template.</span>
+                        <span *ngIf="template.errors!['required']">{{'campaigns.basic-info-form.empty-template-error' | translate}}</span>
                     </p>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-<lib-view-layout title="Δημιουργία Campaign"
+<lib-view-layout title="{{'campaigns-create.title' | translate}}"
                  [meta-items]="metaItems">
     <div class="min-h-full mb-8">
         <main>
@@ -9,13 +9,13 @@
                             (click)="createCampaignStepper.goToPreviousStep()"
                             *ngIf="createCampaignStepper.canGoBack"
                             class="side-view-layout-action-button-cancel">
-                        Προηγούμενο
+                        {{'campaigns-create.previous' | translate}}
                     </button>
                     <button type="button"
                             (click)="createCampaignStepper.goToNextStep()"
                             *ngIf="createCampaignStepper.canGoForward || createCampaignStepper.currentStep?.isLast"
                             class="side-view-layout-action-button-submit">
-                        {{ createCampaignStepper.currentStep?.isLast ? 'Αποθήκευση' : 'Επόμενο' }}
+                        {{ createCampaignStepper.currentStep?.isLast ? '{{"campaigns-create.save" | translate}}' : '{{"campaigns-create.next" | translate}}' }}
                     </button>
                 </div>
             </div>
@@ -29,33 +29,33 @@
                                          (completed)="onSubmitCampaign()"
                                          #createCampaignStepper>
                                 <lib-step [stepControl]="basicInfoStep.form">
-                                    <ng-template libStepLabel>Γενικα</ng-template>
-                                    <ng-template libStepInfo>Βασικές πληροφορίες</ng-template>
+                                    <ng-template libStepLabel>{{'campaigns-steps.basic-info-title' | translate}}</ng-template>
+                                    <ng-template libStepInfo>{{'campaigns-steps.basic-info-description' | translate}}</ng-template>
                                     <app-campaign-basic-info (templateSelected)="templateId = $event"
                                                              #basicInfoStep>
                                     </app-campaign-basic-info>
                                 </lib-step>
                                 <lib-step [stepControl]="contentStep.form">
-                                    <ng-template libStepLabel>Περιεχομενο</ng-template>
-                                    <ng-template libStepInfo>Aνά κανάλι επικοινωνίας</ng-template>
+                                    <ng-template libStepLabel>{{'campaigns-steps.content-title' | translate}}</ng-template>
+                                    <ng-template libStepInfo>{{'campaigns-steps.content-description' | translate}}</ng-template>
                                     <app-campaign-content [additionalData]="basicInfoData"
                                                           [content]="content"
                                                           #contentStep>
                                     </app-campaign-content>
                                 </lib-step>
                                 <lib-step [stepControl]="contentStep.form">
-                                    <ng-template libStepLabel>Επισυναπτομενα</ng-template>
-                                    <ng-template libStepInfo>Επισυναπτόμενα της καμπάνιας</ng-template>
+                                    <ng-template libStepLabel>{{'campaigns-steps.attachments-title' | translate}}</ng-template>
+                                    <ng-template libStepInfo>{{'campaigns-steps.attachments-description' | translate}}</ng-template>
                                     <app-campaign-attachments #attachmentsStep></app-campaign-attachments>
                                 </lib-step>
                                 <lib-step [stepControl]="recipientsStep.form">
-                                    <ng-template libStepLabel>Παραληπτες</ng-template>
-                                    <ng-template libStepInfo>Παραλήπτες της καμπάνιας</ng-template>
+                                    <ng-template libStepLabel>{{'campaigns-steps.recipients-title' | translate}}</ng-template>
+                                    <ng-template libStepInfo>{{'campaigns-steps.recipients-description' | translate}}</ng-template>
                                     <app-campaign-recipients #recipientsStep></app-campaign-recipients>
                                 </lib-step>
                                 <lib-step [stepControl]="previewStep.form">
-                                    <ng-template libStepLabel>Επισκοπηση</ng-template>
-                                    <ng-template libStepInfo>Επισκόπηση στοιχείων</ng-template>
+                                    <ng-template libStepLabel>{{'campaigns-steps.preview-title' | translate}}</ng-template>
+                                    <ng-template libStepInfo>{{'campaigns-steps.preview-description' | translate}}</ng-template>
                                     <app-campaign-preview [data]="previewData"
                                                           #previewStep>
                                     </app-campaign-preview>

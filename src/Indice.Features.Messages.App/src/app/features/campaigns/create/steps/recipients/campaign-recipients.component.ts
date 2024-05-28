@@ -26,7 +26,7 @@ export class CampaignRecipientsComponent implements OnInit {
         return this.recipientIds.value?.split('\n').filter((x: string) => x !== '').length || 0;
     }
 
-    public distributionLists: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+    public distributionLists: MenuOption[] = [new MenuOption('general.please-choose', null)];
     public form!: UntypedFormGroup;
     public apiUrl = settings.api_url;
 

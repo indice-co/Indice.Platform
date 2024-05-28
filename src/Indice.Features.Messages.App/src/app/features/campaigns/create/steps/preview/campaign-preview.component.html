@@ -3,25 +3,25 @@
         <dl>
             <form [formGroup]="form">
                 <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Δημοσιευμένη</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'campaigns.status.published'| translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                         <lib-toggle-button id="published" formControlName="published" true-label="Ναι" false-label="Όχι"></lib-toggle-button>
                     </dd>
                 </div>
                 <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Τίτλος</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'campaigns.preview.title'| translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                         <b>{{ data.title }}</b>
                     </dd>
                 </div>
                 <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Τύπος</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'campaigns.preview.type'| translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                         <b>{{ data.type || '-' }}</b>
                     </dd>
                 </div>
                 <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Διάρκεια</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'campaigns.preview.duration'| translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                         <span>
                             <b>{{ data.period?.from ? (data.period?.from | date: 'medium') : '' }} - </b>
@@ -35,7 +35,7 @@
                     </dd>
                 </div>
                 <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Call to action</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'campaigns.preview.call-to-action'| translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                         <a *ngIf="data.actionLink?.text && data.actionLink?.href" target="_blank" class="text-blue-600 hover:text-blue-500" [href]="data.actionLink?.href">
                             {{ data.actionLink?.text }}
@@ -45,13 +45,13 @@
                     </dd>
                 </div>
                 <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Template</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'campaigns.preview.template'| translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                         <b>{{ data.template || '-' }}</b>
                     </dd>
                 </div>
                 <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                    <dt class="text-sm font-medium text-gray-500">Λίστα διανομής</dt>
+                    <dt class="text-sm font-medium text-gray-500">{{'contacts.distribution-list'| translate}}</dt>
                     <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                         <b>{{ data.distributionList || '-' }}</b>
                     </dd>

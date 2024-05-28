@@ -2,8 +2,8 @@
        <div class="px-4 space-y-2 pb-4 mt-4">
               <fieldset>
                      <div class="mx-auto w-auto xl:w-[1200px] mb-3">
-                            <legend class="sr-only">Αποστολή προς</legend>
-                            <div class="text-base font-medium text-gray-900 col-span-2" aria-hidden="true">Αποστολή προς</div>
+                            <legend class="sr-only">{{'contacts.send-to'| translate}}</legend>
+                            <div class="text-base font-medium text-gray-900 col-span-2" aria-hidden="true">{{'contacts.send-to'| translate}}</div>
                      </div>
                      <div class="flex flex-row md:justify-center md:gap-10">
                             <div class="w-full flex flex-col mt-1 space-y-2 xl:w-80">
@@ -13,31 +13,31 @@
                                                  formControlName="sendVia"
                                                  class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
                                           <label for="distribution-list"
-                                                 class="ml-3 block text-sm font-medium text-gray-700">Λίστα
-                                                 διανομής</label>
+                                                 class="ml-3 block text-sm font-medium text-gray-700">
+                                                 {{'contacts.distribution-list'| translate}}</label>
                                    </div>
                                    <div class="flex items-center">
                                           <input id="recipient-ids" name="sendVia" type="radio" value="recipient-ids"
                                                  (change)="onSendViaChanged($event)" formControlName="sendVia"
                                                  class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
                                           <label for="recipient-ids"
-                                                 class="ml-3 block text-sm font-medium text-gray-700">Λίστα
-                                                 κωδικών</label>
+                                                 class="ml-3 block text-sm font-medium text-gray-700">
+                                                 {{'contacts.code-list'| translate}}</label>
                                    </div>
                                    <div class="flex items-center">
                                           <input id="recipients" name="sendVia" type="radio" value="recipients"
                                                  (change)="onSendViaChanged($event)" formControlName="sendVia"
                                                  class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
                                           <label for="recipients"
-                                                 class="ml-3 block text-sm font-medium text-gray-700">Λίστα
-                                                 παραληπτών</label>
+                                                 class="ml-3 block text-sm font-medium text-gray-700">
+                                                 {{'contacts.recipients-list'| translate}}</label>
                                    </div>
                                    <div class="flex items-center">
                                           <input id="user-base" name="sendVia" type="radio" value="user-base"
                                                  (change)="onSendViaChanged($event)" formControlName="sendVia"
                                                  class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300">
                                           <label for="user-base"
-                                                 class="ml-3 block text-sm font-medium text-gray-700">Όλους</label>
+                                                 class="ml-3 block text-sm font-medium text-gray-700">{{'contacts.everyone' | translate}}</label>
                                    </div>
                             </div>
                             <div class="w-full xl:w-96">
@@ -54,18 +54,21 @@
                                    </div>
                                    <div *ngIf="sendVia.value === 'recipient-ids'">
                                           <label for="recipientIds" class="hidden"
-                                                 aria-hidden="true">Τύπος</label>
+                                                 aria-hidden="true">{{'contacts.type'| translate}}</label>
                                           <div class="mt-1 flex rounded-sm">
                                                  <textarea id="recipientIds" name="recipientIds" rows="6"
                                                         formControlName="recipientIds"
-                                                        placeholder="Η λίστα χρηστών της καμπάνιας...&#10;κωδικός_χρήστη_1&#10;κωδικός_χρήστη_2"></textarea>
+                                                        placeholder="{{'contacts.code-list-placeholder' | translate}}
+                                                               &#10;{{'contacts.code-list-placeholder-1' | translate}}
+                                                               &#10;{{'contacts.code-list-placeholder-2' | translate}}">
+                                                        </textarea>
                                           </div>
-                                          <p class="field-info">{{ recipientsCount }} παραλήπτες</p>
+                                          <p class="field-info">{{ recipientsCount }} {{'contacts.recipients'| translate}}</p>
                                    </div>
                                    <div *ngIf="sendVia.value === 'recipients'">
                                           <div *ngIf="!recipients.value || recipients.value.length < 1"
                                                  class="flex items-center space-x-5">
-                                                 <p class="field-info">Δεν έχετε προσθέσει παραλήπτες στη λίστα.
+                                                 <p class="field-info">{{'contacts.recipients-empty-list-error'| translate}}
                                                  </p>
                                                  <button class="h-10 w-10 rounded-full border-black border" (click)="openSidePane()">
                                                         <i class="ms-Icon ms-Icon--Add"></i>
@@ -92,23 +95,23 @@
                                                                <i class="ms-Icon ms-Icon--Edit"></i>
                                                         </button>
                                                  </div>
-                                                 <p class="field-info">Έχετε προσθέσει {{recipients.value.length}} παραλήπτες.</p>
+                                                 <p class="field-info">{{'contacts.added' | translate}} {{recipients.value.length}} {{'contacts.recipients'| translate}}.</p>
                                           </div>
                                    </div>
                                    <p *ngIf="distributionList.invalid && (distributionList.dirty || distributionList.touched)"
                                           class="mt-2 text-sm text-red-600">
-                                          <span *ngIf="distributionList.errors!['required']">Παρακαλώ επιλέξτε μία λίστα
-                                                 διανομής.</span>
+                                          <span *ngIf="distributionList.errors!['required']">
+                                                 {{'contacts.distribution-empty-list-error' |translate}}</span>
                                    </p>
                                    <p *ngIf="recipientIds.invalid && (recipientIds.dirty || recipientIds.touched)"
                                           class="mt-2 text-sm text-red-600">
-                                          <span *ngIf="recipientIds.errors!['required']">Παρακαλώ εισάγετε τουλάχιστον
-                                                 ένα κωδικό.</span>
+                                          <span *ngIf="recipientIds.errors!['required']">
+                                                 {{'contacts.code-empty-list-error' | translate}}</span>
                                    </p>
                                    <p *ngIf="recipients.invalid && (recipients.dirty || recipients.touched)"
                                           class="mt-2 text-sm text-red-600">
-                                          <span *ngIf="recipients.errors!['required']">Παρακαλώ προσθέστε τουλάχιστον
-                                                 ένα παραλήπτη.</span>
+                                          <span *ngIf="recipients.errors!['required']">
+                                                 {{'contacts.at-least-one-recipient-error'| translate}}</span>
                                    </p>
                             </div>
                      </div>
@@ -123,10 +126,10 @@
               <div class="side-view-layout-actions-container">
                      <button type="button" class="side-view-layout-action-button-cancel"
                             (click)="contactCreateComponent.cancel()">
-                            Κλείσιμο
+                            {{'general.close' |translate}}
                      </button>
                      <button class="side-view-layout-action-button-submit" (click)="contactCreateComponent.submit()">
-                            Προσθήκη
+                            {{'general.add'| translate}}
                      </button>
               </div>
        </div>

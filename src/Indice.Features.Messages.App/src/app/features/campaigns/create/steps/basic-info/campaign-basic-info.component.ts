@@ -30,8 +30,8 @@ export class CampaignBasicInfoComponent implements OnInit {
     public get channels(): AbstractControl { return this.form.get('channels')!; }
     // Properties
     public form!: FormGroup;
-    public messageTypes: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
-    public templates: MenuOption[] = [new MenuOption('Παρακαλώ επιλέξτε...', null)];
+    public messageTypes: MenuOption[] = [new MenuOption('general.please-choose"', null)];
+    public templates: MenuOption[] = [new MenuOption('general.please-choose"', null)];
     public now: Date = new Date();
 
     public ngOnInit(): void {

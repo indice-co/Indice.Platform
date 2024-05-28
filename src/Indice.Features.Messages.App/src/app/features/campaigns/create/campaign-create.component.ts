@@ -48,16 +48,16 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
             ? this._previewStep.published.value === true
-                ? 'Αποθήκευση & Δημοσίευση'
-                : 'Αποθήκευση'
-            : 'Επόμενο';
+                ? 'campaigns-create.save-publish'
+                : 'campaigns-create.save'
+            : 'campaigns-create.next';
     }
 
     public ngOnInit(): void {
         this.metaItems = [{
             key: 'info',
             icon: Icons.Details,
-            text: 'Ακολουθήστε τα παρακάτω βήματα για να δημιουργήσετε ένα νέο campaign.'
+            text: 'campaigns-create.description'
         }];
     }
 
@@ -84,7 +84,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
                 next: (campaign: Campaign) => {
                     this.submitInProgress = false;
                     this._router.navigate(['campaigns', campaign.id]);
-                    this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Η καμπάνια με τίτλο '${campaign.title}' δημιουργήθηκε με επιτυχία.`);
+                    this._toaster.show(ToastType.Success, 'campaigns-create.success-save', `'campaigns-create.success-save-message' '${campaign.title}'`);
                 }
             });
     }
