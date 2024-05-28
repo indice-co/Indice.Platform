@@ -9,7 +9,7 @@ import { Observable, of } from 'rxjs';
 export class AppLanguagesService implements IAppLanguagesService {
     private _languages = [
         new MenuOption('EL', 'EL', 'Ελληνικά'), 
-        //new MenuOption('EN', 'EN', 'English')
+        new MenuOption('EN', 'EN', 'English')
     ];
 
     constructor() {
