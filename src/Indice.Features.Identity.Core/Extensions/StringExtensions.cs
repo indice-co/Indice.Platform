@@ -4,7 +4,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace IdentityServer4.Extensions;
+namespace IdentityServer4.Internal.Extensions;
 
 internal static class StringExtensions
 {

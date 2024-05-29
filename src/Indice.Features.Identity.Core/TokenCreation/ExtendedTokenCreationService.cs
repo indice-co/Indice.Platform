@@ -3,52 +3,96 @@ using IdentityServer4.Configuration;
 using IdentityServer4.Services;
 using IdentityServer4;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
-using IdentityServer4.Extensions;
 using IdentityServer4.Models;
-using Microsoft.AspNetCore.Authentication;
+using System.Globalization;
+using IdentityServer4.Internal.Extensions;
 
 namespace Indice.Features.Identity.Core.TokenCreation;
-/// <summary>
-/// Logic for creating security tokens extended with <see cref="System.Text.Json"/> for <see cref="IdentityServerConstants.ClaimValueTypes.Json"/> claim types.
-/// </summary>
-public class ExtendedTokenCreationService : DefaultTokenCreationService
+
+/// <inheritdoc />
+public class ExtendedTokenCreationService : ITokenCreationService
 {
-    private readonly ISystemClock _clock;
+    private readonly IKeyMaterialService _keys;
     private readonly IdentityServerOptions _options;
     private readonly ILogger<DefaultTokenCreationService> _logger;
 
+    /// <summary>Gets the current time, primarily for unit testing.</summary>
+    protected TimeProvider TimeProvider { get; private set; } = TimeProvider.System;
+
     /// <summary>
     /// Creates a new instance for <see cref="ExtendedTokenCreationService"/>.
-    /// Creates a new instance for <see cref="ExtendedTokenCreationService"/>.
     /// </summary>
-    /// <param name="clock">The clock.</param>
     /// <param name="keys">The key service.</param>
     /// <param name="options">The options/</param>
     /// <param name="logger">The logger.</param>
     public ExtendedTokenCreationService(
-        ISystemClock clock,
         IKeyMaterialService keys,
         IdentityServerOptions options,
-        ILogger<DefaultTokenCreationService> logger)
-        : base(clock, keys, options, logger) {
-        _clock = clock;
+        ILogger<DefaultTokenCreationService> logger) {
+        _keys = keys;
         _options = options;
         _logger = logger;
     }
-    
-    /// <inheritdoc />
-    protected override async Task<JwtPayload> CreatePayloadAsync(Token token) {
-        await Task.CompletedTask;
 
+    /// <inheritdoc />
+    public async Task<string> CreateTokenAsync(Token token) {
+        var header = await CreateHeaderAsync(token);
+        var payload = await CreatePayloadAsync(token);
+
+        return await CreateJwtAsync(new JwtSecurityToken(header, payload));
+    }
+
+    /// <summary>
+    /// Creates the JWT header
+    /// </summary>
+    /// <param name="token">The token.</param>
+    /// <returns>The JWT header</returns>
+    protected async Task<JwtHeader> CreateHeaderAsync(Token token) {
+        var credential = await _keys.GetSigningCredentialsAsync(token.AllowedSigningAlgorithms);
+
+        if (credential == null) {
+            throw new InvalidOperationException("No signing credential is configured. Can't create JWT token");
+        }
+
+        var header = new JwtHeader(credential);
+
+        // emit x5t claim for backwards compatibility with v4 of MS JWT library
+        if (credential.Key is X509SecurityKey x509Key) {
+            var cert = x509Key.Certificate;
+            if (TimeProvider.GetUtcNow().UtcDateTime > cert.NotAfter) {
+                _logger.LogWarning("Certificate {subjectName} has expired on {expiration}", cert.Subject, cert.NotAfter.ToString(CultureInfo.InvariantCulture));
+            }
+
+            header["x5t"] = Base64Url.Encode(cert.GetCertHash());
+        }
+
+        if (token.Type == IdentityServerConstants.TokenTypes.AccessToken) {
+            if (_options.AccessTokenJwtType.IsPresent()) {
+                header["typ"] = _options.AccessTokenJwtType;
+            }
+        }
+
+        return header;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    protected async Task<JwtPayload> CreatePayloadAsync(Token token) {
+        await Task.CompletedTask;
+        
         var payload = new JwtPayload(
                 token.Issuer,
                 null,
                 null,
-                _clock.UtcNow.UtcDateTime,
-                _clock.UtcNow.UtcDateTime.AddSeconds(token.Lifetime));
+                TimeProvider.GetUtcNow().UtcDateTime,
+                TimeProvider.GetUtcNow().UtcDateTime.AddSeconds(token.Lifetime));
 
         foreach (var aud in token.Audiences) {
             payload.AddClaim(new Claim(JwtClaimTypes.Audience, aud));
@@ -135,5 +179,15 @@ public class ExtendedTokenCreationService : DefaultTokenCreationService
             _logger.LogCritical(ex, "Error creating a JSON valued claim");
             throw;
         }
+    }
+
+    /// <summary>
+    /// Applies the signature to the JWT
+    /// </summary>
+    /// <param name="jwt">The JWT object.</param>
+    /// <returns>The signed JWT</returns>
+    protected virtual Task<string> CreateJwtAsync(JwtSecurityToken jwt) {
+        var handler = new JwtSecurityTokenHandler();
+        return Task.FromResult(handler.WriteToken(jwt));
     }
 }

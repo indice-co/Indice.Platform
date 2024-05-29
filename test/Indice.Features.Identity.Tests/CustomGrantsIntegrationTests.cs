@@ -477,6 +477,46 @@ public class CustomGrantsIntegrationTests
     }
 
     [Fact]
+    public async Task CreateAuthorizationDetails_InvalidPayload_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", """{ "something": 123 }""" }
+            }
+        });
+        Assert.True(tokenResponse.IsError);
+        Assert.Equal("invalid_authorization_details", tokenResponse.ErrorDescription);
+    }
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_InvalidArrayPayload_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", """[{"type": "payment_initiation"},{ "something": 123 }]""" }
+            }
+        });
+        Assert.True(tokenResponse.IsError);
+        Assert.Equal("invalid_authorization_details", tokenResponse.ErrorDescription);
+    }
+
+    [Fact]
     public async Task CreateAuthorizationDetails_UsingBiometrics() {
         var registrationResult = await RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
         var codeVerifier = GenerateCodeVerifier();

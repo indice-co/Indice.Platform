@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -79,6 +80,12 @@ internal class DeviceAuthenticationExtensionGrantValidator(
             claims.Add(new Claim(BasicClaimTypes.DeviceId, device.DeviceId));
         }
         if (parameters.Get(BasicClaimTypes.AuthorizationDetails) is { } authorizationDetails) {
+            var validateAuthorizationDetails = ValidateAuthorizationDetails(authorizationDetails);
+            if (validateAuthorizationDetails.IsError) {
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidRequest, ExtraTokenRequestErrors.InvalidAuthorizationDetails);
+                return;
+            }
+
             claims.Add(new Claim(BasicClaimTypes.AuthorizationDetails, authorizationDetails, IdentityServerConstants.ClaimValueTypes.Json));
         }
         // If code is present we are heading towards fingerprint login.
@@ -180,5 +187,34 @@ internal class DeviceAuthenticationExtensionGrantValidator(
             return Invalid(proofKeyParametersValidationResult.ErrorDescription);
         }
         return Success();
+    }
+
+    /// <summary>
+    /// Validate the RFC-9396 authorization_details request, that contains the property type
+    /// <list type="bullet">
+    /// <item>contains an unknown authorization details type value,</item>
+    /// <item>is an object of known type but containing unknown fields,</item>
+    /// <item>contains fields of the wrong type for the authorization details type,</item>
+    /// <item>contains fields with invalid values for the authorization details type, or</item>
+    /// <item>is missing required fields for the authorization details type</item>
+    /// </list>
+    /// </summary>
+    /// <remarks>https://datatracker.ietf.org/doc/html/rfc9396</remarks>
+    /// <returns></returns>
+    private ValidationResult ValidateAuthorizationDetails(string authorizationDetails) {
+        JsonDocument authorizationDetailsJson;
+        try {
+            authorizationDetailsJson = JsonDocument.Parse(authorizationDetails);
+        } catch (Exception) {
+            return Invalid("Authorization details is invalid. Invalid json.");
+        }
+
+        var ok = authorizationDetailsJson.RootElement.ValueKind is JsonValueKind.Object
+            ? authorizationDetailsJson.RootElement.TryGetProperty("type", out _)
+            : authorizationDetailsJson.RootElement.EnumerateArray().All(x => x.TryGetProperty("type", out _));
+
+        return ok
+            ? Success()
+            : Invalid("Authorization details is invalid. Unknown type.");
     }
 }
