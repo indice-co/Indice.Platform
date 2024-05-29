@@ -80,10 +80,10 @@ public class ExtendedTokenCreationService : ITokenCreationService
     }
 
     /// <summary>
-    /// 
+    /// Creates the JWT payload
     /// </summary>
-    /// <param name="token"></param>
-    /// <returns></returns>
+    /// <param name="token">The token.</param>
+    /// <returns>The JWT payload</returns>
     protected async Task<JwtPayload> CreatePayloadAsync(Token token) {
         await Task.CompletedTask;
         
