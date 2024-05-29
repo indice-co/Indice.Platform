@@ -1,3 +1,566 @@
 {
-   
+    "general": {
+        "yes": "",
+        "no": "",
+        "from": "",
+        "to": "",
+        "please-choose": "",
+        "close": "",
+        "add": "",
+        "delete": "",
+        "created-by": "",
+        "created-at": "",
+        "updated-by": "",
+        "updated-at": "",
+        "published-at": "",
+        "data-loading": "",
+        "campaign": "",
+        "campaigns": "",
+        "support": "",
+        "unknown-page": "",
+        "page-not-found": "",
+        "no-access": "",
+        "contact-support": "",
+        "home": "",
+        "create": "",
+        "edit": "",
+        "basic-info": "",
+        "content": "",
+        "reports": "",
+        "message-types": "",
+        "distribution-lists": "",
+        "folder": "",
+        "files": "",
+        "options": "",
+        "templates": "",
+        "failed-request": "",
+        "logout": "",
+        "privacy-policy": "",
+        "terms-conditions": "",
+        "contact": "",
+        "please-waiting": ""
+    },
+    
+
+    "file-upload": {
+        "empty-error": "",
+        "big-error": "",
+        "title": "",
+        "type": "",
+        "size": ""
+    },
+    
+    "list-contact-create":{
+        "name": "",
+        "no-results-found": "",
+        "press": "",
+        "here": "",
+        "to-add-contact": ""
+    },
+    
+    "message": {
+        "metadata": "",
+        "metadata-placeholder": "",
+        "metadata-error": "",
+        "data": "",
+        "body": "",
+        "body-placeholder": "",
+        "empty-body-error": ""
+    },
+    
+    "home": {
+        "waiting-title": "",
+        "waiting-description": ""
+    },
+    
+    "dashboard": {
+        "header": "",
+        "campaigns": "",
+        "active-campaigns": ""
+    },
+    
+    "contacts":{
+        "distribution-list": "",
+        "distribution-list-description": "",
+        "code-list": "",
+        "send-to":"",
+        "type": "",
+        "recipients": "",
+        "added": "",
+        "recipients-list": "",
+        "recipients-empty-list-error": "",
+        "distribution-empty-list-error": "",
+        "code-empty-list-error": "",
+        "at-least-one-recipient-error": "",
+        "everyone": "",
+        "sender": "",
+        "sender-description-email": "",
+        "communication-channels": "",
+        "code-list-placeholder": "",
+        "code-list-placeholder-1": "",
+        "code-list-placeholder-2": "",
+        "search": "",
+        "add": "",
+        "close": ""
+    },
+    
+    "contacts-edit": {
+        "title": "",
+        "save": "",
+        "save-message": "",
+        "close": "",
+        "salutation-label": "",
+        "salutation-placeholder": "",
+        "salutation-info": "",
+        "firstName-label": "",
+        "firstName-placeholder": "",
+        "lastName-label": "",
+        "lastName-placeholder": "",
+        "fullName-label": "",
+        "fullName-placeholder": "",
+        "email-label": "",
+        "email-placeholder": "",
+        "phoneNumber-label": "",
+        "phoneNumber-placeholder": ""
+    },    
+    
+    "campaigns": {
+        "header": "",
+        "title": "",
+        "published": "",
+        "actions": "",
+        "edit-action": "",
+        "created-at": "",
+        "active-from": "",
+        "status": {
+            "label": "",
+            "published": "",
+            "unpublished": ""
+        },
+        "basic-info-form":{
+            "title": "",
+            "title-placeholder": "",
+            "title-description": "",
+            "empty-title-error": "",
+            "big-title-error": "",
+            "type": "",
+            "type-description": "",
+            "duration": "",
+            "start-date": "",
+            "start-date-shortened": "",
+            "end-date": "",
+            "end-date-shortened": "",
+            "call-to-action": "",
+            "call-to-action-link": "",
+            "call-to-action-placeholder": "",
+            "call-to-action-text": "",
+            "call-to-action-url": "",
+            "invalid-url-error": "",
+            "template-use": "",
+            "empty-template-error": ""
+        },
+        "content-form": {
+            "files-library": "",
+            "open-files": "",
+            "choose-file-from": "",
+            "edit": "",
+            "step-title": "",
+            "step-description": "",
+            "email-description": "",
+            "inbox-description": "",
+            "push-notification-description": "",
+            "sms-description": "",
+            "subject": "",
+            "subject-placeholder": "",
+            "empty-subject-error": "",
+            "subject-preview": ""
+        },
+        "preview": {
+            "title": "",
+            "type": "",
+            "duration": "",
+            "call-to-action": "",
+            "template": ""
+        },
+        "attachments": {
+            "title": "",
+            "description": ""
+        }
+    },
+    
+    "campaigns-steps":{
+        "basic-info-title": "",
+        "basic-info-description": "",
+        "content-title": "",
+        "content-description": "",
+        "attachments-title": "",
+        "attachments-description": "",
+        "recipients-title": "",
+        "recipients-description": "",
+        "preview-title": "",
+        "preview-description": ""
+    },
+    "campaigns-create": {
+        "previous": "",
+        "title": "",
+        "next": "",
+        "save": "",
+        "save-publish": "",
+        "description": "",
+        "success-save": "",
+        "success-save-message": ""
+    },
+    "campaigns-edit": {
+        "title": "",
+        "save": "",
+        "close": "",
+        "delete": "",
+        "delete-warning": "",
+        "success-delete": "",
+        "success-delete-message": "",
+        "publish": "",
+        "publish-warning": "",
+        "success-publish": "",
+        "success-publish-message": "",
+        "success-save": "",
+        "success-save-message": "",
+        "success-edit": "",
+        "success-edit-message": "",
+        "content": {
+            "title": "",
+            "description": ""
+        },
+        "basic-info": {
+            "label": "",
+            "description": ""
+        },
+        "reports": {
+            "label": "",
+            "description": ""
+        },
+        "attachments": {
+            "title": "",
+            "description": "",
+            "success-message": "",
+            "success-delete-message": "",
+            "failure": "",
+            "failure-message": ""
+        }
+        
+    },    
+
+    "distribution-list-contacts": {
+        "title": "",
+        "salutation": "",
+        "firstName": "",
+        "lastName": "",
+        "fullName": "",
+        "email": "",
+        "phoneNumber": "",
+        "createdAt": "",
+        "delete": "",
+        "delete-warning": "",
+        "success-delete": "",
+        "success-delete-message": "",
+        "actions": {
+            "label": "",
+            "edit": ""
+        }
+    },
+    "distribution-list-create": {
+        "label": "",
+        "save": "",
+        "close": "",
+        "name": "",
+        "name-placeholder": "",
+        "name-description": "",
+        "empty-name-error": "",
+        "big-name-error": "",
+        "success-save": "",
+        "success-save-message": ""
+    },
+    "distribution-list-edit": {
+        "basic-information": "",
+        "contacts": "",
+        "details": {
+            "basic-information": "",
+            "basic-information-description": "",
+            "delete": "",
+            "delete-warning": "",
+            "success-delete": "",
+            "success-delete-message": ""
+        },
+        "details-pane": {
+            "label": "",
+            "save": "",
+            "close": "",
+            "title": "",
+            "title-placeholder": "",
+            "title-description": "",
+            "empty-title-error": "",
+            "big-title-error": "",
+            "success-save": "",
+            "success-save-message": ""
+        },
+        "title": "",
+        "name": "",
+        "distribution-title": "",
+        "created-by": "",
+        "created-at": "",
+        "updated-by": "",
+        "updated-at": "",
+        "actions": "",
+        "edit": "",
+        "delete": "",
+        "delete-warning": "",
+        "success-delete": "",
+        "success-delete-message": ""
+    },    
+
+    "document-edit": {
+        "title": "",
+        "subtitle": "",
+        "preview": "",
+        "download": "",
+        "name": "",
+        "description": "",
+        "folder": "",
+        "extension": "",
+        "type": "",
+        "size": "",
+        "file": "",
+        "pane": {
+            "title": "",
+            "save": "",
+            "close": "",
+            "name-label": "",
+            "name-placeholder": "",
+            "empty-name-error": "",
+            "big-name-error": "",
+            "name-info": "",
+            "description-label": "",
+            "description-placeholder": "",
+            "description-info": "",
+            "folder-label": "",
+            "folder-info": "",
+            "success-save": "",
+            "success-save-message": ""
+        }
+    },
+    "document-upload": {
+        "title": "",
+        "save": "",
+        "close": "",
+        "instruction": "",
+        "success-save": "",
+        "success-save-message": "",
+        "error-save": "",
+        "error-save-message": ""
+    },
+    "folder-create": {
+        "title": "",
+        "ok-label": "",
+        "cancel-label": "",
+        "name-label": "",
+        "name-placeholder": "",
+        "empty-name-error": "",
+        "big-name-error": "",
+        "name-description": "",
+        "description-label": "",
+        "description-placeholder": "",
+        "description-description": "",
+        "success-save": "",
+        "success-save-message": ""
+    },
+    "folder-edit": {
+        "title": "",
+        "save": "",
+        "close": "",
+        "name-label": "",
+        "name-placeholder": "",
+        "empty-name-error": "",
+        "big-name-error": "",
+        "name-description": "",
+        "description-label": "",
+        "description-placeholder": "",
+        "description-description": "",
+        "parent-folder-label": "",
+        "parent-folder-description": "",
+        "success-save": "",
+        "success-save-message": ""
+    },
+    "folder-view": {
+        "delete": "",
+        "delete-folder-warning": "",
+        "delete-file-warning": "",
+        "success-delete": "",
+        "success-delete-folder-message": "",
+        "success-delete-file-message": "",
+        "copy-link": "",
+        "success-copy-link": ""
+    },
+    "list-view": {
+        "name-title": "",
+        "type-title": "",
+        "created-by-title": "",
+        "created-title": "",
+        "actions-title": "",
+        "delete": "",
+        "delete-folder-warning": "",
+        "delete-file-warning": "",
+        "success-delete": "",
+        "success-delete-folder-message": "",
+        "success-delete-file-message": ""
+    },
+    "read-only-view": {
+        "refresh": "",
+        "copy-link": "",
+        "open-new-tab": ""
+    },
+    "tree-breadcrumb": {
+        "files": ""
+    },
+    "media-library": {
+        "files": "",
+        "results": "",
+        "add-folder": "",
+        "add-file": "",
+        "refresh": ""
+    },
+    "message-type": {
+        "title-label": "",
+        "create-type": "",
+        "create-save": "",
+        "edit-type": "",
+        "delete-type": "",
+        "delete-type-warning": "",
+        "success-delete": "",
+        "success-delete-message": "",
+        "edit-save": "",
+        "close-label": "",
+        "name-label": "",
+        "actions": "",
+        "name-placeholder": "",
+        "empty-name-error": "",
+        "big-name-error": "",
+        "name-info": "",
+        "success-save": "",
+        "success-save-message": "",
+        "success-edit-message": ""
+    },    
+
+    "settings": {
+        "title": "",
+        "email":{
+            "create-recipient": "",
+            "create-save": "",
+            "edit-recipient": "",
+            "edit-save": "",
+            "close": "",
+            "address": "",
+            "default-sender": "",
+            "default-sender-description": "",
+            "senders": "",
+            "senders-description": "",
+            "address-placeholder": "",
+            "address-description": "",
+            "empty-address-error": "",
+            "big-address-error": "",
+            "recipient-name": "",
+            "recipient-name-placeholder": "",
+            "empty-recipient-name-error": "",
+            "big-recipient-name-error": "",
+            "recipient-name-description": "",
+            "default-recipient": "",
+            "default-recipient-description": "",
+            "success-save": "",
+            "success-save-message": "",
+            "success-edit-message": "",
+            "sender-list": {
+                "title": "",
+                "edit": "",
+                "delete": "",
+                "delete-warning": "",
+                "success-delete": "",
+                "success-delete-message": "",
+                "add": "",
+                "name": "",
+                "created-by": "",
+                "created-at": "",
+                "actions": ""
+            }
+        },
+        "media": {
+            "applicant-information-title": "",
+            "applicant-information-description": "",
+            "key": "",    
+            "value": "",
+            "actions": "",
+            "edit-type": "",
+            "edit-setting": "",
+            "save": "",
+            "close": "",
+            "value-placeholder": "",
+            "invalid-url": "",
+            "value-info": "",
+            "success-save": "",
+            "success-save-message": ""
+        }
+    },
+    
+    "templates": {
+        "title": "",
+        "name": "",
+        "created-by": "",
+        "created-at": "",
+        "updated-by": "",
+        "updated-at": "",
+        "actions": "",
+        "create": {
+            "title": "",
+            "save": "",
+            "name": "",
+            "name-placeholder": "",
+            "name-info": "",
+            "name-required-error": "",
+            "info": "",
+            "success-save": "",
+            "success-save-message": ""
+        },
+        "edit": {
+            "layout-title": "",
+            "success-save": "",
+            "success-delete": "",
+            "success-delete-message": "",
+            "save": "",
+            "delete": "",
+            "delete-warning": "",
+            "close": "",
+            "content": {
+                "title": "",
+                "description": "",
+                "success-save-message": ""
+            },
+            "details": {
+                "title": "",
+                "description": "",
+                "delete": "",
+                "name-label": "",
+                "created-by": "",
+                "created-at": "",
+                "updated-by": "",
+                "updated-at": "",
+                "pane": {
+                    "title": "",
+                    "submit": "",
+                    "name-label": "",
+                    "name-placeholder": "",
+                    "name-required-error": "",
+                    "name-info": "",
+                    "name-maxlength-error": "",
+                    "success-save-message": ""
+                }
+            }
+        }
+    }
 }
