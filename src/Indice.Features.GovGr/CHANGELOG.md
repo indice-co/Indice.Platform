@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!-- ## [Unreleased] -->
 
+## [7.23.0] - 2024-05-29
+### Added
+- Add Bancapp GCloud Integration, jumped to 7.23.0 to match other Indice Packages
+
 ## [7.6.3] - 2023-10-23
 ### Added
 - Business Registry Service Factory
