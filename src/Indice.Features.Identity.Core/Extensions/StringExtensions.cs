@@ -19,4 +19,9 @@ internal static class StringExtensions
         }
         return stringBuilder.ToString().Trim();
     }
+
+    [DebuggerStepThrough]
+    public static bool IsPresent(this string value) {
+        return !string.IsNullOrWhiteSpace(value);
+    }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Text.Json;
 using IdentityServer4;
 using IdentityServer4.Extensions;
 using IdentityServer4.Models;
@@ -15,7 +14,6 @@ using Indice.Features.Identity.Core.DeviceAuthentication.Stores;
 using Indice.Features.Identity.Core.DeviceAuthentication.Validation;
 using Indice.Features.Identity.Core.Events;
 using Indice.Security;
-using Json.More;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
@@ -80,9 +78,8 @@ internal class DeviceAuthenticationExtensionGrantValidator(
         if (!string.IsNullOrWhiteSpace(device.DeviceId)) {
             claims.Add(new Claim(BasicClaimTypes.DeviceId, device.DeviceId));
         }
-        if (parameters.Get(BasicClaimTypes.AuthorizationDetails) is { } autorizationDetails) {
-            claims.Add(new Claim(BasicClaimTypes.AuthorizationDetails, autorizationDetails));
-            // claims.Add(new Claim(BasicClaimTypes.AuthorizationDetails, JsonSerializer.SerializeToElement(autorizationDetails)));            
+        if (parameters.Get(BasicClaimTypes.AuthorizationDetails) is { } authorizationDetails) {
+            claims.Add(new Claim(BasicClaimTypes.AuthorizationDetails, authorizationDetails, IdentityServerConstants.ClaimValueTypes.Json));
         }
         // If code is present we are heading towards fingerprint login.
         if (hasCode) {
