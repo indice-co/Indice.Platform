@@ -52,93 +52,93 @@ const routes: Routes = [
   {
     path: 'not-found', component: HttpStatusComponent, data: {
       code: '404',
-      title: 'Άγνωστη σελίδα',
-      message: 'Η σελίδα που ζητήσατε δεν βρέθηκε',
+      title: 'general.unknown-page',
+      message: 'general.page-not-found',
       shell: CommonAppShellConfig
     }
   },
   {
     path: 'forbidden', component: HttpStatusComponent, data: {
       code: '403',
-      title: 'Μη εξουσιοδοτημένη πρόσβαση',
-      message: 'Παρακαλώ επικοινωνήστε με την υποστήριξη',
+      title: 'general.no-access',
+      message: 'general.contact-support',
       shell: CommonAppShellConfig
     }
   },
   {
     path: '', canActivate: [AuthGuardService], children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent, data: { breadcrumb: { title: 'Αρχική', isHome: true }} },
+      { path: 'dashboard', component: DashboardComponent, data: { breadcrumb: { title: 'general.home', isHome: true }} },
       { 
         path: 'campaigns', 
-        data: { breadcrumb: { title: 'Καμπάνιες' }},
+        data: { breadcrumb: { title: 'general.campaigns' }},
         children: [
           { path: '', component: CampaignsComponent, pathMatch: 'full' },
-          { path: 'add-campaign', component: CampaignCreateComponent, data: { breadcrumb: { title: 'Δημιουργία' }} },
+          { path: 'add-campaign', component: CampaignCreateComponent, data: { breadcrumb: { title: 'general.create' }} },
           {
             path: ':campaignId', component: CampaignEditComponent, 
-            data: { breadcrumb: { title: 'Επεξεργασία' }}, 
+            data: { breadcrumb: { title: 'general.edit' }}, 
             children: [
               { path: '', redirectTo: 'campaign-details', pathMatch: 'full' },
-              { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' }} },
-              { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'Περιεχόμενο' }} },
-              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Αναφορές' }} }
+              { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'general.basic-info' }} },
+              { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'general.content' }} },
+              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'general.reports' }} }
             ]
           },
         ]
       },
-      { path: 'message-types', component: MessageTypesComponent, data: { breadcrumb: { title: 'Τύποι Μηνυμάτων' }} },
+      { path: 'message-types', component: MessageTypesComponent, data: { breadcrumb: { title: 'general.message-types' }} },
       { 
         path: 'distribution-lists', 
-        data: { breadcrumb: { title: 'Λίστες Διανομής' }},
+        data: { breadcrumb: { title: 'general.distribution-lists' }},
         children: [
           { path: '', component: DistributionListsComponent, pathMatch: 'full' },
           {
             path: ':distributionListId', component: DistributionListEditComponent, 
-            data: { breadcrumb: { title: 'Επεξεργασία' }}, 
+            data: { breadcrumb: { title: 'general.edit' }}, 
             children: [
               { path: '', redirectTo: 'distribution-list-details', pathMatch: 'full' },
-              { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' }} },
-              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'Περιεχόμενο' }} }
+              { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'general.basic-info' }} },
+              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'general.content' }} }
             ]
           },
         ]
       },
       { 
         path: 'templates', 
-        data: { breadcrumb: { title: 'Πρότυπα' }},
+        data: { breadcrumb: { title: 'general.templates' }},
         children: [
           { path: '', component: TemplatesComponent, pathMatch: 'full' },
-          { path: 'add-template', component: TemplateCreateComponent, data: { breadcrumb: { title: 'Δημιουργία' }} },
+          { path: 'add-template', component: TemplateCreateComponent, data: { breadcrumb: { title: 'general.create' }} },
           {
             path: ':templateId', component: TemplateEditComponent, 
-            data: { breadcrumb: { title: 'Επεξεργασία' }}, 
+            data: { breadcrumb: { title: 'general.edit' }}, 
             children: [
               { path: '', redirectTo: 'template-details', pathMatch: 'full' },
-              { path: 'template-details', component: TemplateDetailsEditComponent, data: { breadcrumb: { title: 'Βασικές Πληροφορίες' }} },
-              { path: 'template-content', component: TemplateContentEditComponent, data: { breadcrumb: { title: 'Περιεχόμενο' }} }
+              { path: 'template-details', component: TemplateDetailsEditComponent, data: { breadcrumb: { title: 'general.basic-info' }} },
+              { path: 'template-content', component: TemplateContentEditComponent, data: { breadcrumb: { title: 'general.content' }} }
             ]
           },
         ]
       },
       { 
         path: 'settings', 
-        data: { breadcrumb: { title: 'Ρυθμίσεις' }}, 
+        data: { breadcrumb: { title: 'general.options' }}, 
         component: SettingsComponent 
       },
       { 
         path: 'media', 
-        data: { breadcrumb: { title: 'Αρχεία' }},
+        data: { breadcrumb: { title: 'general.files' }},
         children: [
           { path: '', component: MediaLibraryComponent, pathMatch: 'full' },
-          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'Αρχεία' }} },
+          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'general.files' }} },
           {
             path: ':folderId', component: MediaLibraryComponent, 
-            data: { breadcrumb: { title: 'Φάκελος' }}
+            data: { breadcrumb: { title: 'general.folder' }}
           },
           {
             path: ':folderId/:documentId', component: DocumentEditComponent, 
-            data: { breadcrumb: { title: 'Επεξεργασία' }}
+            data: { breadcrumb: { title: 'general.edit' }}
           },
         ]
       },
@@ -164,8 +164,8 @@ const routes: Routes = [
   {
     path: '**', component: HttpStatusComponent, data: {
       code: '404',
-      title: 'Άγνωστη σελίδα',
-      message: 'Η σελίδα που ζητήσατε δεν βρέθηκε',
+      title: 'general.unknown-page',
+      message: 'general.page-not-found',
       shell: CommonAppShellConfig
     }
   }
