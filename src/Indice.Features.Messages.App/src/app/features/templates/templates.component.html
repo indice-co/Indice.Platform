@@ -16,7 +16,7 @@
                    (pageSizeChanged)="pageSizeChanged($event)"
                    (sortChanged)="sortChanged($event)"
                    (sortdirChanged)="sortdirChanged($event)">
-        <lib-list-column title="{{ 'templates.name' | translate }}">
+        <lib-list-column title="{{ 'templates.name' | translate | uppercase }}">
             <ng-template let-item>{{ item.name }}</ng-template>
         </lib-list-column>
         <lib-list-column title="{{ 'templates.created-by' | translate }}">

@@ -4,9 +4,9 @@
             <div class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div class="sm:col-span-1">
                     <h2 id="applicant-information-title" class="text-lg leading-6 font-medium text-gray-900">
-                        Αποστολείς Email
+                        {{'settings.email.senders' |translate}}
                     </h2>
-                    <p class="mt-1 max-w-2xl text-sm text-gray-500">Οι διαθέσιμοι Αποστολείς του καναλιού Email.</p>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">{{'settings.email.senders-description' | translate}}</p>
                 </div>
                 <div class="sm:col-span-1">
                     <div class="mx-auto md:flex md:items-center md:justify-between md:space-x-5">
@@ -14,7 +14,7 @@
                         <div
                             class="flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
                             <button type="button" class="side-view-layout-action-button-submit" (click)="actionHandler()">
-                                Προσθήκη
+                                {{'settings.email.add-sender' |translate}}
                             </button>
                         </div>
                     </div>
@@ -23,7 +23,7 @@
         </div>
         <div class="border-t border-gray-200 px-4 py-5 sm:px-6" *ngIf="defaultSender">
             <dl class="text-sm text-gray-500">
-                Ο προκαθορισμένος αποστολέας σε περίπτωση που δεν επιλεγεί κάποιος διαφορετικός για την εκάστοτε καμπάνια είναι ο <strong>{{defaultSender.displayName+' \<'+defaultSender.sender+'>'}}</strong>.
+                {{'settings.email.default-sender-description' | translate}} <strong>{{defaultSender.displayName+' \<'+defaultSender.sender+'>'}}</strong>.
             </dl>
         </div>
         <div class="px-4 py-5 sm:px-6">
@@ -32,28 +32,28 @@
                     [sort-options]="sortOptions" [sort]="sort" [sort-dir]="sortdir" [busy]="!items"
                     (pageChanged)="pageChanged($event)" (pageSizeChanged)="pageSizeChanged($event)"
                     (sortChanged)="sortChanged($event)" (sortdirChanged)="sortdirChanged($event)">
-                    <lib-list-column title="ΑΠΟΣΤΟΛΕΑΣ">
+                    <lib-list-column title="{{'settings.email.sender-list.title' | translate | uppercase}}">
                         <ng-template let-item>
                             <div class="flex flex-row items-center">
                                 <div class="w-5 h-5">
-                                    <i *ngIf="item.isDefault" class="ms-Icon ms-Icon--Accept text-green-500" title="Προκαθορισμένος Αποστολέας"></i>
+                                    <i *ngIf="item.isDefault" class="ms-Icon ms-Icon--Accept text-green-500" title="{{'settings.email.default-sender' | translate}}"></i>
                                 </div>
                                 <span class="ml-2">{{ item.sender || '-' }}</span>
                             </div>
                         </ng-template>
                     </lib-list-column>
-                    <lib-list-column title="ONOMA">
+                    <lib-list-column title="{{'settings.email.sender-list.name' | translate | uppercase}}">
                         <ng-template let-item>{{ item.displayName || '-' }}</ng-template>
                     </lib-list-column>
-                    <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ ΑΠΟ">
+                    <lib-list-column title="{{'settings.email.sender-list.created-by' | translate}}">
                         <ng-template let-item>{{ item.createdBy || '-' }}</ng-template>
                     </lib-list-column>
-                    <lib-list-column title="ΔΗΜΙΟΥΡΓΗΘΗΚΕ">
+                    <lib-list-column title="{{'settings.email.sender-list.created-at'| translate | uppercase}}">
                         <ng-template let-item>{{ item.createdAt | date: 'medium' }}</ng-template>
                     </lib-list-column>
-                    <lib-list-column title="ΕΝΕΡΓΕΙΕΣ">
+                    <lib-list-column title="{{'settings.email.sender-list.actions' | translate}}">
                         <ng-template let-item>
-                            <a title="Επεξεργασία αποστολέα" [routerLinkActive]="['']"
+                            <a title="{{'settings.email.sender-list.edit' | translate}}" [routerLinkActive]="['']"
                                 [routerLinkActiveOptions]="{ exact: true }"
                                 [routerLink]="['', { outlets: { rightpane: ['edit-message-sender', item.id] } }]"
                                 class="nav-link-profile"
@@ -68,7 +68,7 @@
                                 </svg>
                             </a>
                             <button *ngIf="!item.isDefault" type="button" (click)="deleteConfirmation(item)"
-                                class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm" title="Διαγραφή Αποστολέα">
+                                class="inline-flex items-center justify-center px-4 py-2 font-medium rounded-md sm:text-sm" title="{{'settings.email.sender-list.delete' | translate}}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
                                     fill="currentColor">
                                     <path fill-rule="evenodd"

@@ -26,9 +26,9 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
     this.sortdir = 'desc';
     this.search = '';
     this.sortOptions = [
-      new MenuOption('Αποστολέας', 'sender'),
-      new MenuOption('Όνομα', 'displayName'),
-      new MenuOption('Δημιουργήθηκε', 'createdAt')
+      new MenuOption('settings.email.sender-list.title', 'sender'),
+      new MenuOption('settings.email.sender-list.name', 'displayName'),
+      new MenuOption('settings.email.sender-list.created-at', 'createdAt')
     ];
 }
 
@@ -55,8 +55,8 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
     const modal = this._modalService.show(BasicModalComponent, {
       animated: true,
       initialState: {
-        title: 'Διαγραφή',
-        message: `Είστε σίγουρος ότι θέλετε να διαγράψετε τον αποστολέα '${sender.displayName}';`,
+        title: 'settings.email.sender-list.delete',
+        message: `'settings.email.sender-list.delete-warning' '${sender.displayName}';`,
         data: sender
       },
       keyboard: true
@@ -65,7 +65,7 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
       if (response.result?.answer) {
         const sender = response.result.data;
         this._api.deleteMessageSender(sender.id).subscribe(() => {
-          this._toaster.show(ToastType.Success, 'Επιτυχής διαγραφή', `Ο αποστολέας '${sender.displayName}' διαγράφηκε με επιτυχία.`);
+          this._toaster.show(ToastType.Success, 'settings.email.sender-list.success-delete', `'settings.email.sender-list.success-delete-message' '${sender.displayName}' `);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['settings']));
         });
       }

@@ -25,7 +25,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         this.sort = 'name';
         this.sortdir = 'asc';
         this.search = '';
-        this.sortOptions = [new MenuOption('Όνομα', 'name')];
+        this.sortOptions = [new MenuOption('templates.name', 'name')];
     }
 
     public newItemLink: string | null = null;

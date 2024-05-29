@@ -25,7 +25,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
         this.sort = 'name';
         this.sortdir = 'asc';
         this.search = '';
-        this.sortOptions = [new MenuOption('Όνομα', 'name')];
+        this.sortOptions = [new MenuOption('distribution-list-edit.name', 'name')];
     }
 
     public newItemLink: string | null = 'create-distribution-list';

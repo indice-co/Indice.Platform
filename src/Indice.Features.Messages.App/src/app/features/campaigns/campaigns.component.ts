@@ -23,9 +23,9 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
         this.sortdir = 'desc';
         this.search = '';
         this.sortOptions = [
-            new MenuOption('Ημ/νια Δημιουργίας', 'createdAt'),
-            new MenuOption('Τίτλος', 'title'),
-            new MenuOption('Ενεργή Από', 'activePeriod.from')
+            new MenuOption('campaigns.created-at', 'createdAt'),
+            new MenuOption('campaigns.title', 'title'),
+            new MenuOption('campaigns.active-from', 'activePeriod.from')
         ];
     }
 

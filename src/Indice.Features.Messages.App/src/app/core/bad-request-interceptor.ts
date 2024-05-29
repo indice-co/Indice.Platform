@@ -20,7 +20,7 @@ export class BadRequestInterceptor implements HttpInterceptor {
                     const fileReader = new FileReader();
                     fileReader.addEventListener('loadend', () => {
                         const problemDetails = fileReader.result!;
-                        this._toaster.show(ToastType.Error, 'Αποτυχία αιτήματος', `${this._utilities.getValidationErrors(JSON.parse(problemDetails.toString()))}`, 6000);
+                        this._toaster.show(ToastType.Error, 'general.failed-request', `${this._utilities.getValidationErrors(JSON.parse(problemDetails.toString()))}`, 6000);
                     });
                     fileReader.readAsText(error.error);
                 }
