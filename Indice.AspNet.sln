@@ -10,8 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		appveyor.yml = appveyor.yml
-		src\Directory.Build.props = src\Directory.Build.props
-		src\Directory.Build.targets = src\Directory.Build.targets
 		LICENSE = LICENSE
 		local-feed.ps1 = local-feed.ps1
 		NuGet.config = NuGet.config
@@ -33,6 +31,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{613A1373-9
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{643960D9-48C5-4EA3-BED5-486CCC694947}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+		src\Directory.Build.targets = src\Directory.Build.targets
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Services", "src\Indice.Services\Indice.Services.csproj", "{59D4AEFD-FF4C-48A0-B7FE-51CD965DCD8E}"
 EndProject
@@ -106,7 +108,22 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Risk.Tests"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Media.AspNetCore", "src\Indice.Features.Media.AspNetCore\Indice.Features.Media.AspNetCore.csproj", "{FDFC28D4-8090-49B1-AD6F-8908D806F297}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.Features.Risk.UI", "src\Indice.Features.Risk.UI\Indice.Features.Risk.UI.csproj", "{AF9967E0-0C9A-4266-8AE2-84EEE180A255}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.Features.Risk.UI", "src\Indice.Features.Risk.UI\Indice.Features.Risk.UI.csproj", "{AF9967E0-0C9A-4266-8AE2-84EEE180A255}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Indice.Features.Cases.App", "src\Indice.Features.Cases.App\Indice.Features.Cases.App.esproj", "{DD10ADD2-A9FC-49F0-906A-396B7A44534E}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Indice.Features.Identity.AdminUI.App", "src\Indice.Features.Identity.AdminUI.App\Indice.Features.Identity.AdminUI.App.esproj", "{CAA0AB3B-3128-4040-8A34-6D4FA4E6DAED}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Indice.Features.Messages.App", "src\Indice.Features.Messages.App\Indice.Features.Messages.App.esproj", "{51E64F18-5DED-4896-90A7-7F37794629FE}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Indice.Features.Risk.App", "src\Indice.Features.Risk.App\Indice.Features.Risk.App.esproj", "{9A54D5CE-7425-48BD-9344-5C907E8FAD1D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{3244A2DB-42EF-48B6-A50B-7A770122DC93}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\buid.yml = .github\workflows\buid.yml
+		.github\workflows\codeql.yml = .github\workflows\codeql.yml
+		.github\workflows\publish_to_nuget.yml = .github\workflows\publish_to_nuget.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -278,6 +295,30 @@ Global
 		{AF9967E0-0C9A-4266-8AE2-84EEE180A255}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF9967E0-0C9A-4266-8AE2-84EEE180A255}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF9967E0-0C9A-4266-8AE2-84EEE180A255}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD10ADD2-A9FC-49F0-906A-396B7A44534E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD10ADD2-A9FC-49F0-906A-396B7A44534E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD10ADD2-A9FC-49F0-906A-396B7A44534E}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{DD10ADD2-A9FC-49F0-906A-396B7A44534E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD10ADD2-A9FC-49F0-906A-396B7A44534E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD10ADD2-A9FC-49F0-906A-396B7A44534E}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{CAA0AB3B-3128-4040-8A34-6D4FA4E6DAED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAA0AB3B-3128-4040-8A34-6D4FA4E6DAED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAA0AB3B-3128-4040-8A34-6D4FA4E6DAED}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{CAA0AB3B-3128-4040-8A34-6D4FA4E6DAED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAA0AB3B-3128-4040-8A34-6D4FA4E6DAED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAA0AB3B-3128-4040-8A34-6D4FA4E6DAED}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{51E64F18-5DED-4896-90A7-7F37794629FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51E64F18-5DED-4896-90A7-7F37794629FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51E64F18-5DED-4896-90A7-7F37794629FE}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{51E64F18-5DED-4896-90A7-7F37794629FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51E64F18-5DED-4896-90A7-7F37794629FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51E64F18-5DED-4896-90A7-7F37794629FE}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -324,6 +365,10 @@ Global
 		{D39DFEBF-C818-42AB-9B8A-EA080D102606} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 		{FDFC28D4-8090-49B1-AD6F-8908D806F297} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{AF9967E0-0C9A-4266-8AE2-84EEE180A255} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{DD10ADD2-A9FC-49F0-906A-396B7A44534E} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{CAA0AB3B-3128-4040-8A34-6D4FA4E6DAED} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{51E64F18-5DED-4896-90A7-7F37794629FE} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}

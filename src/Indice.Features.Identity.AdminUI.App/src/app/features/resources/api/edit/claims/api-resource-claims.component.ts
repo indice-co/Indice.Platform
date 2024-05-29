@@ -37,7 +37,7 @@ export class ApiResourceClaimsComponent implements OnInit, OnDestroy {
             { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: true },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: true, resizeable: true }
         ];
-        this._apiResourceId = +this._route.parent.snapshot.params.id;
+        this._apiResourceId = +this._route.parent.snapshot.params['id'];
         const getApiResource = this._apiResourceStore.getApiResource(this._apiResourceId);
         const getAllClaims = this._apiResourceStore.getAllClaims();
         this._getDataSubscription = forkJoin([getApiResource, getAllClaims]).pipe(map((responses: [ApiResourceInfo, ClaimTypeInfo[]]) => {

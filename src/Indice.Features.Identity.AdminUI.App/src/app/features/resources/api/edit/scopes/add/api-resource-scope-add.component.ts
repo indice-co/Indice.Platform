@@ -45,7 +45,7 @@ export class ApiResourceScopeAddComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this._apiResourceId = +this._route.parent.snapshot.params.id;
+        this._apiResourceId = +this._route.parent.snapshot.params['id'];
         this.form = this._formBuilder.group({
             type: [''],
             name: ['', [Validators.required, Validators.maxLength(200)]],
@@ -96,7 +96,7 @@ export class ApiResourceScopeAddComponent implements OnInit {
             this._toast.showSuccess(`API scope '${resourceName}' was created successfully.`);
             this._router.navigate(['../'], { relativeTo: this._route });
         }, (problemDetails: HttpValidationProblemDetails) => {
-            const errorMessage = problemDetails.errors.name[0];
+            const errorMessage = problemDetails.errors['name'][0];
             this._toast.showDanger(errorMessage);
         });
     }

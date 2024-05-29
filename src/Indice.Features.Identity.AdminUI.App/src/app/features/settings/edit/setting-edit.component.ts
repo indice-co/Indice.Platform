@@ -17,7 +17,7 @@ export class SettingEditComponent implements OnInit {
     public setting: AppSettingInfo = new AppSettingInfo();
 
     public ngOnInit(): void {
-        this.setting = this._route.snapshot.data.setting;
+        this.setting = this._route.snapshot.data['setting'];
     }
 
     public deletePrompt(): void {

@@ -90,7 +90,7 @@ export class AuthService {
     }
 
     public isAdmin(): boolean {
-        return this.getUserProfile()?.admin === true || this.hasRole(RoleNames.Administrator) || this.hasRole(RoleNames.AdminUIAdministrator);
+        return this.getUserProfile()?.['admin'] === true || this.hasRole(RoleNames.Administrator) || this.hasRole(RoleNames.AdminUIAdministrator);
     }
 
     public isAdminUIUsersReader(): boolean {
@@ -179,7 +179,7 @@ export class AuthService {
     }
 
     private hasRole(roleName: string): boolean {
-        const roleClaim = this.getUserProfile()?.role as string;
+        const roleClaim = this.getUserProfile()?.['role'] as string;
         if (roleClaim && Array.isArray(roleClaim)) {
             const roles = Array.from(roleClaim);
             return roles.indexOf(roleName) !== -1;

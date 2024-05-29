@@ -19,7 +19,7 @@ export class UserEditComponent implements OnInit {
 
     public ngOnInit(): void {
         this.logger.log('UserEditComponent ngOnInit was called.');
-        this.userId = this.route.snapshot.params.id;
+        this.userId = this.route.snapshot.params['id'];
 
         this.uiFeaturesService.getUiFeatures().subscribe((response: UiFeaturesInfo) => {
             this.signInLogsEnabled = response.signInLogsEnabled;

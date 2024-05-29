@@ -39,7 +39,7 @@ export class ClientDetailsComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.canEditClient = this._authService.isAdminUIClientsWriter();
-        const clientId = this._route.parent.snapshot.params.id;
+        const clientId = this._route.parent.snapshot.params['id'];
         const getClient$ = this._clientStore.getClient(clientId);
         const getExternalProviders$ = this._identityApi.getExternalProviders();
         this._getDataSubscription = forkJoin([getClient$, getExternalProviders$]).subscribe((result: [SingleClientInfo, ExternalProviderResultSet]) => {

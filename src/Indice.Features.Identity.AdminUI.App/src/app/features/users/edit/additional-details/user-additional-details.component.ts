@@ -52,7 +52,7 @@ export class UserAdditionalDetailsComponent implements OnInit, OnDestroy {
         if (this.canEditUser) {
             this.columns.push({ prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' })
         }
-        const userId = this._route.parent.snapshot.params.id;
+        const userId = this._route.parent.snapshot.params['id'];
         const getUser = this._userStore.getUser(userId);
         const getAllClaims = this._userStore.getAllClaims();
         this._getDataSubscription = forkJoin([getUser, getAllClaims]).pipe(map((responses: [SingleUserInfo, ClaimTypeInfo[]]) => {

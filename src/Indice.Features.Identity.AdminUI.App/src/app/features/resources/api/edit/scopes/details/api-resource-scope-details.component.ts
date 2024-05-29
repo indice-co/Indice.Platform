@@ -42,7 +42,7 @@ export class ApiResourceScopeDetailsComponent implements OnInit, OnDestroy {
 
     public ngOnInit(): void {
         this.canEditResource = this._authService.isAdminUIClientsWriter();
-        this._apiResourceId = +this._route.parent.snapshot.params.id;
+        this._apiResourceId = +this._route.parent.snapshot.params['id'];
         if (!this.scope.translations) {
             this.scope.translations = {} as { [key: string]: ApiScopeTranslation; };
             return;

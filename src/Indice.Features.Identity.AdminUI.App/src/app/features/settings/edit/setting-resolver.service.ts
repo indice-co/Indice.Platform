@@ -9,7 +9,7 @@ export class SettingResolverService  {
     constructor(private api: IdentityApiService) { }
 
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<AppSettingInfo> {
-        const key = route.params.id;
+        const key = route.params['id'];
         if (!key) {
             return of(new AppSettingInfo());
         }

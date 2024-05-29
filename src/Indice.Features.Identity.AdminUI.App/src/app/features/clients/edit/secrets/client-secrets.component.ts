@@ -59,7 +59,7 @@ export class ClientSecretsComponent implements OnInit, OnDestroy {
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._wrapContentTemplate, cellClass: 'd-flex align-items-center' },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];
-        this._clientId = this._route.parent.snapshot.params.id;
+        this._clientId = this._route.parent.snapshot.params['id'];
         this._getDataSubscription = this._clientStore.getClient(this._clientId).subscribe((client: SingleClientInfo) => {
             this.client = client;
             this.rows = client.secrets;
