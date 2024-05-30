@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ListViewType, MenuOption, ModalService, SearchOption } from '@indice/ng-components';
+import { ModalService, SearchOption } from '@indice/ng-components';
 import { CasesApiService, CaseTypePartialResultSet, CheckpointType, } from 'src/app/core/services/cases-api.service';
 import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { GeneralCasesComponent } from '../general-cases/general-cases.component';
@@ -21,13 +21,6 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     protected _caseTypeService: CaseTypeService
   ) {
     super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService);
-    this.view = ListViewType.Table;
-    this.pageSize = 10;
-    this.sort = 'createdByWhen';
-    this.sortdir = 'desc';
-    this.sortOptions = [
-      new MenuOption('Ημ. Υποβολής', 'createdByWhen')
-    ];
     this._route.params.subscribe(() => {
       this.initialize();
     })
@@ -51,7 +44,8 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
       options: [],
       multiTerm: true
     }
-    for (let checkpointType of checkpointTypes) { // fill checkpointTypeSearchOption's SelectInputOptions
+    // fill checkpointTypeSearchOption's SelectInputOptions
+    for (let checkpointType of checkpointTypes) {
       checkpointTypeSearchOption.options?.push({ value: checkpointType?.code, label: checkpointType?.title ?? checkpointType?.code! })
     }
     return checkpointTypeSearchOption;
