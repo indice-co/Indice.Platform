@@ -82,7 +82,9 @@ internal class DeviceAuthenticationExtensionGrantValidator(
         if (parameters.Get(BasicClaimTypes.AuthorizationDetails) is { } authorizationDetails) {
             var validateAuthorizationDetails = ValidateAuthorizationDetails(authorizationDetails);
             if (validateAuthorizationDetails.IsError) {
-                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidRequest, ExtraTokenRequestErrors.InvalidAuthorizationDetails);
+                context.Result = new GrantValidationResult(TokenRequestErrors.InvalidRequest, validateAuthorizationDetails.ErrorDescription) {
+                    Error = ExtraTokenRequestErrors.InvalidAuthorizationDetails
+                };
                 return;
             }
 

@@ -493,7 +493,7 @@ public class CustomGrantsIntegrationTests
             }
         });
         Assert.True(tokenResponse.IsError);
-        Assert.Equal("invalid_authorization_details", tokenResponse.ErrorDescription);
+        Assert.Equal("invalid_authorization_details", tokenResponse.Error);
     }
 
     [Fact]
@@ -513,7 +513,7 @@ public class CustomGrantsIntegrationTests
             }
         });
         Assert.True(tokenResponse.IsError);
-        Assert.Equal("invalid_authorization_details", tokenResponse.ErrorDescription);
+        Assert.Equal("invalid_authorization_details", tokenResponse.Error);
     }
 
     [Fact]
