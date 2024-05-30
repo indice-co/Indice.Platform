@@ -12,8 +12,8 @@
               Αποθήκευση Αναζήτησης</button>
       </div>
       <lib-list-view [items]="items"
-                    [search-options$]="searchOptionsObservable$"
-                    [filters$]="filtersObservable$"
+                    [search-options]="searchOptions"
+                    [filters]="filters"
                     [page]="page"
                     [page-size]="pageSize"
                     [count]="count"

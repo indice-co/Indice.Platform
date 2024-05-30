@@ -23,12 +23,6 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   public tableFilters = new TableFilters();
   public tableColumns = new TableColumns();
   protected caseTypes: CaseTypePartialResultSet | undefined;
-  searchOptions$: Observable<SearchOption[]> | undefined;
-  _searchOptionsSubject = new BehaviorSubject<SearchOption[]>([]);
-  searchOptionsObservable$ = this._searchOptionsSubject.asObservable();
-  filters$: Observable<FilterClause[]> | undefined;
-  _filtersSubject = new BehaviorSubject<FilterClause[]>([]);
-  filtersObservable$ = this._filtersSubject.asObservable();
 
   constructor(
     protected _route: ActivatedRoute,
@@ -130,7 +124,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
       if (otherSearchOptions) {
         tempSearchOptions.push(...otherSearchOptions);
       }
-      this._searchOptionsSubject.next(tempSearchOptions);
+      this.searchOptions = tempSearchOptions;
       // now that we have the searchOptions, call parent's ngOnInit!
       super.ngOnInit();
     });
@@ -157,7 +151,6 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     if (extraMetadataFilters) {
       filterMetadata?.push(...extraMetadataFilters)
     }
-    this._filtersSubject.next(this.filters);
     this._filterCachingService.setParams(this.getFilterCacheKey(), {
       view: this.view,
       page: this.page,
