@@ -73,8 +73,16 @@ jobs:
         {
           New-Item -ItemType "directory" -Path ".\.nuget\packages"
         }
+    
+    # BUILD
+    - name: Install dependencies
+      run: dotnet restore /nowarn:netsdk1138
+    - name: Clean
+      run: dotnet clean
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
       
-    # Build and pack
+    # Pack
     - name: Build solution and generate NuGet package
       run: ./pack.ps1
 
