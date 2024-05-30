@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, SearchOption, ViewAction } from '@indice/ng-components';
-import { forkJoin, Observable } from 'rxjs';
+import { BehaviorSubject, forkJoin, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
@@ -23,6 +23,12 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   public tableFilters = new TableFilters();
   public tableColumns = new TableColumns();
   protected caseTypes: CaseTypePartialResultSet | undefined;
+  searchOptions$: Observable<SearchOption[]> | undefined;
+  _searchOptionsSubject = new BehaviorSubject<SearchOption[]>([]);
+  searchOptionsObservable$ = this._searchOptionsSubject.asObservable();
+  filters$: Observable<FilterClause[]> | undefined;
+  _filtersSubject = new BehaviorSubject<FilterClause[]>([]);
+  filtersObservable$ = this._filtersSubject.asObservable();
 
   constructor(
     protected _route: ActivatedRoute,
@@ -124,11 +130,10 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
       if (otherSearchOptions) {
         tempSearchOptions.push(...otherSearchOptions);
       }
-      this.searchOptions = tempSearchOptions;
+      this._searchOptionsSubject.next(tempSearchOptions);
       // now that we have the searchOptions, call parent's ngOnInit!
       super.ngOnInit();
     });
-
   }
 
   public loadItems(): Observable<IResultSet<CasePartial> | null | undefined> {
@@ -152,6 +157,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     if (extraMetadataFilters) {
       filterMetadata?.push(...extraMetadataFilters)
     }
+    this._filtersSubject.next(this.filters);
     this._filterCachingService.setParams(this.getFilterCacheKey(), {
       view: this.view,
       page: this.page,

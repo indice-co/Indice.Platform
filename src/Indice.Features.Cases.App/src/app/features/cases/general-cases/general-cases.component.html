@@ -1,68 +1,68 @@
-<lib-view-layout title="Υποθέσεις"
-                 [busy]="!items"
-                 [actions]="formActions"
-                 [meta-items]="metaItems"
-                 (onAction)="actionHandler($event)"
-                 (onSearch)="searchChanged($event)">
-    <div class="text-right">
-        <button class="btn-submit"
-                [ngClass]="{'opacity-50 cursor-not-allowed': !queryParamsHasFilter}"
-                [disabled]="!queryParamsHasFilter"
-                (click)="openQueryModal()">
-            Αποθήκευση Αναζήτησης</button>
-    </div>
-    <lib-list-view [items]="items"
-                   [search-options]="searchOptions"
-                   [filters]="filters"
-                   [page]="page"
-                   [page-size]="pageSize"
-                   [count]="count"
-                   [sort-options]="sortOptions"
-                   [sort]="sort"
-                   [sort-dir]="sortdir"
-                   [busy]="!items"
-                   (advancedSearchChanged)="advancedSearchChanged($event)"
-                   (pageChanged)="pageChanged($event)"
-                   (pageSizeChanged)="pageSizeChanged($event)"
-                   (sortChanged)="sortChanged($event)"
-                   (sortdirChanged)="sortdirChanged($event)">
-        <lib-list-column *ngIf="tableColumns.ReferenceNumber" [title]="'cases.referenceNumber' | translate">
-            <ng-template let-item>{{ item.referenceNumber ||   '-' }}</ng-template>
-        </lib-list-column>
-        <lib-list-column *ngIf="tableColumns.CustomerId" [title]="'cases.customerId' | translate">
-            <ng-template let-item>{{ item.customerId }}</ng-template>
-        </lib-list-column>
-        <lib-list-column *ngIf="tableColumns.CustomerName" [title]="'cases.customerName' | translate">
-            <ng-template let-item>{{ item.customerName }}</ng-template>
-        </lib-list-column>
-        <lib-list-column *ngIf="tableColumns.TaxId" [title]="'cases.taxId' | translate">
-            <ng-template let-item>{{ item.metadata?.TaxId }}</ng-template>
-        </lib-list-column>
-        <lib-list-column *ngIf="tableColumns.GroupId" [title]="'cases.groupId' | translate">
-            <ng-template let-item>{{ item.groupId }}</ng-template>
-        </lib-list-column>
-        <lib-list-column *ngIf="tableColumns.CaseType" [title]="'cases.caseType' | translate">
-            <ng-template let-item>{{ item.caseType.title }}</ng-template>
-        </lib-list-column>
-        <lib-list-column *ngIf="tableColumns.CheckpointType" [title]="'cases.checkpointType' | translate">
-            <ng-template let-item>{{ item.checkpointType?.title ?? item.checkpointType?.code }}</ng-template>
-        </lib-list-column>
-        <lib-list-column *ngIf="tableColumns.AssignedTo" [title]="'cases.assignedTo' | translate">
-            <ng-template let-item>{{ item.assignedToName || ' - '}}</ng-template>
-        </lib-list-column>
-        <lib-list-column *ngIf="tableColumns.SubmitDate" [title]="'cases.submitDate' | translate">
-            <ng-template let-item>{{ item.createdByWhen | date: 'dd/MM/yy, HH:mm' }}</ng-template>
-        </lib-list-column>
-        <lib-list-column>
-            <ng-template let-item>
-                <a href="#"
-                   [routerLinkActive]="['nav-link-profile-active']"
-                   [routerLinkActiveOptions]="{ exact: true }"
-                   [routerLink]="[item.id]"
-                   class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
-                    <span>{{'cases.choose' | translate}}</span>
-                </a>
-            </ng-template>
-        </lib-list-column>
-    </lib-list-view>
-</lib-view-layout>
+  <lib-view-layout title="Υποθέσεις"
+                  [busy]="!items"
+                  [actions]="formActions"
+                  [meta-items]="metaItems"
+                  (onAction)="actionHandler($event)"
+                  (onSearch)="searchChanged($event)">
+      <div class="text-right">
+          <button class="btn-submit"
+                  [ngClass]="{'opacity-50 cursor-not-allowed': !queryParamsHasFilter}"
+                  [disabled]="!queryParamsHasFilter"
+                  (click)="openQueryModal()">
+              Αποθήκευση Αναζήτησης</button>
+      </div>
+      <lib-list-view [items]="items"
+                    [search-options$]="searchOptionsObservable$"
+                    [filters$]="filtersObservable$"
+                    [page]="page"
+                    [page-size]="pageSize"
+                    [count]="count"
+                    [sort-options]="sortOptions"
+                    [sort]="sort"
+                    [sort-dir]="sortdir"
+                    [busy]="!items"
+                    (advancedSearchChanged)="advancedSearchChanged($event)"
+                    (pageChanged)="pageChanged($event)"
+                    (pageSizeChanged)="pageSizeChanged($event)"
+                    (sortChanged)="sortChanged($event)"
+                    (sortdirChanged)="sortdirChanged($event)">
+          <lib-list-column *ngIf="tableColumns.ReferenceNumber" [title]="'cases.referenceNumber' | translate">
+              <ng-template let-item>{{ item.referenceNumber ||   '-' }}</ng-template>
+          </lib-list-column>
+          <lib-list-column *ngIf="tableColumns.CustomerId" [title]="'cases.customerId' | translate">
+              <ng-template let-item>{{ item.customerId }}</ng-template>
+          </lib-list-column>
+          <lib-list-column *ngIf="tableColumns.CustomerName" [title]="'cases.customerName' | translate">
+              <ng-template let-item>{{ item.customerName }}</ng-template>
+          </lib-list-column>
+          <lib-list-column *ngIf="tableColumns.TaxId" [title]="'cases.taxId' | translate">
+              <ng-template let-item>{{ item.metadata?.TaxId }}</ng-template>
+          </lib-list-column>
+          <lib-list-column *ngIf="tableColumns.GroupId" [title]="'cases.groupId' | translate">
+              <ng-template let-item>{{ item.groupId }}</ng-template>
+          </lib-list-column>
+          <lib-list-column *ngIf="tableColumns.CaseType" [title]="'cases.caseType' | translate">
+              <ng-template let-item>{{ item.caseType.title }}</ng-template>
+          </lib-list-column>
+          <lib-list-column *ngIf="tableColumns.CheckpointType" [title]="'cases.checkpointType' | translate">
+              <ng-template let-item>{{ item.checkpointType?.title ?? item.checkpointType?.code }}</ng-template>
+          </lib-list-column>
+          <lib-list-column *ngIf="tableColumns.AssignedTo" [title]="'cases.assignedTo' | translate">
+              <ng-template let-item>{{ item.assignedToName || ' - '}}</ng-template>
+          </lib-list-column>
+          <lib-list-column *ngIf="tableColumns.SubmitDate" [title]="'cases.submitDate' | translate">
+              <ng-template let-item>{{ item.createdByWhen | date: 'dd/MM/yy, HH:mm' }}</ng-template>
+          </lib-list-column>
+          <lib-list-column>
+              <ng-template let-item>
+                  <a href="#"
+                    [routerLinkActive]="['nav-link-profile-active']"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    [routerLink]="[item.id]"
+                    class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
+                      <span>{{'cases.choose' | translate}}</span>
+                  </a>
+              </ng-template>
+          </lib-list-column>
+      </lib-list-view>
+  </lib-view-layout>

@@ -1,11 +1,11 @@
 import { map, take } from 'rxjs/operators';
-import { CasesApiService, CaseTypePartial, CaseTypePartialResultSet } from './../../core/services/cases-api.service';
 import { Component, OnInit } from '@angular/core';
 import { BaseListComponent, Icons, IResultSet, RouterViewAction, ViewAction, ListViewType, ModalService } from '@indice/ng-components';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { CaseTypeService } from 'src/app/core/services/case-type.service';
+import { CaseTypePartial, CasesApiService, CaseTypePartialResultSet } from 'src/app/core/services/cases-api.service';
 import { CaseTypeDeleteModalComponent } from './case-type-delete-modal/case-type-delete-modal.component';
-import { CaseTypeService } from '../../core/services/case-type.service';
 
 @Component({
   selector: 'app-case-types',

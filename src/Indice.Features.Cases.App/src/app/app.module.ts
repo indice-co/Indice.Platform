@@ -19,10 +19,10 @@ import { AcceptLanguageHttpInterceptor } from './core/services/accept-language-h
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { CaseTypeService } from './core/services/case-type.service';
-import { CasesModule } from './features/cases/cases.module';
 import { FormsModule } from '@angular/forms';
 import { AUTH_SETTINGS, AuthHttpInterceptor, AuthService, IndiceAuthModule } from '@indice/ng-auth';
 import { NgModule } from '@angular/core';
+import { CasesModule } from './features/cases/cases.module';
 
 @NgModule({
   declarations: [
