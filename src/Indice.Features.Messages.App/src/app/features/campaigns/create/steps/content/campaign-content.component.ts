@@ -1,7 +1,7 @@
 import { AfterContentChecked, AfterContentInit, AfterViewChecked, AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormGroup, FormControl, Validators, FormBuilder, FormArray } from '@angular/forms';
 
-import * as Handlebars from 'handlebars';
+import Handlebars from "handlebars";
 import * as app from 'src/app/core/models/settings';
 import { LibTabComponent, LibTabGroupComponent, MenuOption, SidePaneComponent } from '@indice/ng-components';
 import { Hyperlink, MessageChannelKind, MessageContent, MessageSender, MessageSenderResultSet } from 'src/app/core/services/messages-api.service';
@@ -13,9 +13,9 @@ import { SettingsStore } from 'src/app/features/settings/settings-store.service'
 import { MediaFile } from 'src/app/core/services/media-api.service';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
 import { Editor } from 'tinymce';
-import "tinymce";
+// Import TinyMCE
+import tinymce from 'tinymce/tinymce';
 import { settings } from 'src/app/core/models/settings';
-declare var tinymce: any;
 @Component({
     selector: 'app-campaign-content',
     templateUrl: './campaign-content.component.html',

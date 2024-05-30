@@ -19,7 +19,7 @@ public class CreateFolderRequestValidator : AbstractValidator<CreateFolderReques
             .MaximumLength(TextSizePresets.M512)
             .WithMessage($"Folder description cannot exceed {TextSizePresets.M512} characters.");
         RuleFor(folder => folder.ParentId)
-            .MustAsync(async (id, token) => await folderStore.GetById(id.Value) is not null)
+            .MustAsync(async (id, token) => await folderStore.GetById(id!.Value) is not null)
             .When(folder => folder.ParentId is not null)
             .WithMessage("Parent should be an existing folder.");
     }

@@ -12,9 +12,9 @@ import { CreateCampaignRequest, MessagesApiClient, Period, Hyperlink, Campaign, 
 import { CampaignAttachmentsComponent } from './steps/attachments/campaign-attachments.component';
 import { map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
-import "tinymce";
+// Import TinyMCE
+import tinymce from 'tinymce/tinymce';
 import { settings } from 'src/app/core/models/settings';
-declare var tinymce: any;
 
 @Component({
     selector: 'app-campaign-create',

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/0.5.128-alpha">
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.784122">
   <PropertyGroup>
     <StartupCommand>npm start</StartupCommand>
     <BuildCommand>npm run build:template</BuildCommand>
@@ -8,5 +8,9 @@
     <ShouldRunBuildScript>true</ShouldRunBuildScript>
     <!-- Folder where production build objects will be placed -->
     <PublishAssetsDirectory>$(MSBuildProjectDirectory)\dist\messages-app\</PublishAssetsDirectory>
+    <!-- Disable tests -->
+    <JavaScriptTestRoot></JavaScriptTestRoot>
+    <JavaScriptTestFramework></JavaScriptTestFramework>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 </Project>
