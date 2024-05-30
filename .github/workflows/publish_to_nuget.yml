@@ -49,7 +49,7 @@ jobs:
     # Npm Install AdminUI
     - name: NPM Install AdminUI
       run: |
-        cd src/Indice.Features.AdminUI.App
+        cd src/Indice.Features.Identity.AdminUI.App
         npm install
     # Npm Install Messages
     - name: NPM Install Messages
