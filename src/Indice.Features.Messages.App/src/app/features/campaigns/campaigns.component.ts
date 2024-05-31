@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { Observable, Subscription } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
-import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Campaign, CampaignResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 
 @Component({
     selector: 'app-campaigns',
     templateUrl: './campaigns.component.html'
 })
-export class CampaignsComponent extends BaseListComponent<Campaign> implements OnInit {
+export class CampaignsComponent extends BaseListComponent<Campaign> implements OnInit, OnDestroy {
+    private langChangeSubscription: Subscription | null = null;
+
     constructor(
         route: ActivatedRoute,
         private _translate: TranslateService,
@@ -24,11 +26,6 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
         this.sort = 'createdAt';
         this.sortdir = 'desc';
         this.search = '';
-        this.sortOptions = [
-            new MenuOption(this._translate.instant('campaigns.created-at'), 'createdAt'),
-            new MenuOption(this._translate.instant('campaigns.title'), 'title'),
-            new MenuOption(this._translate.instant('campaigns.active-from'), 'activePeriod.from')
-        ];
     }
 
     public newItemLink: string | null = null;
@@ -37,6 +34,25 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
     public override ngOnInit(): void {
         super.ngOnInit();
         this.actions.push(new RouterViewAction(Icons.Add, 'campaigns/add-campaign', null, null));
+
+        this.langChangeSubscription = this._translate.onLangChange.subscribe(() => {
+            this.updateMenuOptions(); 
+        });
+        this.updateMenuOptions(); 
+    }
+
+    public override ngOnDestroy(): void {
+        if (this.langChangeSubscription) {
+            this.langChangeSubscription.unsubscribe();
+        }
+    }
+
+    private updateMenuOptions(): void {
+        this.sortOptions = [
+            new MenuOption(this._translate.instant('campaigns.created-at'), 'createdAt'),
+            new MenuOption(this._translate.instant('campaigns.title'), 'title'),
+            new MenuOption(this._translate.instant('campaigns.active-from'), 'activePeriod.from')
+        ];
     }
 
     public loadItems(): Observable<IResultSet<Campaign> | null | undefined> {

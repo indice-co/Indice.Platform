@@ -13,6 +13,7 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
     templateUrl: './distribution-list-contacts.component.html'
 })
 export class DistributionListContactsComponent extends BaseListComponent<Contact> implements OnInit, OnDestroy {
+    private langChangeSubscription: Subscription | null = null;
     private _distributionListId: string = '';
     private _getListSubscription!: Subscription;
 
@@ -31,12 +32,6 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         this.sort = 'updatedAt';
         this.sortdir = 'asc';
         this.search = '';
-        this.sortOptions = [
-            new MenuOption(this._translate.instant('distribution-list-contacts.firstName'), 'firstName'),
-            new MenuOption(this._translate.instant('distribution-list-contacts.lastName'), 'lastName'),
-            new MenuOption(this._translate.instant('distribution-list-contacts.email'), 'email'),
-            new MenuOption(this._translate.instant('distribution-list-contacts.createdAt'), 'createdAt')
-        ];        
     }
 
     public newItemLink: string | null = 'create-contact';
@@ -49,6 +44,20 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         this._getListSubscription = this._api.getDistributionListById(this._distributionListId).subscribe((list: DistributionList) => {
             this.distributionList = list;
         });
+
+        this.langChangeSubscription = this._translate.onLangChange.subscribe(() => {
+            this.updateMenuOptions(); 
+        });
+        this.updateMenuOptions(); 
+    }
+
+    private updateMenuOptions(): void {
+        this.sortOptions = [
+            new MenuOption(this._translate.instant('distribution-list-contacts.firstName'), 'firstName'),
+            new MenuOption(this._translate.instant('distribution-list-contacts.lastName'), 'lastName'),
+            new MenuOption(this._translate.instant('distribution-list-contacts.email'), 'email'),
+            new MenuOption(this._translate.instant('distribution-list-contacts.createdAt'), 'createdAt')
+        ];
     }
 
     public loadItems(): Observable<IResultSet<Contact> | null | undefined> {
@@ -80,6 +89,9 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
 
     public override ngOnDestroy(): void {
         this._getListSubscription?.unsubscribe();
+        if (this.langChangeSubscription) {
+            this.langChangeSubscription.unsubscribe();
+        }
     }
 
     public override actionHandler(action: ViewAction): void {

@@ -1,8 +1,8 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ToasterService } from '@indice/ng-components';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { MessageSender, MessageSenderResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
@@ -11,8 +11,9 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
   selector: 'app-email-settings',
   templateUrl: './email-settings.component.html'
 })
-export class EmailSettingsComponent extends BaseListComponent<MessageSender> implements OnInit {
+export class EmailSettingsComponent extends BaseListComponent<MessageSender> implements OnInit, OnDestroy {
 
+  private langChangeSubscription: Subscription | null = null;
   constructor(
     route: ActivatedRoute,
     private _router: Router,
@@ -27,11 +28,6 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
     this.sort = 'isDefault';
     this.sortdir = 'desc';
     this.search = '';
-    this.sortOptions = [
-      new MenuOption(this._translate.instant('settings.email.sender-list.title'), 'sender'),
-      new MenuOption(this._translate.instant('settings.email.sender-list.name'), 'displayName'),
-      new MenuOption(this._translate.instant('settings.email.sender-list.created-at'), 'createdAt')
-    ];
 }
 
   public newItemLink: string | null = 'settings';
@@ -43,6 +39,24 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
     //     this.defaultSender = result.items?.find(x => x);
     //   });
     super.ngOnInit();
+    this.langChangeSubscription = this._translate.onLangChange.subscribe(() => {
+            this.updateMenuOptions(); 
+      });
+    this.updateMenuOptions(); 
+  }
+
+  public override ngOnDestroy(): void {
+    if (this.langChangeSubscription) {
+        this.langChangeSubscription.unsubscribe();
+    }
+  }
+
+  private updateMenuOptions(): void {
+    this.sortOptions = [
+      new MenuOption(this._translate.instant('settings.email.sender-list.title'), 'sender'),
+      new MenuOption(this._translate.instant('settings.email.sender-list.name'), 'displayName'),
+      new MenuOption(this._translate.instant('settings.email.sender-list.created-at'), 'createdAt')
+    ];
   }
 
   public loadItems(): Observable<IResultSet<MessageSender> | null | undefined> {

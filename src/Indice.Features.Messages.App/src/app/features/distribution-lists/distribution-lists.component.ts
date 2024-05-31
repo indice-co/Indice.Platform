@@ -1,9 +1,9 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DistributionList, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
@@ -12,7 +12,8 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
     selector: 'app-distribution-lists',
     templateUrl: './distribution-lists.component.html'
 })
-export class DistributionListsComponent extends BaseListComponent<DistributionList> implements OnInit {
+export class DistributionListsComponent extends BaseListComponent<DistributionList> implements OnInit, OnDestroy {
+    private langChangeSubscription: Subscription | null = null;
     constructor(
         route: ActivatedRoute,
         private _router: Router,
@@ -27,7 +28,6 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
         this.sort = 'name';
         this.sortdir = 'asc';
         this.search = '';
-        this.sortOptions = [new MenuOption(this._translate.instant('distribution-list-edit.name'), 'name')];
     }
 
     public newItemLink: string | null = 'create-distribution-list';
@@ -37,6 +37,20 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
 
     public override ngOnInit(): void {
         super.ngOnInit();
+        this.langChangeSubscription = this._translate.onLangChange.subscribe(() => {
+            this.updateMenuOptions(); 
+        });
+        this.updateMenuOptions(); 
+    }
+
+    public override ngOnDestroy(): void {
+        if (this.langChangeSubscription) {
+            this.langChangeSubscription.unsubscribe();
+        }
+    }
+
+    private updateMenuOptions(): void {
+        this.sortOptions = [new MenuOption(this._translate.instant('distribution-list-edit.name'), 'name')];
     }
 
     public loadItems(): Observable<IResultSet<DistributionList> | null | undefined> {

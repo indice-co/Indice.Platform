@@ -1,9 +1,9 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MessagesApiClient, MessageType, MessageTypeResultSet } from 'src/app/core/services/messages-api.service';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
@@ -12,7 +12,8 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
     selector: 'app-message-types',
     templateUrl: './message-types.component.html'
 })
-export class MessageTypesComponent extends BaseListComponent<MessageType> implements OnInit {
+export class MessageTypesComponent extends BaseListComponent<MessageType> implements OnInit, OnDestroy {
+    private langChangeSubscription: Subscription | null = null;
     constructor(
         route: ActivatedRoute,
         private _router: Router,
@@ -27,7 +28,6 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
         this.sort = 'name';
         this.sortdir = 'asc';
         this.search = '';
-        this.sortOptions = [new MenuOption(this._translate.instant('message-type.name-label'), 'name')];
     }
 
     public newItemLink: string | null = 'create-message-type';
@@ -35,6 +35,20 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
 
     public override ngOnInit(): void {
         super.ngOnInit();
+        this.langChangeSubscription = this._translate.onLangChange.subscribe(() => {
+            this.updateMenuOptions(); 
+        });
+        this.updateMenuOptions(); 
+    }
+
+    private updateMenuOptions(): void {
+        this.sortOptions = [new MenuOption(this._translate.instant('message-type.name-label'), 'name')];
+    }
+
+    public override ngOnDestroy(): void {
+        if (this.langChangeSubscription) {
+            this.langChangeSubscription.unsubscribe();
+        }
     }
 
     public loadItems(): Observable<IResultSet<MessageType> | null | undefined> {
