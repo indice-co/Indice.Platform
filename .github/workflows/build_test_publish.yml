@@ -1,4 +1,4 @@
-name: Build, Test and Publish to Nuget
+name: "Build, Test and Publish to Nuget"
 
 on:
   workflow_dispatch:
