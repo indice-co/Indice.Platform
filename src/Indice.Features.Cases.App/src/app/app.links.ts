@@ -9,6 +9,10 @@ import { Icons } from './shared/icons';
 export class AppLinks implements IAppLinks {
 
   private _main: ReplaySubject<NavLink[]> = new ReplaySubject<NavLink[]>(1);
+  private headerMenu: NavLink[] = [
+    new NavLink('Αρχική', '/dashboard', true, undefined, Icons.Dashboard),
+    new NavLink('Υποθέσεις', '/cases', true, undefined, Icons.Cases),
+  ];
 
   constructor(
     private authService: AuthService,
@@ -16,11 +20,6 @@ export class AppLinks implements IAppLinks {
   ) {
     this.authService.user$.pipe(
       switchMap(user => {
-        const headerMenu: NavLink[] = [
-          new NavLink('Αρχική', '/dashboard', true, undefined, Icons.Dashboard),
-          new NavLink('Υποθέσεις', '/cases', true, undefined, Icons.Cases),
-        ];
-
         if (user) {
           return this._caseTypeService.getCaseTypeMenuItems().pipe(
             map(caseTypeMenuItems => {
@@ -35,22 +34,19 @@ export class AppLinks implements IAppLinks {
                     dir: 'desc',
                     filter: `caseTypeCodes::eq::${item.code}`
                   };
-                  headerMenu.push(new NavLink(item.title, `/cases/${item.code}`, true, undefined, Icons.MenuItem, undefined, queryParams));
+                  this.headerMenu.push(new NavLink(item.title, `/cases/${item.code}`, true, undefined, Icons.MenuItem, undefined, queryParams));
                 }
               }
-
               if (this.authService.isAdmin()) {
-                headerMenu.push(new NavLink('Διαχείριση Υποθέσεων', '/case-types', true, undefined, Icons.CaseTypes));
+                this.headerMenu.push(new NavLink('Διαχείριση Υποθέσεων', '/case-types', true, undefined, Icons.CaseTypes));
               } else {
-                headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true, undefined, Icons.Notifications));
+                this.headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true, undefined, Icons.Notifications));
               }
-
-              return headerMenu;
+              return this.headerMenu;
             })
           );
         }
-
-        return of(headerMenu);
+        return of(this.headerMenu);
       })
     ).subscribe(navLinks => this._main.next(navLinks));
   }
