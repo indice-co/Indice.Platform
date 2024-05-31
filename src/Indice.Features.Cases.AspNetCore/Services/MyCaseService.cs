@@ -287,10 +287,7 @@ internal class MyCaseService : BaseCaseService, IMyCaseService
                 LayoutTranslations = dbCaseType.LayoutTranslations,
                 Code = dbCaseType.Code,
                 Order = dbCaseType.Order,
-                Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations),
-                GridFilterConfig = dbCaseType.GridFilterConfig,
-                GridColumnConfig = dbCaseType.GridColumnConfig,
-                IsMenuItem = dbCaseType.IsMenuItem
+                Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(dbCaseType.Translations)
             })
             .ToListAsync();
         TranslateCaseTypes(caseTypes);
