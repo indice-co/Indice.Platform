@@ -1,0 +1,79 @@
+<Solution>
+  <Folder Name="/test/">
+    <File Path="test\Directory.Build.props" />
+    <File Path="test\Directory.Build.targets" />
+    <Project Path="test\Indice.AspNetCore.Tests\Indice.AspNetCore.Tests.csproj" />
+    <Project Path="test\Indice.AspNetCore.Views\Indice.AspNetCore.Views.csproj" />
+    <Project Path="test\Indice.Common.Tests\Indice.Common.Tests.csproj" />
+    <Project Path="test\Indice.Features.Cases.AspNetCore.Tests\Indice.Features.Cases.Tests.csproj" />
+    <Project Path="test\Indice.Features.GovGr.Tests\Indice.Features.GovGr.Tests.csproj" />
+    <Project Path="test\Indice.Features.Identity.Tests\Indice.Features.Identity.Tests.csproj" />
+    <Project Path="test\Indice.Features.Messages.Tests\Indice.Features.Messages.Tests.csproj" />
+    <Project Path="test\Indice.Features.Risk.Tests\Indice.Features.Risk.Tests.csproj" />
+    <Project Path="test\Indice.Services.Tests\Indice.Services.Tests.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <File Path="src\Directory.Build.props" />
+    <File Path="src\Directory.Build.targets" />
+    <Project Path="src\Indice.AspNetCore.Authentication.Apple\Indice.AspNetCore.Authentication.Apple.csproj" />
+    <Project Path="src\Indice.AspNetCore.Authentication.GovGr\Indice.AspNetCore.Authentication.GovGr.csproj" />
+    <Project Path="src\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
+    <Project Path="src\Indice.AspNetCore.Identity\Indice.AspNetCore.Identity.csproj" />
+    <Project Path="src\Indice.AspNetCore\Indice.AspNetCore.csproj" />
+    <Project Path="src\Indice.AspNet\Indice.AspNet.csproj" />
+    <Project Path="src\Indice.Common\Indice.Common.csproj" />
+    <Project Path="src\Indice.EntityFrameworkCore\Indice.EntityFrameworkCore.csproj" />
+    <Project Path="src\Indice.Extensions.Configuration.Database\Indice.Extensions.Configuration.Database.csproj" />
+    <Project Path="src\Indice.Features.Cases.App\Indice.Features.Cases.App.esproj" Type="{54A90642-561A-4BB1-A94E-469ADEE60C69}">
+      <Configuration Solution="*|*" Project="*|*|Deploy" />
+    </Project>
+    <Project Path="src\Indice.Features.Cases.AspNetCore\Indice.Features.Cases.AspNetCore.csproj" />
+    <Project Path="src\Indice.Features.Cases.Server\Indice.Features.Cases.Server.csproj" />
+    <Project Path="src\Indice.Features.Cases.UI\Indice.Features.Cases.UI.csproj" />
+    <Project Path="src\Indice.Features.GovGr\Indice.Features.GovGr.csproj" />
+    <Project Path="src\Indice.Features.Identity.AdminUI.App\Indice.Features.Identity.AdminUI.App.esproj" Type="{54A90642-561A-4BB1-A94E-469ADEE60C69}">
+      <Configuration Solution="*|*" Project="*|*|Deploy" />
+    </Project>
+    <Project Path="src\Indice.Features.Identity.AdminUI\Indice.Features.Identity.AdminUI.csproj" />
+    <Project Path="src\Indice.Features.Identity.Core\Indice.Features.Identity.Core.csproj" />
+    <Project Path="src\Indice.Features.Identity.Server\Indice.Features.Identity.Server.csproj" />
+    <Project Path="src\Indice.Features.Identity.SignInLogs\Indice.Features.Identity.SignInLogs.csproj" />
+    <Project Path="src\Indice.Features.Identity.UI\Indice.Features.Identity.UI.csproj" />
+    <Project Path="src\Indice.Features.Media.AspNetCore\Indice.Features.Media.AspNetCore.csproj" />
+    <Project Path="src\Indice.Features.Messages.App\Indice.Features.Messages.App.esproj" Type="{54A90642-561A-4BB1-A94E-469ADEE60C69}">
+      <Configuration Solution="*|*" Project="*|*|Deploy" />
+    </Project>
+    <Project Path="src\Indice.Features.Messages.AspNetCore\Indice.Features.Messages.AspNetCore.csproj" />
+    <Project Path="src\Indice.Features.Messages.Core\Indice.Features.Messages.Core.csproj" />
+    <Project Path="src\Indice.Features.Messages.UI\Indice.Features.Messages.UI.csproj" />
+    <Project Path="src\Indice.Features.Messages.Worker.Azure\Indice.Features.Messages.Worker.Azure.csproj" />
+    <Project Path="src\Indice.Features.Messages.Worker\Indice.Features.Messages.Worker.csproj" />
+    <Project Path="src\Indice.Features.Multitenancy.AspNetCore\Indice.Features.Multitenancy.AspNetCore.csproj" />
+    <Project Path="src\Indice.Features.Multitenancy.Core\Indice.Features.Multitenancy.Core.csproj" />
+    <Project Path="src\Indice.Features.Multitenancy.Worker.Azure\Indice.Features.Multitenancy.Worker.Azure.csproj" />
+    <Project Path="src\Indice.Features.Risk.App\Indice.Features.Risk.App.esproj" Type="{54A90642-561A-4BB1-A94E-469ADEE60C69}">
+      <Configuration Solution="*|*" Project="*|*|Deploy" />
+    </Project>
+    <Project Path="src\Indice.Features.Risk.Core\Indice.Features.Risk.Core.csproj" />
+    <Project Path="src\Indice.Features.Risk.Server\Indice.Features.Risk.Server.csproj" />
+    <Project Path="src\Indice.Features.Risk.UI\Indice.Features.Risk.UI.csproj" />
+    <Project Path="src\Indice.Hosting\Indice.Hosting.csproj" />
+    <Project Path="src\Indice.Services\Indice.Services.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="appveyor.yml" />
+    <File Path="LICENSE" />
+    <File Path="local-feed.ps1" />
+    <File Path="NuGet.config" />
+    <File Path="pack.ps1" />
+    <File Path="README.md" />
+    <File Path="README-DOCKER.md" />
+  </Folder>
+  <Folder Name="/.github/">
+    <File Path=".github\workflows\buid.yml" />
+    <File Path=".github\workflows\codeql.yml" />
+    <File Path=".github\workflows\publish_to_nuget.yml" />
+  </Folder>
+</Solution>
