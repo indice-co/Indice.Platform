@@ -45,6 +45,20 @@ jobs:
           {
             New-Item -ItemType "directory" -Path ".\.nuget\packages"
           }
+
+      # Clean npm cache
+      - name: NPM Install and Build Identity UI
+        run: |
+          cd src/Indice.Features.Identity.UI
+          npm cache clean --force
+          cd src/Indice.Features.Cases.App
+          npm cache clean --force
+          cd src/Indice.Features.Identity.AdminUI.App
+          npm cache clean --force
+          cd src/Indice.Features.Messages.App
+          npm cache clean --force
+          cd src/Indice.Features.Risk.App
+          npm cache clean --force
       
       # Dotnet restore + build
       - name: Install dependencies
