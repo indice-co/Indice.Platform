@@ -8,8 +8,6 @@ on:
 jobs:
   buildAndTestStage:
     runs-on: windows-latest
-    outputs:
-      build-dir: ${{ steps.build.outputs.build-dir }}
     steps:
 
       # Checkout repo
@@ -84,10 +82,7 @@ jobs:
       - name: Clean
         run: dotnet clean
       - name: Build
-        id: build
         run: dotnet build --no-restore --configuration Release
-        outputs:
-          build-dir: ${{ github.workspace }}
         
       # Dotnet test 
       - name: Test with dotnet
@@ -121,6 +116,5 @@ jobs:
       # Pack
       - name: Build solution and generate NuGet package
         run: ./pack.ps1
-        working-directory: ${{ needs.buildAndTestStage.outputs.build-dir }}
     
     
