@@ -7,6 +7,7 @@ import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic
 import { CampaignEditStore } from '../campaign-edit-store.service';
 import { HttpClient } from '@angular/common/http';
 import { settings } from 'src/app/core/models/settings';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-campaign-details-edit',
@@ -18,6 +19,7 @@ export class CampaignDetailsEditComponent implements OnInit {
     constructor(
         private _campaignStore: CampaignEditStore,
         private _activatedRoute: ActivatedRoute,
+        private _translate: TranslateService,
         private _changeDetector: ChangeDetectorRef,
         private _router: Router,
         @Inject(ToasterService) private _toaster: ToasterService,
@@ -58,8 +60,8 @@ export class CampaignDetailsEditComponent implements OnInit {
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'campaigns-edit.delete',
-                message: `'campaigns-edit.delete-warning' '${this.campaign?.title}';`,
+                title: this._translate.instant('campaigns-edit.delete'),
+                message: `'${this._translate.instant('campaigns-edit.delete-warning')}' '${this.campaign?.title}';`,
                 data: this.campaign
             },
             keyboard: true
@@ -67,7 +69,7 @@ export class CampaignDetailsEditComponent implements OnInit {
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._api.deleteCampaign(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'campaigns-edit.success-delete', `'campaigns-edit.success-delete-message' '${response.result.data.title}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('campaigns-edit.success-delete'), `'${this._translate.instant('campaigns-edit.success-delete-message')}' '${response.result.data.title}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns']));
                 });
             }
@@ -78,10 +80,10 @@ export class CampaignDetailsEditComponent implements OnInit {
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'campaigns-edit.publish',
-                message: `'campaigns-edit.publish-warning' '${this.campaign?.title}';`,
+                title: this._translate.instant('campaigns-edit.publish'),
+                message: `'${this._translate.instant('campaigns-edit.publish-warning')}' '${this.campaign?.title}';`,
                 data: this.campaign,
-                acceptText: 'campaigns-edit.publish',
+                acceptText: this._translate.instant('campaigns-edit.publish'),
                 type: 'success'
             },
             keyboard: true
@@ -89,7 +91,7 @@ export class CampaignDetailsEditComponent implements OnInit {
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._campaignStore.publishCampaign(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'campaigns-edit.success-publish', `'campaigns-edit.success-publish-message' '${response.result.data.title}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('campaigns-edit.success-publish'), `'${this._translate.instant('campaigns-edit.success-publish-message')}' '${response.result.data.title}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
                 });
             }

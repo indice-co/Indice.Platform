@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { DistributionList } from 'src/app/core/services/messages-api.service';
 import { DistributionListEditStore } from '../../distribution-list-edit-store.service';
 import { settings } from 'src/app/core/models/settings';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-distribution-list-details-edit-rightpane',
@@ -18,6 +19,7 @@ export class DistributionListDetailsEditRightpaneComponent implements OnInit, Af
     constructor(
         private _distributionListStore: DistributionListEditStore,
         private _router: Router,
+        private _translate: TranslateService,
         private _activatedRoute: ActivatedRoute,
         private _changeDetector: ChangeDetectorRef,
         @Inject(ToasterService) private _toaster: ToasterService
@@ -54,7 +56,7 @@ export class DistributionListDetailsEditRightpaneComponent implements OnInit, Af
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'distribution-list-edit.details-pane.success-save', `'distribution-list-edit.details-pane.success-save-message' '${this.model.name}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('distribution-list-edit.details-pane.success-save'), `'${this._translate.instant('distribution-list-edit.details-pane.success-save-message')}' '${this.model.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId]));
                 }
             });

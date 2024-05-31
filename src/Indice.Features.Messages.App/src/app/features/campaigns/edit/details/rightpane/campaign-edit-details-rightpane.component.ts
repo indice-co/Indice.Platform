@@ -9,6 +9,7 @@ import { map } from 'rxjs/operators';
 import { CampaignDetails, DistributionList, DistributionListResultSet, Hyperlink, MessagesApiClient, MessageSender, MessageSenderResultSet, MessageType, MessageTypeResultSet, Period } from 'src/app/core/services/messages-api.service';
 import { CampaignEditStore } from '../../campaign-edit-store.service';
 import { SettingsStore } from 'src/app/features/settings/settings-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-campaign-details-edit-rightpane',
@@ -30,6 +31,7 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
     constructor(
         private _campaignStore: CampaignEditStore,
         private _router: Router,
+        private _translate: TranslateService,
         private _activatedRoute: ActivatedRoute,
         private _changeDetector: ChangeDetectorRef,
         @Inject(ToasterService) private _toaster: ToasterService,
@@ -42,8 +44,8 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
     public submitInProgress = false;
     public templateOutlet!: TemplateRef<any>;
     public model = new CampaignDetails();
-    public messageTypes: MenuOption[] = [new MenuOption('{{"general.please-choose"}}', null)];
-    public messageSenders: MenuOption[] = [new MenuOption('{{"general.please-choose"}}', null)];
+    public messageTypes: MenuOption[] = [new MenuOption(this._translate.instant('general.please-choose'), null)];
+    public messageSenders: MenuOption[] = [new MenuOption(this._translate.instant('general.please-choose'), null)];
     public selectedTypeId: MenuOption | null = null;
     public selectedSenderId: MenuOption | null = null;
     public now: Date = new Date();
@@ -101,7 +103,7 @@ export class CampaignDetailsEditRightpaneComponent implements OnInit, AfterViewI
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, '{{"campaigns-edit.success-save"}}', `{{"campaigns-edit.success-save-message"}} '${this.model.title}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('campaigns-edit.success-save'), `'${this._translate.instant('campaigns-edit.success-save-message')}' '${this.model.title}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
                 }
             });

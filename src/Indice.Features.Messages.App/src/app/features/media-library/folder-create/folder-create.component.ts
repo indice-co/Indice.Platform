@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { CreateFolderRequest } from 'src/app/core/services/media-api.service';
 import { MediaLibraryStore } from '../media-library-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-folder-create',
@@ -16,6 +17,7 @@ export class FolderCreateComponent implements OnInit {
         private _changeDetector: ChangeDetectorRef,
         private _mediaStore: MediaLibraryStore,
         private _router: Router,
+        private _translate: TranslateService,
         private _activatedRoute: ActivatedRoute,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
@@ -40,7 +42,7 @@ export class FolderCreateComponent implements OnInit {
             .subscribe({
                 next: (response: string) => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'folder-create.success-save', `folder-create.success-save-message' '${this.model.name}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('folder-create.success-save'), `'${this._translate.instant('folder-create.success-save-message')}' '${this.model.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.model.parentId ? this._router.navigate(['media', this.model.parentId]) : this._router.navigate(['media']));
                 }
             });

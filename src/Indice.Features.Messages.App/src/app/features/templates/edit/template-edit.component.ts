@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
 import { Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from './template-edit-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-template-edit',
@@ -15,6 +16,7 @@ export class TemplateEditComponent implements OnInit, AfterViewChecked {
 
     constructor(
         private _activatedRoute: ActivatedRoute,
+        private _translate: TranslateService,
         private _changeDetector: ChangeDetectorRef,
         private _templateStore: TemplateEditStore
     ) { }
@@ -28,7 +30,7 @@ export class TemplateEditComponent implements OnInit, AfterViewChecked {
         if (this._templateId) {
             this._templateStore.getTemplate(this._templateId!).subscribe((template: Template) => {
                 this.template = template;
-                this._layout.title = `'templates.edit.layout-title' - ${template.name}`;
+                this._layout.title = `'${this._translate.instant('templates.edit.layout-title')}' - ${template.name}`;
             });
         }
     }

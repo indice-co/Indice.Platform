@@ -5,6 +5,7 @@ import { ToasterService, ToastType } from '@indice/ng-components';
 import { CampaignContentComponent } from 'src/app/features/campaigns/create/steps/content/campaign-content.component';
 import { MessageContent, Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from '../template-edit-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-template-content-edit',
@@ -16,6 +17,7 @@ export class TemplateContentEditComponent implements OnInit {
 
     constructor(
         private _templateStore: TemplateEditStore,
+        private _translate: TranslateService,
         private _activatedRoute: ActivatedRoute,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
@@ -51,7 +53,7 @@ export class TemplateContentEditComponent implements OnInit {
             .updateTemplate(this._templateId, this.template)
             .subscribe(_ => {
                 this.updateInProgress = false;
-                this._toaster.show(ToastType.Success, 'templates.edit.success-save', `'templates.edit.content.success-save-message' '${this.template.name}' `);
+                this._toaster.show(ToastType.Success, this._translate.instant('templates.edit.success-save'), `'${this._translate.instant('templates.edit.content.success-save-message')}' '${this.template.name}' `);
             });
     }
 }

@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit
 import { Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { CreateMessageTypeRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
 
 @Component({
@@ -15,6 +16,7 @@ export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
         private _router: Router,
+        private _translate: TranslateService,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
@@ -34,7 +36,7 @@ export class MessageTypeCreateComponent implements OnInit, AfterViewInit {
             .subscribe({
                 next: (messageType: MessageType) => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'message-type.success-save', `'message-type.success-save-message' '${messageType.name}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('message-type.success-save'), `'${this._translate.instant('message-type.success-save-message')}' '${messageType.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
                 }
             });

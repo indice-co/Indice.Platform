@@ -5,6 +5,7 @@ import { MediaFolder, UpdateFolderRequest } from 'src/app/core/services/media-ap
 import { MediaLibraryStore } from '../media-library-store.service';
 import { tap } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-folder-edit',
@@ -14,13 +15,14 @@ export class FolderEditComponent implements OnInit {
 
   @ViewChild('submitBtn', { static: false }) public submitButton!: ElementRef;
   
-  public folders: MenuOption[] = [new MenuOption('general.please-choose', null)];
+  public folders: MenuOption[] = [new MenuOption(this._translate.instant('general.please-choose'), null)];
   public parentFolderId: MenuOption | null = null;
 
     constructor(
         private _changeDetector: ChangeDetectorRef,
         private _mediaStore: MediaLibraryStore,
         private _router: Router,
+        private _translate: TranslateService,
         private _activatedRoute: ActivatedRoute,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
@@ -83,7 +85,7 @@ export class FolderEditComponent implements OnInit {
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'folder-edit.success-save', `'folder-edit.success-save-message' '${this.model.name}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('folder-edit.success-save'), `'${this._translate.instant('folder-edit.success-save-message')}' '${this.model.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.model.parentId ? this._router.navigate(['media', this.model.parentId]) : this._router.navigate(['media']));
                 }
             });

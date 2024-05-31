@@ -5,6 +5,7 @@ import { finalize } from 'rxjs/operators';
 import { FileParameter, CampaignDetails } from 'src/app/core/services/messages-api.service';
 import { FileUploadComponent, IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
 import { CampaignEditStore } from '../../campaign-edit-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-campaign-edit-attachments-rightpane',
@@ -22,7 +23,9 @@ export class CampaignAttachmentsEditRightpaneComponent implements OnInit {
   
   private _campaignId: string = '';
 
-  constructor(private _campaignStore: CampaignEditStore, private _toaster: ToasterService, private _router: Router) { }
+  constructor(private _campaignStore: CampaignEditStore, private _toaster: ToasterService, 
+    private _translate: TranslateService,
+    private _router: Router) { }
 
   ngOnInit(): void {
     this._campaignId = this._router.url.split('/')[2];
@@ -60,20 +63,20 @@ export class CampaignAttachmentsEditRightpaneComponent implements OnInit {
       }
       this._campaignStore.uploadCampaignAttachment(this._campaignId, attachment)
         .subscribe(() => {
-          this._toaster.show(ToastType.Success, '{{"campaigns-edit.success-edit"}}', `{{'campaigns-edit.attachments.success-message'}}`);
+          this._toaster.show(ToastType.Success, this._translate.instant('campaigns-edit.success-edit'), `'${this._translate.instant('campaigns-edit.attachments.success-message')}'`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         }, (error) => {
-          this._toaster.show(ToastType.Error, '{{"campaigns-edit.attachments.failure"}}', `{{'campaigns-edit.attachments.failure-message'}}`);
+          this._toaster.show(ToastType.Error, this._translate.instant('campaigns-edit.attachments.failure'), `'${this._translate.instant('campaigns-edit.attachments.failure-message')}'`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         });
     }
     else if (this.campaignAttachment?.id) {
       this._campaignStore.deleteCampaignAttachment(this._campaignId, this.campaignAttachment.id)
         .subscribe(() => {
-          this._toaster.show(ToastType.Success, '{{"campaigns-edit.success-edit"}}', `{{'campaigns-edit.attachments.success-delete-message'}}`);
+          this._toaster.show(ToastType.Success, this._translate.instant('campaigns-edit.success-edit'), `'${this._translate.instant('campaigns-edit.attachments.success-delete-message')}'`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         }, (error) => {
-          this._toaster.show(ToastType.Error, '{{"campaigns-edit.attachments.failure"}}', `{{'campaigns-edit.attachments.failure-message'}}`);
+          this._toaster.show(ToastType.Error, this._translate.instant('campaigns-edit.attachments.failure'), `'${this._translate.instant('campaigns-edit.attachments.failure-message')}'`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['campaigns', this._campaignId]));
         });
     }

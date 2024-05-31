@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, RouterViewAction, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MessagesApiClient, Template, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
@@ -15,6 +16,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
     constructor(
         route: ActivatedRoute,
         private _router: Router,
+        private _translate: TranslateService,
         private _api: MessagesApiClient,
         @Inject(ToasterService) private _toaster: ToasterService,
         private _modalService: ModalService
@@ -25,7 +27,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         this.sort = 'name';
         this.sortdir = 'asc';
         this.search = '';
-        this.sortOptions = [new MenuOption('templates.name', 'name')];
+        this.sortOptions = [new MenuOption(this._translate.instant('templates.name'), 'name')];
     }
 
     public newItemLink: string | null = null;
@@ -46,8 +48,8 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'templates.edit.delete',
-                message: `'templates.edit.delete-warning' '${template.name}';`,
+                title: this._translate.instant('templates.edit.delete'),
+                message: `'${this._translate.instant('templates.edit.delete-warning')}' '${template.name}';`,
                 data: template
             },
             keyboard: true
@@ -55,7 +57,7 @@ export class TemplatesComponent extends BaseListComponent<Template> implements O
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._api.deleteTemplate(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'templates.edit.success-delete', `'templates.edit.success-delete-message' '${response.result.data.name}' `);
+                    this._toaster.show(ToastType.Success, this._translate.instant('templates.edit.success-delete'), `'${this._translate.instant('templates.edit.success-delete-message')}' '${response.result.data.name}' `);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates']));
                 });
             }

@@ -5,6 +5,7 @@ import { ModalService, ToasterService, ToastType } from '@indice/ng-components';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { DistributionListEditStore } from '../distribution-list-edit-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-distribution-list-details-edit',
@@ -16,6 +17,7 @@ export class DistributionListDetailsEditComponent implements OnInit {
     constructor(
         private _modalService: ModalService,
         private _api: MessagesApiClient,
+        private _translate: TranslateService,
         private _distributionListStore: DistributionListEditStore,
         private _router: Router,
         @Inject(ToasterService) private _toaster: ToasterService,
@@ -37,8 +39,8 @@ export class DistributionListDetailsEditComponent implements OnInit {
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'distribution-list-edit.details.delete',
-                message: `'distribution-list-edit.details.delete-warning' '${this.list?.name}';`,
+                title: this._translate.instant('distribution-list-edit.details.delete'),
+                message: `'${this._translate.instant('distribution-list-edit.details.delete-warning')}' '${this.list?.name}';`,
                 data: this.list
             },
             keyboard: true
@@ -46,7 +48,7 @@ export class DistributionListDetailsEditComponent implements OnInit {
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._api.deleteDistributionList(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'distribution-list-edit.details.success-delete', ` 'distribution-list-edit.details.success-delete-message' '${response.result.data.name}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('distribution-list-edit.details.success-delete'), `'${this._translate.instant('distribution-list-edit.details.success-delete-message')}' '${response.result.data.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
                 });
             }

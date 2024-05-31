@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { SettingsStore } from '../../settings-store.service';
 import { MediaSetting, UpdateMediaSettingRequest } from 'src/app/core/services/media-api.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-media-setting-edit',
@@ -14,6 +15,7 @@ export class MediaSettingEditComponent implements OnInit, AfterViewInit {
   constructor(
       private _changeDetector: ChangeDetectorRef,
       private _router: Router,
+      private _translate: TranslateService,
       private _activatedRoute: ActivatedRoute,
       private _settingsStore: SettingsStore,
       @Inject(ToasterService) private _toaster: ToasterService
@@ -45,7 +47,7 @@ export class MediaSettingEditComponent implements OnInit, AfterViewInit {
           .subscribe({
               next: () => {
                   this.submitInProgress = false;
-                  this._toaster.show(ToastType.Success, 'settings.media.success-save', `'settings.media.success-save-message' '${this._mediaSettingKey}' `);
+                  this._toaster.show(ToastType.Success, this._translate.instant('settings.media.success-save'), `'${this._translate.instant('settings.media.success-save-message')}' '${this._mediaSettingKey}' `);
                   this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['settings']));
               }
           });

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { HeaderMetaItem, Icons, ToasterService, ToastType } from '@indice/ng-components';
 import { CreateTemplateRequest, MessageContent, MessagesApiClient } from 'src/app/core/services/messages-api.service';
 import { CampaignContentComponent } from '../../campaigns/create/steps/content/campaign-content.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-template-create',
@@ -14,6 +15,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
 
     constructor(
         private _changeDetector: ChangeDetectorRef,
+        private _translate: TranslateService,
         private _api: MessagesApiClient,
         @Inject(ToasterService) private _toaster: ToasterService,
         private _router: Router
@@ -29,7 +31,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
 
     public ngOnInit(): void {
         this.metaItems = [
-            { key: 'info', icon: Icons.Details, text: 'templates.create.info' }
+            { key: 'info', icon: Icons.Details, text: this._translate.instant('templates.create.info') }
         ];
     }
 
@@ -54,7 +56,7 @@ export class TemplateCreateComponent implements OnInit, AfterViewChecked {
             .createTemplate(new CreateTemplateRequest(this.template))
             .subscribe(_ => {
                 this.saveInProgress = false;
-                this._toaster.show(ToastType.Success, 'templates.create.success-save', `'templates.create.success-save-message' '${name}' `);
+                this._toaster.show(ToastType.Success, this._translate.instant('templates.create.success-save'), `'${this._translate.instant('templates.create.success-save-message')}' '${name}' `);
                 this._router.navigate(['templates']);
             });
     }

@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BaseListComponent, IResultSet, ListViewType, MenuOption, ModalService, ToastType, ToasterService } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { MessageSender, MessageSenderResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -15,6 +16,7 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
   constructor(
     route: ActivatedRoute,
     private _router: Router,
+    private _translate: TranslateService,
     private _api: MessagesApiClient,
     @Inject(ToasterService) private _toaster: ToasterService,
     private _modalService: ModalService
@@ -26,9 +28,9 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
     this.sortdir = 'desc';
     this.search = '';
     this.sortOptions = [
-      new MenuOption('settings.email.sender-list.title', 'sender'),
-      new MenuOption('settings.email.sender-list.name', 'displayName'),
-      new MenuOption('settings.email.sender-list.created-at', 'createdAt')
+      new MenuOption(this._translate.instant('settings.email.sender-list.title'), 'sender'),
+      new MenuOption(this._translate.instant('settings.email.sender-list.name'), 'displayName'),
+      new MenuOption(this._translate.instant('settings.email.sender-list.created-at'), 'createdAt')
     ];
 }
 
@@ -55,8 +57,8 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
     const modal = this._modalService.show(BasicModalComponent, {
       animated: true,
       initialState: {
-        title: 'settings.email.sender-list.delete',
-        message: `'settings.email.sender-list.delete-warning' '${sender.displayName}';`,
+        title: this._translate.instant('settings.email.sender-list.delete'),
+        message: `'${this._translate.instant('settings.email.sender-list.delete-warning')}' '${sender.displayName}';`,
         data: sender
       },
       keyboard: true
@@ -65,7 +67,7 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
       if (response.result?.answer) {
         const sender = response.result.data;
         this._api.deleteMessageSender(sender.id).subscribe(() => {
-          this._toaster.show(ToastType.Success, 'settings.email.sender-list.success-delete', `'settings.email.sender-list.success-delete-message' '${sender.displayName}' `);
+          this._toaster.show(ToastType.Success, this._translate.instant('settings.email.sender-list.success-delete'), `'${this._translate.instant('settings.email.sender-list.success-delete-message')}' '${sender.displayName}' `);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['settings']));
         });
       }

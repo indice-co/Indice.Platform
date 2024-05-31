@@ -15,6 +15,7 @@ import { of } from 'rxjs';
 // Import TinyMCE
 import tinymce from 'tinymce/tinymce';
 import { settings } from 'src/app/core/models/settings';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-campaign-create',
@@ -31,6 +32,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     constructor(
         private _api: MessagesApiClient,
         private _router: Router,
+        private _translate: TranslateService,
         private _changeDetector: ChangeDetectorRef,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
@@ -48,16 +50,16 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
     public get okLabel(): string {
         return this._stepper.currentStep?.isLast
             ? this._previewStep.published.value === true
-                ? 'campaigns-create.save-publish'
-                : 'campaigns-create.save'
-            : 'campaigns-create.next';
+                ? this._translate.instant('campaigns-create.save-publish')
+                : this._translate.instant('campaigns-create.save')
+            : this._translate.instant('campaigns-create.next');
     }
 
     public ngOnInit(): void {
         this.metaItems = [{
             key: 'info',
             icon: Icons.Details,
-            text: 'campaigns-create.description'
+            text: this._translate.instant('campaigns-create.description')
         }];
     }
 
@@ -84,7 +86,7 @@ export class CampaignCreateComponent implements OnInit, AfterViewChecked {
                 next: (campaign: Campaign) => {
                     this.submitInProgress = false;
                     this._router.navigate(['campaigns', campaign.id]);
-                    this._toaster.show(ToastType.Success, 'campaigns-create.success-save', `'campaigns-create.success-save-message' '${campaign.title}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('campaigns-create.success-save'), `'${this._translate.instant('campaigns-create.success-save-message')}' '${campaign.title}'`);
                 }
             });
     }

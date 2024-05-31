@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDest
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { MessagesApiClient, MessageType, UpdateMessageTypeRequest } from 'src/app/core/services/messages-api.service';
 
@@ -18,6 +19,7 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
         private _router: Router,
+        private _translate: TranslateService,
         private _activatedRoute: ActivatedRoute,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
@@ -49,7 +51,7 @@ export class MessageTypeEditComponent implements OnInit, AfterViewInit, OnDestro
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, '{{"message-type.success-save"}}', `'message-type.success-edit-message' '${this.model.name}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('message-type.success-save'), `'${this._translate.instant('message-type.success-edit-message')}' '${this.model.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
                 }
             });

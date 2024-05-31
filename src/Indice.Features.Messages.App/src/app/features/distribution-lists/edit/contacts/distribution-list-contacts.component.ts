@@ -2,6 +2,7 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Contact, ContactResultSet, DistributionList, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -18,6 +19,7 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
     constructor(
         route: ActivatedRoute,
         private _router: Router,
+        private _translate: TranslateService,
         private _api: MessagesApiClient,
         @Inject(ToasterService) private _toaster: ToasterService,
         private _modalService: ModalService,
@@ -30,10 +32,10 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         this.sortdir = 'asc';
         this.search = '';
         this.sortOptions = [
-            new MenuOption('distribution-list-contacts.firstName', 'firstName'),
-            new MenuOption('distribution-list-contacts.lastName', 'lastName'),
-            new MenuOption('distribution-list-contacts.email', 'email'),
-            new MenuOption('distribution-list-contacts.createdAt', 'createdAt')
+            new MenuOption(this._translate.instant('distribution-list-contacts.firstName'), 'firstName'),
+            new MenuOption(this._translate.instant('distribution-list-contacts.lastName'), 'lastName'),
+            new MenuOption(this._translate.instant('distribution-list-contacts.email'), 'email'),
+            new MenuOption(this._translate.instant('distribution-list-contacts.createdAt'), 'createdAt')
         ];        
     }
 
@@ -59,8 +61,8 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'distribution-list-contacts.delete',
-                message: `'distribution-list-contacts.delete-warning': '${contact.fullName || contact.email}' - '${this.distributionList.name}';`,
+                title: this._translate.instant('distribution-list-contacts.delete'),
+                message: `'${this._translate.instant('distribution-list-contacts.delete-warning')}': '${contact.fullName || contact.email}' - '${this.distributionList.name}';`,
                 data: contact
             },
             keyboard: true
@@ -69,7 +71,7 @@ export class DistributionListContactsComponent extends BaseListComponent<Contact
             if (response.result?.answer) {
                 const contact = response.result.data;
                 this._api.removeContactFromDistributionList(this._distributionListId, contact.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'distribution-list-contacts.success-delete', `'distribution-list-contacts.success-delete-message' '${contact.fullName || contact.email}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('distribution-list-contacts.success-delete'), `'${this._translate.instant('distribution-list-contacts.success-delete-message')}' '${contact.fullName || contact.email}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
                 });
             }

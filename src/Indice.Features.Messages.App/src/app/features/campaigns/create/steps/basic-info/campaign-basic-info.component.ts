@@ -3,6 +3,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 
 import { MenuOption } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
 import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } from 'src/app/core/services/messages-api.service';
 
@@ -13,6 +14,7 @@ import { MessagesApiClient, MessageTypeResultSet, TemplateListItemResultSet } fr
 export class CampaignBasicInfoComponent implements OnInit {
     constructor(
         private _api: MessagesApiClient,
+        private _translate: TranslateService,
         private _datePipe: DatePipe
     ) { }
 
@@ -30,8 +32,8 @@ export class CampaignBasicInfoComponent implements OnInit {
     public get channels(): AbstractControl { return this.form.get('channels')!; }
     // Properties
     public form!: FormGroup;
-    public messageTypes: MenuOption[] = [new MenuOption('general.please-choose"', null)];
-    public templates: MenuOption[] = [new MenuOption('general.please-choose"', null)];
+    public messageTypes: MenuOption[] = [new MenuOption(this._translate.instant('general.please-choose"'), null)];
+    public templates: MenuOption[] = [new MenuOption(this._translate.instant('general.please-choose"'), null)];
     public now: Date = new Date();
 
     public ngOnInit(): void {

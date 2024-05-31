@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { Template } from 'src/app/core/services/messages-api.service';
 import { TemplateEditStore } from '../../template-edit-store.service';
 import { settings } from 'src/app/core/models/settings';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-campaign-details-edit-rightpane',
@@ -18,6 +19,7 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
     constructor(
         private _templateStore: TemplateEditStore,
         private _router: Router,
+        private _translate: TranslateService,
         private _activatedRoute: ActivatedRoute,
         private _changeDetector: ChangeDetectorRef,
         @Inject(ToasterService) private _toaster: ToasterService
@@ -54,7 +56,7 @@ export class TemplateDetailsEditRightpaneComponent implements OnInit, AfterViewI
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'templates.edit.success-save', `'templates.edit.details.pane.success-save-message' '${this.model.name}' `);
+                    this._toaster.show(ToastType.Success, this._translate.instant('templates.edit.success-save'), `'${this._translate.instant('templates.edit.details.pane.success-save-message')}' '${this.model.name}' `);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['templates', this._templateId]));
                 }
             });

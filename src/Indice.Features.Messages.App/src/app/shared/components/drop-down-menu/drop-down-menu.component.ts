@@ -2,6 +2,7 @@ import { Component, EventEmitter, forwardRef, Input, OnChanges, OnInit, Output, 
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { MenuOption } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'lib-local-drop-down-menu',
@@ -17,12 +18,14 @@ export class LocalDropDownMenuComponent implements OnInit, ControlValueAccessor 
     private _onTouched$: any | undefined = undefined;
     private _expanded = false;
 
-    constructor() { }
+    constructor(
+        private _translate: TranslateService
+    ) { }
 
     @Input() public options: MenuOption[] = [];
     @Input() public value: MenuOption | null = null;
     @Input() public multiple = false;
-    @Input() public placeholder: string = 'general.please-choose';
+    @Input() public placeholder: string = this._translate.instant('general.please-choose');
     @Output() public change: EventEmitter<MenuOption> = new EventEmitter<MenuOption>();
 
     public get expanded(): boolean {

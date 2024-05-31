@@ -5,6 +5,7 @@ import { ToasterService, ToastType } from '@indice/ng-components';
 import { CampaignDetails, Hyperlink, MessageContent } from 'src/app/core/services/messages-api.service';
 import { CampaignContentComponent } from '../../create/steps/content/campaign-content.component';
 import { CampaignEditStore } from '../campaign-edit-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-campaign-content-edit',
@@ -17,6 +18,7 @@ export class CampaignContentEditComponent implements OnInit {
     constructor(
         private _campaignStore: CampaignEditStore,
         private _activatedRoute: ActivatedRoute,
+        private _translate: TranslateService,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
 
@@ -65,7 +67,7 @@ export class CampaignContentEditComponent implements OnInit {
             .updateCampaign(this._campaignId, this.campaign)
             .subscribe(_ => {
                 this.updateInProgress = false;
-                this._toaster.show(ToastType.Success, '{{"campaigns-edit.success-edit"}}', `{{'campaigns-edit.success-edit-message'}} '${this.campaign.title}'`);
+                this._toaster.show(ToastType.Success, this._translate.instant('campaigns-edit.success-edit'), `'${this._translate.instant('campaigns-edit.success-edit-message')}' '${this.campaign.title}'`);
             });
     }
 }

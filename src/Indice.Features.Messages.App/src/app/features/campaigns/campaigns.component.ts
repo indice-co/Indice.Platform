@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, RouterViewAction, ViewAction } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Campaign, CampaignResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -13,6 +14,7 @@ import { Campaign, CampaignResultSet, MessagesApiClient } from 'src/app/core/ser
 export class CampaignsComponent extends BaseListComponent<Campaign> implements OnInit {
     constructor(
         route: ActivatedRoute,
+        private _translate: TranslateService,
         router: Router,
         private _api: MessagesApiClient
     ) {
@@ -23,9 +25,9 @@ export class CampaignsComponent extends BaseListComponent<Campaign> implements O
         this.sortdir = 'desc';
         this.search = '';
         this.sortOptions = [
-            new MenuOption('campaigns.created-at', 'createdAt'),
-            new MenuOption('campaigns.title', 'title'),
-            new MenuOption('campaigns.active-from', 'activePeriod.from')
+            new MenuOption(this._translate.instant('campaigns.created-at'), 'createdAt'),
+            new MenuOption(this._translate.instant('campaigns.title'), 'title'),
+            new MenuOption(this._translate.instant('campaigns.active-from'), 'activePeriod.from')
         ];
     }
 

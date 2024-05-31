@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 import { MessagesApiClient, UpdateMessageSenderRequest, MessageSender } from 'src/app/core/services/messages-api.service';
 import { SettingsStore } from '../../settings-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-email-senders-edit',
@@ -15,6 +16,7 @@ export class EmailSendersEditComponent implements OnInit, AfterViewInit {
       private _changeDetector: ChangeDetectorRef,
       private _api: MessagesApiClient,
       private _router: Router,
+      private _translate: TranslateService,
       private _activatedRoute: ActivatedRoute,
       private _settingsStore: SettingsStore,
       @Inject(ToasterService) private _toaster: ToasterService
@@ -52,7 +54,7 @@ export class EmailSendersEditComponent implements OnInit, AfterViewInit {
           .subscribe({
               next: () => {
                   this.submitInProgress = false;
-                  this._toaster.show(ToastType.Success, 'settings.email.success-save', `'settings.email.success-edit-message' '${this.model.sender}'`);
+                  this._toaster.show(ToastType.Success, this._translate.instant('settings.email.success-save'), `'${this._translate.instant('settings.email.success-edit-message')}' '${this.model.sender}'`);
                   this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['settings']));
               }
           });

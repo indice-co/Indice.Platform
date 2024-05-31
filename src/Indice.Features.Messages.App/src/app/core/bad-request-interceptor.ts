@@ -5,11 +5,13 @@ import { ToasterService, ToastType } from '@indice/ng-components';
 import { Observable } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { UtilitiesService } from '../shared/utilities.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable()
 export class BadRequestInterceptor implements HttpInterceptor {
     constructor(
         @Inject(ToasterService) private _toaster: ToasterService,
+        private _translate: TranslateService,
         private _utilities: UtilitiesService
     ) { }
 
@@ -20,7 +22,7 @@ export class BadRequestInterceptor implements HttpInterceptor {
                     const fileReader = new FileReader();
                     fileReader.addEventListener('loadend', () => {
                         const problemDetails = fileReader.result!;
-                        this._toaster.show(ToastType.Error, 'general.failed-request', `${this._utilities.getValidationErrors(JSON.parse(problemDetails.toString()))}`, 6000);
+                        this._toaster.show(ToastType.Error, this._translate.instant('general.failed-request'), `${this._utilities.getValidationErrors(JSON.parse(problemDetails.toString()))}`, 6000);
                     });
                     fileReader.readAsText(error.error);
                 }

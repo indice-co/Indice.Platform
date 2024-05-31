@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MessagesApiClient, MessageType, MessageTypeResultSet } from 'src/app/core/services/messages-api.service';
@@ -15,6 +16,7 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
     constructor(
         route: ActivatedRoute,
         private _router: Router,
+        private _translate: TranslateService,
         private _api: MessagesApiClient,
         @Inject(ToasterService) private _toaster: ToasterService,
         private _modalService: ModalService
@@ -25,7 +27,7 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
         this.sort = 'name';
         this.sortdir = 'asc';
         this.search = '';
-        this.sortOptions = [new MenuOption('message-type.name-label', 'name')];
+        this.sortOptions = [new MenuOption(this._translate.instant('message-type.name-label'), 'name')];
     }
 
     public newItemLink: string | null = 'create-message-type';
@@ -45,8 +47,8 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'message-type.delete-type',
-                message: `'message-type.delete-type-warning' ${type.name};`,
+                title: this._translate.instant('message-type.delete-type'),
+                message: `'${this._translate.instant('message-type.delete-type-warning')}' ${type.name};`,
                 data: type
             },
             keyboard: true
@@ -54,7 +56,7 @@ export class MessageTypesComponent extends BaseListComponent<MessageType> implem
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._api.deleteMessageType(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'message-type.success-delete', `'message-type.success-delete-message' '${response.result.data.name}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('message-type.success-delete'), `'${this._translate.instant('message-type.success-delete-message')}' '${response.result.data.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['message-types']));
                 });
             }

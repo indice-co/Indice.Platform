@@ -5,6 +5,7 @@ import { ModalService, ToasterService, ToastType } from '@indice/ng-components';
 import { BasicModalComponent } from 'src/app/shared/components/basic-modal/basic-modal.component';
 import { MediaLibraryStore } from '../../media-library-store.service';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-folder-view',
@@ -30,7 +31,8 @@ export class FolderViewComponent implements OnInit {
   @Output() pageSizeChanged: EventEmitter<number> = new EventEmitter<number>();
 
   constructor(
-    private _router: Router, 
+    private _router: Router,
+    private _translate: TranslateService,
     private _route: ActivatedRoute,
     private _mediaStore: MediaLibraryStore,
     private _modalService: ModalService,
@@ -52,8 +54,8 @@ export class FolderViewComponent implements OnInit {
     const modal = this._modalService.show(BasicModalComponent, {
       animated: true,
       initialState: {
-          title: 'folder-view.delete',
-          message: `'folder-view.delete-folder-warning' '${folder?.name}';`,
+          title: this._translate.instant('folder-view.delete'),
+          message: `'${this._translate.instant('folder-view.delete-folder-warning')}' '${folder?.name}';`,
           data: folder
       },
       keyboard: true
@@ -61,7 +63,7 @@ export class FolderViewComponent implements OnInit {
     modal.onHidden?.subscribe((response: any) => {
         if (response.result?.answer) {
             this._mediaStore.deleteFolder(response.result.data.id).subscribe(() => {
-                this._toaster.show(ToastType.Success, 'folder-view.success-delete', `'folder-view.success-delete-folder-message' '${response.result.data.name}'`);
+                this._toaster.show(ToastType.Success, this._translate.instant('folder-view.success-delete'), `'${this._translate.instant('folder-view.success-delete-folder-message')}' '${response.result.data.name}'`);
                 this.itemDeleted.emit();
             });
         }
@@ -71,8 +73,8 @@ export class FolderViewComponent implements OnInit {
     const modal = this._modalService.show(BasicModalComponent, {
       animated: true,
       initialState: {
-          title: 'folder-view.delete',
-          message: `'folder-view.delete-file-warning' '${file?.name}';`,
+          title: this._translate.instant('folder-view.delete'),
+          message: `'${this._translate.instant('folder-view.delete-file-warning')}' '${file?.name}';`,
           data: file
       },
       keyboard: true
@@ -80,7 +82,7 @@ export class FolderViewComponent implements OnInit {
     modal.onHidden?.subscribe((response: any) => {
         if (response.result?.answer) {
             this._mediaStore.deleteFile(response.result.data.id).subscribe(() => {
-                this._toaster.show(ToastType.Success, 'folder-view.success-delete', `''folder-view.success-delete-file-message'' '${response.result.data.name}'`);
+                this._toaster.show(ToastType.Success, this._translate.instant('folder-view.success-delete'), `'${this._translate.instant('folder-view.success-delete-file-message')}' '${response.result.data.name}'`);
                 this.itemDeleted.emit();
             });
         }
@@ -109,6 +111,6 @@ export class FolderViewComponent implements OnInit {
   }
   public copyToClipboard(file: MediaFile) {
     this._fileUtilitiesService.copyPermaLinkToClipboard(file);
-    this._toaster.show(ToastType.Success, 'folder-view.copy-link', `'folder-view.success-copy-link' '${file.name}'`);
+    this._toaster.show(ToastType.Success, this._translate.instant('folder-view.copy-link'), `'${this._translate.instant('folder-view.success-copy-link')}' '${file.name}'`);
   }
 }

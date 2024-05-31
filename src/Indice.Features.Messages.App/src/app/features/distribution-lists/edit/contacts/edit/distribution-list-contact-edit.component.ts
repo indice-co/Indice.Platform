@@ -5,6 +5,7 @@ import { ToasterService, ToastType } from '@indice/ng-components';
 import { Subscription } from 'rxjs';
 import { Contact, MessagesApiClient, UpdateContactRequest } from 'src/app/core/services/messages-api.service';
 import { settings } from 'src/app/core/models/settings';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-distribution-list-contact-edit',
@@ -19,6 +20,7 @@ export class DistributionListContactEditComponent implements OnInit, AfterViewIn
     constructor(
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
+        private _translate: TranslateService,
         private _router: Router,
         private _activatedRoute: ActivatedRoute,
         @Inject(ToasterService) private _toaster: ToasterService
@@ -53,7 +55,7 @@ export class DistributionListContactEditComponent implements OnInit, AfterViewIn
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'contacts-edit.save', `'contacts-edit.save-message' '${this.model.fullName || this.model.email}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('contacts-edit.save'), `'${this._translate.instant('contacts-edit.save-message')}' '${this.model.fullName || this.model.email}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists', this._distributionListId, 'distribution-list-contacts']));
                 }
             });

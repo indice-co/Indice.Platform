@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
 
 import { MenuOption, SidePaneComponent } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
 import { settings } from 'src/app/core/models/settings';
 import { Contact, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -14,7 +15,9 @@ import { ListContactCreateComponent } from 'src/app/shared/components/list-conta
 export class CampaignRecipientsComponent implements OnInit {
     @ViewChild('contactCreateComponent', { static: false }) public contactCreateComponent!: ListContactCreateComponent;
     @ViewChild('rightPane', { static: false }) public rightPaneComponent!: SidePaneComponent;
-    constructor(private _api: MessagesApiClient) { }
+    constructor(private _api: MessagesApiClient,
+        private _translate: TranslateService,
+    ) { }
 
     // Form Controls
     public get sendVia(): AbstractControl { return this.form.get('sendVia')!; }
@@ -26,7 +29,7 @@ export class CampaignRecipientsComponent implements OnInit {
         return this.recipientIds.value?.split('\n').filter((x: string) => x !== '').length || 0;
     }
 
-    public distributionLists: MenuOption[] = [new MenuOption('general.please-choose', null)];
+    public distributionLists: MenuOption[] = [new MenuOption(this._translate.instant('general.please-choose'), null)];
     public form!: UntypedFormGroup;
     public apiUrl = settings.api_url;
 

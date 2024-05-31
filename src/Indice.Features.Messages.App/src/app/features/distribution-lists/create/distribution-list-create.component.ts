@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit
 import { Router } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { CreateDistributionListRequest, MessagesApiClient, MessageType } from 'src/app/core/services/messages-api.service';
 
 @Component({
@@ -14,6 +15,7 @@ export class DistributionListCreateComponent implements OnInit, AfterViewInit {
     constructor(
         private _changeDetector: ChangeDetectorRef,
         private _api: MessagesApiClient,
+        private _translate: TranslateService,
         private _router: Router,
         @Inject(ToasterService) private _toaster: ToasterService
     ) { }
@@ -34,7 +36,7 @@ export class DistributionListCreateComponent implements OnInit, AfterViewInit {
             .subscribe({
                 next: (messageType: MessageType) => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, 'distribution-list-create.success-save', `'distribution-list-create.success-save-message' '${messageType.name}' `);
+                    this._toaster.show(ToastType.Success, this._translate.instant('distribution-list-create.success-save'), `'${this._translate.instant('distribution-list-create.success-save-message')}' '${messageType.name}' `);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
                 }
             });

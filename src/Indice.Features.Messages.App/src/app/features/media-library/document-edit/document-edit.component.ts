@@ -7,6 +7,7 @@ import { map, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { settings } from 'src/app/core/models/settings';
 import { FileUtilitiesService } from 'src/app/shared/services/file-utilities.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-document-edit',
@@ -20,6 +21,7 @@ export class DocumentEditComponent implements OnInit {
         private _activatedRoute: ActivatedRoute,
         private _mediaStore: MediaLibraryStore,
         private _router: Router,
+        private _translate: TranslateService,
         private _changeDetector: ChangeDetectorRef,
         private _fileUtilitiesService: FileUtilitiesService
     ) { }
@@ -35,7 +37,7 @@ export class DocumentEditComponent implements OnInit {
             this._mediaStore.getFileDetails(this._documentId!)
               .pipe(mergeMap((file: MediaFile) => {
                   this.file = file;
-                  this._layout.title = `'document-edit.file' - ${file.name}`;
+                  this._layout.title = `'${this._translate.instant('document-edit.file')}' - ${file.name}`;
                   return this.file.folderId ? this._mediaStore.getFolderDetails(this.file.folderId).pipe(map((folder: MediaFolder) => folder?.name)) : of(undefined)
               }))
               .subscribe((folderName: string | undefined) => {

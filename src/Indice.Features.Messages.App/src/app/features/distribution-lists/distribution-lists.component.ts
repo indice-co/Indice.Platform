@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { BaseListComponent, Icons, IResultSet, ListViewType, MenuOption, ModalService, ToasterService, ToastType, ViewAction } from '@indice/ng-components';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DistributionList, DistributionListResultSet, MessagesApiClient } from 'src/app/core/services/messages-api.service';
@@ -15,6 +16,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
     constructor(
         route: ActivatedRoute,
         private _router: Router,
+        private _translate: TranslateService,
         private _api: MessagesApiClient,
         @Inject(ToasterService) private _toaster: ToasterService,
         private _modalService: ModalService
@@ -25,7 +27,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
         this.sort = 'name';
         this.sortdir = 'asc';
         this.search = '';
-        this.sortOptions = [new MenuOption('distribution-list-edit.name', 'name')];
+        this.sortOptions = [new MenuOption(this._translate.instant('distribution-list-edit.name'), 'name')];
     }
 
     public newItemLink: string | null = 'create-distribution-list';
@@ -47,8 +49,8 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
         const modal = this._modalService.show(BasicModalComponent, {
             animated: true,
             initialState: {
-                title: 'distribution-list-edit.delete',
-                message: `'distribution-list-edit.delete-warning' ${list.name};`,
+                title: this._translate.instant('distribution-list-edit.delete'),
+                message: `'${this._translate.instant('distribution-list-edit.delete-warning')}' ${list.name};`,
                 data: list
             },
             keyboard: true
@@ -56,7 +58,7 @@ export class DistributionListsComponent extends BaseListComponent<DistributionLi
         modal.onHidden?.subscribe((response: any) => {
             if (response.result?.answer) {
                 this._api.deleteDistributionList(response.result.data.id).subscribe(() => {
-                    this._toaster.show(ToastType.Success, 'distribution-list-edit.success-delete', `'distribution-list-edit.success-delete-message' '${response.result.data.name}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('distribution-list-edit.success-delete'), `'${this._translate.instant('distribution-list-edit.success-delete-message')}' '${response.result.data.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['distribution-lists']));
                 });
             }

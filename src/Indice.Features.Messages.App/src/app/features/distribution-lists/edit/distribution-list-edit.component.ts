@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HeaderMetaItem, ViewLayoutComponent } from '@indice/ng-components';
 import { DistributionList } from 'src/app/core/services/messages-api.service';
 import { DistributionListEditStore } from './distribution-list-edit-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-distribution-list',
@@ -15,6 +16,7 @@ export class DistributionListEditComponent implements OnInit, AfterViewChecked {
 
     constructor(
         private _activatedRoute: ActivatedRoute,
+        private _translate: TranslateService,
         private _changeDetector: ChangeDetectorRef,
         private _distributionListStore: DistributionListEditStore
     ) { }
@@ -28,7 +30,7 @@ export class DistributionListEditComponent implements OnInit, AfterViewChecked {
         if (this._distributionListId) {
             this._distributionListStore.getDistributionList(this._distributionListId!).subscribe((distributionList: DistributionList) => {
                 this.distributionList = distributionList;
-                this._layout.title = `'contacts.distribution-list' - ${distributionList.name}`;
+                this._layout.title = `'${this._translate.instant('contacts.distribution-list')}' - ${distributionList.name}`;
             });
         }
     }

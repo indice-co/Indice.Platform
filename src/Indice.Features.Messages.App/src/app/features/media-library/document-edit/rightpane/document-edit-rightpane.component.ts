@@ -7,6 +7,7 @@ import { MediaFile, MediaFolder, UpdateFileMetadataRequest } from 'src/app/core/
 
 import { MediaLibraryStore } from '../../media-library-store.service';
 import { tap } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-document-edit-rightpane',
@@ -23,6 +24,7 @@ export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, On
     constructor(
         private _mediaStore: MediaLibraryStore,
         private _router: Router,
+        private _translate: TranslateService,
         private _activatedRoute: ActivatedRoute,
         private _changeDetector: ChangeDetectorRef,
         @Inject(ToasterService) private _toaster: ToasterService,
@@ -32,7 +34,7 @@ export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, On
     public submitInProgress = false;
     public templateOutlet!: TemplateRef<any>;
     public model = new MediaFile();
-    public folders: MenuOption[] = [new MenuOption('general.please-choose', null)];
+    public folders: MenuOption[] = [new MenuOption(this._translate.instant('general.please-choose'), null)];
     public selectedFolderId: MenuOption | null = null;
 
     public ngOnInit(): void {
@@ -53,7 +55,7 @@ export class DocumentEditRightpaneComponent implements OnInit, AfterViewInit, On
             .subscribe({
                 next: () => {
                     this.submitInProgress = false;
-                    this._toaster.show(ToastType.Success, '{{"document-edit.pane.success-save"}}', `'document-edit.pane.success-save-message' '${this.model.name}'`);
+                    this._toaster.show(ToastType.Success, this._translate.instant('document-edit.pane.success-save'), `'${this._translate.instant('document-edit.pane.success-save-message')}' '${this.model.name}'`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._router.navigate(['media', this.model.folderId ?? 'root', this._documentId]));
                 }
             });

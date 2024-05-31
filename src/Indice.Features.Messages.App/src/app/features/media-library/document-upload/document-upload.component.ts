@@ -4,6 +4,7 @@ import { ToasterService, ToastType } from '@indice/ng-components';
 import { FileParameter } from 'src/app/core/services/media-api.service';
 import { FileUploadComponent, IAttachment } from 'src/app/shared/components/file-upload/file-upload.component';
 import { MediaLibraryStore } from '../media-library-store.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-document-upload',
@@ -18,7 +19,9 @@ export class DocumentUploadComponent implements OnInit {
   
   private _folderId: string | undefined;
 
-  constructor(private _mediaStore: MediaLibraryStore, private _toaster: ToasterService, private _router: Router, private _activatedRoute: ActivatedRoute) { }
+  constructor(private _mediaStore: MediaLibraryStore, private _toaster: ToasterService, private _router: Router, 
+    private _translate: TranslateService,
+    private _activatedRoute: ActivatedRoute) { }
 
   ngOnInit(): void {
     this._folderId = this._router.url.split('/')[2]?.split('(')[0];
@@ -36,10 +39,10 @@ export class DocumentUploadComponent implements OnInit {
       }
       this._mediaStore.uploadFile(this._folderId, fileParameter)
         .subscribe(() => {
-          this._toaster.show(ToastType.Success, 'document-upload.success-save', `'document-upload.success-save-message'`);
+          this._toaster.show(ToastType.Success, this._translate.instant('document-upload.success-save'), `'${this._translate.instant('document-upload.success-save-message')}'`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._folderId ? this._router.navigate(['media', this._folderId]) : this._router.navigate(['media']));
         }, (error) => {
-          this._toaster.show(ToastType.Error, 'document-upload.error-save', `'document-upload.error-save-message'`);
+          this._toaster.show(ToastType.Error, this._translate.instant('document-upload.error-save'), `'${this._translate.instant('document-upload.error-save-message')}'`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._folderId ? this._router.navigate(['media', this._folderId]) : this._router.navigate(['media']));
         });
     }

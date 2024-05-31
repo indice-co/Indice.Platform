@@ -16,6 +16,7 @@ import { Editor } from 'tinymce';
 // Import TinyMCE
 import tinymce from 'tinymce/tinymce';
 import { settings } from 'src/app/core/models/settings';
+import { TranslateService } from '@ngx-translate/core';
 @Component({
     selector: 'app-campaign-content',
     templateUrl: './campaign-content.component.html',
@@ -44,6 +45,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
         private _validationService: ValidationService,
         private _utilities: UtilitiesService,
         private _formBuilder: FormBuilder,
+        private _translate: TranslateService,
         private _store: SettingsStore,
         private _fileUtilitiesService: FileUtilitiesService
     ) { }
@@ -92,10 +94,10 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
     }
 
     public channelsState: { [key: string]: ChannelState; } = {
-        'inbox': { name: 'Inbox', description: 'campaigns.content-form.inbox-description', value: MessageChannelKind.Inbox, checked: false },
-        'pushNotification': { name: 'Push Notification', description: 'campaigns.content-form.push-notification-description', value: MessageChannelKind.PushNotification, checked: false },
-        'email': { name: 'Email', description: 'campaigns.content-form.email-description', value: MessageChannelKind.Email, checked: false },
-        'sms': { name: 'SMS', description: 'campaigns.content-form.sms-description.', value: MessageChannelKind.SMS, checked: false }
+        'inbox': { name: 'Inbox', description: this._translate.instant('campaigns.content-form.inbox-description'), value: MessageChannelKind.Inbox, checked: false },
+        'pushNotification': { name: 'Push Notification', description: this._translate.instant('campaigns.content-form.push-notification-description'), value: MessageChannelKind.PushNotification, checked: false },
+        'email': { name: 'Email', description: this._translate.instant('campaigns.content-form.email-description'), value: MessageChannelKind.Email, checked: false },
+        'sms': { name: 'SMS', description: this._translate.instant('campaigns.content-form.sms-description.'), value: MessageChannelKind.SMS, checked: false }
     };
     public tinyMceEditor?: Editor;
     public tinyMceOptions = {
@@ -342,7 +344,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
                     ? new MenuOption(`${this.content.email.sender.displayName} <${this.content.email.sender.sender}>`, this.content.email.sender.id, undefined, this.content?.email?.sender)
                     : undefined;
                 if (messageSenders.items) {
-                    this.messageSenders = [new MenuOption('general.please-choose"', null)];
+                    this.messageSenders = [new MenuOption(this._translate.instant('general.please-choose"'), null)];
                     this.messageSenders.push(...messageSenders.items.map(s => {
                         let sender = {
                             id: s.id,
