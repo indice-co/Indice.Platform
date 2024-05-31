@@ -47,16 +47,32 @@ jobs:
           }
 
       # Clean npm cache
-      - name: NPM Install and Build Identity UI
+      - name: Clean npm cache IdentityUI
         run: |
           cd src/Indice.Features.Identity.UI
           npm cache clean --force
+      
+      # Clean npm cache
+      - name: Clean npm cache Cases
+        run: |
           cd src/Indice.Features.Cases.App
           npm cache clean --force
+
+      # Clean npm cache
+      - name: Clean npm cache AdminUI
+        run: |
           cd src/Indice.Features.Identity.AdminUI.App
           npm cache clean --force
+
+      # Clean npm cache
+      - name: Clean npm cache Messages
+        run: |
           cd src/Indice.Features.Messages.App
           npm cache clean --force
+
+       # Clean npm cache
+      - name: Clean npm cache Risk
+        run: |
           cd src/Indice.Features.Risk.App
           npm cache clean --force
       
