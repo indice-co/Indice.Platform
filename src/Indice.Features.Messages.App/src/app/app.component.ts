@@ -21,9 +21,10 @@ export class AppComponent {
   constructor(tenantService: TenantService, private translate: TranslateService) {
     if (settings.tenantId && settings.tenantId !== '') {
       tenantService.storeTenant(settings.tenantId);
-      translate.setDefaultLang('el');
-      translate.use('el');
     }
+    const selectedCulture = sessionStorage.getItem('culture') || 'el';
+    this.translate.setDefaultLang(selectedCulture);
+    this.translate.use(selectedCulture);
   }
 
   public settings: IAppSettings = settings;
