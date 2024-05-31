@@ -15,45 +15,44 @@ export class AppLinks implements IAppLinks {
     private _caseTypeService: CaseTypeService
   ) {
     this.authService.user$.pipe(
-      switchMap(user => user ? this.getAuthenticatedUserLinks() : this.getUnauthenticatedUserLinks())
-    ).subscribe(navLinks => this._main.next(navLinks));
-  }
+      switchMap(user => {
+        const headerMenu: NavLink[] = [
+          new NavLink('Αρχική', '/dashboard', true, undefined, Icons.Dashboard),
+          new NavLink('Υποθέσεις', '/cases', true, undefined, Icons.Cases),
+        ];
 
-  private getAuthenticatedUserLinks(): Observable<NavLink[]> {
-    return this._caseTypeService.getCaseTypeMenuItems().pipe(
-      map(caseTypeMenuItems => {
-        const headerMenu = this.getBaseHeaderMenu();
-        for (const item of caseTypeMenuItems) {
-          if (item.title && item.code) {
-            const queryParams: Params = {
-              view: 'table',
-              page: '1',
-              pagesize: '10',
-              search: '',
-              sort: 'createdByWhen',
-              dir: 'desc',
-              filter: `caseTypeCodes::eq::${item.code}`
-            }
-            headerMenu.push(new NavLink(item.title, `/cases/${item.code}`, true, undefined, Icons.MenuItem, undefined, queryParams));
-          }
+        if (user) {
+          return this._caseTypeService.getCaseTypeMenuItems().pipe(
+            map(caseTypeMenuItems => {
+              for (const item of caseTypeMenuItems) {
+                if (item.title) {
+                  const queryParams: Params = {
+                    view: 'table',
+                    page: '1',
+                    pagesize: '10',
+                    search: '',
+                    sort: 'createdByWhen',
+                    dir: 'desc',
+                    filter: `caseTypeCodes::eq::${item.code}`
+                  };
+                  headerMenu.push(new NavLink(item.title, `/cases/${item.code}`, true, undefined, Icons.MenuItem, undefined, queryParams));
+                }
+              }
+
+              if (this.authService.isAdmin()) {
+                headerMenu.push(new NavLink('Διαχείριση Υποθέσεων', '/case-types', true, undefined, Icons.CaseTypes));
+              } else {
+                headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true, undefined, Icons.Notifications));
+              }
+
+              return headerMenu;
+            })
+          );
         }
-        headerMenu.push(new NavLink('Διαχείριση Υποθέσεων', '/case-types', true, undefined, Icons.CaseTypes));
-        return headerMenu;
+
+        return of(headerMenu);
       })
-    );
-  }
-
-  private getUnauthenticatedUserLinks(): Observable<NavLink[]> {
-    const headerMenu = this.getBaseHeaderMenu();
-    headerMenu.push(new NavLink('Ειδοποιήσεις', '/notifications', true, undefined, Icons.Notifications));
-    return of(headerMenu);
-  }
-
-  private getBaseHeaderMenu(): NavLink[] {
-    return [
-      new NavLink('Αρχική', '/dashboard', true, undefined, Icons.Dashboard),
-      new NavLink('Υποθέσεις', '/cases', true, undefined, Icons.Cases),
-    ];
+    ).subscribe(navLinks => this._main.next(navLinks));
   }
 
   public public: Observable<NavLink[]> = of([]);
