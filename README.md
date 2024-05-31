@@ -1,5 +1,5 @@
 [![nugget build](https://github.com/indice-co/Indice.Platform/actions/workflows/publish_to_nuget.yml/badge.svg)](https://github.com/indice-co/Indice.Platform/actions/workflows/publish_to_nuget.yml)
-[![Build status](https://ci.appveyor.com/api/projects/status/xku1y5ndxccw3vs6?svg=true)](https://ci.appveyor.com/project/cleftheris/indice-aspnet)
+[![Build status](https://ci.appveyor.com/api/projects/status/m3tg2p3igoppg3eq?svg=true)](https://ci.appveyor.com/project/cleftheris/indice-platform)
 
 # Indice.Platform ![alt text](icon/icon-64.png "Indice logo")
 .Net addons and helpers for creating distributed web applications and services.
