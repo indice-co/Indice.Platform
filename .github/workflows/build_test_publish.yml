@@ -1,7 +1,9 @@
 name: "Build, Test and Publish to Nuget"
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - feature/pipelines
 
 jobs:
   buildAndTestStage:
