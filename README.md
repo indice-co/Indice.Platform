@@ -6,8 +6,8 @@
 
 ## Installation
 
-To install Indice.* packages, run the following command in the Package Manager Console. Or download one from nuget.org [profile](https://www.nuget.org/profiles/indice)
+To install any of the platform packages, run the dotnet add command. Or download one from our nuget.org [profile](https://www.nuget.org/profiles/indice)
 
 ```powershell
-PM> Install-Package "Indice.AspNetCore"
+> dotnet add package Indice.AspNetCore
 ```

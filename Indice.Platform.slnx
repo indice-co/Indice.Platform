@@ -60,7 +60,7 @@
     <Project Path="src\Indice.Hosting\Indice.Hosting.csproj" />
     <Project Path="src\Indice.Services\Indice.Services.csproj" />
   </Folder>
-  <Folder Name="/Solution Items/">
+  <Folder Name="/.misc/">
     <File Path=".editorconfig" />
     <File Path=".gitignore" />
     <File Path="appveyor.yml" />
