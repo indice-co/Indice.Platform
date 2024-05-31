@@ -6,7 +6,7 @@ on:
       - feature/pipelines
 
 jobs:
-  buildAndTestStage:
+  BuildTestAndPublish:
     runs-on: windows-latest
     steps:
 
@@ -88,6 +88,7 @@ jobs:
         
       # Dotnet test 
       - name: Test with dotnet
+        id: dotnet_test_task
         run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
 
        # Test reporting
@@ -100,23 +101,10 @@ jobs:
           reporter: dotnet-trx
           fail-on-error: true
 
-  publishToNugetStage:
-    needs: [buildAndTestStage]
-    runs-on: windows-latest
-    if: success()
-    steps:
-
-      # Setup .NET 8
-      # - name: Setup dotnet 8.x
-      #   uses: actions/setup-dotnet@v4
-      #   with:
-      #     dotnet-version: 8.x
-      #     source-url: https://api.nuget.org/v3/index.json
-      #   env:
-      #     NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
-
-      # Pack
-      - name: Build solution and generate NuGet package
+      # Dotnet pack
+      - name: Generate nuget packages
+        if: steps.dotnet_test_task.outcome == 'success'
         run: ./pack.ps1
-    
-    
+
+      
+
