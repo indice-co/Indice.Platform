@@ -58,7 +58,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         queryParams: storedParams
       });
     }
-    // Are there any filters in queryParams?
+    //Are there any filters in queryParams?
     this._route.queryParams.subscribe((params: Params) => {
       this.queryParamsHasFilter = params['filter'] ? true : false;
     });
@@ -66,7 +66,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
       caseTypes: this._api.getCaseTypes(),
       checkpointTypes: this._caseTypeService.getDistinctCheckpointTypes()
     }).pipe(take(1)).subscribe(({ caseTypes, checkpointTypes }) => {
-      //todo this should not be needed - we assign this so its available for the async calls
+      //TODO: this should not be needed - we assign this so its available for the async calls
       this.caseTypes = caseTypes;
       const tempSearchOptions: SearchOption[] = [];
       if (this.tableFilters.CustomerId) {
@@ -92,7 +92,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
       }
       if (this.tableFilters.TaxId) {
         tempSearchOptions.push({
-          field: 'TaxId', // this must be exactly the same "case-wise" with db's json property!
+          field: 'TaxId', //This must be exactly the same "case-wise" with db's json property!
           name: 'Α.Φ.Μ. ΠΕΛΑΤΗ',
           dataType: 'string'
         });
@@ -186,7 +186,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   }
 
   private createNewCaseButton(): void {
-    // independent call to fetch the case Types that the user can select for Case Creation
+    //Independent call to fetch the case Types that the user can select for Case Creation
     this._caseTypeService.getCanCreateCaseTypes()
       .pipe(take(1))
       .subscribe(
@@ -234,7 +234,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
       options: [],
       multiTerm: true
     }
-    for (let caseType of caseTypes.items!) { // fill caseTypeSearchOption's SelectInputOptions
+    for (let caseType of caseTypes.items!) { //Fill caseTypeSearchOption's SelectInputOptions
       caseTypeSearchOption.options?.push({ value: caseType.code, label: caseType?.title! })
     }
     return caseTypeSearchOption;
@@ -275,7 +275,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     this.tableColumns.SubmitDate = columns.some(column => column === "SubmitDate");
   }
 
-  // TODO: make this public in Indice.Angular
+  //TODO: make this public in Indice.Angular
   private stringifyFilters(filters: FilterClause[] | undefined) {
     return filters?.map((f: FilterClause) => {
       if (f.dataType === 'datetime') {
