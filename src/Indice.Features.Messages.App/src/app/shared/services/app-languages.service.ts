@@ -19,7 +19,6 @@ export class AppLanguagesService implements IAppLanguagesService {
 
     constructor(private translate: TranslateService) {
         this.options = of(this._languages);
-        debugger;
         const selectedCulture = sessionStorage.getItem('culture') || 'el';
         this.default = selectedCulture;
         this.selected = this.default;

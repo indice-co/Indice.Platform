@@ -15,7 +15,7 @@
                             (click)="createCampaignStepper.goToNextStep()"
                             *ngIf="createCampaignStepper.canGoForward || createCampaignStepper.currentStep?.isLast"
                             class="side-view-layout-action-button-submit">
-                        {{ createCampaignStepper.currentStep?.isLast ? '{{"campaigns-create.save" | translate}}' : '{{"campaigns-create.next" | translate}}' }}
+                            {{ createCampaignStepper.currentStep?.isLast ? ('campaigns-create.save' | translate) : ('campaigns-create.next' | translate) }}
                     </button>
                 </div>
             </div>
