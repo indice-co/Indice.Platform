@@ -1,9 +1,7 @@
 name: "Build, Test and Publish to Nuget"
 
 on:
-  push:
-    branches:
-      - feature/pipelines
+  workflow_dispatch:
 
 jobs:
   BuildTestAndPublish:
@@ -106,5 +104,5 @@ jobs:
         if: steps.dotnet_test_task.outcome == 'success'
         run: ./pack.ps1
 
-      
+
 
