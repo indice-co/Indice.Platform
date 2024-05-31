@@ -103,3 +103,32 @@ Once, you get the reference/declaration Id and receive the OTP:
 ```csharp
 DocumentData data = await _govGrClient.Wallet().GetIdentificationAsync(declarationId, otp, includePdf);
 ```
+
+### Bancapp GCloud
+Bancapp GCloud client enables uploading files to GCloud as requested per the normative guideline. <br>
+For the Bancapp GCloud integration to work, you will need to follow the steps bellow:
+
+You have to use the appsettings in the following format:
+```
+  "GovGr": {
+    "Bancapp": {
+      "Environment": "stage", // allowed: production, stage, mock
+      "Username": "BancappUsername",
+      "Password": "BancappPassword",
+      "ClientId": "BancappClientId"
+    }
+  }
+```
+Note: If Sandbox is set to false you integrate with stage services by default.
+
+Then, you can simply inject the `GovGrClient _govGrClient` to your code and use it to upload files to GCloud services.
+```csharp
+BancappGCloudUploadResponse response = await _govGrClient.Bancapp().UploadFile(fileBytes, fileName);
+```
+
+You can call `.Succeeded` in response object and get if any error through `.ErrorMessage`. e.g:
+```csharp
+if (!response.Succeeded) {
+     _logger.LogError(response.ErrorMessage);
+}
+```
