@@ -8,6 +8,8 @@ on:
 jobs:
   buildAndTestStage:
     runs-on: windows-latest
+    outputs:
+      build-dir: ${{ steps.build.outputs.build-dir }}
     steps:
 
       # Checkout repo
@@ -20,8 +22,6 @@ jobs:
         with:
           dotnet-version: 8.x
           source-url: https://api.nuget.org/v3/index.json
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
    
       # Setup Node.js
       - name: Use Node.js 20.x
@@ -84,8 +84,11 @@ jobs:
       - name: Clean
         run: dotnet clean
       - name: Build
+        id: build
         run: dotnet build --no-restore --configuration Release
-
+        outputs:
+          build-dir: ${{ github.workspace }}
+        
       # Dotnet test 
       - name: Test with dotnet
         run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
@@ -98,11 +101,26 @@ jobs:
           name: DotNET Tests
           path: "TestResults/*.trx"                            
           reporter: dotnet-trx
-          fail-on-error: true  
+          fail-on-error: true
 
-  # publishToNugetStage:
-  #   needs: buildAndTestStage
-  #   runs-on: windows-latest
-  #   steps:
+  publishToNugetStage:
+    needs: [buildAndTestStage]
+    runs-on: windows-latest
+    if: success()
+    steps:
+
+      # Setup .NET 8
+      - name: Setup dotnet 8.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+          source-url: https://api.nuget.org/v3/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
+
+      # Pack
+      - name: Build solution and generate NuGet package
+        run: ./pack.ps1
+        working-directory: ${{ needs.buildAndTestStage.outputs.build-dir }}
     
     
