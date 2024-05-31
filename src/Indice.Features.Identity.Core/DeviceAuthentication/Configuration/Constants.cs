@@ -46,4 +46,5 @@ internal static class RegistrationRequestParameters
 internal static class ExtraTokenRequestErrors
 {
     public const string RequiresPassword = "requires_password";
+    public const string InvalidAuthorizationDetails = "invalid_authorization_details";
 }
