@@ -25,10 +25,10 @@
       <PackageTags></PackageTags>
       <IsPackable>true</IsPackable>
       <PackageIcon>icon-310.png</PackageIcon>
-      <PackageProjectUrl>https://github.com/indice-co/Indice.AspNet</PackageProjectUrl>
+      <PackageProjectUrl>https://github.com/indice-co/Indice.Platform</PackageProjectUrl>
       <PackageLicenseExpression>MIT</PackageLicenseExpression>
       <RepositoryType>git</RepositoryType>
-      <RepositoryUrl>https://github.com/indice-co/Indice.AspNet</RepositoryUrl>
+      <RepositoryUrl>https://github.com/indice-co/Indice.Platform</RepositoryUrl>
       <Company>Indice</Company>
       <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
       <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
