@@ -19,7 +19,7 @@ public class UpdateFileMetadataRequestValidator : AbstractValidator<UpdateFileMe
             .MaximumLength(TextSizePresets.M512)
             .WithMessage($"Folder description cannot exceed {TextSizePresets.M512} characters.");
         RuleFor(folder => folder.FolderId)
-            .MustAsync(async (id, token) => await folderStore.GetById(id.Value) is not null)
+            .MustAsync(async (id, token) => await folderStore.GetById(id!.Value) is not null)
             .When(folder => folder.FolderId is not null)
             .WithMessage("Parent should be an existing folder.");
     }

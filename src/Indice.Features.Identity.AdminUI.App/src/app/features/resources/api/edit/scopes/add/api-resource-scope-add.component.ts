@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ComponentFactoryResolver, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -23,12 +23,12 @@ export class ApiResourceScopeAddComponent implements OnInit {
     private _formValidatedSubscription: Subscription;
     private _apiResourceId: number;
 
-    constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: FormBuilder, private _changeDetectionRef: ChangeDetectorRef,
+    constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: UntypedFormBuilder, private _changeDetectionRef: ChangeDetectorRef,
                 private _apiResourceStore: ApiResourceStore, private _toast: ToastService, private _router: Router, private _route: ActivatedRoute) { }
 
     public wizardStepIndex = 0;
     public apiResourceSteps: WizardStepDescriptor[] = [];
-    public form: FormGroup;
+    public form: UntypedFormGroup;
     public hostFormValidated = false;
     public resource: CreateApiScopeRequest = new CreateApiScopeRequest();
 
@@ -45,7 +45,7 @@ export class ApiResourceScopeAddComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this._apiResourceId = +this._route.parent.snapshot.params.id;
+        this._apiResourceId = +this._route.parent.snapshot.params['id'];
         this.form = this._formBuilder.group({
             type: [''],
             name: ['', [Validators.required, Validators.maxLength(200)]],
@@ -96,17 +96,17 @@ export class ApiResourceScopeAddComponent implements OnInit {
             this._toast.showSuccess(`API scope '${resourceName}' was created successfully.`);
             this._router.navigate(['../'], { relativeTo: this._route });
         }, (problemDetails: HttpValidationProblemDetails) => {
-            const errorMessage = problemDetails.errors.name[0];
+            const errorMessage = problemDetails.errors['name'][0];
             this._toast.showDanger(errorMessage);
         });
     }
 
-    private validateFormFields(formGroup: FormGroup) {
+    private validateFormFields(formGroup: UntypedFormGroup) {
         Object.keys(formGroup.controls).forEach((field: string) => {
             const control = formGroup.get(field);
-            if (control instanceof FormControl) {
+            if (control instanceof UntypedFormControl) {
                 control.markAsTouched({ onlySelf: true });
-            } else if (control instanceof FormGroup) {
+            } else if (control instanceof UntypedFormGroup) {
                 this.validateFormFields(control);
             }
         });

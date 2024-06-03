@@ -55,7 +55,7 @@ export class ApiResourceSecretsComponent implements OnInit, OnDestroy {
         if (this.canEditResource) {
             this.columns.push({ prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' });
         }
-        this._apiResourceId = +this._route.parent.snapshot.params.id;
+        this._apiResourceId = +this._route.parent.snapshot.params['id'];
         this._getDataSubscription = this._apiResourceStore.getApiResource(this._apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
             this.apiResource = apiResource;
             if (this.apiResource.secrets) {

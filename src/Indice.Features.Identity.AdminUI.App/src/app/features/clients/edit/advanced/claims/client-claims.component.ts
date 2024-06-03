@@ -49,7 +49,7 @@ export class ClientClaimsComponent implements OnInit, OnDestroy {
         if (this.canEditClient) {
             this.columns.push({ prop: 'id', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' });
         }
-        const clientId = this._route.parent.parent.snapshot.params.id;
+        const clientId = this._route.parent.parent.snapshot.params['id'];
         this._getDataSubscription = this._clientStore.getClient(clientId).subscribe((client: SingleClientInfo) => {
             this.client = client;
             this.rows = this.client.claims;

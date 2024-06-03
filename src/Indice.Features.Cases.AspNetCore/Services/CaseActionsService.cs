@@ -33,7 +33,7 @@ internal class CaseActionsService : ICaseActionsService
         _workflowInstanceStore = workflowInstanceStore ?? throw new ArgumentNullException(nameof(workflowInstanceStore));
     }
 
-    public async ValueTask<CaseActions> GeUserActions(ClaimsPrincipal user, Guid caseId) {
+    public async ValueTask<CaseActions> GetUserActions(ClaimsPrincipal user, Guid caseId) {
         if (caseId == default) throw new ArgumentException("CaseId not present.", nameof(caseId));
 
         var @case = await _casesDbContext.Cases.FindAsync(caseId);
@@ -47,7 +47,7 @@ internal class CaseActionsService : ICaseActionsService
             .Select(claim => claim.Value)
             .ToList();
 
-        if (!userRoles.Any()) {
+        if (!userRoles.Any() && !user.IsSystemClient()) {
             return new CaseActions();
         }
 

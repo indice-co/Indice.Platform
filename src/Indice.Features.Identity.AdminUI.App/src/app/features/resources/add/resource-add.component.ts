@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ComponentFactoryResolver, ChangeDetectorRef } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { Subscription } from 'rxjs';
@@ -24,12 +24,12 @@ export class ResourceAddComponent implements OnInit {
     private _formValidatedSubscription: Subscription;
     private _navigationOrigin: string;
 
-    constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: FormBuilder, private _changeDetectionRef: ChangeDetectorRef,
+    constructor(private _componentFactoryResolver: ComponentFactoryResolver, private _formBuilder: UntypedFormBuilder, private _changeDetectionRef: ChangeDetectorRef,
                 private _api: IdentityApiService, private _toast: ToastService, private _router: Router, private _route: ActivatedRoute) { }
 
     public wizardStepIndex = 0;
     public apiResourceSteps: WizardStepDescriptor[] = [];
-    public form: FormGroup;
+    public form: UntypedFormGroup;
     public hostFormValidated = false;
     public resource: CreateResourceRequest = new CreateResourceRequest();
 
@@ -108,12 +108,12 @@ export class ResourceAddComponent implements OnInit {
         }
     }
 
-    private validateFormFields(formGroup: FormGroup) {
+    private validateFormFields(formGroup: UntypedFormGroup) {
         Object.keys(formGroup.controls).forEach((field: string) => {
             const control = formGroup.get(field);
-            if (control instanceof FormControl) {
+            if (control instanceof UntypedFormControl) {
                 control.markAsTouched({ onlySelf: true });
-            } else if (control instanceof FormGroup) {
+            } else if (control instanceof UntypedFormGroup) {
                 this.validateFormFields(control);
             }
         });

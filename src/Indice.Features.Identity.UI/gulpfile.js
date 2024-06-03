@@ -1,7 +1,6 @@
 ﻿'use strict';
-
-import gulp from "gulp";
-import dartSass from 'sass';
+import { src, dest, watch, task, series } from "gulp";
+import * as dartSass from 'sass'
 import gulpSass from 'gulp-sass';
 import { deleteAsync } from 'del';
 import cssbeautify from "gulp-cssbeautify";
@@ -25,18 +24,18 @@ const sass = gulpSass(dartSass);
 var webroot = './wwwroot/',
     lib = './wwwroot/lib/';
 
-gulp.task('sass-bootstrap', function () {
-    return gulp.src([webroot + 'css/**/*.scss', '!' + webroot + 'css/identity.tw.scss'])
+task('sass-bootstrap', function () {
+    return src([webroot + 'css/**/*.scss', '!' + webroot + 'css/identity.tw.scss'])
         .pipe(sass().on('error', sass.logError))
         .pipe(cssbeautify())
-        .pipe(gulp.dest(webroot + 'css/'));
+        .pipe(dest(webroot + 'css/'));
 });
 
-gulp.task('sass:watch', function () {
-    gulp.watch([webroot + 'css/**/*.scss', '!' + webroot + 'css/identity.tw.scss'], gulp.series('sass-bootstrap'));
+task('sass:watch', function () {
+    watch([webroot + 'css/**/*.scss', '!' + webroot + 'css/identity.tw.scss'], gulp.series('sass-bootstrap'));
 });
 
-gulp.task('clean:lib', function (cb) {
+task('clean:lib', function (cb) {
     deleteAsync([
         lib + '**'
     ]).then(function () {
@@ -44,18 +43,19 @@ gulp.task('clean:lib', function (cb) {
     });
 });
 
-gulp.task('copy:libs', async function () {
+task('copy:libs', async function () {
     // result should not be empty, otherwise the task will crash
     if (npmDist().length === 0) {
         return;
     }
-    return gulp.src(npmDist(), { base: './node_modules' })
-               .pipe(gulp.dest(lib));
+    return src(npmDist(), { base: './node_modules' })
+               .pipe(dest(lib));
 });
 
 /* tailwind specific */
-gulp.task('tailwind', () => {
-    return gulp.src(webroot + 'css/identity.tw.scss')
+function tailwind(cb) {
+    src(webroot + 'css/identity.tw.scss')
+        .pipe(stripCssComments({ preserve: false }))
         .pipe(postcss([
             postcssSass,
             mixins,
@@ -64,17 +64,20 @@ gulp.task('tailwind', () => {
             precss,
             tailwindcss(twconfig),
             autoprefixer
-        ]))
-        .pipe(rename({
-            extname: '.css'
-        }))
-        .pipe(stripCssComments({ preserve: false }))
+        ], { includePaths: ["node_modules"] }))
+        .pipe(rename({ extname: '.css' }))
         .pipe(cleanCSS({ level: 2 }))
-        .pipe(gulp.dest(webroot + 'css/'));
-});
+        .pipe(dest(webroot + 'css/'));
+    cb();
+};
 
-gulp.task('tailwind:watch', function () {
-    gulp.watch(webroot + 'css/**/*.scss', gulp.series('tailwind'));
-});
 
-gulp.task('sass', gulp.series('sass-bootstrap', 'tailwind'));
+function tailwind_watch(cb) {
+    watch(webroot + 'css/**/*.scss', tailwind);
+    cb();
+}
+
+task('tailwind', tailwind);
+task('tailwind:watch', tailwind_watch);
+
+task('sass', series('sass-bootstrap', 'tailwind'));

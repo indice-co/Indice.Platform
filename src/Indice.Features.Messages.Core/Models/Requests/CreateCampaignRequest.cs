@@ -8,18 +8,18 @@ public class CreateCampaignRequest : CampaignRequestBase
     /// <summary>Determines if a campaign is published.</summary>
     public bool Published { get; set; }
     /// <summary>Defines a list of user identifiers that constitutes the audience of the campaign.</summary>
-    public List<string> RecipientIds { get; set; } = new List<string>();
+    public List<string> RecipientIds { get; set; } = [];
     /// <summary>Defines a list of attachmentids already uploaded to the campaign database. These will be assiciated with the campaign.</summary>
-    internal List<Guid> AttachmentIds { get; set; } = new List<Guid>();
+    internal List<Guid> AttachmentIds { get; set; } = [];
     /// <summary>
     /// List of anonymous contacts not available through any of the existing contact resolvers.
     /// Use this list if recipient id is not known/available or the message will be fire and forget.
     /// </summary>
-    public List<ContactAnonymous> Recipients { get; set; } = new List<ContactAnonymous>();
+    public List<ContactAnonymous> Recipients { get; set; } = [];
 
     /// <summary>List of file attachments. These can only be attached to the sending channel of email and inbox.</summary>
     [JsonIgnore]
-    internal List<FileAttachment> Attachments { get; set; } = new List<FileAttachment>();
+    internal List<FileAttachment> Attachments { get; set; } = [];
 
     internal IEnumerable<Contact> GetIncludedContacts() {
         if (RecipientIds is not null) {

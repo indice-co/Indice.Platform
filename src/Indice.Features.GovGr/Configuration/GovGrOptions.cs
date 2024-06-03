@@ -16,6 +16,8 @@ public class GovGrOptions
     public DocumentsOptions Documents { get; set; } = new DocumentsOptions();
     /// <summary>Business Registry service options</summary>
     public BusinessRegistryOptions BusinessRegistry { get; set; } = new BusinessRegistryOptions();
+    /// <summary>Bancapp options</summary>
+    public BancappOptions Bancapp { get; set; } = new BancappOptions();
 
 
     /// <summary>KYC service options</summary>
@@ -76,5 +78,34 @@ public class GovGrOptions
         public string Password { get; set; }
         /// <summary>Callers Fiscal Code</summary>
         public string CallersFiscalCode { get; set; }
+    }
+
+    /// <summary>Bancapp settings</summary>
+    public class BancappOptions
+    {
+        /// <summary>Represents the environment. Valid options are <em>production</em>, <em>staging</em>, <em>development</em> &amp; <em>mock</em>.Defaults to <b>stage</b>. </summary>
+        public string Environment { get; set; }
+        
+        /// <summary>Username. Used to authenticate to Bancapp API.</summary>
+        public string Username { get; set; }
+        
+        /// <summary>Password. Used to authenticate to Bancapp API.</summary>
+        public string Password { get; set; }
+        
+        /// <summary>The ropc-client-id. Used to authenticate to Bancapp API.</summary>
+        public string ClientId { get; set; }
+
+        /// <summary>Check if in production</summary>
+        public bool IsProduction => "Production".Equals(Environment, System.StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>Check if in staging/stage. This is the <b>default</b> option.</summary>
+        public bool IsStaging => string.IsNullOrEmpty(Environment) ||
+                                 "Staging".Equals(Environment, System.StringComparison.OrdinalIgnoreCase) ||
+                                 "Stage".Equals(Environment, System.StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>Check if in development/demo</summary>
+        public bool IsMock => "mock".Equals(Environment, System.StringComparison.OrdinalIgnoreCase);
+        
+        
     }
 }

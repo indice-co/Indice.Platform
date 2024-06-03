@@ -54,7 +54,7 @@ export class UserSignInLogsComponent implements OnInit {
 
   public getUserSignInLogs(event: SearchEvent): void {
     this.isLoading = true;
-    const userId = this._route.parent.snapshot.params.id;
+    const userId = this._route.parent.snapshot.params['id'];
     const page = event.page;
     const pageSize = event.pageSize;
     const sortField = event.sortField;

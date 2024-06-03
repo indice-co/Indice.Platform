@@ -35,7 +35,7 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
   public newItemLink: string | null = 'settings';
   public defaultSender: MessageSender | undefined;
 
-  public ngOnInit(): void {
+  public override ngOnInit(): void {
     // this._api.getMessageSenders(this.page, this.pageSize, this.sortdir === 'asc' ? this.sort! : this.sort + '-', this.search || undefined, true)
     //   .subscribe((result) => {
     //     this.defaultSender = result.items?.find(x => x);
@@ -72,7 +72,7 @@ export class EmailSettingsComponent extends BaseListComponent<MessageSender> imp
     });
   }
 
-  public actionHandler(): void {
+  public override actionHandler(): void {
     this._router.navigate(['', { outlets: { rightpane: 'create-message-sender' } }]);
   }
 }

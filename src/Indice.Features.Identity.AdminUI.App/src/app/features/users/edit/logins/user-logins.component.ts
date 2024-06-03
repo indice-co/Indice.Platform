@@ -40,7 +40,7 @@ export class UserLoginsComponent implements OnInit, OnDestroy {
         if (this.canEditUser) {
             this.columns.push({ prop: 'key', name: 'Actions', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' })
         }
-        this._userId = this._route.parent.snapshot.params.id;
+        this._userId = this._route.parent.snapshot.params['id'];
         this._getDataSubscription = this._userStore.getUserExternalLogins(this._userId).subscribe((userExternalLogins: UserLoginProviderInfo[]) => {
             this.rows = userExternalLogins;
         });

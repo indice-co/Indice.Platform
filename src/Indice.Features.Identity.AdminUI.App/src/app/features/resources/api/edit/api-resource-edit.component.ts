@@ -18,7 +18,7 @@ export class ApiResourceEditComponent implements OnInit, OnDestroy {
     public apiResource: ApiResourceInfo;
 
     public ngOnInit(): void {
-        const apiResourceId = +this._route.snapshot.params.id;
+        const apiResourceId = +this._route.snapshot.params['id'];
         this._getDataSubscription = this._apiResourceStore.getApiResource(apiResourceId).subscribe((apiResource: ApiResourceInfo) => {
             this.apiResource = apiResource;
         });

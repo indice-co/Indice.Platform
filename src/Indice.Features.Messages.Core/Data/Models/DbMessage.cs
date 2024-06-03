@@ -16,7 +16,7 @@ public class DbMessage
     /// <summary>Determines if a message is read by the user.</summary>
     public bool IsRead { get; set; }
     /// <summary>The contents of the template.</summary>
-    public MessageContentDictionary Content { get; set; } = new MessageContentDictionary();
+    public MessageContentDictionary Content { get; set; } = [];
     /// <summary>Defines when the inbox message was read.</summary>
     public DateTimeOffset? ReadDate { get; set; }
     /// <summary>Defines when the inbox message was deleted.</summary>
