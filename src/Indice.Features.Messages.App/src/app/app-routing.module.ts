@@ -52,93 +52,93 @@ const routes: Routes = [
   {
     path: 'not-found', component: HttpStatusComponent, data: {
       code: '404',
-      title: 'general.unknown-page',
-      message: 'general.page-not-found',
+      title: 'Unknown Page',
+      message: 'Page not found',
       shell: CommonAppShellConfig
     }
   },
   {
     path: 'forbidden', component: HttpStatusComponent, data: {
       code: '403',
-      title: 'general.no-access',
-      message: 'general.contact-support',
+      title: 'Access Denied',
+      message: 'Please contact support',
       shell: CommonAppShellConfig
     }
   },
   {
     path: '', canActivate: [AuthGuardService], children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent, data: { breadcrumb: { title: 'general.home', isHome: true }} },
+      { path: 'dashboard', component: DashboardComponent, data: { breadcrumb: { title: 'Home', isHome: true }} },
       { 
         path: 'campaigns', 
-        data: { breadcrumb: { title: 'general.campaigns' }},
+        data: { breadcrumb: { title: 'Campaigns' }},
         children: [
           { path: '', component: CampaignsComponent, pathMatch: 'full' },
-          { path: 'add-campaign', component: CampaignCreateComponent, data: { breadcrumb: { title: 'general.create' }} },
+          { path: 'add-campaign', component: CampaignCreateComponent, data: { breadcrumb: { title: 'Create' }} },
           {
             path: ':campaignId', component: CampaignEditComponent, 
-            data: { breadcrumb: { title: 'general.edit' }}, 
+            data: { breadcrumb: { title: 'Edit' }}, 
             children: [
               { path: '', redirectTo: 'campaign-details', pathMatch: 'full' },
-              { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'general.basic-info' }} },
-              { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'general.content' }} },
-              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'general.reports' }} }
+              { path: 'campaign-details', component: CampaignDetailsEditComponent, data: { breadcrumb: { title: 'Basic Info' }} },
+              { path: 'campaign-content', component: CampaignContentEditComponent, data: { breadcrumb: { title: 'Content' }} },
+              { path: 'campaign-reports', component: CampaignReportsComponent, data: { breadcrumb: { title: 'Reports' }} }
             ]
           },
         ]
       },
-      { path: 'message-types', component: MessageTypesComponent, data: { breadcrumb: { title: 'general.message-types' }} },
+      { path: 'message-types', component: MessageTypesComponent, data: { breadcrumb: { title: 'Message Types' }} },
       { 
         path: 'distribution-lists', 
-        data: { breadcrumb: { title: 'general.distribution-lists' }},
+        data: { breadcrumb: { title: 'Distribution lists' }},
         children: [
           { path: '', component: DistributionListsComponent, pathMatch: 'full' },
           {
             path: ':distributionListId', component: DistributionListEditComponent, 
-            data: { breadcrumb: { title: 'general.edit' }}, 
+            data: { breadcrumb: { title: 'Edit' }}, 
             children: [
               { path: '', redirectTo: 'distribution-list-details', pathMatch: 'full' },
-              { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'general.basic-info' }} },
-              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'general.content' }} }
+              { path: 'distribution-list-details', component: DistributionListDetailsEditComponent, data: { breadcrumb: { title: 'Basic Info' }} },
+              { path: 'distribution-list-contacts', component: DistributionListContactsComponent, data: { breadcrumb: { title: 'Content' }} }
             ]
           },
         ]
       },
       { 
         path: 'templates', 
-        data: { breadcrumb: { title: 'general.templates' }},
+        data: { breadcrumb: { title: 'Templates' }},
         children: [
           { path: '', component: TemplatesComponent, pathMatch: 'full' },
-          { path: 'add-template', component: TemplateCreateComponent, data: { breadcrumb: { title: 'general.create' }} },
+          { path: 'add-template', component: TemplateCreateComponent, data: { breadcrumb: { title: 'Cteate' }} },
           {
             path: ':templateId', component: TemplateEditComponent, 
-            data: { breadcrumb: { title: 'general.edit' }}, 
+            data: { breadcrumb: { title: 'Edit' }}, 
             children: [
               { path: '', redirectTo: 'template-details', pathMatch: 'full' },
-              { path: 'template-details', component: TemplateDetailsEditComponent, data: { breadcrumb: { title: 'general.basic-info' }} },
-              { path: 'template-content', component: TemplateContentEditComponent, data: { breadcrumb: { title: 'general.content' }} }
+              { path: 'template-details', component: TemplateDetailsEditComponent, data: { breadcrumb: { title: 'Basic Info' }} },
+              { path: 'template-content', component: TemplateContentEditComponent, data: { breadcrumb: { title: 'Content' }} }
             ]
           },
         ]
       },
       { 
         path: 'settings', 
-        data: { breadcrumb: { title: 'general.options' }}, 
+        data: { breadcrumb: { title: 'Settings' }}, 
         component: SettingsComponent 
       },
       { 
         path: 'media', 
-        data: { breadcrumb: { title: 'general.files' }},
+        data: { breadcrumb: { title: 'Files' }},
         children: [
           { path: '', component: MediaLibraryComponent, pathMatch: 'full' },
-          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'general.files' }} },
+          { path: 'root', redirectTo: '', pathMatch: 'full', data: { breadcrumb: { title: 'Files' }} },
           {
             path: ':folderId', component: MediaLibraryComponent, 
-            data: { breadcrumb: { title: 'general.folder' }}
+            data: { breadcrumb: { title: 'Folder' }}
           },
           {
             path: ':folderId/:documentId', component: DocumentEditComponent, 
-            data: { breadcrumb: { title: 'general.edit' }}
+            data: { breadcrumb: { title: 'Edit' }}
           },
         ]
       },
@@ -164,8 +164,8 @@ const routes: Routes = [
   {
     path: '**', component: HttpStatusComponent, data: {
       code: '404',
-      title: 'general.unknown-page',
-      message: 'general.page-not-found',
+      title: 'Unknown Page',
+      message: 'Page not found',
       shell: CommonAppShellConfig
     }
   }
