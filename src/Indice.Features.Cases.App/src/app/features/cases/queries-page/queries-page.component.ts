@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ModalService } from '@indice/ng-components';
 import { CasesApiService, Query } from 'src/app/core/services/cases-api.service';
-import { ParamsService } from 'src/app/core/services/params.service';
+import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { DeleteQueryModalComponent } from 'src/app/shared/components/delete-query-modal/delete-query-modal.component';
 
 @Component({
@@ -16,13 +16,13 @@ export class QueriesPageComponent implements OnInit {
     private _api: CasesApiService,
     private _router: Router,
     private _modalService: ModalService,
-    private _paramsService: ParamsService
+    private _filterCachingService: FilterCachingService
   ) { }
 
   ngOnInit(): void { }
 
   applyQuery(query: Query): void {
-    this._paramsService.resetParams();
+    this._filterCachingService.resetParams("cases");
     this.redirectTo(`/cases${query!.parameters}`);
   }
 

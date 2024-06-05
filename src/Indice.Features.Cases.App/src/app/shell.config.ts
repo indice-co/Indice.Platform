@@ -1,4 +1,4 @@
-import { IShellConfig } from '@indice/ng-components';
+import { IShellConfig, ShellLayoutType } from '@indice/ng-components';
 
 export class ShellConfig implements IShellConfig {
     public appLogo = 'assets/images/branding/logo.svg';
@@ -8,4 +8,5 @@ export class ShellConfig implements IShellConfig {
     public showHeader = true;
     public showUserNameOnHeader = true;
     public breadcrumb = true;
+    public layout = ShellLayoutType.Sidebar;
 }
