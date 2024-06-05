@@ -1,5 +1,6 @@
 ﻿using Indice.Features.GovGr;
 using Indice.Features.GovGr.Configuration;
+using Indice.Features.GovGr.Http;
 using Indice.Features.GovGr.Proxies.Gsis;
 using Microsoft.Extensions.Configuration;
 
@@ -25,6 +26,7 @@ public static class GovGrKycConfigurationExtensions
             settings.Wallet = options.Wallet;
             settings.Documents = options.Documents;
             settings.BusinessRegistry = options.BusinessRegistry;
+            settings.Bancapp = options.Bancapp;
         });
         // Register custom services.
         services.AddLocalization();
@@ -37,6 +39,9 @@ public static class GovGrKycConfigurationExtensions
         services.AddTransient(sp => new Func<RgWsPublic>(sp.GetRequiredService<RgWsPublic>));
         services.AddTransient<GovGrKycScopeDescriber>();
         services.AddDistributedMemoryCache();
+        services.AddHttpClient(nameof(GovGrBancappClient))
+            .AddHttpMessageHandler<BancappAuthorizationMessageHandler>();
+        services.AddTransient<BancappAuthorizationMessageHandler>();
         return services;
     }
 }

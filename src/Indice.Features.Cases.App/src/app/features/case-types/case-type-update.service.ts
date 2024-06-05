@@ -12,7 +12,7 @@ import { TextAreaWidgetComponent } from 'src/app/shared/ajsf/json-schema-framewo
 @Injectable({
     providedIn: 'root'
 })
-export class CaseTypesService {
+export class CaseTypeUpdateService {
 
     constructor(
         private _api: CasesApiService,
@@ -65,6 +65,15 @@ export class CaseTypesService {
             },
             "canCreateRoles": {
                 "type": "string"
+            },
+            "isMenuItem": {
+              "type": "boolean"
+            },
+            "gridFilterConfig": {
+              "type": "string"
+            },
+            "gridColumnConfig": {
+              "type": "string"
             }
         },
         "additionalProperties": false,
@@ -192,7 +201,31 @@ export class CaseTypesService {
                             "htmlClass": "px-2 my-2"
                         }
                     ]
-                }               
+                },
+                {
+                  "type": "flex",
+                  "flex-flow": "row wrap",
+                  "items": [
+                    {
+                      "key": "isMenuItem",
+                      "title": "Is menu item",
+                      "type": "checkbox",
+                      "htmlClass": "px-2 my-2"
+                    },
+                    {
+                      "key": "gridFilterConfig",
+                      "title": "Grid filter config",
+                      "type": "textarea",
+                      "htmlClass": "px-2 my-2"
+                    },
+                    {
+                      "key": "gridColumnConfig",
+                      "title": "Grid column config",
+                      "type": "textarea",
+                      "htmlClass": "px-2 my-2"
+                    }
+                  ]
+              },
             ]
         }
     ]
@@ -246,7 +279,10 @@ export class CaseTypesService {
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags,
             config: event?.config,
-            canCreateRoles: event?.canCreateRoles
+            canCreateRoles: event?.canCreateRoles,
+            isMenuItem: event?.isMenuItem,
+            gridFilterConfig: event?.gridFilterConfig,
+            gridColumnConfig: event?.gridColumnConfig
         });
         this._api.createCaseType(undefined, request).pipe(
             tap(_ => {
@@ -273,7 +309,10 @@ export class CaseTypesService {
             layoutTranslations: event?.layoutTranslations,
             tags: event?.tags,
             config: event?.config,
-            canCreateRoles: event?.canCreateRoles
+            canCreateRoles: event?.canCreateRoles,
+            isMenuItem: event?.isMenuItem,
+            gridFilterConfig: event?.gridFilterConfig,
+            gridColumnConfig: event?.gridColumnConfig
         })
         this._api.updateCaseType(caseTypeId, undefined, request).pipe(
             tap(_ => {

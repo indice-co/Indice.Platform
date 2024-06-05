@@ -58,6 +58,16 @@ public class GovGrClient
         ServiceName = serviceName ?? _settings.Value.Documents.ServiceName,
     });
 
+    /// <summary>Access the Bancapp API</summary>
+    /// <returns>A configured instance of the <see cref="IBancappService"/></returns>
+    public IBancappService Bancapp(string username, string password, string clientId, string environment = null) => new GovGrBancappClient(
+        _httpClientFactory.CreateClient(nameof(GovGrBancappClient)), new() {
+            Environment = environment ?? _settings.Value.Bancapp.Environment,
+            Username = username ?? _settings.Value.Bancapp.Username,
+            Password = password ?? _settings.Value.Bancapp.Password,
+            ClientId = clientId ?? _settings.Value.Bancapp.ClientId,
+        });
+
     /// <summary>
     ///  Access the Business Registry WS
     /// </summary>
@@ -85,6 +95,12 @@ public static class GovGrClientExtensions
     /// <returns>A configured instance of the <see cref="IWalletService"/></returns>
     public static IDocumentsService Documents(this GovGrClient client, string serviceName) {
         return client.Documents(token: null, serviceName);
+    }
+    
+    /// <summary>Access the Bancapp API. Token is IConfiguration driven</summary>
+    /// <returns>A configured instance of the <see cref="IBancappService"/></returns>
+    public static IBancappService Bancapp(this GovGrClient client) {
+        return client.Bancapp(username: null, password: null, clientId: null, environment: null);
     }
 
     /// <summary>

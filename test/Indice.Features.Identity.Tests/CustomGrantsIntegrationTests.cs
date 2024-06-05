@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -9,11 +10,15 @@ using IdentityModel;
 using IdentityModel.Client;
 using IdentityServer4;
 using IdentityServer4.Models;
+using IdentityServer4.ResponseHandling;
+using IdentityServer4.Services;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
 using Indice.Features.Identity.Core.ImpossibleTravel;
+using Indice.Features.Identity.Core.ResponseHandling;
+using Indice.Features.Identity.Core.TokenCreation;
 using Indice.Features.Identity.Tests.Models;
 using Indice.Security;
 using Indice.Serialization;
@@ -27,7 +32,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Xunit;
 using Xunit.Abstractions;
@@ -156,6 +160,52 @@ public class CustomGrantsIntegrationTests
     private const string DEVICE_AUTHORIZATION_URL = $"{BASE_URL}/my/devices/connect/authorize";
     private const string IDENTITY_DATABASE_NAME = "IdentityDb";
     private const string SIGN_IN_LOG_DATABASE_NAME = "SignInLogDb";
+    private const string AUTHORIZATION_DETAILS_PAYLOAD = """
+        [
+           {
+              "type": "payment_initiation",
+              "actions": [
+                 "initiate",
+                 "status",
+                 "cancel"
+              ],
+              "locations": [
+                 "https://example.com/payments"
+              ],
+              "instructedAmount": {
+                 "currency": "EUR",
+                 "amount": "123.50"
+              },
+              "creditorName": "Merchant A",
+              "creditorAccount": {
+                 "iban": "DE02100100109307118603"
+              },
+              "remittanceInformationUnstructured": "Ref Number Merchant"
+           }
+        ]
+        """;
+    private const string AUTHORIZATION_DETAILS_PAYLOAD_OTHER = """
+        [
+            {
+              "type": "medical_record",
+              "sens": [ "HIV", "ETH", "MART" ],
+              "actions": [ "read" ],
+              "datatypes": [ "Patient", "Observation", "Appointment" ],
+              "identifier": "patient-541235",
+              "locations": [ "https://records.example.com/" ]
+             }
+        ]
+        """;
+    private const string AUTHORIZATION_DETAILS_PAYLOAD_OBJECT = """
+        {
+          "type": "medical_record",
+          "sens": [ "HIV", "ETH", "MART" ],
+          "actions": [ "read" ],
+          "datatypes": [ "Patient", "Observation", "Appointment" ],
+          "identifier": "patient-541235",
+          "locations": [ "https://records.example.com/" ]
+         }
+        """;
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
@@ -208,6 +258,8 @@ public class CustomGrantsIntegrationTests
                 options.ImpossibleTravel.AcceptableSpeed = 90d;
                 options.ImpossibleTravel.FlowType = ImpossibleTravelFlowType.PromptMfa;
             });
+            services.AddTransient<ITokenResponseGenerator, ExtendedTokenResponseGenerator>();
+            services.AddTransient<ITokenCreationService, ExtendedTokenCreationService>();
         });
         builder.Configure(app => {
             app.UseForwardedHeaders(new() {
@@ -382,6 +434,200 @@ public class CustomGrantsIntegrationTests
         tokenResponse = await LoginWithFingerprint(responseDto.RegistrationId);
         Assert.False(tokenResponse.IsError);
     }
+    #endregion
+
+    #region Authorization Details Tests https://datatracker.ietf.org/doc/html/rfc9396
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_JsonArray_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD }
+            }
+        });
+        Assert.False(tokenResponse.IsError);
+    }
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_JsonObject_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD_OBJECT }
+            }
+        });
+        Assert.False(tokenResponse.IsError);
+    }
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_InvalidPayload_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", """{ "something": 123 }""" }
+            }
+        });
+        Assert.True(tokenResponse.IsError);
+        Assert.Equal("invalid_authorization_details", tokenResponse.Error);
+    }
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_InvalidArrayPayload_Using4Pin() {
+        var registrationResult = await RegisterDeviceUsingPinWhenAlreadySupportsBiometric();
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "pin", DEVICE_PIN },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", """[{"type": "payment_initiation"},{ "something": 123 }]""" }
+            }
+        });
+        Assert.True(tokenResponse.IsError);
+        Assert.Equal("invalid_authorization_details", tokenResponse.Error);
+    }
+
+    [Fact]
+    public async Task CreateAuthorizationDetails_UsingBiometrics() {
+        var registrationResult = await RegisterDeviceUsingFingerprintWhenAlreadySupportsPin();
+        var codeVerifier = GenerateCodeVerifier();
+        var challenge = await InitiateDeviceAuthenticationUsingFingerprint(codeVerifier, registrationResult.RegistrationId);
+        var discoveryDocument = await _httpClient.GetDiscoveryDocumentAsync();
+        var x509SigningCredentials = GetX509SigningCredentials();
+        var signature = SignMessage(challenge, x509SigningCredentials);
+        var tokenResponse = await _httpClient.RequestTokenAsync(new TokenRequest {
+            Address = discoveryDocument.TokenEndpoint,
+            ClientId = CLIENT_ID,
+            ClientSecret = CLIENT_SECRET,
+            GrantType = CustomGrantTypes.DeviceAuthentication,
+            Parameters = {
+                { "code", challenge },
+                { "code_signature", signature },
+                { "code_verifier", codeVerifier },
+                { "registration_id", registrationResult.RegistrationId.ToString() },
+                { "public_key", CERTIFICATE_PUBLIC_KEY },
+                { "scope", $"{IdentityServerConstants.StandardScopes.OpenId} {IdentityServerConstants.StandardScopes.Phone} scope1" },
+                { "authorization_details", AUTHORIZATION_DETAILS_PAYLOAD }
+            }
+        });
+        Assert.False(tokenResponse.IsError);
+    }
+
+    [Fact]
+    public void JwtPayload_Serialize_ComplexPayload_Succeeds() {
+        var payload = new JwtPayload(
+            "my.identity.gr",
+            null,
+            null,
+            DateTime.UtcNow,
+            DateTime.UtcNow.AddSeconds(300));
+
+        List<Claim> jsonClaims = [
+            new("sub", Guid.NewGuid().ToString()),
+            new(BasicClaimTypes.AuthorizationDetails, AUTHORIZATION_DETAILS_PAYLOAD, IdentityServerConstants.ClaimValueTypes.Json),
+            new(BasicClaimTypes.AuthorizationDetails, AUTHORIZATION_DETAILS_PAYLOAD_OTHER, IdentityServerConstants.ClaimValueTypes.Json),
+            new ("address", """ { "street": "Gkazi" } """, IdentityServerConstants.ClaimValueTypes.Json),
+            new ("address", """ { "street": "Iakxou" } """, IdentityServerConstants.ClaimValueTypes.Json),
+            new ("person", """ { "id": "123", "age": 20 } """, IdentityServerConstants.ClaimValueTypes.Json),
+        ];
+
+        // the following code have been taken from "TokenCreationServiceExtended.cs"
+        var jsonTokens = jsonClaims
+            .Where(x => x.ValueType is IdentityServerConstants.ClaimValueTypes.Json)
+            .Select(x => new { x.Type, JsonValue = JsonDocument.Parse(x.Value).RootElement })
+            .ToArray();
+
+        var jsonObjects = jsonTokens.Where(x => x.JsonValue.ValueKind == JsonValueKind.Object).ToArray();
+        var jsonObjectGroups = jsonObjects.GroupBy(x => x.Type).ToArray();
+        foreach (var group in jsonObjectGroups) {
+            if (payload.ContainsKey(group.Key)) {
+                throw new Exception($"Can't add two claims where one is a JSON object and the other is not a JSON object ({group.Key})");
+            }
+
+            if (group.Skip(1).Any()) {
+                // add as array
+                payload.Add(group.Key, group.Select(x => x.JsonValue).ToArray());
+            } else {
+                // add just one
+                payload.Add(group.Key, group.First().JsonValue);
+            }
+        }
+
+        var jsonArrays = jsonTokens.Where(x => x.JsonValue.ValueKind == JsonValueKind.Array).ToArray();
+        var jsonArrayGroups = jsonArrays.GroupBy(x => x.Type).ToArray();
+
+        /*
+         * Old implementation - burned [start]
+         */
+
+        //foreach (var group in jsonArrayGroups) {
+        //    if (payload.ContainsKey(group.Key)) {
+        //        throw new Exception(
+        //            $"Can't add two claims where one is a JSON array and the other is not a JSON array ({group.Key})");
+        //    }
+
+        //    var newArr = new JsonArray();
+        //    foreach (var item in group.SelectMany(x => x.JsonValue.EnumerateArray())) {
+        //        newArr.Add(item);
+        //    }
+
+        //    // add just one array for the group/key/claim type
+        //    payload.Add(group.Key, JsonSerializer.SerializeToElement(newArr));
+        //}
+
+        /*
+         * Old implementation - burned [end]
+         */
+
+        foreach (var group in jsonArrayGroups) {
+            if (payload.ContainsKey(group.Key)) {
+                throw new Exception(
+                    $"Can't add two claims where one is a JSON array and the other is not a JSON array ({group.Key})");
+            }
+
+            payload.Add(group.Key, group.SelectMany(x => x.JsonValue.EnumerateArray()).ToArray());
+        }
+
+#if NET6_0
+        JsonExtensions.Serializer = o => JsonSerializer.Serialize(o);
+        var serializer = JsonExtensions.Serializer;
+
+        var aa = serializer(payload);
+#endif
+
+        var json = payload.SerializeToJson();
+        Assert.NotNull(json);
+    }
+
     #endregion
 
     #region Resource Owner Password Grant Tests

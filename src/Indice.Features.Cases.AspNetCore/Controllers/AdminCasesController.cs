@@ -200,7 +200,7 @@ internal class AdminCasesController : ControllerBase
     [HttpGet("{caseId:guid}/actions")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CaseActions))]
     public async Task<IActionResult> GetCaseActions([FromRoute] Guid caseId) {
-        return Ok(await _caseBookmarkService.GeUserActions(HttpContext.User, caseId));
+        return Ok(await _caseBookmarkService.GetUserActions(HttpContext.User, caseId));
     }
 
     /// <summary>Get the reject reasons for a case.</summary>

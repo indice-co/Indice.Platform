@@ -1,4 +1,3 @@
-import { PageIllustrationComponent } from './../page-illustration/page-illustration.component';
 import { CaseTypePartialResultSet, CustomerDetails } from './../../../core/services/cases-api.service';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { map, Observable } from 'rxjs';
