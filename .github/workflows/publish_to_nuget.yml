@@ -80,8 +80,9 @@ jobs:
     - name: Clean
       run: dotnet clean
     - name: Build
-      run: dotnet build --no-restore --configuration Release
-      
+      run: |
+          dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+          dotnet build --no-restore --configuration Release
     # Pack
     - name: Build solution and generate NuGet package
       run: ./pack.ps1
