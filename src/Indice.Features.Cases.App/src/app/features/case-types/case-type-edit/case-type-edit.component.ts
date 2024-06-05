@@ -1,4 +1,4 @@
-import { CaseTypesService } from './../case-types.service';
+import { CaseTypeUpdateService } from '../case-type-update.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CasesApiService, CaseTypeRequest } from 'src/app/core/services/cases-api.service';
@@ -25,13 +25,13 @@ export class CaseTypeEditComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private _api: CasesApiService,
-    private caseTypesService: CaseTypesService) { }
+    private caseTypesService: CaseTypeUpdateService) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.caseTypeId = params.caseTypeId;
       this._api.getCaseTypeById(this.caseTypeId).subscribe(caseType => {
-        this.data = caseType;        
+        this.data = caseType;
       });
     });
   }
