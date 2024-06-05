@@ -4,7 +4,7 @@
 using System.Diagnostics;
 using System.Text;
 
-namespace IdentityServer4.Extensions;
+namespace IdentityServer4.Internal.Extensions;
 
 internal static class StringExtensions
 {
@@ -18,5 +18,10 @@ internal static class StringExtensions
             stringBuilder.Append(element + " ");
         }
         return stringBuilder.ToString().Trim();
+    }
+
+    [DebuggerStepThrough]
+    public static bool IsPresent(this string value) {
+        return !string.IsNullOrWhiteSpace(value);
     }
 }

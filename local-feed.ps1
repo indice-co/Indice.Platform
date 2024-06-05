@@ -8,6 +8,8 @@ If (!(Test-Path -Path ".\.nuget\nuget.exe" )) {
     }
     Invoke-WebRequest https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile ".\.nuget\nuget.exe"
 }
+# run dotnet build 
+& "$PSScriptRoot\build.ps1"
 # run the pack command to create packages
 & "$PSScriptRoot\pack.ps1"
 
