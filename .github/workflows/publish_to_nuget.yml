@@ -86,6 +86,9 @@ jobs:
     - name: Build solution and generate NuGet package
       run: ./pack.ps1
 
+    - name: List files and size recursively
+      run: find ./artifacts -type f -exec du -h {} + | sort -h
+
     # Push to NuGet
-    - name: Push generated package to GitHub registry
-      run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate -k ${{ secrets.NUGET_AUTH_TOKEN }}
+    # - name: Push generated package to GitHub registry
+    #   run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate -k ${{ secrets.NUGET_AUTH_TOKEN }}
