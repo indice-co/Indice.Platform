@@ -88,7 +88,16 @@ jobs:
       run: ./pack.ps1
 
     - name: List files and size recursively
-      run: find ./artifacts -type f -exec du -h {} + | sort -h
+      shell: pwsh
+      run: |
+        Get-ChildItem -Path ./artifacts -File -Recurse | ForEach-Object {
+        $size = (Get-Item $_.FullName).Length
+        [PSCustomObject]@{
+            Name = $_.FullName
+            Size = $size / 1000
+        }
+        } | Sort-Object Size | Format-Table -Property Name, Size
+
 
     # Push to NuGet
     # - name: Push generated package to GitHub registry
