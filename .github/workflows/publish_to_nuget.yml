@@ -10,7 +10,7 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     # Checkout
@@ -21,7 +21,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 8.x
         source-url: https://api.nuget.org/v3/index.json
       env:
         NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
@@ -39,28 +39,31 @@ jobs:
         npm install --force
         npm run gulp -- copy:libs
         npm run gulp -- sass
-    
 
     # Npm Install Cases
     - name: NPM Install Cases
       run: |
         cd src/Indice.Features.Cases.App
         npm install
+
     # Npm Install AdminUI
     - name: NPM Install AdminUI
       run: |
         cd src/Indice.Features.Identity.AdminUI.App
         npm install
-    # Npm Install Messages
+
+    # # Npm Install Messages
     - name: NPM Install Messages
       run: |
         cd src/Indice.Features.Messages.App
         npm install
-    # Npm Install Risk App
+
+    # # Npm Install Risk App
     - name: NPM Install Risk
       run: |
         cd src/Indice.Features.Risk.App
         npm install
+
     #Create .nuget dir
     - name: Create .nuget dir
       shell: pwsh
@@ -75,16 +78,17 @@ jobs:
         }
     
     # BUILD
-    - name: Install dependencies
+    - name: Dotnet restore
       run: dotnet restore /nowarn:netsdk1138
-    - name: Clean
-      run: dotnet clean
-    - name: Build
-      run: |
-          dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
-          dotnet build --no-restore --configuration Release
+
+    - name: Dotnet build SPAs
+      run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+
+    - name: Dotnet build
+      run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
+          
     # Pack
-    - name: Build solution and generate NuGet package
+    - name: Generate NuGet package
       run: ./pack.ps1
 
     # Push to NuGet
