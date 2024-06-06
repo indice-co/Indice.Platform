@@ -10,7 +10,7 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     # Checkout
@@ -21,7 +21,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 8.x
         source-url: https://api.nuget.org/v3/index.json
       env:
         NUGET_AUTH_TOKEN: ${{secrets.NUGET_AUTH_TOKEN}}
@@ -76,8 +76,8 @@ jobs:
     # BUILD
     - name: Install dependencies
       run: dotnet restore /nowarn:netsdk1138
-    - name: Clean
-      run: dotnet clean
+    # - name: Clean
+    #   run: dotnet clean
     - name: Build SPAs
       run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
     - name: Build
