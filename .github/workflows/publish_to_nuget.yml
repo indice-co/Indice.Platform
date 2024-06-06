@@ -81,13 +81,13 @@ jobs:
       run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
 
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
           
     # Pack
-    - name: Build solution and generate NuGet package
+    - name: Generate NuGet package
       run: ./pack.ps1
 
-    - name: List files and size recursively
+    - name: List files
       shell: pwsh
       run: |
         Get-ChildItem -Path ./artifacts -File -Recurse | ForEach-Object {
