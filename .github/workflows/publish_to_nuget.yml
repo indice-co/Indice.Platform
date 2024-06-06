@@ -33,12 +33,12 @@ jobs:
         node-version: 20
   
     # Npm Install and build Identity UI
-    - name: NPM Install and Build Identity UI
-      run: |
-        cd src/Indice.Features.Identity.UI
-        npm install --force
-        npm run gulp -- copy:libs
-        npm run gulp -- sass
+    # - name: NPM Install and Build Identity UI
+    #   run: |
+    #     cd src/Indice.Features.Identity.UI
+    #     npm install --force
+    #     npm run gulp -- copy:libs
+    #     npm run gulp -- sass
     
     # Npm Install Cases
     - name: NPM Install Cases
@@ -46,20 +46,20 @@ jobs:
         cd src/Indice.Features.Cases.App
         npm install
     # Npm Install AdminUI
-    - name: NPM Install AdminUI
-      run: |
-        cd src/Indice.Features.Identity.AdminUI.App
-        npm install
-    # Npm Install Messages
-    - name: NPM Install Messages
-      run: |
-        cd src/Indice.Features.Messages.App
-        npm install
-    # Npm Install Risk App
-    - name: NPM Install Risk
-      run: |
-        cd src/Indice.Features.Risk.App
-        npm install
+    # - name: NPM Install AdminUI
+    #   run: |
+    #     cd src/Indice.Features.Identity.AdminUI.App
+    #     npm install
+    # # Npm Install Messages
+    # - name: NPM Install Messages
+    #   run: |
+    #     cd src/Indice.Features.Messages.App
+    #     npm install
+    # # Npm Install Risk App
+    # - name: NPM Install Risk
+    #   run: |
+    #     cd src/Indice.Features.Risk.App
+    #     npm install
     #Create .nuget dir
     - name: Create .nuget dir
       shell: pwsh
@@ -79,13 +79,13 @@ jobs:
     # - name: Clean
     #   run: dotnet clean
     - name: Build SPAs
-      run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+      run: dotnet build src/Indice.Features.Cases.App/Indice.Features.Cases.App.esproj --no-restore --configuration Release
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build src/Indice.Features.Cases.UI/Indice.Features.Cases.UI.csproj --no-restore --configuration Release
           
     # Pack
     - name: Build solution and generate NuGet package
-      run: ./pack.ps1
+      run: dotnet pack src/Indice.Features.Cases.UI/Indice.Features.Cases.UI.csproj --no-build -c Release -o ./artifacts
 
     - name: List files and size recursively
       shell: pwsh
