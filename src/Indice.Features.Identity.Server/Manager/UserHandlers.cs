@@ -225,6 +225,9 @@ internal static class UserHandlers
             await userManager.AddClaimsAsync(user, claims);
         }
         var response = SingleUserInfo.FromUser(user);
+        if (request.Roles?.Count > 0) {
+            response.Roles = allRoles.FindAll(r => request.Roles.Contains(r.NormalizedName, StringComparer.OrdinalIgnoreCase)).Select(x => x.Name!).ToList();
+        }
         return TypedResults.CreatedAtRoute(response, nameof(GetUser), new { userId = user.Id });
     }
 
