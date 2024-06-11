@@ -18,6 +18,7 @@
       "src\\Indice.Features.Identity.AdminUI\\Indice.Features.Identity.AdminUI.csproj",
       "src\\Indice.Features.Identity.Core\\Indice.Features.Identity.Core.csproj",
       "src\\Indice.Features.Identity.Server\\Indice.Features.Identity.Server.csproj",
+      "src\\Indice.Features.Identity.UI\\Indice.Features.Identity.UI.csproj",
       "src\\Indice.Features.Identity.SignInLogs\\Indice.Features.Identity.SignInLogs.csproj",
       "src\\Indice.Features.Media.AspNetCore\\Indice.Features.Media.AspNetCore.csproj",
       "src\\Indice.Features.Messages.AspNetCore\\Indice.Features.Messages.AspNetCore.csproj",
