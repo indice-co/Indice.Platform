@@ -22,7 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
-    <ProjectReference Include="..\Indice.Features.Messages.App\Indice.Features.Messages.App.esproj">
+    <ProjectReference Include="..\Indice.Features.Risk.App\Indice.Features.Risk.App.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>

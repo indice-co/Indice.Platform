@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Indice.Features.Risk.App\Indice.Features.Risk.App.esproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.App\Indice.Features.Messages.App.esproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Cases.App\Indice.Features.Cases.App.esproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Identity.AdminUI.App\Indice.Features.Identity.AdminUI.App.esproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Cases.UI\Indice.Features.Cases.UI.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Identity.AdminUI\Indice.Features.Identity.AdminUI.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Risk.UI\Indice.Features.Risk.UI.csproj" />
+    <ProjectReference Include="..\..\src\Indice.Features.Messages.UI\Indice.Features.Messages.UI.csproj" />
+  </ItemGroup>
+
+</Project>
