@@ -21,8 +21,8 @@
     <PackageReference Include="Indice.AspNetCore.EmbeddedUI" Version="$(VersionPrefixCore)" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" Condition="'$(Configuration)' == 'Debug'" />
-    <ProjectReference Include="..\Indice.Features.Risk.App\Indice.Features.Risk.App.esproj">
+    <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
+    <ProjectReference Include="..\Indice.Features.Risk.App\Indice.Features.Risk.App.esproj" Condition="'$(Configuration)' == 'Debug'">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
