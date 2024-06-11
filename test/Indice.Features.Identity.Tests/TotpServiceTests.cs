@@ -51,7 +51,7 @@ public class TotpServiceTests
     public TestServer TestServer { get; }
 
     [Fact]
-    public async void Can_Generate_And_Verify_Code_Using_DeveloperTotpService() {
+    public async Task Can_Generate_And_Verify_Code_Using_DeveloperTotpService() {
         const string DEVELOPER_TOTP = "763498";
         var random = new Random(Guid.NewGuid().GetHashCode()).Next();
         var email = $"dev_{random}@indice.gr";
@@ -93,7 +93,7 @@ public class TotpServiceTests
     }
 
     [Fact]
-    public async void Can_Generate_Code_Using_SecurityTokenTotpService() {
+    public async Task Can_Generate_Code_Using_SecurityTokenTotpService() {
         var totpServiceFactory = TestServer.Services.GetRequiredService<TotpServiceFactory>();
         var totpService = totpServiceFactory.Create();
         var securityToken = Guid.NewGuid().ToString();
