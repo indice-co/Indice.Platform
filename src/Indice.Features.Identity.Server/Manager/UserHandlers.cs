@@ -195,7 +195,7 @@ internal static class UserHandlers
             allRoles = await identityDbContext.Roles.ToListAsync();
             var unknownRoles = request.Roles.Except(allRoles.Select(x => x.Name), StringComparer.OrdinalIgnoreCase).ToList();
             if (unknownRoles.Count > 0) {
-                TypedResults.ValidationProblem(ValidationErrors.Create().AddError("roles", $"Invalid role(s) names {string.Join(", ", unknownRoles)}"));
+                return TypedResults.ValidationProblem(ValidationErrors.Create().AddError("roles", $"Invalid role(s) names: {string.Join(", ", unknownRoles.Select(x => $"'{x}'"))}"));
             }
             // add roles to user before sending down to user manager.
             // avoid multiple roundtript to db this way.
