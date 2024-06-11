@@ -85,7 +85,7 @@ jobs:
       run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
 
     - name: Dotnet build
-      run: dotnet build Indice.Platform.slnf  /p:BuildProjectReferences=false --no-restore --configuration Release
+      run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
      
   
     # TEST 
