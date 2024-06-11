@@ -41,7 +41,8 @@
       "test\\Indice.Features.Identity.Tests\\Indice.Features.Identity.Tests.csproj",
       "test\\Indice.Features.Messages.Tests\\Indice.Features.Messages.Tests.csproj",
       "test\\Indice.Features.Risk.Tests\\Indice.Features.Risk.Tests.csproj",
-      "test\\Indice.Services.Tests\\Indice.Services.Tests.csproj"
+      "test\\Indice.Services.Tests\\Indice.Services.Tests.csproj",
+      "test\\Indice.EcmaScript.Tests\\Indice.EcmaScript.Tests.csproj"
     ]
   }
 }

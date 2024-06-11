@@ -5,8 +5,7 @@
       "src\\Indice.Features.Cases.App\\Indice.Features.Cases.App.esproj",
       "src\\Indice.Features.Identity.AdminUI.App\\Indice.Features.Identity.AdminUI.App.esproj",
       "src\\Indice.Features.Messages.App\\Indice.Features.Messages.App.esproj",
-      "src\\Indice.Features.Risk.App\\Indice.Features.Risk.App.esproj",
-      "test\\Indice.EcmaScript.Tests\\Indice.EcmaScript.Tests.csproj"
+      "src\\Indice.Features.Risk.App\\Indice.Features.Risk.App.esproj"
     ]
   }
 }
