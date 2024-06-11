@@ -124,7 +124,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{3244
 		.github\workflows\publish_to_nuget.yml = .github\workflows\publish_to_nuget.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Indice.EcmaScript.Tests", "test\Indice.EcmaScript.Tests\Indice.EcmaScript.Tests.csproj", "{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.EcmaScript.Tests", "test\Indice.EcmaScript.Tests\Indice.EcmaScript.Tests.csproj", "{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
