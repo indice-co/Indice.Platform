@@ -82,10 +82,10 @@ jobs:
       run: dotnet restore /nowarn:netsdk1138
 
     - name: Dotnet build SPAs
-      run: dotnet build filters/Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
+      run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
 
     - name: Dotnet build
-      run: dotnet build filters/Indice.Platform.slnf --no-restore --configuration Release
+      run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
           
     # Pack
     - name: Generate NuGet package
