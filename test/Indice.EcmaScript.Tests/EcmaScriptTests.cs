@@ -1,4 +1,6 @@
 using System.Reflection;
+using Indice.Features.Risk.UI;
+using Microsoft.AspNetCore.Builder;
 
 namespace Indice.EcmaScript.Tests;
 
@@ -9,40 +11,29 @@ public class EcmaScriptTests
 {
     [Fact]
     public void Should_Have_Cases_Assets() {
-        var assemblyName = "Indice.Features.Cases.UI.dll";
-        var result = CheckForEmbeddedAssets(assemblyName);
+        var result = CheckForEmbeddedAssets(typeof(CasesUIMiddlewareExtensions).Assembly);
         Assert.True(result);
     }
 
     [Fact]
     public void Should_Have_Messages_Assets() {
-        var assemblyName = "Indice.Features.Messages.UI.dll";
-        var result = CheckForEmbeddedAssets(assemblyName);
+        var result = CheckForEmbeddedAssets(typeof(CampaignsUIMiddlewareExtensions).Assembly);
         Assert.True(result);
     }
 
     [Fact]
     public void Should_Have_Risk_Assets() {
-        var assemblyName = "Indice.Features.Risk.UI.dll";
-        var result = CheckForEmbeddedAssets(assemblyName);
+        var result = CheckForEmbeddedAssets(typeof(RisksUIMiddlewareExtensions).Assembly);
         Assert.True(result);
     }
 
     [Fact]
     public void Should_Have_Identity_Admin_Assets() {
-        var assemblyName = "Indice.Features.Identity.AdminUI.dll";
-        var result = CheckForEmbeddedAssets(assemblyName);
+        var result = CheckForEmbeddedAssets(typeof(AdminUIMiddlewareExtensions).Assembly);
         Assert.True(result);
     }
 
-    private bool CheckForEmbeddedAssets(string assemblyFileName) {
-        var assemblyPath = Path.Combine(Environment.CurrentDirectory, assemblyFileName);
-
-        if (string.IsNullOrWhiteSpace(assemblyPath) || !File.Exists(assemblyPath)) {
-            return false;
-        }
-
-        var assembly = Assembly.LoadFrom(assemblyPath);
+    private bool CheckForEmbeddedAssets(Assembly assembly) {
         var resourceNames = assembly.GetManifestResourceNames();
 
         return resourceNames.Any(x => !x.ToLowerInvariant().Contains("index.html"));
