@@ -8,12 +8,16 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BasePrivacyModel : BaseArticlePageModel
 {
+    /// <summary>Request raw html without the layout in order to host under a different app.</summary>
+    [BindProperty(SupportsGet = true)]
+    public bool? Raw { get; set; }
+
     /// <summary>Privacy page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
         if (!string.IsNullOrWhiteSpace(UiOptions.PrivacyUrl) && Uri.IsWellFormedUriString(UiOptions.PrivacyUrl, UriKind.Absolute)) {
             return Redirect(UiOptions.PrivacyUrl);
         }
-        return await Article("Privacy Policy", "~/legal/privacy-policy.md");
+        return await Article("Privacy Policy", "~/legal/privacy-policy.md", Raw);
     }
 }
 

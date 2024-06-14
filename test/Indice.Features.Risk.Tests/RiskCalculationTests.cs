@@ -59,7 +59,7 @@ public class RiskCalculationTests
     public IConfiguration Configuration { get; }
 
     [Fact]
-    public async void High_Risk_On_Transaction_Over_1000() {
+    public async Task High_Risk_On_Transaction_Over_1000() {
         var riskManager = ServiceProvider.GetRequiredService<RiskService>();
         var result = await riskManager.GetRiskAsync(new RiskEvent {
             Amount = 1001,
@@ -75,7 +75,7 @@ public class RiskCalculationTests
     }
 
     [Fact]
-    public async void Low_Risk_On_Transaction_Under_1000() {
+    public async Task Low_Risk_On_Transaction_Under_1000() {
         var riskManager = ServiceProvider.GetRequiredService<RiskService>();
         var result = await riskManager.GetRiskAsync(new RiskEvent {
             Amount = 999,
@@ -91,7 +91,7 @@ public class RiskCalculationTests
     }
 
     [Fact]
-    public async void Can_Create_Risk_Events() {
+    public async Task Can_Create_Risk_Events() {
         const string SUBJECT_ID = "4075C988-ECDB-434D-8164-970F7DF39DC3";
         var riskManager = ServiceProvider.GetRequiredService<RiskStoreService>();
         await riskManager.CreateRiskEventAsync(new RiskEvent {

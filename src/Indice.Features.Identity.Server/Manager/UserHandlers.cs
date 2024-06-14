@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -173,6 +174,7 @@ internal static class UserHandlers
 
     internal static async Task<Results<CreatedAtRoute<SingleUserInfo>, ValidationProblem>> CreateUser(
         ExtendedUserManager<User> userManager,
+        ExtendedIdentityDbContext<User, Role> identityDbContext,
         CreateUserRequest request
     ) {
         var user = new User {
@@ -184,9 +186,22 @@ internal static class UserHandlers
             PhoneNumber = request.PhoneNumber,
             PhoneNumberConfirmed = request.PhoneNumberConfirmed ?? false,
             TwoFactorEnabled = request.TwoFactorEnabled ?? false,
-            UserName = request.UserName
+            UserName = request.UserName,
         };
         IdentityResult? result = null;
+        var allRoles = new List<Role>();
+        if (request.Roles?.Count > 0) {
+            // check role existance.
+            allRoles = await identityDbContext.Roles.ToListAsync();
+            var unknownRoles = request.Roles.Except(allRoles.Select(x => x.Name), StringComparer.OrdinalIgnoreCase).ToList();
+            if (unknownRoles.Count > 0) {
+                return TypedResults.ValidationProblem(ValidationErrors.Create().AddError("roles", $"Invalid role(s) names: {string.Join(", ", unknownRoles.Select(x => $"'{x}'"))}"));
+            }
+            // add roles to user before sending down to user manager.
+            // avoid multiple roundtript to db this way.
+            allRoles.FindAll(r => request.Roles.Contains(r.NormalizedName, StringComparer.OrdinalIgnoreCase))
+                    .ForEach(r => user.Roles.Add(new () { UserId = user.Id, RoleId = r.Id }));
+        }
         if (string.IsNullOrEmpty(request.Password)) {
             result = await userManager.CreateAsync(user);
         } else {
@@ -198,7 +213,8 @@ internal static class UserHandlers
         if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
         }
-        var claims = request.Claims?.Count() > 0 ? request.Claims.Select(x => new Claim(x.Type!, x.Value!)).ToList() : new List<Claim>();
+        // claims
+        var claims = request.Claims?.Count > 0 ? request.Claims.Select(x => new Claim(x.Type!, x.Value!)).ToList() : [];
         if (!string.IsNullOrEmpty(request.FirstName)) {
             claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
         }
@@ -209,6 +225,9 @@ internal static class UserHandlers
             await userManager.AddClaimsAsync(user, claims);
         }
         var response = SingleUserInfo.FromUser(user);
+        if (request.Roles?.Count > 0) {
+            response.Roles = allRoles.FindAll(r => request.Roles.Contains(r.NormalizedName, StringComparer.OrdinalIgnoreCase)).Select(x => x.Name!).ToList();
+        }
         return TypedResults.CreatedAtRoute(response, nameof(GetUser), new { userId = user.Id });
     }
 
