@@ -25,6 +25,8 @@ export class AppLinks implements IAppLinks {
             map(caseTypeMenuItems => {
               for (const item of caseTypeMenuItems) {
                 if (item.title) {
+                  console.log("kalispera");
+
                   const queryParams: Params = {
                     view: 'table',
                     page: '1',
