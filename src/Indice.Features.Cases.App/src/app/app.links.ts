@@ -28,7 +28,7 @@ export class AppLinks implements IAppLinks {
                   const queryParams: Params = {
                     view: 'table',
                     page: '1',
-                    pagesize: '10',
+                    pagesize: '20',
                     search: '',
                     sort: 'createdByWhen',
                     dir: 'desc',
