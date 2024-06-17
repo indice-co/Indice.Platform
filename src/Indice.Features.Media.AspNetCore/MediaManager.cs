@@ -10,6 +10,8 @@ using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Microsoft.Extensions.Options;
 using Indice.Features.Media.AspNetCore.Services;
 using Indice.Configuration;
+using Microsoft.Extensions.Configuration;
+using SixLabors.ImageSharp;
 
 namespace Indice.Features.Media.AspNetCore;
 /// <summary>A manager class that helps work with the Media Library API infrastructure.</summary>
@@ -24,7 +26,7 @@ public class MediaManager
     private readonly IFileService _fileService;
     private readonly IDistributedCache _cache;
     private readonly MediaApiOptions _mediaApiOptions;
-    private readonly GeneralSettings _generalSettings;
+    private readonly IConfiguration _configuration;
 
     /// <summary>Creates a new instance of <see cref="MediaManager"/>.</summary>
     public MediaManager(
@@ -33,16 +35,16 @@ public class MediaManager
         IMediaSettingService settingService,
         IFileServiceFactory fileServiceFactory, 
         IDistributedCache cache,
-        IOptions<MediaApiOptions> mediaApiOptions,
-        IOptions<GeneralSettings> generalSettings
+        IConfiguration configuration,
+        IOptions<MediaApiOptions> mediaApiOptions
     ) {
         _fileStore = fileStore ?? throw new ArgumentNullException(nameof(fileStore));
         _folderStore = folderStore ?? throw new ArgumentNullException(nameof(folderStore));
         _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
         _fileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory));
         _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         _mediaApiOptions = mediaApiOptions?.Value ?? throw new ArgumentNullException(nameof(mediaApiOptions));
-        _generalSettings = generalSettings?.Value ?? throw new ArgumentNullException(nameof(generalSettings));
     }
 
     /// <summary>Retrieves the content of a folder.</summary>
@@ -175,7 +177,7 @@ public class MediaManager
             if (dbfiles != null) {
                 var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
                 var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_generalSettings.Host.TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media"
+                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media"
                     : $"{cdnUrl.Value.TrimEnd('/')}";
                 files = dbfiles.Select(f => f.ToFileDetails(permaLinkBaseUrl)).ToList();
             }
@@ -203,7 +205,7 @@ public class MediaManager
         }
         var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
         var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_generalSettings.Host.TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media"
+                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media"
                     : $"{cdnUrl.Value.TrimEnd('/')}";
         return file.ToFileDetails(permaLinkBaseUrl);
     }
