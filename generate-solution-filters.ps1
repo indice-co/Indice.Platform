@@ -26,9 +26,6 @@ function Scan-Folder($solutionFile, $ignoreList) {
         if ($ignoreList -notcontains $dir.Name) {
             $csprojFiles = Get-ChildItem -Path $dir.FullName -Filter *.csproj -File -ErrorAction SilentlyContinue
             foreach ($csproj in $csprojFiles) {
-                $project = @{
-                    name = $csproj.FullName
-                }
                 $solution.projects += "src\$($dir.Name)\$($csproj.Name)"
             }
         }
@@ -39,9 +36,6 @@ function Scan-Folder($solutionFile, $ignoreList) {
          if ($ignoreList -notcontains $dir.Name) {
             $csprojFiles = Get-ChildItem -Path $dir.FullName -Filter *.csproj -File -ErrorAction SilentlyContinue
             foreach ($csproj in $csprojFiles) {
-                $project = @{
-                    name = $csproj.FullName
-                }
                 $solution.projects += "test\$($dir.Name)\$($csproj.Name)"
             }
         }
