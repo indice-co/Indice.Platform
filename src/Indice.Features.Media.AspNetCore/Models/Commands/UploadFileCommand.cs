@@ -26,8 +26,6 @@ public class UploadFileCommand(Func<Stream> streamAccessor, string fileName, int
     public byte[]? Data { get; set; }
     /// <summary> The parent folder's Id. </summary>
     public Guid? FolderId { get; set; }
-    /// <summary> The file's uri. </summary>
-    public string Uri => $"{Guid.ToString("N")[..2]}/{Guid:N}{FileExtension}";
     /// <summary> The file stream. </summary>
     public Stream OpenReadStream() => streamAccessor();
 }

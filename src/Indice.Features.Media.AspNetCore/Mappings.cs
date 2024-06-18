@@ -91,6 +91,7 @@ internal static class Mapper
         ContentType: dbFile.ContentType,
         FileExtension: dbFile.FileExtension,
         Name: dbFile.Name,
+        Path: dbFile.Path,
         Description: dbFile.Description,
         FolderId: dbFile.FolderId,
         Data: dbFile.Data,

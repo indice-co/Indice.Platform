@@ -7,6 +7,8 @@ public class MediaFolder
     public Guid Id { get; set; }
     /// <summary>The Name of the Folder.</summary>
     public required string Name { get; set; }
+    /// <summary>The Path to the Folder.</summary>
+    public required string Path { get; set; }
     /// <summary>The Description of the Folder.</summary>
     public string? Description { get; set; }
     /// <summary>Specifies the principal that created the entity.</summary>

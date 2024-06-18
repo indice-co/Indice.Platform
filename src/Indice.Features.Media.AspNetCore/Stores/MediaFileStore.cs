@@ -1,8 +1,8 @@
 ﻿using System.Linq.Expressions;
 using Indice.Features.Media.AspNetCore.Data.Models;
+using Indice.Features.Media.AspNetCore.Stores;
 using Indice.Features.Media.AspNetCore.Stores.Abstractions;
 using Indice.Features.Media.Data;
-using Indice.Services;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,12 +41,14 @@ internal class MediaFileStore : IMediaFileStore
     }
     /// <inheritdoc/>
     public async Task<Guid> Create(DbMediaFile file) {
+        file.Path = await MediaFolderStore.FindPathAsync(_dbContext, file.FolderId, file.Name);
         _dbContext.Files.Add(file);
         await _dbContext.SaveChangesAsync();
         return file.Id;
     }
     /// <inheritdoc/>
     public async Task Update(DbMediaFile file) {
+        file.Path = await MediaFolderStore.FindPathAsync(_dbContext, file.FolderId, file.Name);
         _dbContext.Files.Update(file);
         await _dbContext.SaveChangesAsync();
     }

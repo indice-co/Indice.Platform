@@ -1,7 +1,10 @@
-﻿using System.Linq.Expressions;
+﻿using System.Linq;
+using System.Linq.Expressions;
+using Indice.Extensions;
 using Indice.Features.Media.AspNetCore.Data.Models;
 using Indice.Features.Media.AspNetCore.Stores.Abstractions;
 using Indice.Features.Media.Data;
+using Indice.Text;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,15 +41,28 @@ internal class MediaFolderStore : IMediaFolderStore
     }
     /// <inheritdoc/>
     public async Task<Guid> Create(DbMediaFolder folder) {
+        folder.Path = await FindPathAsync(_dbContext, folder.ParentId, folder.Name);
         _dbContext.Folders.Add(folder);
         await _dbContext.SaveChangesAsync();
         return folder.Id;
     }
     /// <inheritdoc/>
-    public async Task Update(DbMediaFolder folder) {
+    public async Task Update(DbMediaFolder folder, bool updateReferences = false) {
+        folder.Path = await FindPathAsync(_dbContext, folder.ParentId, folder.Name);
         _dbContext.Folders.Update(folder);
         await _dbContext.SaveChangesAsync();
     }
+
+    public static async Task<string> FindPathAsync(MediaDbContext dbContext, Guid? parentId, string segmentName) {
+        var parentPath = "/";
+        if (parentId.HasValue) {
+            parentPath = await dbContext.Folders.Where(x => x.Id == parentId).Select(x => x.Path).FirstOrDefaultAsync() ?? "/";
+        }
+        var extension = Path.GetExtension(segmentName);
+        var segment = Greeklish.Translate(Path.GetFileNameWithoutExtension(segmentName)).Unidecode().ToKebabCase();
+        return $"{parentPath.TrimEnd('/')}/{segment}{extension}";
+    }
+
     /// <inheritdoc/>
     public async Task Delete(Guid id) {
         await _dbContext.Folders
