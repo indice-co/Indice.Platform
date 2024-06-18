@@ -1,11 +1,11 @@
 param (
-        [Parameter(Mandatory=$true)]
-        [string]$solutionFile,
-        [Parameter(Mandatory=$false)]
-        [string]$ignoreFile,
-        [Parameter(Mandatory=$true)]
-        [string]$outputFile
-    )
+    [Parameter(Mandatory=$true)]
+    [string]$solutionFile,
+    [Parameter(Mandatory=$false)]
+    [string]$ignoreFile,
+    [Parameter(Mandatory=$true)]
+    [string]$outputFile
+)
 
 function Get-IgnoreList($ignoreFilePath) {
     if (Test-Path $ignoreFilePath) {

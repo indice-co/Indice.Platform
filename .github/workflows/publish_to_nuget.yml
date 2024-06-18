@@ -85,7 +85,7 @@ jobs:
       run: dotnet build Indice.Platform.Ecmascript.slnf --no-restore --configuration Release
 
     # GENERATE SOLUTION FILTER
-    - name: Generate appropriate solution filter
+    - name: Generate solution filter
       run: ./generate-solution-filters.ps1 -solutionFile Indice.Platform.sln -ignoreFile solution-filters-ignore.yaml -outputFile Indice.Platform.slnf
 
     - name: Dotnet build
