@@ -9,7 +9,6 @@ using Indice.Serialization;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Microsoft.Extensions.Options;
 using Indice.Features.Media.AspNetCore.Services;
-using Indice.Configuration;
 using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
 
