@@ -106,9 +106,9 @@ jobs:
         fail-on-error: true
         
     # Pack
-    # - name: Generate NuGet package
-    #   run: ./pack.ps1
+    - name: Generate NuGet package
+      run: ./pack.ps1
 
     # Push to NuGet
-    # - name: Push generated package to GitHub registry
-    #   run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate -k ${{ secrets.NUGET_AUTH_TOKEN }}
+    - name: Push generated package to GitHub registry
+      run: dotnet nuget push '**/Indice*.nupkg' --skip-duplicate -k ${{ secrets.NUGET_AUTH_TOKEN }}
