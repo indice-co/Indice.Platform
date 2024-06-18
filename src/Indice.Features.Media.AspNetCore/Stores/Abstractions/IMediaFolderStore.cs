@@ -17,8 +17,7 @@ public interface IMediaFolderStore
     Task<Guid> Create(DbMediaFolder folder);
     /// <summary>Updates an existing folder.</summary>
     /// <param name="folder">The data for the folder to update.</param>
-    /// <param name="updateReferences">Forces recalculation of file paths</param>
-    Task Update(DbMediaFolder folder, bool updateReferences = false);
+    Task Update(DbMediaFolder folder);
     /// <summary>Deletes an existing folder.</summary>
     /// <param name="id">The id of the folder.</param>
     Task Delete(Guid id);

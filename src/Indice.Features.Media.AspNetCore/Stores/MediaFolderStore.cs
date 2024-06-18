@@ -1,7 +1,9 @@
 ﻿using System.Linq;
 using System.Linq.Expressions;
+using Indice.Events;
 using Indice.Extensions;
 using Indice.Features.Media.AspNetCore.Data.Models;
+using Indice.Features.Media.AspNetCore.Events;
 using Indice.Features.Media.AspNetCore.Stores.Abstractions;
 using Indice.Features.Media.Data;
 using Indice.Text;
@@ -14,12 +16,15 @@ namespace Indice.Features.Media.AspNetCore.Stores;
 internal class MediaFolderStore : IMediaFolderStore
 {
     private readonly MediaDbContext _dbContext;
+    private readonly IPlatformEventService _platformEventService;
 
     /// <summary>Creates a new instance of <see cref="MediaFolderStore"/>.</summary>
     /// <param name="dbContext">The <see cref="DbContext"/> for Media API feature.</param>
+    /// <param name="platformEventService">Used to dispatch/publish messages of type <see cref="IPlatformEvent"/></param>
     /// <exception cref="ArgumentNullException"></exception>
-    public MediaFolderStore(MediaDbContext dbContext) {
+    public MediaFolderStore(MediaDbContext dbContext, IPlatformEventService platformEventService) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        _platformEventService = platformEventService ?? throw new ArgumentNullException(nameof(platformEventService));
     }
 
     /// <inheritdoc/>
@@ -47,10 +52,18 @@ internal class MediaFolderStore : IMediaFolderStore
         return folder.Id;
     }
     /// <inheritdoc/>
-    public async Task Update(DbMediaFolder folder, bool updateReferences = false) {
+    public async Task Update(DbMediaFolder folder) {
+
         folder.Path = await FindPathAsync(_dbContext, folder.ParentId, folder.Name);
+        var existingPath = await _dbContext.Folders.Where(x => x.Id == folder.Id).Select(x => x.Path).FirstOrDefaultAsync() ?? "/";
         _dbContext.Folders.Update(folder);
         await _dbContext.SaveChangesAsync();
+
+        await _dbContext.Folders.Where(x => x.ParentId == folder.Id)
+                                .ExecuteUpdateAsync(x => x.SetProperty(child => child.Path, child => child.Path.Replace(existingPath, folder.Path)));
+        await _dbContext.Files.Where(x => x.FolderId == folder.Id)
+                                .ExecuteUpdateAsync(x => x.SetProperty(child => child.Path, child => child.Path.Replace(existingPath, folder.Path)));
+        await _platformEventService.Publish(new FolderRenameEvent(folder.Id, existingPath, folder.Path));
     }
 
     public static async Task<string> FindPathAsync(MediaDbContext dbContext, Guid? parentId, string segmentName) {
