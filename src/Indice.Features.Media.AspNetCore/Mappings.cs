@@ -22,6 +22,7 @@ internal static class Mapper
     };
     internal static DbMediaFolder ToDbFolder(this CreateFolderCommand command) => new() {
         Name = command.Name,
+        Path = null!,
         Description = command.Description,
         ParentId = command.ParentId
     };
@@ -38,6 +39,7 @@ internal static class Mapper
         UpdatedBy = dbFolder.UpdatedBy,
         Description = dbFolder.Description,
         Name = dbFolder.Name,
+        Path = dbFolder.Path,
         ParentId = dbFolder.ParentId,
         SubFoldersCount = dbFolder.SubFolders?.Count ?? 0,
         FilesCount = dbFolder.Files?.Count ?? 0
@@ -76,7 +78,7 @@ internal static class Mapper
         Guid = command.Guid,
         Id = command.Id,
         Name = command.Name,
-        Uri = command.Uri,
+        Path = null!,
         FolderId = command.FolderId
     };
     internal static void Update(this DbMediaFile dbFile, UpdateFileMetadataCommand command) {

@@ -49,7 +49,7 @@ public static class MediaLibraryFeatureExtensions
             services.AddHostedService<FilesCleanUpHostedService>();
         }
         services.AddBackgroundPlatformEventService();
-        services.AddPlatformEventHandler()
+        //services.AddPlatformEventHandler()
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register application DbContext.
         services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ?? ((serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaLibraryDbConnection"))));

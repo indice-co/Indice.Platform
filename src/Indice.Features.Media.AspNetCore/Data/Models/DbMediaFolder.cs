@@ -8,7 +8,7 @@ public class DbMediaFolder : DbAuditableEntity
     /// <summary>The folder's name.</summary>
     public required string Name { get; set; }
     /// <summary>The path of the folder.</summary>
-    public required string Path { get; set; }
+    public required string Path { get; set; } = null!;
     /// <summary>A short description about the folder.</summary>
     public string? Description { get; set; }
     /// <summary>Foreign folder's parent <see cref="DbMediaFolder"/>.</summary>
