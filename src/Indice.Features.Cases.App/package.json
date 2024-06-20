@@ -22,7 +22,7 @@
     "@angular/platform-browser-dynamic": "17.3.8",
     "@angular/router": "17.3.8",
     "@indice/ng-auth": "^0.3.0",
-    "@indice/ng-components": "0.3.9-beta.0",
+    "@indice/ng-components": "0.3.9-beta.2",
     "@ngx-translate/core": "^15.0.0",
     "@ngx-translate/http-loader": "^8.0.0",
     "@types/lodash": "^4.14.180",
