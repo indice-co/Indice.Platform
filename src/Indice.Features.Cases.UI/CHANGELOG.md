@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Upcoming changes
+## [7.23.3] - 2024-06-20
 - The selected specific case type that is selected by the side navbar menu (navlinks) is now being displayed in the title
 - When clicking on specific case type from the menu, the filter can now no longer be removed
 
