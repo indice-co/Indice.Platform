@@ -86,7 +86,22 @@ jobs:
 
     - name: Dotnet build
       run: dotnet build Indice.Platform.slnf --no-restore --configuration Release
-          
+     
+  
+    # TEST 
+    - name: Test with dotnet
+      run: dotnet test --no-build --configuration Release --logger trx --results-directory "TestResults"
+    
+    # TEST REPORT
+    - name: Test Reporter
+      uses: dorny/test-reporter@v1.9.1
+      if: always()
+      with:
+        name: DotNET Tests
+        path: "TestResults/*.trx"                            
+        reporter: dotnet-trx
+        fail-on-error: true
+        
     # Pack
     - name: Generate NuGet package
       run: ./pack.ps1

@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 namespace Indice.Extensions;
 
 /// <summary>Extensions methods on <see cref="string"/> type.</summary>
-public static class StringExtensions
+public static partial class StringExtensions
 {
     /// <summary>Gets a random string. Nice for password generation.</summary>
     /// <param name="random">Instance of <see cref="Random"/> type.</param>
@@ -51,12 +51,28 @@ public static class StringExtensions
     /// <param name="value">The string to kebaberize.</param>
     public static string ToKebabCase(this string value) {
         // Find and replace all parts that starts with one capital letter e.g. Net
-        value = Regex.Replace(value, "[A-Z][a-z]+", m => $"-{m.ToString().ToLower()}");
+        value = WordsRegex().Replace(value, m => $"-{m.Groups["word"].ToString().ToLower()}");
         // Find and replace all parts that are all capital letter e.g. NET
-        value = Regex.Replace(value, "[A-Z]+", m => $"-{m.ToString().ToLower()}");
+        value = WordsAllCapsRegex().Replace(value, m => $"-{m.Groups["word"].ToString().ToLower()}");
         // Return.
         return value.TrimStart('-');
     }
+
+#if NET7_0_OR_GREATER
+    /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
+    [GeneratedRegex(@"(?<word>[A-Z][a-z]+)\s*")]
+    private static partial Regex WordsRegex();
+    /// <summary>Match all parts of a sentence that are all capital letter e.g. NET</summary>
+    [GeneratedRegex(@"(?<word>[A-Z]+)\s*")]
+    private static partial Regex WordsAllCapsRegex();
+#else
+    private static readonly Regex _wordsRegex = new(@"(?<word>[A-Z][a-z]+)\s*");
+    private static readonly Regex _wordsAllCapsRegex = new(@"(?<word>[A-Z]+)\s*");
+    /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
+    private static Regex WordsRegex() => _wordsRegex;
+    /// <summary>Match all parts of a sentence that are all capital letter e.g. NET</summary>
+    private static Regex WordsAllCapsRegex() => _wordsAllCapsRegex;
+#endif
 
 #if !NETSTANDARD14
     /// <summary>Removes accent but keeps encoding.</summary>

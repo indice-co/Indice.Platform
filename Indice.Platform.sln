@@ -124,6 +124,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{3244
 		.github\workflows\publish_to_nuget.yml = .github\workflows\publish_to_nuget.yml
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Indice.EcmaScript.Tests", "test\Indice.EcmaScript.Tests\Indice.EcmaScript.Tests.csproj", "{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -318,6 +320,10 @@ Global
 		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC1A086C-EE56-4323-BC51-F7590B2DBA1F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -368,10 +374,9 @@ Global
 		{CAA0AB3B-3128-4040-8A34-6D4FA4E6DAED} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{51E64F18-5DED-4896-90A7-7F37794629FE} = {643960D9-48C5-4EA3-BED5-486CCC694947}
 		{9A54D5CE-7425-48BD-9344-5C907E8FAD1D} = {643960D9-48C5-4EA3-BED5-486CCC694947}
+		{BC1A086C-EE56-4323-BC51-F7590B2DBA1F} = {613A1373-9A47-42DD-A076-7F310D0440B9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2B9151E-8A85-444E-93A9-78264FD0FE4A}
 	EndGlobalSection
-EndGlobal
-balSection
 EndGlobal

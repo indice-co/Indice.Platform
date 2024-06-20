@@ -93,7 +93,7 @@ public abstract class BaseLoginModel : BasePageModel
         // Build a model so we know what to show on the login page.
         Input = View = await BuildLoginViewModelAsync(returnUrl);
         if (View.PromptRegister()) {
-            return RedirectToPage("/Register", new { returnUrl });
+            return RedirectToPage(UiOptions.OnBoardingPage, new { returnUrl });
         }
         if (View.IsExternalLoginOnly) {
             // We only have one option for logging in and it's an external provider.
