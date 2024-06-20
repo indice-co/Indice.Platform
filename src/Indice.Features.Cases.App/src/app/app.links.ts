@@ -34,7 +34,7 @@ export class AppLinks implements IAppLinks {
                     dir: 'desc',
                     filter: `caseTypeCodes::eq::${item.code}`
                   };
-                  this.headerMenu.push(new NavLink(item.title, `/cases/type/${item.code}`, true, undefined, Icons.MenuItem, undefined, queryParams));
+                  this.headerMenu.push(new NavLink(item.title, `/case/by-type/${item.code}`, true, undefined, Icons.MenuItem, undefined, queryParams));
                 }
               }
               if (this.authService.isAdmin()) {
