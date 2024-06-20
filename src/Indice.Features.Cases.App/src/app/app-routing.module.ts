@@ -31,11 +31,9 @@ const routes: Routes = [
         component: GeneralCasesComponent
       },
       {
-        path: 'cases/:caseTypeCode', pathMatch: 'prefix',
+        path: 'cases/type/:caseTypeCode', pathMatch: 'prefix',
         data: { title: 'Υποθέσεις Συγκεκριμένου Τύπου', breadcrumb: { title: 'Υποθέσεις Συγκεκριμένου Τύπου' } },
-        children: [
-          { path: '', component: CaseTypeSpecificCasesComponent, data: { title: 'Υποθέσεις Συγκεκριμένου Τύπου', breadcrumb: { title: 'Υποθέσεις Συγκεκριμένου Τύπου' } },},
-        ]
+        component: CaseTypeSpecificCasesComponent
       },
       {
         path: 'cases/:caseId', pathMatch: 'prefix', data: { title: 'Υπόθεση', breadcrumb: { title: 'Υπόθεση' } },
