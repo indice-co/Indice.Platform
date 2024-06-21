@@ -1,5 +1,6 @@
 ﻿using Indice.Features.Media.AspNetCore;
 using Indice.Features.Media.AspNetCore.Authorization;
+using Indice.Features.Media.AspNetCore.Events;
 using Indice.Features.Media.AspNetCore.Services;
 using Indice.Features.Media.AspNetCore.Services.Hosting;
 using Indice.Features.Media.AspNetCore.Stores;
@@ -49,7 +50,7 @@ public static class MediaLibraryFeatureExtensions
             services.AddHostedService<FilesCleanUpHostedService>();
         }
         services.AddBackgroundPlatformEventService();
-        //services.AddPlatformEventHandler()
+        services.AddPlatformEventHandler<FolderRenameCommand, FolderRenameCommandHandler>();
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
         // Register application DbContext.
         services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ?? ((serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaLibraryDbConnection"))));

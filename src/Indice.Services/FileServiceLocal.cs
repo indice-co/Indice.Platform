@@ -1,4 +1,5 @@
-﻿using Indice.Extensions;
+﻿using System.IO;
+using Indice.Extensions;
 
 namespace Indice.Services;
 
@@ -87,6 +88,24 @@ public class FileServiceLocal : IFileService
         using (var fs = File.Open(filePath, FileMode.Create)) {
             await stream.CopyToAsync(fs);
         }
+    }
+
+    /// <inheritdoc />
+    public Task MoveAsync(string sourcePath, string destinationPath) {
+        sourcePath = Path.Combine(BaseDirectoryPath, sourcePath);
+        destinationPath = Path.Combine(BaseDirectoryPath, destinationPath);
+        var isDirectory = GuardExists(sourcePath, isDirectory: true, throwOnError: false);
+        var isFile = GuardExists(sourcePath, isDirectory: false, throwOnError: false);
+        if (!isDirectory && !isFile) {
+            return Task.CompletedTask;
+        }
+        if (isFile) { 
+            File.Move(sourcePath, destinationPath);
+            return Task.CompletedTask;
+        } 
+        // then it is a folder
+        Directory.Move(sourcePath, destinationPath);
+        return Task.CompletedTask;
     }
 
     private static bool GuardExists(string path, bool isDirectory = false, bool throwOnError = true) {

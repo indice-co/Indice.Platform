@@ -56,14 +56,12 @@ internal class MediaFolderStore : IMediaFolderStore
 
         folder.Path = await FindPathAsync(_dbContext, folder.ParentId, folder.Name);
         var existingPath = await _dbContext.Folders.Where(x => x.Id == folder.Id).Select(x => x.Path).FirstOrDefaultAsync() ?? "/";
-        _dbContext.Folders.Update(folder);
-        await _dbContext.SaveChangesAsync();
-
-        await _dbContext.Folders.Where(x => x.ParentId == folder.Id)
-                                .ExecuteUpdateAsync(x => x.SetProperty(child => child.Path, child => child.Path.Replace(existingPath, folder.Path)));
+        // change paths
+        await _dbContext.Folders.Where(x => x.ParentId == folder.Id || x.Id == folder.Id)
+                                .ExecuteUpdateAsync(x => x.SetProperty(child => child.Path, child => child.Id == folder.Id ? folder.Path : child.Path.Replace(existingPath, folder.Path)));
         await _dbContext.Files.Where(x => x.FolderId == folder.Id)
                                 .ExecuteUpdateAsync(x => x.SetProperty(child => child.Path, child => child.Path.Replace(existingPath, folder.Path)));
-        await _platformEventService.Publish(new FolderRenameEvent(folder.Id, existingPath, folder.Path));
+        await _platformEventService.Publish(new FolderRenameCommand(folder.Id, existingPath, folder.Path));
     }
 
     public static async Task<string> FindPathAsync(MediaDbContext dbContext, Guid? parentId, string segmentName) {

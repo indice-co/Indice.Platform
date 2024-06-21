@@ -14,6 +14,9 @@ public class FileServiceNoop : IFileService
 
     /// <inheritdoc/>
     public Task SaveAsync(string filePath, Stream stream, FileServiceSaveOptions saveOptions) => Task.CompletedTask;
+    
+    /// <inheritdoc/>
+    public Task MoveAsync(string sourcePath, string destinationPath) => Task.CompletedTask;
 
     /// <inheritdoc/>
     public Task<IEnumerable<string>> SearchAsync(string path) => Task.FromResult(Enumerable.Empty<string>());
