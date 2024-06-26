@@ -56,10 +56,12 @@ internal class MediaFolderStore : IMediaFolderStore
 
         folder.Path = await FindPathAsync(_dbContext, folder.ParentId, folder.Name);
         var existingPath = await _dbContext.Folders.Where(x => x.Id == folder.Id).Select(x => x.Path).FirstOrDefaultAsync() ?? "/";
+        _dbContext.Update(folder);
+        await _dbContext.SaveChangesAsync();
         // change paths
-        await _dbContext.Folders.Where(x => x.ParentId == folder.Id || x.Id == folder.Id)
-                                .ExecuteUpdateAsync(x => x.SetProperty(child => child.Path, child => child.Id == folder.Id ? folder.Path : child.Path.Replace(existingPath, folder.Path)));
-        await _dbContext.Files.Where(x => x.FolderId == folder.Id)
+        var rows = await _dbContext.Folders.Where(x => x.ParentId == folder.Id || x.Path.StartsWith(existingPath))
+                                .ExecuteUpdateAsync(x => x.SetProperty(child => child.Path, child => child.Path.Replace(existingPath, folder.Path)));
+        rows = await _dbContext.Files.Where(x => x.FolderId == folder.Id || x.Path.StartsWith(existingPath))
                                 .ExecuteUpdateAsync(x => x.SetProperty(child => child.Path, child => child.Path.Replace(existingPath, folder.Path)));
         await _platformEventService.Publish(new FolderRenameCommand(folder.Id, existingPath, folder.Path));
     }
@@ -71,7 +73,10 @@ internal class MediaFolderStore : IMediaFolderStore
         }
         var extension = Path.GetExtension(segmentName);
         var segment = Greeklish.Translate(Path.GetFileNameWithoutExtension(segmentName)).Unidecode().ToKebabCase();
-        return $"{parentPath.TrimEnd('/')}/{segment}{extension}";
+        if (Path.HasExtension(segmentName)) { 
+            return $"{parentPath.TrimEnd('/')}/{segment}{extension}";
+        }
+        return $"{parentPath.TrimEnd('/')}/{segment}/";
     }
 
     /// <inheritdoc/>
@@ -87,3 +92,4 @@ internal class MediaFolderStore : IMediaFolderStore
             .ExecuteUpdateAsync(f => f.SetProperty(p => p.IsDeleted, true));
     }
 }
+

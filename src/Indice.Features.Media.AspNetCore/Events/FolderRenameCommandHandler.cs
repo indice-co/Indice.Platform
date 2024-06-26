@@ -6,6 +6,6 @@ internal class FolderRenameCommandHandler(IFileServiceFactory fileServiceFactory
 {
     private readonly IFileService _fileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey) ?? throw new ArgumentNullException(nameof(fileServiceFactory));
     public async Task Handle(FolderRenameCommand @event, PlatformEventArgs args) {
-        await _fileService.MoveAsync(@event.OldName, @event.NewName);
+        await _fileService.MoveAsync(Path.Combine("media", @event.OldName.TrimStart('/')), Path.Combine("media", @event.NewName.TrimStart('/')));
     }
 }

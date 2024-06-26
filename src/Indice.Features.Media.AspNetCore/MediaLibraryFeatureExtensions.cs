@@ -55,6 +55,7 @@ public static class MediaLibraryFeatureExtensions
         // Register application DbContext.
         services.AddDbContext<MediaDbContext>(apiOptions.ConfigureDbContext ?? ((serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MediaLibraryDbConnection"))));
 
+        services.AddDistributedMemoryCache();
         // Register Default Policy Provider.
         // Add authorization policies that are used by the IdentityServer API.
 

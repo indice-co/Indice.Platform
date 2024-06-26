@@ -101,7 +101,7 @@ internal static class Mapper
         UpdatedAt: dbFile.UpdatedAt,
         CreatedBy: dbFile.CreatedBy,
         UpdatedBy: dbFile.UpdatedBy,
-        PermaLink: $"{permaLinkBaseUrl}/{(Base64Id)dbFile.Guid}.{dbFile.FileExtension.TrimStart('.')}"
+        PermaLink: Path.Combine(permaLinkBaseUrl, dbFile.Path.TrimStart('/')).Replace('\\', '/')
     );
     #endregion
 }

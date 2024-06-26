@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using Indice.Features.Media.AspNetCore.Services;
 using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
+using Indice.Features.Media.AspNetCore.Data.Models;
 
 namespace Indice.Features.Media.AspNetCore;
 /// <summary>A manager class that helps work with the Media Library API infrastructure.</summary>
@@ -166,7 +167,7 @@ public class MediaManager(
             if (dbfiles != null) {
                 var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
                 var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media"
+                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media-root"
                     : $"{cdnUrl.Value.TrimEnd('/')}";
                 files = dbfiles.Select(f => f.ToFileDetails(permaLinkBaseUrl)).ToList();
             }
@@ -175,29 +176,6 @@ public class MediaManager(
             });
         }
         return files;
-    }
-
-    /// <summary>Retrieves the details about a file.</summary>
-    /// <param name="id">The file id.</param>
-    /// <param name="includeData">Indicates if the details should contain the byte array of data.</param>
-    public async Task<MediaFile?> GetFileDetails(Guid id, bool? includeData) {
-        var file = await _fileStore.GetById(id);
-        if (file == null) {
-            return null;
-        }
-        if (includeData.HasValue && includeData.Value) {
-            var path = $"media/{file.Path.TrimStart('/')}";
-            var data = await _fileService.GetAsync(path);
-            if (data is null) {
-                return null;
-            }
-            file.Data = data;
-        }
-        var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
-        var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
-                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media"
-                    : $"{cdnUrl.Value.TrimEnd('/')}";
-        return file.ToFileDetails(permaLinkBaseUrl);
     }
 
     /// <summary>Uploads a file in the system.</summary>
@@ -241,6 +219,42 @@ public class MediaManager(
         var cacheKey = $"{CONTENT_CACHE_KEY}_{(dbFile.FolderId.HasValue ? dbFile.FolderId.Value : "root")}";
         await _cache.RemoveAsync(cacheKey);
         await _cache.RemoveAsync(STRUCT_CACHE_KEY);
+    }
+
+    /// <summary>Retrieves the details about a file.</summary>
+    /// <param name="path">The file location.</param>
+    /// <param name="includeData">Indicates if the details should contain the byte array of data.</param>
+    public async Task<MediaFile?> GetFileDetails(string path, bool? includeData) {
+        var file = await _fileStore.GetByPath(path);
+        return await GetFileDetailsInternal(file, includeData);
+    }
+
+
+    /// <summary>Retrieves the details about a file.</summary>
+    /// <param name="id">The file id.</param>
+    /// <param name="includeData">Indicates if the details should contain the byte array of data.</param>
+    public async Task<MediaFile?> GetFileDetails(Guid id, bool? includeData) {
+        var file = await _fileStore.GetById(id);
+        return await GetFileDetailsInternal(file, includeData);
+    }
+
+    private async Task<MediaFile?> GetFileDetailsInternal(DbMediaFile? file, bool? includeData) {
+        if (file == null) {
+            return null;
+        }
+        if (includeData.HasValue && includeData.Value) {
+            var path = $"media/{file.Path.TrimStart('/')}";
+            var data = await _fileService.GetAsync(path);
+            if (data is null) {
+                return null;
+            }
+            file.Data = data;
+        }
+        var cdnUrl = await _settingService.GetSetting(MediaSetting.CDN.Key);
+        var permaLinkBaseUrl = string.IsNullOrWhiteSpace(cdnUrl?.Value)
+                    ? $"{_configuration.GetHost().TrimEnd('/')}/{_mediaApiOptions.ApiPrefix.ToString().Trim('/')}/media-root"
+                    : $"{cdnUrl.Value.TrimEnd('/')}";
+        return file.ToFileDetails(permaLinkBaseUrl);
     }
 
     /// <summary>Deletes all files marked as deleted. Used by <see cref="FilesCleanUpHostedService"/></summary>
