@@ -213,7 +213,7 @@ public class MediaLibraryTests : IAsyncDisposable
     public async ValueTask DisposeAsync() {
         GC.SuppressFinalize(this);
         var db = _serviceProvider.GetRequiredService<MediaDbContext>();
-        //await db.Database.EnsureDeletedAsync();
+        await db.Database.EnsureDeletedAsync();
         await _serviceProvider.DisposeAsync();
     }
 }
