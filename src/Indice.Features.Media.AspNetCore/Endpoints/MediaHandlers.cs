@@ -11,12 +11,13 @@ using Indice.Types;
 namespace Indice.Features.Media.AspNetCore.Endpoints;
 internal static class MediaHandlers
 {
-    internal static async Task<Results<FileContentHttpResult, NotFound>> GetFile(Base64Id fileGuid, string format, IFileServiceFactory fileServiceFactory) {
+    internal static async Task<Results<FileContentHttpResult, NotFound>> DownloadFile(string path, IFileServiceFactory fileServiceFactory) {
+        var format = Path.GetExtension(path);
         if (format.StartsWith('.')) {
             format = format.TrimStart('.');
         }
+        path = Path.Combine("media/", path.TrimStart('/'));
         var fileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey);
-        var path = $"media/{fileGuid.Id.ToString("N")[..2]}/{fileGuid.Id:N}.{format}";
         var properties = await fileService.GetPropertiesAsync(path);
         if (properties is null) {
             return TypedResults.NotFound();
@@ -29,6 +30,21 @@ internal static class MediaHandlers
         return TypedResults.File(data, contentType, null, false,  properties.LastModified, new EntityTagHeaderValue(properties.ETag, true));
     }
 
+    internal static async Task<Results<FileContentHttpResult, NotFound>> GetFile(Base64Id fileGuid, string format, MediaManager mediaManager) {
+        if (format.StartsWith('.')) {
+            format = format.TrimStart('.');
+        }
+        var file = await mediaManager.GetFileDetails(fileGuid.Id, includeData: true);
+        if (file == null) {
+            return TypedResults.NotFound();
+        }
+        var contentType = file.ContentType;
+        if (contentType == MediaTypeNames.Application.Octet && !string.IsNullOrEmpty(format)) {
+            contentType = FileExtensions.GetMimeType($".{format}");
+        }
+        return TypedResults.File(file.Data ?? [], contentType, null, false, file.UpdatedAt);
+    }
+
     internal static async Task<Results<Ok<MediaFile>, NotFound>> GetFileDetails(Guid fileId, bool? includeData, MediaManager mediaManager) {
         var file = await mediaManager.GetFileDetails(fileId, includeData);
         if (file is null) {
@@ -37,18 +53,18 @@ internal static class MediaHandlers
         return TypedResults.Ok(file);
     }
 
-    internal static async Task<CreatedAtRoute<Guid>> UploadFile(UploadFileRequest request, MediaManager mediaManager) {
+    internal static async Task<CreatedAtRoute<UploadFileResponse>> UploadFile(UploadFileRequest request, MediaManager mediaManager) {
         var fileId = await mediaManager.UploadFile(request.ToUploadFileCommand());
-        return TypedResults.CreatedAtRoute(fileId, nameof(GetFileDetails), new { fileId });
+        return TypedResults.CreatedAtRoute(new UploadFileResponse(fileId), nameof(GetFileDetails), new { fileId });
     }
 
-    internal static async Task<Ok> UpdateFileMetadata(Guid fileId, UpdateFileMetadataRequest request, MediaManager mediaManager) {
+    internal static async Task<NoContent> UpdateFileMetadata(Guid fileId, UpdateFileMetadataRequest request, MediaManager mediaManager) {
         await mediaManager.UpdateFileMetadata(request.ToUpdateFileMetadataCommand(fileId));
-        return TypedResults.Ok();
+        return TypedResults.NoContent();
     }
 
-    internal static async Task<Ok> DeleteFile(Guid fileId, MediaManager mediaManager) {
+    internal static async Task<NoContent> DeleteFile(Guid fileId, MediaManager mediaManager) {
         await mediaManager.DeleteFile(fileId);
-        return TypedResults.Ok();
+        return TypedResults.NoContent();
     }
 }

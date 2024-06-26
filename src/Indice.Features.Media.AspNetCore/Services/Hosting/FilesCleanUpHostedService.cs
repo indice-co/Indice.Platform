@@ -38,10 +38,9 @@ public class FilesCleanUpHostedService : BackgroundService
                 try {
                     await Task.Delay(Interval, stoppingToken);
                     try {
-                        using (var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
-                            var mediaManager = serviceScope.ServiceProvider.GetRequiredService<MediaManager>();
-                            await mediaManager.CleanUpFiles();
-                        }
+                        using var serviceScope = _serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+                        var mediaManager = serviceScope.ServiceProvider.GetRequiredService<MediaManager>();
+                        await mediaManager.CleanUpFiles();
                     } catch (Exception exception) {
                         _logger.LogError("Exception while removing expired logs: {Exception}", exception.Message);
                     }

@@ -24,6 +24,12 @@ public interface IFileService
     /// <param name="filePath">The file path.</param>
     /// <param name="isDirectory">Indicates that the path is a directory.</param>
     Task<bool> DeleteAsync(string filePath, bool isDirectory = false);
+    /// <summary>Will move all file instances from the location in the <paramref name="sourcePath"/> to the <paramref name="destinationPath"/></summary>
+    /// <param name="sourcePath">The source path to move. </param>
+    /// <param name="destinationPath"></param>
+    /// <remarks>If the path in source is a directory structure it will move all contents to be relocated to the destination path. If not it will move only a single file</remarks>
+    /// <returns>The task handle</returns>
+    Task MoveAsync(string sourcePath, string destinationPath);
 }
 
 /// <summary>Exception class for <see cref="IFileService"/> related exceptions.</summary>

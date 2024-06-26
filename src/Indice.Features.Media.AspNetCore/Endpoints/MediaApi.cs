@@ -17,7 +17,7 @@ public static class MediaApi
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance.</returns>
     internal static IEndpointRouteBuilder MapMedia(this IEndpointRouteBuilder builder) {
         var options = builder.ServiceProvider.GetService<IOptions<MediaApiOptions>>()?.Value ?? new MediaApiOptions();
-        var group = builder.MapGroup($"{options.ApiPrefix}/media")
+        var group = builder.MapGroup($"{options.ApiPrefix}")
                            .WithGroupName("media")
                            .WithTags("Media")
                            .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -29,7 +29,15 @@ public static class MediaApi
         var requiredScopes = options.ApiScope.Split(' ').Where(scope => !string.IsNullOrWhiteSpace(scope)).ToArray();
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", requiredScopes);
 
-        group.MapGet("{fileGuid}.{format}", MediaHandlers.GetFile)
+        group.MapGet("/media-root/{*path}", MediaHandlers.DownloadFile)
+             .WithName(nameof(MediaHandlers.DownloadFile))
+             .WithSummary("Retrieves an existing file.")
+             .ProducesProblem(StatusCodes.Status404NotFound)
+             .Produces(StatusCodes.Status200OK, typeof(IFormFile))
+             .CacheOutputMemory()
+             .AllowAnonymous();
+
+        group.MapGet("/media/{fileGuid}.{format}", MediaHandlers.GetFile)
              .WithName(nameof(MediaHandlers.GetFile))
              .WithSummary("Retrieves an existing file.")
              .ProducesProblem(StatusCodes.Status404NotFound)
@@ -37,25 +45,25 @@ public static class MediaApi
              .CacheOutputMemory()
              .AllowAnonymous();
 
-        group.MapGet("{fileId}", MediaHandlers.GetFileDetails)
+        group.MapGet("/media/{fileId}", MediaHandlers.GetFileDetails)
              .WithName(nameof(MediaHandlers.GetFileDetails))
              .WithSummary("Retrieves details about an existing file.")
              .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapPost("upload", MediaHandlers.UploadFile)
+        group.MapPost("/media/upload", MediaHandlers.UploadFile)
              .WithName(nameof(MediaHandlers.UploadFile))
              .WithSummary("Uploads a file in the system.")
              .Accepts<UploadFileRequest>("multipart/form-data")
              .LimitUpload(options.MaxFileSize, options.AcceptableFileExtensions)
              .ProducesProblem(StatusCodes.Status400BadRequest);
 
-        group.MapPut("{fileId}", MediaHandlers.UpdateFileMetadata)
+        group.MapPut("/media/{fileId}", MediaHandlers.UpdateFileMetadata)
              .WithName(nameof(MediaHandlers.UpdateFileMetadata))
              .WithSummary("Updates an existing file's metadata in the system.")
              .ProducesProblem(StatusCodes.Status400BadRequest)
              .WithParameterValidation<UpdateFileMetadataRequest>();
 
-        group.MapDelete("{fileId}", MediaHandlers.DeleteFile)
+        group.MapDelete("/media/{fileId}", MediaHandlers.DeleteFile)
              .WithName(nameof(MediaHandlers.DeleteFile))
              .WithSummary("Deletes an existing file.")
              .ProducesProblem(StatusCodes.Status400BadRequest);
