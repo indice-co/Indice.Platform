@@ -51,23 +51,24 @@ public static partial class StringExtensions
     /// <param name="value">The string to kebaberize.</param>
     public static string ToKebabCase(this string value) {
         // Find and replace all parts that starts with one capital letter e.g. Net
-        value = WordsRegex().Replace(value, m => $"-{m.Groups["word"].ToString().ToLower()}");
+        value = WordsRegex().Replace(value, m => $"{(m.Groups["delimiter"].Success ? m.Groups["delimiter"].Value : "-")}{m.Groups["word"].Value.ToLower()}");
         // Find and replace all parts that are all capital letter e.g. NET
-        value = WordsAllCapsRegex().Replace(value, m => $"-{m.Groups["word"].ToString().ToLower()}");
+        value = WordsAllCapsRegex().Replace(value, m => $"{(m.Groups["delimiter"].Success ? m.Groups["delimiter"].Value : "-")}{m.Groups["word"].ToString().ToLower()}");
+        
         // Return.
         return value.TrimStart('-');
     }
 
 #if NET7_0_OR_GREATER
     /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
-    [GeneratedRegex(@"(?<word>[A-Z]?[a-z0-9]+)\s*")]
+    [GeneratedRegex(@"(?<delimiter>[/\\])?(?<word>[A-Z]?[a-z0-9]+)[,;|\s]*")]
     private static partial Regex WordsRegex();
     /// <summary>Match all parts of a sentence that are all capital letter e.g. NET</summary>
-    [GeneratedRegex(@"(?<word>[A-Z][A-Z0-9]*)\s*")]
+    [GeneratedRegex(@"(?<delimiter>[/\\])?(?<word>[A-Z][A-Z0-9]*)[,;|\s]*")]
     private static partial Regex WordsAllCapsRegex();
 #else
-    private static readonly Regex _wordsRegex = new(@"(?<word>[A-Z]?[a-z0-9]+)\s*");
-    private static readonly Regex _wordsAllCapsRegex = new(@"(?<word>[A-Z][A-Z0-9]*)\s*");
+    private static readonly Regex _wordsRegex = new(@"(?<delimiter>[/\\])?(?<word>[A-Z]?[a-z0-9]+)[,;|\s]*");
+    private static readonly Regex _wordsAllCapsRegex = new(@"(?<delimiter>[/\\])?(?<word>[A-Z][A-Z0-9]*)[,;|\s]");
     /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
     private static Regex WordsRegex() => _wordsRegex;
     /// <summary>Match all parts of a sentence that are all capital letter e.g. NET</summary>
