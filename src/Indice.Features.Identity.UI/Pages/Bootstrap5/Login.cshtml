@@ -61,15 +61,15 @@
             </div>
             <div class="mb-3">
                 <div class="row align-items-center">
-                    @if (Model.UiOptions.EnableRegisterPage)
+                    @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)
                     {
                         <div class="col-sm-6 col-12 py-1">
-                            <a class="btn btn-link w-100" asp-page="/Register" asp-route-returnUrl="@Model.View.ReturnUrl">
+                            <a class="btn btn-link w-100" asp-page="@Model.UiOptions.OnBoardingPage" asp-route-returnUrl="@Model.View.ReturnUrl">
                                 @Localizer["Join us"]
                             </a>
                         </div>
                     }
-                    <div class="@(Model.UiOptions.EnableRegisterPage ? "col-sm-6" : string.Empty) col-12 py-1">
+                    <div class="@(Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding ? "col-sm-6" : string.Empty) col-12 py-1">
                         <button class="btn btn-primary w-100" name="button" value="login" type="submit">@Localizer["Sign in"]</button>
                     </div>
                 </div>

@@ -58,11 +58,13 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
       name: 'ΤΥΠΟΣ ΥΠΟΘΕΣΗΣ',
       dataType: 'array',
       options: [],
-      multiTerm: true
+      multiTerm: true,
+      readonly: true
     }
     const code = this.getFilterCacheKey();
     const caseType = caseTypes.items?.find(x => x.code == code);
     caseTypeSearchOption.options?.push({ value: caseType?.code, label: caseType?.title! })
+    this.caseTypeTitle = caseType?.title!;
     return caseTypeSearchOption;
   }
 
