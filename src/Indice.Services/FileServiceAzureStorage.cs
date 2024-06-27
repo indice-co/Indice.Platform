@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.ComponentModel;
+using System.IO;
+using System.Text.RegularExpressions;
 using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -102,8 +104,10 @@ public class FileServiceAzureStorage : IFileService
             results.Add(blob.Name);
         }
         return results;
-        /* in the future we may need to get the contents of a specific folder structure 
-         * the following code will be verry usefull
+        /* in the future we may need to get the contents of a specific folder structure insted of the blobs themselves. 
+         * For example we may need to determine which folders are inside the prefix instead of which files are located under the prefix recursivly
+         * 
+         * In that case the following code will be verry usefull
         var results = new List<string>();
         var resultSegment = container.GetBlobsByHierarchyAsync(prefix: filename, delimiter: "/").AsPages(default, null);
         // Enumerate the blobs returned for each page.
@@ -112,6 +116,50 @@ public class FileServiceAzureStorage : IFileService
         }
         return results;
         */
+    }
+
+    // TODO: change this to make use of the Data movement library Microsoft.Azure.Storage.DataMovement
+    // https://learn.microsoft.com/en-us/azure/storage/common/storage-use-data-movement-library?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json&bc=%2Fazure%2Fstorage%2Fblobs%2Fbreadcrumb%2Ftoc.json
+    /// <inheritdoc/>
+    public async Task MoveAsync(string sourcePath, string destinationPath) {
+        sourcePath = sourcePath.TrimStart('\\', '/');
+        destinationPath = destinationPath.TrimStart('\\', '/');
+        var sourceFolder = _containerName ?? Path.GetDirectoryName(sourcePath);
+        var sourceFilename = _containerName == null ? sourcePath.Substring(sourceFolder.Length) : sourcePath;
+        var sourceContainer = new BlobContainerClient(_connectionString, sourceFolder);
+
+        var exists = await sourceContainer.ExistsAsync();
+        if (!exists) {
+            throw new FileNotFoundServiceException($"Container {sourceFolder} not found.");
+        }
+        var targetFolder = _containerName ?? Path.GetDirectoryName(destinationPath);
+        var targertFilename = _containerName == null ? destinationPath.Substring(targetFolder.Length) : destinationPath;
+        bool moveUnderTheSameContainer = sourceFolder.Equals(targetFolder, StringComparison.InvariantCultureIgnoreCase);
+        bool isDirectory = sourcePath.EndsWith('/');
+        var targetContainer = moveUnderTheSameContainer ? sourceContainer : new BlobContainerClient(_connectionString, targetFolder);
+        if (!moveUnderTheSameContainer) {
+            await targetContainer.CreateIfNotExistsAsync();
+        }
+
+        var copyAction = async (BlobClient sourceBlob, BlobClient destBlob) => {
+            var copyOperation = await destBlob.StartCopyFromUriAsync(sourceBlob.Uri);
+            var copiedContentLength = 0L;
+            while (copyOperation.HasCompleted == false) {
+                copiedContentLength = await copyOperation.WaitForCompletionAsync();
+                await Task.Delay(100);
+            }
+            await sourceBlob.DeleteAsync();
+        };
+
+        if (!isDirectory) {
+            await copyAction(sourceContainer.GetBlobClient(sourceFilename), targetContainer.GetBlobClient(targertFilename));
+        } else { 
+            var segment = sourceContainer.GetBlobsAsync(prefix: sourceFilename);
+            await foreach (var blob in segment) {
+                //await sourceContainer.DeleteBlobIfExistsAsync(blob.Name, DeleteSnapshotsOption.IncludeSnapshots);
+                await copyAction(sourceContainer.GetBlobClient(blob.Name), targetContainer.GetBlobClient(blob.Name.Replace(sourceFilename, targertFilename)));
+            }
+        }
     }
 
     // Instead of streaming the blob through your server, you could download it directly from the blob storage. http://stackoverflow.com/questions/24312527/azure-blob-storage-downloadtobytearray-vs-downloadtostream

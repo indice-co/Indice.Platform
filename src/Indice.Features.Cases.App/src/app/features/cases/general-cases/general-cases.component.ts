@@ -23,6 +23,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   public tableFilters = new TableFilters();
   public tableColumns = new TableColumns();
   protected caseTypes: CaseTypePartialResultSet | undefined;
+  public caseTypeTitle: string = "";
 
   constructor(
     protected _route: ActivatedRoute,

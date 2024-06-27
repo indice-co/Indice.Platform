@@ -2,12 +2,9 @@
 using System.Security.Claims;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.AspNetCore.Swagger;
 using Indice.Events;
-using Indice.Features.Messages.AspNetCore;
 using Indice.Features.Messages.AspNetCore.Authorization;
-using Indice.Features.Messages.AspNetCore.Mvc.Formatters;
 using Indice.Features.Messages.AspNetCore.Services;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
@@ -27,19 +24,18 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
-/// <summary>Contains extension methods on <see cref="IMvcBuilder"/> for configuring Campaigns API feature.</summary>
-public static class MessageFeatureExtensions
+/// <summary>Contains extension methods on <see cref="IServiceCollection"/> for configuring Messaging API endpoints.</summary>
+public static class MessageEndpointsExtensions
 {
-    /// <summary>Adds all Messages (both management and self-service) API endpoints in the MVC project.</summary>
-    /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
+    /// <summary>Adds all Messages (both management and self-service) API endpoints to the DI.</summary>
+    /// <param name="services">The service collection.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns API feature.</param>
-    public static IMvcBuilder AddMessageEndpoints(this IMvcBuilder mvcBuilder, Action<MessageEndpointOptions> configureAction = null) {
-        var services = mvcBuilder.Services;
+    public static IServiceCollection AddMessageEndpoints(this IServiceCollection services, Action<MessageEndpointOptions> configureAction = null) {
         // Configure options.
         var apiOptions = new MessageEndpointOptions(services);
         configureAction?.Invoke(apiOptions);
 
-        return mvcBuilder.AddMessageManagementEndpoints(options => {
+        return services.AddMessageManagementEndpoints(options => {
             options.ApiPrefix = apiOptions.ApiPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
@@ -56,24 +52,20 @@ public static class MessageFeatureExtensions
         });
     }
 
-    /// <summary>Adds Messages management API endpoints in the MVC project.</summary>
-    /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
+    /// <summary>Adds Messages management API endpoints to the DI.</summary>
+    /// <param name="services">The service collection.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns management API feature.</param>
-    public static IMvcBuilder AddMessageManagementEndpoints(this IMvcBuilder mvcBuilder, Action<MessageManagementOptions> configureAction = null) {
-
-
-        mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new MessageFeatureProvider(includeManagementApi: true, includeInboxApi: false)));
-        var services = mvcBuilder.Services;
+    public static IServiceCollection AddMessageManagementEndpoints(this IServiceCollection services, Action<MessageManagementOptions> configureAction = null) {
         // Configure options.
         var apiOptions = new MessageManagementOptions(services);
         configureAction?.Invoke(apiOptions);
 
         // Configure authorization. It's important to register the authorization policy provider at this point.
-        mvcBuilder.Services.AddAuthorization(policy => policy.AddCampaignsManagementPolicy(apiOptions.RequiredScope))
-                           .AddTransient<IAuthorizationHandler, BeCampaignManagerHandler>();
+        services.AddAuthorization(policy => policy.AddCampaignsManagementPolicy(apiOptions.RequiredScope))
+                .AddTransient<IAuthorizationHandler, BeCampaignManagerHandler>();
 
-        // Configure campaigns system core requirements.
-        mvcBuilder.AddCampaignCore(apiOptions);
+        services.AddCampaignCore(apiOptions);
+
         services.Configure<MessageManagementOptions>(options => {
             options.ApiPrefix = apiOptions.ApiPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
@@ -84,13 +76,6 @@ public static class MessageFeatureExtensions
             options.GroupName = apiOptions.GroupName;
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
-        // Post configure MVC options.
-        services.PostConfigure<MvcOptions>(options => {
-            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.CampaignManagementEndpoints, apiOptions.ApiPrefix));
-            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.CampaignManagementEndpoints, apiOptions.GroupName));
-            options.FormatterMappings.SetMediaTypeMappingForFormat("xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            options.OutputFormatters.Add(new XlsxCampaignStatisticsOutputFormatter());
-        });
         // Register framework services.
         services.AddHttpContextAccessor();
         // Register events.
@@ -105,19 +90,19 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IMessageSenderService, MessageSenderService>();
         services.TryAddTransient<CreateCampaignRequestValidator>();
         services.TryAddTransient<CreateMessageTypeRequestValidator>();
-        return mvcBuilder;
+        return services;
     }
 
     /// <summary>Adds Messages inbox API endpoints in the MVC project.</summary>
-    /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
+    /// <param name="services">The service collection.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns inbox API feature.</param>
-    public static IMvcBuilder AddMessageInboxEndpoints(this IMvcBuilder mvcBuilder, Action<MessageInboxOptions> configureAction = null) {
-        mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new MessageFeatureProvider(includeManagementApi: false, includeInboxApi: true)));
-        var services = mvcBuilder.Services;
+    public static IServiceCollection AddMessageInboxEndpoints(this IServiceCollection services, Action<MessageInboxOptions> configureAction = null) {
         // Configure options.
         var apiOptions = new MessageInboxOptions(services);
         configureAction?.Invoke(apiOptions);
-        mvcBuilder.AddCampaignCore(apiOptions);
+
+        services.AddCampaignCore(apiOptions);
+
         services.Configure<MessageInboxOptions>(options => {
             options.ApiPrefix = apiOptions.ApiPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
@@ -126,22 +111,16 @@ public static class MessageFeatureExtensions
             options.GroupName = apiOptions.GroupName;
         });
         services.AddSingleton(new DatabaseSchemaNameResolver(apiOptions.DatabaseSchema));
-        // Post configure MVC options.
-        services.PostConfigure<MvcOptions>(options => {
-            options.Conventions.Add(new ApiPrefixControllerModelConvention(ApiPrefixes.MessageInboxEndpoints, apiOptions.ApiPrefix));
-            options.Conventions.Add(new ApiGroupNameControllerModelConvention(ApiGroups.MessageInboxEndpoints, apiOptions.GroupName));
-        });
-        // Register custom services.
-        return mvcBuilder;
+        return services;
     }
 
-    private static IMvcBuilder AddCampaignCore(this IMvcBuilder mvcBuilder, CampaignOptionsBase baseOptions) {
-        var services = mvcBuilder.Services;
-        // Build service provider and get IConfiguration instance.
-        var serviceProvider = services.BuildServiceProvider();
-        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-        // Try add general settings.
-        services.AddGeneralSettings(configuration);
+    /// <summary>
+    /// Registers all the basic dependencies for the campaign tool with sensible defaults.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="baseOptions">The base campaign tool basic options</param>
+    /// <returns>The service collection</returns>
+    internal static IServiceCollection AddCampaignCore(this IServiceCollection services, CampaignOptionsBase baseOptions) {
         // Post configure JSON options.
         services.PostConfigure<JsonOptions>(options => {
             var enumFlagsConverterExists = options.JsonSerializerOptions.Converters.Any(converter => converter.GetType() == typeof(JsonStringArrayEnumFlagsConverterFactory));
@@ -176,9 +155,9 @@ public static class MessageFeatureExtensions
         services.TryAddTransient<IFileService, FileServiceNoop>();
         services.TryAddTransient<IFileServiceFactory, DefaultFileServiceFactory>();
         // Register application DbContext.
-        Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(configuration.GetConnectionString("MessagesDbConnection"));
+        Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDbConnection"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
-        return mvcBuilder;
+        return services;
     }
 
     /// <summary>Adds <see cref="IFileService"/> using local file system as the backing store.</summary>

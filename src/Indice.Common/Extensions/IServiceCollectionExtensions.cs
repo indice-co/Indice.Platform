@@ -112,8 +112,8 @@ public static class IServiceCollectionExtensions
     /// <param name="services">Specifies the contract for a collection of service descriptors.</param>
     /// <param name="config">Configuration action.</param>
     public static IServiceCollection AddBackgroundPlatformEventService(this IServiceCollection services, Action<BackgroundPlatformEventServiceQueueOptions> config = null) {
-        services.AddTransient<IPlatformEventService, BackgroundPlatformEventService>();
-        services.AddSingleton<BackgroundPlatformEventServiceQueue>();
+        services.TryAddTransient<IPlatformEventService, BackgroundPlatformEventService>();
+        services.TryAddSingleton<BackgroundPlatformEventServiceQueue>();
         services.Configure<BackgroundPlatformEventServiceQueueOptions>(options => config?.Invoke(options));
         services.AddHostedService<BackgroundPlatformEventHostedService>();
         return services;
