@@ -1,7 +1,7 @@
 import { ExternalNavLink, IAppLinks, Icons, NavLink } from '@indice/ng-components';
-import { Observable, of } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 import { settings } from './core/models/settings';
-import { TranslateService } from '@ngx-translate/core';
+import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -9,35 +9,84 @@ import { Injectable } from '@angular/core';
 })
 
 export class AppLinks implements IAppLinks {
-    constructor(
-        private _translate: TranslateService,
-    ) { }
 
     public public: Observable<NavLink[]> = of([]);
     public profileActions: Observable<NavLink[]> = of([]);
+    public main: Observable<NavLink[]>;
+    public mainLinks: NavLink[] = [];
+    public profile: Observable<NavLink[]>;
+    public legal: Observable<NavLink[]>;
+    public brand: Observable<NavLink[]>;
 
-    private _mainLInks = [
-        new NavLink(this._translate.instant('general.home'), 'dashboard', false, false, Icons.Dashboard),
-        new NavLink(this._translate.instant('general.campaigns'), '/campaigns', false, false, Icons.Messages),
-        new NavLink(this._translate.instant('general.message-types'), '/message-types', false, false, Icons.Details),
-        new NavLink(this._translate.instant('general.distribution-lists'), '/distribution-lists', false, false, Icons.TilesView),
-        new NavLink(this._translate.instant('general.templates'), '/templates', false, false, Icons.SendEmail),
-        new NavLink(this._translate.instant('general.files'), '/media', false, false, 'ms-Icon ms-Icon--Folder'),
-        new NavLink(this._translate.instant('general.options'), '/settings', false, false, 'ms-Icon ms-Icon--Settings')
-    ];
-    public main: Observable<NavLink[]> = of(settings.enableMediaLibrary ? this._mainLInks : this._mainLInks.filter((l) => l.path !== '/media'));
+    constructor(private _translate: TranslateService) {
+        this.main = this.initializeMainLinks();
+        this.profile = this.initializeProfileLinks();
+        this.legal = this.initializeLegalLinks();
+        this.brand = this.initializeBrandLinks();
 
-    public profile: Observable<NavLink[]> = of([
-        new NavLink(this._translate.instant('general.logout'), '/logout', false)
-    ]);
+        this._translate.onLangChange.subscribe( () => {
+            this.updateLinks();
+        });
+    }
 
-    public legal: Observable<NavLink[]> = of([
-        new ExternalNavLink(this._translate.instant('general.privacy-policy'), '/privacy'),
-        new ExternalNavLink(this._translate.instant('general.terms-conditions'), '/terms'),
-        new ExternalNavLink(this._translate.instant('general.contact'), '/contact')
-    ]);
+    private updateLinks() {
+        this.mainLinks = [];
+        this.main = this.initializeMainLinks();
+        this.profile = this.initializeProfileLinks();
+        this.legal = this.initializeLegalLinks();
+        this.brand = this.initializeBrandLinks();
+    }
 
-    public brand: Observable<NavLink[]> = of([
-        new ExternalNavLink('Indice', 'https://www.indice.gr')
-    ]);
+    private initializeMainLinks(): Observable<NavLink[]> {
+        const keys = [
+            'general.home',
+            'general.campaigns',
+            'general.message-types',
+            'general.distribution-lists',
+            'general.templates',
+            'general.files',
+            'general.options'
+        ];
+        return this._translate.get(keys).pipe(
+            map(translations => {
+                this.mainLinks = [
+                    new NavLink(translations[keys[0]], 'dashboard', false, false, Icons.Dashboard),
+                    new NavLink(translations[keys[1]], '/campaigns', false, false, Icons.Messages),
+                    new NavLink(translations[keys[2]], '/message-types', false, false, Icons.Details),
+                    new NavLink(translations[keys[3]], '/distribution-lists', false, false, Icons.TilesView),
+                    new NavLink(translations[keys[4]], '/templates', false, false, Icons.SendEmail),
+                    new NavLink(translations[keys[5]], '/media', false, false, 'ms-Icon ms-Icon--Folder'),
+                    new NavLink(translations[keys[6]], '/settings', false, false, 'ms-Icon ms-Icon--Settings')
+                ];
+                return settings.enableMediaLibrary ? this.mainLinks : this.mainLinks.filter(link => link.path !== '/media');
+            })
+        );
+    }
+   
+    private initializeProfileLinks(): Observable<NavLink[]> {
+        return this._translate.get('general.logout').pipe(
+            map(translation => [new NavLink(translation, '/logout', false)])
+        );
+    }
+
+    private initializeLegalLinks(): Observable<NavLink[]> {
+        const keys = [
+            'general.privacy-policy',
+            'general.terms-conditions',
+            'general.contact'
+        ];
+        return this._translate.get(keys).pipe(
+            map(translations => [
+                new ExternalNavLink(translations[keys[0]], '/privacy'),
+                new ExternalNavLink(translations[keys[1]], '/terms'),
+                new ExternalNavLink(translations[keys[2]], '/contact')
+            ])
+        );
+    }
+
+    private initializeBrandLinks(): Observable<NavLink[]> {
+        return of([
+            new ExternalNavLink('Indice', 'https://www.indice.gr')
+        ]);
+    }
 }
