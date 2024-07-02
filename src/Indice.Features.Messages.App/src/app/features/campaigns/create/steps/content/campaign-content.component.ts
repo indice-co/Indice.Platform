@@ -344,7 +344,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
                     ? new MenuOption(`${this.content.email.sender.displayName} <${this.content.email.sender.sender}>`, this.content.email.sender.id, undefined, this.content?.email?.sender)
                     : undefined;
                 if (messageSenders.items) {
-                    this.messageSenders = [new MenuOption(this._translate.instant('general.please-choose"'), null)];
+                    this.messageSenders = [new MenuOption(this._translate.instant('general.please-choose'), null)];
                     this.messageSenders.push(...messageSenders.items.map(s => {
                         let sender = {
                             id: s.id,
