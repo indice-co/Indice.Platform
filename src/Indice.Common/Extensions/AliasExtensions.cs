@@ -29,7 +29,7 @@ public static class AliasExtensions
             var aliasLastIndex = availability.LastIndex;
 
             if (aliasLastIndex == -1) {
-                aliasParts[aliasParts.Length - 1] = (aliasLastIndex + 1).ToString();
+                aliasParts[^1] = (aliasLastIndex + 1).ToString();
                 suggestedAlias = string.Join("-", aliasParts);
             } else {
                 suggestedAlias = $"{string.Join("-", aliasParts)}-{aliasLastIndex + 1}";
@@ -43,7 +43,7 @@ public static class AliasExtensions
     private static AliasAvailability CheckAvailability(IQueryable<string> existingAliases, string newAlias) {
         var lastIndex = 0;
         var similarAliases = existingAliases.Where(x => x.StartsWith(newAlias)).ToList();
-        var isAvailable = !similarAliases.Any();
+        var isAvailable = similarAliases.Count == 0;
         if (isAvailable) {
             // If the alias is available then the alias index will not be used.
             lastIndex = -1;

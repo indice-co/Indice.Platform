@@ -12,12 +12,20 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.FeatureManagement;
+using Microsoft.Identity.Client;
 
 namespace Indice.Features.Identity.Server.Manager;
 
 internal static class DashboardHandlers
 {
-    internal static Ok<ResultSet<BlogItemInfo>> GetNews(int? page, int? size) {
+    internal static async Task<Ok<ResultSet<BlogItemInfo>>> GetNews(
+        IFeatureManager featureManager, int? page, int? size) {
+
+        var rssFeatureEnabled = await featureManager.IsEnabledAsync(IdentityEndpoints.Features.RssFeed);
+        if (!rssFeatureEnabled) {
+            return TypedResults.Ok(Enumerable.Empty<BlogItemInfo>().ToResultSet());
+        }
+
         const string url = "https://www.identityserver.com/rss";
         var feedItems = new List<BlogItemInfo>();
         using (var reader = XmlReader.Create(url)) {

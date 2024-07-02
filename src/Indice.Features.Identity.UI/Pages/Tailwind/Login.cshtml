@@ -81,13 +81,13 @@
                     <hr />
                 }
             </div>
-            @if (Model.UiOptions.EnableRegisterPage)
+            @if (Model.UiOptions.EnableRegisterPage || Model.UiOptions.HasCustomOnBoarding)
             {
                 <div class="flex flex-col mb-10">
                     <span>
                         @Localizer["Don't have an account?"]
                     </span>
-                    <a asp-page="/Register" class="text-primary-default underline" asp-route-returnUrl="@(!string.IsNullOrEmpty(Model.View.ReturnUrl) ? Model.View.ReturnUrl : null)">
+                    <a asp-page="@Model.UiOptions.OnBoardingPage" class="text-primary-default underline" asp-route-returnUrl="@(!string.IsNullOrEmpty(Model.View.ReturnUrl) ? Model.View.ReturnUrl : null)">
                         @Localizer["Join us"]
                     </a>
                 </div>

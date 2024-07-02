@@ -9,6 +9,9 @@ public interface IMediaFileStore
     /// <summary>Retrieves a file by Id.</summary>
     /// <param name="id">The file Id.</param>
     Task<DbMediaFile?> GetById(Guid id);
+    /// <summary>Retrieves a file by its location in the tree .</summary>
+    /// <param name="path">The files location.</param>
+    Task<DbMediaFile?> GetByPath(string path);
     /// <summary>Retrieves a a list of all files.</summary>
     /// <param name="query">The query to limit results.</param>
     Task<List<DbMediaFile>> GetList(Expression<Func<DbMediaFile, bool>>? query = null);

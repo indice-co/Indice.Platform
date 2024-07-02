@@ -3,7 +3,7 @@ using Indice.Features.Messages.AspNetCore.Controllers;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 
-namespace Indice.Features.Messages.AspNetCore;
+namespace Indice.Features.Messages.AspNetCore.Mvc;
 
 internal class MessageFeatureProvider(bool includeManagementApi = true, bool includeInboxApi = true) : IApplicationFeatureProvider<ControllerFeature>
 {

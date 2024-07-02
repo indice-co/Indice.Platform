@@ -12,7 +12,7 @@ public class FileServiceAzureTests
 
     public FileServiceAzureTests() {
         if (_connectionString.StartsWith("UseDevelopmentStorage=true;")) { 
-            StorageEmulator.Start();
+            //StorageEmulator.Start();
         }
         _FileService = new FileServiceAzureStorage(_connectionString, "test");
     }
@@ -54,6 +54,23 @@ public class FileServiceAzureTests
         await _FileService.DeleteAsync($"listing");
         Assert.Equal(4, list.Count());
     }
+    [Fact(Skip = "Should integrate azurite on build yaml")]
+    public async Task MoveFilesTest() {
+        var folder = new Base64Id(Guid.NewGuid());
+        await _FileService.SaveAsync($"listing/{folder}/media/{new Base64Id(Guid.NewGuid())}.txt", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
+        await _FileService.SaveAsync($"listing/{folder}/media/{new Base64Id(Guid.NewGuid())}.txt", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
+        await _FileService.SaveAsync($"listing/{folder}/lonely-file.txt", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
+        await _FileService.SaveAsync($"listing/{folder}/media/img/{new Base64Id(Guid.NewGuid())}.txt", Encoding.UTF8.GetBytes($"This is the contents of the file. {DateTime.UtcNow:D}"));
+
+        var list = await _FileService.SearchAsync($"listing/{folder}/media");
+        Assert.Equal(3, list.Count());
+        await _FileService.MoveAsync($"listing/{folder}/media/", $"listing/{folder}/media-new/");
+        list = await _FileService.SearchAsync($"listing/{folder}/media/");
+        Assert.Empty(list);
+        await _FileService.MoveAsync($"listing/{folder}/lonely-file.txt", $"listing/{folder}/media-new/lonely-file2.txt");
+        list = await _FileService.SearchAsync($"listing/{folder}/media-new");
+        Assert.Equal(4, list.Count());
+    }
 
     [Fact(Skip = "Only for debug purposes")]
     public async Task DeleteFileTest() {
@@ -70,7 +87,6 @@ public class FileServiceAzureTests
         await _FileService.DeleteAsync($"deletefiles");
         Assert.Empty(list);
     }
-
 }
 
 public static class StorageEmulator
@@ -83,9 +99,9 @@ public static class StorageEmulator
         }
 
         //var command = Environment.GetEnvironmentVariable("PROGRAMFILES") + @"\Microsoft SDKs\Windows Azure\Emulator\csrun.exe";
-        const string command = @"C:\Program Files\Microsoft SDKs\Azure\Emulator\csrun.exe";
+        const string command = @"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\Extensions\Microsoft\Azure Storage Emulator\azurite.exe";
 
-        using (var process = Process.Start(command, "/devstore:start")) {
+        using (var process = Process.Start(command, "--skipApiVersionCheck")) {
             process.WaitForExit();
         }
     }

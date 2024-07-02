@@ -36,18 +36,18 @@ internal static class FoldersHandlers
         return TypedResults.Ok(folder);
     }
 
-    internal static async Task<CreatedAtRoute<Guid>> CreateFolder(CreateFolderRequest request, MediaManager mediaManager) {
+    internal static async Task<CreatedAtRoute<CreateFolderResponse>> CreateFolder(CreateFolderRequest request, MediaManager mediaManager) {
         var folderId = await mediaManager.CreateFolder(request.ToCreateFolderCommand());
-        return TypedResults.CreatedAtRoute(folderId, nameof(CreateFolder), new { folderId });
+        return TypedResults.CreatedAtRoute(new CreateFolderResponse(folderId), nameof(CreateFolder), new { folderId });
     }
 
-    internal static async Task<Ok> UpdateFolder(Guid folderId, UpdateFolderRequest request, MediaManager mediaManager) {
+    internal static async Task<NoContent> UpdateFolder(Guid folderId, UpdateFolderRequest request, MediaManager mediaManager) {
         await mediaManager.UpdateFolder(request.ToUpdateFolderCommand(folderId));
-        return TypedResults.Ok();
+        return TypedResults.NoContent();
     }
 
-    internal static async Task<Ok> DeleteFolder(Guid folderId, MediaManager mediaManager) {
+    internal static async Task<NoContent> DeleteFolder(Guid folderId, MediaManager mediaManager) {
         await mediaManager.DeleteFolder(folderId);
-        return TypedResults.Ok();
+        return TypedResults.NoContent();
     }
 }

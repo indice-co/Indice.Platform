@@ -22,7 +22,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.AspNetCore.EmbeddedUI\Indice.AspNetCore.EmbeddedUI.csproj" />
-    <ProjectReference Include="..\Indice.Features.Cases.App\Indice.Features.Cases.App.esproj">
+    <ProjectReference Include="..\Indice.Features.Cases.App\Indice.Features.Cases.App.esproj" Condition="'$(Configuration)' == 'Debug'">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>

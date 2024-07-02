@@ -10,7 +10,7 @@ import { SharedModule } from "src/app/shared/shared.module";
 import { CaseTypeCreateComponent } from "./case-type-create/case-type-create.component";
 import { CaseTypeEditComponent } from "./case-type-edit/case-type-edit.component";
 import { CaseTypesComponent } from "./case-types.component";
-import { CaseTypesService } from "./case-types.service";
+import { CaseTypeUpdateService } from "./case-type-update.service";
 import { CaseTypeDeleteModalComponent } from './case-type-delete-modal/case-type-delete-modal.component';
 
 @NgModule({
@@ -31,7 +31,7 @@ import { CaseTypeDeleteModalComponent } from './case-type-delete-modal/case-type
         IndiceComponentsModule
     ],
     providers: [
-        CaseTypesService
+        CaseTypeUpdateService
     ]
 })
 export class CaseTypesModule { }

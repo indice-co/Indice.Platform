@@ -47,6 +47,8 @@ public static partial class IdentityEndpoints
         public const string PublicRegistration = nameof(PublicRegistration);
         /// <summary>Enables API for public registration API.</summary>
         public const string DashboardMetrics = nameof(DashboardMetrics);
+        /// <summary>Enables API for public registration API.</summary>
+        public const string RssFeed = nameof(RssFeed);
     }
 
     /// <summary>Rate limiting config for Identity Server API.</summary>

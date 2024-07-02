@@ -15,10 +15,10 @@ export class LookupsService extends DataService {
     }
 
     public getLookup(lookupName: string, filter_FilterTerms?: FilterTerm[] | undefined): Observable<LookupItemResultSet> {
-        return this.getDataFromCacheOrHttp(this.setCacheKey(lookupName, filter_FilterTerms), this._api.getLookup(lookupName, filter_FilterTerms));
+        return this.getDataFromCacheOrHttp(this.getCacheKey(lookupName, filter_FilterTerms), this._api.getLookup(lookupName, filter_FilterTerms));
     }
 
-    private setCacheKey(lookupName: string, filter_FilterTerms?: FilterTerm[] | undefined): string {
+    private getCacheKey(lookupName: string, filter_FilterTerms?: FilterTerm[] | undefined): string {
         let cacheKey = `${this.lookups}.${lookupName}`;
         filter_FilterTerms?.forEach((f: FilterTerm) => {
             cacheKey = cacheKey.concat(`.${f.key}.${f.value}`)

@@ -9,6 +9,8 @@ public class DbMediaFile : DbAuditableEntity
     public Guid Guid { get; set; } = Guid.NewGuid();
     /// <summary>The name of the file.</summary>
     public required string Name { get; set; }
+    /// <summary>The pth of the file.</summary>
+    public required string Path { get; set; }
     /// <summary>The description of the file.</summary>
     public string? Description { get; set; }
     /// <summary>The file extension.</summary>

@@ -5,8 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [7.23.2] - 2024-06-05
 ### Added
+- Added `IsMenuItem` property to CaseType, you can now have all your cases displayed in a separate category as a menu item based on their case type
+- Added `GridFilterConfig` property to CaseType, you can add a case type specific filter to your searchOptions dropdown.
+
+### For example, you can edit a case type from the UI and put a `SearchOption` json formatted string like so:
+```
+[
+    {
+        "field": "RequestId",
+        "name": "REQUEST ID",
+        "dataType": "string"
+    }
+]
+```
+
+## [7.23.0] - 2024-06-03
 - Allow `SystemClient` users to `GetCaseActions`.
 
 ## [7.22.1] - 2024-04-23

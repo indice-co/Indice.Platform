@@ -25,8 +25,10 @@ public class DbMediaFileMap : IEntityTypeConfiguration<DbMediaFile>
         builder.HasKey(x => x.Id);
         // Configure indexes.
         builder.HasIndex(x => x.Name).IsUnique(false);
+        builder.HasIndex(x => x.Path).IsUnique(true);
         // Configure Properties
         builder.Property(x => x.Name).HasMaxLength(TextSizePresets.M256).IsRequired();
+        builder.Property(x => x.Path).HasMaxLength(TextSizePresets.L1024).IsRequired();
         builder.Property(x => x.Description).HasMaxLength(TextSizePresets.M512);
         builder.Property(x => x.ContentType).HasMaxLength(TextSizePresets.M256).IsRequired();
         builder.Property(x => x.FileExtension).HasMaxLength(TextSizePresets.S08).IsRequired();

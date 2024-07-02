@@ -8,12 +8,16 @@ namespace Indice.Features.Identity.UI.Pages;
 [SecurityHeaders]
 public abstract class BaseTermsModel : BaseArticlePageModel
 {
+    /// <summary>Request raw html without the layout in order to host under a different app.</summary>
+    [BindProperty(SupportsGet = true)]
+    public bool? Raw { get; set; }
+
     /// <summary>Terms and conditions page GET handler.</summary>
     public virtual async Task<IActionResult> OnGetAsync() {
         if (!string.IsNullOrWhiteSpace(UiOptions.TermsUrl) && Uri.IsWellFormedUriString(UiOptions.TermsUrl, UriKind.Absolute)) {
             return Redirect(UiOptions.TermsUrl);
         }
-        return await Article("Terms of Service", "~/legal/terms-of-service.md");
+        return await Article("Terms of Service", "~/legal/terms-of-service.md", Raw);
     }
 }
 
