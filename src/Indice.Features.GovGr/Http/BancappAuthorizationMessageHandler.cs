@@ -11,7 +11,7 @@ namespace Indice.Features.GovGr.Http;
 /// </summary>
 public class BancappAuthorizationMessageHandler : DelegatingHandler
 {
-    private const string TenantNameProd = "myhands2aade";
+    private const string TenantNameProd = "bancappaade";
     private const string TenantNameStage = "myhands2testaade";
     private const int TokenExpirationInSeconds = 30;
     
