@@ -1,6 +1,8 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Cases.Data.Models;
+using Indice.Features.Cases.Models.Requests;
 using Indice.Features.Cases.Models.Responses;
+using Indice.Types;
 
 namespace Indice.Features.Cases.Interfaces;
 
@@ -13,4 +15,40 @@ internal interface ICheckpointTypeService
     /// <param name="user">The user to filter the case types.</param>
     /// <returns></returns>
     Task<IEnumerable<CheckpointType>> GetDistinctCheckpointTypes(ClaimsPrincipal user);
+
+    /// <summary>
+    /// Gets the distinct checkpoint types of the casetype specified
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="caseTypeId"></param>
+    /// <returns></returns>
+    Task<ResultSet<CheckpointType>> GetCaseTypeCheckpointTypes(ClaimsPrincipal user, Guid caseTypeId);
+
+    /// <summary>
+    /// Creates new checkpoint types
+    /// </summary>
+    /// <param name="createCheckPointTypesRequest"></param>
+    /// <returns></returns>
+    Task<IEnumerable<CheckpointType>> BulkUpdateCheckpointTypes(List<CheckpointTypeRequest> createCheckPointTypesRequest);
+
+    /// <summary>
+    /// Creates a new checkpoint type
+    /// </summary>
+    /// <param name="createCheckPointTypeRequest"></param>
+    /// <returns></returns>
+    Task<CheckpointType> CreateCheckpointType(CheckpointTypeRequest createCheckPointTypeRequest);
+
+    /// <summary>
+    /// Edits a checkpoint type
+    /// </summary>
+    /// <param name="editCheckpointTypeRequest"></param>
+    /// <returns></returns>
+    Task<CheckpointType> EditCheckpointType(EditCheckpointTypeRequest editCheckpointTypeRequest);
+
+    /// <summary>
+    /// Gets a checkpoint type by id
+    /// </summary>
+    /// <param name="checkpointTypeId"></param>
+    /// <returns></returns>
+    Task<GetCheckpointTypeResponse> GetCheckpointTypeById(Guid checkpointTypeId);
 }

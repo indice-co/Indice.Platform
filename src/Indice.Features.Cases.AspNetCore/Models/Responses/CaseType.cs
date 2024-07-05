@@ -1,4 +1,6 @@
-﻿namespace Indice.Features.Cases.Models.Responses;
+﻿using Indice.Types;
+
+namespace Indice.Features.Cases.Models.Responses;
 
 /// <summary>The case type details model.</summary>
 public class CaseType
@@ -50,4 +52,24 @@ public class CaseType
 
     /// <summary>Case type order.</summary>
     public int? Order { get; set; }
+
+    #region Methods
+
+    /// <summary>Translate helper</summary>
+    /// <param name="culture"></param>
+    /// <param name="includeTranslations"></param>
+    /// <returns></returns>
+    public CaseType Translate(string culture, bool includeTranslations) {
+        var type = (CaseType)MemberwiseClone();
+        if (!string.IsNullOrEmpty(culture) && Translations != null && TranslationDictionary<CaseTypeTranslation>.FromJson(Translations).TryGetValue(culture, out var translation)) {
+            type.Title = translation.Title;
+            type.Description = translation.Description;
+        }
+        if (!includeTranslations) {
+            type.Translations = default;
+        }
+        return type;
+    }
+
+    #endregion
 }

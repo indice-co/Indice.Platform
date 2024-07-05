@@ -1,7 +1,7 @@
 import { CaseTypeUpdateService } from '../case-type-update.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CasesApiService, CaseTypeRequest } from 'src/app/core/services/cases-api.service';
+import { CasesApiService } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-type-edit',
@@ -9,17 +9,11 @@ import { CasesApiService, CaseTypeRequest } from 'src/app/core/services/cases-ap
   styleUrls: ['./case-type-edit.component.scss']
 })
 export class CaseTypeEditComponent implements OnInit {
-
   private caseTypeId: string = '';
-
   public widgets = this.caseTypesService.widgets;
-
   public framework = this.caseTypesService.framework;
-
   public schema = this.caseTypesService.schema;
-
   public layout = this.caseTypesService.onLoadLayout(this.caseTypeId);
-
   public data: any;
 
   constructor(

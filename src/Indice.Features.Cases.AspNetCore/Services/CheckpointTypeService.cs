@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Interfaces;
+using Indice.Features.Cases.Models.Requests;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Security;
 using Indice.Types;
@@ -16,6 +17,111 @@ internal class CheckpointTypeService : ICheckpointTypeService
 
     public CheckpointTypeService(CasesDbContext dbContext) {
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+    }
+
+    public async Task<ResultSet<CheckpointType>> GetCaseTypeCheckpointTypes(ClaimsPrincipal user, Guid caseTypeId) {
+        var checkpointQuery = _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == caseTypeId);
+        var result = await GetDistinctCheckpointTypes(user, checkpointQuery);
+
+        return result.ToResultSet();
+    }
+
+    public async Task<CheckpointType> CreateCheckpointType(CheckpointTypeRequest checkpointTypeRequest) {
+        await CheckpointTypeBusinessValidation(checkpointTypeRequest);
+
+        var dbCheckpointType = new DbCheckpointType() {
+            CaseTypeId = checkpointTypeRequest.CaseTypeId,
+            Code = checkpointTypeRequest.Code,
+            Description = checkpointTypeRequest.Description,
+            Private = checkpointTypeRequest.Private,
+            Status = checkpointTypeRequest.Status,
+            Title = checkpointTypeRequest.Title,
+            Translations = checkpointTypeRequest.Translations
+        };
+        var result = await _dbContext.CheckpointTypes.AddAsync(dbCheckpointType);
+        await _dbContext.SaveChangesAsync();
+
+        return TranslateCheckpointTypes([result.Entity]).First();
+    }
+
+    private async Task CheckpointTypeBusinessValidation(CheckpointTypeRequest checkpointTypeRequest) {
+        //There should be at least one "Submitted" code for checkpoints in a case type
+        var submittedExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId).AnyAsync(x => x.Code == CaseStatus.Submitted.ToString());
+
+        if (!submittedExists) {
+            throw new Exception($"You must first create a Checkpoint type with code name {CaseStatus.Submitted}.");
+        }
+
+        //There should be no duplicate codes for checkpoints in a case type
+        var codeAlreadyExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId).AnyAsync(x => x.Code == checkpointTypeRequest.Code);
+
+        if (codeAlreadyExists) {
+            throw new Exception($"Checkpoint type with code name {checkpointTypeRequest.Code} already exists.");
+        }
+    }
+
+    public async Task<GetCheckpointTypeResponse> GetCheckpointTypeById(Guid checkpointTypeId) {
+        var result = await _dbContext.CheckpointTypes.FindAsync(checkpointTypeId);
+        var translated = TranslateCheckpointTypes([result]).First();
+
+        return new GetCheckpointTypeResponse() {
+            Code = translated.Code,
+            Translations = translated.Translations.ToJson(),
+            Description = translated.Description,
+            Id = translated.Id,
+            Private = translated.Private,
+            Status = translated.Status,
+            Title = translated.Title
+        };
+    }
+
+    public async Task<CheckpointType> EditCheckpointType(EditCheckpointTypeRequest editCheckpointTypeRequest) {
+        var dbCheckpointType = new DbCheckpointType() {
+            Id = editCheckpointTypeRequest.CheckpointTypeId,
+            Code = editCheckpointTypeRequest.Code,
+        };
+        var result = await _dbContext.CheckpointTypes.FindAsync(dbCheckpointType.Id);
+        result.Code = dbCheckpointType.Code;
+
+        await _dbContext.SaveChangesAsync();
+
+        return TranslateCheckpointTypes([result]).First();
+    }
+
+    public async Task<IEnumerable<CheckpointType>> BulkUpdateCheckpointTypes(List<CheckpointTypeRequest> createCheckPointTypesRequest) {
+        var checkpointTypes = createCheckPointTypesRequest.Select(createCheckPointTypeRequest => new DbCheckpointType() {
+            CaseTypeId = createCheckPointTypeRequest.CaseTypeId,
+            Code = createCheckPointTypeRequest.Code,
+            Description = createCheckPointTypeRequest.Description,
+            Private = createCheckPointTypeRequest.Private,
+            Status = createCheckPointTypeRequest.Status,
+            Title = createCheckPointTypeRequest.Title,
+            Translations = createCheckPointTypeRequest.Translations
+        });
+
+        foreach (var item in checkpointTypes) {
+            var existingItem = await _dbContext.CheckpointTypes.FindAsync(item.Id);
+            if (existingItem != null) {
+                // Update existing item
+                existingItem.CaseTypeId = item.CaseTypeId;
+                existingItem.Code = item.Code;
+                existingItem.Title = item.Title;
+                existingItem.Description = item.Description;
+                existingItem.Translations = item.Translations;
+                existingItem.Status = item.Status;
+                existingItem.Private = item.Private;
+
+                // Update other properties as needed
+                _dbContext.CheckpointTypes.Update(existingItem);
+            } else {
+                // Add new item
+                _dbContext.CheckpointTypes.Add(item);
+            }
+        }
+
+        await _dbContext.SaveChangesAsync();
+
+        return TranslateCheckpointTypes(checkpointTypes);
     }
 
     public async Task<IEnumerable<CheckpointType>> GetDistinctCheckpointTypes(ClaimsPrincipal user) {
@@ -55,11 +161,60 @@ internal class CheckpointTypeService : ICheckpointTypeService
         return TranslateCheckpointTypes(checkpointTypes);
     }
 
+    public async Task<IEnumerable<CheckpointType>> GetDistinctCheckpointTypes(ClaimsPrincipal user, IQueryable<DbCheckpointType> checkpointQuery) {
+        if (user.IsAdmin()) {
+            return await GetAdminDistinctCheckpointsTypes(checkpointQuery);
+        }
+
+        var roleClaims = user.Claims
+            .Where(c => c.Type == BasicClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList();
+
+        var checkpointTypeIds = await _dbContext.Members
+            .AsQueryable()
+            .Where(r => roleClaims.Contains(r.RoleName))
+            .Select(c => c.CheckpointTypeId)
+            .ToListAsync();
+
+        /*
+         * The logic behind this query is:
+         * Fetch all checkpoint types grouped by Code (eg Submitted, Completed).                  
+         *
+         * The BO will show the grouped codes and will query against those codes.
+         *
+         * If, for "reasons", the business will require different Translations for, eg, "Completed",
+         * the case types MUST be created with different Codes (eg Completed and Completed_B).
+         * This way, the filter will be clear to the back-officer and to the query and will have
+         * both values shown and filtered.
+         */
+        var checkpointTypes = await (
+                from c in checkpointQuery
+                where checkpointTypeIds.Contains(c.Id)
+                group c by c.Code into grouped
+                select grouped.FirstOrDefault()
+            ).ToListAsync();
+
+        return TranslateCheckpointTypes(checkpointTypes);
+    }
+
     private async Task<IEnumerable<CheckpointType>> GetAdminDistinctCheckpointsTypes() {
 
         // Please check the comments above regarding the logic behind this query 
         var checkpointTypes = await (
             from c in _dbContext.CheckpointTypes
+            group c by c.Code into grouped
+            select grouped.FirstOrDefault()
+        ).ToListAsync();
+
+        return TranslateCheckpointTypes(checkpointTypes);
+    }
+
+    private async Task<IEnumerable<CheckpointType>> GetAdminDistinctCheckpointsTypes(IQueryable<DbCheckpointType> checkpointQuery) {
+
+        // Please check the comments above regarding the logic behind this query 
+        var checkpointTypes = await (
+            from c in checkpointQuery
             group c by c.Code into grouped
             select grouped.FirstOrDefault()
         ).ToListAsync();
@@ -74,7 +229,9 @@ internal class CheckpointTypeService : ICheckpointTypeService
                 Code = c.Code,
                 Title = c.Title,
                 Description = c.Description,
-                Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(c.Translations)
+                Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(c.Translations),
+                Private = c.Private,
+                Status = c.Status
             })
             .ToList();
 

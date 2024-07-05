@@ -1,9 +1,9 @@
-<lib-view-layout title="Λίστα Τύπων Υποθέσεων"
+<lib-view-layout title="Τύποι υποθέσεων"
                  [busy]="!items"
-                 [actions]="formActions"
-                 [meta-items]="metaItems">
+                 [actions]="formActions">
     <lib-list-view [items]="items"
                    [count]="count"
+                   [show-pager]="false"
                    [busy]="!items">
         <lib-list-column title="ΤΙΤΛΟΣ">
             <ng-template let-item>{{ item.title }}</ng-template>
@@ -33,7 +33,7 @@
                 &nbsp;
                 <a href="#"
                    [routerLink]=""
-                   (click)="openModal(item.id)"
+                   (click)="confirmDeleteModal(item.id)"
                    class="bg-red-600 hover:bg-red-800 cursor-pointer text-white font-bold p-2 inline-flex rounded text-xs">
                     <span>Διαγραφή</span>
                 </a>
