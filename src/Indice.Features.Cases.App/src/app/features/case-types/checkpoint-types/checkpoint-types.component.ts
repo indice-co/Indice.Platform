@@ -13,7 +13,7 @@ export class CheckpointTypesComponent extends BaseListComponent<CheckpointType> 
   public newItemLink = 'create-checkpoint-type';
 
   public formActions: ViewAction[] = [
-    new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'Create new checkpoint', 'Create new checkpoint')
+    new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'Δημιουργία νέου σημείου ελέγχου', 'Δημιουργία νέου σημείου ελέγχου')
   ];
   public checkpointTypes: CheckpointType[] = [];
   public isModalOpen: boolean = false;
