@@ -1,35 +1,34 @@
-<lib-side-view-layout [title]="title || 'Create new checkpoint'"
+<lib-side-view-layout [title]="title || 'checkpointTypes.createNew' | translate"
                       (ok)="createCheckpoint()"
                       [ok-close-dialog]="true"
-                      ok-label="Create new checkpoint"
+                      ok-label="{{'checkpointTypes.createNew' | translate}}"
                       [disabled]="false">
   <div class="flex">
     <div class="grow bg-white">
-      <h3 class="text-xl font-bold mt-4 mb-4">Add Checkpoint Type</h3>
-        <div class="mb-4">
-         <label class="block text-sm font-medium text-gray-700">Code</label>
+        <div class="mb-4 mt-4">
+         <label class="block text-sm font-medium text-gray-700">{{'checkpointTypes.code' | translate}}</label>
          <input type="text" [(ngModel)]="newCheckpointType.code" name="code" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
         </div>
         <div class="mb-4">
-         <label class="block text-sm font-medium text-gray-700">Status</label>
+         <label class="block text-sm font-medium text-gray-700">{{'checkpointTypes.status' | translate}}</label>
          <select [(ngModel)]="newCheckpointType.status" name="status" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
          <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
          </select>
         </div>
         <div class="mb-4">
-         <label class="block text-sm font-medium text-gray-700">Title</label>
+         <label class="block text-sm font-medium text-gray-700">{{'checkpointTypes.title' | translate}}</label>
          <input type="text" [(ngModel)]="newCheckpointType.title" name="title" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
         </div>
         <div class="mb-4">
-         <label class="block text-sm font-medium text-gray-700">Description</label>
+         <label class="block text-sm font-medium text-gray-700">{{'checkpointTypes.description' | translate}}</label>
          <textarea [(ngModel)]="newCheckpointType.description" name="description" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required></textarea>
         </div>
         <div class="mb-4">
-         <label class="block text-sm font-medium text-gray-700">Translations</label>
+         <label class="block text-sm font-medium text-gray-700">{{'checkpointTypes.translations' | translate}}</label>
          <textarea [(ngModel)]="newCheckpointType.translations" name="translations" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required></textarea>
         </div>
         <div class="mb-4">
-         <label class="block text-sm font-medium text-gray-700">Private</label>
+         <label class="block text-sm font-medium text-gray-700">{{'checkpointTypes.privateDescription' | translate}}</label>
          <input type="checkbox" [(ngModel)]="newCheckpointType.private" name="private" class="mt-1 block">
         </div>
     </div>
