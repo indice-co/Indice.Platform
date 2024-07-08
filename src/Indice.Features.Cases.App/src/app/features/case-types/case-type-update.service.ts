@@ -87,159 +87,152 @@ export class CaseTypeUpdateService {
   public layout: any = [
     {
       "type": "section",
-      "title": "Τύπος Υπόθεσης",
+      "title": "Ρυθμίσεις τύπου υπόθεσης",
       "labelHtmlClass": "px-2",
+      "expandable": true,
+      "expanded": true,
       "items": [
         {
-          "type": "section",
-          "title": "Case type options",
-          "labelHtmlClass": "px-2",
-          "expandable": true,
-          "expanded": true,
+          "type": "flex",
+          "flex-flow": "row wrap",
           "items": [
             {
-              "type": "flex",
-              "flex-flow": "row wrap",
-              "items": [
-                {
-                  "key": "code",
-                  "title": "Κωδικός",
-                  "htmlClass": "px-2 my-2",
-                  "readonly": "true",
-                  "validationMessages": {
-                    "required": "Υποχρεωτικό Πεδίο."
-                  }
-                },
-                {
-                  "key": "title",
-                  "title": "Τίτλος",
-                  "htmlClass": "px-2 my-2",
-                  "validationMessages": {
-                    "required": "Υποχρεωτικό Πεδίο."
-                  }
-                }
-              ]
+              "key": "code",
+              "title": "Κωδικός",
+              "htmlClass": "px-2 my-2",
+              "readonly": "true",
+              "validationMessages": {
+                "required": "Υποχρεωτικό Πεδίο."
+              }
             },
             {
-              "type": "flex",
-              "flex-flow": "row wrap",
-              "items": [
-                {
-                  "key": "order",
-                  "title": "Σειρά μέσα στην κατηγορία",
-                  "htmlClass": "px-2 my-2"
-                },
-                {
-                  "key": "description",
-                  "title": "Περιγραφή",
-                  "htmlClass": "px-2 my-2"
-                }
-              ]
+              "key": "title",
+              "title": "Τίτλος",
+              "htmlClass": "px-2 my-2",
+              "validationMessages": {
+                "required": "Υποχρεωτικό Πεδίο."
+              }
+            }
+          ]
+        },
+        {
+          "type": "flex",
+          "flex-flow": "row wrap",
+          "items": [
+            {
+              "key": "order",
+              "title": "Σειρά μέσα στην κατηγορία",
+              "htmlClass": "pl-2 pr-4"
             },
             {
-              "type": "flex",
-              "flex-flow": "row wrap",
-              "items": [
-                {
-                  "key": "dataSchema",
-                  "title": "Schema",
-                  "type": "textarea",
-                  "htmlClass": "px-2 my-2",
-                  "validationMessages": {
-                    "required": "Υποχρεωτικό Πεδίο."
-                  }
-                },
-                {
-                  "key": "layout",
-                  "title": "Layout",
-                  "type": "textarea",
-                  "htmlClass": "px-2 my-2",
-                },
-              ]
+              "key": "description",
+              "title": "Περιγραφή",
+              "htmlClass": "mr-8"
+            }
+          ]
+        },
+        {
+          "type": "flex",
+          "flex-flow": "row wrap",
+          "items": [
+            {
+              "key": "dataSchema",
+              "title": "Σχήμα",
+              "type": "textarea",
+              "htmlClass": "px-2 my-2",
+              "validationMessages": {
+                "required": "Υποχρεωτικό Πεδίο."
+              }
             },
             {
-              "type": "flex",
-              "flex-flow": "row wrap",
-              "items": [
-                {
-                  "key": "translations",
-                  "title": "Μετάφραση",
-                  "type": "textarea",
-                  "htmlClass": "px-2 my-2"
-                },
-                {
-                  "key": "layoutTranslations",
-                  "title": "Μετάφραση Layout",
-                  "type": "textarea",
-                  "htmlClass": "px-2 my-2"
-                }
-              ]
-            },
-            {
-              "type": "flex",
-              "flex-flow": "row wrap",
-              "items": [
-                {
-                  "key": "tags",
-                  "title": "Ετικέτες",
-                  "htmlClass": "px-2 my-2"
-                }
-              ]
-            },
-            {
-              "type": "flex",
-              "flex-flow": "row wrap",
-              "items": [
-                {
-                  "key": "config",
-                  "title": "Case Type Configuration",
-                  "type": "textarea",
-                  "htmlClass": "px-2 my-2"
-                }
-              ]
-            },
-            {
-              "type": "flex",
-              "flex-flow": "row wrap",
-              "items": [
-                {
-                  "key": "canCreateRoles",
-                  "title": "Επιτρεπτοί Ρόλοι για Δημιουργία υπόθεσης (csv χωρίς κενά πχ Role1,Role2)",
-                  "htmlClass": "px-2 my-2"
-                }
-              ]
+              "key": "layout",
+              "title": "Διάταξη",
+              "type": "textarea",
+              "htmlClass": "px-2 my-2",
             },
           ]
         },
         {
-          "type": "section",
-          "title": "Menu options",
-          "labelHtmlClass": "px-2",
-          "expandable": true,
-          "expanded": true,
+          "type": "flex",
+          "flex-flow": "row wrap",
           "items": [
             {
-              "key": "isMenuItem",
-              "title": "Is menu item",
-              "type": "checkbox",
-              "htmlClass": "px-2 my-2"
-            },
-            {
-              "key": "gridFilterConfig",
-              "title": "Grid filter config",
+              "key": "translations",
+              "title": "Μετάφραση",
               "type": "textarea",
               "htmlClass": "px-2 my-2"
             },
             {
-              "key": "gridColumnConfig",
-              "title": "Grid column config",
+              "key": "layoutTranslations",
+              "title": "Μετάφραση Διάταξης",
               "type": "textarea",
               "htmlClass": "px-2 my-2"
             }
           ]
         },
+        {
+          "type": "flex",
+          "flex-flow": "row wrap",
+          "items": [
+            {
+              "key": "tags",
+              "title": "Ετικέτες",
+              "htmlClass": "px-2 my-2"
+            }
+          ]
+        },
+        {
+          "type": "flex",
+          "flex-flow": "row wrap",
+          "items": [
+            {
+              "key": "config",
+              "title": "Διαμόρφωση τύπου υπόθεσης",
+              "type": "textarea",
+              "htmlClass": "px-2 my-2"
+            }
+          ]
+        },
+        {
+          "type": "flex",
+          "flex-flow": "row wrap",
+          "items": [
+            {
+              "key": "canCreateRoles",
+              "title": "Επιτρεπτοί ρόλοι για δημιουργία υπόθεσης (csv χωρίς κενά πχ Role1, Role2)",
+              "htmlClass": "px-2 my-2"
+            }
+          ]
+        },
       ]
-    }
+    },
+    {
+      "type": "section",
+      "title": "Ρυθμίσεις μενού",
+      "labelHtmlClass": "px-2",
+      "expandable": true,
+      "expanded": true,
+      "items": [
+        {
+          "key": "isMenuItem",
+          "title": "Εμφάνιση στο μενού",
+          "type": "checkbox",
+          "htmlClass": "px-2 my-2"
+        },
+        {
+          "key": "gridFilterConfig",
+          "title": "Διαμόρφωση φίλτρων",
+          "type": "textarea",
+          "htmlClass": "px-2 my-2"
+        },
+        {
+          "key": "gridColumnConfig",
+          "title": "Διαμόρφωση κολονών",
+          "type": "textarea",
+          "htmlClass": "px-2 my-2"
+        }
+      ]
+    },
   ]
 
   public onLoadLayout(id?: string): any {

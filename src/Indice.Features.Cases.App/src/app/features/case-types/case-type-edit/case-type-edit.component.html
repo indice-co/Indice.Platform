@@ -1,7 +1,7 @@
 <div class="mt-4">
   <lib-tab-group #staticTabGroup>
       <lib-tab id="tab-one"
-               labelText="Σχήμα δεδομένων {{data?.title}}">
+               labelText="{{'caseTypeEdit.dataSchema' | translate}} {{data?.title}}">
                <lib-view-layout title="">
                 <main class="details-view-container">
                     <div class="bg-white shadow-sm rounded-sm w-full p-2">
@@ -22,7 +22,7 @@
             </lib-view-layout>
       </lib-tab>
       <lib-tab id="tab-two"
-               labelText="Σημεία ελέγχου {{data?.title}}">
+               labelText="{{'caseTypeEdit.checkpoints' | translate}} {{data?.title}}">
           <app-checkpoint-types-component></app-checkpoint-types-component>
       </lib-tab>
   </lib-tab-group>

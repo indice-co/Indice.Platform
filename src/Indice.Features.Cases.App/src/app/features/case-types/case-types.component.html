@@ -28,14 +28,14 @@
                    [routerLinkActiveOptions]="{ exact: true }"
                    [routerLink]="[item.id + '/edit']"
                    class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
-                    <span>Επεξεργασία</span>
+                    <span>{{'cases.edit' | translate}}</span>
                 </a>
                 &nbsp;
                 <a href="#"
                    [routerLink]=""
                    (click)="confirmDeleteModal(item.id)"
                    class="bg-red-600 hover:bg-red-800 cursor-pointer text-white font-bold p-2 inline-flex rounded text-xs">
-                    <span>Διαγραφή</span>
+                    <span>{{'cases.delete' | translate}}</span>
                 </a>
             </ng-template>
         </lib-list-column>
