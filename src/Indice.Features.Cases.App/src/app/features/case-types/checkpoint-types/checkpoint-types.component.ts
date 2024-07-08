@@ -47,7 +47,8 @@ export class CheckpointTypesComponent extends BaseListComponent<CheckpointType> 
       catchError(err => {
         this.toaster.show(ToastType.Error, "Error", err.message);
         return EMPTY;
-      })
+      }),
+      take(1)
     ).subscribe();
   }
 

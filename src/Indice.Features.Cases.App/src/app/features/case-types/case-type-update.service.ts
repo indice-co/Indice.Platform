@@ -1,4 +1,4 @@
-import { tap, catchError } from 'rxjs/operators';
+import { tap, catchError, take } from 'rxjs/operators';
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { ToasterService, ToastType } from "@indice/ng-components";
@@ -286,7 +286,8 @@ export class CaseTypeUpdateService {
       catchError(err => {
         this.toaster.show(ToastType.Error, "Whoops!", err.detail)
         return EMPTY
-      })
+      }),
+      take(1)
     ).subscribe();
   }
 
@@ -315,7 +316,8 @@ export class CaseTypeUpdateService {
       catchError(err => {
         this.toaster.show(ToastType.Error, "Whoops!", err.detail)
         return EMPTY
-      })
+      }),
+      take(1)
     ).subscribe();
   }
 }

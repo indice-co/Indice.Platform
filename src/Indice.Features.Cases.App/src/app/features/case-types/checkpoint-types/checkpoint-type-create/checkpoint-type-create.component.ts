@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { catchError, EMPTY, tap } from 'rxjs';
+import { catchError, EMPTY, Observable, tap, take } from 'rxjs';
 import { CasesApiService, CaseStatus, CheckpointType, CheckpointTypeRequest } from 'src/app/core/services/cases-api.service';
-
 
 @Component({
   selector: 'app-checkpoint-type-create-component',
@@ -46,8 +45,8 @@ export class CheckpointTypeCreateComponent implements OnInit {
       catchError(err => {
         this.toaster.show(ToastType.Error, "Error", err.detail);
         return EMPTY;
-      })
+      }),
+      take(1)
     ).subscribe();
   }
 }
-
