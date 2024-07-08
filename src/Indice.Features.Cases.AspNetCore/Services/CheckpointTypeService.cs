@@ -46,14 +46,16 @@ internal class CheckpointTypeService : ICheckpointTypeService
 
     private async Task CheckpointTypeBusinessValidation(CheckpointTypeRequest checkpointTypeRequest) {
         //There should be at least one "Submitted" code for checkpoints in a case type
-        var submittedExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId).AnyAsync(x => x.Code == CaseStatus.Submitted.ToString());
+        var submittedExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId)
+                                                              .AnyAsync(x => x.Code == CaseStatus.Submitted.ToString());
 
         if (!submittedExists) {
             throw new Exception($"You must first create a Checkpoint type with code name {CaseStatus.Submitted}.");
         }
 
         //There should be no duplicate codes for checkpoints in a case type
-        var codeAlreadyExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId).AnyAsync(x => x.Code == checkpointTypeRequest.Code);
+        var codeAlreadyExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId)
+                                                                .AnyAsync(x => x.Code == checkpointTypeRequest.Code);
 
         if (codeAlreadyExists) {
             throw new Exception($"Checkpoint type with code name {checkpointTypeRequest.Code} already exists.");
