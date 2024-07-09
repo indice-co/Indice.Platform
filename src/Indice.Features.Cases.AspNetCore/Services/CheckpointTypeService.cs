@@ -20,7 +20,7 @@ internal class CheckpointTypeService : ICheckpointTypeService
     }
 
     public async Task<CheckpointType> CreateCheckpointType(CheckpointTypeRequest checkpointTypeRequest) {
-        await CheckpointTypeBusinessValidation(checkpointTypeRequest);
+        await CheckpointTypeBusinessValidation(checkpointTypeRequest.CaseTypeId, checkpointTypeRequest.Code);
 
         var dbCheckpointType = new DbCheckpointType() {
             CaseTypeId = checkpointTypeRequest.CaseTypeId,
@@ -107,14 +107,17 @@ internal class CheckpointTypeService : ICheckpointTypeService
         if (result == null) {
             throw new Exception("Checkpoint type with that id was not found.");
         }
+
+        await CheckpointTypeBusinessValidation(editCheckpointTypeRequest.CaseTypeId, editCheckpointTypeRequest.Code);
+
         result.Code = editCheckpointTypeRequest.Code;
         await _dbContext.SaveChangesAsync();
         return TranslateCheckpointTypes([result]).First();
     }
 
-    private async Task CheckpointTypeBusinessValidation(CheckpointTypeRequest checkpointTypeRequest) {
+    private async Task CheckpointTypeBusinessValidation(Guid caseTypeId, string code) {
         //There should be at least one "Submitted" code for checkpoints in a case type
-        var submittedExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId)
+        var submittedExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == caseTypeId)
                                                               .AnyAsync(x => x.Code == CaseStatus.Submitted.ToString());
 
         if (!submittedExists) {
@@ -122,11 +125,11 @@ internal class CheckpointTypeService : ICheckpointTypeService
         }
 
         //There should be no duplicate codes for checkpoints in a case type
-        var codeAlreadyExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId)
-                                                                .AnyAsync(x => x.Code == checkpointTypeRequest.Code);
+        var codeAlreadyExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == caseTypeId)
+                                                                .AnyAsync(x => x.Code == code);
 
         if (codeAlreadyExists) {
-            throw new Exception($"Checkpoint type with code name {checkpointTypeRequest.Code} already exists.");
+            throw new Exception($"Checkpoint type with code name {code} already exists.");
         }
     }
 
