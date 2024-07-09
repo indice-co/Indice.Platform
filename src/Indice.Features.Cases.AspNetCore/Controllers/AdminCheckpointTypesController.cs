@@ -55,22 +55,37 @@ internal class AdminCheckpointTypesController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<CheckpointType>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> GetCaseTypeCheckpointTypes(Guid caseTypeId) =>
-        Ok(await _checkpointTypeService.GetCaseTypeCheckpointTypes(User, caseTypeId));
+    public async Task<IActionResult> GetCaseTypeCheckpointTypes(Guid caseTypeId) {
+        try {
+            return Ok(await _checkpointTypeService.GetCaseTypeCheckpointTypes(User, caseTypeId));
+        } catch (Exception ex) {
+            return BadRequest(new ProblemDetails { Title = "Validation Error", Detail = ex.Message });
+        }
+    }
 
     /// <summary>Edits a checkpoint type</summary>
     [HttpGet("/by-id")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetCheckpointTypeResponse))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> GetCheckpointTypeById(Guid checkpointTypeId) =>
-        Ok(await _checkpointTypeService.GetCheckpointTypeById(checkpointTypeId));
+    public async Task<IActionResult> GetCheckpointTypeById(Guid checkpointTypeId) {
+        try {
+            return Ok(await _checkpointTypeService.GetCheckpointTypeById(checkpointTypeId));
+        } catch (Exception ex) {
+            return BadRequest(new ProblemDetails { Title = "Validation Error", Detail = ex.Message });
+        }
+    }
 
     /// <summary>Edits a checkpoint type</summary>
     [HttpPost("/edit")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CheckpointType))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> EditCheckpointType([FromBody] EditCheckpointTypeRequest editCheckpointTypeRequest) =>
-        Ok(await _checkpointTypeService.EditCheckpointType(editCheckpointTypeRequest));
+    public async Task<IActionResult> EditCheckpointType([FromBody] EditCheckpointTypeRequest editCheckpointTypeRequest) {
+        try {
+            return Ok(await _checkpointTypeService.EditCheckpointType(editCheckpointTypeRequest));
+        } catch (Exception ex) {
+            return BadRequest(new ProblemDetails { Title = "Validation Error", Detail = ex.Message });
+        }
+    }
 }
