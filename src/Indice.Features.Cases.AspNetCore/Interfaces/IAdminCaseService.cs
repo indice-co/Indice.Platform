@@ -94,5 +94,5 @@ public interface IAdminCaseService
     /// <param name="User">The user that creates the request.</param>
     /// <param name="metadata">The metadata to add or edit.</param>
     /// <returns></returns>
-    Task<bool> AddOrEditCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata);
+    Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata);
 }

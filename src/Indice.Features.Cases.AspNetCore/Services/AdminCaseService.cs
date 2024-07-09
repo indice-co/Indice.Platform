@@ -354,7 +354,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return attachment;
     }
 
-    public async Task<bool> AddOrEditCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata) {
+    public async Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata) {
         // Check that user role can view this case
         await GetCaseById(User, caseId, false);
         
