@@ -43,14 +43,6 @@ internal class AdminCheckpointTypesController : ControllerBase
     public async Task<IActionResult> GetCaseTypeCheckpointTypes(Guid caseTypeId) =>
         Ok(await _checkpointTypeService.GetCaseTypeCheckpointTypes(User, caseTypeId));
 
-    /// <summary>Updates existing checkpoint types and creates new ones</summary>
-    [HttpPost]
-    [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CheckpointType))]
-    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> BulkUpdateCheckpointTypes([FromBody] List<CheckpointTypeRequest> checkpointTypeRequest) =>
-        Ok(await _checkpointTypeService.BulkUpdateCheckpointTypes(checkpointTypeRequest));
-
     /// <summary>Creates a new checkpoint type</summary>
     [HttpPost("/create")]
     [Produces(MediaTypeNames.Application.Json)]

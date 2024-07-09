@@ -25,13 +25,6 @@ internal interface ICheckpointTypeService
     Task<ResultSet<CheckpointType>> GetCaseTypeCheckpointTypes(ClaimsPrincipal user, Guid caseTypeId);
 
     /// <summary>
-    /// Creates new checkpoint types
-    /// </summary>
-    /// <param name="createCheckPointTypesRequest"></param>
-    /// <returns></returns>
-    Task<IEnumerable<CheckpointType>> BulkUpdateCheckpointTypes(List<CheckpointTypeRequest> createCheckPointTypesRequest);
-
-    /// <summary>
     /// Creates a new checkpoint type
     /// </summary>
     /// <param name="createCheckPointTypeRequest"></param>

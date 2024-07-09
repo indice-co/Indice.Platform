@@ -93,38 +93,6 @@ internal class CheckpointTypeService : ICheckpointTypeService
         return TranslateCheckpointTypes([result]).First();
     }
 
-    public async Task<IEnumerable<CheckpointType>> BulkUpdateCheckpointTypes(List<CheckpointTypeRequest> createCheckPointTypesRequest) {
-        var checkpointTypes = createCheckPointTypesRequest.Select(createCheckPointTypeRequest => new DbCheckpointType() {
-            CaseTypeId = createCheckPointTypeRequest.CaseTypeId,
-            Code = createCheckPointTypeRequest.Code,
-            Description = createCheckPointTypeRequest.Description,
-            Private = createCheckPointTypeRequest.Private,
-            Status = createCheckPointTypeRequest.Status,
-            Title = createCheckPointTypeRequest.Title,
-            Translations = createCheckPointTypeRequest.Translations
-        });
-
-        foreach (var item in checkpointTypes) {
-            var existingItem = await _dbContext.CheckpointTypes.FindAsync(item.Id);
-            if (existingItem != null) {
-                existingItem.Code = item.Code;
-                existingItem.Title = item.Title;
-                existingItem.Description = item.Description;
-                existingItem.Translations = item.Translations;
-                existingItem.Status = item.Status;
-                existingItem.Private = item.Private;
-
-                _dbContext.CheckpointTypes.Update(existingItem);
-            } else {
-                _dbContext.CheckpointTypes.Add(item);
-            }
-        }
-
-        await _dbContext.SaveChangesAsync();
-
-        return TranslateCheckpointTypes(checkpointTypes);
-    }
-
     public async Task<IEnumerable<CheckpointType>> GetDistinctCheckpointTypes(ClaimsPrincipal user) {
         if (user.IsAdmin()) {
             return await GetAdminDistinctCheckpointsTypes();
