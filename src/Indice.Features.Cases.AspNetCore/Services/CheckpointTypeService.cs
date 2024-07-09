@@ -19,16 +19,6 @@ internal class CheckpointTypeService : ICheckpointTypeService
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public async Task<ResultSet<CheckpointType>> GetCaseTypeCheckpointTypes(ClaimsPrincipal user, Guid caseTypeId) {
-        if (!user.IsAdmin()) {
-            throw new Exception("User is not an admin.");
-        }
-
-        var checkpointQuery = _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == caseTypeId);
-        var result = await GetAdminDistinctCheckpointsTypes(checkpointQuery);
-        return result.ToResultSet();
-    }
-
     public async Task<CheckpointType> CreateCheckpointType(CheckpointTypeRequest checkpointTypeRequest) {
         await CheckpointTypeBusinessValidation(checkpointTypeRequest);
 
@@ -47,22 +37,14 @@ internal class CheckpointTypeService : ICheckpointTypeService
         return TranslateCheckpointTypes([result.Entity]).First();
     }
 
-    private async Task CheckpointTypeBusinessValidation(CheckpointTypeRequest checkpointTypeRequest) {
-        //There should be at least one "Submitted" code for checkpoints in a case type
-        var submittedExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId)
-                                                              .AnyAsync(x => x.Code == CaseStatus.Submitted.ToString());
-
-        if (!submittedExists) {
-            throw new Exception($"You must first create a Checkpoint type with code name {CaseStatus.Submitted}.");
+    public async Task<ResultSet<CheckpointType>> GetCaseTypeCheckpointTypes(ClaimsPrincipal user, Guid caseTypeId) {
+        if (!user.IsAdmin()) {
+            throw new Exception("User is not an admin.");
         }
 
-        //There should be no duplicate codes for checkpoints in a case type
-        var codeAlreadyExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId)
-                                                                .AnyAsync(x => x.Code == checkpointTypeRequest.Code);
-
-        if (codeAlreadyExists) {
-            throw new Exception($"Checkpoint type with code name {checkpointTypeRequest.Code} already exists.");
-        }
+        var checkpointQuery = _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == caseTypeId);
+        var result = await GetAdminDistinctCheckpointsTypes(checkpointQuery);
+        return result.ToResultSet();
     }
 
     public async Task<GetCheckpointTypeResponse> GetCheckpointTypeById(Guid checkpointTypeId) {
@@ -81,16 +63,6 @@ internal class CheckpointTypeService : ICheckpointTypeService
             Status = translated.Status,
             Title = translated.Title
         };
-    }
-
-    public async Task<CheckpointType> EditCheckpointType(EditCheckpointTypeRequest editCheckpointTypeRequest) {
-        var result = await _dbContext.CheckpointTypes.FindAsync(editCheckpointTypeRequest.CheckpointTypeId);
-        if (result == null) {
-            throw new Exception("Checkpoint type with that id was not found.");
-        }
-        result.Code = editCheckpointTypeRequest.Code;
-        await _dbContext.SaveChangesAsync();
-        return TranslateCheckpointTypes([result]).First();
     }
 
     public async Task<IEnumerable<CheckpointType>> GetDistinctCheckpointTypes(ClaimsPrincipal user) {
@@ -128,6 +100,34 @@ internal class CheckpointTypeService : ICheckpointTypeService
             ).ToListAsync();
 
         return TranslateCheckpointTypes(checkpointTypes);
+    }
+
+    public async Task<CheckpointType> EditCheckpointType(EditCheckpointTypeRequest editCheckpointTypeRequest) {
+        var result = await _dbContext.CheckpointTypes.FindAsync(editCheckpointTypeRequest.CheckpointTypeId);
+        if (result == null) {
+            throw new Exception("Checkpoint type with that id was not found.");
+        }
+        result.Code = editCheckpointTypeRequest.Code;
+        await _dbContext.SaveChangesAsync();
+        return TranslateCheckpointTypes([result]).First();
+    }
+
+    private async Task CheckpointTypeBusinessValidation(CheckpointTypeRequest checkpointTypeRequest) {
+        //There should be at least one "Submitted" code for checkpoints in a case type
+        var submittedExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId)
+                                                              .AnyAsync(x => x.Code == CaseStatus.Submitted.ToString());
+
+        if (!submittedExists) {
+            throw new Exception($"You must first create a Checkpoint type with code name {CaseStatus.Submitted}.");
+        }
+
+        //There should be no duplicate codes for checkpoints in a case type
+        var codeAlreadyExists = await _dbContext.CheckpointTypes.Where(x => x.CaseTypeId == checkpointTypeRequest.CaseTypeId)
+                                                                .AnyAsync(x => x.Code == checkpointTypeRequest.Code);
+
+        if (codeAlreadyExists) {
+            throw new Exception($"Checkpoint type with code name {checkpointTypeRequest.Code} already exists.");
+        }
     }
 
     private async Task<IEnumerable<CheckpointType>> GetAdminDistinctCheckpointsTypes() {

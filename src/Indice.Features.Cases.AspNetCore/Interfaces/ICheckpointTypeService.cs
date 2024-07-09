@@ -9,6 +9,13 @@ namespace Indice.Features.Cases.Interfaces;
 /// <summary>The checkpoint type service for managing the domain models <see cref="DbCheckpoint"/> and <see cref="DbCheckpointType"/>.</summary>
 internal interface ICheckpointTypeService
 {
+    /// <summary>
+    /// Creates a new checkpoint type
+    /// </summary>
+    /// <param name="createCheckPointTypeRequest"></param>
+    /// <returns></returns>
+    Task<CheckpointType> CreateCheckpointType(CheckpointTypeRequest createCheckPointTypeRequest);
+
     /// <summary>Get the distinct checkpoint types of the system for the authorized role.
     /// The grouping is done by <see cref="CheckpointType.Code"/> and <see cref="CheckpointType.Title"/>.
     /// </summary>
@@ -25,11 +32,11 @@ internal interface ICheckpointTypeService
     Task<ResultSet<CheckpointType>> GetCaseTypeCheckpointTypes(ClaimsPrincipal user, Guid caseTypeId);
 
     /// <summary>
-    /// Creates a new checkpoint type
+    /// Gets a checkpoint type by id
     /// </summary>
-    /// <param name="createCheckPointTypeRequest"></param>
+    /// <param name="checkpointTypeId"></param>
     /// <returns></returns>
-    Task<CheckpointType> CreateCheckpointType(CheckpointTypeRequest createCheckPointTypeRequest);
+    Task<GetCheckpointTypeResponse> GetCheckpointTypeById(Guid checkpointTypeId);
 
     /// <summary>
     /// Edits a checkpoint type
@@ -37,11 +44,4 @@ internal interface ICheckpointTypeService
     /// <param name="editCheckpointTypeRequest"></param>
     /// <returns></returns>
     Task<CheckpointType> EditCheckpointType(EditCheckpointTypeRequest editCheckpointTypeRequest);
-
-    /// <summary>
-    /// Gets a checkpoint type by id
-    /// </summary>
-    /// <param name="checkpointTypeId"></param>
-    /// <returns></returns>
-    Task<GetCheckpointTypeResponse> GetCheckpointTypeById(Guid checkpointTypeId);
 }
