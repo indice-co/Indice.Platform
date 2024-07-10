@@ -11,4 +11,17 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.Common\Indice.Common.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Update="StringLocalizerTestsTranslations.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>StringLocalizerTestsTranslations.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="StringLocalizerTestsTranslations.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>StringLocalizerTestsTranslations.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>
