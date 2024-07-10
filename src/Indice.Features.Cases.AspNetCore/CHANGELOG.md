@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.23.3] - 2024-07-12
+### Added
+- Added `PatchCaseMetadata` to AdminCasesController, so you can now update a case's metadata.
+- Also added `PatchCaseMetadata` to the IAdminCaseService, so you can now update a case's metadata from your code.
+
 ## [7.23.2] - 2024-06-05
 ### Added
 - Added `IsMenuItem` property to CaseType, you can now have all your cases displayed in a separate category as a menu item based on their case type
