@@ -10,7 +10,7 @@ import { CasesApiService, CaseStatus, CheckpointType, CheckpointTypeResultSet, C
 })
 
 export class CheckpointTypesComponent extends BaseListComponent<CheckpointType> implements OnInit {
-  public newItemLink = 'create-checkpoint-type';
+  public newItemLink = 'case-types/create-checkpoint-type';
 
   public formActions: ViewAction[] = [
     new RouterViewAction(Icons.Add, this.newItemLink, 'rightpane', 'Δημιουργία νέου σημείου ελέγχου', 'Δημιουργία νέου σημείου ελέγχου')

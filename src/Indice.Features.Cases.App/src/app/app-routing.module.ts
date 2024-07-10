@@ -64,8 +64,7 @@ const routes: Routes = [
   { path: 'logout', component: LogOutComponent, data: { title: 'Logout', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Αποσύνδεση' } } },
   { path: '**', component: PageNotFoundComponent, data: { title: 'Page Not Found', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Δεν βρέθηκε η σελίδα' } } },
   { path: 'create-checkpoint-type', component: CheckpointTypeCreateComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'Δημιουργία σημείου ελέγχου', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'Δημιουργία σημείου ελέγχου' } } },
-  { path: ':checkpointTypeId/edit-checkpoint-type', component: CheckpointTypeEditComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'Επεξεργασία σημείου ελέγχου', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'Επεξεργασία σημείου ελέγχου' } } },
-
+  { path: 'edit-checkpoint-type/:checkpointTypeId', component: CheckpointTypeEditComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'Επεξεργασία σημείου ελέγχου', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'Επεξεργασία σημείου ελέγχου' } } },
 ];
 
 @NgModule({

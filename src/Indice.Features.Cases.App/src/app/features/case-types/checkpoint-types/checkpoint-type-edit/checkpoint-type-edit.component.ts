@@ -25,7 +25,8 @@ export class CheckpointTypeEditComponent implements OnInit {
 
   ngOnInit(): void {
     const urlTree = this.router.parseUrl(this.router.url);
-    const checkpointId = urlTree.root.children['rightpane'].segments[0].path;
+    //get the checkpointid (2nd element from the url segments path)
+    const checkpointId = urlTree.root.children['rightpane'].segments[1].path;
     this.loadCheckpointTypeById(checkpointId);
   }
 
@@ -44,6 +45,7 @@ export class CheckpointTypeEditComponent implements OnInit {
   }
 
   editCheckpoint() {
+    //get the casetypeid (2nd cell when splitting with slash)
     const caseTypeId = this.router.url.split("/")[2];
     const editCheckpointRequest: EditCheckpointTypeRequest = {
       checkpointTypeId: this.loadedCheckpoint.id,

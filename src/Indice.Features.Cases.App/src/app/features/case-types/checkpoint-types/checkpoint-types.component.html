@@ -27,7 +27,7 @@
           <a title="Επεξεργασία τύπου"
           [routerLinkActive]="['']"
           [routerLinkActiveOptions]="{ exact: true }"
-          [routerLink]="['', { outlets: { rightpane: [item.id, 'edit-checkpoint-type'] } }]"
+          [routerLink]="['', { outlets: { rightpane: ['edit-checkpoint-type', item.id] } }]"
           class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
           <span>{{'checkpointTypes.edit' | translate}}</span>
           </a>
