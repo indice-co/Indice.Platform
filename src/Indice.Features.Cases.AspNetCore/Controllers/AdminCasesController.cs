@@ -139,6 +139,27 @@ internal class AdminCasesController : ControllerBase
         await _adminCaseService.Submit(User, caseId);
         return NoContent();
     }
+    
+    /// <summary>Patches the metadata of a case.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="metadata">The metadata to patch.</param>
+    /// <returns></returns>
+    [HttpPatch("{caseId:guid}/metadata")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+    public async Task<IActionResult> PatchCaseMetadata([FromRoute] Guid caseId, Dictionary<string, string> metadata) {
+        if (metadata == null) {
+            ModelState.AddModelError(nameof(metadata), "Metadata is empty.");
+            return BadRequest(new ValidationProblemDetails(ModelState));
+        }
+        var result = await _adminCaseService.PatchCaseMetadata(caseId, User, metadata);
+        if (!result) {
+            return NotFound();
+        }
+        return Ok();
+    }
+
 
     /// <summary>Gets the list of all cases using the provided <see cref="ListOptions"/>.</summary>
     /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
