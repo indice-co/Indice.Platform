@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿#nullable enable
+using System.Globalization;
 
 namespace Microsoft.Extensions.Localization;
 
@@ -26,4 +27,42 @@ public static class IStringLocalizerExtensions
         CultureInfo.CurrentUICulture = origCulture;
         return strings;
     }
+
+    /// <summary>
+    /// Creates an object graph of nested <em>Dictionary&lt;string, object&gt;</em> 
+    /// equivalent to the flat structure represented by the keys of the resource strings inside the <paramref name="resourceManager"/>
+    /// </summary>
+    /// <remarks>Can be serialized and returned as json for client side localization</remarks>
+    /// <param name="stringLocalizer">The string localizer we need to export</param>
+    /// <param name="culture">The culture to export keys for.</param>
+    /// <param name="pathDelimiter">The delimiter character for determining a path from a given key. For example for key &quot;feature.dashboard.title&quot; would be '.' </param>
+    /// <returns>The object graph in the form of a <em>Dictionary&lt;string, object&gt;</em></returns>
+    public static Dictionary<string, object> ToObjectGraph(this IStringLocalizer stringLocalizer, CultureInfo culture, char pathDelimiter = '.') =>
+        stringLocalizer.GetAllStrings(culture, includeParentCultures: true).ToObjectGraphInternal(pathDelimiter);
+
+    internal static Dictionary<string, object> ToObjectGraphInternal(this IEnumerable<LocalizedString> strings, char pathDelimiter = '.') {
+        var graph = new Dictionary<string, object>();
+        foreach (var keyValue in strings) {
+            var keyPath = keyValue.Name.Split(pathDelimiter)!;
+            var depth = 0;
+            var node = graph;
+            // ensure path;
+            while (depth < keyPath.Length) {
+                var subKey = keyPath[depth];
+                if (!node.ContainsKey(subKey) && depth < keyPath.Length - 1) {
+                    node.Add(subKey, new Dictionary<string, object>());
+                }
+                if (depth < keyPath.Length - 1) {
+                    node = (Dictionary<string, object>)node[subKey];
+                } else {
+                    var value = keyValue.Value;
+                    node.Add(keyPath[depth], value);
+                    break;
+                }
+                depth++;
+            }
+        }
+        return graph;
+    }
 }
+#nullable disable
