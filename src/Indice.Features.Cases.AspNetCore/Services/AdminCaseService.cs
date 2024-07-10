@@ -354,6 +354,21 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return attachment;
     }
 
+    public async Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata) {
+        // Check that user role can view this case
+        await GetCaseById(User, caseId, false);
+        
+        var dbCase = await _dbContext.Cases.FindAsync(caseId);
+        if (dbCase == null) {
+            return false;
+        }
+        foreach (var keyValuePair in metadata) {
+            dbCase.Metadata[keyValuePair.Key] = keyValuePair.Value;
+        }
+        await _dbContext.SaveChangesAsync();
+        return true;
+    }
+
     public async Task<AuditMeta> AssignCase(AuditMeta user, Guid caseId) {
         if (user.Id == default || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Name)) {
             throw new ArgumentException(nameof(user));
