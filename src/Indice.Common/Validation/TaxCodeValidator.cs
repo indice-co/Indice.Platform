@@ -11,50 +11,50 @@ public static class TaxCodeValidator
 {
     static readonly IDictionary<string, string[]> supportedCountryMap = new Dictionary<string, string[]> {
            // Note - VAT codes without the "**" in the comment do not have check digit checking.
-           { "AT", new [] { "^(AT)?U(\\d{8})$" } } ,                     //** Austria
-           { "BE", new [] { "^(BE)?(0?\\d{9})$" } },                     //** Belgium 
-           { "BG", new [] { "^(BG)?(\\d{9,10})$" } },                    //** Bulgaria 
-           { "CH", new [] { "^(CHE)?(\\d{9})(MWST|TVA|IVA)?$" } },       //** Switzerland
-           { "CY", new [] { "^(CY)?([0-59]\\d{7}[A-Z])$" } },            //** Cyprus
-           { "CZ", new [] { "^(CZ)?(\\d{8,10})(\\d{3})?$" } },           //** Czech Republic
-           { "DE", new [] { "^(DE)?([1-9]\\d{8})$" } },                  //** Germany 
-           { "DK", new [] { "^(DK)?(\\d{8})$" } },                       //** Denmark 
-           { "EE", new [] { "^(EE)?(10\\d{7})$" } },                     //** Estonia 
-           { "GR", new [] { "^(EL)?(\\d{9})$" } },                       //** Greece 
-           { "ES", new [] { "^(ES)?([A-Z]\\d{8})$",                      //** Spain (National juridical entities)
-                            "^(ES)?([A-HN-SW]\\d{7}[A-J])$",             //** Spain (Other juridical entities)
-                            "^(ES)?([0-9YZ]\\d{7}[A-Z])$",               //** Spain (Personal entities type 1)
-                            "^(ES)?([KLMX]\\d{7}[A-Z])$" } },            //** Spain (Personal entities type 2)
-           { "EU", new [] { "^(EU)?(\\d{9})$" } },                       //** EU-type 
-           { "FI", new [] { "^(FI)?(\\d{8})$" } },                       //** Finland 
-           { "FR", new [] { "^(FR)?(\\d{11})$",                          //** France (1)
-                            "^(FR)?([A-HJ-NP-Z]\\d{10})$",               //   France (2)
-                            "^(FR)?(\\d[A-HJ-NP-Z]\\d{9})$",             //   France (3)
-                            "^(FR)?([A-HJ-NP-Z]{2}\\d{9})$" } },         //   France (4)
-           { "UK", new [] { "^(GB)?(\\d{9})$",                           //** UK (Standard)
-                            "^(GB)?(\\d{12})$",                          //** UK (Branches)
-                            "^(GB)?(GD\\d{3})$",                         //** UK (Government)
-                            "^(GB)?(HA\\d{3})$" } },                     //** UK (Health authority)
-           { "HR", new [] { "^(HR)?(\\d{11})$" } },                      //** Croatia 
-           { "HU", new [] { "^(HU)?(\\d{8})$" } },                       //** Hungary 
-           { "IE", new [] { "^(IE)?(\\d{7}[A-W])$",                      //** Ireland (1)
-                            "^(IE)?([7-9][A-Z\\*\\+)]\\d{5}[A-W])$",     //** Ireland (2)
-                            "^(IE)?(\\d{7}[A-W][AH])$" } },              //** Ireland (3)
-           { "IT", new [] { "^(IT)?(\\d{11})$" } },                      //** Italy 
-           { "LV", new [] { "^(LV)?(\\d{11})$" } },                      //** Latvia 
-           { "LT", new [] { "^(LT)?(\\d{9}|\\d{12})$" } },               //** Lithunia
-           { "LU", new [] { "^(LU)?(\\d{8})$" } },                       //** Luxembourg 
-           { "MT", new [] { "^(MT)?([1-9]\\d{7})$" } },                  //** Malta
-           { "NL", new [] { "^(NL)?(\\d{9})B\\d{2}$" } },                //** Netherlands
-           { "NO", new [] { "^(NO)?(\\d{9})$" } },                       //** Norway (not EU)
-           { "PL", new [] { "^(PL)?(\\d{10})$" } },                      //** Poland
-           { "PT", new [] { "^(PT)?(\\d{9})$" } },                       //** Portugal
-           { "RO", new [] { "^(RO)?([1-9]\\d{1,9})$" } },                //** Romania
-           { "RU", new [] { "^(RU)?(\\d{10}|\\d{12})$" } },              //** Russia
-           { "RS", new [] { "^(RS)?(\\d{9})$" } },                       //** Serbia
-           { "SI", new [] { "^(SI)?([1-9]\\d{7})$" } },                  //** Slovenia
-           { "SK", new [] { "^(SK)?([1-9]\\d[2346-9]\\d{7})$" } },       //** Slovakia Republic
-           { "SE", new [] { "^(SE)?(\\d{10}01)$" } }                     //** Sweden
+           ["AT"] = ["^(AT)?U(\\d{8})$" ],                     //** Austria
+           ["BE"] = ["^(BE)?(0?\\d{9})$"],                     //** Belgium 
+           ["BG"] = ["^(BG)?(\\d{9,10})$"],                    //** Bulgaria 
+           ["CH"] = ["^(CHE)?(\\d{9})(MWST|TVA|IVA)?$"],       //** Switzerland
+           ["CY"] = ["^(CY)?([0-59]\\d{7}[A-Z])$"],            //** Cyprus
+           ["CZ"] = ["^(CZ)?(\\d{8,10})(\\d{3})?$"],           //** Czech Republic
+           ["DE"] = ["^(DE)?([1-9]\\d{8})$"],                  //** Germany 
+           ["DK"] = ["^(DK)?(\\d{8})$"],                       //** Denmark 
+           ["EE"] = ["^(EE)?(10\\d{7})$"],                     //** Estonia 
+           ["GR"] = ["^(EL)?(\\d{9})$"],                       //** Greece 
+           ["ES"] = ["^(ES)?([A-Z]\\d{8})$",                   //** Spain (National juridical entities)
+                     "^(ES)?([A-HN-SW]\\d{7}[A-J])$",          //** Spain (Other juridical entities)
+                     "^(ES)?([0-9YZ]\\d{7}[A-Z])$",            //** Spain (Personal entities type 1)
+                     "^(ES)?([KLMX]\\d{7}[A-Z])$"],            //** Spain (Personal entities type 2)
+           ["EU"] = ["^(EU)?(\\d{9})$"],                       //** EU-type 
+           ["FI"] = ["^(FI)?(\\d{8})$"],                       //** Finland 
+           ["FR"] = ["^(FR)?(\\d{11})$",                       //** France (1)
+                     "^(FR)?([A-HJ-NP-Z]\\d{10})$",            //   France (2)
+                     "^(FR)?(\\d[A-HJ-NP-Z]\\d{9})$",          //   France (3)
+                     "^(FR)?([A-HJ-NP-Z]{2}\\d{9})$"],         //   France (4)
+           ["UK"] = ["^(GB)?(\\d{9})$",                        //** UK (Standard)
+                     "^(GB)?(\\d{12})$",                       //** UK (Branches)
+                     "^(GB)?(GD\\d{3})$",                      //** UK (Government)
+                     "^(GB)?(HA\\d{3})$"],                     //** UK (Health authority)
+           ["HR"] = ["^(HR)?(\\d{11})$"],                      //** Croatia 
+           ["HU"] = ["^(HU)?(\\d{8})$"],                       //** Hungary 
+           ["IE"] = ["^(IE)?(\\d{7}[A-W])$",                   //** Ireland (1)
+                     "^(IE)?([7-9][A-Z\\*\\+)]\\d{5}[A-W])$",  //** Ireland (2)
+                     "^(IE)?(\\d{7}[A-W][AH])$"],              //** Ireland (3)
+           ["IT"] = ["^(IT)?(\\d{11})$"],                      //** Italy 
+           ["LV"] = ["^(LV)?(\\d{11})$"],                      //** Latvia 
+           ["LT"] = ["^(LT)?(\\d{9}|\\d{12})$"],               //** Lithunia
+           ["LU"] = ["^(LU)?(\\d{8})$"],                       //** Luxembourg 
+           ["MT"] = ["^(MT)?([1-9]\\d{7})$"],                  //** Malta
+           ["NL"] = ["^(NL)?(\\d{9})B\\d{2}$"],                //** Netherlands
+           ["NO"] = ["^(NO)?(\\d{9})$"],                       //** Norway (not EU)
+           ["PL"] = ["^(PL)?(\\d{10})$"],                      //** Poland
+           ["PT"] = ["^(PT)?(\\d{9})$"],                       //** Portugal
+           ["RO"] = ["^(RO)?([1-9]\\d{1,9})$"],                //** Romania
+           ["RU"] = ["^(RU)?(\\d{10}|\\d{12})$"],              //** Russia
+           ["RS"] = ["^(RS)?(\\d{9})$"],                       //** Serbia
+           ["SI"] = ["^(SI)?([1-9]\\d{7})$"],                  //** Slovenia
+           ["SK"] = ["^(SK)?([1-9]\\d[2346-9]\\d{7})$"],       //** Slovakia Republic
+           ["SE"] = ["^(SE)?(\\d{10}01)$"]                     //** Sweden
     };
 
     /// <summary>Check the tax id against format and check sum where available.</summary>
@@ -101,7 +101,7 @@ public static class TaxCodeValidator
 #else
                 var method = typeof(TaxCodeValidator).GetTypeInfo().GetDeclaredMethod(methodName);
 #endif
-                if (method != null && (bool)method.Invoke(null, new[] { cNumber }))
+                if (method != null && (bool)method.Invoke(null, [cNumber]))
                     valid = true;
 
                 // Having processed the number, we break from the loop
@@ -201,7 +201,7 @@ public static class TaxCodeValidator
             if ((month > 0 && month < 13) || (month > 20 && month < 33) || (month > 40 && month < 53)) {
 
                 // Extract the next digit and multiply by the counter.
-                multipliers = new[] { 2, 4, 8, 5, 10, 9, 7, 3, 6 };
+                multipliers = [2, 4, 8, 5, 10, 9, 7, 3, 6];
                 total = 0;
                 for (var i = 0; i < 9; i++) total += int.Parse(vatnumber[i].ToString()) * multipliers[i];
 
@@ -217,7 +217,7 @@ public static class TaxCodeValidator
         // It doesn't relate to a standard physical person - see if it relates to a foreigner.
 
         // Extract the next digit and multiply by the counter.
-        multipliers = new[] { 21, 19, 17, 13, 11, 9, 7, 3, 1 };
+        multipliers = [21, 19, 17, 13, 11, 9, 7, 3, 1];
         total = 0;
         for (var i = 0; i < 9; i++) total += int.Parse(vatnumber[i].ToString()) * multipliers[i];
 
@@ -227,7 +227,7 @@ public static class TaxCodeValidator
         // Finally, if not yet identified, see if it conforms to a miscellaneous VAT number
 
         // Extract the next digit and multiply by the counter.
-        multipliers = new[] { 4, 3, 2, 7, 6, 5, 4, 3, 2 };
+        multipliers = [4, 3, 2, 7, 6, 5, 4, 3, 2];
         total = 0;
         for (var i = 0; i < 9; i++) total += int.Parse(vatnumber[i].ToString()) * multipliers[i];
 
@@ -787,7 +787,7 @@ public static class TaxCodeValidator
 
             // Can have a double check digit calculation!
             if (total % 11 == 10) {
-                multipliers = new[] { 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4 };
+                multipliers = [3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4];
                 total = 0;
                 for (var i = 0; i < 11; i++) total += int.Parse(vatnumber[i].ToString()) * multipliers[i];
             }

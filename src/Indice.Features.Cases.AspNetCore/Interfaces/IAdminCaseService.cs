@@ -86,4 +86,13 @@ public interface IAdminCaseService
     /// <param name="attachmentId"></param>
     /// <returns></returns>
     Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId);
+    
+    /// <summary>
+    /// Adds or edits metadata for a case.
+    /// </summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="User">The user that creates the request.</param>
+    /// <param name="metadata">The metadata to add or edit.</param>
+    /// <returns></returns>
+    Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata);
 }
