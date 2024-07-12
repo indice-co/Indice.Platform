@@ -30,7 +30,7 @@ public static class IStringLocalizerExtensions
 
     /// <summary>
     /// Creates an object graph of nested <em>Dictionary&lt;string, object&gt;</em> 
-    /// equivalent to the flat structure represented by the keys of the resource strings inside the <paramref name="resourceManager"/>
+    /// equivalent to the flat structure represented by the keys of the resource strings inside the <paramref name="stringLocalizer"/>
     /// </summary>
     /// <remarks>Can be serialized and returned as json for client side localization</remarks>
     /// <param name="stringLocalizer">The string localizer we need to export</param>
