@@ -101,7 +101,7 @@ public static class TaxCodeValidator
 #else
                 var method = typeof(TaxCodeValidator).GetTypeInfo().GetDeclaredMethod(methodName);
 #endif
-                if (method != null && (bool)method.Invoke(null, new[] { cNumber }))
+                if (method != null && (bool)method.Invoke(null, [cNumber]))
                     valid = true;
 
                 // Having processed the number, we break from the loop
@@ -201,7 +201,7 @@ public static class TaxCodeValidator
             if ((month > 0 && month < 13) || (month > 20 && month < 33) || (month > 40 && month < 53)) {
 
                 // Extract the next digit and multiply by the counter.
-                multipliers = new[] { 2, 4, 8, 5, 10, 9, 7, 3, 6 };
+                multipliers = [2, 4, 8, 5, 10, 9, 7, 3, 6];
                 total = 0;
                 for (var i = 0; i < 9; i++) total += int.Parse(vatnumber[i].ToString()) * multipliers[i];
 
@@ -217,7 +217,7 @@ public static class TaxCodeValidator
         // It doesn't relate to a standard physical person - see if it relates to a foreigner.
 
         // Extract the next digit and multiply by the counter.
-        multipliers = new[] { 21, 19, 17, 13, 11, 9, 7, 3, 1 };
+        multipliers = [21, 19, 17, 13, 11, 9, 7, 3, 1];
         total = 0;
         for (var i = 0; i < 9; i++) total += int.Parse(vatnumber[i].ToString()) * multipliers[i];
 
@@ -227,7 +227,7 @@ public static class TaxCodeValidator
         // Finally, if not yet identified, see if it conforms to a miscellaneous VAT number
 
         // Extract the next digit and multiply by the counter.
-        multipliers = new[] { 4, 3, 2, 7, 6, 5, 4, 3, 2 };
+        multipliers = [4, 3, 2, 7, 6, 5, 4, 3, 2];
         total = 0;
         for (var i = 0; i < 9; i++) total += int.Parse(vatnumber[i].ToString()) * multipliers[i];
 
@@ -787,7 +787,7 @@ public static class TaxCodeValidator
 
             // Can have a double check digit calculation!
             if (total % 11 == 10) {
-                multipliers = new[] { 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4 };
+                multipliers = [3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4];
                 total = 0;
                 for (var i = 0; i < 11; i++) total += int.Parse(vatnumber[i].ToString()) * multipliers[i];
             }
