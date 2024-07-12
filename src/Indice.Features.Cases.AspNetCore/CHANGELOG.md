@@ -26,6 +26,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ]
 ```
 
+### Migrations
+Add 3 more columns to `CaseType` table.
+```sql
+ALTER TABLE [case].[CaseType]
+    ADD IsMenuItem bit NOT NULL DEFAULT 0,
+    GridFilterConfig nvarchar(MAX) NULL,
+    GridColumnConfig nvarchar(MAX) NULL;
+```
+
 ## [7.23.0] - 2024-06-03
 - Allow `SystemClient` users to `GetCaseActions`.
 
