@@ -18,7 +18,7 @@ public static class ResourceManagerExtensions
     /// <param name="cultureInfo">The culture to export keys for.</param>
     /// <param name="pathDelimiter">The delimiter character for determining a path from a given key. For example for key &quot;feature.dashboard.title&quot; would be '.' </param>
     /// <returns>The object graph in the form of a <em>Dictionary&lt;string, object&gt;</em></returns>
-    public static Dictionary<string, object> ToObjectGraph(this System.Resources.ResourceManager resourceManager, CultureInfo? cultureInfo, char pathDelimiter = '.') {
+    public static Dictionary<string, object> ToObjectGraph(this System.Resources.ResourceManager resourceManager, CultureInfo? cultureInfo = null, char pathDelimiter = '.') {
         var set = resourceManager.GetResourceSet(cultureInfo ?? CultureInfo.CurrentUICulture, createIfNotExists: true, tryParents: true)!;
         var strings = set.Cast<DictionaryEntry>().Select(x => new LocalizedString(x.Key.ToString()!, set.GetString(x.Key.ToString()!)!));
         return IStringLocalizerExtensions.ToObjectGraphInternal(strings, pathDelimiter);
