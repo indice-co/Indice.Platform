@@ -5,6 +5,9 @@ import { CasesApiService, CaseTypePartialResultSet, CheckpointType, } from 'src/
 import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { GeneralCasesComponent } from '../general-cases/general-cases.component';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
+import { DatePipe } from '@angular/common';
+import { settings } from 'src/app/core/models/settings';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-case-type-specific-cases-component',
@@ -18,9 +21,10 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
-    protected _caseTypeService: CaseTypeService
+    protected _caseTypeService: CaseTypeService,
+    protected datePipe: DatePipe,
   ) {
-    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService);
+    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService, datePipe);
     this._route.params.subscribe(() => {
       this.initialize();
     })
@@ -28,6 +32,23 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
 
   public ngOnInit(): void {
     super.ngOnInit();
+  }
+
+  setupColumns() {
+    this._caseTypeService.getCaseType(this.getFilterCacheKey()).pipe(
+      map(caseType => JSON.parse(caseType?.gridColumnConfig!) || [])
+    ).pipe(
+      map(gridConfigColumns => this.setupCaseSpecificColumns(gridConfigColumns))
+    ).subscribe();
+  }
+
+  setupCaseSpecificColumns(gridConfigColumns: ({ key: string; itemProperty?: undefined; } | { key: string; itemProperty: string; })[] | undefined): void {
+    super.setupDefaultColumns();
+    this.columns = [...this.columns, ...gridConfigColumns!];
+
+    for (const column of gridConfigColumns!) {
+      this.tableColumns[column.key] = gridConfigColumns!.map(x => x.key).includes(column.key);
+    }
   }
 
   getOtherSearchOptions(caseTypes: CaseTypePartialResultSet): SearchOption[] | undefined {

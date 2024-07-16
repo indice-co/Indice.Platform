@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, SearchOption, ViewAction } from '@indice/ng-components';
@@ -25,13 +26,26 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   protected caseTypes: CaseTypePartialResultSet | undefined;
   public caseTypeTitle: string = "";
 
+  public columns = [
+    { key: 'ReferenceNumber' },
+    { key: 'CustomerId' },
+    { key: 'CustomerName' },
+    { key: 'TaxId', itemProperty: 'metadata.TaxId' },
+    { key: 'GroupId' },
+    { key: 'CaseType', itemProperty: 'caseType.title' },
+    { key: 'CheckpointType', itemProperty: 'checkpointType.title' },
+    { key: 'AssignedTo', itemProperty: 'assignedToName' },
+    { key: 'SubmitDate', itemProperty: 'createdByWhen' }
+  ];
+
   constructor(
     protected _route: ActivatedRoute,
     protected _router: Router,
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
-    protected _caseTypeService: CaseTypeService
+    protected _caseTypeService: CaseTypeService,
+    protected datePipe: DatePipe
   ) {
     super(_route, _router);
     this.view = ListViewType.Table;
@@ -42,12 +56,57 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
       new MenuOption('Ημ. Υποβολής', 'createdByWhen')
     ];
     this.loadFilterSettings();
-    this.loadColumnSettings();
   }
 
   public ngOnInit(): void {
     this.initialize();
     this.createNewCaseButton();
+    this.setupColumns();
+  }
+
+  setupColumns() {
+    this.setupDefaultColumns();
+  }
+
+  setupDefaultColumns(): void {
+    const defaultColumns = ["CustomerId", "CustomerName", "TaxId", "GroupId", "CaseType", "CheckpointType", "AssignedTo", "SubmitDate"];
+    const configColumns = settings.caseListColumns === '' ? defaultColumns : settings.caseListColumns.split(',');
+    for (const column of this.columns) {
+      this.tableColumns[column.key] = configColumns.includes(column.key);
+    }
+  }
+
+  public getItemValue(item: any, column: any) {
+    const value = this.findAccordingValue(item, column);
+    let formattedValue = value;
+    if (value instanceof Date) {
+      // Format date using DatePipe
+      formattedValue = this.datePipe.transform(value, 'dd/MM/yy, HH:mm') || '-';
+    }
+    if (value === undefined || value === null) {
+      formattedValue = '-';
+    }
+    return formattedValue;
+  }
+
+  private findAccordingValue(item: any, column: any): any {
+    if (column.itemProperty) {
+      return this.getValueFromProperty(item, column.itemProperty)
+    }
+    const itemProperty = column.key;
+    const formattedProperty = itemProperty[0].toLowerCase() + itemProperty.slice(1);
+    return item[formattedProperty];
+  }
+
+  private getValueFromProperty(obj: any, propPath: any) {
+    const props = propPath.split('.');
+    for (const prop of props) {
+      obj = obj[prop];
+      if (obj === undefined) {
+        return obj;
+      }
+    }
+    return obj;
   }
 
   public initialize(): void {
@@ -262,20 +321,6 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     this.tableFilters.CheckpointTypeCodes = filters.some(filter => filter === "CheckpointTypeCodes");
   }
 
-  private loadColumnSettings(): void {
-    if (settings.caseListColumns === '') return;
-    const columns = settings.caseListColumns.split(',')
-    this.tableColumns.ReferenceNumber = columns.some(column => column === "ReferenceNumber");
-    this.tableColumns.CustomerId = columns.some(column => column === "CustomerId");
-    this.tableColumns.CustomerName = columns.some(column => column === "CustomerName");
-    this.tableColumns.TaxId = columns.some(column => column === "TaxId");
-    this.tableColumns.GroupId = columns.some(column => column === "GroupId");
-    this.tableColumns.CaseType = columns.some(column => column === "CaseType");
-    this.tableColumns.CheckpointType = columns.some(column => column === "CheckpointType");
-    this.tableColumns.AssignedTo = columns.some(column => column === "AssignedTo");
-    this.tableColumns.SubmitDate = columns.some(column => column === "SubmitDate");
-  }
-
   //TODO: make this public in Indice.Angular
   private stringifyFilters(filters: FilterClause[] | undefined) {
     return filters?.map((f: FilterClause) => {
@@ -303,13 +348,5 @@ class TableFilters {
 }
 
 class TableColumns {
-  ReferenceNumber: boolean = false;
-  CustomerId: boolean = true;
-  CustomerName: boolean = true;
-  TaxId: boolean = true;
-  GroupId: boolean = true;
-  CaseType: boolean = true;
-  CheckpointType: boolean = true;
-  AssignedTo: boolean = true;
-  SubmitDate: boolean = true;
+  [key: string]: boolean;
 }
