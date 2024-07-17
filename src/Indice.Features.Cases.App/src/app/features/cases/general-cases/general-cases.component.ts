@@ -65,10 +65,19 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   }
 
   protected setupColumns() {
-    const defaultColumns = ["CustomerId", "CustomerName", "TaxId", "GroupId", "CaseType", "CheckpointType", "AssignedTo", "SubmitDate"];
-    const configColumns = settings.caseListColumns === '' ? defaultColumns : settings.caseListColumns.split(',');
-    for (const column of this.columns) {
-      this.tableColumns[column.key] = configColumns.includes(column.key);
+    //default columns are already in this.columns so if environment variables is empty then return
+    if (settings.caseListColumns === '') {
+      return;
+    }
+    const defaultColumnKeys = this.columns.map(x => x.key);
+    const configColumns = settings.caseListColumns.split(',');
+
+    for (const key of defaultColumnKeys) {
+      //if environment variables do not have the already existing columns that we display then remove them
+      if (!configColumns.includes(key)) {
+        //renew column list to remove the keys that were not found
+        this.columns = this.columns.filter(x=> x.key != key);
+      }
     }
   }
 
