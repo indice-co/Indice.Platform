@@ -80,7 +80,8 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   }
 
   public getItemValue(item: any, column: any) {
-    const value = this.findAccordingValue(item, column);
+    //if column has an "itemProperty" then get its value, else the value is the title in camel case
+    const value = column.itemProperty ? this.getValueFromPropertyPath(item, column.itemProperty) : item[`${column.title[0].toLowerCase()}${column.title.slice(1)}`];
     let formattedValue = value;
     if (value instanceof Date) {
       // Format date using DatePipe
@@ -92,24 +93,16 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     return formattedValue;
   }
 
-  private findAccordingValue(item: any, column: any): any {
-    if (column.itemProperty) {
-      return this.getValueFromProperty(item, column.itemProperty)
-    }
-    const itemProperty = column.title;
-    const formattedProperty = itemProperty[0].toLowerCase() + itemProperty.slice(1);
-    return item[formattedProperty];
-  }
-
-  private getValueFromProperty(obj: any, propPath: any) {
-    const props = propPath.split('.');
+  //this method navigates through the "dots" of the property path and finds the corresponding value of the object
+  private getValueFromPropertyPath(givenObject: any, propertyPath: any) {
+    const props = propertyPath.split('.');
     for (const prop of props) {
-      obj = obj[prop];
-      if (obj === undefined) {
-        return obj;
+      givenObject = givenObject[prop];
+      if (givenObject === undefined) {
+        return givenObject;
       }
     }
-    return obj;
+    return givenObject;
   }
 
   public initialize(): void {
