@@ -24,17 +24,16 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   public tableFilters = new TableFilters();
   protected caseTypes: CaseTypePartialResultSet | undefined;
   public caseTypeTitle: string = "";
-
   public columns = [
-    { key: 'ReferenceNumber' },
-    { key: 'CustomerId' },
-    { key: 'CustomerName' },
-    { key: 'TaxId', itemProperty: 'metadata.TaxId' },
-    { key: 'GroupId' },
-    { key: 'CaseType', itemProperty: 'caseType.title' },
-    { key: 'CheckpointType', itemProperty: 'checkpointType.title' },
-    { key: 'AssignedTo', itemProperty: 'assignedToName' },
-    { key: 'SubmitDate', itemProperty: 'createdByWhen' }
+    { title: 'ReferenceNumber' },
+    { title: 'CustomerId' },
+    { title: 'CustomerName' },
+    { title: 'TaxId', itemProperty: 'metadata.TaxId' },
+    { title: 'GroupId' },
+    { title: 'CaseType', itemProperty: 'caseType.title' },
+    { title: 'CheckpointType', itemProperty: 'checkpointType.title' },
+    { title: 'AssignedTo', itemProperty: 'assignedToName' },
+    { title: 'SubmitDate', itemProperty: 'createdByWhen' }
   ];
 
   constructor(
@@ -68,14 +67,14 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     if (settings.caseListColumns === '') {
       return;
     }
-    const defaultColumnKeys = this.columns.map(x => x.key);
+    const defaultColumnTitles = this.columns.map(x => x.title);
     const configColumns = settings.caseListColumns.split(',');
 
-    for (const key of defaultColumnKeys) {
+    for (const title of defaultColumnTitles) {
       //if environment variables do not have the already existing columns that we display then remove them
-      if (!configColumns.includes(key)) {
-        //renew column list to remove the keys that were not found
-        this.columns = this.columns.filter(x => x.key != key);
+      if (!configColumns.includes(title)) {
+        //renew column list to remove the titles that were not found
+        this.columns = this.columns.filter(x => x.title != title);
       }
     }
   }
@@ -97,7 +96,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     if (column.itemProperty) {
       return this.getValueFromProperty(item, column.itemProperty)
     }
-    const itemProperty = column.key;
+    const itemProperty = column.title;
     const formattedProperty = itemProperty[0].toLowerCase() + itemProperty.slice(1);
     return item[formattedProperty];
   }

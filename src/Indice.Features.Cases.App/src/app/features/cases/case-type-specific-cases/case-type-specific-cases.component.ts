@@ -13,7 +13,6 @@ import { map } from 'rxjs';
   templateUrl: '../general-cases/general-cases.component.html'
 })
 export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implements OnInit {
-
   constructor(
     protected _route: ActivatedRoute,
     protected _router: Router,
@@ -37,7 +36,7 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     this._caseTypeService.getCaseType(this.getFilterCacheKey()).pipe(
       map(caseType => {
         //add additional columns to display in the table
-        let gridConfigColumns: ({ key: string; itemProperty?: undefined; } | { key: string; itemProperty: string; })[] | undefined = JSON.parse(caseType?.gridColumnConfig!) || []
+        let gridConfigColumns: ({ title: string; itemProperty?: undefined; } | { title: string; itemProperty: string; })[] | undefined = JSON.parse(caseType?.gridColumnConfig!) || []
         this.columns = [...this.columns, ...gridConfigColumns!];
 
         super.initColumns();
