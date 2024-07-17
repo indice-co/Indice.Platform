@@ -6,7 +6,6 @@ import { FilterCachingService } from 'src/app/core/services/filter-caching.servi
 import { GeneralCasesComponent } from '../general-cases/general-cases.component';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
 import { DatePipe } from '@angular/common';
-import { settings } from 'src/app/core/models/settings';
 import { map } from 'rxjs';
 
 @Component({

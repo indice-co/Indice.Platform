@@ -22,7 +22,6 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   ];
   public queryParamsHasFilter = false;
   public tableFilters = new TableFilters();
-  public tableColumns = new TableColumns();
   protected caseTypes: CaseTypePartialResultSet | undefined;
   public caseTypeTitle: string = "";
 
@@ -350,8 +349,4 @@ class TableFilters {
   DateRange: boolean = true;
   CaseTypeCodes: boolean = true;
   CheckpointTypeCodes: boolean = true;
-}
-
-class TableColumns {
-  [key: string]: boolean;
 }
