@@ -33,15 +33,14 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     super.ngOnInit();
   }
 
-  protected setupColumns() {
-
+  protected initColumns() {
     this._caseTypeService.getCaseType(this.getFilterCacheKey()).pipe(
       map(caseType => {
         //add additional columns to display in the table
         let gridConfigColumns: ({ key: string; itemProperty?: undefined; } | { key: string; itemProperty: string; })[] | undefined = JSON.parse(caseType?.gridColumnConfig!) || []
         this.columns = [...this.columns, ...gridConfigColumns!];
 
-        super.setupColumns();
+        super.initColumns();
       })
     ).subscribe();
   }

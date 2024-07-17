@@ -60,10 +60,10 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   public ngOnInit(): void {
     this.initialize();
     this.createNewCaseButton();
-    this.setupColumns();
+    this.initColumns();
   }
 
-  protected setupColumns() {
+  protected initColumns() {
     //default columns are already in this.columns so if environment variables is empty then return
     if (settings.caseListColumns === '') {
       return;
@@ -75,7 +75,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
       //if environment variables do not have the already existing columns that we display then remove them
       if (!configColumns.includes(key)) {
         //renew column list to remove the keys that were not found
-        this.columns = this.columns.filter(x=> x.key != key);
+        this.columns = this.columns.filter(x => x.key != key);
       }
     }
   }
