@@ -64,11 +64,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     this.setupColumns();
   }
 
-  setupColumns() {
-    this.setupDefaultColumns();
-  }
-
-  setupDefaultColumns(): void {
+  protected setupColumns() {
     const defaultColumns = ["CustomerId", "CustomerName", "TaxId", "GroupId", "CaseType", "CheckpointType", "AssignedTo", "SubmitDate"];
     const configColumns = settings.caseListColumns === '' ? defaultColumns : settings.caseListColumns.split(',');
     for (const column of this.columns) {

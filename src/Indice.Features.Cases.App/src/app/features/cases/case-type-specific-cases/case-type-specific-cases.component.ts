@@ -34,21 +34,18 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     super.ngOnInit();
   }
 
-  setupColumns() {
+  protected setupColumns() {
+    super.setupColumns();
     this._caseTypeService.getCaseType(this.getFilterCacheKey()).pipe(
-      map(caseType => JSON.parse(caseType?.gridColumnConfig!) || [])
-    ).pipe(
-      map(gridConfigColumns => this.setupCaseSpecificColumns(gridConfigColumns))
+      map(caseType => {
+        let gridConfigColumns: ({ key: string; itemProperty?: undefined; } | { key: string; itemProperty: string; })[] | undefined = JSON.parse(caseType?.gridColumnConfig!) || []
+        this.columns = [...this.columns, ...gridConfigColumns!];
+
+        for (const column of gridConfigColumns!) {
+          this.tableColumns[column.key] = gridConfigColumns!.map(x => x.key).includes(column.key);
+        }
+      })
     ).subscribe();
-  }
-
-  setupCaseSpecificColumns(gridConfigColumns: ({ key: string; itemProperty?: undefined; } | { key: string; itemProperty: string; })[] | undefined): void {
-    super.setupDefaultColumns();
-    this.columns = [...this.columns, ...gridConfigColumns!];
-
-    for (const column of gridConfigColumns!) {
-      this.tableColumns[column.key] = gridConfigColumns!.map(x => x.key).includes(column.key);
-    }
   }
 
   getOtherSearchOptions(caseTypes: CaseTypePartialResultSet): SearchOption[] | undefined {
