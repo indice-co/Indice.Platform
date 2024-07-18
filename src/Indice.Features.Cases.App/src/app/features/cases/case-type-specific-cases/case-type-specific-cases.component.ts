@@ -37,7 +37,7 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
       map(caseType => {
         //add additional columns to display in the table
         let gridConfigColumns: ({ title: string; itemProperty?: undefined; } | { title: string; itemProperty: string; })[] | undefined = JSON.parse(caseType?.gridColumnConfig!) || []
-        this.columns = [...this.columns, ...gridConfigColumns!];
+        this.columns = gridConfigColumns!;
 
         super.initColumns();
       })
