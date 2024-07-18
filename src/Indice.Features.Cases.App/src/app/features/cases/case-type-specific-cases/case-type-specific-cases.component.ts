@@ -33,13 +33,13 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
   }
 
   protected initColumns() {
+    super.initColumns();
+
     this._caseTypeService.getCaseType(this.getFilterCacheKey()).pipe(
       map(caseType => {
         //add additional columns to display in the table
         let gridConfigColumns: ({ title: string; itemProperty?: undefined; } | { title: string; itemProperty: string; })[] | undefined = JSON.parse(caseType?.gridColumnConfig!) || []
         this.columns = gridConfigColumns!;
-
-        super.initColumns();
       })
     ).subscribe();
   }
