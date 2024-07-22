@@ -29,7 +29,7 @@
                  (sortdirChanged)="sortdirChanged($event)">
     <ng-container *ngFor="let column of columns">
       <lib-list-column [title]="('cases.' + column.title[0].toLowerCase() + column.title.slice(1)) | translate">
-        <ng-template let-item>{{ getItemValue(item, column) }}</ng-template>
+        <ng-template let-item>{{ item | itemValue: column }}</ng-template>
       </lib-list-column>
     </ng-container>
     <lib-list-column>
