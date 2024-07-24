@@ -77,6 +77,11 @@ public class IdentityUIOptions
     public List<HomePageLink> HomepageLinks { get; } = new List<HomePageLink>() {
         new HomePageLink("Admin","~/admin", CssClass:"admin", VisibilityPredicate: user => user.IsAdmin())
     };
+    /// <summary>
+    /// Should show the Add Email page before sending the confirmation email prompt (in case of pernding confirmation login) or Confirm emai immediately.
+    /// </summary>
+    /// <remarks>Useful when user store is from a migrated database and we need to force users to add an email where an email is not present. Defaults to true.</remarks>
+    public bool ShowAddEmailPrompt { get; set; } = true;
 
     /// <summary>Adds a homepage link to the a service definition cards.</summary>
     /// <param name="displayName">The label.</param>
