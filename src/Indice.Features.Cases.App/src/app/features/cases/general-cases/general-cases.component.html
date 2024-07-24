@@ -31,7 +31,7 @@
       <!-- TODO: Change to this when working on translation -->
       <!-- <lib-list-column [title]="('cases.' + column.title[0].toLowerCase() + column.title.slice(1)) | translate"> -->
       <lib-list-column [title]="column.title">
-        <ng-template let-item>{{ item | itemValue: column }}</ng-template>
+        <ng-template let-item>{{ item | valueFromPath: column }}</ng-template>
       </lib-list-column>
     </ng-container>
     <lib-list-column>

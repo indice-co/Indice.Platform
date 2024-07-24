@@ -9,17 +9,13 @@ export class BeautifyBooleanPipe implements PipeTransform {
 }
 
 @Pipe({
-  name: 'itemValue',
+  name: 'valueFromPath',
   pure: true
 })
-export class ItemValuePipe implements PipeTransform {
+export class ValueFromPathPipe implements PipeTransform {
   constructor(private datePipe: DatePipe) { }
 
   transform(item: any, column: any): any {
-    return this.getItemValue(item, column);
-  }
-
-  public getItemValue(item: any, column: any) {
     //if column has an "itemProperty" then get its value, else the value is the title in camel case
     const value = column.itemProperty ? this.getValueFromPropertyPath(item, column.itemProperty) : item[`${column.title[0].toLowerCase()}${column.title.slice(1)}`];
     let formattedValue = value;

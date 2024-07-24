@@ -91,32 +91,6 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     }
   }
 
-  public getItemValue(item: any, column: any) {
-    //if column has an "itemProperty" then get its value, else the value is the title in camel case
-    const value = column.itemProperty ? this.getValueFromPropertyPath(item, column.itemProperty) : item[`${column.title[0].toLowerCase()}${column.title.slice(1)}`];
-    let formattedValue = value;
-    if (value instanceof Date) {
-      // Format date using DatePipe
-      formattedValue = this.datePipe.transform(value, 'dd/MM/yy, HH:mm') || '-';
-    }
-    if (value === undefined || value === null) {
-      formattedValue = '-';
-    }
-    return formattedValue;
-  }
-
-  //this method navigates through the "dots" of the property path and finds the corresponding value of the object
-  private getValueFromPropertyPath(givenObject: any, propertyPath: any) {
-    const props = propertyPath.split('.');
-    for (const prop of props) {
-      givenObject = givenObject[prop];
-      if (givenObject === undefined) {
-        return givenObject;
-      }
-    }
-    return givenObject;
-  }
-
   public initialize(): void {
     const key = this.getFilterCacheKey();
     const storedParams = this._filterCachingService.getParams(key);

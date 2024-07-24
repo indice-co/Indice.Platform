@@ -20,7 +20,7 @@ import { QueriesModalComponent } from "src/app/shared/components/query-modal/que
 import { QueriesPageComponent } from "./queries-page/queries-page.component";
 import { GeneralCasesComponent } from "./general-cases/general-cases.component";
 import { CaseTypeSpecificCasesComponent } from "./case-type-specific-cases/case-type-specific-cases.component";
-import { ItemValuePipe } from "src/app/shared/pipes.services";
+import { ValueFromPathPipe } from "src/app/shared/pipes.services";
 
 @NgModule({
   declarations: [
@@ -56,7 +56,7 @@ import { ItemValuePipe } from "src/app/shared/pipes.services";
   ],
   providers: [
     DatePipe,
-    ItemValuePipe
+    ValueFromPathPipe
   ]
 })
 export class CasesModule { }

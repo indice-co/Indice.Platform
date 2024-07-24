@@ -31,7 +31,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { QuillModule } from 'ngx-quill';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
-import { ItemValuePipe } from './pipes.services';
+import { ValueFromPathPipe } from './pipes.services';
 
 @NgModule({
   declarations: [
@@ -62,7 +62,7 @@ import { ItemValuePipe } from './pipes.services';
     LabelOnlyWidgetComponent,
     // pipes
     BeautifyBooleanPipe,
-    ItemValuePipe
+    ValueFromPathPipe
   ],
   imports: [
     CommonModule,
@@ -101,7 +101,7 @@ import { ItemValuePipe } from './pipes.services';
     // pipes
     BeautifyBooleanPipe,
     TranslateModule,
-    ItemValuePipe
+    ValueFromPathPipe
   ],
   providers: [
     provideNgxMask()
