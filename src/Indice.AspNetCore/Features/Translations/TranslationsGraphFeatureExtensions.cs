@@ -14,7 +14,7 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>
 /// Extension methods to configure the Translations json endpoint. 
 /// </summary>
-public static class TranslationsJsonFeatureExtensions
+public static class TranslationsGraphFeatureExtensions
 {
 
     /// <summary>
@@ -23,12 +23,12 @@ public static class TranslationsJsonFeatureExtensions
     /// <param name="services">The service collection</param>
     /// <param name="configureAction">The action to configure the translations endpoint source of key value pairs</param>
     /// <returns>The service collection for further configuration</returns>
-    public static IServiceCollection AddTranslationGraph(this IServiceCollection services, Action<TranslationsJsonOptions>? configureAction) {
+    public static IServiceCollection AddTranslationGraph(this IServiceCollection services, Action<TranslationsGraphOptions>? configureAction) {
         services.AddLocalization();
         services.Configure<RouteOptions>(options => options.ConstraintMap.Add("culture", typeof(CultureRouteConstraint)));
-        var options = new TranslationsJsonOptions();
+        var options = new TranslationsGraphOptions();
         configureAction?.Invoke(options);
-        services.Configure<TranslationsJsonOptions>((o) => {
+        services.Configure<TranslationsGraphOptions>((o) => {
             o.TranslationsBaseName = options.TranslationsBaseName;
             o.TranslationsLocation = options.TranslationsLocation;
             o.EndpointRoutePattern = options.EndpointRoutePattern;
@@ -43,7 +43,7 @@ public static class TranslationsJsonFeatureExtensions
     /// <returns>The builder for further configureation</returns>
     
     public static IEndpointRouteBuilder MapTranslationGraph(this IEndpointRouteBuilder routes) {
-        var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsJsonOptions>>().Value;
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsGraphOptions>>().Value;
         routes.MapGet(options.EndpointRoutePattern, (string lang, IStringLocalizerFactory factory) => {
             var strings = factory.Create(options.TranslationsBaseName, options.TranslationsLocation);
             return TypedResults.Ok(strings.ToObjectGraph(new System.Globalization.CultureInfo(lang)));
@@ -53,9 +53,9 @@ public static class TranslationsJsonFeatureExtensions
 }
 
 /// <summary>
-/// Translation json options. Will be used to configure <see cref="TranslationsJsonFeatureExtensions"/>
+/// Translation json options. Will be used to configure <see cref="TranslationsGraphFeatureExtensions"/>
 /// </summary>
-public class TranslationsJsonOptions 
+public class TranslationsGraphOptions 
 {
     /// <summary>
     /// A dot dlimited path to the folder containing the Resex file with the translations key values. Defaults to <strong>"Resources.UiTranslations"</strong>
