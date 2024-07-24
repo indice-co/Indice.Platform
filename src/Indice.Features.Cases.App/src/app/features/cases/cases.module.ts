@@ -1,5 +1,5 @@
 import { NgModule } from "@angular/core";
-import { CommonModule, DatePipe } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
@@ -55,7 +55,6 @@ import { ValueFromPathPipe } from "src/app/shared/pipes.services";
     CaseDetailPageComponent
   ],
   providers: [
-    DatePipe,
     ValueFromPathPipe
   ]
 })

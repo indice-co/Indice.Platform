@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { BaseListComponent, FilterClause, Icons, IResultSet, ListViewType, MenuOption, ModalService, Operators, RouterViewAction, SearchOption, ViewAction } from '@indice/ng-components';
@@ -54,8 +53,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
     protected _api: CasesApiService,
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
-    protected _caseTypeService: CaseTypeService,
-    protected datePipe: DatePipe
+    protected _caseTypeService: CaseTypeService
   ) {
     super(_route, _router);
     this.view = ListViewType.Table;

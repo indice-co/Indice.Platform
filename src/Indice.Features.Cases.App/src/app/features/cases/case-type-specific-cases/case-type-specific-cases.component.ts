@@ -5,7 +5,6 @@ import { CasesApiService, CaseTypePartialResultSet, CheckpointType, } from 'src/
 import { FilterCachingService } from 'src/app/core/services/filter-caching.service';
 import { GeneralCasesComponent } from '../general-cases/general-cases.component';
 import { CaseTypeService } from 'src/app/core/services/case-type.service';
-import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
 
 @Component({
@@ -20,9 +19,8 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     protected _filterCachingService: FilterCachingService,
     protected _modalService: ModalService,
     protected _caseTypeService: CaseTypeService,
-    protected datePipe: DatePipe,
   ) {
-    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService, datePipe);
+    super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService);
     this._route.params.subscribe(() => {
       this.initialize();
     })
