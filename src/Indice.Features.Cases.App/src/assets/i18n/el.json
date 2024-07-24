@@ -18,7 +18,19 @@
     "checkpointType": "Σημείο Ελέγχου",
     "assignedTo": "Ανάθεση σε",
     "submitDate": "Ημ. Υποβολής",
-    "choose": "Επιλογή"
+    "choose": "Επιλογή",
+    "unRefId": "Μοναδικός Αριθμός Αιτήματος",
+    "isCustomer": "Πελάτης",
+    "legalEntity": "Νομικό Πρόσωπο",
+    "startDate": "Ημ. Από",
+    "endDate": "Ημ. Εώς",
+    "lastName": "Επώνυμο",
+    "firstName":"Όνομα",
+    "createdByWhen": "Δημιουργήθηκε",
+    "requestId": "Αριθμός Αιτήματος",
+    "birthDate": "Ημ. Γέννησης",
+    "hasLoans": "Δάνεια",
+    "outcome": "Θετική/Αρνητική Απάντηση"
   },
   "caseDetails": {
     "caseId": "Κωδικός Υπόθεσης",
