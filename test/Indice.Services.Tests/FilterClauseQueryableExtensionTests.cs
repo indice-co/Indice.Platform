@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Indice.Services.Tests;
 
-public class FilterClauseQueryableExtensionTests : IDisposable
+public class FilterClauseQueryableExtensionTests : IAsyncDisposable
 {
     public FilterClauseQueryableExtensionTests() {
         var inMemorySettings = new Dictionary<string, string> {
@@ -29,6 +29,7 @@ public class FilterClauseQueryableExtensionTests : IDisposable
     [Fact]
     public async Task FilterClause_Translates_ToDatabaseQuery_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
+        await dbContext.SeedAsync();
         var filters = new List<FilterClause> {
             //(FilterClause)"extras.id::eq::(integer)15",
             (FilterClause)"data.displayName::contains::κων",
@@ -45,6 +46,7 @@ public class FilterClauseQueryableExtensionTests : IDisposable
     [Fact]
     public async Task ToResultset_Translates_DynamicJsonPaths_Sort_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
+        await dbContext.SeedAsync();
         var query = dbContext.Dummies;
         var results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
         results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" });
@@ -59,6 +61,7 @@ public class FilterClauseQueryableExtensionTests : IDisposable
     [Fact]
     public async Task ToResultset_Translates_DynamicJsonPaths_MultiSort_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
+        await dbContext.SeedAsync();
         var query = dbContext.Dummies.AsQueryable();
         var options = new ListOptions { Sort = "name-,data.displayName" };
         foreach (var sorting in options.GetSortings()) {
@@ -68,24 +71,30 @@ public class FilterClauseQueryableExtensionTests : IDisposable
         Assert.True(true);
     }
 
-    public void Dispose() {
+    public async ValueTask DisposeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
-        dbContext.Database.EnsureDeleted();
-        ServiceProvider.Dispose();
+        await dbContext.Database.EnsureDeletedAsync();
+        await ServiceProvider.DisposeAsync();
     }
 }
 
 public class DummyDbContext : DbContext
 {
     public DummyDbContext(DbContextOptions<DummyDbContext> options) : base(options) {
-        if (Database.EnsureCreated()) {
-            Dummies.AddRange(
-                new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" } , Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
+        
+    }
+
+    public async Task<bool> SeedAsync() {
+        if (!await Database.EnsureCreatedAsync()) {
+            return false;
+        }
+        Dummies.AddRange(
+                new Dummy { Name = "Κωνσταντίνος", Extras = new { Id = 5 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos", ["Surname"] = "Panos" }, Data = new DummyItem { DisplayName = "Κωνσταντίνος Θέρης", Enabled = true, Order = 7, BirthDate = new DateTime(1981, 01, 28), Balance = 100.0, Period = new Period { From = DateTime.Now.AddDays(-10), To = DateTime.Now.AddDays(10) } } },
                 new Dummy { Name = "Γιώργος", Extras = new { Id = 15 }, Data = new DummyItem { DisplayName = "Γιώργος Τζάς", Enabled = false, Order = -14, BirthDate = new DateTime(1989, 10, 24), Balance = 360.23 } },
                 new Dummy { Name = "Γιάννης", Extras = new { Id = 7 }, Metadata = new Dictionary<string, string> { ["NAME"] = "Thanos" }, Data = new DummyItem { DisplayName = "Γιάννης Νές", Enabled = true, Order = 2, BirthDate = new DateTime(1971, 12, 1), Balance = 1260.23 } }
             );
-            SaveChanges();
-        }
+        await SaveChangesAsync();
+        return true;
     }
 
     public DbSet<Dummy> Dummies { get; set; }

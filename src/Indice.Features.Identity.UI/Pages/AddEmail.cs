@@ -58,11 +58,14 @@ public abstract class BaseAddEmailModel : BasePageModel
         if (UserManager.StateProvider.CurrentState != UserState.RequiresEmailVerification) {
             return Redirect(GetRedirectUrl(UserManager.StateProvider.CurrentState, returnUrl) ?? "/");
         }
+        Input.Email = user.Email;
+        Input.ReturnUrl = returnUrl;
+        if (!UiOptions.ShowAddEmailPrompt) {
+            return await OnPostAsync(returnUrl);
+        }
         TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
             Alert = AlertModel.Info(_localizer["Please enter your email address so we can verify it before we continue."])
         });
-        Input.Email = user.Email;
-        Input.ReturnUrl = returnUrl;
         return Page();
     }
 
