@@ -4,8 +4,7 @@
                  [meta-items]="metaItems"
                  (onAction)="actionHandler($event)"
                  (onSearch)="searchChanged($event)">
-  <div
-       class="text-right">
+  <div class="text-right">
     <button class="btn-submit"
             [ngClass]="{'opacity-50 cursor-not-allowed': !queryParamsHasFilter}"
             [disabled]="!queryParamsHasFilter"
@@ -35,8 +34,7 @@
       </lib-list-column>
     </ng-container>
     <lib-list-column>
-      <ng-template
-                   let-item>
+      <ng-template let-item>
         <a href="#"
            [routerLinkActive]="['nav-link-profile-active']"
            [routerLinkActiveOptions]="{ exact: true }"
