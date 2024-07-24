@@ -25,6 +25,7 @@ public static class ProxyDebugExtensions
     /// <param name="endpoints">The <see cref="IEndpointRouteBuilder"/> to extend</param>
     /// <param name="pattern">The route pattern ie /proxy-debug.</param>
     /// <param name="configure">Configure action.</param>
+    /// <remarks>Defaults to endpoint path <strong>/proxy-debug</strong></remarks>
     /// <returns></returns>
     public static IEndpointConventionBuilder MapProxyDebug(this IEndpointRouteBuilder endpoints,
 #if NET7_0_OR_GREATER
