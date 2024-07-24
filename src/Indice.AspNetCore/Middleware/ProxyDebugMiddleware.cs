@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Routing;
@@ -24,7 +25,13 @@ public static class ProxyDebugExtensions
     /// <param name="pattern">The route pattern ie /proxy-debug.</param>
     /// <param name="configure">Configure action.</param>
     /// <returns></returns>
-    public static IEndpointConventionBuilder MapProxyDebug(this IEndpointRouteBuilder endpoints, string pattern, Action<DebugProxyOptions> configure = null) {
+    public static IEndpointConventionBuilder MapProxyDebug(this IEndpointRouteBuilder endpoints,
+#if NET7_0_OR_GREATER
+        [StringSyntax("Route")] string pattern,
+#else
+        string pattern, 
+#endif
+        Action<DebugProxyOptions> configure = null) {
         var options = new DebugProxyOptions();
         configure?.Invoke(options);
         var app = endpoints.CreateApplicationBuilder();
