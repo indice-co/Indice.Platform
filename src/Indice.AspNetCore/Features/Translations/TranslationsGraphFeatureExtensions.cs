@@ -23,7 +23,7 @@ public static class TranslationsGraphFeatureExtensions
     /// <param name="services">The service collection</param>
     /// <param name="configureAction">The action to configure the translations endpoint source of key value pairs</param>
     /// <returns>The service collection for further configuration</returns>
-    public static IServiceCollection AddTranslationGraph(this IServiceCollection services, Action<TranslationsGraphOptions>? configureAction) {
+    public static IServiceCollection AddTranslationGraph(this IServiceCollection services, Action<TranslationsGraphOptions>? configureAction = null) {
         services.AddLocalization();
         services.Configure<RouteOptions>(options => options.ConstraintMap.Add("culture", typeof(CultureRouteConstraint)));
         var options = new TranslationsGraphOptions();
