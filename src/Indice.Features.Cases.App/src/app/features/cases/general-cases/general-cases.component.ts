@@ -24,16 +24,28 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   public tableFilters = new TableFilters();
   protected caseTypes: CaseTypePartialResultSet | undefined;
   public caseTypeTitle: string = "";
+  //TODO: Change to this when working on translation
+  // public columns = [
+  //   { title: 'ReferenceNumber' },
+  //   { title: 'CustomerId' },
+  //   { title: 'CustomerName' },
+  //   { title: 'TaxId', itemProperty: 'metadata.TaxId' },
+  //   { title: 'GroupId' },
+  //   { title: 'CaseType', itemProperty: 'caseType.title' },
+  //   { title: 'CheckpointType', itemProperty: 'checkpointType.title' },
+  //   { title: 'AssignedTo', itemProperty: 'assignedToName' },
+  //   { title: 'SubmitDate', itemProperty: 'createdByWhen' }
+  // ];
   public columns = [
-    { title: 'ReferenceNumber' },
-    { title: 'CustomerId' },
-    { title: 'CustomerName' },
-    { title: 'TaxId', itemProperty: 'metadata.TaxId' },
-    { title: 'GroupId' },
-    { title: 'CaseType', itemProperty: 'caseType.title' },
-    { title: 'CheckpointType', itemProperty: 'checkpointType.title' },
-    { title: 'AssignedTo', itemProperty: 'assignedToName' },
-    { title: 'SubmitDate', itemProperty: 'createdByWhen' }
+    { title: 'Αριθμός Αναφοράς' },
+    { title: 'Αριθμός Πελάτη' },
+    { title: 'Όνομα Πελάτη' },
+    { title: 'ΑΦΜ', itemProperty: 'metadata.TaxId' },
+    { title: 'Αριθμός Καταστήματος' },
+    { title: 'Τύπος Υπόθεσης', itemProperty: 'caseType.title' },
+    { title: 'Σημείο Ελέγχου', itemProperty: 'checkpointType.title' },
+    { title: 'Ανατέθηκε σε', itemProperty: 'assignedToName' },
+    { title: 'Ημ/νια υποβολής', itemProperty: 'createdByWhen' }
   ];
 
   constructor(
