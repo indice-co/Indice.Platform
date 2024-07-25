@@ -12,6 +12,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 using Microsoft.AspNetCore.Routing;
+using System.Text.Json.Nodes;
+using Indice.AspNetCore.Views;
+using Newtonsoft.Json.Linq;
 
 namespace Indice.Services.Tests;
 public class EndpointTests : IAsyncDisposable
@@ -37,8 +40,12 @@ public class EndpointTests : IAsyncDisposable
             services.AddRouting();
 
             services.AddTranslationGraph((o) => {
-                o.TranslationsBaseName = "Resources.TranslationsApi";
-                o.TranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name;
+                o.DefaultTranslationsBaseName = "Resources.TranslationsApi";
+                o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name;
+                o.AddResource("Resources.Alternate.TranslationsAlternateSource"); // same assemby different resex. same path
+                o.AddResource("Resources.Alternate.TranslationsAlternateSource", "/translations-alternate.{lang:culture}.json"); // same assemby different resex. different path
+                o.AddResource("Resources.TranslationsApi", "/translations-original.{lang:culture}.json"); // same assemby different resex. different path
+                o.AddResource("TranslationsAlternateSource2", "/translations-alternate.{lang:culture}.json", translationsLocation: typeof(ViewsMarker).Assembly.GetName().Name); // alternate assemby different resex. different path
             });
             _serviceProvider = services.BuildServiceProvider();
         });
@@ -56,7 +63,6 @@ public class EndpointTests : IAsyncDisposable
     #region Facts
     [Fact]
     public async Task Test_GetTranslatio_English() {
-        //Create the Campaign
         var translationResponse = await _httpClient.GetAsync("/translations.en.json");
         var translationResponseJson = await translationResponse.Content.ReadAsStringAsync();
         if (!translationResponse.IsSuccessStatusCode) {
@@ -67,8 +73,7 @@ public class EndpointTests : IAsyncDisposable
         Assert.NotEmpty(translationResponseJson);
     }
     [Fact]
-    public async Task Test_GetTranslatio_Greek() {
-        //Create the Campaign
+    public async Task Test_GetTranslation_Greek() {
         var translationResponse = await _httpClient.GetAsync("/translations.el.json");
         var translationResponseJson = await translationResponse.Content.ReadAsStringAsync();
         if (!translationResponse.IsSuccessStatusCode) {
@@ -80,7 +85,6 @@ public class EndpointTests : IAsyncDisposable
     }
     [Fact]
     public async Task Test_GetTranslation_For_Culture_Not_Exists() {
-        //Create the Campaign
         var translationResponse = await _httpClient.GetAsync("/translations.ru.json");
         var translationResponseJson = await translationResponse.Content.ReadAsStringAsync();
         if (!translationResponse.IsSuccessStatusCode) {
@@ -92,9 +96,39 @@ public class EndpointTests : IAsyncDisposable
     }
     [Fact]
     public async Task Test_GetTranslation_For_Invalid_Culture() {
-        //Create the Campaign
         var translationResponse = await _httpClient.GetAsync("/translations.invalid.json");
         Assert.False(translationResponse.IsSuccessStatusCode);
+    }
+
+    [Fact]
+    public async Task Test_GetTranslation_From_Multiple_Sources() {
+        var getTranslationsAsync = async (string routePattern) => {
+            var response = await _httpClient.GetAsync(routePattern);
+            var json = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode) {
+                _output.WriteLine(json);
+            }
+
+            Assert.True(response.IsSuccessStatusCode);
+            return json;
+        };
+        var defaultJson = await getTranslationsAsync("/translations.el.json");
+        var alternateJson = await getTranslationsAsync("/translations-alternate.el.json");
+        var originalJson = await getTranslationsAsync("/translations-original.el.json");
+
+        var translations = JsonNode.Parse(defaultJson);
+        var value = translations["alternate"]["key"]["override"].GetValue<string>();
+        Assert.Equal("overriden", value);
+
+        translations = JsonNode.Parse(alternateJson);
+        value = translations["alternate"]["key"]["override"].GetValue<string>();
+        var value2 = translations["alternate"]["key"]["additional"].GetValue<string>();
+        Assert.Equal("overriden", value);
+        Assert.Equal("assembly", value2);
+
+        translations = JsonNode.Parse(originalJson);
+        value = translations["alternate"]["key"]["override"].GetValue<string>();
+        Assert.Equal("original", value);
     }
     #endregion
 

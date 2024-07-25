@@ -2,7 +2,7 @@
     <PropertyGroup Label="Assembly Common">
       <Copyright>Copyright (c) 2018 Indice</Copyright>
       <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
-      <VersionPrefixBase>7.26</VersionPrefixBase>
+      <VersionPrefixBase>7.27</VersionPrefixBase>
       <VersionPrefixCore>$(VersionPrefixBase).0</VersionPrefixCore>
       <VersionPrefixIdentity>$(VersionPrefixBase).0</VersionPrefixIdentity>
       <VersionPrefixIdentityUI>$(VersionPrefixBase).0</VersionPrefixIdentityUI>
