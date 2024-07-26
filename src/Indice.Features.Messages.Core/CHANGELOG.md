@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [7.27.0] - 2024-07-26
+### Added
+
+- Added support for persisting sample data for facilitating template rendering on message templates.
+
+ ```sql
+ALTER TABLE [cmp].[Template]
+ADD [Data] [nvarchar](max) NULL
+GO
+ ```
+
 ## [7.23.0] - 2024-05-16
 ### Added
 - New column `MediaBaseHref` in `DbCampaign`

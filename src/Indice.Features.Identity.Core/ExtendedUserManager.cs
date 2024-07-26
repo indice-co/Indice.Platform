@@ -355,11 +355,16 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
         }
+        var changed = user.Blocked != blocked;
         user.Blocked = blocked;
         var result = await UpdateAsync(user);
         if (result.Succeeded && blocked) {
             // When blocking a user we need to make sure we also revoke all of his tokens.
             await _eventService.Publish(new UserBlockedEvent(UserEventContext.InitializeFromUser(user)));
+        }
+        if (result.Succeeded && !blocked) {
+            // When un-blocking a notify whomever is interested.
+            await _eventService.Publish(new UserUnBlockedEvent(UserEventContext.InitializeFromUser(user)));
         }
         return result;
     }

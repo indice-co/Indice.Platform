@@ -399,6 +399,9 @@
   <data name="account-settings.title" xml:space="preserve">
     <value>Account settings</value>
   </data>
+  <data name="alternate.key.override" xml:space="preserve">
+    <value>original</value>
+  </data>
   <data name="complete-request-callback.anchor" xml:space="preserve">
     <value>Skip for now</value>
   </data>

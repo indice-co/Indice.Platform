@@ -8,6 +8,7 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -29,9 +30,10 @@ public static class TranslationsGraphFeatureExtensions
         var options = new TranslationsGraphOptions();
         configureAction?.Invoke(options);
         services.Configure<TranslationsGraphOptions>((o) => {
-            o.TranslationsBaseName = options.TranslationsBaseName;
-            o.TranslationsLocation = options.TranslationsLocation;
-            o.EndpointRoutePattern = options.EndpointRoutePattern;
+            o.DefaultTranslationsBaseName = options.DefaultTranslationsBaseName;
+            o.DefaultTranslationsLocation = options.DefaultTranslationsLocation;
+            o.DefaultEndpointRoutePattern = options.DefaultEndpointRoutePattern;
+            o.Resources.AddRange(options.Resources);
         });
         return services;
     }
@@ -44,10 +46,14 @@ public static class TranslationsGraphFeatureExtensions
     
     public static IEndpointRouteBuilder MapTranslationGraph(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsGraphOptions>>().Value;
-        routes.MapGet(options.EndpointRoutePattern, (string lang, IStringLocalizerFactory factory) => {
-            var strings = factory.Create(options.TranslationsBaseName, options.TranslationsLocation);
-            return TypedResults.Ok(strings.ToObjectGraph(new System.Globalization.CultureInfo(lang)));
-        });
+        var endpoints = options.GetEndpoints();
+        foreach (var endpoint in endpoints) {
+            routes.MapGet(endpoint.Key, (string lang, IStringLocalizerFactory factory) => {
+                var culture = new System.Globalization.CultureInfo(lang);
+                var strings = endpoint.SelectMany(x => factory.Create(x.TranslationsBaseName, x.TranslationsLocation).GetAllStrings(culture, includeParentCultures: true));
+                return TypedResults.Ok(strings.ToObjectGraph());
+            });
+        }
         return routes;
     }
 }
@@ -58,19 +64,53 @@ public static class TranslationsGraphFeatureExtensions
 public class TranslationsGraphOptions 
 {
     /// <summary>
+    /// Additional endpoints/resources
+    /// </summary>
+    internal List<TranslationGraphResource> Resources { get; } = [];
+
+    /// <summary>
     /// A dot dlimited path to the folder containing the Resex file with the translations key values. Defaults to <strong>"Resources.UiTranslations"</strong>
     /// </summary>
-    public string TranslationsBaseName { get; set; } = "Resources.UiTranslations";
+    public string DefaultTranslationsBaseName { get; set; } = "Resources.UiTranslations";
 
     /// <summary>
     /// The assembly name containing the translation resex files as embeded resources. Defaults to <strong>Assembly.GetEntryAssembly()!.GetName().Name!</strong>
     /// </summary>
-    public string TranslationsLocation { get; set; } = Assembly.GetEntryAssembly()!.GetName().Name!;
+    public string DefaultTranslationsLocation { get; set; } = Assembly.GetEntryAssembly()!.GetName().Name!;
     /// <summary>
     /// The endpoint route pattern defaults to <strong>"/translations.{lang:culture}.json"</strong>. If changes are made to the path we must paintain the lang parameter.
     /// </summary>
     [StringSyntax("Route")]
-    public string EndpointRoutePattern { get; set; } = "/translations.{lang:culture}.json";
+    public string DefaultEndpointRoutePattern { get; set; } = "/translations.{lang:culture}.json";
+
+    /// <summary>
+    /// Encapsulates the settings needed to run an enpoint
+    /// </summary>
+    public record TranslationGraphResource([StringSyntax("Route")] string EndpointRoutePattern, string TranslationsBaseName, string TranslationsLocation);
+
+    /// <summary>
+    /// adds additional endpoints/resources. Appart form the default settings
+    /// </summary>
+    /// <param name="translationsBaseName">A dot dlimited path to the folder containing the Resex file with the translations key values. For example <strong>Resources.UiTranslations</strong></param>
+    /// <param name="endpointRoutePattern">The endpoint route pattern. If changes are made to the path we must paintain the <strong>{lang}</strong> parameter. Defaults to <strong>"/translations.{lang:culture}.json"</strong></param>
+    /// <param name="translationsLocation">The assembly name containing the translation resex files as embeded resources.  Defaults to <strong>Assembly.GetEntryAssembly()!.GetName().Name!</strong></param>
+    /// <returns></returns>
+    public TranslationsGraphOptions AddResource(string translationsBaseName, [StringSyntax("Route")] string? endpointRoutePattern = null, string? translationsLocation = null) {
+        var resource = new TranslationGraphResource(endpointRoutePattern ?? DefaultEndpointRoutePattern, translationsBaseName, translationsLocation ?? DefaultTranslationsLocation);
+        Resources.Add(resource);
+        return this;
+    }
+
+    /// <summary>
+    /// Gets all available endpoint configurations groupd by endpoint route pattern in order to configure aspnet core endpoint routing.
+    /// </summary>
+    /// <returns></returns>
+    public ILookup<string, TranslationGraphResource> GetEndpoints() {
+        List<TranslationGraphResource> all = [new (DefaultEndpointRoutePattern, DefaultTranslationsBaseName, DefaultTranslationsLocation), ..Resources];
+        return all.ToLookup(x => x.EndpointRoutePattern);
+    }
 }
+
+
 #nullable disable
 #endif

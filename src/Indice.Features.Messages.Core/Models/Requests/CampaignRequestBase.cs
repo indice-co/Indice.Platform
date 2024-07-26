@@ -10,7 +10,7 @@ public class CampaignRequestBase
     /// <summary>The title of the campaign.</summary>
     public string Title { get; set; }
     /// <summary>The contents of the campaign.</summary>
-    public MessageContentDictionary Content { get; set; } = new MessageContentDictionary();
+    public MessageContentDictionary Content { get; set; } = new ();
     /// <summary>Defines a (call-to-action) link.</summary>
     public Hyperlink ActionLink { get; set; }
     /// <summary>Specifies the time period that a campaign is active.</summary>

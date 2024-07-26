@@ -21,7 +21,7 @@ public static class ResourceManagerExtensions
     public static Dictionary<string, object> ToObjectGraph(this System.Resources.ResourceManager resourceManager, CultureInfo? cultureInfo = null, char pathDelimiter = '.') {
         var set = resourceManager.GetResourceSet(cultureInfo ?? CultureInfo.CurrentUICulture, createIfNotExists: true, tryParents: true)!;
         var strings = set.Cast<DictionaryEntry>().Select(x => new LocalizedString(x.Key.ToString()!, set.GetString(x.Key.ToString()!)!));
-        return IStringLocalizerExtensions.ToObjectGraphInternal(strings, pathDelimiter);
+        return IStringLocalizerExtensions.ToObjectGraph(strings, pathDelimiter);
     }
 }
 #nullable disable
