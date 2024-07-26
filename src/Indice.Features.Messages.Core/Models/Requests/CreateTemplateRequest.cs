@@ -6,5 +6,7 @@ public class CreateTemplateRequest
     /// <summary>The name of the template.</summary>
     public string Name { get; set; }
     /// <summary>The content of the template.</summary>
-    public MessageContentDictionary Content { get; set; } = [];
+    public MessageContentDictionary Content { get; set; } = new();
+    /// <summary>Sample data to test your templating</summary>
+    public dynamic Data { get; set; }
 }

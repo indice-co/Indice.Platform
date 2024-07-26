@@ -38,9 +38,16 @@ public static class IStringLocalizerExtensions
     /// <param name="pathDelimiter">The delimiter character for determining a path from a given key. For example for key &quot;feature.dashboard.title&quot; would be '.' </param>
     /// <returns>The object graph in the form of a <em>Dictionary&lt;string, object&gt;</em></returns>
     public static Dictionary<string, object> ToObjectGraph(this IStringLocalizer stringLocalizer, CultureInfo culture, char pathDelimiter = '.') =>
-        stringLocalizer.GetAllStrings(culture, includeParentCultures: true).ToObjectGraphInternal(pathDelimiter);
+        stringLocalizer.GetAllStrings(culture, includeParentCultures: true).ToObjectGraph(pathDelimiter);
 
-    internal static Dictionary<string, object> ToObjectGraphInternal(this IEnumerable<LocalizedString> strings, char pathDelimiter = '.') {
+    /// <summary>
+    /// Creates an object graph of nested <em>Dictionary&lt;string, object&gt;</em> 
+    /// equivalent to the flat structure represented by the keys of the resource strings inside the <paramref name="strings"/>
+    /// </summary>
+    /// <param name="strings">The source strings</param>
+    /// <param name="pathDelimiter">The delimiter character for determining a path from a given key. For example for key &quot;feature.dashboard.title&quot; would be '.'</param>
+    /// <returns></returns>
+    public static Dictionary<string, object> ToObjectGraph(this IEnumerable<LocalizedString> strings, char pathDelimiter = '.') {
         var graph = new Dictionary<string, object>();
         foreach (var keyValue in strings) {
             var keyPath = keyValue.Name.Split(pathDelimiter)!;
@@ -56,6 +63,10 @@ public static class IStringLocalizerExtensions
                     node = (Dictionary<string, object>)node[subKey];
                 } else {
                     var value = keyValue.Value;
+                    if (node.ContainsKey(keyPath[depth])) {
+                        node[keyPath[depth]] = value;
+                        break;
+                    }
                     node.Add(keyPath[depth], value);
                     break;
                 }

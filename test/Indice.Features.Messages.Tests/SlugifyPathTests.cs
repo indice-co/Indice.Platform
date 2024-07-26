@@ -10,6 +10,7 @@ public class SlugifyPathTests
     [InlineData("Μαναβικη ", "manaviki")]
     [InlineData("Μαναβικη/Λαχανικά", "manaviki/lachanika")]
     [InlineData("Μαναβικη/Λαχανικά/Καρότα, Ραπανάκια, Τζίντζερ", "manaviki/lachanika/karota-rapanakia-tzintzer")]
+    [InlineData("Screenshot 2024-06-13 103846.png", "screenshot-2024-06-13-103846.png")]
     [Theory]
     public void GreekOrUnicodeMustConvertToMeaningfull_ASCII_Test(string input, string expected) {
         

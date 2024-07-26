@@ -6,5 +6,7 @@ public class UpdateTemplateRequest
     /// <summary>The name of the template.</summary>
     public string Name { get; set; }
     /// <summary>The content of the template.</summary>
-    public MessageContentDictionary Content { get; set; } = [];
+    public MessageContentDictionary Content { get; set; } = new();
+    /// <summary>Sample data for the template</summary>
+    public dynamic Data { get; set; }
 }

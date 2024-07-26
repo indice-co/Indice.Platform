@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { AsyncSubject, Observable, of } from 'rxjs';
 import { map, mergeMap, tap } from 'rxjs/operators';
-import { MediaApiClient, FolderContent, CreateFolderRequest, FileParameter, MediaFile, MediaFolder, UpdateFileMetadataRequest, UpdateFolderRequest, FolderTreeStructure } from 'src/app/core/services/media-api.service';
+import { MediaApiClient, FolderContent, CreateFolderRequest, FileParameter, MediaFile, MediaFolder, UpdateFileMetadataRequest, UpdateFolderRequest, FolderTreeStructure, CreateFolderResponse } from 'src/app/core/services/media-api.service';
 
 @Injectable({
     providedIn: 'root'
@@ -71,7 +71,7 @@ export class MediaLibraryStore {
         return this._api.getFolderById(folderId);
     }
 
-    public createFolder(request: CreateFolderRequest): Observable<string> {
+     public createFolder(request: CreateFolderRequest): Observable<CreateFolderResponse> {
         return this._api
             .createFolder(request)
             .pipe(
