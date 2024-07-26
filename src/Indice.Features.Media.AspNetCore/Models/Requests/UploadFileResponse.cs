@@ -5,5 +5,5 @@
 /// <summary>
 /// Represents the The folder created response with the folder Id.
 /// </summary>
-/// <param name="FileId">The file Id for the media file created</param>
-public record UploadFileResponse(Guid FileId);
+/// <param name="FileIds">The file Id for the media file created</param>
+public record UploadFileResponse(Guid[] FileIds);

@@ -34,7 +34,7 @@ export class DocumentUploadComponent implements OnInit {
         fileName: this.file.title,
         data: this.file.data
       }
-      this._mediaStore.uploadFile(this._folderId, fileParameter)
+      this._mediaStore.uploadFile(this._folderId, [fileParameter])
         .subscribe(() => {
           this._toaster.show(ToastType.Success, 'Επιτυχής ενημέρωση', `Το επισυναπτόμενο αρχείο ενημερώθηκε με επιτυχία.`);
           this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this._folderId ? this._router.navigate(['media', this._folderId]) : this._router.navigate(['media']));

@@ -67,16 +67,23 @@ internal class MediaFolderStore : IMediaFolderStore
     }
 
     public static async Task<string> FindPathAsync(MediaDbContext dbContext, Guid? parentId, string segmentName) {
+        return (await FindPathsAsync(dbContext, parentId, [segmentName]))[0];
+    }
+
+    public static async Task<string[]> FindPathsAsync(MediaDbContext dbContext, Guid? parentId, IEnumerable<string> segmentNames) {
         var parentPath = "/";
         if (parentId.HasValue) {
             parentPath = await dbContext.Folders.Where(x => x.Id == parentId).Select(x => x.Path).FirstOrDefaultAsync() ?? "/";
         }
-        var extension = Path.GetExtension(segmentName);
-        var segment = Greeklish.Translate(Path.GetFileNameWithoutExtension(segmentName)).Unidecode().ToKebabCase();
-        if (Path.HasExtension(segmentName)) { 
-            return $"{parentPath.TrimEnd('/')}/{segment}{extension}";
-        }
-        return $"{parentPath.TrimEnd('/')}/{segment}/";
+        var paths = segmentNames.Select(name => {
+            var extension = Path.GetExtension(name);
+            var segment = Greeklish.Translate(Path.GetFileNameWithoutExtension(name)).Unidecode().ToKebabCase();
+            if (Path.HasExtension(name)) {
+                return $"{parentPath.TrimEnd('/')}/{segment}{extension}";
+            }
+            return $"{parentPath.TrimEnd('/')}/{segment}/";
+        }).ToArray();
+        return paths;
     }
 
     /// <inheritdoc/>

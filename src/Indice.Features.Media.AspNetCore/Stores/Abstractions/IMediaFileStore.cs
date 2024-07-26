@@ -18,6 +18,9 @@ public interface IMediaFileStore
     /// <summary>Creates a new file.</summary>
     /// <param name="file">The file.</param>
     Task<Guid> Create(DbMediaFile file);
+    /// <summary>Bulk create new files.</summary>
+    /// <param name="files">The files.</param>
+    Task<List<Guid>> CreateMany(List<DbMediaFile> files);
     /// <summary>Updates an existing file.</summary>
     /// <param name="file">The file.</param>
     Task Update(DbMediaFile file);

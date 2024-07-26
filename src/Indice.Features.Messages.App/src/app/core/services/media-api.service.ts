@@ -16,7 +16,7 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const MEDIA_API_BASE_URL = new InjectionToken<string>('MEDIA_API_BASE_URL');
 
 export interface IMediaApiClient {
-    
+
     getFile(fileGuid: string, format: string): Observable<FileResponse>;
     /**
      * Retrieves details about an existing file.
@@ -90,10 +90,10 @@ export interface IMediaApiClient {
     /**
      * Uploads a file in the system.
      * @param folderId (optional) 
-     * @param file (optional) 
-     * @return Created
+     * @param files (optional) 
+     * @return OK
      */
-    uploadFile(folderId?: string | null | undefined, file?: FileParameter | undefined): Observable<UploadFileResponse>;
+    uploadFile(folderId?: string | null | undefined, files?: FileParameter[] | undefined): Observable<UploadFileResponse>;
     /**
      * Gets the list of available campaign types.
      * @param page (optional) The current page of the list. Default is Indice.Types.ListOptions.DEFAULT_PAGE.
@@ -1367,20 +1367,20 @@ export class MediaApiClient implements IMediaApiClient {
     /**
      * Uploads a file in the system.
      * @param folderId (optional) 
-     * @param file (optional) 
-     * @return Created
+     * @param files (optional) 
+     * @return OK
      */
-    uploadFile(folderId?: string | null | undefined, file?: FileParameter | undefined): Observable<UploadFileResponse> {
+    uploadFile(folderId?: string | null | undefined, files?: FileParameter[] | undefined): Observable<UploadFileResponse> {
         let url_ = this.baseUrl + "/api/media/upload";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
         if (folderId !== null && folderId !== undefined)
             content_.append("folderId", folderId.toString());
-        if (file === null || file === undefined)
-            throw new Error("The parameter 'file' cannot be null.");
+        if (files === null || files === undefined)
+            throw new Error("The parameter 'files' cannot be null.");
         else
-            content_.append("file", file.data, file.fileName ? file.fileName : "file");
+            files.forEach(item_ => content_.append("files", item_.data, item_.fileName ? item_.fileName : "files") );
 
         let options_ : any = {
             body: content_,
@@ -1439,6 +1439,13 @@ export class MediaApiClient implements IMediaApiClient {
             let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result400 = ProblemDetails.fromJS(resultData400);
             return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UploadFileResponse.fromJS(resultData200);
+            return _observableOf(result200);
             }));
         } else if (status === 201) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
@@ -2985,7 +2992,7 @@ export interface IUpdateMediaSettingRequest {
 
 export class UploadFileRequest implements IUploadFileRequest {
     folderId?: string | undefined;
-    file!: string;
+    files!: string[];
 
     constructor(data?: IUploadFileRequest) {
         if (data) {
@@ -2994,12 +3001,19 @@ export class UploadFileRequest implements IUploadFileRequest {
                     (<any>this)[property] = (<any>data)[property];
             }
         }
+        if (!data) {
+            this.files = [];
+        }
     }
 
     init(_data?: any) {
         if (_data) {
             this.folderId = _data["folderId"];
-            this.file = _data["file"];
+            if (Array.isArray(_data["files"])) {
+                this.files = [] as any;
+                for (let item of _data["files"])
+                    this.files!.push(item);
+            }
         }
     }
 
@@ -3013,18 +3027,22 @@ export class UploadFileRequest implements IUploadFileRequest {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["folderId"] = this.folderId;
-        data["file"] = this.file;
+        if (Array.isArray(this.files)) {
+            data["files"] = [];
+            for (let item of this.files)
+                data["files"].push(item);
+        }
         return data;
     }
 }
 
 export interface IUploadFileRequest {
     folderId?: string | undefined;
-    file: string;
+    files: string[];
 }
 
 export class UploadFileResponse implements IUploadFileResponse {
-    fileId?: string;
+    fileIds?: string[] | undefined;
 
     constructor(data?: IUploadFileResponse) {
         if (data) {
@@ -3037,7 +3055,11 @@ export class UploadFileResponse implements IUploadFileResponse {
 
     init(_data?: any) {
         if (_data) {
-            this.fileId = _data["fileId"];
+            if (Array.isArray(_data["fileIds"])) {
+                this.fileIds = [] as any;
+                for (let item of _data["fileIds"])
+                    this.fileIds!.push(item);
+            }
         }
     }
 
@@ -3050,13 +3072,17 @@ export class UploadFileResponse implements IUploadFileResponse {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["fileId"] = this.fileId;
+        if (Array.isArray(this.fileIds)) {
+            data["fileIds"] = [];
+            for (let item of this.fileIds)
+                data["fileIds"].push(item);
+        }
         return data;
     }
 }
 
 export interface IUploadFileResponse {
-    fileId?: string;
+    fileIds?: string[] | undefined;
 }
 
 export class ValidationProblemDetails implements IValidationProblemDetails {
