@@ -135,6 +135,7 @@ internal class CaseTypeService : ICaseTypeService
     public async Task<CaseType> GetCaseTypeDetailsById(Guid id) {
         var dbCaseType = await _dbContext.CaseTypes
             .AsNoTracking()
+            .Include(x => x.CheckpointTypes)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         var caseTypeRoles = await _dbContext.Members.AsQueryable()
