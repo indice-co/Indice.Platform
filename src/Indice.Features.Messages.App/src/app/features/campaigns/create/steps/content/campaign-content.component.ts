@@ -158,7 +158,7 @@ export class CampaignContentComponent implements OnInit, OnChanges, AfterViewChe
             if (app.settings.enableMediaLibrary) {
                 this._store.getMediaSetting('Media CDN')
                 .subscribe(x => {
-                    this.additionalData.mediaBaseHref = `${app.settings.api_url}/api/media`;
+                    this.additionalData.mediaBaseHref = `${app.settings.api_url}/api/media-root`;
                     if (x?.value) {
                         this.additionalData.mediaBaseHref = x.value.endsWith('/') ? x.value.substring(0,  x.value.length - 1) : x.value;
                     }

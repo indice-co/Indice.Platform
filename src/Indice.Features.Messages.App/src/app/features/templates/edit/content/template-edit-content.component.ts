@@ -31,6 +31,7 @@ export class TemplateContentEditComponent implements OnInit {
             this._templateStore.getTemplate(this._templateId!).subscribe((template: Template) => {
                 this.template = template;
                 this.content = template.content;
+                this.basicInfoData = template.data ?? { };
             });
         }
     }
@@ -38,6 +39,7 @@ export class TemplateContentEditComponent implements OnInit {
     public updateContent(): void {
         this.updateInProgress = true;
         const formContents = this._contentComponent?.form.controls.content.value;
+        const dataContents = this._contentComponent?.form.controls.data.value ?? "{}";
         let content: { [key: string]: MessageContent; } = {};
         for (const item of formContents) {
             content[item.channel] = new MessageContent({
@@ -47,6 +49,7 @@ export class TemplateContentEditComponent implements OnInit {
             })
         }
         this.template.content = content;
+        this.template.data = JSON.parse(dataContents);
         this._templateStore
             .updateTemplate(this._templateId, this.template)
             .subscribe(_ => {

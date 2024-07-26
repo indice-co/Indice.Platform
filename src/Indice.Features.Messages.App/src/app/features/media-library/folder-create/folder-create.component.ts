@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
-import { CreateFolderRequest } from 'src/app/core/services/media-api.service';
+import { CreateFolderRequest, CreateFolderResponse } from 'src/app/core/services/media-api.service';
 import { MediaLibraryStore } from '../media-library-store.service';
 
 @Component({
@@ -38,7 +38,7 @@ export class FolderCreateComponent implements OnInit {
         this._mediaStore
             .createFolder(this.model)
             .subscribe({
-                next: (response: string) => {
+                next: (response: CreateFolderResponse) => {
                     this.submitInProgress = false;
                     this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Ο φάκελος με όνομα '${this.model.name}' δημιουργήθηκε με επιτυχία.`);
                     this._router.navigateByUrl('/', { skipLocationChange: true }).then(() => this.model.parentId ? this._router.navigate(['media', this.model.parentId]) : this._router.navigate(['media']));
