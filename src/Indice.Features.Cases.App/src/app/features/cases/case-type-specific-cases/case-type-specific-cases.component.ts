@@ -23,7 +23,6 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
     super(_route, _router, _api, _filterCachingService, _modalService, _caseTypeService);
     this._route.params.subscribe(() => {
       this.initialize();
-      this.initColumns();
     })
   }
 

@@ -78,6 +78,8 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   }
 
   public initialize(): void {
+    this.initColumns();
+
     const key = this.getFilterCacheKey();
     const storedParams = this._filterCachingService.getParams(key);
     if (storedParams) {
