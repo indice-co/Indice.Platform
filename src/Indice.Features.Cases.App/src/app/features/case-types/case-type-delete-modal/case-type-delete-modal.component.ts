@@ -1,4 +1,4 @@
-import { catchError, tap } from 'rxjs/operators';
+import { catchError, finalize, take, tap } from 'rxjs/operators';
 import { Component, OnInit } from '@angular/core';
 import { Modal, ModalOptions, ToasterService, ToastType } from '@indice/ng-components';
 import { CasesApiService } from 'src/app/core/services/cases-api.service';
@@ -32,7 +32,8 @@ export class CaseTypeDeleteModalComponent implements OnInit {
         this.toaster.show(ToastType.Error, "Whoops!", err.detail);
         this.closeModal(false);
         return EMPTY
-      })
+      }),
+      take(1)
     ).subscribe();
   }
 

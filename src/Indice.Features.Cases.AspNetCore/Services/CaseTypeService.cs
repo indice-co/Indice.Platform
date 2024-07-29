@@ -170,7 +170,7 @@ internal class CaseTypeService : ICaseTypeService
             GridFilterConfig = dbCaseType.GridFilterConfig,
         };
 
-        return caseType;
+        return caseType.Translate(CultureInfo.CurrentCulture.TwoLetterISOLanguageName, true);
     }
 
     public async Task<CaseType> Update(CaseTypeRequest caseType) {

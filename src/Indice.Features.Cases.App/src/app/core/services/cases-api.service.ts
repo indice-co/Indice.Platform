@@ -200,6 +200,19 @@ export interface ICasesApiService {
      */
     getDistinctCheckpointTypes(api_version?: string | undefined): Observable<CheckpointType[]>;
     /**
+     * Updates existing checkpoint types and creates new ones
+     * @param api_version (optional)
+     * @param body (optional)
+     * @return Success
+     */
+    bulkUpdateCheckpointTypes(api_version?: string | undefined, body?: CheckpointTypeRequest[] | undefined): Observable<CheckpointType>;
+    /**
+     * Gets the distinct checkpoint types of the casetype specified
+     * @param api_version (optional)
+     * @return Success
+     */
+    getCaseTypeCheckpointTypes(caseTypeId: string, api_version?: string | undefined): Observable<CheckpointTypeResultSet>;
+    /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
      * @param caseTypeCode (optional) The case type code, used for filtering customers based on case type (implementantion on client code)
@@ -356,6 +369,27 @@ export interface ICasesApiService {
      * @return No Content
      */
     submitMyCase(caseId: string, api_version?: string | undefined): Observable<void>;
+    /**
+     * Edits a checkpoint type
+     * @param checkpointTypeId (optional)
+     * @param api_version (optional)
+     * @return Success
+     */
+    getCheckpointTypeById(checkpointTypeId?: string | undefined, api_version?: string | undefined): Observable<GetCheckpointTypeResponse>;
+    /**
+     * Creates a new checkpoint type
+     * @param api_version (optional)
+     * @param body (optional)
+     * @return Success
+     */
+    createCheckpointType(api_version?: string | undefined, body?: CheckpointTypeRequest | undefined): Observable<CheckpointType>;
+    /**
+     * Edits a checkpoint type
+     * @param api_version (optional)
+     * @param body (optional)
+     * @return Success
+     */
+    editCheckpointType(api_version?: string | undefined, body?: EditCheckpointTypeRequest | undefined): Observable<CheckpointType>;
 }
 
 @Injectable({
@@ -2732,6 +2766,198 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
+     * Updates existing checkpoint types and creates new ones
+     * @param api_version (optional)
+     * @param body (optional)
+     * @return Success
+     */
+    bulkUpdateCheckpointTypes(api_version?: string | undefined, body?: CheckpointTypeRequest[] | undefined): Observable<CheckpointType> {
+        let url_ = this.baseUrl + "/api/manage/checkpoint-types?";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processBulkUpdateCheckpointTypes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processBulkUpdateCheckpointTypes(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CheckpointType>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CheckpointType>;
+        }));
+    }
+
+    protected processBulkUpdateCheckpointTypes(response: HttpResponseBase): Observable<CheckpointType> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CheckpointType.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Gets the distinct checkpoint types of the casetype specified
+     * @param api_version (optional)
+     * @return Success
+     */
+    getCaseTypeCheckpointTypes(caseTypeId: string, api_version?: string | undefined): Observable<CheckpointTypeResultSet> {
+        let url_ = this.baseUrl + "/api/manage/checkpoint-types/{caseTypeId}?";
+        if (caseTypeId === undefined || caseTypeId === null)
+            throw new Error("The parameter 'caseTypeId' must be defined.");
+        url_ = url_.replace("{caseTypeId}", encodeURIComponent("" + caseTypeId));
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCaseTypeCheckpointTypes(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCaseTypeCheckpointTypes(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CheckpointTypeResultSet>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CheckpointTypeResultSet>;
+        }));
+    }
+
+    protected processGetCaseTypeCheckpointTypes(response: HttpResponseBase): Observable<CheckpointTypeResultSet> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CheckpointTypeResultSet.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Fetch customers.
      * @param customerId (optional) The Id of the customer as provided by the consumer/integrator.
      * @param caseTypeCode (optional) The case type code, used for filtering customers based on case type (implementantion on client code)
@@ -4554,6 +4780,297 @@ export class CasesApiService implements ICasesApiService {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * Edits a checkpoint type
+     * @param checkpointTypeId (optional)
+     * @param api_version (optional)
+     * @return Success
+     */
+    getCheckpointTypeById(checkpointTypeId?: string | undefined, api_version?: string | undefined): Observable<GetCheckpointTypeResponse> {
+        let url_ = this.baseUrl + "/by-id?";
+        if (checkpointTypeId === null)
+            throw new Error("The parameter 'checkpointTypeId' cannot be null.");
+        else if (checkpointTypeId !== undefined)
+            url_ += "checkpointTypeId=" + encodeURIComponent("" + checkpointTypeId) + "&";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCheckpointTypeById(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCheckpointTypeById(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<GetCheckpointTypeResponse>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<GetCheckpointTypeResponse>;
+        }));
+    }
+
+    protected processGetCheckpointTypeById(response: HttpResponseBase): Observable<GetCheckpointTypeResponse> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = GetCheckpointTypeResponse.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Creates a new checkpoint type
+     * @param api_version (optional)
+     * @param body (optional)
+     * @return Success
+     */
+    createCheckpointType(api_version?: string | undefined, body?: CheckpointTypeRequest | undefined): Observable<CheckpointType> {
+        let url_ = this.baseUrl + "/create?";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateCheckpointType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateCheckpointType(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CheckpointType>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CheckpointType>;
+        }));
+    }
+
+    protected processCreateCheckpointType(response: HttpResponseBase): Observable<CheckpointType> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CheckpointType.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * Edits a checkpoint type
+     * @param api_version (optional)
+     * @param body (optional)
+     * @return Success
+     */
+    editCheckpointType(api_version?: string | undefined, body?: EditCheckpointTypeRequest | undefined): Observable<CheckpointType> {
+        let url_ = this.baseUrl + "/edit?";
+        if (api_version === null)
+            throw new Error("The parameter 'api_version' cannot be null.");
+        else if (api_version !== undefined)
+            url_ += "api-version=" + encodeURIComponent("" + api_version) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json-patch+json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processEditCheckpointType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processEditCheckpointType(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CheckpointType>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CheckpointType>;
+        }));
+    }
+
+    protected processEditCheckpointType(response: HttpResponseBase): Observable<CheckpointType> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 400) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result400: any = null;
+            let resultData400 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result400 = ValidationProblemDetails.fromJS(resultData400);
+            return throwException("Bad Request", status, _responseText, _headers, result400);
+            }));
+        } else if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CheckpointType.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result404: any = null;
+            let resultData404 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result404 = ProblemDetails.fromJS(resultData404);
+            return throwException("Not Found", status, _responseText, _headers, result404);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 /** The request that triggers an action. */
@@ -6204,6 +6721,103 @@ export interface ICheckpointTypeDetails {
     roles?: string[] | undefined;
 }
 
+/** The model for creating a new checkpoint type */
+export class CheckpointTypeRequest implements ICheckpointTypeRequest {
+    /** Id of the case type */
+    caseTypeId?: string;
+    /** Code of the checkpoint */
+    code?: string | undefined;
+    /** Ttitle of the checkpoint */
+    title?: string | undefined;
+    /** Description of the checkpoint */
+    description?: string | undefined;
+    /** Translations of the checkpoint */
+    translations?: string | undefined;
+    status?: CaseStatus;
+    /** Flag for the checkpoint to denote if its private or not */
+    private?: boolean;
+
+    constructor(data?: ICheckpointTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+}
+
+/** The model for creating a new checkpoint type */
+export interface ICheckpointTypeRequest {
+    /** Id of the case type */
+    caseTypeId?: string;
+    /** Code of the checkpoint */
+    code?: string | undefined;
+    /** Ttitle of the checkpoint */
+    title?: string | undefined;
+    /** Description of the checkpoint */
+    description?: string | undefined;
+    /** Translations of the checkpoint */
+    translations?: string | undefined;
+    status?: CaseStatus;
+    /** Flag for the checkpoint to denote if its private or not */
+    private?: boolean;
+}
+
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
+export class CheckpointTypeResultSet implements ICheckpointTypeResultSet {
+    /** Total results count. */
+    count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
+    items?: CheckpointType[] | undefined;
+
+    constructor(data?: ICheckpointTypeResultSet) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.count = _data["count"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(CheckpointType.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): CheckpointTypeResultSet {
+        data = typeof data === 'object' ? data : {};
+        let result = new CheckpointTypeResultSet();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["count"] = this.count;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+/** Α collection wrapper that encapsulates the results of an API call or operation. Used usually for paginated results. */
+export interface ICheckpointTypeResultSet {
+    /** Total results count. */
+    count?: number;
+    /** The actual items collection. These could be less in number than the Indice.Types.ResultSet`1.Count if the results refers to a page. */
+    items?: CheckpointType[] | undefined;
+}
+
 /** The Translation of the checkpoint type. */
 export class CheckpointTypeTranslation implements ICheckpointTypeTranslation {
     /** The title of the checkpoint type. */
@@ -6738,6 +7352,35 @@ export interface IEditCaseRequest {
     data?: any | undefined;
 }
 
+/** The model for editing a checkpoint type */
+export class EditCheckpointTypeRequest implements IEditCheckpointTypeRequest {
+    /** Id of the checkpoint type */
+    checkpointTypeId?: string;
+    /** Code of the check point type */
+    code?: string | undefined;
+    /** Id of the case type */
+    caseTypeId?: string;
+
+    constructor(data?: IEditCheckpointTypeRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+}
+
+/** The model for editing a checkpoint type */
+export interface IEditCheckpointTypeRequest {
+    /** Id of the checkpoint type */
+    checkpointTypeId?: string;
+    /** Code of the check point type */
+    code?: string | undefined;
+    /** Id of the case type */
+    caseTypeId?: string;
+}
+
 /** The Filter Term model. */
 export class FilterTerm implements IFilterTerm {
     /** FilterTerm's Key */
@@ -6782,6 +7425,80 @@ export interface IFilterTerm {
     key?: string | undefined;
     /** FilterTerm's Value */
     value?: string | undefined;
+}
+
+/** Checkpoint type */
+export class GetCheckpointTypeResponse implements IGetCheckpointTypeResponse {
+    /** The Id of the <b>checkpoint type</b>. */
+    id?: string;
+    /** The code of the <b>checkpoint type</b>. */
+    code?: string | undefined;
+    /** The title of the <b>checkpoint type</b>. */
+    title?: string | undefined;
+    /** The description of the <b>checkpoint type</b>. */
+    description?: string | undefined;
+    status?: CaseStatus;
+    /** Indicates if the checkpoint type is private, which means not visible to the customer. */
+    private?: boolean | undefined;
+    /** The translations of the <b>checkpoint type</b>. */
+    translations?: string | undefined;
+
+    constructor(data?: IGetCheckpointTypeResponse) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.code = _data["code"];
+            this.title = _data["title"];
+            this.description = _data["description"];
+            this.status = _data["status"];
+            this.private = _data["private"];
+            this.translations = _data["translations"];
+        }
+    }
+
+    static fromJS(data: any): GetCheckpointTypeResponse {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCheckpointTypeResponse();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["code"] = this.code;
+        data["title"] = this.title;
+        data["description"] = this.description;
+        data["status"] = this.status;
+        data["private"] = this.private;
+        data["translations"] = this.translations;
+        return data;
+    }
+}
+
+/** Checkpoint type */
+export interface IGetCheckpointTypeResponse {
+    /** The Id of the <b>checkpoint type</b>. */
+    id?: string;
+    /** The code of the <b>checkpoint type</b>. */
+    code?: string | undefined;
+    /** The title of the <b>checkpoint type</b>. */
+    title?: string | undefined;
+    /** The description of the <b>checkpoint type</b>. */
+    description?: string | undefined;
+    status?: CaseStatus;
+    /** Indicates if the checkpoint type is private, which means not visible to the customer. */
+    private?: boolean | undefined;
+    /** The translations of the <b>checkpoint type</b>. */
+    translations?: string | undefined;
 }
 
 /** The GroupByReportResult. */
@@ -7661,7 +8378,7 @@ export class ValidationProblemDetails implements IValidationProblemDetails {
     status?: number | undefined;
     detail?: string | undefined;
     instance?: string | undefined;
-    readonly errors?: { [key: string]: string[]; } | undefined;
+    errors?: { [key: string]: string[]; } | undefined;
 
     [key: string]: any;
 
@@ -7686,10 +8403,10 @@ export class ValidationProblemDetails implements IValidationProblemDetails {
             this.detail = _data["detail"];
             this.instance = _data["instance"];
             if (_data["errors"]) {
-                (<any>this).errors = {} as any;
+                this.errors = {} as any;
                 for (let key in _data["errors"]) {
                     if (_data["errors"].hasOwnProperty(key))
-                        (<any>(<any>this).errors)![key] = _data["errors"][key] !== undefined ? _data["errors"][key] : [];
+                        (<any>this.errors)![key] = _data["errors"][key] !== undefined ? _data["errors"][key] : [];
                 }
             }
         }

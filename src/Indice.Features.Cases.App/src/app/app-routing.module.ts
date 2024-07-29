@@ -15,6 +15,9 @@ import { CaseTypeEditComponent } from './features/case-types/case-type-edit/case
 import { QueriesPageComponent } from './features/cases/queries-page/queries-page.component';
 import { GeneralCasesComponent } from './features/cases/general-cases/general-cases.component';
 import { CaseTypeSpecificCasesComponent } from './features/cases/case-type-specific-cases/case-type-specific-cases.component';
+import { CheckpointTypesComponent } from './features/case-types/checkpoint-types/checkpoint-types.component';
+import { CheckpointTypeCreateComponent } from './features/case-types/checkpoint-types/checkpoint-type-create/checkpoint-type-create.component';
+import { CheckpointTypeEditComponent } from './features/case-types/checkpoint-types/checkpoint-type-edit/checkpoint-type-edit.component';
 
 const routes: Routes = [
   { path: 'auth-callback', component: AuthCallbackComponent, data: { title: 'Αυθεντικοποίηση', breadcrumb: { title: 'Αυθεντικοποίηση' } } },
@@ -47,7 +50,8 @@ const routes: Routes = [
         children: [
           { path: '', component: CaseTypesComponent, data: { title: 'Τύποι Υπόθεσης', breadcrumb: { title: 'Τύποι Υπόθεσης' } } },
           { path: 'create', component: CaseTypeCreateComponent, pathMatch: 'full', data: { title: 'Δημιουργία Υπόθεσης', breadcrumb: { title: 'Δημιουργία Υπόθεσης' } } },
-          { path: ':caseTypeId/edit', component: CaseTypeEditComponent, pathMatch: 'full', data: { title: 'Επεξεργασία Τύπου Υπόθεσης', breadcrumb: { title: 'Επεξεργασία Τύπου Υπόθεσης' } } }
+          { path: ':caseTypeId/edit', component: CaseTypeEditComponent, pathMatch: 'full', data: { title: 'Επεξεργασία Τύπου Υπόθεσης', breadcrumb: { title: 'Επεξεργασία Τύπου Υπόθεσης' } } },
+          { path: ':caseTypeId/checkpoint-types', component: CheckpointTypesComponent, pathMatch: 'full', data: { title: 'Σημεία ελέγχου', breadcrumb: { title: 'Σημεία ελέγχου' } } }
         ]
       }
     ]
@@ -59,6 +63,8 @@ const routes: Routes = [
   { path: 'queries', component: QueriesPageComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'Queries', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'Εύρεση' } } },
   { path: 'logout', component: LogOutComponent, data: { title: 'Logout', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Αποσύνδεση' } } },
   { path: '**', component: PageNotFoundComponent, data: { title: 'Page Not Found', shell: { fluid: true, showHeader: false, showFooter: false }, breadcrumb: { title: 'Δεν βρέθηκε η σελίδα' } } },
+  { path: 'create-checkpoint-type', component: CheckpointTypeCreateComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'Δημιουργία σημείου ελέγχου', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'Δημιουργία σημείου ελέγχου' } } },
+  { path: 'edit-checkpoint-type/:checkpointTypeId', component: CheckpointTypeEditComponent, pathMatch: 'prefix', outlet: 'rightpane', data: { title: 'Επεξεργασία σημείου ελέγχου', paneSize: SidePaneSize.Small25, breadcrumb: { title: 'Επεξεργασία σημείου ελέγχου' } } },
 ];
 
 @NgModule({

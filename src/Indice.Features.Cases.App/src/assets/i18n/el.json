@@ -18,7 +18,10 @@
     "checkpointType": "Σημείο Ελέγχου",
     "assignedTo": "Ανάθεση σε",
     "submitDate": "Ημ. Υποβολής",
-    "choose": "Επιλογή"
+    "choose": "Επιλογή",
+    "edit": "Επεξεργασία",
+    "delete": "Διαγραφή",
+    "cancel": "Επιστροφή"
   },
   "caseDetails": {
     "caseId": "Κωδικός Υπόθεσης",
@@ -36,5 +39,23 @@
     "userFirstName": "Όνομα Χρήστη",
     "userRole": "Ρόλος Χρήστη",
     "userCustomerId": "ΑΠ Χρήστη"
+  },
+  "checkpointTypes": {
+    "code": "Κωδικός",
+    "status": "Κατάσταση",
+    "title": "Τίτλος",
+    "description": "Περιγραφή",
+    "private": "Ιδιωτικό",
+    "actions": "Ενέργειες",
+    "edit": "Επεξεργασία",
+    "createNew": "Δημιουργία νέου σημείου ελέγχου",
+    "editCheckpoint": "Επεξεργασία σημείου ελέγχου",
+    "save": "Αποθήκευση",
+    "translations": "Μεταφράσεις",
+    "privateDescription": "Το σημείο ελέγχου αυτό είναι ιδιωτικό, δηλαδή δεν εμφανίζεται στον χρήστη"
+  },
+  "caseTypeEdit": {
+    "dataSchema": "Σχήμα δεδομένων",
+    "checkpoints": "Σημεία ελέγχου"
   }
 }
