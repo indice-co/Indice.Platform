@@ -101,9 +101,9 @@ export class MediaLibraryStore {
             );
     }
 
-    public uploadFile(folderId?: string | undefined, file?: FileParameter) {
+    public uploadFile(folderId?: string | undefined, files?: FileParameter[]) {
         return this._api
-            .uploadFile(folderId, file)
+            .uploadFile(folderId, files)
             .pipe(
                 tap(_ => this._folderContent = undefined),
                 tap(_ => this._folderStructure = undefined)

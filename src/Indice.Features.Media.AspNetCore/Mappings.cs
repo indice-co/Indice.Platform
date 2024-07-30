@@ -46,23 +46,16 @@ internal static class Mapper
     };
     #endregion
     #region File
-    internal static UploadFileCommand ToUploadFileCommand(this UploadFileRequest request) {
-        if (request.File is null) {
-            throw new ArgumentOutOfRangeException(nameof(request), "property File is empty.");
+    internal static List<UploadFileCommand> ToUploadFileCommand(this UploadFileRequest request) {
+        if (request.Files is null) {
+            throw new ArgumentOutOfRangeException(nameof(request), "property Files is empty.");
         }
-        return new (
-            request.File.OpenReadStream, 
-            fileName: request.File.FileName, 
-            contentLength: (int)request.File.Length,
-            contentType: request.File.ContentType) {
-            FolderId = request.FolderId
-        };
-        //if (File.Length > 0) {
-        //    using var inputStream = File.OpenReadStream();
-        //    using var memoryStream = new MemoryStream();
-        //    inputStream.CopyTo(memoryStream);
-        //    fileParameter.Data = memoryStream.ToArray();
-        //}
+        return request.Files.Select(file => new UploadFileCommand(
+            () => file.OpenReadStream(),
+            fileName: file.FileName,
+            contentLength: (int)file.Length,
+            contentType: file.ContentType) { FolderId = request.FolderId }
+        ).ToList();
     }
     internal static UpdateFileMetadataCommand ToUpdateFileMetadataCommand(this UpdateFileMetadataRequest request, Guid id) => new() {
         Id = id,
