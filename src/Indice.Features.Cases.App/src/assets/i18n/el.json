@@ -30,7 +30,8 @@
     "requestId": "Αριθμός Αιτήματος",
     "birthDate": "Ημ. Γέννησης",
     "hasLoans": "Δάνεια",
-    "customerFound": "Θετική/Αρνητική Απάντηση"
+    "customerFound": "Θετική/Αρνητική Απάντηση",
+    "referenceDate": "Ημ. Αιτήματος"
   },
   "caseDetails": {
     "caseId": "Κωδικός Υπόθεσης",
