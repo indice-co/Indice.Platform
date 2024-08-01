@@ -161,16 +161,16 @@ internal class AdminCasesController : ControllerBase
     }
 
     /// <summary>
-    /// Add a message to an existing case regardless of its status and mode (draft or not).
+    /// Add a comment to an existing case regardless of its status and mode (draft or not).
     /// </summary>
     /// <param name="caseId">The Id of the case</param>
     /// <param name="request">The message request</param>
     /// <returns></returns>
-    [HttpPatch("{caseId:guid}/message")]
+    [HttpPost("{caseId:guid}/comment")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CasesAttachmentLink))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
-    public async Task<IActionResult> AdminCaseSendMessage([FromRoute] Guid caseId, [FromBody] SendMessageRequest request) {
+    public async Task<IActionResult> AdminAddComment([FromRoute] Guid caseId, [FromBody] SendMessageRequest request) {
 
         _ = await _adminCaseMessageService.Send(caseId, User, new Message { Comment = request.Comment, PrivateComment = request.PrivateComment, ReplyToCommentId = request.ReplyToCommentId });
         return NoContent();
