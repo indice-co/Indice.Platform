@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Indice.Features.Cases.Controllers;
 
@@ -139,7 +140,7 @@ internal class AdminCasesController : ControllerBase
         await _adminCaseService.Submit(User, caseId);
         return NoContent();
     }
-    
+
     /// <summary>Patches the metadata of a case.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="metadata">The metadata to patch.</param>
@@ -158,6 +159,22 @@ internal class AdminCasesController : ControllerBase
             return NotFound();
         }
         return Ok();
+    }
+
+    /// <summary>
+    /// Add a message to an existing case regardless of its status and mode (draft or not).
+    /// </summary>
+    /// <param name="caseId">The Id of the case</param>
+    /// <param name="request">The message request</param>
+    /// <returns></returns>
+    [HttpPatch("{caseId:guid}/message")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CasesAttachmentLink))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+    public async Task<IActionResult> AdminCaseSendMessage([FromRoute] Guid caseId, [FromBody] SendMessageRequest request) {
+
+        _ = await _adminCaseMessageService.Send(caseId, User, new Message { Comment = request.Comment, PrivateComment = request.PrivateComment, ReplyToCommentId = request.ReplyToCommentId });
+        return NoContent();
     }
 
 
