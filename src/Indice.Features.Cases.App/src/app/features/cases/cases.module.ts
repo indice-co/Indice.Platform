@@ -1,5 +1,5 @@
 import { NgModule } from "@angular/core";
-import { CommonModule, DatePipe } from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
@@ -20,6 +20,7 @@ import { QueriesModalComponent } from "src/app/shared/components/query-modal/que
 import { QueriesPageComponent } from "./queries-page/queries-page.component";
 import { GeneralCasesComponent } from "./general-cases/general-cases.component";
 import { CaseTypeSpecificCasesComponent } from "./case-type-specific-cases/case-type-specific-cases.component";
+import { ValueFromPathPipe } from "src/app/shared/pipes.services";
 
 @NgModule({
   declarations: [
@@ -54,7 +55,7 @@ import { CaseTypeSpecificCasesComponent } from "./case-type-specific-cases/case-
     CaseDetailPageComponent
   ],
   providers: [
-    DatePipe
+    ValueFromPathPipe
   ]
 })
 export class CasesModule { }
