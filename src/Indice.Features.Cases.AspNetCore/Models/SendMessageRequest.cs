@@ -2,10 +2,10 @@
 
 namespace Indice.Features.Cases.Models;
 
-/// <summary>The request to insert a new message to a case.</summary>
-internal class SendMessageRequest
+/// <summary>The request to insert a new comment to a case.</summary>
+internal class SendCommentRequest
 {
-    /// <summary>The Id of the Checkpoint the message is replying to.</summary>
+    /// <summary>The Id of the Checkpoint the comment is replying to.</summary>
     public Guid? ReplyToCommentId { get; set; }
 
     /// <summary>Indicates if the comment should be visible to the customer.</summary>
