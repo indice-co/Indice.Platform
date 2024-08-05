@@ -31,7 +31,8 @@
     "birthDate": "Ημ. Γέννησης",
     "hasLoans": "Δάνεια",
     "customerFound": "Θετική/Αρνητική Απάντηση",
-    "referenceDate": "Ημ. Αιτήματος"
+    "referenceDate": "Ημ. Αιτήματος",
+    "customerProductAmount": "Αριθμός προϊόντων"
   },
   "caseDetails": {
     "caseId": "Κωδικός Υπόθεσης",
