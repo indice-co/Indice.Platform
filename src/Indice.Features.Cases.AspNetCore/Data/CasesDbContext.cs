@@ -39,6 +39,10 @@ public class CasesDbContext : DbContext
     public DbSet<DbCaseApproval> CaseApprovals => Set<DbCaseApproval>();
     /// <summary>Case type category.</summary>
     public DbSet<DbCategory> Categories => Set<DbCategory>();
+    /// <summary>
+    /// Stake Holders, related to the Workflow
+    /// </summary>
+    public DbSet<DbStakeHolder> StakeHolders => Set<DbStakeHolder>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
