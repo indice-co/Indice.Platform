@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using Indice.Features.Cases.Data;
@@ -11,6 +12,7 @@ using Indice.Features.Cases.Models.Responses;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.EntityFrameworkCore;
+using static DotLiquid.Variable;
 
 namespace Indice.Features.Cases.Services;
 
@@ -82,35 +84,47 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<ResultSet<CasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetCasesListFilter> options) {
-        var query = _dbContext.Cases
+        var casesQuery = _dbContext.Cases
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
-            .Where(options.Filter.Metadata) // filter Metadata
-            .Select(@case => new CasePartial {
-                Id = @case.Id,
-                ReferenceNumber = @case.ReferenceNumber,
-                CustomerId = @case.Customer.CustomerId,
-                CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
-                CreatedByWhen = @case.CreatedBy.When,
-                CaseType = new CaseTypePartial {
-                    Id = @case.CaseType.Id,
-                    Code = @case.CaseType.Code,
-                    Title = @case.CaseType.Title,
-                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(@case.CaseType.Translations)
-                },
-                Metadata = @case.Metadata,
-                GroupId = @case.GroupId,
-                CheckpointType = new CheckpointType {
-                    Id = @case.Checkpoint.CheckpointType.Id,
-                    Status = @case.Checkpoint.CheckpointType.Status,
-                    Code = @case.Checkpoint.CheckpointType.Code,
-                    Title = @case.Checkpoint.CheckpointType.Title ?? @case.Checkpoint.CheckpointType.Code,
-                    Description = @case.Checkpoint.CheckpointType.Description,
-                    Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
-                },
-                AssignedToName = @case.AssignedTo.Name,
-                Data = options.Filter.IncludeData ? @case.Data : null
+            .Where(options.Filter.Metadata); // filter Metadata
+        if (options.Filter.StakeHolders.Any()) {
+
+            var expressions = options.Filter.StakeHolders
+               .Select(f => (Expression<Func<DbCase, bool>>)(c => c.StakeHolders.Any(sh => sh.StakeHolderId == f.Id && sh.Type == f.Type)))
+               .ToList();
+            // Aggregate the expressions with OR in SQL
+            var aggregatedExpressions = expressions.Aggregate((expression, next) => {
+                var orExp = Expression.OrElse(expression.Body, Expression.Invoke(next, expression.Parameters));
+                return Expression.Lambda<Func<DbCase, bool>>(orExp, expression.Parameters);
             });
+            casesQuery = casesQuery.Where(aggregatedExpressions);
+        }
+        var query = casesQuery.Select(@case => new CasePartial {
+            Id = @case.Id,
+            ReferenceNumber = @case.ReferenceNumber,
+            CustomerId = @case.Customer.CustomerId,
+            CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
+            CreatedByWhen = @case.CreatedBy.When,
+            CaseType = new CaseTypePartial {
+                Id = @case.CaseType.Id,
+                Code = @case.CaseType.Code,
+                Title = @case.CaseType.Title,
+                Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(@case.CaseType.Translations)
+            },
+            Metadata = @case.Metadata,
+            GroupId = @case.GroupId,
+            CheckpointType = new CheckpointType {
+                Id = @case.Checkpoint.CheckpointType.Id,
+                Status = @case.Checkpoint.CheckpointType.Status,
+                Code = @case.Checkpoint.CheckpointType.Code,
+                Title = @case.Checkpoint.CheckpointType.Title ?? @case.Checkpoint.CheckpointType.Code,
+                Description = @case.Checkpoint.CheckpointType.Description,
+                Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
+            },
+            AssignedToName = @case.AssignedTo.Name,
+            Data = options.Filter.IncludeData ? @case.Data : null
+        });
 
         // TODO: not crazy about this one
         // if a CaseAuthorizationService down the line wants to 
@@ -270,6 +284,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             options.Sort = $"{nameof(CasePartial.CreatedByWhen)}";
         }
 
+
+
         var result = await query.ToResultSetAsync(options);
 
         // translate case types
@@ -357,7 +373,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata) {
         // Check that user role can view this case
         await GetCaseById(User, caseId, false);
-        
+
         var dbCase = await _dbContext.Cases.FindAsync(caseId);
         if (dbCase == null) {
             return false;

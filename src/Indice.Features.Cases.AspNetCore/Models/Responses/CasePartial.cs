@@ -59,6 +59,9 @@ public class CasePartial
     /// <summary>Indicate if the case is in draft mode.</summary>
     public bool Draft { get; set; }
 
+    /// <summary>Stakeholders related to the Case</summary>
+    public IEnumerable<StakeHolder> StakeHolders { get; set; }
+
     /// <summary>Convert case data to typed version.</summary>
     public TData DataAs<TData>() {
         var json = JsonSerializer.Serialize(Data, JsonSerializerOptionDefaults.GetDefaultSettings());

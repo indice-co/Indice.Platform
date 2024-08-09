@@ -33,7 +33,8 @@ internal static class CasesDbContextTestExtensions
             DataSchema = "{}"
         };
         dbContext.CaseTypes.Add(caseType);
-        dbContext.Cases.AddRange(new DbCase {
+        dbContext.Cases.AddRange(
+        new DbCase {
             CaseTypeId = caseType.Id,
             Channel = "web",
             CreatedBy = AuditMeta.Create(principal),
@@ -79,7 +80,6 @@ internal static class CasesDbContextTestExtensions
                 }
             }
         },
-
         new DbCase {
             CaseTypeId = caseType.Id,
             Channel = "mobile",
@@ -89,7 +89,15 @@ internal static class CasesDbContextTestExtensions
                     CreatedBy = AuditMeta.Create(principal),
                     Data = new { test = true, customerId = 123 }
                 }
+            },
+            StakeHolders =  {
+                new DbStakeHolder(){
+                    StakeHolderId = "user",
+                    Type = 1,
+                    Accesslevel = 1
+                }
             }
+
         });
     }
 }

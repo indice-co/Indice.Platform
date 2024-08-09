@@ -79,5 +79,9 @@ internal class DbCaseConfiguration : IEntityTypeConfiguration<DbCase>
             .HasMany(p => p.Versions)
             .WithOne(p => p.Case)
             .HasForeignKey(p => p.CaseId);
+        builder
+           .HasMany(p => p.StakeHolders)
+           .WithOne(p => p.Case)
+           .HasForeignKey(p => p.CaseId);
     }
 }

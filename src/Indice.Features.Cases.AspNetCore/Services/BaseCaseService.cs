@@ -101,7 +101,16 @@ internal abstract class BaseCaseService
                     .Where(p => p.Committed && p.Action == Approval.Approve)
                     .Select(p => p.CreatedBy)
                     .OrderBy(p => p.When)
-                    .ToList()
+                    .ToList(),
+                StakeHolders = c.StakeHolders
+                        .Select(p => new StakeHolder() {
+                            StakeHolderId = p.StakeHolderId,
+                            Type = p.Type,
+                            Accesslevel = p.Accesslevel,
+                            DateInserted = p.DateInserted
+                        })
+                        .OrderBy(p => p.DateInserted)
+                        .ToList()
             };
         return query;
     }
