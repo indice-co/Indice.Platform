@@ -31,9 +31,7 @@ public interface IStakeHolderService
     /// <summary>
     /// Removes stakeholder from the specified case
     /// </summary>
-    /// <param name="caseId">The Id of the case</param>
-    /// <param name="stakeHolderid">The id of the stakeholder</param>
-    /// <param name="type">type of the stakeholder</param>
+    /// <param name="request">Data for the removal</param>
     /// <returns></returns>
-    Task Delete(Guid caseId, string stakeHolderid, byte type);
+    Task Delete(StakeHolderDeleteRequest request);
 }

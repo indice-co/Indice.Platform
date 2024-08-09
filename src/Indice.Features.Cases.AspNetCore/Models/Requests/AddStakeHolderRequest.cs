@@ -13,3 +13,12 @@ namespace Indice.Features.Cases.Models.Requests;
 /// <param name="Type">The type of the stakeholder</param>
 /// <param name="Accesslevel">Access level</param>
 public record StakeHolderRequest(Guid CaseId, string StakeHolderId, byte Type, int Accesslevel);
+
+
+/// <summary>
+/// Request Dto to remove a stakeholder from a case
+/// </summary>
+/// <param name="CaseId">The id of the case</param>
+/// <param name="StakeHolderId">the Id of the stakeholder</param>
+/// <param name="Type">The type of the stakeholder</param>
+public record StakeHolderDeleteRequest(Guid CaseId, string StakeHolderId, byte Type);

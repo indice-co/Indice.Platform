@@ -13,15 +13,13 @@ internal class DbStakeHolderConfiguration : IEntityTypeConfiguration<DbStakeHold
         builder
             .HasKey(p => p.Id);
         builder
-            .HasOne(p => p.Case)
-            .WithMany()
-            .HasForeignKey(p => p.Id)
-            .OnDelete(DeleteBehavior.NoAction);
-        builder
             .Property(p => p.StakeHolderId)
             .IsRequired();
         builder
             .Property(p => p.Type)
             .IsRequired();
+        builder
+           .Property(p => p.Accesslevel)
+           .IsRequired();
     }
 }

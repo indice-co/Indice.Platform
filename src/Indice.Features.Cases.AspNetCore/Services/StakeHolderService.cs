@@ -78,14 +78,17 @@ internal class StakeHolderService : IStakeHolderService
             .ToListAsync();
     }
 
-    public async Task Delete(Guid caseId, string stakeHolderid, byte type) {
-        if (caseId == Guid.Empty) {
+    public async Task Delete(StakeHolderDeleteRequest request) {
+        if (request is null) {
+            throw new ValidationException("Request is empty.");
+        }
+        if (request.CaseId == Guid.Empty) {
             throw new ValidationException("Case id not provided.");
         }
-        if (string.IsNullOrEmpty(stakeHolderid)) {
+        if (string.IsNullOrEmpty(request.StakeHolderId)) {
             throw new ValidationException("StakeHolder not provided.");
         }
-        var stakeHolder = await _dbContext.StakeHolders.FirstOrDefaultAsync(x => x.CaseId == caseId && x.StakeHolderId == stakeHolderid && x.Type == type);
+        var stakeHolder = await _dbContext.StakeHolders.FirstOrDefaultAsync(x => x.CaseId == request.CaseId && x.StakeHolderId == request.StakeHolderId && x.Type == request.Type);
         if (stakeHolder == null) {
             throw new ValidationException("No record was found for the provided input.");
         }
