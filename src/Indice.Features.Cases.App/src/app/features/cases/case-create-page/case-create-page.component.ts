@@ -16,7 +16,6 @@ export class CaseCreatePageComponent implements OnInit {
   constructor(
     private api: CasesApiService,
     private router: Router) {
-
   }
 
   ngOnInit(): void { }

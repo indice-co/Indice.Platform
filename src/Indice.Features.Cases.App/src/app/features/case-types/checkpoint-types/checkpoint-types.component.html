@@ -1,0 +1,37 @@
+<lib-view-layout title=""
+[busy]="!items"
+[actions]="formActions"
+>
+  <lib-list-view [items]="items"
+              [count]="count"
+              [busy]="!items"
+              [show-pager]="false"
+              >
+    <lib-list-column [title]="'checkpointTypes.code' | translate">
+        <ng-template let-item>{{ item.code || '-' }}</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'checkpointTypes.status' | translate">
+        <ng-template let-item>{{ item.status }}</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'checkpointTypes.title' | translate">
+        <ng-template let-item>{{ item.title }}</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'checkpointTypes.description' | translate">
+        <ng-template let-item>{{ item.description }}</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'checkpointTypes.private' | translate">
+        <ng-template let-item>{{ item.private }}</ng-template>
+    </lib-list-column>
+    <lib-list-column [title]="'checkpointTypes.actions' | translate">
+        <ng-template let-item>
+          <a title="Επεξεργασία τύπου"
+          [routerLinkActive]="['']"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [routerLink]="['', { outlets: { rightpane: ['edit-checkpoint-type', item.id] } }]"
+          class="bg-dusty-orange hover:bg-dusty-orange-opacity text-white font-bold p-2 inline-flex rounded text-xs">
+          <span>{{'checkpointTypes.edit' | translate}}</span>
+          </a>
+        </ng-template>
+    </lib-list-column>
+  </lib-list-view>
+</lib-view-layout>

@@ -1,18 +1,29 @@
-<lib-view-layout title="Επεξεργασία Τύπου Υπόθεσης">
-    <main class="details-view-container">
-        <div class="bg-white shadow-sm rounded-sm w-full p-2">
-            <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-8 md:col-span-9 w-full">
-                <div class="form-container">
-                    <json-schema-form
-                                      [schema]="schema"
-                                      [(data)]="data"
-                                      [layout]="layout"
-                                      [framework]="framework"
-                                      [widgets]="widgets"
-                                      (onSubmit)="onSubmit($event)">
-                    </json-schema-form>
-                </div>
-            </div>
-        </div>
-    </main>
-</lib-view-layout>
+<div class="mt-4">
+  <lib-tab-group #staticTabGroup>
+      <lib-tab id="tab-one"
+               labelText="{{'caseTypeEdit.dataSchema' | translate}} {{data?.title}}">
+               <lib-view-layout title="">
+                <main class="details-view-container">
+                    <div class="bg-white shadow-sm rounded-sm w-full p-2">
+                        <div class="space-y-6 sm:px-6 lg:px-0 lg:col-span-8 md:col-span-9 w-full">
+                            <div class="form-container">
+                                <json-schema-form
+                                                  [schema]="schema"
+                                                  [(data)]="data"
+                                                  [layout]="layout"
+                                                  [framework]="framework"
+                                                  [widgets]="widgets"
+                                                  (onSubmit)="onSubmit($event)">
+                                </json-schema-form>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </lib-view-layout>
+      </lib-tab>
+      <lib-tab id="tab-two"
+               labelText="{{'caseTypeEdit.checkpoints' | translate}} {{data?.title}}">
+          <app-checkpoint-types-component></app-checkpoint-types-component>
+      </lib-tab>
+  </lib-tab-group>
+</div>

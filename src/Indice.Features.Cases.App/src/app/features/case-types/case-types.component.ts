@@ -41,7 +41,7 @@ export class CaseTypesComponent extends BaseListComponent<CaseTypePartial> imple
       )
   }
 
-  openModal(caseTypeId:string): void {
+  confirmDeleteModal(caseTypeId:string): void {
     const modal = this.ModalService.show(CaseTypeDeleteModalComponent, {
       backdrop: 'static',
       keyboard: false,
