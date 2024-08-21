@@ -57,7 +57,7 @@ internal class CheckpointTypeService : ICheckpointTypeService
         return new GetCheckpointTypeResponse() {
             Id = translated.Id,
             Code = translated.Code,
-            Translations = translated.Translations.ToJson(),
+            Translations = translated.Translations?.ToJson(),
             Description = translated.Description,
             Private = translated.Private,
             Status = translated.Status,
