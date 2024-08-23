@@ -30,7 +30,7 @@ public static class ExtendedIdentityDbContextExtensions
     /// <typeparam name="TRole">The type of role.</typeparam>
     /// <param name="dbContext">An extended <see cref="DbContext"/> for the Identity framework.</param>
     /// <param name="seedOptions">Seed options to customize initial load of users and roles</param>
-    public static void SeedInitialData<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext, ExtendedIdentityDbContextSeedOptions<TUser, TRole> seedOptions = null)
+    public static void SeedInitialData<TUser, TRole>(this ExtendedIdentityDbContext<TUser, TRole> dbContext, ExtendedIdentityDbContextSeedOptions<TUser, TRole>? seedOptions = null)
         where TUser : User, new()
         where TRole : Role, new() {
         if (!dbContext.Database.CanConnect()) {

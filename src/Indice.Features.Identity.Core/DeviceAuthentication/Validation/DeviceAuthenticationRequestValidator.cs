@@ -31,7 +31,7 @@ internal class DeviceAuthenticationRequestValidator : RequestValidatorBase<Devic
     public IUserDeviceStore UserDeviceStore { get; }
     public ExtendedUserManager<User> UserManager { get; }
 
-    public async override Task<DeviceAuthenticationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
+    public async override Task<DeviceAuthenticationRequestValidationResult> Validate(NameValueCollection parameters, string? accessToken = null) {
         Logger.LogDebug($"{nameof(DeviceAuthenticationRequestValidator)}: Started trusted device authorization request validation.");
         // Validate that the consumer specified all required parameters.
         var parametersToValidate = new[] {

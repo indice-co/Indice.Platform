@@ -21,8 +21,8 @@ public class UserPasswordLoginSuccessEvent : Event
         string subjectId,
         string name,
         bool interactive = true,
-        string clientId = null,
-        string clientName = null,
+        string? clientId = null,
+        string? clientName = null,
         SignInWarning? warning = null
     ) : this() {
         Username = username;
@@ -43,9 +43,9 @@ public class UserPasswordLoginSuccessEvent : Event
     /// <summary>Gets the endpoint.</summary>
     public string Endpoint { get; }
     /// <summary>Gets the client id.</summary>
-    public string ClientId { get; }
+    public string? ClientId { get; }
     /// <summary>Gets the client id.</summary>
-    public string ClientName { get; }
+    public string? ClientName { get; }
     /// <summary>Describes a warning that may occur during a sign in event.</summary>
     public SignInWarning? Warning { get; }
 }

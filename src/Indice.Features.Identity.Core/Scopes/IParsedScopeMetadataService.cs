@@ -22,13 +22,13 @@ public interface IParsedScopeMetadataService
     /// <summary>Gets additional information about a parsed scope.</summary>
     /// <param name="scope">The scope.</param>
     /// <param name="culture">The current culture.</param>
-    Task<ParsedScopeMetadata> ResolveMetadata(ParsedScopeValue scope, CultureInfo culture = null);
+    Task<ParsedScopeMetadata> ResolveMetadata(ParsedScopeValue scope, CultureInfo? culture = null);
 }
 
 /// <summary>Extension methods enhancing the <see cref="IParsedScopeMetadataService"/>.</summary>
 public static class ParsedScopeMetadataServiceExtensions
 {
     /// <inheritdoc />
-    public static async Task<TMetadata> ResolveMetadata<TMetadata>(this IParsedScopeMetadataService metadataService, ParsedScopeValue parsedScope, CultureInfo culture = null) where TMetadata : ParsedScopeMetadata
+    public static async Task<TMetadata> ResolveMetadata<TMetadata>(this IParsedScopeMetadataService metadataService, ParsedScopeValue parsedScope, CultureInfo? culture = null) where TMetadata : ParsedScopeMetadata
         => (TMetadata)(await metadataService.ResolveMetadata(parsedScope, culture));
 }

@@ -78,16 +78,16 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
         if (!isError) {
             context.Result = extendedContext.Result;
             await _eventService.RaiseAsync(new ExtendedUserLoginSuccessEvent(
-                user.UserName,
+                user.UserName!,
                 user.Id,
-                user.UserName,
+                user.UserName!,
                 clientId: context.Request.ClientId,
                 clientName: context.Request.Client.ClientName,
-                authenticationMethods: [context.Result.Subject.Identity.AuthenticationType]
+                authenticationMethods: [context.Result.Subject.Identity?.AuthenticationType!]
             ));
         } else {
             await _eventService.RaiseAsync(new ExtendedUserLoginFailureEvent(
-                user.UserName,
+                user.UserName!,
                 "Password login failure.",
                 clientId: context.Request.ClientId,
                 subjectId: user.Id
@@ -108,7 +108,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
 /// <typeparam name="TUser">The type of the user.</typeparam>
 public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwnerPasswordValidationContext where TUser : User
 {
-    private UserDevice _userDevice;
+    private UserDevice? _userDevice;
 
     internal ResourceOwnerPasswordValidationFilterContext(ResourceOwnerPasswordValidationContext context, TUser user) {
         Password = context.Password;
@@ -121,7 +121,7 @@ public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwner
     /// <summary>The user instance.</summary>
     public TUser User { get; }
     /// <summary>The user device.</summary>
-    public UserDevice Device => _userDevice;
+    public UserDevice? Device => _userDevice;
     internal bool Handled { get; set; }
 
     /// <summary>Sets the <see cref="Device"/> property.</summary>

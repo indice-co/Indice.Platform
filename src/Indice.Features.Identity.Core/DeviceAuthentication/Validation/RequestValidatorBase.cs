@@ -19,7 +19,7 @@ internal abstract class RequestValidatorBase<TValidationResult> : RequestChallen
     protected IClientStore ClientStore { get; }
     protected ITokenValidator TokenValidator { get; }
 
-    public abstract Task<TValidationResult> Validate(NameValueCollection parameters, string accessToken = null);
+    public abstract Task<TValidationResult> Validate(NameValueCollection parameters, string? accessToken = null);
 
     protected async Task<Client> LoadClient(string clientId) {
         var client = await ClientStore.FindEnabledClientByIdAsync(clientId);
@@ -31,7 +31,7 @@ internal abstract class RequestValidatorBase<TValidationResult> : RequestChallen
         return LoadClient(clientId);
     }
 
-    protected TValidationResult Error(string error, string errorDescription = null) => new() {
+    protected TValidationResult Error(string error, string? errorDescription = null) => new() {
         IsError = true,
         Error = error,
         ErrorDescription = errorDescription

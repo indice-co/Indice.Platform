@@ -68,7 +68,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     }
 
     /// <summary>Returns an <see cref="IQueryable{Device}"/> collection of devices.</summary>
-    public IQueryable<UserDevice> UserDevices => GetDeviceStore()?.UserDevices;
+    public IQueryable<UserDevice> UserDevices => GetDeviceStore()?.UserDevices ?? Array.Empty<UserDevice>().AsQueryable();
     /// <summary></summary>
     public int? MaxTrustedDevices { get; }
     /// <summary></summary>
@@ -148,17 +148,17 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     }
 
     /// <inheritdoc />
-    public async override Task<IdentityResult> SetUserNameAsync(TUser user, string userName) {
+    public async override Task<IdentityResult> SetUserNameAsync(TUser user, string? userName) {
         var previousValue = user.UserName;
         var result = await base.SetUserNameAsync(user, userName);
         if (result.Succeeded) {
-            await _eventService.Publish(new UserNameChangedEvent(UserEventContext.InitializeFromUser(user), previousValue));
+            await _eventService.Publish(new UserNameChangedEvent(UserEventContext.InitializeFromUser(user), previousValue!));
         }
         return result;
     }
 
     /// <inheritdoc />
-    public override async Task<IdentityResult> SetEmailAsync(TUser user, string email) {
+    public override async Task<IdentityResult> SetEmailAsync(TUser user, string? email) {
         if (EmailAsUserName) {
             var result = await SetUserNameAsync(user, email);
             if (!result.Succeeded) {
@@ -429,7 +429,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
-    public Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
+    public Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter? filter = null, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         var deviceStore = GetDeviceStore();
@@ -442,7 +442,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="user"/> parameter is null.</exception>
-    public Task<int> GetDevicesCountAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
+    public Task<int> GetDevicesCountAsync(TUser user, UserDeviceListFilter? filter = null, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         ArgumentNullException.ThrowIfNull(user);
         var deviceStore = GetDeviceStore();
@@ -564,7 +564,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     /// <param name="swapDeviceId">The id of the device to remove before trusting the defined device.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task<IdentityResult> SetTrustedDevice(TUser user, UserDevice device, string swapDeviceId = null, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> SetTrustedDevice(TUser user, UserDevice device, string? swapDeviceId = null, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -608,7 +608,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         var isDeviceActivationRequest = !device.TrustActivationDate.HasValue;
         if (isDeviceActivationRequest) {
             if (MaxTrustedDevices is > 0) {
-                var trustedOrPendingDevices = await deviceStore.GetDevicesCountAsync(user, UserDeviceListFilter.TrustedOrPendingNativeDevices(), cancellationToken);
+                var trustedOrPendingDevices = await deviceStore!.GetDevicesCountAsync(user, UserDeviceListFilter.TrustedOrPendingNativeDevices(), cancellationToken);
                 if (trustedOrPendingDevices >= MaxTrustedDevices.Value) {
                     return IdentityResult.Failed(new IdentityError {
                         Code = nameof(MessageDescriber.TrustedDevicesLimitReached),
@@ -652,7 +652,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
     }
 
     #region Helper Methods
-    private IExtendedUserStore<TUser> GetUserStore(bool throwOnFail = true) {
+    private IExtendedUserStore<TUser>? GetUserStore(bool throwOnFail = true) {
         var cast = Store as IExtendedUserStore<TUser>;
         if (throwOnFail && cast is null) {
             throw new NotSupportedException($"Store does not implement {nameof(IExtendedUserStore<TUser>)}.");
@@ -660,7 +660,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         return cast;
     }
 
-    private IUserDeviceStore<TUser> GetDeviceStore(bool throwOnFail = true) {
+    private IUserDeviceStore<TUser>? GetDeviceStore(bool throwOnFail = true) {
         var cast = Store as IUserDeviceStore<TUser>;
         if (throwOnFail && cast is null) {
             throw new NotSupportedException($"Store does not implement {nameof(IUserDeviceStore<TUser>)}.");

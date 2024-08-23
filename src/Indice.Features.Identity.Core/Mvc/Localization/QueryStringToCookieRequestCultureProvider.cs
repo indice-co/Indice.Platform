@@ -15,7 +15,7 @@ public class QueryStringToCookieRequestCultureProvider : RequestCultureProvider
     public string QueryParameterName { get; set; } = DefaultParameterName;
 
     /// <inheritdoc />
-    public override Task<ProviderCultureResult> DetermineProviderCultureResult(HttpContext httpContext) {
+    public override Task<ProviderCultureResult?> DetermineProviderCultureResult(HttpContext httpContext) {
         if (httpContext == null) {
             throw new ArgumentNullException(nameof(httpContext));
         }

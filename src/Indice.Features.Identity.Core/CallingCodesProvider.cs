@@ -40,7 +40,7 @@ public class CallingCodesProvider
     /// <summary>Retrieves info about a calling code.</summary>
     /// <param name="code">The calling code.</param>
     /// <returns>A <see cref="CallingCode"/> object with the required information.</returns>
-    public CallingCode GetCallingCode(string code) {
+    public CallingCode? GetCallingCode(string code) {
         if (string.IsNullOrWhiteSpace(code)) {
             return null;
         }

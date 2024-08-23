@@ -10,5 +10,5 @@ public class ClientUser
     /// <summary>The id of the client.</summary>
     public int ClientId { get; set; }
     /// <summary>The client object associated with the user.</summary>
-    public virtual Client Client { get; set; }
+    public virtual Client? Client { get; set; }
 }

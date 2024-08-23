@@ -34,7 +34,7 @@ public class ParsedScopePersistedGrantService<TPersistedGrantService> : IPersist
     }
 
     /// <inheritdoc/>
-    public async Task RemoveAllGrantsAsync(string subjectId, string clientId = null, string sessionId = null) {
+    public async Task RemoveAllGrantsAsync(string subjectId, string? clientId = null, string? sessionId = null) {
         var removedGrants = await _persistedGrantDbContext.PersistedGrants.Where(x => x.SubjectId == subjectId && x.ClientId == clientId).ToListAsync();
         await _inner.RemoveAllGrantsAsync(subjectId, clientId);
         var consents = removedGrants.Where(x => x.Type == IdentityServerConstants.PersistedGrantTypes.UserConsent);

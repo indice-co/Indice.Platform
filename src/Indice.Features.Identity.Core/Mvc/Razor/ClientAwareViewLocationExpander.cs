@@ -49,7 +49,7 @@ namespace Microsoft.AspNetCore.Http
         /// <summary>Extracts the client id from the URL.</summary>
         /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
         /// <param name="returnUrlQueryParameterName">Parameter name of return URL.</param>
-        public static string GetClientIdFromReturnUrl(this HttpContext httpContext, string returnUrlQueryParameterName = ReturnUrlQueryParameterName) {
+        public static string? GetClientIdFromReturnUrl(this HttpContext httpContext, string returnUrlQueryParameterName = ReturnUrlQueryParameterName) {
             var queryStringValues = httpContext.Request.Query;
             var clientId = default(string);
             if (queryStringValues.ContainsKey(JwtClaimTypes.ClientId)) {

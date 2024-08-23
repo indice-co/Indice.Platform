@@ -124,7 +124,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
         return new InitRegistrationResult(response);
     }
 
-    private DeviceAuthenticationErrorResult Error(string error, string errorDescription = null, Dictionary<string, object> custom = null) {
+    private DeviceAuthenticationErrorResult Error(string error, string? errorDescription = null, Dictionary<string, object>? custom = null) {
         var response = new TokenErrorResponse {
             Error = error,
             ErrorDescription = errorDescription,

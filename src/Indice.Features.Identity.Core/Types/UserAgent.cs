@@ -24,17 +24,17 @@ public class UserAgent
     }
 
     /// <summary>The device model.</summary>
-    public string DeviceModel { get; set; }
+    public string? DeviceModel { get; set; }
     /// <summary>The device platform.</summary>
     public DevicePlatform DevicePlatform { get; set; }
     /// <summary>Browser display name.</summary>
     public string DisplayName { get; }
     /// <summary>The operating system name.</summary>
-    public string Os { get; }
+    public string? Os { get; }
     /// <summary>The raw value of the header.</summary>
     public string HeaderValue { get; }
 
-    private static string FormatUserAgentInfo(UAParser.UserAgent userAgent) {
+    private static string? FormatUserAgentInfo(UAParser.UserAgent? userAgent) {
         if (userAgent is null) {
             return default;
         }
@@ -55,7 +55,7 @@ public class UserAgent
         return userAgentInfo == string.Empty ? default : userAgentInfo;
     }
 
-    private static string FormatOsInfo(OS os) {
+    private static string? FormatOsInfo(OS? os) {
         if (os is null) {
             return default;
         }
@@ -79,7 +79,7 @@ public class UserAgent
         return osInfo == string.Empty ? default : osInfo;
     }
 
-    private static string FormatDeviceInfo(Device device) {
+    private static string? FormatDeviceInfo(Device? device) {
         if (device is null) {
             return default;
         }

@@ -22,7 +22,7 @@ internal class InitRegistrationRequestValidator : RequestValidatorBase<InitRegis
 
     public ILogger<InitRegistrationRequestValidator> Logger { get; }
 
-    public override async Task<InitRegistrationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
+    public override async Task<InitRegistrationRequestValidationResult> Validate(NameValueCollection parameters, string? accessToken = null) {
         Logger.LogDebug($"{nameof(InitRegistrationRequestValidator)}: Started trusted device registration request validation.");
         // The access token needs to be valid and have at least the OpenID scope.
         var tokenValidationResult = await TokenValidator.ValidateAccessTokenAsync(accessToken, IdentityServerConstants.StandardScopes.OpenId);

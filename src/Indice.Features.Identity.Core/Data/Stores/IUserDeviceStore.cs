@@ -21,13 +21,13 @@ public interface IUserDeviceStore<TUser> where TUser : User
     /// <param name="filter">Contains filter when querying for user device list.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
-    Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default);
+    Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter? filter = null, CancellationToken cancellationToken = default);
     /// <summary>Gets the devices count registered by the specified user.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="filter">Contains filter when querying for user device list.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user devices.</returns>
-    Task<int> GetDevicesCountAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default);
+    Task<int> GetDevicesCountAsync(TUser user, UserDeviceListFilter? filter = null, CancellationToken cancellationToken = default);
     /// <summary>Gets the device registered by the specified user, using it's unique id.</summary>
     /// <param name="user">The user instance.</param>
     /// <param name="deviceId">The id of the device to look for.</param>

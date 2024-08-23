@@ -106,7 +106,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
 
     #region Method Overrides
     /// <inheritdoc/>
-    public override async Task<ExternalLoginInfo> GetExternalLoginInfoAsync(string expectedXsrf = null) {
+    public override async Task<ExternalLoginInfo?> GetExternalLoginInfoAsync(string? expectedXsrf = null) {
         var auth = await Context.AuthenticateAsync(ExternalScheme);
         var items = auth?.Properties?.Items;
         if (auth?.Principal == null || items == null || !items.ContainsKey(LOGIN_PROVIDER_KEY)) {
@@ -141,7 +141,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     /// <inheritdoc/>
-    protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string loginProvider = null, bool bypassTwoFactor = false) {
+    protected override async Task<SignInResult> SignInOrTwoFactorAsync(TUser user, bool isPersistent, string? loginProvider = null, bool bypassTwoFactor = false) {
         var isExternalLogin = !string.IsNullOrWhiteSpace(loginProvider) && (await _authenticationSchemeProvider.GetExternalSchemesAsync()).Select(scheme => scheme.Name).Contains(loginProvider);
         var deviceId = _httpContextAccessor.HttpContext.ResolveDeviceId();
         if (isExternalLogin) {
@@ -150,8 +150,8 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         } else {
             await _stateProvider.ChangeStateAsync(user, UserAction.Login);
         }
-        var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext, user);
-        if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector.FlowType == ImpossibleTravelFlowType.DenyLogin) {
+        var result = await _signInGuard.IsSuspiciousLogin(_httpContextAccessor.HttpContext!, user);
+        if (result.Warning == SignInWarning.ImpossibleTravel && _signInGuard.ImpossibleTravelDetector?.FlowType == ImpossibleTravelFlowType.DenyLogin) {
             return SignInResult.Failed;
         }
         if (_stateProvider.ShouldSignInPartially()) {
@@ -206,7 +206,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     /// <inheritdoc/>
-    public override async Task SignInWithClaimsAsync(TUser user, AuthenticationProperties authenticationProperties, IEnumerable<Claim> additionalClaims) {
+    public override async Task SignInWithClaimsAsync(TUser user, AuthenticationProperties? authenticationProperties, IEnumerable<Claim> additionalClaims) {
         user.LastSignInDate = DateTimeOffset.UtcNow;
         await ExtendedUserManager.UpdateAsync(user);
         await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
@@ -247,12 +247,12 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     /// <inheritdoc/>
-    public override async Task<TUser> GetTwoFactorAuthenticationUserAsync() {
+    public override async Task<TUser?> GetTwoFactorAuthenticationUserAsync() {
         var info = await RetrieveTwoFactorInfoAsync();
         if (string.IsNullOrWhiteSpace(info?.UserId)) {
             return default;
         }
-        return await ExtendedUserManager.FindByIdAsync(info.UserId);
+        return await ExtendedUserManager.FindByIdAsync(info.UserId!);
     }
 
     /// <inheritdoc/>
@@ -292,13 +292,13 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
     }
 
     /// <inheritdoc/>
-    public override AuthenticationProperties ConfigureExternalAuthenticationProperties(string provider, string redirectUrl, string userId = null) {
+    public override AuthenticationProperties ConfigureExternalAuthenticationProperties(string? provider, string? redirectUrl, string? userId = null) {
         var props = base.ConfigureExternalAuthenticationProperties(provider, redirectUrl, userId);
         var queryString = QueryHelpers.ParseNullableQuery(redirectUrl);
         // Make available the 'prompt' parameter to the downstream identity provider so that the client can have control over the re-authentication process.
         // This merely adds the item to the authentication properties.
         // The next thing to do is to configure the OpenIdConnect middleware to pass it on.
-        if (queryString.ContainsKey("prompt")) {
+        if (queryString is not null && queryString.ContainsKey("prompt")) {
             props.Items.Add("prompt", queryString["prompt"]);
         }
         return props;
@@ -426,7 +426,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             identity.AddClaim(new Claim(ClaimTypes.AuthenticationMethod, loginProvider));
         }
         if (!deviceId.IsEmpty) { 
-            identity.AddClaim(new Claim(BasicClaimTypes.DeviceId, deviceId.Value));
+            identity.AddClaim(new Claim(BasicClaimTypes.DeviceId, deviceId.Value!));
         }
         return new ClaimsPrincipal(identity);
     }
@@ -441,7 +441,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
                 await ExtendedUserManager.UpdateDeviceAsync(user, device);
             } else {
                 var userAgentHeader = Context.Request.Headers[HeaderNames.UserAgent];
-                var userAgent = new UserAgent(userAgentHeader);
+                var userAgent = new UserAgent(userAgentHeader!);
                 var now = DateTimeOffset.UtcNow;
                 device = new UserDevice {
                     ClientType = DeviceClientType.Browser,
@@ -470,7 +470,7 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         return new ClaimsPrincipal(deviceIdentity);
     }
 
-    private async Task<TwoFactorAuthenticationInfo> RetrieveTwoFactorInfoAsync() {
+    private async Task<TwoFactorAuthenticationInfo?> RetrieveTwoFactorInfoAsync() {
         var result = await Context.AuthenticateAsync(ExtendedIdentityConstants.TwoFactorUserIdScheme);
         var claimsPrincipal = result?.Principal;
         if (claimsPrincipal is null) {
@@ -483,9 +483,9 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
         var authenticationMethod = claimsPrincipal.FindFirstValue(JwtClaimTypes.AuthenticationMethod) ??
                                    claimsPrincipal.FindFirstValue(ClaimTypes.AuthenticationMethod);
         return new TwoFactorAuthenticationInfo {
-            UserId = userId,
+            UserId = userId!,
             DeviceId = deviceId,
-            LoginProvider = authenticationMethod
+            LoginProvider = authenticationMethod!
         };
     }
 
@@ -506,13 +506,13 @@ public class ExtendedSignInManager<TUser> : SignInManager<TUser> where TUser : U
             await Context.SignOutAsync(IdentityConstants.ExternalScheme);
         }
         if (!twoFactorInfo.DeviceId.IsEmpty) {
-            claims.Add(new Claim(BasicClaimTypes.DeviceId, twoFactorInfo.DeviceId.Value));
+            claims.Add(new Claim(BasicClaimTypes.DeviceId, twoFactorInfo.DeviceId.Value!));
         }
         await Context.SignOutAsync(ExtendedIdentityConstants.TwoFactorUserIdScheme);
         await SignInWithClaimsAsync(user, isPersistent, claims);
     }
 
-    private IUserDeviceStore<TUser> GetDeviceStore(bool throwOnFail = true) {
+    private IUserDeviceStore<TUser>? GetDeviceStore(bool throwOnFail = true) {
         var cast = _userStore as IUserDeviceStore<TUser>;
         if (throwOnFail && cast is null) {
             throw new NotSupportedException($"Store does not implement {nameof(IUserDeviceStore<TUser>)}.");
@@ -584,7 +584,7 @@ public static class ExtendedSignInManagerExtensions
 
 internal sealed class TwoFactorAuthenticationInfo
 {
-    public string UserId { get; set; }
-    public MfaDeviceIdentifier DeviceId { get; set; }
-    public string LoginProvider { get; set; }
+    public string UserId { get; set; } = null!;
+    public MfaDeviceIdentifier DeviceId { get; set; } = MfaDeviceIdentifier.Empty;
+    public string? LoginProvider { get; set; }
 }
