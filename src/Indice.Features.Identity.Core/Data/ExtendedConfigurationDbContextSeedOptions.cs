@@ -23,11 +23,11 @@ public class ExtendedConfigurationDbContext : ConfigurationDbContext<ExtendedCon
     }
 
     /// <summary>A table that contains the association between a client and a user.</summary>
-    public DbSet<ClientUser> ClientUsers { get; set; }
+    public DbSet<ClientUser> ClientUsers { get; set; } = null!;
     /// <summary>A table that contains custom data for a client secret.</summary>
-    public DbSet<ClientSecretExtended> ClientSecretExtras { get; set; }
+    public DbSet<ClientSecretExtended> ClientSecretExtras { get; set; } = null!;
     /// <summary>A table that contains all the available claim types of the application.</summary>
-    public DbSet<ClaimType> ClaimTypes { get; set; }
+    public DbSet<ClaimType> ClaimTypes { get; set; } = null!;
 
     /// <summary>Register extended configuration methods when the database is being created.</summary>
     /// <param name="modelBuilder">Provides a simple API surface for configuring a <see cref="DbContext"/>.</param>

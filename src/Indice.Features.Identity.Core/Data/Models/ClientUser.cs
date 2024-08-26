@@ -6,7 +6,7 @@ namespace Indice.Features.Identity.Core.Data.Models;
 public class ClientUser
 {
     /// <summary>The id of the user.</summary>
-    public string UserId { get; set; }
+    public string UserId { get; set; } = null!;
     /// <summary>The id of the client.</summary>
     public int ClientId { get; set; }
     /// <summary>The client object associated with the user.</summary>

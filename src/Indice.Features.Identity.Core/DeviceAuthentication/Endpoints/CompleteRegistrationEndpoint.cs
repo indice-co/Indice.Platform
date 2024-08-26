@@ -55,7 +55,7 @@ internal class CompleteRegistrationEndpoint : IEndpointHandler
         }
         // Get device that is operating, if any.
         var existingDevice = await UserDeviceStore.GetByDeviceId(requestValidationResult.DeviceId);
-        var isNewDeviceOrOwnedByUser = existingDevice is null || existingDevice.UserId.Equals(requestValidationResult.User.Id, StringComparison.OrdinalIgnoreCase);
+        var isNewDeviceOrOwnedByUser = existingDevice is null || existingDevice.UserId.Equals(requestValidationResult.User!.Id, StringComparison.OrdinalIgnoreCase);
         if (!isNewDeviceOrOwnedByUser) {
             return Error(OidcConstants.ProtectedResourceErrors.InvalidToken, "Device does not belong to the this user.");
         }

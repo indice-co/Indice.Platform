@@ -22,7 +22,7 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
 
     /// <inheritdoc />
     public override async Task<TotpResult> SendAsync(
-        TUser user,
+        TUser? user,
         string message,
         TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
         string? subject = null,
@@ -46,7 +46,7 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
 
     /// <inheritdoc />
     public override async Task<TotpResult> VerifyAsync(
-        TUser user,
+        TUser? user,
         string code,
         string? purpose = null,
         string? tokenProvider = null
@@ -63,7 +63,7 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
     }
 
     /// <inheritdoc />
-    public override async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(TUser user) {
+    public override async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(TUser? user) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
         }

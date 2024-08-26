@@ -20,8 +20,8 @@ public class ExtendedUserLoginFailureEvent(
 ) : UserLoginFailureEvent(username, error, interactive, clientId)
 {
     /// <summary>The subject id.</summary>
-    public string SubjectId { get; } = subjectId;
+    public string? SubjectId { get; } = subjectId;
 
     /// <summary>The client name.</summary>
-    public string ClientName { get; } = clientName;
+    public string? ClientName { get; } = clientName;
 }

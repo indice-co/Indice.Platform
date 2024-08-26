@@ -62,7 +62,7 @@ public class ExtendedResourceOwnerPasswordValidator<TUser>(
         var deviceId = context.Request.Raw[RegistrationRequestParameters.DeviceId];
         if (!string.IsNullOrWhiteSpace(deviceId)) {
             var device = await _userManager.GetDeviceByIdAsync(user, deviceId);
-            extendedContext.SetDevice(device);
+            extendedContext.SetDevice(device!);
         }
         var isError = false;
         foreach (var filter in _filters.OrderBy(x => x.Order)) {
@@ -110,7 +110,7 @@ public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwner
 {
     private UserDevice? _userDevice;
 
-    internal ResourceOwnerPasswordValidationFilterContext(ResourceOwnerPasswordValidationContext context, TUser user) {
+    internal ResourceOwnerPasswordValidationFilterContext(ResourceOwnerPasswordValidationContext context, TUser? user) {
         Password = context.Password;
         Request = context.Request;
         Result = context.Result;
@@ -119,7 +119,7 @@ public class ResourceOwnerPasswordValidationFilterContext<TUser> : ResourceOwner
     }
 
     /// <summary>The user instance.</summary>
-    public TUser User { get; }
+    public TUser? User { get; }
     /// <summary>The user device.</summary>
     public UserDevice? Device => _userDevice;
     internal bool Handled { get; set; }
@@ -196,8 +196,8 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
 
     /// <inheritdoc />
     public async Task ValidateAsync(ResourceOwnerPasswordValidationFilterContext<TUser> context) {
-        var result = await _signInManager.CheckPasswordSignInAsync(context.User, context.Password, lockoutOnFailure: true);
-        if (context.User.Blocked) {
+        var result = await _signInManager.CheckPasswordSignInAsync(context.User!, context.Password, lockoutOnFailure: true);
+        if (context.User!.Blocked) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.Blocked);
             return;
         }
@@ -211,7 +211,7 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
         }
         var signInGuardResult = await _signInGuard.IsSuspiciousLogin(_signInManager.Context, context.User);
         if (signInGuardResult.Warning == SignInWarning.ImpossibleTravel) {
-            if (_signInGuard.ImpossibleTravelDetector.FlowType == ImpossibleTravelFlowType.DenyLogin) {
+            if (_signInGuard.ImpossibleTravelDetector?.FlowType == ImpossibleTravelFlowType.DenyLogin) {
                 context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, ResourceOwnerPasswordErrorCodes.Blocked);
                 return;
             }
@@ -280,7 +280,7 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
                 }
             }
             await totpService.SendAsync(totp =>
-                totp.ToUser(context.User)
+                totp.ToUser(context.User!)
                     .WithMessage(_identityMessageDescriber.ImpossibleTravelOtpMessage())
                     .UsingDeliveryChannel(channel)
                     .WithSubject(_identityMessageDescriber.ImpossibleTravelOtpSubject)
@@ -294,12 +294,12 @@ public class IdentityResourceOwnerPasswordValidator<TUser>(
             return;
         }
         // User will verify the otp to invalidate the impossible travel.
-        if (await totpService.VerifyAsync(context.User, otp, purpose.ToString()) is { Success: false }) {
+        if (await totpService.VerifyAsync(context.User!, otp, purpose.ToString()) is { Success: false }) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "OTP verification code could not be validated.");
             return;
         }
         // Return token to user.
-        context.Result = new GrantValidationResult(context.User.Id, CustomGrantTypes.Mfa);
+        context.Result = new GrantValidationResult(context.User!.Id, CustomGrantTypes.Mfa);
     }
 }
 

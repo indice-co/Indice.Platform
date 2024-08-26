@@ -125,7 +125,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="emailTemplate">The email template to be used when <paramref name="channel"/> is <see cref="TotpDeliveryChannel.Email"/> or when <paramref name="authenticationMethod"/> has a relevant channel.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public virtual async Task<TotpResult> SendAsync(
-        TUser user,
+        TUser? user,
         string message,
         TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
         string? subject = null,
@@ -188,11 +188,11 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         return TotpResult.SuccessResult;
     }
 
-    private static string IncludeTokenInPushNotificationData(string data, string token) {
+    private static string IncludeTokenInPushNotificationData(string? data, string token) {
         var jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         if (!string.IsNullOrWhiteSpace(data)) {
             try {
-                var deserializedData = JsonSerializer.Deserialize<ExpandoObject>(data, jsonSerializerOptions);
+                var deserializedData = JsonSerializer.Deserialize<ExpandoObject>(data, jsonSerializerOptions)!;
                 deserializedData.TryAdd("otp", token);
                 data = JsonSerializer.Serialize(deserializedData, jsonSerializerOptions);
             } catch { }
@@ -224,7 +224,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="tokenProvider">The name of the token provider.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public virtual async Task<TotpResult> VerifyAsync(
-        TUser user,
+        TUser? user,
         string code,
         string? purpose = null,
         string? tokenProvider = null
@@ -246,7 +246,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <summary>Gets list of available providers for the given user.</summary>
     /// <param name="user">The user entity type.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public virtual async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(TUser user) {
+    public virtual async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(TUser? user) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
         }

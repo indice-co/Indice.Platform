@@ -6,15 +6,15 @@ namespace Indice.Features.Identity.Core.Events.Models;
 public sealed class UserEventContext
 {
     /// <summary>Gets or sets the primary key for this user.</summary>
-    public string Id { get; private set; }
+    public string Id { get; private set; } = null!;
     /// <summary>Gets or sets the user name for this user.</summary>
-    public string UserName { get; private set; }
+    public string UserName { get; private set; } = null!;
     /// <summary>Gets or sets the email address for this user.</summary>
-    public string Email { get; private set; }
+    public string? Email { get; private set; }
     /// <summary>Gets or sets a flag indicating if a user has confirmed their email address.</summary>
     public bool EmailConfirmed { get; private set; }
     /// <summary>Gets or sets a telephone number for the user.</summary>
-    public string PhoneNumber { get; private set; }
+    public string? PhoneNumber { get; private set; }
     /// <summary>Gets or sets a flag indicating if a user has confirmed their telephone address.</summary>
     public bool PhoneNumberConfirmed { get; private set; }
     /// <summary>Gets or sets a flag indicating if two factor authentication is enabled for this user.</summary>
@@ -42,7 +42,7 @@ public sealed class UserEventContext
     /// <summary>Indicates whether the user must provide a new password upon next login.</summary>
     public bool PasswordExpired { get; private set; }
     /// <summary>Navigation property for the claims this user possesses.</summary>
-    public List<UserClaimEventContext> Claims { get; private set; }
+    public List<UserClaimEventContext> Claims { get; private set; } = [];
 
     /// <summary>Creates a new <see cref="UserEventContext"/> instance given a <see cref="User"/> entity.</summary>
     /// <param name="user">The user entity.</param>
@@ -50,7 +50,7 @@ public sealed class UserEventContext
         AccessFailedCount = user.AccessFailedCount,
         Admin = user.Admin,
         Blocked = user.Blocked,
-        Claims = user.Claims?.Select(claim => new UserClaimEventContext(claim.ClaimType, claim.ClaimValue)).ToList() ?? [],
+        Claims = user.Claims?.Select(claim => new UserClaimEventContext(claim.ClaimType!, claim.ClaimValue!)).ToList() ?? [],
         CreateDate = user.CreateDate,
         Email = user.Email,
         EmailConfirmed = user.EmailConfirmed,
@@ -65,7 +65,7 @@ public sealed class UserEventContext
         PhoneNumber = user.PhoneNumber,
         PhoneNumberConfirmed = user.PhoneNumberConfirmed,
         TwoFactorEnabled = user.TwoFactorEnabled,
-        UserName = user.UserName
+        UserName = user.UserName!
     };
 }
 

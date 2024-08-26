@@ -20,7 +20,7 @@ public static class HttpContextExtensions
         return MfaDeviceIdentifier.Empty;
     }
 
-    private static string GetDeviceId(HttpContext httpContext) {
+    private static string? GetDeviceId(HttpContext httpContext) {
         if (httpContext is null) {
             throw new ArgumentNullException(nameof(httpContext));
         }

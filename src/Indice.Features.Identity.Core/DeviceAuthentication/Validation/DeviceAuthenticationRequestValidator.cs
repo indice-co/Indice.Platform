@@ -65,7 +65,7 @@ internal class DeviceAuthenticationRequestValidator : RequestValidatorBase<Devic
         }
         // Validate requested scopes.
         var isOpenIdRequest = false;
-        var requestedScopes = parameters.Get(RegistrationRequestParameters.Scope).Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        var requestedScopes = parameters.Get(RegistrationRequestParameters.Scope)!.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
         if (requestedScopes.Contains(IdentityServerConstants.StandardScopes.OpenId)) {
             isOpenIdRequest = true;
         }

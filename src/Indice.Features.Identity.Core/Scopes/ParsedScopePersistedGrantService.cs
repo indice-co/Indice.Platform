@@ -49,7 +49,7 @@ public class ParsedScopePersistedGrantService<TPersistedGrantService> : IPersist
         if (!parsedScopesResult.Succeeded) {
             return;
         }
-        await _parsedScopeNotificationService.Notify(clientId, parsedScopesResult.ParsedScopes, ParsedScopeNotificationType.GrantsRevoked);
+        await _parsedScopeNotificationService.Notify(clientId!, parsedScopesResult.ParsedScopes, ParsedScopeNotificationType.GrantsRevoked);
     }
 
     /// <inheritdoc/>

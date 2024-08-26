@@ -7,11 +7,11 @@ namespace Indice.Features.Identity.Core.Scopes;
 public class ParsedScopeMetadata
 {
     /// <summary>The parsed scope value.</summary>
-    public ParsedScopeValue Scope { get; set; }
+    public ParsedScopeValue Scope { get; set; } = null!;
     /// <summary>The display name.</summary>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
     /// <summary>The description enhanced with any metadata.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
     /// <summary>A flag that indicates if this scope needs strong customer authentication.</summary>
     public bool RequiresSca { get; set; }
 }

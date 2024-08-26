@@ -48,7 +48,7 @@ public abstract class AuthenticationMethod
     public IEnumerable<UserDevice> GetDevices() => SupportsDevices() ? ((IAuthenticationMethodWithDevices)this).Devices : Enumerable.Empty<UserDevice>();
 
     /// <summary>Gets the token provider associated with this authentication method, if applicable.</summary>
-    public string GetTokenProvider() => SupportsTokenProvider() ? ((IAuthenticationMethodWithTokenProvider)this).TokenProvider : default;
+    public string? GetTokenProvider() => SupportsTokenProvider() ? ((IAuthenticationMethodWithTokenProvider)this).TokenProvider : default;
 }
 
 /// <summary>Authentication method that contains a delivery channel.</summary>

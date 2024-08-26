@@ -94,7 +94,7 @@ public class UserAgent
         return deviceInfo == string.Empty ? default : deviceInfo;
     }
 
-    private static DevicePlatform DecideDevicePlatform(string osInfo) {
+    private static DevicePlatform DecideDevicePlatform(string? osInfo) {
         var devicePlatform = DevicePlatform.None;
         switch (osInfo) {
             case string x when x.Contains("iPhone", StringComparison.OrdinalIgnoreCase):

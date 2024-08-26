@@ -165,7 +165,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public async Task<UserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task<UserDevice?> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         return await UserDeviceSet.Include(x => x.User).SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);

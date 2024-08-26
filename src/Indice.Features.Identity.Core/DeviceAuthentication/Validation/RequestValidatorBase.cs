@@ -21,12 +21,15 @@ internal abstract class RequestValidatorBase<TValidationResult> : RequestChallen
 
     public abstract Task<TValidationResult> Validate(NameValueCollection parameters, string? accessToken = null);
 
-    protected async Task<Client> LoadClient(string clientId) {
+    protected async Task<Client?> LoadClient(string? clientId) {
+        if (clientId == null) {
+            return null;
+        }
         var client = await ClientStore.FindEnabledClientByIdAsync(clientId);
         return client;
     }
 
-    protected Task<Client> LoadClient(TokenValidationResult tokenValidationResult) {
+    protected Task<Client?> LoadClient(TokenValidationResult tokenValidationResult) {
         var clientId = tokenValidationResult.Claims.Single(x => x.Type == JwtClaimTypes.ClientId).Value;
         return LoadClient(clientId);
     }

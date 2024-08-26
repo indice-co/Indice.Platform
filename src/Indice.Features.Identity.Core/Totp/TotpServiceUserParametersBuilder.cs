@@ -12,7 +12,7 @@ public sealed class TotpServiceUserParametersBuilder<TUser> : TotpServiceUserPar
 {
     /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.ClaimsPrincipal"/> property.</summary>
     /// <param name="claimsPrincipal">The claims principal.</param>
-    public TotpServiceUserMessageBuilder<TUser> ToPrincipal(ClaimsPrincipal claimsPrincipal) {
+    public TotpServiceUserMessageBuilder<TUser> ToPrincipal(ClaimsPrincipal? claimsPrincipal) {
         ClaimsPrincipal = claimsPrincipal ?? throw new ArgumentNullException($"Parameter {nameof(claimsPrincipal)} cannot be null.");
         return new TotpServiceUserMessageBuilder<TUser>(this);
     }
@@ -200,7 +200,7 @@ public class TotpServiceUserParameters<TUser> where TUser : User
     /// <summary>Chosen delivery channel.</summary>
     public TotpDeliveryChannel DeliveryChannel { get; internal set; }
     /// <summary>The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</summary>
-    public string? Message { get; internal set; }
+    public string Message { get; internal set; } = null!;
     /// <summary>The purpose.</summary>
     public string? Purpose { get; internal set; }
     /// <summary>The subject of message.</summary>
