@@ -53,9 +53,6 @@ public class ExtendedUserClaimsPrincipalFactory<TUser, TRole>(
             if (!isAdmin) {
                 if (identity.HasClaim(x => x.Type == JwtClaimTypes.Role)) {
                     isAdmin = identity.HasClaim(JwtClaimTypes.Role, BasicRoleNames.Administrator);
-                } else {
-                    var roles = (await UserManager.GetRolesAsync(user)).Select(role => new Claim(JwtClaimTypes.Role, role));
-                    isAdmin = roles.Where(x => x.Value == BasicRoleNames.Administrator).Any();
                 }
             }
             additionalClaims.Add(new Claim(BasicClaimTypes.Admin, isAdmin.ToString().ToLower(), ClaimValueTypes.Boolean));
