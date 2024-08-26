@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using MimeKit;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -70,7 +71,7 @@ public static partial class ValidationFilterExtensions
             List<ValidationDescriptor> parametersToValidate = null;
             foreach (var parameter in methodInfo.GetParameters()) {
                 if (typeToValidate.Equals(parameter.ParameterType) || (otherTypesToValidate is not null && otherTypesToValidate.Contains(parameter.ParameterType))) {
-                    parametersToValidate ??= new();
+                    parametersToValidate ??= [];
                     parametersToValidate.Add(new(parameter.Position, parameter.ParameterType));
                 }
             }
@@ -79,7 +80,7 @@ public static partial class ValidationFilterExtensions
                 return;
             }
             // We can respond with problem details if there's a validation error.
-            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(StatusCodes.Status400BadRequest, typeof(HttpValidationProblemDetails), new[] { "application/problem+json" }));
+            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(StatusCodes.Status400BadRequest, typeof(HttpValidationProblemDetails), [ "application/problem+json" ]));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
                     var validator = invocationContext.HttpContext.RequestServices.GetRequiredService<IEndpointParameterValidator>();
@@ -134,7 +135,7 @@ public static partial class ValidationFilterExtensions
                 return;
             }
             // We can respond with problem details if there's a validation error.
-            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), ["application/problem+json"]));
+            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(statusCode, typeof(HttpValidationProblemDetails), [ "application/problem+json" ]));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
                     try {
