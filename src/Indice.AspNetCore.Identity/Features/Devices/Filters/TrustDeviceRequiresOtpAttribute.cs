@@ -47,7 +47,7 @@ internal class TrustDeviceRequiresOtpAttribute : RequiresOtpAttribute, IAsyncAct
         await base.OnActionExecutionAsync(context, next);
     }
 
-    protected override string GetTotpMessage() {
+    protected override string GetTotpMessage(IServiceProvider serviceProvider) {
         var messageDescriber = _serviceProvider.GetRequiredService<IdentityMessageDescriber>();
         return messageDescriber.TrustedDeviceRequiresOtpMessage(_device);
     }
