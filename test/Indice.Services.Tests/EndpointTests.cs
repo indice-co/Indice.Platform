@@ -17,7 +17,7 @@ using Indice.AspNetCore.Views;
 using Newtonsoft.Json.Linq;
 
 namespace Indice.Services.Tests;
-public class EndpointTests : IAsyncDisposable
+public class EndpointTests : IAsyncLifetime
 {
     // Constants
     private const string BASE_URL = "https://server";
@@ -132,7 +132,11 @@ public class EndpointTests : IAsyncDisposable
     }
     #endregion
 
-    public async ValueTask DisposeAsync() {
+
+    public Task InitializeAsync() {
+        return Task.CompletedTask;
+    }
+    public async Task DisposeAsync() {
         await _serviceProvider.DisposeAsync();
     }
 }

@@ -22,7 +22,7 @@ using Xunit.Abstractions;
 
 namespace Indice.Features.Messages.Tests;
 
-public class MessagesIntegrationTests : IAsyncDisposable
+public class MessagesIntegrationTests : IAsyncLifetime
 {
     // Constants
     private const string BASE_URL = "https://server";
@@ -70,8 +70,6 @@ public class MessagesIntegrationTests : IAsyncDisposable
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
-        db.Database.EnsureCreated();
     }
 
     #region Facts
@@ -207,7 +205,12 @@ public class MessagesIntegrationTests : IAsyncDisposable
     }
     #endregion
 
-    public async ValueTask DisposeAsync() {
+    public async Task InitializeAsync() {
+        var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        await db.Database.EnsureCreatedAsync();
+    }
+
+    public async Task DisposeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
         await db.Database.EnsureDeletedAsync();
         await _serviceProvider.DisposeAsync();
