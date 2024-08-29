@@ -38,8 +38,11 @@ export class CaseTypeSpecificCasesComponent extends GeneralCasesComponent implem
         //add additional columns to display in the table
         let gridConfigColumns: ({ title: string; itemProperty?: undefined; } | { title: string; itemProperty: string; })[] | undefined = JSON.parse(caseType?.gridColumnConfig!) || []
 
-        if (gridConfigColumns != undefined && gridConfigColumns?.length > 0){
+        if (gridConfigColumns != undefined && gridConfigColumns?.length > 0) {
           this.columns = gridConfigColumns!;
+        } else {
+          this.columns = super.setDefaultColumns();
+          super.initColumns();
         }
       })
     ).subscribe();

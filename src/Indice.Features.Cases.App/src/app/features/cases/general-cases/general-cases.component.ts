@@ -23,17 +23,7 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
   public tableFilters = new TableFilters();
   protected caseTypes: CaseTypePartialResultSet | undefined;
   public caseTypeTitle: string = "";
-  public columns = [
-    { title: 'ReferenceNumber' },
-    { title: 'CustomerId' },
-    { title: 'CustomerName' },
-    { title: 'TaxId', itemProperty: 'metadata.TaxId' },
-    { title: 'GroupId' },
-    { title: 'CaseType', itemProperty: 'caseType.title' },
-    { title: 'CheckpointType', itemProperty: 'checkpointType.title' },
-    { title: 'AssignedTo', itemProperty: 'assignedToName' },
-    { title: 'SubmitDate', itemProperty: 'createdByWhen' }
-  ];
+  public columns = this.setDefaultColumns();
 
   constructor(
     protected _route: ActivatedRoute,
@@ -75,6 +65,20 @@ export class GeneralCasesComponent extends BaseListComponent<CasePartial> implem
         this.columns = this.columns.filter(x => x.title != title);
       }
     }
+  }
+
+  protected setDefaultColumns() {
+    return [
+      { title: 'ReferenceNumber' },
+      { title: 'CustomerId' },
+      { title: 'CustomerName' },
+      { title: 'TaxId', itemProperty: 'metadata.TaxId' },
+      { title: 'GroupId' },
+      { title: 'CaseType', itemProperty: 'caseType.title' },
+      { title: 'CheckpointType', itemProperty: 'checkpointType.title' },
+      { title: 'AssignedTo', itemProperty: 'assignedToName' },
+      { title: 'SubmitDate', itemProperty: 'createdByWhen' }
+    ];
   }
 
   public initialize(): void {
