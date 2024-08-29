@@ -18,7 +18,7 @@ using Xunit;
 using Xunit.Abstractions;
 
 namespace Indice.Features.Messages.Tests;
-public class MediaLibraryTests : IAsyncDisposable
+public class MediaLibraryTests : IAsyncLifetime
 {
     // Constants
     private const string BASE_URL = "https://server";
@@ -67,8 +67,6 @@ public class MediaLibraryTests : IAsyncDisposable
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        var db = _serviceProvider.GetRequiredService<MediaDbContext>();
-        db.Database.EnsureCreated();
     }
 
     [Fact]
@@ -210,8 +208,12 @@ public class MediaLibraryTests : IAsyncDisposable
         return mappings.ContainsKey(extension) ? mappings[extension] : string.Empty;
     }
 
-    public async ValueTask DisposeAsync() {
-        GC.SuppressFinalize(this);
+    public async Task InitializeAsync() {
+        var db = _serviceProvider.GetRequiredService<MediaDbContext>();
+        await db.Database.EnsureCreatedAsync();
+    }
+
+    public async Task DisposeAsync() {
         var db = _serviceProvider.GetRequiredService<MediaDbContext>();
         await db.Database.EnsureDeletedAsync();
         await _serviceProvider.DisposeAsync();

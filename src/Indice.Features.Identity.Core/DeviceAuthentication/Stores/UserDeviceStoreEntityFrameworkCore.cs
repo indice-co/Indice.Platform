@@ -28,41 +28,35 @@ public class UserDeviceStoreEntityFrameworkCore : IUserDeviceStore
     }
 
     /// <inheritdoc />
-    public async Task<UserDevice> GetById(Guid id) {
+    public async Task<UserDevice?> GetById(Guid id) {
         var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.Id == id);
         return device;
     }
 
     /// <inheritdoc />
-    public async Task<UserDevice> GetByDeviceId(string deviceId) {
+    public async Task<UserDevice?> GetByDeviceId(string? deviceId) {
         var device = await _dbContext.UserDevices.SingleOrDefaultAsync(x => x.DeviceId == deviceId);
         return device;
     }
 
     /// <inheritdoc />
-    public async Task UpdatePassword(UserDevice device, string passwordHash) {
-        GuardDevice(device);
-        device.Password = passwordHash;
+    public async Task UpdatePassword(UserDevice? device, string? passwordHash) {
+        ArgumentNullException.ThrowIfNull(nameof(device));
+        device!.Password = passwordHash;
         await _dbContext.SaveChangesAsync();
     }
 
     /// <inheritdoc />
-    public async Task UpdatePublicKey(UserDevice device, string publicKey) {
-        GuardDevice(device);
-        device.PublicKey = publicKey;
+    public async Task UpdatePublicKey(UserDevice? device, string? publicKey) {
+        ArgumentNullException.ThrowIfNull(nameof(device));
+        device!.PublicKey = publicKey;
         await _dbContext.SaveChangesAsync();
     }
 
     /// <inheritdoc />
-    public async Task UpdateLastSignInDate(UserDevice device) {
-        GuardDevice(device);
-        device.LastSignInDate = DateTimeOffset.UtcNow;
+    public async Task UpdateLastSignInDate(UserDevice? device) {
+        ArgumentNullException.ThrowIfNull(nameof(device));
+        device!.LastSignInDate = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync();
-    }
-
-    private static void GuardDevice(UserDevice device) {
-        if (device == null) {
-            throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
-        }
     }
 }

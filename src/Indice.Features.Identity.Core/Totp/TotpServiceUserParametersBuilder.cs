@@ -12,7 +12,7 @@ public sealed class TotpServiceUserParametersBuilder<TUser> : TotpServiceUserPar
 {
     /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.ClaimsPrincipal"/> property.</summary>
     /// <param name="claimsPrincipal">The claims principal.</param>
-    public TotpServiceUserMessageBuilder<TUser> ToPrincipal(ClaimsPrincipal claimsPrincipal) {
+    public TotpServiceUserMessageBuilder<TUser> ToPrincipal(ClaimsPrincipal? claimsPrincipal) {
         ClaimsPrincipal = claimsPrincipal ?? throw new ArgumentNullException($"Parameter {nameof(claimsPrincipal)} cannot be null.");
         return new TotpServiceUserMessageBuilder<TUser>(this);
     }
@@ -95,7 +95,7 @@ public sealed class TotpServiceUserDeliveryChannelBuilder<TUser> where TUser : U
 
     /// <summary>Sets the <see cref="TotpServiceUserParameters{TUser}.DeliveryChannel"/> property.</summary>
     /// <param name="template">The name of the template to be used.</param>
-    public TotpServiceUserOptionalParametersBuilder<TUser> UsingEmail(string template = null) {
+    public TotpServiceUserOptionalParametersBuilder<TUser> UsingEmail(string? template = null) {
         _builder.DeliveryChannel = TotpDeliveryChannel.Email;
         _builder.EmailTemplate = template;
         return new TotpServiceUserOptionalParametersBuilder<TUser>(_builder);
@@ -192,25 +192,25 @@ public sealed class TotpServiceUserOptionalParametersBuilder<TUser> where TUser 
 public class TotpServiceUserParameters<TUser> where TUser : User
 {
     /// <summary>The claims principal.</summary>
-    public ClaimsPrincipal ClaimsPrincipal { get; internal set; }
+    public ClaimsPrincipal? ClaimsPrincipal { get; internal set; }
     /// <summary>The type of the push notification.</summary>
-    public string Classification { get; internal set; }
+    public string? Classification { get; internal set; }
     /// <summary>The payload data to be sent in push notification.</summary>
-    public string Data { get; internal set; }
+    public string? Data { get; internal set; }
     /// <summary>Chosen delivery channel.</summary>
     public TotpDeliveryChannel DeliveryChannel { get; internal set; }
     /// <summary>The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</summary>
-    public string Message { get; internal set; }
+    public string Message { get; internal set; } = null!;
     /// <summary>The purpose.</summary>
-    public string Purpose { get; internal set; }
+    public string? Purpose { get; internal set; }
     /// <summary>The subject of message.</summary>
-    public string Subject { get; internal set; }
+    public string? Subject { get; internal set; }
     /// <summary>The user entity.</summary>
-    public TUser User { get; internal set; }
+    public TUser? User { get; internal set; }
     /// <summary>The name of the token provider.</summary>
-    public string TokenProvider { get; set; }
+    public string? TokenProvider { get; set; }
     /// <summary>The user authentication method to be used.</summary>
-    public string AuthenticationMethod { get; set; }
+    public string? AuthenticationMethod { get; set; }
     /// <summary>The email template to be used when <see cref="DeliveryChannel"/> is <see cref="TotpDeliveryChannel.Email"/>.</summary>
-    public string EmailTemplate { get; set; }
+    public string? EmailTemplate { get; set; }
 }

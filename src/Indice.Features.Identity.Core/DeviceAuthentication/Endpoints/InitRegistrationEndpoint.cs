@@ -109,10 +109,10 @@ internal class InitRegistrationEndpoint : IEndpointHandler
         if (DeviceAuthenticationOptions.AlwaysSendOtp || !mfaPassed) {
             // Send OTP code.
             var totpResult = await TotpServiceFactory.Create<User>().SendAsync(totp => totp
-                .ToPrincipal(requestValidationResult.Principal)
-                .WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.Name, requestValidationResult.InteractionMode))
-                .UsingDeliveryChannel(requestValidationResult.DeliveryChannel)
-                .WithPurpose(Constants.DeviceAuthenticationOtpPurpose(requestValidationResult.UserId, requestValidationResult.DeviceId))
+                .ToPrincipal(requestValidationResult?.Principal)
+                .WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.Name, requestValidationResult!.InteractionMode))
+                .UsingDeliveryChannel(requestValidationResult!.DeliveryChannel)
+                .WithPurpose(Constants.DeviceAuthenticationOtpPurpose(requestValidationResult!.UserId!, requestValidationResult!.DeviceId!))
             );
             if (!totpResult.Success) {
                 return Error(totpResult.Error);
@@ -124,7 +124,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
         return new InitRegistrationResult(response);
     }
 
-    private DeviceAuthenticationErrorResult Error(string error, string errorDescription = null, Dictionary<string, object> custom = null) {
+    private DeviceAuthenticationErrorResult Error(string error, string? errorDescription = null, Dictionary<string, object>? custom = null) {
         var response = new TokenErrorResponse {
             Error = error,
             ErrorDescription = errorDescription,

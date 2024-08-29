@@ -10,7 +10,7 @@ public static class IAuthenticationSchemeProviderExtensions
     /// <param name="schemeProvider">Responsible for managing what authenticationSchemes are supported.</param>
     public static async Task<IEnumerable<AuthenticationScheme>> GetExternalSchemesAsync(this IAuthenticationSchemeProvider schemeProvider) {
         var allSchemes = await schemeProvider.GetAllSchemesAsync();
-        var externalSchemes = allSchemes.Where(scheme => typeof(OpenIdConnectHandler).IsAssignableFrom(scheme.HandlerType) || typeof(OAuthHandler<>).IsAssignableFrom(scheme.HandlerType.BaseType.GetGenericTypeDefinition()));
+        var externalSchemes = allSchemes.Where(scheme => typeof(OpenIdConnectHandler).IsAssignableFrom(scheme.HandlerType) || typeof(OAuthHandler<>).IsAssignableFrom(scheme.HandlerType.BaseType?.GetGenericTypeDefinition()));
         return externalSchemes;
     }
 }

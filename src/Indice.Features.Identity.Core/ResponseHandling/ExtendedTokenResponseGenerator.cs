@@ -55,7 +55,7 @@ public class ExtendedTokenResponseGenerator(
             return tokenResponse;
         }
         if (request.ValidatedRequest.RequestedScopes.Contains(IdentityServerConstants.StandardScopes.OpenId)) {
-            Client client = null;
+            Client? client = null;
             if (!string.IsNullOrWhiteSpace(request.ValidatedRequest.ClientId)) {
                 client = await Clients.FindEnabledClientByIdAsync(request.ValidatedRequest.ClientId);
             }

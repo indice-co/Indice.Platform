@@ -13,7 +13,7 @@ public static class FluentValidationExtensions
     /// <typeparam name="T">The type of property.</typeparam>
     /// <param name="ruleBuilder">Rule builder.</param>
     /// <param name="userOptions">Represents all user related options for the ASP.NET Identity. It retrieves the <see cref="UserOptions.AllowedUserNameCharacters"/>.</param>
-    public static IRuleBuilderOptions<T, string> UserName<T>(this IRuleBuilder<T, string> ruleBuilder, UserOptions userOptions) =>
+    public static IRuleBuilderOptions<T, string?> UserName<T>(this IRuleBuilder<T, string?> ruleBuilder, UserOptions userOptions) =>
         ruleBuilder.Matches($"^[{userOptions.AllowedUserNameCharacters.Replace("-", "\\-")}]*$")
                    .WithMessage($"The field '{{PropertyName}}' has some invalid characters. Allowed characters are \"{userOptions.AllowedUserNameCharacters}\"");
 
@@ -22,12 +22,15 @@ public static class FluentValidationExtensions
     /// <param name="ruleBuilder">Rule builder.</param>
     /// <param name="configuration">The IConfiguration param to discover the <strong>User:PhoneNumberRegex</strong> setting.</param>
     /// <param name="callingCodesProvider">The provider for the supported Calling Codes.</param>
-    public static IRuleBuilderOptions<T, string> UserPhoneNumber<T>(this IRuleBuilder<T, string> ruleBuilder, IConfiguration configuration, CallingCodesProvider callingCodesProvider) {
+    public static IRuleBuilderOptions<T, string?> UserPhoneNumber<T>(this IRuleBuilder<T, string?> ruleBuilder, IConfiguration configuration, CallingCodesProvider callingCodesProvider) {
         var phoneNumberRegex = configuration.GetIdentityOption("User", "PhoneNumberRegex");
         var phoneNumberRegexMessage = configuration.GetIdentityOption("User", "PhoneNumberRegexMessage");
         if (string.IsNullOrEmpty(phoneNumberRegex)) {
-            return ruleBuilder.Must(x => {
-                if (!PhoneNumber.TryParse(x, out var phoneNumber)) {
+            return ruleBuilder.Must(input => {
+                if (string.IsNullOrWhiteSpace(input)) {
+                    return true;
+                }
+                if (!PhoneNumber.TryParse(input, out var phoneNumber)) {
                     return false;
                 }
                 var callingCode = callingCodesProvider.GetCallingCode(phoneNumber.CallingCode);
