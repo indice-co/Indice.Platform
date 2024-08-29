@@ -20,6 +20,7 @@ import { QueriesModalComponent } from "src/app/shared/components/query-modal/que
 import { QueriesPageComponent } from "./queries-page/queries-page.component";
 import { GeneralCasesComponent } from "./general-cases/general-cases.component";
 import { CaseTypeSpecificCasesComponent } from "./case-type-specific-cases/case-type-specific-cases.component";
+import { CaseCorrelatedComponent } from "./case-detail-page/case-correlated/case-correlated.component";
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { CaseTypeSpecificCasesComponent } from "./case-type-specific-cases/case-
     CaseWarningModalComponent,
     QueriesModalComponent,
     GeneralCasesComponent,
-    CaseTypeSpecificCasesComponent
+    CaseTypeSpecificCasesComponent,
+    CaseCorrelatedComponent
   ],
   imports: [
     BrowserModule,

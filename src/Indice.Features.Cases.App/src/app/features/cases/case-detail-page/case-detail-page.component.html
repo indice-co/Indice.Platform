@@ -50,6 +50,15 @@
                                 </app-case-discard-draft>
                             </div>
                         </div>
+
+                        <div class="bg-white shadow rounded-sm">
+                          <ng-container *ngIf="correlatedCasesIds$ | async as correlatedCasesIds">
+                              <div class="mt-2 px-4 py-1 flow-root">
+                                  <app-case-correlated [correlatedCasesIds]="correlatedCasesIds"></app-case-correlated>
+                              </div>
+                          </ng-container>
+                      </div>
+
                         <div class="bg-white shadow rounded-sm">
                             <ng-container *ngIf="timelineEntries$ | async as timelineEntries">
                                 <div class="mt-2 px-4 py-1 flow-root">
