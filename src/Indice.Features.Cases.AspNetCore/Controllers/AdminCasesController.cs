@@ -139,7 +139,7 @@ internal class AdminCasesController : ControllerBase
         await _adminCaseService.Submit(User, caseId);
         return NoContent();
     }
-    
+
     /// <summary>Patches the metadata of a case.</summary>
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="metadata">The metadata to patch.</param>
@@ -158,6 +158,22 @@ internal class AdminCasesController : ControllerBase
             return NotFound();
         }
         return Ok();
+    }
+
+    /// <summary>
+    /// Add a comment to an existing case regardless of its status and mode (draft or not).
+    /// </summary>
+    /// <param name="caseId">The Id of the case</param>
+    /// <param name="request">The message request</param>
+    /// <returns></returns>
+    [HttpPost("{caseId:guid}/comment")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+    public async Task<IActionResult> AdminAddComment([FromRoute] Guid caseId, [FromBody] SendCommentRequest request) {
+
+        _ = await _adminCaseMessageService.Send(caseId, User, new Message { Comment = request.Comment, PrivateComment = request.PrivateComment, ReplyToCommentId = request.ReplyToCommentId });
+        return NoContent();
     }
 
 

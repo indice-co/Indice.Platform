@@ -12,13 +12,13 @@ public class UserDeviceStoreInMemory : IUserDeviceStore
     public Task<List<UserDevice>> GetUserDevices(string userId) => Task.FromResult(_userDevices.Where(x => x.UserId == userId).ToList());
 
     /// <inheritdoc />
-    public Task<UserDevice> GetById(Guid id) {
+    public Task<UserDevice?> GetById(Guid id) {
         var userDevice = _userDevices.SingleOrDefault(x => x.Id == id);
         return Task.FromResult(userDevice);
     }
 
     /// <inheritdoc />
-    public Task<UserDevice> GetByDeviceId(string deviceId) {
+    public Task<UserDevice?> GetByDeviceId(string? deviceId) {
         if (string.IsNullOrWhiteSpace(deviceId)) {
             throw new ArgumentNullException(nameof(deviceId), $"Parameter {nameof(deviceId)} cannot be null or empty.");
         }
@@ -27,7 +27,7 @@ public class UserDeviceStoreInMemory : IUserDeviceStore
     }
 
     /// <inheritdoc />
-    public Task<IdentityResult> CreateDevice(UserDevice device) {
+    public Task<IdentityResult> CreateDevice(UserDevice? device) {
         if (device == null) {
             throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
         }
@@ -40,7 +40,7 @@ public class UserDeviceStoreInMemory : IUserDeviceStore
     }
 
     /// <inheritdoc />
-    public Task UpdatePassword(UserDevice device, string passwordHash) {
+    public Task UpdatePassword(UserDevice? device, string? passwordHash) {
         if (device == null) {
             throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
         }
@@ -50,7 +50,7 @@ public class UserDeviceStoreInMemory : IUserDeviceStore
     }
 
     /// <inheritdoc />
-    public Task UpdatePublicKey(UserDevice device, string publicKey) {
+    public Task UpdatePublicKey(UserDevice? device, string? publicKey) {
         if (device == null) {
             throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
         }
@@ -60,7 +60,7 @@ public class UserDeviceStoreInMemory : IUserDeviceStore
     }
 
     /// <inheritdoc />
-    public Task UpdateLastSignInDate(UserDevice device) {
+    public Task UpdateLastSignInDate(UserDevice? device) {
         if (device == null) {
             throw new ArgumentNullException(nameof(device), $"Parameter {nameof(device)} cannot be null.");
         }

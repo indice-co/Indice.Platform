@@ -29,7 +29,7 @@ public class NonCommonPasswordValidator<TUser> : IPasswordValidator<TUser> where
     }
 
     /// <inheritdoc/>
-    public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
+    public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string? password) {
         var result = IdentityResult.Success;
         if (string.IsNullOrWhiteSpace(password) || await IsBlacklistedAsync(password)) {
             result = IdentityResult.Failed(new IdentityError {

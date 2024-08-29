@@ -62,7 +62,7 @@ public abstract class BaseAssociateModel : BasePageModel
             return Page();
         }
         var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync();
-        var claims = externalLoginInfo.Principal.Claims.ToList();
+        var claims = externalLoginInfo!.Principal.Claims.ToList();
         claims.RemoveAll(x => x.Type == JwtClaimTypes.Subject);
         claims.RemoveAll(x => x.Type == JwtClaimTypes.GivenName);
         claims.RemoveAll(x => x.Type == JwtClaimTypes.FamilyName);
@@ -76,7 +76,7 @@ public abstract class BaseAssociateModel : BasePageModel
         claims.Add(new Claim(BasicClaimTypes.ConsentTermsDate, $"{DateTime.UtcNow:O}"));
         claims.Add(new Claim(BasicClaimTypes.ConsentCommercialDate, $"{DateTime.UtcNow:O}"));
         await AddExtraClaims(claims);
-        var user = await FindOrCreateUser(Input.UserName, Input.PhoneNumber, claims);
+        var user = await FindOrCreateUser(Input.UserName!, Input.PhoneNumber, claims);
         await UserManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.ProviderDisplayName ?? externalLoginInfo.LoginProvider));
         return RedirectToPage("/Challenge", "Callback", new {
             returnUrl = Input.ReturnUrl
@@ -93,7 +93,7 @@ public abstract class BaseAssociateModel : BasePageModel
     /// <param name="claims">Additional claims.</param>
     /// <exception cref="Exception"></exception>
     [NonAction]
-    protected async Task<User> FindOrCreateUser(string? userName, string? phoneNumber, List<Claim> claims) {
+    protected async Task<User> FindOrCreateUser(string userName, string? phoneNumber, List<Claim> claims) {
         var emailClaim = claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Email);
         if (emailClaim is not null) {
             claims.Remove(emailClaim);

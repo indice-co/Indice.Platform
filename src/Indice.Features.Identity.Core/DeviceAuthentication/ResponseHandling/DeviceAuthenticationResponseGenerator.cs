@@ -24,14 +24,14 @@ internal class DeviceAuthenticationResponseGenerator : IResponseGenerator<Device
 
     public async Task<DeviceAuthenticationResponse> Generate(DeviceAuthenticationRequestValidationResult validationResult) {
         var authorizationCode = new DeviceAuthenticationCode {
-            ClientId = validationResult.Client.ClientId,
+            ClientId = validationResult.Client?.ClientId,
             CodeChallenge = validationResult.CodeChallenge.Sha256(),
             CreationTime = TimeProvider.GetUtcNow().UtcDateTime,
-            DeviceId = validationResult.Device.Id.ToString(),
+            DeviceId = validationResult.Device?.Id.ToString(),
             InteractionMode = validationResult.InteractionMode,
-            Lifetime = validationResult.Client.AuthorizationCodeLifetime,
+            Lifetime = validationResult.Client?.AuthorizationCodeLifetime ?? 300,
             RequestedScopes = validationResult.RequestedScopes,
-            Subject = Principal.Create("TrustedDevice", new Claim(JwtClaimTypes.Subject, validationResult.UserId))
+            Subject = Principal.Create("TrustedDevice", new Claim(JwtClaimTypes.Subject, validationResult.UserId!))
         };
         var challenge = await CodeChallengeStore.GenerateChallenge(authorizationCode);
         return new DeviceAuthenticationResponse {

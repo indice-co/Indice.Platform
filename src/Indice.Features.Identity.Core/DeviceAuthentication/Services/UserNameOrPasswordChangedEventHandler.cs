@@ -10,11 +10,11 @@ internal class UserNameOrPasswordChangedEventHandler(ExtendedUserManager<User> e
 
     public async Task Handle(UserNameChangedEvent @event, PlatformEventArgs args) {
         var user = await _userManager.FindByIdAsync(@event.User.Id);
-        await _userManager.SetNativeDevicesRequirePasswordAsync(user, requiresPassword: true);
+        await _userManager.SetNativeDevicesRequirePasswordAsync(user!, requiresPassword: true);
     }
 
     public async Task Handle(PasswordChangedEvent @event, PlatformEventArgs args) {
         var user = await _userManager.FindByIdAsync(@event.User.Id);
-        await _userManager.SetNativeDevicesRequirePasswordAsync(user, requiresPassword: true);
+        await _userManager.SetNativeDevicesRequirePasswordAsync(user!, requiresPassword: true);
     }
 }

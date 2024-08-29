@@ -12,5 +12,5 @@ public interface IImpossibleTravelDetector<TUser> where TUser : User
     /// <summary>Detects whether a login attempt is made from an impossible location.</summary>
     /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
     /// <param name="user">The current user.</param>
-    Task<bool> IsImpossibleTravelLogin(HttpContext httpContext, TUser user);
+    Task<bool> IsImpossibleTravelLogin(HttpContext? httpContext, TUser user);
 }

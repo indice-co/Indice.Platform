@@ -15,7 +15,7 @@ public class MySqlPasswordHasher<TUser> : PasswordHasher<TUser> where TUser : cl
 {
     /// <summary>Constructs the <see cref="MySqlPasswordHasher{T}"/>.</summary>
     /// <param name="optionsAccessor"></param>
-    public MySqlPasswordHasher(IOptions<PasswordHasherOptions> optionsAccessor = null) : base(optionsAccessor) { }
+    public MySqlPasswordHasher(IOptions<PasswordHasherOptions>? optionsAccessor = null) : base(optionsAccessor) { }
 
     /// <summary>
     /// When a password is provided that you need to compare against a hashed version, the <see cref="PasswordHasher{TUser}" /> needs to know which format was used to hash the password. 

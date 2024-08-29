@@ -23,12 +23,12 @@ internal class InitRegistrationResponseGenerator : IResponseGenerator<InitRegist
 
     public async Task<InitRegistrationResponse> Generate(InitRegistrationRequestValidationResult validationResult) {
         var authorizationCode = new DeviceAuthenticationCode {
-            ClientId = validationResult.Client.ClientId,
+            ClientId = validationResult.Client?.ClientId,
             DeviceId = validationResult.DeviceId,
             InteractionMode = validationResult.InteractionMode,
             CodeChallenge = validationResult.CodeChallenge.Sha256(),
             CreationTime = TimeProvider.GetUtcNow().UtcDateTime,
-            Lifetime = validationResult.Client.AuthorizationCodeLifetime,
+            Lifetime = validationResult.Client?.AuthorizationCodeLifetime ?? 300,
             RequestedScopes = validationResult.RequestedScopes,
             Subject = validationResult.Principal
         };

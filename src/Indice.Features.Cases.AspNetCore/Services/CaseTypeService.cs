@@ -41,7 +41,7 @@ internal class CaseTypeService : ICaseTypeService
 
     public async Task<ResultSet<CaseTypePartial>> Get(ClaimsPrincipal user, bool canCreate) {
         if (user.IsAdmin()) {
-            return await GetAdminCaseTypes();
+            return await GetAdminCaseTypes(canCreate);
         }
 
         var roleClaims = user.Claims
@@ -208,11 +208,14 @@ internal class CaseTypeService : ICaseTypeService
         return await _dbContext.CaseTypes.AsQueryable().AnyAsync(c => c.Code == caseTypeCode);
     }
 
-    private async Task<ResultSet<CaseTypePartial>> GetAdminCaseTypes() {
+    private async Task<ResultSet<CaseTypePartial>> GetAdminCaseTypes(bool canCreate = false) {
         var caseTypes = await _dbContext.CaseTypes
             .AsQueryable()
                 .OrderBy(c => c.Category == null ? null : c.Category.Order)
                 .ThenBy(c => c.Order)
+                //if canCreate is true => hide case types that can't be created from an agent
+                //if canCreate is false => fetch all
+                .Where(x => canCreate ? x.CanCreateRoles != null : true)
                 .Select(c => new CaseTypePartial {
                     Id = c.Id,
                     Title = c.Title,

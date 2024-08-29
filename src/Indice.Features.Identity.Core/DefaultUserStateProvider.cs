@@ -23,7 +23,7 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
     private readonly bool _requirePostSignInConfirmedEmail;
     private readonly bool _requirePostSignInConfirmedPhoneNumber;
     private readonly MfaPolicy _mfaPolicy;
-    private readonly HttpContext _httpContext;
+    private readonly HttpContext? _httpContext;
     private const string USER_LOGIN_STATE_SESSION_KEY = "user_login_state";
 
     /// <summary>Creates a new instance of <see cref="DefaultUserStateProvider{TUser}"/>.</summary>
@@ -36,7 +36,7 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
         _requirePostSignInConfirmedEmail = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedEmail)) == true;
         _requirePostSignInConfirmedPhoneNumber = configuration.GetIdentityOption<bool?>(nameof(IdentityOptions.SignIn), nameof(ExtendedSignInManager<User>.RequirePostSignInConfirmedPhoneNumber)) == true;
         _mfaPolicy = configuration.GetIdentityOption<MfaPolicy?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "Policy") ?? MfaPolicy.Default;
-        _httpContext = httpContextAccessor?.HttpContext;
+        _httpContext = httpContextAccessor.HttpContext;
         if (_httpContext is not null && _httpContext.Session.TryGetValue(USER_LOGIN_STATE_SESSION_KEY, out var bytes) == true) {
             CurrentState = Enum.Parse<UserState>(Encoding.UTF8.GetString(bytes));
         }
@@ -48,17 +48,17 @@ public class DefaultUserStateProvider<TUser> : IUserStateProvider<TUser> where T
     /// <inheritdoc />
     public async Task ChangeStateAsync(TUser user, UserAction action) {
         CurrentState = await GetNextStateAsync(user, action);
-        _httpContext.Session.Set(USER_LOGIN_STATE_SESSION_KEY, Encoding.UTF8.GetBytes(CurrentState.ToString()));
+        _httpContext?.Session.Set(USER_LOGIN_STATE_SESSION_KEY, Encoding.UTF8.GetBytes(CurrentState.ToString()));
     }
 
     /// <inheritdoc />
-    public void ClearState() => _httpContext.Session.Clear();
+    public void ClearState() => _httpContext?.Session.Clear();
 
     /* Note for future self: Never change the order of the combinations in the method below. It does matter. */
     private async Task<UserState> GetNextStateAsync(TUser user, UserAction action) => (CurrentState, action) switch {
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == true &&
                                                      user.PhoneNumberConfirmed == false &&
-                                                     (await _httpContext.RequestServices.GetRequiredService<IAuthenticationMethodProvider>().GetRequiredAuthenticationMethod(user))?.GetType() == typeof(SmsAuthenticationMethod) &&
+                                                     (await _httpContext!.RequestServices.GetRequiredService<IAuthenticationMethodProvider>().GetRequiredAuthenticationMethod(user))?.GetType() == typeof(SmsAuthenticationMethod) &&
                                                      (await _httpContext.RequestServices.GetRequiredService<ExtendedSignInManager<TUser>>().IsTwoFactorClientRememberedAsync(user)) => throw new InvalidOperationException("User cannot have MFA enabled without a verified phone number."),
         (UserState.LoggedOut, UserAction.Login) when user.TwoFactorEnabled == false &&
                                                     _mfaPolicy == MfaPolicy.Enforced => UserState.RequiresMfaOnboarding,

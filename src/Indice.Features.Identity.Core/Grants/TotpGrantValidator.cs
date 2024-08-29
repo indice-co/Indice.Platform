@@ -44,7 +44,7 @@ public class TotpGrantValidator : IExtensionGrantValidator
             return;
         }
         // Get user's identity.
-        var sub = validationResult.Claims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.Subject).Value;
+        var sub = validationResult.Claims.FirstOrDefault(claim => claim.Type == BasicClaimTypes.Subject)?.Value;
         var user = new ClaimsPrincipal(new ClaimsIdentity(validationResult.Claims));
         var totpResult = await _totpServiceFactory.Create<User>().VerifyAsync(user, code, reason);
         if (!totpResult.Success) {

@@ -12,15 +12,15 @@ public static class HttpContextExtensions
 {
     /// <summary>Tries to resolve the device id using the <see cref="HttpContext"/>.</summary>
     /// <param name="httpContext">Encapsulates all HTTP-specific information about an individual HTTP request.</param>
-    public static MfaDeviceIdentifier ResolveDeviceId(this HttpContext httpContext) {
+    public static MfaDeviceIdentifier ResolveDeviceId(this HttpContext? httpContext) {
         var request = httpContext?.Request;
         if (request is not null) {
-            return new MfaDeviceIdentifier(GetDeviceId(httpContext), GetRegistrationId(httpContext));
+            return new MfaDeviceIdentifier(GetDeviceId(httpContext!), GetRegistrationId(httpContext!));
         }
-        return new MfaDeviceIdentifier(null);
+        return MfaDeviceIdentifier.Empty;
     }
 
-    private static string GetDeviceId(HttpContext httpContext) {
+    private static string? GetDeviceId(HttpContext httpContext) {
         if (httpContext is null) {
             throw new ArgumentNullException(nameof(httpContext));
         }

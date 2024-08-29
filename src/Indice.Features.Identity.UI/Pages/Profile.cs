@@ -87,9 +87,9 @@ public abstract class BaseProfileModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName);
+        var result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.GivenName, Input.FirstName!);
         AddModelErrors(result);
-        result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName);
+        result = await UserManager.ReplaceClaimAsync(user, JwtClaimTypes.FamilyName, Input.LastName!);
         AddModelErrors(result);
         result = await UserManager.ReplaceClaimAsync(user, BasicClaimTypes.Tin, Input.Tin ?? string.Empty);
         AddModelErrors(result);
@@ -159,6 +159,9 @@ public abstract class BaseProfileModel : BasePageModel
         }
         var userId = await UserManager.GetUserIdAsync(user);
         var externalLoginInfo = await SignInManager.GetExternalLoginInfoAsync(userId);
+        if (externalLoginInfo is null) {
+            return RedirectToPage("/Profile");
+        }
         var result = await UserManager.AddLoginAsync(user, new UserLoginInfo(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, externalLoginInfo.LoginProvider));
         if (!result.Succeeded) {
             TempData.Put("AlertProviders", AlertModel.Error(string.Join(", ", result.Errors.Select(x => x.Description))));
