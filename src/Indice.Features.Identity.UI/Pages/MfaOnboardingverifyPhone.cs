@@ -61,7 +61,7 @@ public abstract class BaseMfaOnboardingVerifyPhoneModel : BasePageModel
         var tempDataModel = new ExtendedValidationTempDataModel();
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
         Input.PhoneNumber = user.PhoneNumber;
-        var result = await UserManager.ChangePhoneNumberAsync(user, user.PhoneNumber, Input.Code);
+        var result = await UserManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
             await UserManager.SetTwoFactorEnabledAsync(user, true);
             tempDataModel.Alert = AlertModel.Success(_localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."]);

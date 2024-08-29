@@ -68,7 +68,7 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
             await SendVerificationSmsAsync(user, Input.PhoneNumber!);
             return Page();
         }
-        var result = await UserManager.ChangePhoneNumberAsync(user, Input.PhoneNumber, Input.Code);
+        var result = await UserManager.ChangePhoneNumberAsync(user, Input.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
             if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
                 await SignInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);

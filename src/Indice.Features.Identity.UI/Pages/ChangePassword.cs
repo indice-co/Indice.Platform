@@ -61,7 +61,7 @@ public abstract class BaseChangePasswordModel : BasePageModel
             return Page();
         }
         var user = await UserManager.GetUserAsync(User) ?? throw new InvalidOperationException("User cannot be null.");
-        var result = await UserManager.ChangePasswordAsync(user, Input.OldPassword, Input.NewPassword);
+        var result = await UserManager.ChangePasswordAsync(user, Input.OldPassword!, Input.NewPassword!);
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();
