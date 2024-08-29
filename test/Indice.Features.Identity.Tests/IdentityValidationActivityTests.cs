@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Indice.Features.Identity.Tests;
 //https://andrewlock.net/simplifying-theory-test-data-with-xunit-combinatorial/
+//https://learn.microsoft.com/en-us/aspnet/core/test/razor-pages-tests?view=aspnetcore-8.0
 public class IdentityValidationActivityTests : IAsyncLifetime
 {
     public IdentityValidationActivityTests() {
