@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Indice.Features.Cases.Models;
 /// <summary>
-/// Stakeholder Filter record
+/// CaseMeber Filter record
 /// </summary>
-/// <param name="Id">StakeHolder Id</param>
-/// <param name="Type">StakeHolder  Type</param>
-public record StakeHolderFilter(string Id, byte Type);
+/// <param name="Id">CaseMeber Id</param>
+/// <param name="Type">CaseMeber Type</param>
+public record CaseMemberFilter(string Id, byte Type);

@@ -88,10 +88,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
             .Where(options.Filter.Metadata); // filter Metadata
-        if (options.Filter.StakeHolders.Any()) {
+        if (options.Filter.CaseMembers.Any()) {
 
-            var expressions = options.Filter.StakeHolders
-               .Select(f => (Expression<Func<DbCase, bool>>)(c => c.StakeHolders.Any(sh => sh.StakeHolderId == f.Id && sh.Type == f.Type)))
+            var expressions = options.Filter.CaseMembers
+               .Select(f => (Expression<Func<DbCase, bool>>)(c => c.CaseMembers.Any(sh => sh.MemberId == f.Id && sh.Type == f.Type)))
                .ToList();
             // Aggregate the expressions with OR in SQL
             var aggregatedExpressions = expressions.Aggregate((expression, next) => {

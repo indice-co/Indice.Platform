@@ -90,9 +90,9 @@ internal static class CasesDbContextTestExtensions
                     Data = new { test = true, customerId = 123 }
                 }
             },
-            StakeHolders =  {
-                new DbStakeHolder(){
-                    StakeHolderId = "user",
+            CaseMembers =  {
+                new DbCaseMember(){
+                    MemberId = "user",
                     Type = 1,
                     Accesslevel = 1
                 }

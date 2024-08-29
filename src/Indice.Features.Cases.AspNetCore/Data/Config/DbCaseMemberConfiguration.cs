@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Cases.Data.Config;
 
-internal class DbStakeHolderConfiguration : IEntityTypeConfiguration<DbStakeHolder>
+internal class DbCaseMemberConfiguration : IEntityTypeConfiguration<DbCaseMember>
 {
-    public void Configure(EntityTypeBuilder<DbStakeHolder> builder) {
+    public void Configure(EntityTypeBuilder<DbCaseMember> builder) {
         builder
-            .ToTable("StakeHolder");
+            .ToTable("CaseMember");
         builder
             .HasKey(p => p.Id);
         builder
-            .Property(p => p.StakeHolderId)
+            .Property(p => p.MemberId)
             .IsRequired();
         builder
             .Property(p => p.Type)

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Indice.Features.Cases.Controllers;
 
-/// <summary>Case types from the administrative perspective.</summary>
+/// <summary>Case Members management.</summary>
 [ApiController]
 [ApiExplorerSettings(GroupName = ApiGroups.CasesApiGroupNamePlaceholder)]
 [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
@@ -19,24 +19,24 @@ namespace Indice.Features.Cases.Controllers;
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage/stakeholders")]
-internal class StakeHoldersController : ControllerBase
+[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage/casemembers")]
+internal class AdminCaseMembersController : ControllerBase
 {
-    private readonly IStakeHolderService _stakeHolderService;
+    private readonly ICaseMemberService _caseMemberService;
 
-    public StakeHoldersController(IStakeHolderService stakeHolderService) {
-        _stakeHolderService = stakeHolderService ?? throw new ArgumentNullException(nameof(stakeHolderService));
+    public AdminCaseMembersController(ICaseMemberService caseMemberService) {
+        _caseMemberService = caseMemberService ?? throw new ArgumentNullException(nameof(caseMemberService));
     }
 
-    /// <summary>Add a new stakeholder.</summary>
+    /// <summary>Add a new member to case.</summary>
     /// <param name="request">The draft.</param>
     /// <returns></returns>
     [HttpPost]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> AddStakeholderToCase([FromBody] StakeHolderRequest request) {
-        await _stakeHolderService.Add(request);
+    public async Task<IActionResult> AddCaseMemberToCase([FromBody] CaseMemberRequest request) {
+        await _caseMemberService.Add(request);
         return NoContent();
     }
 
@@ -48,18 +48,19 @@ internal class StakeHoldersController : ControllerBase
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> RemoveStakeHolderFromCase([FromBody] StakeHolderDeleteRequest request) {
-        await _stakeHolderService.Delete(request);
+    public async Task<IActionResult> RemoveCaseMemberFromCase([FromBody] CaseMemberDeleteRequest request) {
+        await _caseMemberService.Delete(request);
         return NoContent();
     }
-    /// <summary>Gets the list of all stakeHolder <see cref="StakeHolder"/> for this case.</summary>
+
+    /// <summary>Gets the list of all CaseMembers <see cref="CaseMember"/> for this case.</summary>
     /// <param name="caseId">The case id</param>
     /// <response code="200">OK</response>
     [HttpGet("{caseId:guid}/attachments")]
     [Produces(MediaTypeNames.Application.Json)]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<StakeHolder>))]
-    public async Task<IActionResult> GetCases([FromRoute] Guid caseId) {
-        var cases = await _stakeHolderService.Get(caseId);
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<CaseMember>))]
+    public async Task<IActionResult> GetCaseMembers([FromRoute] Guid caseId) {
+        var cases = await _caseMemberService.Get(caseId);
         return Ok(cases);
     }
 
@@ -69,8 +70,8 @@ internal class StakeHoldersController : ControllerBase
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesAdministrator)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> UpdateAccessLevel([FromBody] StakeHolderRequest request) {
-        await _stakeHolderService.UpdateAccessLevel(request);
+    public async Task<IActionResult> UpdateAccessLevel([FromBody] CaseMemberRequest request) {
+        await _caseMemberService.UpdateAccessLevel(request);
         return NoContent();
     }
 }

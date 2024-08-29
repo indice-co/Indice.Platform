@@ -102,9 +102,9 @@ internal abstract class BaseCaseService
                     .Select(p => p.CreatedBy)
                     .OrderBy(p => p.When)
                     .ToList(),
-                StakeHolders = c.StakeHolders
-                        .Select(p => new StakeHolder() {
-                            StakeHolderId = p.StakeHolderId,
+                CaseMembers = c.CaseMembers
+                        .Select(p => new CaseMember() {
+                            MemberId = p.MemberId,
                             Type = p.Type,
                             Accesslevel = p.Accesslevel,
                             DateInserted = p.DateInserted

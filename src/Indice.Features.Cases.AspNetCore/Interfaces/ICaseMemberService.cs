@@ -7,31 +7,31 @@ using Indice.Types;
 
 namespace Indice.Features.Cases.Interfaces;
 
-/// <summary>The Case Type services for managing <see cref="DbStakeHolder"/> domain model.</summary>
-public interface IStakeHolderService
+/// <summary>The Case Type services for managing <see cref="DbCaseMember"/> domain model.</summary>
+public interface ICaseMemberService
 {
     /// <summary>Get the stake holder linked to the specified case.</summary>
     /// <param name="caseId"></param>
-    /// <returns> a list of stakeholders</returns>
-    Task<IEnumerable<StakeHolder>> Get(Guid caseId);
+    /// <returns> a list of CaseMember</returns>
+    Task<IEnumerable<CaseMember>> Get(Guid caseId);
     /// <summary>
-    /// Add a stakeholder 
+    /// Add a Meber to an existing case 
     /// </summary>
     /// <param name="request"> The information for new object</param>
     /// <returns></returns>
-    Task Add(StakeHolderRequest request);
+    Task Add(CaseMemberRequest request);
 
     /// <summary>
-    /// Update stakeholder access level
+    /// Update Member access level for case
     /// </summary>
     /// <param name="request"> The information for new object</param>
     /// <returns></returns>
-    Task UpdateAccessLevel(StakeHolderRequest request);
+    Task UpdateAccessLevel(CaseMemberRequest request);
 
     /// <summary>
-    /// Removes stakeholder from the specified case
+    /// Removes CaseMember from the specified case
     /// </summary>
     /// <param name="request">Data for the removal</param>
     /// <returns></returns>
-    Task Delete(StakeHolderDeleteRequest request);
+    Task Delete(CaseMemberDeleteRequest request);
 }

@@ -43,6 +43,6 @@ public class GetCasesListFilter
     public List<FilterClause> Data { get; set; } = [];
     /// <summary>Determines whether case data should be included in result.</summary>
     public bool IncludeData { get; set; }
-    /// <summary>The Id and Type of the stakeHolder to filter for.</summary>
-    public List<StakeHolderFilter> StakeHolders { get; set; } = [];
+    /// <summary>The Id and Type of the CaseMembers to filter for.</summary>
+    public List<CaseMemberFilter> CaseMembers { get; set; } = [];
 }

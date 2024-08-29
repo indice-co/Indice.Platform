@@ -15,9 +15,9 @@ using NSubstitute;
 
 namespace Indice.Features.Cases.Tests;
 
-public class StakeHoldersTests : IAsyncDisposable
+public class CaseMembersTests : IAsyncDisposable
 {
-    public StakeHoldersTests() {
+    public CaseMembersTests() {
         var inMemorySettings = new Dictionary<string, string> {
             ["ConnectionStrings:CasesDb"] = $"Server=(localdb)\\MSSQLLocalDB;Database=Indice.Features.Cases.Test_{Environment.Version.Major}_{Guid.NewGuid()};Trusted_Connection=True;MultipleActiveResultSets=true",
         };
@@ -35,39 +35,39 @@ public class StakeHoldersTests : IAsyncDisposable
     public ServiceProvider ServiceProvider { get; }
 
     [Fact]
-    public async Task GetStakeHolders() {
+    public async Task GetCaseMembers() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
             // seed here.
             await dbContext.SeedAsync();
         }
 
-        var stakeHoldersService = new StakeHolderService(dbContext);
+        var caseMembersService = new CaseMemberService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
-        var result = await stakeHoldersService.Get(@case.Id);
+        var result = await caseMembersService.Get(@case.Id);
 
         Assert.NotEmpty(result);
     }
 
 
     [Fact]
-    public async Task AddStakeholder() {
+    public async Task AddCaseMember() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
             // seed here.
             await dbContext.SeedAsync();
         }
 
-        var stakeHoldersService = new StakeHolderService(dbContext);
+        var caseMembersService = new CaseMemberService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
         var id = Guid.NewGuid().ToString();
-        await stakeHoldersService.Add(new Models.Requests.StakeHolderRequest(@case.Id, id, 1, 100));
-        var result = await stakeHoldersService.Get(@case.Id);
-        Assert.NotNull(result.FirstOrDefault(x => x.StakeHolderId == id));
+        await caseMembersService.Add(new Models.Requests.CaseMemberRequest(@case.Id, id, 1, 100));
+        var result = await caseMembersService.Get(@case.Id);
+        Assert.NotNull(result.FirstOrDefault(x => x.MemberId == id));
     }
 
     [Fact]
-    public async Task RemoveStakeHolder() {
+    public async Task RemoveCaseMember() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
             // seed here.
@@ -75,20 +75,20 @@ public class StakeHoldersTests : IAsyncDisposable
         }
 
         var @case = await FetchCaseForTestAsync(dbContext);
-        var stakeHoldersService = new StakeHolderService(dbContext);
+        var caseMembersService = new CaseMemberService(dbContext);
         //add a new comment
         var id = Guid.NewGuid().ToString();
-        await stakeHoldersService.Add(new Models.Requests.StakeHolderRequest(@case.Id, id, 1, 100));
-        var stakeHolders = await stakeHoldersService.Get(@case.Id);
-        Assert.NotNull(stakeHolders.FirstOrDefault(x => x.StakeHolderId == id));
-        var stakeHolderToDelete = new Models.Requests.StakeHolderDeleteRequest(@case.Id, id, 1);
-        await stakeHoldersService.Delete(stakeHolderToDelete);
-        stakeHolders = await stakeHoldersService.Get(@case.Id);
-        Assert.Null(stakeHolders.FirstOrDefault(x => x.StakeHolderId == id));
+        await caseMembersService.Add(new Models.Requests.CaseMemberRequest(@case.Id, id, 1, 100));
+        var caseMembers = await caseMembersService.Get(@case.Id);
+        Assert.NotNull(caseMembers.FirstOrDefault(x => x.MemberId == id));
+        var caseMemberToDelete = new Models.Requests.CaseMemberDeleteRequest(@case.Id, id, 1);
+        await caseMembersService.Delete(caseMemberToDelete);
+        caseMembers = await caseMembersService.Get(@case.Id);
+        Assert.Null(caseMembers.FirstOrDefault(x => x.MemberId == id));
     }
 
     [Fact]
-    public async Task UpdateStakeHolderAccessLevel() {
+    public async Task UpdateCaseMemberAccessLevel() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
             // seed here.
@@ -96,39 +96,39 @@ public class StakeHoldersTests : IAsyncDisposable
         }
 
         var @case = await FetchCaseForTestAsync(dbContext);
-        var stakeHoldersService = new StakeHolderService(dbContext);
+        var caseMembersService = new CaseMemberService(dbContext);
 
-        var dbStakeHolder = @case.StakeHolders.First();
-        var newAccessLevel = dbStakeHolder.Accesslevel * 10;
-        await stakeHoldersService.UpdateAccessLevel(new Models.Requests.StakeHolderRequest(@case.Id, dbStakeHolder.StakeHolderId, dbStakeHolder.Type, newAccessLevel));
-        var stakeHolders = await stakeHoldersService.Get(@case.Id);
-        var updatedStakeHolder = stakeHolders.FirstOrDefault(x => x.StakeHolderId == dbStakeHolder.StakeHolderId);
-        Assert.Equal(newAccessLevel, updatedStakeHolder.Accesslevel);
+        var dbCaseMember = @case.CaseMembers.First();
+        var newAccessLevel = dbCaseMember.Accesslevel * 10;
+        await caseMembersService.UpdateAccessLevel(new Models.Requests.CaseMemberRequest(@case.Id, dbCaseMember.MemberId, dbCaseMember.Type, newAccessLevel));
+        var caseMembers = await caseMembersService.Get(@case.Id);
+        var updatedCaseMember = caseMembers.FirstOrDefault(x => x.MemberId == dbCaseMember.MemberId);
+        Assert.Equal(newAccessLevel, updatedCaseMember.Accesslevel);
     }
 
     [Fact]
-    public async Task QueryStakeHolder() {
+    public async Task QueryCaseMember() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
             // seed here.
             await dbContext.SeedAsync();
         }
 
-        var stakeHoldersService = new StakeHolderService(dbContext);
+        var caseMembersService = new CaseMemberService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
-        var stakeHolderId = Guid.NewGuid().ToString();
-        await stakeHoldersService.Add(new Models.Requests.StakeHolderRequest(@case.Id, stakeHolderId, 1, 100));
+        var caseMemberId = Guid.NewGuid().ToString();
+        await caseMembersService.Add(new Models.Requests.CaseMemberRequest(@case.Id, caseMemberId, 1, 100));
         var listOptions = new ListOptions<GetCasesListFilter> {
             Page = 1,
             Size = 10,
             Filter = new GetCasesListFilter {
-                StakeHolders = new List<StakeHolderFilter> { new StakeHolderFilter(stakeHolderId, 1) }
+                CaseMembers = new List<CaseMemberFilter> { new CaseMemberFilter(caseMemberId, 1) }
             }
         };
 
 
-        var expressions = listOptions.Filter.StakeHolders
-           .Select(f => (Expression<Func<DbCase, bool>>)(c => c.StakeHolders.Any(sh => sh.StakeHolderId == f.Id && sh.Type == f.Type)))
+        var expressions = listOptions.Filter.CaseMembers
+           .Select(f => (Expression<Func<DbCase, bool>>)(c => c.CaseMembers.Any(sh => sh.MemberId == f.Id && sh.Type == f.Type)))
            .ToList();
         // Aggregate the expressions with OR in SQL
         var aggregatedExpressions = expressions.Aggregate((expression, next) => {
@@ -143,28 +143,28 @@ public class StakeHoldersTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task NotFoundStakeHolder() {
+    public async Task NotFoundCaseMember() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
             // seed here.
             await dbContext.SeedAsync();
         }
 
-        var stakeHoldersService = new StakeHolderService(dbContext);
+        var caseMembersService = new CaseMemberService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
-        var stakeHolderId = Guid.NewGuid().ToString();
-        await stakeHoldersService.Add(new Models.Requests.StakeHolderRequest(@case.Id, stakeHolderId, 1, 100));
+        var caseMemberId = Guid.NewGuid().ToString();
+        await caseMembersService.Add(new Models.Requests.CaseMemberRequest(@case.Id, caseMemberId, 1, 100));
         var listOptions = new ListOptions<GetCasesListFilter> {
             Page = 1,
             Size = 10,
             Filter = new GetCasesListFilter {
-                StakeHolders = new List<StakeHolderFilter> { new StakeHolderFilter(stakeHolderId, 2) }
+                CaseMembers = new List<CaseMemberFilter> { new CaseMemberFilter(caseMemberId, 2) }
             }
         };
 
 
-        var expressions = listOptions.Filter.StakeHolders
-           .Select(f => (Expression<Func<DbCase, bool>>)(c => c.StakeHolders.Any(sh => sh.StakeHolderId == f.Id && sh.Type == f.Type)))
+        var expressions = listOptions.Filter.CaseMembers
+           .Select(f => (Expression<Func<DbCase, bool>>)(c => c.CaseMembers.Any(sh => sh.MemberId == f.Id && sh.Type == f.Type)))
            .ToList();
         // Aggregate the expressions with OR in SQL
         var aggregatedExpressions = expressions.Aggregate((expression, next) => {
@@ -181,7 +181,7 @@ public class StakeHoldersTests : IAsyncDisposable
 
     private async Task<DbCase> FetchCaseForTestAsync(CasesDbContext context) {
 
-        return await context.Cases.Where(x => x.StakeHolders.Any()).FirstAsync();
+        return await context.Cases.Where(x => x.CaseMembers.Any()).FirstAsync();
     }
 
 

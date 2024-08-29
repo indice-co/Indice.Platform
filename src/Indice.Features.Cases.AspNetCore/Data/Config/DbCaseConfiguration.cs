@@ -80,7 +80,7 @@ internal class DbCaseConfiguration : IEntityTypeConfiguration<DbCase>
             .WithOne(p => p.Case)
             .HasForeignKey(p => p.CaseId);
         builder
-           .HasMany(p => p.StakeHolders)
+           .HasMany(p => p.CaseMembers)
            .WithOne(p => p.Case)
            .HasForeignKey(p => p.CaseId);
     }

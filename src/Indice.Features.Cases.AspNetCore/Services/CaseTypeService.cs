@@ -119,9 +119,9 @@ internal class CaseTypeService : ICaseTypeService
         if (casesWithCaseType) {
             throw new ValidationException("Case type cannot be deleted because there are cases with this type.");
         }
-        var roleCaseTypes = await _dbContext.Members.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
+        var roleCaseTypes = await _dbContext.CheckpointTypeAccessRules.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
         if (roleCaseTypes.Any()) {
-            roleCaseTypes.ForEach(x => _dbContext.Members.Remove(x));
+            roleCaseTypes.ForEach(x => _dbContext.CheckpointTypeAccessRules.Remove(x));
         }
         var checkpointTypes = await _dbContext.CheckpointTypes.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
         if (checkpointTypes.Any()) {
@@ -138,7 +138,7 @@ internal class CaseTypeService : ICaseTypeService
             .Include(x => x.CheckpointTypes)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        var caseTypeRoles = await _dbContext.Members.AsQueryable()
+        var caseTypeRoles = await _dbContext.CheckpointTypeAccessRules.AsQueryable()
             .Where(p => p.CaseTypeId == id)
             .ToListAsync();
 
@@ -265,7 +265,7 @@ internal class CaseTypeService : ICaseTypeService
     }
 
     private async Task<List<Guid>> GetCaseTypeIds(List<string> roleClaims) {
-        return await _dbContext.Members
+        return await _dbContext.CheckpointTypeAccessRules
                 .AsQueryable()
                 .Where(r => roleClaims.Contains(r.RoleName))
                 .Select(c => c.CaseTypeId)

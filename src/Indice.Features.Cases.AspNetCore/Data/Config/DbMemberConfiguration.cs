@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Indice.Features.Cases.Data.Config;
 
-internal class DbMemberConfiguration : IEntityTypeConfiguration<DbMember>
+internal class DbDbCheckpointTypeAccessRuleConfiguration : IEntityTypeConfiguration<DbCheckpointTypeAccessRule>
 {
-    public void Configure(EntityTypeBuilder<DbMember> builder) {
+    public void Configure(EntityTypeBuilder<DbCheckpointTypeAccessRule> builder) {
         builder
             .ToTable("Member");
         builder

@@ -93,7 +93,7 @@ public static class CasesApiFeatureExtensions
         services.AddTransient<ICaseTemplateService, CaseTemplateService>();
         services.AddTransient<IMyCaseMessageService, MyCaseMessageService>();
         services.AddTransient<IJsonTranslationService, JsonTranslationService>();
-        services.AddTransient<IStakeHolderService, StakeHolderService>();
+        services.AddTransient<ICaseMemberService, CaseMemberService>();
         services.AddSingleton<CaseSharedResourceService>(); // Add the service even if there is no resx file, so the runtime will not throw exception
 
         // Register events.
