@@ -53,7 +53,7 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
             return;
         }
         /* 3. Check if given access token contains a subject. */
-        var subject = tokenValidationResult.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject).Value;
+        var subject = tokenValidationResult.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject)?.Value;
         if (string.IsNullOrWhiteSpace(subject)) {
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "Claim 'sub' was not found.");
             return;
@@ -92,7 +92,7 @@ public sealed class OtpAuthenticateExtensionGrantValidator : IExtensionGrantVali
                     .WithPurpose(purpose)
             );
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant, "An OTP code was sent to the user. Please replay the request and include the verification code.", new Dictionary<string, object> {
-                { "otp_sent", true }
+                ["otp_sent"] = true
             });
             return;
         }

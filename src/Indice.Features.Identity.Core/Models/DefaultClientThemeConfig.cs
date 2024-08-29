@@ -4,11 +4,11 @@
 public class DefaultClientThemeConfig
 {
     /// <summary>The URL of the background image.</summary>
-    public string BackgroundImage { get; set; }
+    public string? BackgroundImage { get; set; }
     /// <summary>The background color.</summary>
-    public string AccentColor { get; set; }
+    public string? AccentColor { get; set; }
     /// <summary>A primary color.</summary>
-    public string PrimaryColor { get; set; }
+    public string? PrimaryColor { get; set; }
     /// <summary>A secondary color.</summary>
-    public string SecondaryColor { get; set; }
+    public string? SecondaryColor { get; set; }
 }

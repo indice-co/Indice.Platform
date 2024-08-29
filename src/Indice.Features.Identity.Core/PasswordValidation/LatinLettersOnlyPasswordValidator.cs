@@ -33,13 +33,13 @@ public class UnicodeCharactersPasswordValidator<TUser> : IPasswordValidator<TUse
     public bool? AllowUnicodeCharacters { get; }
 
     /// <inheritdoc/>
-    public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
+    public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string? password) {
         var result = IdentityResult.Success;
         if (AllowUnicodeCharacters.HasValue && AllowUnicodeCharacters.Value) {
             return Task.FromResult(result);
         }
-        var isValid = password.All(x => x.IsDigit() || x.IsSpecial() || x.IsLatinLetter());
-        if (!isValid || string.IsNullOrWhiteSpace(password)) {
+        var isValid = !string.IsNullOrWhiteSpace(password) && password.All(x => x.IsDigit() || x.IsSpecial() || x.IsLatinLetter());
+        if (!isValid) {
             result = IdentityResult.Failed(new IdentityError {
                 Code = ErrorDescriber,
                 Description = _messageDescriber.PasswordHasNonLatinChars

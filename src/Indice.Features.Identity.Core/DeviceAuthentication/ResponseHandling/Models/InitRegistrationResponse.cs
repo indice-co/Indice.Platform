@@ -2,5 +2,5 @@
 
 internal class InitRegistrationResponse
 {
-    public string Challenge { get; set; }
+    public string Challenge { get; set; } = null!;
 }

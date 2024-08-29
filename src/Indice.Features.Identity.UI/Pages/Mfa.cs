@@ -81,7 +81,7 @@ public abstract class BaseMfaModel : BasePageModel
                 message.ToUser(View.User)
                        .WithMessage(_localizer["Your OTP code for login is: {0}"])
                        .UsingSms()
-                       .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider())
+                       .UsingTokenProvider(View.AuthenticationMethod?.GetTokenProvider()!)
                        .WithSubject(_localizer["OTP login"])
                        .WithPurpose("TwoFactor")
             );
@@ -93,7 +93,7 @@ public abstract class BaseMfaModel : BasePageModel
     /// <param name="returnUrl">The return URL.</param>
     public virtual async Task<IActionResult> OnPostAsync([FromQuery] string? returnUrl) {
         View = await BuildMfaLoginViewModelAsync(Input);
-        var signInResult = await SignInManager.TwoFactorSignInAsync(View.AuthenticationMethod?.GetTokenProvider(), Input.OtpCode, Input.RememberMe, Input.RememberClient);
+        var signInResult = await SignInManager.TwoFactorSignInAsync(View.AuthenticationMethod?.GetTokenProvider()!, Input.OtpCode!, Input.RememberMe, Input.RememberClient);
         if (signInResult.Succeeded) {
             if (string.IsNullOrEmpty(Input.ReturnUrl)) {
                 return Redirect("/");

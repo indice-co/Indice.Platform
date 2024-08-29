@@ -33,25 +33,25 @@ public class AuthenticationMethodProviderInMemory : IAuthenticationMethodProvide
     }
 
     /// <inheritdoc />
-    public IHubContext<MultiFactorAuthenticationHub> HubContext { get; }
+    public IHubContext<MultiFactorAuthenticationHub>? HubContext { get; }
 
     /// <inheritdoc />
     public Task<IEnumerable<AuthenticationMethod>> GetAllMethodsAsync() => Task.FromResult(_authenticationMethods);
 
     /// <inheritdoc />
     /// <remarks>For now the supported authentication methods are <see cref="SmsAuthenticationMethod"/> and <see cref="BiometricsAuthenticationMethod"/>.</remarks>
-    public async Task<AuthenticationMethod> GetRequiredAuthenticationMethod(User user, bool? tryDowngradeAuthenticationMethod = false) {
+    public async Task<AuthenticationMethod?> GetRequiredAuthenticationMethod(User user, bool? tryDowngradeAuthenticationMethod = false) {
         if (_authenticationMethods?.Count() == 0) {
             throw new InvalidOperationException("No authentication methods have been configured.");
         }
-        var selectedAuthenticationMethod = _authenticationMethods.FirstOrDefault(x => x.Type == AuthenticationMethodType.PhoneNumber);
+        var selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.PhoneNumber);
         var allowMfaChannelDowngrade = _configuration.GetIdentityOption<bool?>($"{nameof(IdentityOptions.SignIn)}:Mfa", "AllowDowngradeAuthenticationMethod") ?? false;
         if ((tryDowngradeAuthenticationMethod ??= false) && allowMfaChannelDowngrade) {
             return selectedAuthenticationMethod;
         }
         var trustedDevices = await _userManager.GetDevicesAsync(user, UserDeviceListFilter.TrustedNativeDevices());
         if (trustedDevices.Count > 0) {
-            selectedAuthenticationMethod = _authenticationMethods.FirstOrDefault(x => x.Type == AuthenticationMethodType.Biometrics);
+            selectedAuthenticationMethod = _authenticationMethods!.FirstOrDefault(x => x.Type == AuthenticationMethodType.Biometrics);
             return selectedAuthenticationMethod;
         }
         var phoneNumber = await _userManager.GetPhoneNumberAsync(user);

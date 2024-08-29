@@ -15,7 +15,7 @@ public class ExtendedUserStore : ExtendedUserStore<IdentityDbContext, User, Role
     /// <param name="context">The DbContext to use for the Identity framework.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="describer">Service to enable localization for application facing identity errors.</param>
-    public ExtendedUserStore(IdentityDbContext context, IConfiguration configuration, IdentityErrorDescriber describer = null) : base(context, configuration, describer) { }
+    public ExtendedUserStore(IdentityDbContext context, IConfiguration configuration, IdentityErrorDescriber? describer = null) : base(context, configuration, describer) { }
 }
 
 /// <inheritdoc/>
@@ -25,7 +25,7 @@ public class ExtendedUserStore<TContext> : ExtendedUserStore<TContext, User, Ide
     /// <param name="context">The DbContext to use for the Identity framework.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="describer">Service to enable localization for application facing identity errors.</param>
-    public ExtendedUserStore(TContext context, IConfiguration configuration, IdentityErrorDescriber describer = null) : base(context, configuration, describer) { }
+    public ExtendedUserStore(TContext context, IConfiguration configuration, IdentityErrorDescriber? describer = null) : base(context, configuration, describer) { }
 }
 
 /// <inheritdoc/>
@@ -38,7 +38,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     /// <param name="context">The DbContext to use for the Identity framework.</param>
     /// <param name="configuration">Represents a set of key/value application configuration properties.</param>
     /// <param name="describer">Service to enable localization for application facing identity errors.</param>
-    public ExtendedUserStore(TContext context, IConfiguration configuration, IdentityErrorDescriber describer = null) : base(context, describer) {
+    public ExtendedUserStore(TContext context, IConfiguration configuration, IdentityErrorDescriber? describer = null) : base(context, describer) {
         PasswordHistoryLimit = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<int?>(nameof(PasswordHistoryLimit)) ??
                                configuration.GetSection(nameof(PasswordOptions)).GetValue<int?>(nameof(PasswordHistoryLimit));
         PasswordExpirationPolicy = configuration.GetSection($"{nameof(IdentityOptions)}:{nameof(IdentityOptions.Password)}").GetValue<PasswordExpirationPolicy?>(nameof(PasswordExpirationPolicy)) ??
@@ -55,7 +55,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
 
     #region Method Overrides
     /// <inheritdoc/>
-    public override async Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken = default) {
+    public override async Task SetPasswordHashAsync(TUser user, string? passwordHash, CancellationToken cancellationToken = default) {
         var changeDate = DateTime.UtcNow;
         if (PasswordHistoryLimit.HasValue && !string.IsNullOrWhiteSpace(passwordHash)) {
             var numberOfPasswordsToKeep = Math.Max(PasswordHistoryLimit.Value, 0);
@@ -144,7 +144,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
+    public async Task<IList<UserDevice>> GetDevicesAsync(TUser user, UserDeviceListFilter? filter = null, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         return await UserDeviceSet
@@ -155,7 +155,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public async Task<int> GetDevicesCountAsync(TUser user, UserDeviceListFilter filter = null, CancellationToken cancellationToken = default) {
+    public async Task<int> GetDevicesCountAsync(TUser user, UserDeviceListFilter? filter = null, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         return await UserDevices
@@ -165,7 +165,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public async Task<UserDevice> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
+    public async Task<UserDevice?> GetDeviceByIdAsync(TUser user, string deviceId, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         return await UserDeviceSet.Include(x => x.User).SingleOrDefaultAsync(x => x.UserId == user.Id && x.DeviceId == deviceId, cancellationToken);

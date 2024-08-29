@@ -24,7 +24,7 @@ public class ClientThemingService<TThemeConfig> : IClientThemingService<TThemeCo
     }
 
     /// <inheritdoc />
-    public async Task<TThemeConfig> GetClientTheme() {
+    public async Task<TThemeConfig?> GetClientTheme() {
         var clientId = _httpContextAccessor.HttpContext.GetClientIdFromReturnUrl();
         if (string.IsNullOrWhiteSpace(clientId)) {
             return default;
@@ -54,5 +54,5 @@ public interface IClientThemingService<TThemeConfig> where TThemeConfig : class
     /// <summary>The type that describes the theme configuration.</summary>
     public Type ThemeConfigType { get => typeof(TThemeConfig); }
     /// <summary>Gets the theme configuration for the current client.</summary>
-    Task<TThemeConfig> GetClientTheme();
+    Task<TThemeConfig?> GetClientTheme();
 }
