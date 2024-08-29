@@ -19,7 +19,7 @@ public static class DeviceAuthenticationConfiguration
     /// <summary>Register the endpoints and required services for trusted device authorization.</summary>
     /// <param name="builder">IdentityServer builder interface.</param>
     /// <param name="configureAction"></param>
-    public static IIdentityServerBuilder AddDeviceAuthentication(this IIdentityServerBuilder builder, Action<DeviceAuthenticationOptions> configureAction = null) {
+    public static IIdentityServerBuilder AddDeviceAuthentication(this IIdentityServerBuilder builder, Action<DeviceAuthenticationOptions>? configureAction = null) {
         var configuration = builder.Services.BuildServiceProvider().GetRequiredService<IConfiguration>();
         var options = new DeviceAuthenticationOptions {
             Services = builder.Services,

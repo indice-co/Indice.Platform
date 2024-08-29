@@ -59,15 +59,18 @@ public class EventDispatcherAzure : IEventDispatcher
         var user = actingPrincipal ?? _claimsPrincipalSelector?.Invoke();
         var payloadBytes = Array.Empty<byte>();
         // Special cases string, byte[] or stream.
+        // if already in binary format mark it so it does not go through compression (twice)
+        var isBinary = false;
         switch (payload) {
-            case string text: payloadBytes = Encoding.UTF8.GetBytes(text); break;
-            case byte[] bytes: payloadBytes = bytes; break;
-            case ReadOnlyMemory<byte> memory: payloadBytes = memory.ToArray(); break;
+            case string text: payloadBytes = Encoding.UTF8.GetBytes(text);break;
+            case byte[] bytes: payloadBytes = bytes; isBinary = true;  break;
+            case ReadOnlyMemory<byte> memory: payloadBytes = memory.ToArray(); isBinary = true; break;
             case Stream stream:
                 await using (var memoryStream = new MemoryStream()) {
                     await stream.CopyToAsync(memoryStream);
                     payloadBytes = memoryStream.ToArray();
                 }
+                isBinary = true;
                 break;
             default:
                 // Create a message and add it to the queue.
@@ -79,7 +82,7 @@ public class EventDispatcherAzure : IEventDispatcher
         }
         var maxTimeSpan = TimeSpan.FromDays(5);
         visibilityTimeout = visibilityTimeout.HasValue && visibilityTimeout.Value > maxTimeSpan ? maxTimeSpan : visibilityTimeout;
-        if (_useCompression) {
+        if (_useCompression && !isBinary) {
             await queue.SendMessageAsync(new BinaryData(await CompressionUtils.Compress(payloadBytes)), visibilityTimeout);
             return;
         }

@@ -25,16 +25,19 @@ public class TemplateService : ITemplateService
     public async Task<Template> Create(CreateTemplateRequest request) {
         var template = new DbTemplate {
             Content = request.Content,
-            CreatedAt = DateTimeOffset.UtcNow,
             Id = Guid.NewGuid(),
-            Name = request.Name
+            Name = request.Name,
+            Data = request.Data,
+            CreatedAt = DateTimeOffset.UtcNow,
         };
         DbContext.Templates.Add(template);
         await DbContext.SaveChangesAsync();
         return new Template {
             Content = template.Content,
             Id = template.Id,
-            Name = template.Name
+            Name = template.Name,
+            Data= template.Data,
+            CreatedAt= template.CreatedAt,
         };
     }
 
@@ -61,7 +64,8 @@ public class TemplateService : ITemplateService
             UpdatedBy = template.UpdatedBy,
             CreatedBy = template.CreatedBy,
             Id = template.Id,
-            Name = template.Name
+            Name = template.Name,
+            Data = template.Data
         };
     }
 
@@ -92,6 +96,8 @@ public class TemplateService : ITemplateService
         }
         template.Name = request.Name;
         template.Content = request.Content;
+        template.Data = request.Data;
+        template.UpdatedAt = DateTime.UtcNow;
         await DbContext.SaveChangesAsync();
     }
 }

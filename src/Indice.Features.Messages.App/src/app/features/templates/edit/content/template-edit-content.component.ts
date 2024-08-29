@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { ToasterService, ToastType } from '@indice/ng-components';
@@ -31,13 +31,20 @@ export class TemplateContentEditComponent implements OnInit {
             this._templateStore.getTemplate(this._templateId!).subscribe((template: Template) => {
                 this.template = template;
                 this.content = template.content;
+                this.basicInfoData = template.data ?? { };
             });
         }
+    }
+
+    @HostListener('document:keydown.control.s', ['$event']) onKeydownHandler(event: KeyboardEvent) {
+      event.preventDefault();
+      this.updateContent();
     }
 
     public updateContent(): void {
         this.updateInProgress = true;
         const formContents = this._contentComponent?.form.controls.content.value;
+        const dataContents = this._contentComponent?.form.controls.data.value ?? "{}";
         let content: { [key: string]: MessageContent; } = {};
         for (const item of formContents) {
             content[item.channel] = new MessageContent({
@@ -47,6 +54,7 @@ export class TemplateContentEditComponent implements OnInit {
             })
         }
         this.template.content = content;
+        this.template.data = JSON.parse(dataContents);
         this._templateStore
             .updateTemplate(this._templateId, this.template)
             .subscribe(_ => {

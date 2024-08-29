@@ -14,14 +14,14 @@ public class ExtendedUserLoginFailureEvent(
     string username,
     string error,
     bool interactive = true,
-    string clientId = null,
-    string subjectId = null,
-    string clientName = null
+    string? clientId = null,
+    string? subjectId = null,
+    string? clientName = null
 ) : UserLoginFailureEvent(username, error, interactive, clientId)
 {
     /// <summary>The subject id.</summary>
-    public string SubjectId { get; } = subjectId;
+    public string? SubjectId { get; } = subjectId;
 
     /// <summary>The client name.</summary>
-    public string ClientName { get; } = clientName;
+    public string? ClientName { get; } = clientName;
 }

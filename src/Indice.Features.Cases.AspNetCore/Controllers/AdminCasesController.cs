@@ -140,6 +140,43 @@ internal class AdminCasesController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>Patches the metadata of a case.</summary>
+    /// <param name="caseId">The Id of the case.</param>
+    /// <param name="metadata">The metadata to patch.</param>
+    /// <returns></returns>
+    [HttpPatch("{caseId:guid}/metadata")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+    public async Task<IActionResult> PatchCaseMetadata([FromRoute] Guid caseId, Dictionary<string, string> metadata) {
+        if (metadata == null) {
+            ModelState.AddModelError(nameof(metadata), "Metadata is empty.");
+            return BadRequest(new ValidationProblemDetails(ModelState));
+        }
+        var result = await _adminCaseService.PatchCaseMetadata(caseId, User, metadata);
+        if (!result) {
+            return NotFound();
+        }
+        return Ok();
+    }
+
+    /// <summary>
+    /// Add a comment to an existing case regardless of its status and mode (draft or not).
+    /// </summary>
+    /// <param name="caseId">The Id of the case</param>
+    /// <param name="request">The message request</param>
+    /// <returns></returns>
+    [HttpPost("{caseId:guid}/comment")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+    public async Task<IActionResult> AdminAddComment([FromRoute] Guid caseId, [FromBody] SendCommentRequest request) {
+
+        _ = await _adminCaseMessageService.Send(caseId, User, new Message { Comment = request.Comment, PrivateComment = request.PrivateComment, ReplyToCommentId = request.ReplyToCommentId });
+        return NoContent();
+    }
+
+
     /// <summary>Gets the list of all cases using the provided <see cref="ListOptions"/>.</summary>
     /// <param name="options">List params used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
     /// <response code="200">OK</response>

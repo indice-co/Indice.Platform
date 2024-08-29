@@ -68,16 +68,17 @@ public abstract class BaseVerifyPhoneModel : BasePageModel
             await SendVerificationSmsAsync(user, Input.PhoneNumber!);
             return Page();
         }
-        var result = await UserManager.ChangePhoneNumberAsync(user, Input.PhoneNumber, Input.Code);
+        var result = await UserManager.ChangePhoneNumberAsync(user, Input.PhoneNumber!, Input.Code!);
         if (result.Succeeded) {
             if (UserManager.StateProvider.CurrentState == UserState.LoggedIn) {
                 await SignInManager.AutoSignIn(user, ExtendedIdentityConstants.ExtendedValidationUserIdScheme);
             }
             var redirectUrl = GetRedirectUrl(UserManager.StateProvider.CurrentState, Input.ReturnUrl) ?? "/";
-            TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
-                Alert = AlertModel.Success(_localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."]),
-                NextStepUrl = redirectUrl
-            });
+            return Redirect(redirectUrl);
+            //TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
+            //    Alert = AlertModel.Success(_localizer["Your phone number was successfully validated. Please press the 'Next' button to continue."]),
+            //    NextStepUrl = redirectUrl
+            //});
         } else {
             TempData.Put(TempDataKey, new ExtendedValidationTempDataModel {
                 Alert = AlertModel.Error(_localizer["Please enter the code that you have received at your mobile phone."]),

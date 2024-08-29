@@ -61,14 +61,14 @@ public static partial class StringExtensions
 
 #if NET7_0_OR_GREATER
     /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
-    [GeneratedRegex(@"(?<delimiter>[/\\])?(?<word>[A-Z]?[a-z0-9]+)[,;|\s]*")]
+    [GeneratedRegex(@"(?<delimiter>[/\\-])?(?<word>[A-Z]?[a-z0-9.]+)[,;|\s]*")]
     private static partial Regex WordsRegex();
     /// <summary>Match all parts of a sentence that are all capital letter e.g. NET</summary>
-    [GeneratedRegex(@"(?<delimiter>[/\\])?(?<word>[A-Z][A-Z0-9]*)[,;|\s]*")]
+    [GeneratedRegex(@"(?<delimiter>[/\\-])?(?<word>[A-Z][A-Z0-9.]*)[,;|\s]*")]
     private static partial Regex WordsAllCapsRegex();
 #else
-    private static readonly Regex _wordsRegex = new(@"(?<delimiter>[/\\])?(?<word>[A-Z]?[a-z0-9]+)[,;|\s]*");
-    private static readonly Regex _wordsAllCapsRegex = new(@"(?<delimiter>[/\\])?(?<word>[A-Z][A-Z0-9]*)[,;|\s]");
+    private static readonly Regex _wordsRegex = new(@"(?<delimiter>[/\\-])?(?<word>[A-Z]?[a-z0-9.]+)[,;|\s]*");
+    private static readonly Regex _wordsAllCapsRegex = new(@"(?<delimiter>[/\\-])?(?<word>[A-Z][A-Z0-9.]*)[,;|\s]*");
     /// <summary>Match all parts of a sentence that start with one capital letter e.g. Net</summary>
     private static Regex WordsRegex() => _wordsRegex;
     /// <summary>Match all parts of a sentence that are all capital letter e.g. NET</summary>

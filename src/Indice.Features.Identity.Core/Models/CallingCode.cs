@@ -5,7 +5,7 @@ public class CallingCode
     private const string PlusSign = "+";
 
     /// <summary> Constructs a new instance of <see cref="CallingCode"/></summary>
-    public CallingCode(string code, string twoLetterCode, string countryName, string pattern) {
+    public CallingCode(string code, string twoLetterCode, string countryName, string? pattern) {
         Code = code;
         TwoLetterCountryCode = twoLetterCode;
         CountryName = countryName;
@@ -21,7 +21,7 @@ public class CallingCode
     /// <summary>The country name.</summary>
     public string CountryName { get; private set; }
     /// <summary>Regex pattern for phone number validation.</summary>
-    public string Pattern { get; private set; }
+    public string? Pattern { get; private set; }
 
     /// <inheritdoc/>
     public override string ToString() => $"{PlusSign}{Code}";

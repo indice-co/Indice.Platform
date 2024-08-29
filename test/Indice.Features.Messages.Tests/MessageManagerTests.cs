@@ -18,7 +18,7 @@ using Xunit;
 
 namespace Indice.Features.Messages.Tests;
 
-public class MessageManagerTests : IAsyncDisposable
+public class MessageManagerTests : IAsyncLifetime
 {
     public MessageManagerTests() {
         var inMemorySettings = new Dictionary<string, string> {
@@ -143,8 +143,13 @@ public class MessageManagerTests : IAsyncDisposable
         public string Resolve() => "static";
     }
 
-    public ValueTask DisposeAsync() {
-        GC.SuppressFinalize(this);
-        return ServiceProvider.DisposeAsync();
+    public Task InitializeAsync() {
+        return Task.CompletedTask;
+    }
+
+    public async Task DisposeAsync() {
+        var db = ServiceProvider.GetRequiredService<CampaignsDbContext>();
+        await db.Database.EnsureDeletedAsync();
+        await ServiceProvider.DisposeAsync();
     }
 }

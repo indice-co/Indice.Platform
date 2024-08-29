@@ -45,7 +45,7 @@ public class LocalizedIdentityMessageDescriber : IdentityMessageDescriber
     /// <inheritdoc/>
     public override string ForgotPasswordMessageBody<TUser>(TUser user, string token) {
         var u = user as User;
-        var url = $"{_configuration.GetHost()}/forgot-password/confirmation?email={Uri.EscapeDataString(u.Email)}&token={Uri.EscapeDataString(token)}";
+        var url = $"{_configuration.GetHost()}/forgot-password/confirmation?email={Uri.EscapeDataString(u?.Email!)}&token={Uri.EscapeDataString(token)}";
         var body = $"Παρακαλούμε δημιουργήστε το νέο σας κωδικό <a href=\"{url}\">ακολουθώντας τον εξής σύνδεσμο</a>.";
         return body;
     }

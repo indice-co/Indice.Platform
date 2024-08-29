@@ -47,7 +47,7 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
         string subject,
         string phoneNumber,
         TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
-        string purpose = null
+        string? purpose = null
     ) {
         purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
         var modifier = GetModifier(purpose, phoneNumber);
@@ -81,7 +81,7 @@ public sealed class TotpServiceSecurityToken : TotpServiceBase
         string securityToken,
         string phoneNumber,
         string code,
-        string purpose = null
+        string? purpose = null
     ) {
         purpose ??= TotpConstants.TokenGenerationPurpose.StrongCustomerAuthentication;
         if (!int.TryParse(code, out var codeInt)) {

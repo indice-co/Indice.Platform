@@ -20,19 +20,19 @@ public class AllowedCharactersPasswordValidator<TUser> : IPasswordValidator<TUse
     }
 
     /// <summary>The allowed characters of a password.</summary>
-    public string AllowedCharacters { get; }
+    public string? AllowedCharacters { get; }
     /// <summary>Provides the various messages used throughout Indice packages.</summary>
     public IdentityMessageDescriber MessageDescriber { get; }
 
     /// <inheritdoc />
-    public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
+    public Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string? password) {
         var result = IdentityResult.Success;
         // if AllowedCharacters is not defined in appsettings.json then the validator always returns success
         if (string.IsNullOrEmpty(AllowedCharacters)) {
             return Task.FromResult(result);
         }
-        var isValid = password.All(x => AllowedCharacters.Contains(x));
-        if (!isValid || string.IsNullOrWhiteSpace(password)) {
+        var isValid = !string.IsNullOrWhiteSpace(password) && password.All(x => AllowedCharacters.Contains(x));
+        if (!isValid) {
             result = IdentityResult.Failed(new IdentityError {
                 Code = ErrorDescriber,
                 Description = MessageDescriber.PasswordContainsNotAllowedChars

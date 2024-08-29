@@ -9,11 +9,12 @@
     <PackageReference Include="Indice.Common" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
     <PackageReference Include="Azure.Storage.Queues" Version="12.18.0" />
-    <PackageReference Include="MailKit" Version="4.6.0" />
+    <PackageReference Include="MailKit" Version="4.7.0" />
+    <PackageReference Include="MimeKit" Version="4.7.1" /> <!-- remove when MailKit addresses issue-->
     <PackageReference Include="Microsoft.Azure.NotificationHubs" Version="4.2.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.7" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
   </ItemGroup>

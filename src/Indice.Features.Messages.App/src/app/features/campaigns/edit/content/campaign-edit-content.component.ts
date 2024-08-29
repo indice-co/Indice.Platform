@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, Inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ToasterService, ToastType } from '@indice/ng-components';
 
@@ -44,6 +44,11 @@ export class CampaignContentEditComponent implements OnInit {
                 this.content = campaign.content;
             });
         }
+    }
+
+    @HostListener('document:keydown.control.s', ['$event']) onKeydownHandler(event: KeyboardEvent) {
+      event.preventDefault();
+      this.updateContent();
     }
 
     public updateContent(): void {

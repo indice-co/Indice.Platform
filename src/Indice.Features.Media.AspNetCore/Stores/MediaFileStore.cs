@@ -54,6 +54,18 @@ internal class MediaFileStore : IMediaFileStore
         await _dbContext.SaveChangesAsync();
         return file.Id;
     }
+
+    public async Task<List<Guid>> CreateMany(List<DbMediaFile> files) {
+        var folderid = files.FirstOrDefault()?.FolderId;
+        var paths = await MediaFolderStore.FindPathsAsync(_dbContext, folderid, files.Select(x => x.Name).ToArray());
+        for (var i = 0; i < paths.Length; i++) {
+            files[i].Path = paths[i];
+        }
+        _dbContext.Files.AddRange(files);
+        await _dbContext.SaveChangesAsync();
+        return files.Select(x => x.Id).ToList();
+    }
+
     /// <inheritdoc/>
     public async Task Update(DbMediaFile file) {
         file.Path = await MediaFolderStore.FindPathAsync(_dbContext, file.FolderId, file.Name);

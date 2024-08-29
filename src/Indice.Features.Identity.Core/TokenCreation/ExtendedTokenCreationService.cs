@@ -10,6 +10,7 @@ using System.Text.Json;
 using IdentityServer4.Models;
 using System.Globalization;
 using IdentityServer4.Internal.Extensions;
+using IdentityServer4.Extensions;
 
 namespace Indice.Features.Identity.Core.TokenCreation;
 
@@ -115,7 +116,7 @@ public class ExtendedTokenCreationService : ITokenCreationService
         payload.AddClaims(normalClaims);
 
         // scope claims
-        if (!scopeClaims.IsNullOrEmpty()) {
+        if (!IEnumerableExtensions.IsNullOrEmpty(scopeClaims)) {
             var scopeValues = scopeClaims.Select(x => x.Value).ToArray();
 
             if (_options.EmitScopesAsSpaceDelimitedStringInJwt) {
@@ -126,7 +127,7 @@ public class ExtendedTokenCreationService : ITokenCreationService
         }
 
         // amr claims
-        if (!amrClaims.IsNullOrEmpty()) {
+        if (!IEnumerableExtensions.IsNullOrEmpty(amrClaims)) {
             var amrValues = amrClaims.Select(x => x.Value).Distinct().ToArray();
             payload.Add(JwtClaimTypes.AuthenticationMethod, amrValues);
         }

@@ -1,0 +1,2289 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="account-settings.account-settings-payments.buttons.payNow" xml:space="preserve">
+    <value>Pay Now</value>
+  </data>
+  <data name="account-settings.account-settings-payments.buttons.viewReceipt" xml:space="preserve">
+    <value>View receipt</value>
+  </data>
+  <data name="account-settings.account-settings-payments.fields.dueDate" xml:space="preserve">
+    <value>DUE DATE</value>
+  </data>
+  <data name="account-settings.account-settings-payments.fields.totalSum" xml:space="preserve">
+    <value>Total sum</value>
+  </data>
+  <data name="account-settings.account-settings-payments.info.pendingPayments" xml:space="preserve">
+    <value>This includes pending payments only</value>
+  </data>
+  <data name="account-settings.account-settings-payments.info.vat" xml:space="preserve">
+    <value>Incl. 24% VAT</value>
+  </data>
+  <data name="account-settings.account-settings-payments.tabs.completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="account-settings.account-settings-payments.tabs.pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="account-settings.account-settings-payments.title" xml:space="preserve">
+    <value>Payments and transactions</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.company-name-update.buttons.cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.company-name-update.buttons.save" xml:space="preserve">
+    <value>Save new name</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.company-name-update.header" xml:space="preserve">
+    <value>Change your Company name</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.company-name-update.label" xml:space="preserve">
+    <value>Change your name</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.company-name-update.subheader" xml:space="preserve">
+    <value>Update your company name</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.company-tax-number-update.buttons.cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.company-tax-number-update.buttons.save" xml:space="preserve">
+    <value>Save new tax number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.company-tax-number-update.header" xml:space="preserve">
+    <value>Change your Company Tax Number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.company-tax-number-update.label" xml:space="preserve">
+    <value>Change your tax number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.company-tax-number-update.subheader" xml:space="preserve">
+    <value>Update your company tax Number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.language-preferences-update.buttons.cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.language-preferences-update.buttons.save" xml:space="preserve">
+    <value>Save changes</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.language-preferences-update.header" xml:space="preserve">
+    <value>Switch your language preferences</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.language-preferences-update.options.english" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.language-preferences-update.options.greek" xml:space="preserve">
+    <value>Greek</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.mobile-number-form.buttons.cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.mobile-number-form.buttons.next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.mobile-number-form.header" xml:space="preserve">
+    <value>Change your phone number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.mobile-number-form.label" xml:space="preserve">
+    <value>Change your phone number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.mobile-number-form.subheader" xml:space="preserve">
+    <value>We’ll send you a verification text before updating your number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.verification-code-form.buttons.cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.verification-code-form.buttons.resend" xml:space="preserve">
+    <value>Resend verification code</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.verification-code-form.buttons.save" xml:space="preserve">
+    <value>Save new phone number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.verification-code-form.header" xml:space="preserve">
+    <value>Change your phone number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.verification-code-form.label" xml:space="preserve">
+    <value>Enter your 6 digit code</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.mobile-number-update.verification-code-form.subheader" xml:space="preserve">
+    <value>Enter your verification code</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-confirm.buttons.cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-confirm.buttons.next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-confirm.error" xml:space="preserve">
+    <value>Passwords don't match</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-confirm.header" xml:space="preserve">
+    <value>Change your password</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-confirm.labels.confirmPassword" xml:space="preserve">
+    <value>Confirm your password</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-confirm.labels.enterPassword" xml:space="preserve">
+    <value>Enter your password</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-confirm.placeholders.confirmPassword" xml:space="preserve">
+    <value>Confirm password</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-confirm.placeholders.password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-confirm.subheader" xml:space="preserve">
+    <value>First, let's verify it's you</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-forgotten.buttons.cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-forgotten.buttons.resendEmail" xml:space="preserve">
+    <value>Re-send e-mail</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-forgotten.header" xml:space="preserve">
+    <value>Check your e-mail</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-forgotten.subheader" xml:space="preserve">
+    <value>We have sent you an e-mail with a link to reset your password. Remember to check the spam/junk folder if you don’t see anything in your inbox.</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-initial.buttons.forgotPassword" xml:space="preserve">
+    <value>Forgot password</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-initial.buttons.next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-initial.header" xml:space="preserve">
+    <value>Change your password</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-initial.label" xml:space="preserve">
+    <value>Enter your password</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-initial.placeHolder" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.password-update.password-update-initial.subheader" xml:space="preserve">
+    <value>First, let's verify it's you</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.profile-name-update.buttons.cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.profile-name-update.buttons.save" xml:space="preserve">
+    <value>Save new name</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.profile-name-update.header" xml:space="preserve">
+    <value>Change your name</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.profile-name-update.label" xml:space="preserve">
+    <value>Change your name</value>
+  </data>
+  <data name="account-settings.account-settings-profile.account-settings-profile-modals.profile-name-update.subheader" xml:space="preserve">
+    <value>Update your e-mail address below and we'll send you a verification</value>
+  </data>
+  <data name="account-settings.account-settings-profile.buttons.deleteAccount" xml:space="preserve">
+    <value>Delete your account</value>
+  </data>
+  <data name="account-settings.account-settings-profile.headers.basicInformation" xml:space="preserve">
+    <value>Basic information</value>
+  </data>
+  <data name="account-settings.account-settings-profile.headers.companyInformation" xml:space="preserve">
+    <value>Company information</value>
+  </data>
+  <data name="account-settings.account-settings-profile.headers.contactInformation" xml:space="preserve">
+    <value>Contact information</value>
+  </data>
+  <data name="account-settings.account-settings-profile.headers.dataAndPrivacy" xml:space="preserve">
+    <value>Data and privacy</value>
+  </data>
+  <data name="account-settings.account-settings-profile.headers.housingProfile" xml:space="preserve">
+    <value>Housing profile</value>
+  </data>
+  <data name="account-settings.account-settings-profile.headers.languagePreferences" xml:space="preserve">
+    <value>Language preferences</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.advertising" xml:space="preserve">
+    <value>Advertising</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.companyName" xml:space="preserve">
+    <value>Company name</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.email" xml:space="preserve">
+    <value>Account e-mail</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.legalRepresentantiveFullName" xml:space="preserve">
+    <value>Name of legal representative</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.personalCookies" xml:space="preserve">
+    <value>Personal cookies</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.phoneNumber" xml:space="preserve">
+    <value>Phone number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.platformLanguage" xml:space="preserve">
+    <value>Platform language</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.productTracking" xml:space="preserve">
+    <value>Product tracking</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.taxNumber" xml:space="preserve">
+    <value>Tax number</value>
+  </data>
+  <data name="account-settings.account-settings-profile.labels.updateSearchOrSellingPreferences" xml:space="preserve">
+    <value>Update your searching or selling preferences</value>
+  </data>
+  <data name="account-settings.account-settings-profile.locales.english" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="account-settings.account-settings-profile.locales.greek" xml:space="preserve">
+    <value>Greek</value>
+  </data>
+  <data name="account-settings.account-settings-profile.messages.email" xml:space="preserve">
+    <value>It is not possible to edit your e-mail address</value>
+  </data>
+  <data name="account-settings.account-settings-profile.messages.verified" xml:space="preserve">
+    <value>Verified!</value>
+  </data>
+  <data name="account-settings.account-settings-profile.title" xml:space="preserve">
+    <value>Profile details</value>
+  </data>
+  <data name="account-settings.account-settings-profile.values.acceptedAll" xml:space="preserve">
+    <value>Accepted all</value>
+  </data>
+  <data name="account-settings.account-settings-profile.values.declined" xml:space="preserve">
+    <value>Declined</value>
+  </data>
+  <data name="account-settings.account-settings-profile.values.onlyNecessary" xml:space="preserve">
+    <value>Only necessary</value>
+  </data>
+  <data name="account-settings.account-settings-saved-searches.account-settings-saved-searches-empty.button" xml:space="preserve">
+    <value>Create a saved search</value>
+  </data>
+  <data name="account-settings.account-settings-saved-searches.account-settings-saved-searches-empty.header" xml:space="preserve">
+    <value>Save searches to speed up the hunt!</value>
+  </data>
+  <data name="account-settings.account-settings-saved-searches.account-settings-saved-searches-empty.paragraph" xml:space="preserve">
+    <value>Save important things as searches, like your favourite areas, streets, property types and filters to find the right property faster</value>
+  </data>
+  <data name="account-settings.account-settings-saved-searches.account-settings-saved-searches-row.anchors.viewResults" xml:space="preserve">
+    <value>View results</value>
+  </data>
+  <data name="account-settings.account-settings-saved-searches.account-settings-saved-searches-row.buttons.daily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="account-settings.account-settings-saved-searches.account-settings-saved-searches-row.buttons.delete" xml:space="preserve">
+    <value>Delete search</value>
+  </data>
+  <data name="account-settings.account-settings-saved-searches.button" xml:space="preserve">
+    <value>Newest first</value>
+  </data>
+  <data name="account-settings.account-settings-saved-searches.title" xml:space="preserve">
+    <value>saved searches</value>
+  </data>
+  <data name="account-settings.title" xml:space="preserve">
+    <value>Account settings</value>
+  </data>
+  <data name="alternate.key.override" xml:space="preserve">
+    <value>original</value>
+  </data>
+  <data name="complete-request-callback.anchor" xml:space="preserve">
+    <value>Skip for now</value>
+  </data>
+  <data name="complete-request-callback.aWalkthroughFor" xml:space="preserve">
+    <value>a walkthrough for</value>
+  </data>
+  <data name="complete-request-callback.button" xml:space="preserve">
+    <value>Let's get to know your needs</value>
+  </data>
+  <data name="complete-request-callback.header" xml:space="preserve">
+    <value>Welcome to Neon!</value>
+  </data>
+  <data name="complete-request-callback.paragraphs.callback" xml:space="preserve">
+    <value>Your assigned advisor will call you back on {{phoneNumber}} regarding {{subject}} the {{type}} in {{prefecture}}.</value>
+  </data>
+  <data name="complete-request-callback.paragraphs.phone" xml:space="preserve">
+    <value>Thanks! Your phone number has been verified.</value>
+  </data>
+  <data name="complete-request-callback.paragraphs.questions" xml:space="preserve">
+    <value>While you wait we would like to get to know you a bit better by answering a few short questions so we can help you find your dream property faster.</value>
+  </data>
+  <data name="faq.button" xml:space="preserve">
+    <value>Call me back</value>
+  </data>
+  <data name="faq.headers.primary" xml:space="preserve">
+    <value>Frequently asked questions</value>
+  </data>
+  <data name="faq.headers.secondary" xml:space="preserve">
+    <value>Needed something different?</value>
+  </data>
+  <data name="faq.headers.third" xml:space="preserve">
+    <value>Our housing advisors are ready to assist you</value>
+  </data>
+  <data name="faq.paragraph" xml:space="preserve">
+    <value>Speak to your advisor</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.filters.auction" xml:space="preserve">
+    <value>Auction</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.filters.auctionRound" xml:space="preserve">
+    <value>Auction Round</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.filters.bedrooms" xml:space="preserve">
+    <value>Bedrooms</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.filters.characteristics" xml:space="preserve">
+    <value>Characteristics</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.filters.constructionYear" xml:space="preserve">
+    <value>Construction year</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.filters.floor" xml:space="preserve">
+    <value>Floor</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.filters.heatingType" xml:space="preserve">
+    <value>Heating type</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.filters.parking" xml:space="preserve">
+    <value>Parking</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.filters.preApproved" xml:space="preserve">
+    <value>Pre Approved</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.header" xml:space="preserve">
+    <value>Advanced filters</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.labels.from" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.labels.no" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.labels.to" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.labels.yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.placeholders.yearFrom" xml:space="preserve">
+    <value>Year From</value>
+  </data>
+  <data name="find-property.advanced-filters-drawer.placeholders.yearTo" xml:space="preserve">
+    <value>Year To</value>
+  </data>
+  <data name="find-property.filterAllValuesLabels.price" xml:space="preserve">
+    <value>All prices</value>
+  </data>
+  <data name="find-property.filterAllValuesLabels.propertyType" xml:space="preserve">
+    <value>All types</value>
+  </data>
+  <data name="find-property.filterAllValuesLabels.size" xml:space="preserve">
+    <value>All sizes</value>
+  </data>
+  <data name="find-property.filterTitles.price" xml:space="preserve">
+    <value>PRICE RANGE</value>
+  </data>
+  <data name="find-property.filterTitles.propertyType" xml:space="preserve">
+    <value>PROPERTY TYPE</value>
+  </data>
+  <data name="find-property.filterTitles.size" xml:space="preserve">
+    <value>SIZE</value>
+  </data>
+  <data name="find-property.grid-list-cards.buttons.loadMore" xml:space="preserve">
+    <value>Load More</value>
+  </data>
+  <data name="find-property.grid-list-cards.buttons.newestFirst" xml:space="preserve">
+    <value>Newest first</value>
+  </data>
+  <data name="find-property.grid-list-cards.buttons.saveSearch" xml:space="preserve">
+    <value>Save this search</value>
+  </data>
+  <data name="find-property.grid-list-cards.chips.list" xml:space="preserve">
+    <value>List</value>
+  </data>
+  <data name="find-property.grid-list-cards.chips.map" xml:space="preserve">
+    <value>Map</value>
+  </data>
+  <data name="find-property.grid-list-cards.mapSearchInfo" xml:space="preserve">
+    <value>Search by moving the map</value>
+  </data>
+  <data name="find-property.grid-list-cards.properties" xml:space="preserve">
+    <value>properties</value>
+  </data>
+  <data name="find-property.header" xml:space="preserve">
+    <value>Find your dream property</value>
+  </data>
+  <data name="find-property.popular-areas.header" xml:space="preserve">
+    <value>Explore popular areas</value>
+  </data>
+  <data name="find-property.range-dropdown.from" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="find-property.range-dropdown.to" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="find-property.sponsored-properties.columns.auction" xml:space="preserve">
+    <value>AUCTION</value>
+  </data>
+  <data name="find-property.sponsored-properties.columns.hot" xml:space="preserve">
+    <value>HOT</value>
+  </data>
+  <data name="find-property.sponsored-properties.columns.preApproved" xml:space="preserve">
+    <value>PRE-APPROVED</value>
+  </data>
+  <data name="find-property.sponsored-properties.columns.sponsored" xml:space="preserve">
+    <value>SPONSORED</value>
+  </data>
+  <data name="home.discover-towns.header" xml:space="preserve">
+    <value>Discover towns and cities</value>
+  </data>
+  <data name="home.hero-slider.header" xml:space="preserve">
+    <value>A new way to buy and sell property</value>
+  </data>
+  <data name="home.hero-slider.infoText" xml:space="preserve">
+    <value>Welcome to a hassle-free real estate journey. Explore the finest homes and find everything you need in one place, regardless of whether you're selling or buying.</value>
+  </data>
+  <data name="home.reviews.header" xml:space="preserve">
+    <value>What our customers say</value>
+  </data>
+  <data name="home.searchHeader" xml:space="preserve">
+    <value>Search for properties</value>
+  </data>
+  <data name="home.steps-buying.anchorAdvisor" xml:space="preserve">
+    <value>Get your real estate advisor</value>
+  </data>
+  <data name="home.steps-buying.header" xml:space="preserve">
+    <value>Buying a new home is easy with us</value>
+  </data>
+  <data name="home.steps-buying.infoParagraph" xml:space="preserve">
+    <value>Buying a home is one of the biggest purchases you make in life. Our housing advisors are ready to help you navigate listings, book walkthroughs and follow you all the way to completing complex contracts and paperwork.</value>
+  </data>
+  <data name="home.steps-buying.stepHeaders.stepFive" xml:space="preserve">
+    <value>5. Exchange and complete transaction</value>
+  </data>
+  <data name="home.steps-buying.stepHeaders.stepFour" xml:space="preserve">
+    <value>4. Sort out the paperwork</value>
+  </data>
+  <data name="home.steps-buying.stepHeaders.stepOne" xml:space="preserve">
+    <value>1. Define budget and what you can afford</value>
+  </data>
+  <data name="home.steps-buying.stepHeaders.stepThree" xml:space="preserve">
+    <value>3. Make an offer</value>
+  </data>
+  <data name="home.steps-buying.stepHeaders.stepTwo" xml:space="preserve">
+    <value>2. Find the perfect home that fits you</value>
+  </data>
+  <data name="home.steps.header" xml:space="preserve">
+    <value>We advice you through every step of the journey</value>
+  </data>
+  <data name="home.steps.stepText.stepFour" xml:space="preserve">
+    <value>Enjoy premium services from our trusted partners</value>
+  </data>
+  <data name="home.steps.stepText.stepOne" xml:space="preserve">
+    <value>Easily schedule viewings when it suits you</value>
+  </data>
+  <data name="home.steps.stepText.stepThree" xml:space="preserve">
+    <value>Get a personal housing advisor to answer any questions</value>
+  </data>
+  <data name="home.steps.stepText.stepTwo" xml:space="preserve">
+    <value>Get help with your loan application and financing</value>
+  </data>
+  <data name="my-profile.navlinks.buying" xml:space="preserve">
+    <value>Buying</value>
+  </data>
+  <data name="my-profile.navlinks.favourites" xml:space="preserve">
+    <value>Favourites</value>
+  </data>
+  <data name="my-profile.navlinks.requests" xml:space="preserve">
+    <value>Requests</value>
+  </data>
+  <data name="my-profile.navlinks.selling" xml:space="preserve">
+    <value>Selling</value>
+  </data>
+  <data name="my-profile.selling.buttons.bulkUpload" xml:space="preserve">
+    <value>Bulk upload</value>
+  </data>
+  <data name="my-profile.selling.buttons.uploadNewProperty" xml:space="preserve">
+    <value>Upload a new property</value>
+  </data>
+  <data name="my-profile.selling.header" xml:space="preserve">
+    <value>Properties you are selling</value>
+  </data>
+  <data name="my-profile.selling.selling-details.anchors.saveAndExit" xml:space="preserve">
+    <value>Save and exit</value>
+  </data>
+  <data name="my-profile.selling.selling-details.buttons.edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="my-profile.selling.selling-details.buttons.sendForReview" xml:space="preserve">
+    <value>Send for review</value>
+  </data>
+  <data name="my-profile.selling.selling-details.navlinks.documents" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="my-profile.selling.selling-details.navlinks.marketabilityReport" xml:space="preserve">
+    <value>Marketability report</value>
+  </data>
+  <data name="my-profile.selling.selling-details.navlinks.overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="my-profile.selling.selling-details.navlinks.photos" xml:space="preserve">
+    <value>Photos</value>
+  </data>
+  <data name="my-profile.selling.selling-details.navlinks.services" xml:space="preserve">
+    <value>Services</value>
+  </data>
+  <data name="my-profile.selling.selling-details.navlinks.tasks" xml:space="preserve">
+    <value>Tasks</value>
+  </data>
+  <data name="my-profile.selling.selling-details.navlinks.walkthroughs" xml:space="preserve">
+    <value>Walkthroughs</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.buttons.allServices" xml:space="preserve">
+    <value>All services</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.buttons.replaceDocument" xml:space="preserve">
+    <value>Replace document</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.errors.documentNotValid" xml:space="preserve">
+    <value>Document is not valid!</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.headers.documents" xml:space="preserve">
+    <value>Your property documents</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.headers.services" xml:space="preserve">
+    <value>Service opportunities</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.labels.chooseFile" xml:space="preserve">
+    <value>Choose a file</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.labels.dragAndDrop" xml:space="preserve">
+    <value>Drag and drop your document here or</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.labels.uploadedBy" xml:space="preserve">
+    <value>Uploaded by</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.menu.delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.menu.download" xml:space="preserve">
+    <value>Download</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.menu.open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="my-profile.selling.selling-details.selling-details-documents.menu.replace" xml:space="preserve">
+    <value>Replace</value>
+  </data>
+  <data name="my-profile.selling.selling-details.text.notListed" xml:space="preserve">
+    <value>Not listed</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.buttons.exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.buttons.previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.buttons.skipStep" xml:space="preserve">
+    <value>Skip Step</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.headers.stepFour" xml:space="preserve">
+    <value>Good job! You have just created your first saved search;</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.headers.stepOne" xml:space="preserve">
+    <value>What kind of properties are you looking for?</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.headers.stepThree" xml:space="preserve">
+    <value>Where do you want a property?</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.headers.stepTwo" xml:space="preserve">
+    <value>What is your desired price range?</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.infoText.stepFour" xml:space="preserve">
+    <value>You can manage all your saved searches in &lt;a href="#" class="underline"&gt;Saved searches&lt;/a&gt; in your profile.</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.infoText.stepOne" xml:space="preserve">
+    <value>Select as many as you like</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.infoText.stepThree" xml:space="preserve">
+    <value>Add up to 5 areas, or leave empty</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.infoText.stepTwo" xml:space="preserve">
+    <value>Set a minimum and maximum</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.labels.from" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="onboarding.onboarding-buyer.labels.to" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="onboarding.onboarding-exit-modal.buttons.cancel" xml:space="preserve">
+    <value>Stay here</value>
+  </data>
+  <data name="onboarding.onboarding-exit-modal.buttons.exit" xml:space="preserve">
+    <value>Exit and lose progress</value>
+  </data>
+  <data name="onboarding.onboarding-exit-modal.header" xml:space="preserve">
+    <value>Your progress will be lost</value>
+  </data>
+  <data name="onboarding.onboarding-exit-modal.subheader" xml:space="preserve">
+    <value>Are you sure you want to exit?</value>
+  </data>
+  <data name="onboarding.onboarding-seller.buttons.saveAnswers" xml:space="preserve">
+    <value>Create a property listing</value>
+  </data>
+  <data name="onboarding.onboarding-seller.headers.stepFour" xml:space="preserve">
+    <value>Your preferences have been saved</value>
+  </data>
+  <data name="onboarding.onboarding-seller.headers.stepOne" xml:space="preserve">
+    <value>Given your interest in selling a property, we'd like to explore that further</value>
+  </data>
+  <data name="onboarding.onboarding-seller.headers.stepThree" xml:space="preserve">
+    <value>What kind of support would you like to have?</value>
+  </data>
+  <data name="onboarding.onboarding-seller.headers.stepTwo" xml:space="preserve">
+    <value>What kind of property are you looking to sell?</value>
+  </data>
+  <data name="onboarding.onboarding-seller.infoText.stepFour" xml:space="preserve">
+    <value>Let's kick-start the sell of your property!</value>
+  </data>
+  <data name="onboarding.onboarding-seller.infoText.stepOne" xml:space="preserve">
+    <value>Just 3 more questions!</value>
+  </data>
+  <data name="onboarding.onboarding-seller.infoText.stepThree" xml:space="preserve">
+    <value>Select as many as you like</value>
+  </data>
+  <data name="onboarding.onboarding-seller.infoText.stepTwo" xml:space="preserve">
+    <value>Select the type that best represents your property</value>
+  </data>
+  <data name="onboarding.onboarding-welcome.anchors.getStarted" xml:space="preserve">
+    <value>Get Started</value>
+  </data>
+  <data name="onboarding.onboarding-welcome.anchors.knowYourNeeds" xml:space="preserve">
+    <value>Let's get to know your needs</value>
+  </data>
+  <data name="onboarding.onboarding-welcome.anchors.skip" xml:space="preserve">
+    <value>Skip for now</value>
+  </data>
+  <data name="onboarding.onboarding-welcome.header" xml:space="preserve">
+    <value>Welcome to Neon</value>
+  </data>
+  <data name="onboarding.onboarding-welcome.infoText" xml:space="preserve">
+    <value>To provide you with better service and enable you to find your dream property faster we would like to get to know you a bit better.</value>
+  </data>
+  <data name="property-details.detail-section.buttons.collapse" xml:space="preserve">
+    <value>All details</value>
+  </data>
+  <data name="property-details.detail-section.header" xml:space="preserve">
+    <value>Property details</value>
+  </data>
+  <data name="property-details.detail-section.titles.availability" xml:space="preserve">
+    <value>Availability</value>
+  </data>
+  <data name="property-details.detail-section.titles.basementSize" xml:space="preserve">
+    <value>Basement size</value>
+  </data>
+  <data name="property-details.detail-section.titles.category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="property-details.detail-section.titles.constructionMaterial" xml:space="preserve">
+    <value>Construction material</value>
+  </data>
+  <data name="property-details.detail-section.titles.constructionYear" xml:space="preserve">
+    <value>Construction year</value>
+  </data>
+  <data name="property-details.detail-section.titles.coveredVerandaArea" xml:space="preserve">
+    <value>Covered veranda area</value>
+  </data>
+  <data name="property-details.detail-section.titles.developer" xml:space="preserve">
+    <value>Developer</value>
+  </data>
+  <data name="property-details.detail-section.titles.energyClass" xml:space="preserve">
+    <value>Energy class</value>
+  </data>
+  <data name="property-details.detail-section.titles.estimatedRentalIncome" xml:space="preserve">
+    <value>Estimated rental income</value>
+  </data>
+  <data name="property-details.detail-section.titles.floor" xml:space="preserve">
+    <value>Floor</value>
+  </data>
+  <data name="property-details.detail-section.titles.floorMaterial" xml:space="preserve">
+    <value>Floor material</value>
+  </data>
+  <data name="property-details.detail-section.titles.frames" xml:space="preserve">
+    <value>Frames</value>
+  </data>
+  <data name="property-details.detail-section.titles.heatingControl" xml:space="preserve">
+    <value>Heating control</value>
+  </data>
+  <data name="property-details.detail-section.titles.heatingSystem" xml:space="preserve">
+    <value>Heating system</value>
+  </data>
+  <data name="property-details.detail-section.titles.kaek" xml:space="preserve">
+    <value>KAEK</value>
+  </data>
+  <data name="property-details.detail-section.titles.livingArea" xml:space="preserve">
+    <value>Living area</value>
+  </data>
+  <data name="property-details.detail-section.titles.masterRoom" xml:space="preserve">
+    <value>Master room</value>
+  </data>
+  <data name="property-details.detail-section.titles.nearbyHighways" xml:space="preserve">
+    <value>Nearby highways</value>
+  </data>
+  <data name="property-details.detail-section.titles.neighborhood" xml:space="preserve">
+    <value>Neighbhorhood</value>
+  </data>
+  <data name="property-details.detail-section.titles.orientation" xml:space="preserve">
+    <value>Orientation</value>
+  </data>
+  <data name="property-details.detail-section.titles.otherCosts" xml:space="preserve">
+    <value>Other costs</value>
+  </data>
+  <data name="property-details.detail-section.titles.ownershipPercentage" xml:space="preserve">
+    <value>Ownership percentage</value>
+  </data>
+  <data name="property-details.detail-section.titles.ownershipType" xml:space="preserve">
+    <value>Ownership type</value>
+  </data>
+  <data name="property-details.detail-section.titles.parkingType" xml:space="preserve">
+    <value>Parking type</value>
+  </data>
+  <data name="property-details.detail-section.titles.plotArea" xml:space="preserve">
+    <value>Plot area</value>
+  </data>
+  <data name="property-details.detail-section.titles.preApprovalAmount" xml:space="preserve">
+    <value>Pre approval amount</value>
+  </data>
+  <data name="property-details.detail-section.titles.preApprovalDate" xml:space="preserve">
+    <value>Pre approval date</value>
+  </data>
+  <data name="property-details.detail-section.titles.preApproved" xml:space="preserve">
+    <value>Pre approved</value>
+  </data>
+  <data name="property-details.detail-section.titles.previousPrice" xml:space="preserve">
+    <value>Previous price</value>
+  </data>
+  <data name="property-details.detail-section.titles.price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="property-details.detail-section.titles.pricePerSqM" xml:space="preserve">
+    <value>Price per m²</value>
+  </data>
+  <data name="property-details.detail-section.titles.propertyStatus" xml:space="preserve">
+    <value>Property status</value>
+  </data>
+  <data name="property-details.detail-section.titles.propertyUsageCateogry" xml:space="preserve">
+    <value>Property usage category</value>
+  </data>
+  <data name="property-details.detail-section.titles.renovationYear" xml:space="preserve">
+    <value>renovation year</value>
+  </data>
+  <data name="property-details.detail-section.titles.residentialZone" xml:space="preserve">
+    <value>Residential zone</value>
+  </data>
+  <data name="property-details.detail-section.titles.rooms" xml:space="preserve">
+    <value>Rooms</value>
+  </data>
+  <data name="property-details.detail-section.titles.sharedExpenses" xml:space="preserve">
+    <value>Shared expenses</value>
+  </data>
+  <data name="property-details.detail-section.titles.singlePropertyOwnershipTax" xml:space="preserve">
+    <value>Single property ownership tax</value>
+  </data>
+  <data name="property-details.detail-section.titles.type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="property-details.documents-section.buttonTexts.purchaseNow" xml:space="preserve">
+    <value>Purchase now</value>
+  </data>
+  <data name="property-details.documents-section.buttonTexts.viewDocument" xml:space="preserve">
+    <value>View document</value>
+  </data>
+  <data name="property-details.documents-section.documents.energyCertificate" xml:space="preserve">
+    <value>Energy certificate</value>
+  </data>
+  <data name="property-details.documents-section.documents.legalDueDiligence" xml:space="preserve">
+    <value>Legal due diligence</value>
+  </data>
+  <data name="property-details.documents-section.documents.technicalDocument" xml:space="preserve">
+    <value>Technical document</value>
+  </data>
+  <data name="property-details.documents-section.header" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="property-details.documents-section.titles.purchased" xml:space="preserve">
+    <value>Purchased</value>
+  </data>
+  <data name="property-details.features-section.buttons.collapse" xml:space="preserve">
+    <value>All features</value>
+  </data>
+  <data name="property-details.features-section.header" xml:space="preserve">
+    <value>Features</value>
+  </data>
+  <data name="property-details.floor-plan-section.header" xml:space="preserve">
+    <value>Floor plan</value>
+  </data>
+  <data name="property-details.floor-plan-section.text.rooms" xml:space="preserve">
+    <value>rooms</value>
+  </data>
+  <data name="property-details.hero-section.buttons.back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="property-details.hero-section.buttons.floorplan" xml:space="preserve">
+    <value>Floorplan</value>
+  </data>
+  <data name="property-details.hero-section.buttons.placeOffer" xml:space="preserve">
+    <value>Place an offer</value>
+  </data>
+  <data name="property-details.hero-section.buttons.vrTour" xml:space="preserve">
+    <value>VR tour</value>
+  </data>
+  <data name="property-details.hero-section.modal-image-gallery.anchors.callbackRequest" xml:space="preserve">
+    <value>Call me about this property</value>
+  </data>
+  <data name="property-details.hero-section.modal-image-gallery.anchors.walkthroughRequest" xml:space="preserve">
+    <value>Book a walkthrough</value>
+  </data>
+  <data name="property-details.hero-section.modal-image-gallery.image-item.infoText.fullScreenSlideshow" xml:space="preserve">
+    <value>Full screen slide show</value>
+  </data>
+  <data name="property-details.hero-section.modal-image-gallery.image-item.modal-image-item-large.buttons.viewAll" xml:space="preserve">
+    <value>View all</value>
+  </data>
+  <data name="property-details.hero-section.modal-image-gallery.text.photos" xml:space="preserve">
+    <value>photos</value>
+  </data>
+  <data name="property-details.hero-section.tags.auction" xml:space="preserve">
+    <value>AUCTION</value>
+  </data>
+  <data name="property-details.hero-section.tags.hot" xml:space="preserve">
+    <value>HOT</value>
+  </data>
+  <data name="property-details.hero-section.tags.preApproved" xml:space="preserve">
+    <value>PRE-APPROVED</value>
+  </data>
+  <data name="property-details.hero-section.tags.sponsored" xml:space="preserve">
+    <value>SPONSORED</value>
+  </data>
+  <data name="property-details.hero-section.text.bathrooms" xml:space="preserve">
+    <value>bathrooms</value>
+  </data>
+  <data name="property-details.hero-section.text.bedrooms" xml:space="preserve">
+    <value>bedrooms</value>
+  </data>
+  <data name="property-details.hero-section.text.callbackRequest" xml:space="preserve">
+    <value>Call me about this property</value>
+  </data>
+  <data name="property-details.hero-section.text.helpFromAdvisor" xml:space="preserve">
+    <value>Get help from an advisor</value>
+  </data>
+  <data name="property-details.hero-section.text.id" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="property-details.hero-section.text.images" xml:space="preserve">
+    <value>images</value>
+  </data>
+  <data name="property-details.hero-section.text.interestedInProperty" xml:space="preserve">
+    <value>Interested in this property?</value>
+  </data>
+  <data name="property-details.hero-section.text.walkthroughRequest" xml:space="preserve">
+    <value>Request a walkthrough</value>
+  </data>
+  <data name="property-details.map-area-section.distanceInfoText" xml:space="preserve">
+    <value>See distance to other locations</value>
+  </data>
+  <data name="property-details.map-area-section.header" xml:space="preserve">
+    <value>Map area</value>
+  </data>
+  <data name="property-details.map-area-section.point-of-interest.propertyLocationText" xml:space="preserve">
+    <value>Property location</value>
+  </data>
+  <data name="property-details.paragraph-section.buttons.fullDescription" xml:space="preserve">
+    <value>Full description</value>
+  </data>
+  <data name="property-listing.anchors.saveAndExit" xml:space="preserve">
+    <value>Save and exit</value>
+  </data>
+  <data name="property-listing.basic-information.buttons.edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="property-listing.basic-information.infoText.askingPriceBetween" xml:space="preserve">
+    <value>Your asking price is between</value>
+  </data>
+  <data name="property-listing.basic-information.infoText.perSqM" xml:space="preserve">
+    <value>per m²</value>
+  </data>
+  <data name="property-listing.basic-information.infoText.priceWithinRecentClosingRange" xml:space="preserve">
+    <value>This is within the recent closing price range for this area</value>
+  </data>
+  <data name="property-listing.basic-information.labels.area" xml:space="preserve">
+    <value>Property size</value>
+  </data>
+  <data name="property-listing.basic-information.labels.askingPrice" xml:space="preserve">
+    <value>Target price</value>
+  </data>
+  <data name="property-listing.basic-information.labels.lowestPrice" xml:space="preserve">
+    <value>Minimum acceptable price</value>
+  </data>
+  <data name="property-listing.basic-information.labels.municipality" xml:space="preserve">
+    <value>Municipality</value>
+  </data>
+  <data name="property-listing.basic-information.labels.streetName" xml:space="preserve">
+    <value>Street name</value>
+  </data>
+  <data name="property-listing.basic-information.labels.streetNumber" xml:space="preserve">
+    <value>Street number</value>
+  </data>
+  <data name="property-listing.basic-information.labels.zipCode" xml:space="preserve">
+    <value>Zip code</value>
+  </data>
+  <data name="property-listing.basic-information.placeholders.address" xml:space="preserve">
+    <value>Enter full address</value>
+  </data>
+  <data name="property-listing.basic-information.subheaders.address" xml:space="preserve">
+    <value>Property address</value>
+  </data>
+  <data name="property-listing.basic-information.subheaders.price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="property-listing.basic-information.subheaders.propertyType" xml:space="preserve">
+    <value>Property type</value>
+  </data>
+  <data name="property-listing.buttons.previewListing" xml:space="preserve">
+    <value>Preview listing</value>
+  </data>
+  <data name="property-listing.buttons.submitForReview" xml:space="preserve">
+    <value>Submit for review</value>
+  </data>
+  <data name="property-listing.construction.helperText.addAnyThatApply" xml:space="preserve">
+    <value>Add any that apply</value>
+  </data>
+  <data name="property-listing.construction.helperText.checkBoxes" xml:space="preserve">
+    <value>Check the boxes that apply to your property</value>
+  </data>
+  <data name="property-listing.construction.helperText.constructionYear" xml:space="preserve">
+    <value>Leave blank if you don't know</value>
+  </data>
+  <data name="property-listing.construction.helperText.heatingControlAutonomous" xml:space="preserve">
+    <value>You have complete control over when the heating is on or off</value>
+  </data>
+  <data name="property-listing.construction.helperText.heatingControlCentral" xml:space="preserve">
+    <value>You don't have complete control over when the heating is on or off</value>
+  </data>
+  <data name="property-listing.construction.labels.constructionMaterial" xml:space="preserve">
+    <value>Construction materials</value>
+  </data>
+  <data name="property-listing.construction.labels.constructionYear" xml:space="preserve">
+    <value>Year of construction</value>
+  </data>
+  <data name="property-listing.construction.labels.energyClass" xml:space="preserve">
+    <value>Energy rating</value>
+  </data>
+  <data name="property-listing.construction.labels.floorMaterial" xml:space="preserve">
+    <value>Floor materials</value>
+  </data>
+  <data name="property-listing.construction.labels.heatingControl" xml:space="preserve">
+    <value>Heating control</value>
+  </data>
+  <data name="property-listing.construction.labels.heatingType" xml:space="preserve">
+    <value>Heating type</value>
+  </data>
+  <data name="property-listing.construction.labels.propertyCondition" xml:space="preserve">
+    <value>Property condition</value>
+  </data>
+  <data name="property-listing.construction.subheaders.construction" xml:space="preserve">
+    <value>Construction</value>
+  </data>
+  <data name="property-listing.construction.subheaders.heating" xml:space="preserve">
+    <value>Heating</value>
+  </data>
+  <data name="property-listing.content.helperText.titleEl" xml:space="preserve">
+    <value>π.χ. Ένα φωτεινό, ευάερο και μοντέρνο διαμέρισμα στην καρδιά της Αθήνας</value>
+  </data>
+  <data name="property-listing.content.helperText.titleEn" xml:space="preserve">
+    <value>For example, a bright, airy, and modern apartment in the heart of Athens</value>
+  </data>
+  <data name="property-listing.content.labels.shortDescriptionEl" xml:space="preserve">
+    <value>Περιγραφή</value>
+  </data>
+  <data name="property-listing.content.labels.shortDescriptionEn" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="property-listing.content.labels.titleEl" xml:space="preserve">
+    <value>Τίτλος Ακινήτου</value>
+  </data>
+  <data name="property-listing.content.labels.titleEn" xml:space="preserve">
+    <value>Property title</value>
+  </data>
+  <data name="property-listing.content.subheaders.englishText" xml:space="preserve">
+    <value>English Text</value>
+  </data>
+  <data name="property-listing.content.subheaders.greekText" xml:space="preserve">
+    <value>Greek text</value>
+  </data>
+  <data name="property-listing.features.helperText.selectAllValues" xml:space="preserve">
+    <value>Select all features that apply to the property</value>
+  </data>
+  <data name="property-listing.features.infoText.accessibilityForDisabled" xml:space="preserve">
+    <value>This property can be accessed independently by a person in a wheelchair</value>
+  </data>
+  <data name="property-listing.features.labels.accessibilityForDisabled" xml:space="preserve">
+    <value>Wheelchair accessible</value>
+  </data>
+  <data name="property-listing.features.labels.bathrooms" xml:space="preserve">
+    <value>Bathrooms</value>
+  </data>
+  <data name="property-listing.features.labels.bedrooms" xml:space="preserve">
+    <value>Bedrooms</value>
+  </data>
+  <data name="property-listing.features.labels.parkingSpace" xml:space="preserve">
+    <value>Number of parking spaces</value>
+  </data>
+  <data name="property-listing.features.labels.parkingType" xml:space="preserve">
+    <value>Parking type</value>
+  </data>
+  <data name="property-listing.features.labels.storageArea" xml:space="preserve">
+    <value>Storage Size</value>
+  </data>
+  <data name="property-listing.features.labels.storageAreaAmount" xml:space="preserve">
+    <value>Number of Storage Areas</value>
+  </data>
+  <data name="property-listing.features.subheaders.accessibility" xml:space="preserve">
+    <value>Accessibility</value>
+  </data>
+  <data name="property-listing.features.subheaders.features" xml:space="preserve">
+    <value>Features</value>
+  </data>
+  <data name="property-listing.features.subheaders.parking" xml:space="preserve">
+    <value>Parking</value>
+  </data>
+  <data name="property-listing.features.subheaders.rooms" xml:space="preserve">
+    <value>Rooms</value>
+  </data>
+  <data name="property-listing.features.subheaders.storage" xml:space="preserve">
+    <value>Storage</value>
+  </data>
+  <data name="property-listing.ownership.helperText.checkBoxes" xml:space="preserve">
+    <value>Check the boxes that apply to your property</value>
+  </data>
+  <data name="property-listing.ownership.helperText.ownershipTypeBare" xml:space="preserve">
+    <value>You have a right of virtual ownership</value>
+  </data>
+  <data name="property-listing.ownership.helperText.ownershipTypeFull" xml:space="preserve">
+    <value>You own the plot, the building and everything</value>
+  </data>
+  <data name="property-listing.ownership.helperText.ownershipTypeUsufruct" xml:space="preserve">
+    <value>You have the right to enjoy the use of another's property</value>
+  </data>
+  <data name="property-listing.ownership.helperText.propertyUsageCommercial" xml:space="preserve">
+    <value>You can operate a business from this property</value>
+  </data>
+  <data name="property-listing.ownership.helperText.propertyUsageResidential" xml:space="preserve">
+    <value>You can live here all year round</value>
+  </data>
+  <data name="property-listing.ownership.infoText.kaek" xml:space="preserve">
+    <value>You get this code from the National Land Registry</value>
+  </data>
+  <data name="property-listing.ownership.infoText.ownershipType" xml:space="preserve">
+    <value>What type of ownership do you have</value>
+  </data>
+  <data name="property-listing.ownership.labels.availability" xml:space="preserve">
+    <value>Availability</value>
+  </data>
+  <data name="property-listing.ownership.labels.kaek" xml:space="preserve">
+    <value>KAEK number</value>
+  </data>
+  <data name="property-listing.ownership.labels.ownershipPercentage" xml:space="preserve">
+    <value>Ownership percentage</value>
+  </data>
+  <data name="property-listing.ownership.labels.ownershipType" xml:space="preserve">
+    <value>Ownership type</value>
+  </data>
+  <data name="property-listing.ownership.labels.propertyUsageCategory" xml:space="preserve">
+    <value>Propety usage rights</value>
+  </data>
+  <data name="property-listing.ownership.subheaders.ownership" xml:space="preserve">
+    <value>Ownership</value>
+  </data>
+  <data name="property-listing.ownership.subheaders.propetyUse" xml:space="preserve">
+    <value>Property use</value>
+  </data>
+  <data name="property-listing.photos.buttons.addTags" xml:space="preserve">
+    <value>Add tags</value>
+  </data>
+  <data name="property-listing.photos.buttons.editTags" xml:space="preserve">
+    <value>Edit tags</value>
+  </data>
+  <data name="property-listing.photos.buttons.getProfessionalPhotos" xml:space="preserve">
+    <value>Get professional photos</value>
+  </data>
+  <data name="property-listing.photos.buttons.sendForReview" xml:space="preserve">
+    <value>Send for review</value>
+  </data>
+  <data name="property-listing.photos.buttons.uploadCoverPhoto" xml:space="preserve">
+    <value>Upload a new photo</value>
+  </data>
+  <data name="property-listing.photos.buttons.uploadPhotos" xml:space="preserve">
+    <value>Upload photos</value>
+  </data>
+  <data name="property-listing.photos.headers.coverPhoto" xml:space="preserve">
+    <value>Cover photo</value>
+  </data>
+  <data name="property-listing.photos.headers.otherPhotos" xml:space="preserve">
+    <value>Other photos</value>
+  </data>
+  <data name="property-listing.photos.infoText.chooseFile" xml:space="preserve">
+    <value>Choose a file</value>
+  </data>
+  <data name="property-listing.photos.infoText.coverPhoto" xml:space="preserve">
+    <value>A cover photo is the first impression of your property. Make it great!</value>
+  </data>
+  <data name="property-listing.photos.infoText.dropImage" xml:space="preserve">
+    <value>Drop an image here</value>
+  </data>
+  <data name="property-listing.photos.infoText.or" xml:space="preserve">
+    <value>or</value>
+  </data>
+  <data name="property-listing.photos.infoText.otherPhotos" xml:space="preserve">
+    <value>Drag and drop photos to change the order they will appear in. Order them as if you were showing someone around the property.</value>
+  </data>
+  <data name="property-listing.photos.photo-tag-modal.buttons.cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="property-listing.photos.photo-tag-modal.buttons.deletePhoto" xml:space="preserve">
+    <value>Delete photo</value>
+  </data>
+  <data name="property-listing.photos.photo-tag-modal.buttons.saveTags" xml:space="preserve">
+    <value>Save tags</value>
+  </data>
+  <data name="property-listing.photos.photo-tag-modal.header" xml:space="preserve">
+    <value>Describe this photo with some tags</value>
+  </data>
+  <data name="property-listing.photos.photo-tag-modal.subheader" xml:space="preserve">
+    <value>Describe this photo with some tags</value>
+  </data>
+  <data name="property-listing.surroundings.helperText.checkBoxes" xml:space="preserve">
+    <value>Check the boxes that apply to your property</value>
+  </data>
+  <data name="property-listing.surroundings.helperText.surroundings" xml:space="preserve">
+    <value>Within 15 minutes walking distance</value>
+  </data>
+  <data name="property-listing.surroundings.infoText.floor" xml:space="preserve">
+    <value>The floor, counted from street level, the property can be found</value>
+  </data>
+  <data name="property-listing.surroundings.infoText.surroundings" xml:space="preserve">
+    <value>What can be seen when looking out the windows</value>
+  </data>
+  <data name="property-listing.surroundings.labels.floor" xml:space="preserve">
+    <value>Property floor</value>
+  </data>
+  <data name="property-listing.surroundings.labels.nearbyHighwaysEl" xml:space="preserve">
+    <value>Nearby avenues - Greek</value>
+  </data>
+  <data name="property-listing.surroundings.labels.nearbyHighwaysEn" xml:space="preserve">
+    <value>Nearby avenues - English</value>
+  </data>
+  <data name="property-listing.surroundings.labels.orientation" xml:space="preserve">
+    <value>Orientation</value>
+  </data>
+  <data name="property-listing.surroundings.labels.plotArea" xml:space="preserve">
+    <value>Plot size</value>
+  </data>
+  <data name="property-listing.surroundings.labels.surroundings" xml:space="preserve">
+    <value>Surroundings</value>
+  </data>
+  <data name="property-listing.surroundings.labels.view" xml:space="preserve">
+    <value>Views from the property</value>
+  </data>
+  <data name="property-listing.surroundings.placeholders.nearbyHighways" xml:space="preserve">
+    <value>+ a new avenue</value>
+  </data>
+  <data name="property-listing.surroundings.subheaders.settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="property-listing.surroundings.subheaders.surroundings" xml:space="preserve">
+    <value>Surroundings</value>
+  </data>
+  <data name="property-listing.tabs.basicInformation" xml:space="preserve">
+    <value>Basic information</value>
+  </data>
+  <data name="property-listing.tabs.heatingAndConstruction" xml:space="preserve">
+    <value>Heating and construction</value>
+  </data>
+  <data name="property-listing.tabs.ownership" xml:space="preserve">
+    <value>Ownership</value>
+  </data>
+  <data name="property-listing.tabs.photos" xml:space="preserve">
+    <value>Photos</value>
+  </data>
+  <data name="property-listing.tabs.roomsAndFeatures" xml:space="preserve">
+    <value>Rooms and features</value>
+  </data>
+  <data name="property-listing.tabs.settingAndSurroundings" xml:space="preserve">
+    <value>Setting and surroundings</value>
+  </data>
+  <data name="property-listing.tabs.titleAndDescription" xml:space="preserve">
+    <value>Title and description</value>
+  </data>
+  <data name="property-upload-wizard.headers.stepFive" xml:space="preserve">
+    <value>Enter your payment details</value>
+  </data>
+  <data name="property-upload-wizard.headers.stepFour" xml:space="preserve">
+    <value>What is your asking price range?</value>
+  </data>
+  <data name="property-upload-wizard.headers.stepOne" xml:space="preserve">
+    <value>How would you describe your property?</value>
+  </data>
+  <data name="property-upload-wizard.headers.stepThree" xml:space="preserve">
+    <value>Where is this property located?</value>
+  </data>
+  <data name="property-upload-wizard.headers.stepTwo" xml:space="preserve">
+    <value>How much floor space does your property have?</value>
+  </data>
+  <data name="property-upload-wizard.infoText.stepFive" xml:space="preserve">
+    <value>Get access to a housing advisor who helps you perfect the details. Same low fee for all listings, regardless of closing price</value>
+  </data>
+  <data name="property-upload-wizard.infoText.stepFour" xml:space="preserve">
+    <value>Don’t worry, your advisor will help you perfect the asking price later.</value>
+  </data>
+  <data name="property-upload-wizard.infoText.stepOne" xml:space="preserve">
+    <value>Select the most similar option</value>
+  </data>
+  <data name="property-upload-wizard.infoText.stepThree" xml:space="preserve">
+    <value>Enter the address</value>
+  </data>
+  <data name="property-upload-wizard.infoText.stepTwo" xml:space="preserve">
+    <value>Enter the total square meter size of your property, including any balconies</value>
+  </data>
+  <data name="property-upload-wizard.labels.maxPrice" xml:space="preserve">
+    <value>Target price</value>
+  </data>
+  <data name="property-upload-wizard.labels.minPrice" xml:space="preserve">
+    <value>Minimum acceptable price</value>
+  </data>
+  <data name="property-upload-wizard.labels.propertyArea" xml:space="preserve">
+    <value>Floor space (m²)</value>
+  </data>
+  <data name="property-upload-wizard.welcome-page.buttons.createListing" xml:space="preserve">
+    <value>Create your listing</value>
+  </data>
+  <data name="property-upload-wizard.welcome-page.buttons.exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="property-upload-wizard.welcome-page.headers.main" xml:space="preserve">
+    <value>Creating the perfect listing is easier than you think</value>
+  </data>
+  <data name="property-upload-wizard.welcome-page.headers.stepOne" xml:space="preserve">
+    <value>1. Start with the basics</value>
+  </data>
+  <data name="property-upload-wizard.welcome-page.headers.stepThree" xml:space="preserve">
+    <value>3. Send for review, then publish</value>
+  </data>
+  <data name="property-upload-wizard.welcome-page.headers.stepTwo" xml:space="preserve">
+    <value>2. Add details with expert support from your advisor</value>
+  </data>
+  <data name="property-upload-wizard.welcome-page.infoText.stepOne" xml:space="preserve">
+    <value>Enter your property’s basic information like size and location. Pay the flat €20 fee.</value>
+  </data>
+  <data name="property-upload-wizard.welcome-page.infoText.stepThree" xml:space="preserve">
+    <value>Your advisor will review your finalized listing before publishing it live on the market – then you sit back and watch the offers roll in!</value>
+  </data>
+  <data name="property-upload-wizard.welcome-page.infoText.stepTwo" xml:space="preserve">
+    <value>Add more details and get introduced to your advisor. Your advisor will guide you and enhance your listing to ensure it stands out from the crowd.</value>
+  </data>
+  <data name="save-search-modal.buttons.close" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="save-search-modal.buttons.save" xml:space="preserve">
+    <value>Save search</value>
+  </data>
+  <data name="save-search-modal.headers.input" xml:space="preserve">
+    <value>Name it something memorable!</value>
+  </data>
+  <data name="save-search-modal.headers.main" xml:space="preserve">
+    <value>Name your search</value>
+  </data>
+  <data name="shared.advisor-callback.buttons.callMeBack" xml:space="preserve">
+    <value>Call me back</value>
+  </data>
+  <data name="shared.advisor-callback.text.speakToAdvisor" xml:space="preserve">
+    <value>Speak to your advisor</value>
+  </data>
+  <data name="shared.amenities.accessibilityForDisabled" xml:space="preserve">
+    <value>Accessible to disabled</value>
+  </data>
+  <data name="shared.amenities.hasAlarm" xml:space="preserve">
+    <value>Alarm</value>
+  </data>
+  <data name="shared.amenities.hasBoiler" xml:space="preserve">
+    <value>Boiler</value>
+  </data>
+  <data name="shared.amenities.hasElevator" xml:space="preserve">
+    <value>Elevator</value>
+  </data>
+  <data name="shared.amenities.hasGarden" xml:space="preserve">
+    <value>Garden</value>
+  </data>
+  <data name="shared.amenities.hasNightElectricCurrent" xml:space="preserve">
+    <value>Night electric current</value>
+  </data>
+  <data name="shared.amenities.hasPlayroom" xml:space="preserve">
+    <value>Playroom</value>
+  </data>
+  <data name="shared.amenities.hasPool" xml:space="preserve">
+    <value>Pool</value>
+  </data>
+  <data name="shared.amenities.hasSafetyDoor" xml:space="preserve">
+    <value>Safety door</value>
+  </data>
+  <data name="shared.amenities.hasSolarWaterHeating" xml:space="preserve">
+    <value>Solar water heating</value>
+  </data>
+  <data name="shared.amenities.hasStorageRoom" xml:space="preserve">
+    <value>Storage room</value>
+  </data>
+  <data name="shared.amenities.hasTents" xml:space="preserve">
+    <value>Tentns</value>
+  </data>
+  <data name="shared.amenities.internalStaircase" xml:space="preserve">
+    <value>Internal staircase</value>
+  </data>
+  <data name="shared.amenities.isAiry" xml:space="preserve">
+    <value>Airy</value>
+  </data>
+  <data name="shared.amenities.isBright" xml:space="preserve">
+    <value>Bright</value>
+  </data>
+  <data name="shared.amenities.isFloorApartment" xml:space="preserve">
+    <value>Floor apartment</value>
+  </data>
+  <data name="shared.amenities.isPenthouse" xml:space="preserve">
+    <value>Penthouse</value>
+  </data>
+  <data name="shared.amenities.petsAreAllowed" xml:space="preserve">
+    <value>Pets are allowed</value>
+  </data>
+  <data name="shared.amenities.sieves" xml:space="preserve">
+    <value>Sieves</value>
+  </data>
+  <data name="shared.amenities.suitableForProfessionalUse" xml:space="preserve">
+    <value>Suitable for professional use</value>
+  </data>
+  <data name="shared.amenities.suitableForTouristUse" xml:space="preserve">
+    <value>Suitable for tourist use</value>
+  </data>
+  <data name="shared.autocomplete.google-maps-search-autocomplete-single.text.noResultsFoundFor" xml:space="preserve">
+    <value>No results found for</value>
+  </data>
+  <data name="shared.autocomplete.google-maps-search-autocomplete.text.noResultsFoundFor" xml:space="preserve">
+    <value>No results found for</value>
+  </data>
+  <data name="shared.autocomplete.search-property.text.noResultsFoundFor" xml:space="preserve">
+    <value>No results found for</value>
+  </data>
+  <data name="shared.autocomplete.search-property.text.recentSearches" xml:space="preserve">
+    <value>Recent searches</value>
+  </data>
+  <data name="shared.autocomplete.search-property.text.savedSearches" xml:space="preserve">
+    <value>Saved searches</value>
+  </data>
+  <data name="shared.checkout.checkout-fail.errorCodeInfoText" xml:space="preserve">
+    <value>Error Code: {{errorCode}}</value>
+  </data>
+  <data name="shared.checkout.checkout-fail.header" xml:space="preserve">
+    <value>Sorry, your payment was not successful</value>
+  </data>
+  <data name="shared.checkout.checkout-fail.titles.tryAgain" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="shared.checkout.checkout-fail.tryAgainInfoText" xml:space="preserve">
+    <value>Please check your payment details and try again. If the issue persists, consider using a different payment method or contact our support team for assistance.</value>
+  </data>
+  <data name="shared.checkout.checkout-processing.processingInfoText" xml:space="preserve">
+    <value>Your order is being processed</value>
+  </data>
+  <data name="shared.checkout.checkout-result.header" xml:space="preserve">
+    <value>Thank you! &lt;span class="block"&gt;Your purchase is complete&lt;/span&gt;</value>
+  </data>
+  <data name="shared.checkout.checkout-result.infoText" xml:space="preserve">
+    <value>Track your loan services requests in &lt;a href="javascript:void(0);" class="underline font-semibold text-primary-900"&gt;My requests&lt;/a&gt;. We have also sent you an email confirmation.</value>
+  </data>
+  <data name="shared.checkout.checkout-result.labels.orderId" xml:space="preserve">
+    <value>Your order ID</value>
+  </data>
+  <data name="shared.checkout.checkout-result.titles.myRequests" xml:space="preserve">
+    <value>My requests</value>
+  </data>
+  <data name="shared.checkout.exit-modal.buttons.cancel" xml:space="preserve">
+    <value>Stay here</value>
+  </data>
+  <data name="shared.checkout.exit-modal.buttons.exit" xml:space="preserve">
+    <value>Exit and lose progress</value>
+  </data>
+  <data name="shared.checkout.exit-modal.header" xml:space="preserve">
+    <value>Your progress will be lost</value>
+  </data>
+  <data name="shared.checkout.exit-modal.subheader" xml:space="preserve">
+    <value>Are you sure you want to exit?</value>
+  </data>
+  <data name="shared.checkout.headers.stepFour" xml:space="preserve">
+    <value>Thank You! &lt;span class="block"&gt;Your purchase is complete&lt;/span&gt;</value>
+  </data>
+  <data name="shared.checkout.headers.stepOne" xml:space="preserve">
+    <value>Personal and contact information</value>
+  </data>
+  <data name="shared.checkout.headers.stepThree" xml:space="preserve">
+    <value>Review your details and confirm your order</value>
+  </data>
+  <data name="shared.checkout.headers.stepTwo" xml:space="preserve">
+    <value>Select your preferred payment option</value>
+  </data>
+  <data name="shared.checkout.infoText.stepFour" xml:space="preserve">
+    <value>Track your loan services requests in &lt;a href="javascript:void(0);" class"underline font-semibold text-primary-900"&gt;My requests&lt;/a&gt;. We have also sent you an email confirmation.</value>
+  </data>
+  <data name="shared.checkout.infoText.stepOne" xml:space="preserve">
+    <value>Select whether you would like to pay using a receipt or an invoice to proceed with your transaction.</value>
+  </data>
+  <data name="shared.checkout.infoText.stepThree" xml:space="preserve">
+    <value>Carefully review all your provided details and payment information before finalizing your purchase.</value>
+  </data>
+  <data name="shared.checkout.infoText.stepTwo" xml:space="preserve">
+    <value>Choose your preferred method of payment to continue with your purchase.</value>
+  </data>
+  <data name="shared.checkout.labels.orderId" xml:space="preserve">
+    <value>Your order ID</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.city" xml:space="preserve">
+    <value>City</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.companyName" xml:space="preserve">
+    <value>Company Name</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.fullName" xml:space="preserve">
+    <value>Full Name</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.landLine" xml:space="preserve">
+    <value>Land line</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.mobilePhone" xml:space="preserve">
+    <value>Mobile Phone</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.profession" xml:space="preserve">
+    <value>Profession</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.taxNumber" xml:space="preserve">
+    <value>VAT number</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.taxOffice" xml:space="preserve">
+    <value>D.O.Y.</value>
+  </data>
+  <data name="shared.checkout.step-buyer-info.labels.zipCode" xml:space="preserve">
+    <value>Zip code</value>
+  </data>
+  <data name="shared.checkout.step-payment-details.labels.cardholderName" xml:space="preserve">
+    <value>Cardholder name</value>
+  </data>
+  <data name="shared.checkout.step-payment-details.labels.cardNumber" xml:space="preserve">
+    <value>Card number</value>
+  </data>
+  <data name="shared.checkout.step-payment-details.labels.expirationDate" xml:space="preserve">
+    <value>Expiration date</value>
+  </data>
+  <data name="shared.checkout.step-payment-details.labels.securityCode" xml:space="preserve">
+    <value>CVV</value>
+  </data>
+  <data name="shared.checkout.step-review.headers.billingInformation" xml:space="preserve">
+    <value>Billing Information</value>
+  </data>
+  <data name="shared.checkout.step-review.headers.orderSummary" xml:space="preserve">
+    <value>Order Summary</value>
+  </data>
+  <data name="shared.checkout.step-review.headers.paymentDetails" xml:space="preserve">
+    <value>Payment Details</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.address" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.cardholderName" xml:space="preserve">
+    <value>Cardholder name</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.cardNumber" xml:space="preserve">
+    <value>Card number</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.city" xml:space="preserve">
+    <value>City</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.expirationDate" xml:space="preserve">
+    <value>Expiration date</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.fullName" xml:space="preserve">
+    <value>Full name</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.landLine" xml:space="preserve">
+    <value>Land line</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.mobilePhone" xml:space="preserve">
+    <value>Mobile phone</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.totalPrice" xml:space="preserve">
+    <value>Total Price</value>
+  </data>
+  <data name="shared.checkout.step-review.labels.zipCode" xml:space="preserve">
+    <value>Zip code</value>
+  </data>
+  <data name="shared.checkout.step-review.subheaders.creditDebitCard" xml:space="preserve">
+    <value>Credit Card/Debit Card</value>
+  </data>
+  <data name="shared.checkout.step-review.subheaders.receipt" xml:space="preserve">
+    <value>Receipt</value>
+  </data>
+  <data name="shared.checkout.titles.myRequests" xml:space="preserve">
+    <value>My requests</value>
+  </data>
+  <data name="shared.checkout.titles.orderConfirmation" xml:space="preserve">
+    <value>Order Confirmation</value>
+  </data>
+  <data name="shared.enum.availability.Rented" xml:space="preserve">
+    <value>Rented</value>
+  </data>
+  <data name="shared.enum.availability.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="shared.enum.availability.Vacant" xml:space="preserve">
+    <value>Vacant</value>
+  </data>
+  <data name="shared.enum.constructionMaterial.Brick" xml:space="preserve">
+    <value>Brick and mortar</value>
+  </data>
+  <data name="shared.enum.constructionMaterial.Concrete" xml:space="preserve">
+    <value>Concrete</value>
+  </data>
+  <data name="shared.enum.constructionMaterial.Prefabricate" xml:space="preserve">
+    <value>Prefabricate</value>
+  </data>
+  <data name="shared.enum.constructionMaterial.Stone" xml:space="preserve">
+    <value>Stone</value>
+  </data>
+  <data name="shared.enum.constructionMaterial.Wood" xml:space="preserve">
+    <value>Wood</value>
+  </data>
+  <data name="shared.enum.documentCategory.BrokerageAgreement" xml:space="preserve">
+    <value>Brokerage Agreement</value>
+  </data>
+  <data name="shared.enum.documentCategory.CadastralMap" xml:space="preserve">
+    <value>Cadastral Map</value>
+  </data>
+  <data name="shared.enum.documentCategory.ProofOfPurchase" xml:space="preserve">
+    <value>Proof of purchase</value>
+  </data>
+  <data name="shared.enum.documentCategory.TopographicChart" xml:space="preserve">
+    <value>Topographic Chart</value>
+  </data>
+  <data name="shared.enum.energyClass.A" xml:space="preserve">
+    <value>A</value>
+  </data>
+  <data name="shared.enum.energyClass.APlus" xml:space="preserve">
+    <value>A+</value>
+  </data>
+  <data name="shared.enum.energyClass.B" xml:space="preserve">
+    <value>B</value>
+  </data>
+  <data name="shared.enum.energyClass.BPlus" xml:space="preserve">
+    <value>B+</value>
+  </data>
+  <data name="shared.enum.energyClass.C" xml:space="preserve">
+    <value>C</value>
+  </data>
+  <data name="shared.enum.energyClass.D" xml:space="preserve">
+    <value>D</value>
+  </data>
+  <data name="shared.enum.energyClass.E" xml:space="preserve">
+    <value>E</value>
+  </data>
+  <data name="shared.enum.energyClass.F" xml:space="preserve">
+    <value>F</value>
+  </data>
+  <data name="shared.enum.energyClass.G" xml:space="preserve">
+    <value>G</value>
+  </data>
+  <data name="shared.enum.floorMaterial.Carpet" xml:space="preserve">
+    <value>Carpet</value>
+  </data>
+  <data name="shared.enum.floorMaterial.Luminate" xml:space="preserve">
+    <value>Luminate</value>
+  </data>
+  <data name="shared.enum.floorMaterial.Marble" xml:space="preserve">
+    <value>Marble</value>
+  </data>
+  <data name="shared.enum.floorMaterial.Tile" xml:space="preserve">
+    <value>Tile</value>
+  </data>
+  <data name="shared.enum.floorMaterial.Wooden" xml:space="preserve">
+    <value>Wooden</value>
+  </data>
+  <data name="shared.enum.heatingControl.Autonomous" xml:space="preserve">
+    <value>Autonomous</value>
+  </data>
+  <data name="shared.enum.heatingControl.Central" xml:space="preserve">
+    <value>Cental</value>
+  </data>
+  <data name="shared.enum.heatingType.ElectricAirConditioning" xml:space="preserve">
+    <value>Electric Air Conditioning</value>
+  </data>
+  <data name="shared.enum.heatingType.ElectricHeatPump" xml:space="preserve">
+    <value>Electric Heat Pump</value>
+  </data>
+  <data name="shared.enum.heatingType.ElectricHeatPumpWaterHeater" xml:space="preserve">
+    <value>Electric Heat Pump Water Heater</value>
+  </data>
+  <data name="shared.enum.heatingType.ElectricRadiators" xml:space="preserve">
+    <value>Electric Radiators</value>
+  </data>
+  <data name="shared.enum.heatingType.EnergyEfficientFireplace" xml:space="preserve">
+    <value>Energy Efficient Fireplace</value>
+  </data>
+  <data name="shared.enum.heatingType.FireplaceSimple" xml:space="preserve">
+    <value>Fireplace Simple</value>
+  </data>
+  <data name="shared.enum.heatingType.Geothermal" xml:space="preserve">
+    <value>Geothermal</value>
+  </data>
+  <data name="shared.enum.heatingType.HeatingOil" xml:space="preserve">
+    <value>Heating Oil</value>
+  </data>
+  <data name="shared.enum.heatingType.HeatPump" xml:space="preserve">
+    <value>Heat Pump</value>
+  </data>
+  <data name="shared.enum.heatingType.NaturalGas" xml:space="preserve">
+    <value>Natural Gas</value>
+  </data>
+  <data name="shared.enum.heatingType.Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="shared.enum.heatingType.OtherHeating" xml:space="preserve">
+    <value>Other Heating</value>
+  </data>
+  <data name="shared.enum.heatingType.PelletStove" xml:space="preserve">
+    <value>Pellet Stove</value>
+  </data>
+  <data name="shared.enum.mediaTag.Balcony" xml:space="preserve">
+    <value>Balcony</value>
+  </data>
+  <data name="shared.enum.mediaTag.Bathroom" xml:space="preserve">
+    <value>Bathroom</value>
+  </data>
+  <data name="shared.enum.mediaTag.Bedroom" xml:space="preserve">
+    <value>Bedroom</value>
+  </data>
+  <data name="shared.enum.mediaTag.Garage" xml:space="preserve">
+    <value>Garage</value>
+  </data>
+  <data name="shared.enum.mediaTag.GuestRoom" xml:space="preserve">
+    <value>Guest Room</value>
+  </data>
+  <data name="shared.enum.mediaTag.Hallway" xml:space="preserve">
+    <value>Hallway</value>
+  </data>
+  <data name="shared.enum.mediaTag.HomeGym" xml:space="preserve">
+    <value>Home Gym</value>
+  </data>
+  <data name="shared.enum.mediaTag.HomeOffice" xml:space="preserve">
+    <value>Home Office</value>
+  </data>
+  <data name="shared.enum.mediaTag.Kitchen" xml:space="preserve">
+    <value>Kitchen</value>
+  </data>
+  <data name="shared.enum.mediaTag.LaundryRoom" xml:space="preserve">
+    <value>Laundry Room</value>
+  </data>
+  <data name="shared.enum.mediaTag.LivingRoom" xml:space="preserve">
+    <value>Living Room</value>
+  </data>
+  <data name="shared.enum.mediaTag.MasterBedroom" xml:space="preserve">
+    <value>Master Bedroom</value>
+  </data>
+  <data name="shared.enum.mediaTag.StorageRoom" xml:space="preserve">
+    <value>Storage Room</value>
+  </data>
+  <data name="shared.enum.mediaTag.Wc" xml:space="preserve">
+    <value>Wc</value>
+  </data>
+  <data name="shared.enum.orientation.East" xml:space="preserve">
+    <value>East</value>
+  </data>
+  <data name="shared.enum.orientation.North" xml:space="preserve">
+    <value>North</value>
+  </data>
+  <data name="shared.enum.orientation.NorthEast" xml:space="preserve">
+    <value>North-East</value>
+  </data>
+  <data name="shared.enum.orientation.NorthWest" xml:space="preserve">
+    <value>North-West</value>
+  </data>
+  <data name="shared.enum.orientation.South" xml:space="preserve">
+    <value>South</value>
+  </data>
+  <data name="shared.enum.orientation.SouthEast" xml:space="preserve">
+    <value>South-East</value>
+  </data>
+  <data name="shared.enum.orientation.SouthWest" xml:space="preserve">
+    <value>South-West</value>
+  </data>
+  <data name="shared.enum.orientation.West" xml:space="preserve">
+    <value>West</value>
+  </data>
+  <data name="shared.enum.ownershipType.Bare" xml:space="preserve">
+    <value>Bare</value>
+  </data>
+  <data name="shared.enum.ownershipType.Full" xml:space="preserve">
+    <value>Full</value>
+  </data>
+  <data name="shared.enum.ownershipType.Usufruct" xml:space="preserve">
+    <value>Usufruct</value>
+  </data>
+  <data name="shared.enum.parkingType.Carport" xml:space="preserve">
+    <value>Carport</value>
+  </data>
+  <data name="shared.enum.parkingType.Closed" xml:space="preserve">
+    <value>Closed</value>
+  </data>
+  <data name="shared.enum.parkingType.None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="shared.enum.parkingType.Underground" xml:space="preserve">
+    <value>Underground</value>
+  </data>
+  <data name="shared.enum.proofOfPayment.Invoice" xml:space="preserve">
+    <value>Invoice</value>
+  </data>
+  <data name="shared.enum.proofOfPayment.Receipt" xml:space="preserve">
+    <value>Receipt</value>
+  </data>
+  <data name="shared.enum.proofOfPayment.Unspecified" xml:space="preserve">
+    <value>Unspecified</value>
+  </data>
+  <data name="shared.enum.propertyCondition.Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="shared.enum.propertyCondition.Excellent" xml:space="preserve">
+    <value>Excellent</value>
+  </data>
+  <data name="shared.enum.propertyCondition.Good" xml:space="preserve">
+    <value>Good</value>
+  </data>
+  <data name="shared.enum.propertyCondition.Incomplete" xml:space="preserve">
+    <value>Incomplete</value>
+  </data>
+  <data name="shared.enum.propertyCondition.NeedsRenovation" xml:space="preserve">
+    <value>Needs Renovation</value>
+  </data>
+  <data name="shared.enum.propertyCondition.NewlyBuilt" xml:space="preserve">
+    <value>Newly Built</value>
+  </data>
+  <data name="shared.enum.propertyCondition.Renovated" xml:space="preserve">
+    <value>Renovated</value>
+  </data>
+  <data name="shared.enum.propertyCondition.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="shared.enum.propertyType.Air" xml:space="preserve">
+    <value>Air</value>
+  </data>
+  <data name="shared.enum.propertyType.Apartment" xml:space="preserve">
+    <value>Aparment</value>
+  </data>
+  <data name="shared.enum.propertyType.ApartmentComplex" xml:space="preserve">
+    <value>Apartment Complex</value>
+  </data>
+  <data name="shared.enum.propertyType.Bungallow" xml:space="preserve">
+    <value>Bungallow</value>
+  </data>
+  <data name="shared.enum.propertyType.Business" xml:space="preserve">
+    <value>Business</value>
+  </data>
+  <data name="shared.enum.propertyType.CommercialBuilding" xml:space="preserve">
+    <value>Commercial Building</value>
+  </data>
+  <data name="shared.enum.propertyType.CommercialOfficeBuilding" xml:space="preserve">
+    <value>Commercial Office Building</value>
+  </data>
+  <data name="shared.enum.propertyType.Detachable" xml:space="preserve">
+    <value>Detachable</value>
+  </data>
+  <data name="shared.enum.propertyType.DetachedHouse" xml:space="preserve">
+    <value>Detached House</value>
+  </data>
+  <data name="shared.enum.propertyType.Duplex" xml:space="preserve">
+    <value>Duplex</value>
+  </data>
+  <data name="shared.enum.propertyType.FarmHouse" xml:space="preserve">
+    <value>Farm House</value>
+  </data>
+  <data name="shared.enum.propertyType.Hall" xml:space="preserve">
+    <value>Hall</value>
+  </data>
+  <data name="shared.enum.propertyType.Hotel" xml:space="preserve">
+    <value>Hotel</value>
+  </data>
+  <data name="shared.enum.propertyType.IndustrialSpace" xml:space="preserve">
+    <value>Industrial Space</value>
+  </data>
+  <data name="shared.enum.propertyType.Island" xml:space="preserve">
+    <value>Island</value>
+  </data>
+  <data name="shared.enum.propertyType.Land" xml:space="preserve">
+    <value>Land</value>
+  </data>
+  <data name="shared.enum.propertyType.LandPlot" xml:space="preserve">
+    <value>Land Plot</value>
+  </data>
+  <data name="shared.enum.propertyType.LightIndustrialSpace" xml:space="preserve">
+    <value>Light Industrial Space</value>
+  </data>
+  <data name="shared.enum.propertyType.Loft" xml:space="preserve">
+    <value>Loft</value>
+  </data>
+  <data name="shared.enum.propertyType.Maisonette" xml:space="preserve">
+    <value>Maisonette</value>
+  </data>
+  <data name="shared.enum.propertyType.Office" xml:space="preserve">
+    <value>Office</value>
+  </data>
+  <data name="shared.enum.propertyType.Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="shared.enum.propertyType.ParcelOrLandField" xml:space="preserve">
+    <value>Parcel Or Land Field</value>
+  </data>
+  <data name="shared.enum.propertyType.Parking" xml:space="preserve">
+    <value>Parking</value>
+  </data>
+  <data name="shared.enum.propertyType.Prefabricated" xml:space="preserve">
+    <value>Prefabricated</value>
+  </data>
+  <data name="shared.enum.propertyType.ResidenceWithCommercialUse" xml:space="preserve">
+    <value>Residence With Commercial Use</value>
+  </data>
+  <data name="shared.enum.propertyType.ResidentialBuilding" xml:space="preserve">
+    <value>Residential Building</value>
+  </data>
+  <data name="shared.enum.propertyType.SemiDetached" xml:space="preserve">
+    <value>Semi Detached</value>
+  </data>
+  <data name="shared.enum.propertyType.Shop" xml:space="preserve">
+    <value>Shop</value>
+  </data>
+  <data name="shared.enum.propertyType.Showroom" xml:space="preserve">
+    <value>Showroom</value>
+  </data>
+  <data name="shared.enum.propertyType.Space" xml:space="preserve">
+    <value>Space</value>
+  </data>
+  <data name="shared.enum.propertyType.SpecialPurpose" xml:space="preserve">
+    <value>Special Purpose</value>
+  </data>
+  <data name="shared.enum.propertyType.Storage" xml:space="preserve">
+    <value>Storage</value>
+  </data>
+  <data name="shared.enum.propertyType.Studio" xml:space="preserve">
+    <value>Studio</value>
+  </data>
+  <data name="shared.enum.propertyType.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="shared.enum.propertyType.Villa" xml:space="preserve">
+    <value>Villa</value>
+  </data>
+  <data name="shared.enum.propertyType.Warehouse" xml:space="preserve">
+    <value>Warehouse</value>
+  </data>
+  <data name="shared.enum.propertyUsageCategory.Commercial" xml:space="preserve">
+    <value>Commercial</value>
+  </data>
+  <data name="shared.enum.propertyUsageCategory.Industrial" xml:space="preserve">
+    <value>Industrial</value>
+  </data>
+  <data name="shared.enum.propertyUsageCategory.Land" xml:space="preserve">
+    <value>Land</value>
+  </data>
+  <data name="shared.enum.propertyUsageCategory.Leisure" xml:space="preserve">
+    <value>Leisure</value>
+  </data>
+  <data name="shared.enum.propertyUsageCategory.Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="shared.enum.propertyUsageCategory.Residential" xml:space="preserve">
+    <value>Residential</value>
+  </data>
+  <data name="shared.enum.propertyUsageCategory.Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="shared.enum.surrounding.Beach" xml:space="preserve">
+    <value>Beach</value>
+  </data>
+  <data name="shared.enum.surrounding.BusStop" xml:space="preserve">
+    <value>Bus Stop</value>
+  </data>
+  <data name="shared.enum.surrounding.MetroStop" xml:space="preserve">
+    <value>Metro Stop</value>
+  </data>
+  <data name="shared.enum.surrounding.Parks" xml:space="preserve">
+    <value>Parks</value>
+  </data>
+  <data name="shared.enum.surrounding.TrainStation" xml:space="preserve">
+    <value>Train Station</value>
+  </data>
+  <data name="shared.enum.view.City" xml:space="preserve">
+    <value>City</value>
+  </data>
+  <data name="shared.enum.view.CityStreet" xml:space="preserve">
+    <value>CityStreet</value>
+  </data>
+  <data name="shared.enum.view.Footpath" xml:space="preserve">
+    <value>Footpath</value>
+  </data>
+  <data name="shared.enum.view.Mountain" xml:space="preserve">
+    <value>Mountain</value>
+  </data>
+  <data name="shared.enum.view.Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="shared.enum.view.Park" xml:space="preserve">
+    <value>Park</value>
+  </data>
+  <data name="shared.enum.view.Square" xml:space="preserve">
+    <value>Square</value>
+  </data>
+  <data name="shared.enum.view.UncoveredArea" xml:space="preserve">
+    <value>UncoveredArea</value>
+  </data>
+  <data name="shared.enum.wayOfPayment.BankDeposit" xml:space="preserve">
+    <value>Bank Deposit</value>
+  </data>
+  <data name="shared.enum.wayOfPayment.CreditCard" xml:space="preserve">
+    <value>Credit/Debit Card</value>
+  </data>
+  <data name="shared.enum.wayOfPayment.Unspecified" xml:space="preserve">
+    <value>Unspecified</value>
+  </data>
+  <data name="shared.footer.anchors.faq" xml:space="preserve">
+    <value>FAQ</value>
+  </data>
+  <data name="shared.footer.headers.customerService" xml:space="preserve">
+    <value>Customer Service</value>
+  </data>
+  <data name="shared.footer.headers.discoverNeon" xml:space="preserve">
+    <value>Discover Neon</value>
+  </data>
+  <data name="shared.footer.headers.helpAndSupport" xml:space="preserve">
+    <value>Help &amp; Support</value>
+  </data>
+  <data name="shared.footer.headers.services" xml:space="preserve">
+    <value>Services</value>
+  </data>
+  <data name="shared.footer.text.lovinglyCreatedBy" xml:space="preserve">
+    <value>Lovingly created by</value>
+  </data>
+  <data name="shared.navigation-buttons.buttons.exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="shared.navigation-buttons.buttons.next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="shared.navigation-buttons.buttons.previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+  <data name="shared.navigation-buttons.buttons.skip" xml:space="preserve">
+    <value>Skip step</value>
+  </data>
+  <data name="shared.navigation.anchors.financing" xml:space="preserve">
+    <value>Financing</value>
+  </data>
+  <data name="shared.navigation.anchors.logIn" xml:space="preserve">
+    <value>Log in</value>
+  </data>
+  <data name="shared.navigation.anchors.search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="shared.navigation.anchors.sellWithUs" xml:space="preserve">
+    <value>Sell with us</value>
+  </data>
+  <data name="shared.navigation.anchors.services" xml:space="preserve">
+    <value>Services</value>
+  </data>
+  <data name="shared.navigation.anchors.signUp" xml:space="preserve">
+    <value>Sign up</value>
+  </data>
+  <data name="shared.navigation.buttons.logout" xml:space="preserve">
+    <value>Log out</value>
+  </data>
+  <data name="shared.password-indicator.indications.fair" xml:space="preserve">
+    <value>Fair</value>
+  </data>
+  <data name="shared.password-indicator.indications.strong" xml:space="preserve">
+    <value>Strong</value>
+  </data>
+  <data name="shared.password-indicator.indications.weak" xml:space="preserve">
+    <value>Weak</value>
+  </data>
+  <data name="shared.property-card-item.auctionRound.first" xml:space="preserve">
+    <value>1st</value>
+  </data>
+  <data name="shared.property-card-item.auctionRound.fourth" xml:space="preserve">
+    <value>4th</value>
+  </data>
+  <data name="shared.property-card-item.auctionRound.second" xml:space="preserve">
+    <value>2nd</value>
+  </data>
+  <data name="shared.property-card-item.auctionRound.third" xml:space="preserve">
+    <value>3rd</value>
+  </data>
+  <data name="shared.property-card-item.label.bathroom" xml:space="preserve">
+    <value>bathroom</value>
+  </data>
+  <data name="shared.property-card-item.label.bathrooms" xml:space="preserve">
+    <value>bathrooms</value>
+  </data>
+  <data name="shared.property-card-item.label.bedrooms" xml:space="preserve">
+    <value>bedrooms</value>
+  </data>
+  <data name="shared.property-card-item.label.round" xml:space="preserve">
+    <value>round</value>
+  </data>
+  <data name="shared.property-card-item.tags.auction" xml:space="preserve">
+    <value>AUCTION</value>
+  </data>
+  <data name="shared.property-card-item.tags.isHot" xml:space="preserve">
+    <value>HOT</value>
+  </data>
+  <data name="shared.property-card-item.tags.preApproved" xml:space="preserve">
+    <value>PRE-APPROVED</value>
+  </data>
+  <data name="shared.property-card-item.tags.sponsored" xml:space="preserve">
+    <value>SPONSORED</value>
+  </data>
+  <data name="shared.property-swiper.header" xml:space="preserve">
+    <value>Similar properties nearby</value>
+  </data>
+  <data name="shared.request-callback-modal.buttons.sendRequest" xml:space="preserve">
+    <value>Send request</value>
+  </data>
+  <data name="shared.request-callback-modal.headers.callMeBackAbout" xml:space="preserve">
+    <value>Call me back about</value>
+  </data>
+  <data name="shared.request-callback-modal.headers.messageAdvisor" xml:space="preserve">
+    <value>Message to the advisor (optional)</value>
+  </data>
+  <data name="shared.request-callback-modal.headers.propertyInfo" xml:space="preserve">
+    <value>{{propertyArea}} m2 {{propertyType}} in {{prefecture}}</value>
+  </data>
+  <data name="shared.request-callback-modal.placeholders.message" xml:space="preserve">
+    <value>Type here</value>
+  </data>
+  <data name="shared.request-callback-modal.text.in" xml:space="preserve">
+    <value>in</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-select-date.buttons.next" xml:space="preserve">
+    <value>Send request</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-select-date.headers.dayAndTimeslot" xml:space="preserve">
+    <value>Wish for a day and timeslot that suits you. Your advisor will get back to you to discuss options and book exact day and time.</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-select-date.headers.propertyInfo" xml:space="preserve">
+    <value>{{propertyArea}} m2 {{propertyType}} in {{prefecture}}</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-select-date.headers.requestWalkthroughFor" xml:space="preserve">
+    <value>Request a walkthrough for</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-select-date.headers.selectTimeslot" xml:space="preserve">
+    <value>Select timeslot</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-select-date.labels.from" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-select-date.labels.to" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-success.buttons.great" xml:space="preserve">
+    <value>Great!</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-success.header" xml:space="preserve">
+    <value>Congratulations!</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-success.infoText.walkthroughConfirmed" xml:space="preserve">
+    <value>Your walkthrough is confirmed. We’re also emailed you the address and broker’s details.</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-success.infoText.walkthroughDetails" xml:space="preserve">
+    <value>You will meet {{brokerName}} at {{streetNumber}} {{streetName}} street in {{prefecture}} on {{formatedDate}}</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-verify-phone.buttons.resetForm" xml:space="preserve">
+    <value>Click here if you entered an incorrect number</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-verify-phone.buttons.sendOtp" xml:space="preserve">
+    <value>Click here to re-send SMS</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-verify-phone.buttons.verifyOtp" xml:space="preserve">
+    <value>Submit</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-verify-phone.headers.codeNotReceived" xml:space="preserve">
+    <value>Didn’t receive the code?</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-verify-phone.headers.main" xml:space="preserve">
+    <value>Check your texts!</value>
+  </data>
+  <data name="shared.request-walkthrough-modal.request-walkthrough-verify-phone.infoText.otp" xml:space="preserve">
+    <value>We have sent you a 6-digit verification code to +30 XXX XX49. Code is valid for 1 minute.</value>
+  </data>
+  <data name="shared.requests-unauthorized.anchors.login" xml:space="preserve">
+    <value>Log in here</value>
+  </data>
+  <data name="shared.requests-unauthorized.buttons.signUp" xml:space="preserve">
+    <value>Create your free Neon account</value>
+  </data>
+  <data name="shared.requests-unauthorized.headers.haveAccount" xml:space="preserve">
+    <value>Have a Neon account?</value>
+  </data>
+  <data name="shared.requests-unauthorized.headers.signUp" xml:space="preserve">
+    <value>Sign up to get your own &lt;span class="text-primary"&gt;real estate advisor&lt;/span&gt; and place your offer</value>
+  </data>
+  <data name="shared.requests-unauthorized.infoText.advisors" xml:space="preserve">
+    <value>Our skilled real estate advisors are ready to answer all questions regarding this property</value>
+  </data>
+  <data name="shared.requests-unauthorized.infoText.continuedSupport" xml:space="preserve">
+    <value>Continued support beyond purchase&lt;/span&gt; including resources for property management and renovation services.</value>
+  </data>
+  <data name="shared.requests-unauthorized.infoText.personalGuidance" xml:space="preserve">
+    <value>&lt;span class="font-semibold"&gt;Personal guidance on financing&lt;/span&gt; options tailored to your needs.</value>
+  </data>
+  <data name="shared.requests-unauthorized.infoText.quickRegistration" xml:space="preserve">
+    <value>Takes less than 5 minutes to register</value>
+  </data>
+  <data name="shared.requests-unauthorized.infoText.tailoredRecommendations" xml:space="preserve">
+    <value>&lt;span class="font-semibold"&gt;Tailored property recommendations&lt;/span&gt; based on your preferences, budget, and needs.</value>
+  </data>
+</root>

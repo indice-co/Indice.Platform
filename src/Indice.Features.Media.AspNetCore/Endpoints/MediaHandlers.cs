@@ -53,9 +53,12 @@ internal static class MediaHandlers
         return TypedResults.Ok(file);
     }
 
-    internal static async Task<CreatedAtRoute<UploadFileResponse>> UploadFile(UploadFileRequest request, MediaManager mediaManager) {
-        var fileId = await mediaManager.UploadFile(request.ToUploadFileCommand());
-        return TypedResults.CreatedAtRoute(new UploadFileResponse(fileId), nameof(GetFileDetails), new { fileId });
+    internal static async Task<Results<Ok<UploadFileResponse>, CreatedAtRoute<UploadFileResponse>>> UploadFile(UploadFileRequest request, MediaManager mediaManager) {
+        var fileIds = await mediaManager.UploadFiles(request.ToUploadFileCommand());
+        if (fileIds.Count > 1) {
+            TypedResults.Ok(new UploadFileResponse(fileIds.ToArray()));
+        }
+        return TypedResults.CreatedAtRoute(new UploadFileResponse(fileIds.ToArray()), nameof(GetFileDetails), new { fileId = fileIds[0] });
     }
 
     internal static async Task<NoContent> UpdateFileMetadata(Guid fileId, UpdateFileMetadataRequest request, MediaManager mediaManager) {

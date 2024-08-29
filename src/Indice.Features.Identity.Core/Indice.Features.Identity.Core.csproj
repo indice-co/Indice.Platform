@@ -3,6 +3,7 @@
     <PackageReleaseNotes></PackageReleaseNotes>
     <PackageTags>AspNetCore;IdentityServer;</PackageTags>
     <VersionPrefix>$(VersionPrefixIdentity)</VersionPrefix>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

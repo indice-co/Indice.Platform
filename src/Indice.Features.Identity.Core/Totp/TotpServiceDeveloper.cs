@@ -22,16 +22,16 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
 
     /// <inheritdoc />
     public override async Task<TotpResult> SendAsync(
-        TUser user,
+        TUser? user,
         string message,
         TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
-        string subject = null,
-        string purpose = null,
-        string pushNotificationClassification = null,
-        string pushNotificationData = null,
-        string tokenProvider = null,
-        string authenticationMethod = null,
-        string emailTemplate = null
+        string? subject = null,
+        string? purpose = null,
+        string? pushNotificationClassification = null,
+        string? pushNotificationData = null,
+        string? tokenProvider = null,
+        string? authenticationMethod = null,
+        string? emailTemplate = null
     ) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
@@ -46,10 +46,10 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
 
     /// <inheritdoc />
     public override async Task<TotpResult> VerifyAsync(
-        TUser user,
+        TUser? user,
         string code,
-        string purpose = null,
-        string tokenProvider = null
+        string? purpose = null,
+        string? tokenProvider = null
     ) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
@@ -63,7 +63,7 @@ public sealed class TotpServiceDeveloper<TUser> : TotpServiceUser<TUser> where T
     }
 
     /// <inheritdoc />
-    public override async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(TUser user) {
+    public override async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(TUser? user) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
         }

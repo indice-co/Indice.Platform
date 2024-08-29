@@ -34,7 +34,8 @@ export class TemplateEditStore {
     public updateTemplate(templateId: string, template: Template): Observable<void> {
         const body = new UpdateTemplateRequest({
             name: template.name,
-            content: template.content
+            content: template.content,
+            data: template.data
         });
         return this._api
             .updateTemplate(templateId, body)

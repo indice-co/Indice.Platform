@@ -32,7 +32,7 @@ public class DelegationGrantValidator : IExtensionGrantValidator
             context.Result = new GrantValidationResult(TokenRequestErrors.InvalidGrant);
             return;
         }
-        var subject = result.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject).Value;
+        var subject = result.Claims.FirstOrDefault(x => x.Type == JwtClaimTypes.Subject)?.Value;
         context.Result = new GrantValidationResult(subject, GrantType);
     }
 }

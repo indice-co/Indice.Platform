@@ -4,7 +4,9 @@
 public class Template : TemplateBase
 {
     /// <summary>The content of the template.</summary>
-    public MessageContentDictionary Content { get; set; } = [];
+    public MessageContentDictionary Content { get; set; } = new();
+    /// <summary>Sample data for the template</summary>
+    public dynamic Data { get; set; }
 }
 
 /// <summary>Models a template when retrieved on a list.</summary>

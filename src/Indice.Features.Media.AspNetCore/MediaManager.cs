@@ -12,6 +12,7 @@ using Indice.Features.Media.AspNetCore.Services;
 using Microsoft.Extensions.Configuration;
 using SixLabors.ImageSharp;
 using Indice.Features.Media.AspNetCore.Data.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Indice.Features.Media.AspNetCore;
 /// <summary>A manager class that helps work with the Media Library API infrastructure.</summary>
@@ -190,6 +191,28 @@ public class MediaManager(
         await _cache.RemoveAsync(cacheKey);
         await _cache.RemoveAsync(STRUCT_CACHE_KEY);
         return fileId;
+    }
+
+    /// <summary>Uploads a file in the system.</summary>
+    /// <param name="commands">The command containing all the required data to upload a file.</param>
+    public async Task<List<Guid>> UploadFiles(List<UploadFileCommand> commands) {
+        var dbFiles = commands.Select(Mapper.ToDbFile).ToList();
+        var fileIds = await _fileStore.CreateMany(dbFiles);
+        var cacheKey = $"{CONTENT_CACHE_KEY}_";
+        var uploadTasks = new List<Task>();
+        for (var i = 0; i <  commands.Count; i++) {
+            var save = async () => {
+                using (var stream = commands[i].OpenReadStream()) {
+                    await _fileService.SaveAsync($"media/{dbFiles[i].Path.TrimStart('/')}", stream);
+                }
+            };
+            uploadTasks.Add(save());
+            cacheKey = $"{CONTENT_CACHE_KEY}_{(commands[i].FolderId.HasValue ? commands[i].FolderId!.Value : "root")}";
+        }
+        await Task.WhenAll(uploadTasks);
+        await _cache.RemoveAsync(cacheKey);
+        await _cache.RemoveAsync(STRUCT_CACHE_KEY);
+        return fileIds;
     }
 
     /// <summary>Updates metadata about a file.</summary>

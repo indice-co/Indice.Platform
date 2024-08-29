@@ -14,7 +14,7 @@ public class Role : IdentityRole
     public Role(string roleName) : base(roleName) { }
 
     /// <summary>A description for the role.</summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>Checks if the specified role is one of management roles.</summary>
     public virtual bool IsManagementRole() =>

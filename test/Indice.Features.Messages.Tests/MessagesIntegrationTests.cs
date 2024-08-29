@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Text.Json;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
@@ -21,14 +22,14 @@ using Xunit.Abstractions;
 
 namespace Indice.Features.Messages.Tests;
 
-public class MessagesIntegrationTests : IDisposable
+public class MessagesIntegrationTests : IAsyncLifetime
 {
     // Constants
     private const string BASE_URL = "https://server";
     // Private fields
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
-    private IServiceProvider _serviceProvider;
+    private ServiceProvider _serviceProvider;
 
     public MessagesIntegrationTests(ITestOutputHelper output) {
         _output = output;
@@ -69,8 +70,6 @@ public class MessagesIntegrationTests : IDisposable
         _httpClient = new HttpClient(handler) {
             BaseAddress = new Uri(BASE_URL)
         };
-        var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
-        db.Database.EnsureCreated();
     }
 
     #region Facts
@@ -119,7 +118,7 @@ public class MessagesIntegrationTests : IDisposable
                 To = DateTimeOffset.UtcNow.AddDays(1)
             },
             Published = false,
-            RecipientIds = new List<string> { "6c9fa6dd-ede4-486b-bf91-6de18542da4a" }
+            RecipientIds = ["6c9fa6dd-ede4-486b-bf91-6de18542da4a"]
         };
         var payload = JsonSerializer.Serialize(createCampaignRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
         var createCampaignResponse = await _httpClient.PostAsync("/api/campaigns", new StringContent(payload, Encoding.UTF8, "application/json"));
@@ -170,10 +169,50 @@ public class MessagesIntegrationTests : IDisposable
         Assert.NotEmpty(distributionListContacts.Items);
         Assert.Single(distributionListContacts.Items, i => i.Email == addContactRequest.Email);
     }
+
+    [Fact]
+    public async Task Create_And_Retrieve_Template_Success() {
+        //Create the Campaign
+        var createTemplateRequest = new CreateTemplateRequest {
+            Name = "My Welcome Email",
+            Content = new MessageContentDictionary(
+                new Dictionary<MessageChannelKind, MessageContent> {
+                    [MessageChannelKind.Email] = new MessageContent("Test Message", "Test Message Content: {{data.localization.description_key}}")
+                }
+            ),
+            Data = new {
+                localization = new {
+                    description_key = "This is a description"
+                }
+            }
+        };
+        var payload = JsonSerializer.Serialize(createTemplateRequest, JsonSerializerOptionDefaults.GetDefaultSettings());
+        var createTemplateResponse = await _httpClient.PostAsync("/api/templates", new StringContent(payload, Encoding.UTF8, "application/json"));
+        var createCampaignResponseJson = await createTemplateResponse.Content.ReadAsStringAsync();
+        if (!createTemplateResponse.IsSuccessStatusCode) {
+            _output.WriteLine(createCampaignResponseJson);
+        }
+
+        //Retrieve the Created Campaign
+        var getTemplateResponse = await _httpClient.GetAsync(createTemplateResponse.Headers.Location.PathAndQuery);
+        var getTemplateResponseJson = await getTemplateResponse.Content.ReadAsStringAsync();
+        if (!getTemplateResponse.IsSuccessStatusCode) {
+            _output.WriteLine(getTemplateResponseJson);
+        }
+
+        Assert.True(createTemplateResponse.IsSuccessStatusCode);
+        Assert.True(getTemplateResponse.IsSuccessStatusCode);
+    }
     #endregion
 
-    public void Dispose() {
+    public async Task InitializeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
-        db.Database.EnsureDeleted();
+        await db.Database.EnsureCreatedAsync();
+    }
+
+    public async Task DisposeAsync() {
+        var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
+        await db.Database.EnsureDeletedAsync();
+        await _serviceProvider.DisposeAsync();
     }
 }

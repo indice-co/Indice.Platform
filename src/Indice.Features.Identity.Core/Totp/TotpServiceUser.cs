@@ -38,7 +38,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="message">The message to be sent in the SMS. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
     /// <param name="subject">The subject of message.</param>
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
-    public Task<TotpResult> SendToSmsAsync(TUser user, string message, string subject, string purpose = null)
+    public Task<TotpResult> SendToSmsAsync(TUser user, string message, string subject, string? purpose = null)
         => SendAsync(user, message, TotpDeliveryChannel.Sms, subject, purpose);
 
     /// <summary>Creates a TOTP and sends it as a Viber message.</summary>
@@ -46,7 +46,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="message">The message to be sent in Viber. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</param>
     /// <param name="subject">The subject of message.</param>
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
-    public Task<TotpResult> SendToViberAsync(TUser user, string message, string subject, string purpose = null)
+    public Task<TotpResult> SendToViberAsync(TUser user, string message, string subject, string? purpose = null)
         => SendAsync(user, message, TotpDeliveryChannel.Viber, subject, purpose);
 
     /// <summary>Creates a TOTP and sends it as a push notification.</summary>
@@ -56,7 +56,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
     /// <param name="classification">The notification's type.</param>
     /// <param name="data">The push notification data (preferably as a JSON string).</param>
-    public Task<TotpResult> SendToPushNotificationAsync(TUser user, string message, string subject, string purpose = null, string classification = null, string data = null)
+    public Task<TotpResult> SendToPushNotificationAsync(TUser user, string message, string subject, string? purpose = null, string? classification = null, string? data = null)
         => SendAsync(user, message, TotpDeliveryChannel.PushNotification, subject, purpose, classification, data);
 
     /// <summary>Creates a TOTP and sends it as a push notification.</summary>
@@ -67,7 +67,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="data">The data to send.</param>
     /// <param name="purpose">Optional reason to generate the TOTP.</param>
     /// <param name="classification">The notification's type.</param>
-    public Task<TotpResult> SendToPushNotificationAsync<TData>(TUser user, string message, string subject, TData data, string purpose = null, string classification = null) where TData : class {
+    public Task<TotpResult> SendToPushNotificationAsync<TData>(TUser user, string message, string subject, TData data, string? purpose = null, string? classification = null) where TData : class {
         var dataJson = JsonSerializer.Serialize(data, JsonSerializerOptionDefaults.GetDefaultSettings());
         return SendToPushNotificationAsync(user, message, subject, purpose, classification, dataJson);
     }
@@ -88,13 +88,13 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         ClaimsPrincipal principal,
         string message,
         TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
-        string subject = null,
-        string purpose = null,
-        string classification = null,
-        string data = null,
-        string tokenProvider = null,
-        string authenticationMethod = null,
-        string emailTemplate = null
+        string? subject = null,
+        string? purpose = null,
+        string? classification = null,
+        string? data = null,
+        string? tokenProvider = null,
+        string? authenticationMethod = null,
+        string? emailTemplate = null
     ) {
         var user = await UserManager.GetUserAsync(principal);
         return await SendAsync(user, message, channel, subject, purpose, classification, data, tokenProvider, authenticationMethod, emailTemplate);
@@ -125,16 +125,16 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="emailTemplate">The email template to be used when <paramref name="channel"/> is <see cref="TotpDeliveryChannel.Email"/> or when <paramref name="authenticationMethod"/> has a relevant channel.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public virtual async Task<TotpResult> SendAsync(
-        TUser user,
+        TUser? user,
         string message,
         TotpDeliveryChannel channel = TotpDeliveryChannel.Sms,
-        string subject = null,
-        string purpose = null,
-        string classification = null,
-        string data = null,
-        string tokenProvider = null,
-        string authenticationMethod = null,
-        string emailTemplate = null
+        string? subject = null,
+        string? purpose = null,
+        string? classification = null,
+        string? data = null,
+        string? tokenProvider = null,
+        string? authenticationMethod = null,
+        string? emailTemplate = null
     ) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
@@ -188,11 +188,11 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
         return TotpResult.SuccessResult;
     }
 
-    private static string IncludeTokenInPushNotificationData(string data, string token) {
+    private static string IncludeTokenInPushNotificationData(string? data, string token) {
         var jsonSerializerOptions = JsonSerializerOptionDefaults.GetDefaultSettings();
         if (!string.IsNullOrWhiteSpace(data)) {
             try {
-                var deserializedData = JsonSerializer.Deserialize<ExpandoObject>(data, jsonSerializerOptions);
+                var deserializedData = JsonSerializer.Deserialize<ExpandoObject>(data, jsonSerializerOptions)!;
                 deserializedData.TryAdd("otp", token);
                 data = JsonSerializer.Serialize(deserializedData, jsonSerializerOptions);
             } catch { }
@@ -210,8 +210,8 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     public async Task<TotpResult> VerifyAsync(
         ClaimsPrincipal principal,
         string code,
-        string purpose = null,
-        string tokenProvider = null
+        string? purpose = null,
+        string? tokenProvider = null
     ) {
         var user = await UserManager.GetUserAsync(principal);
         return await VerifyAsync(user, code, purpose, tokenProvider);
@@ -224,10 +224,10 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <param name="tokenProvider">The name of the token provider.</param>
     /// <exception cref="ArgumentNullException"></exception>
     public virtual async Task<TotpResult> VerifyAsync(
-        TUser user,
+        TUser? user,
         string code,
-        string purpose = null,
-        string tokenProvider = null
+        string? purpose = null,
+        string? tokenProvider = null
     ) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
@@ -246,7 +246,7 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
     /// <summary>Gets list of available providers for the given user.</summary>
     /// <param name="user">The user entity type.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public virtual async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(TUser user) {
+    public virtual async Task<Dictionary<string, TotpProviderMetadata>> GetProvidersAsync(TUser? user) {
         if (user is null) {
             throw new ArgumentNullException(nameof(user), "User is null.");
         }

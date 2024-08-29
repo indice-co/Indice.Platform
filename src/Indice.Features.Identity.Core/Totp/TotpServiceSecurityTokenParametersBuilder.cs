@@ -109,19 +109,19 @@ public sealed class TotpServiceSecurityTokenOptionalParametersBuilder
 public class TotpServiceSecurityTokenParameters
 {
     /// <summary>The type of the push notification.</summary>
-    public string Classification { get; internal set; }
+    public string? Classification { get; internal set; }
     /// <summary>The payload data to be sent in push notification.</summary>
-    public string Data { get; internal set; }
+    public string? Data { get; internal set; }
     /// <summary>The message to be sent in the selected channel. It's important for the message to contain the {0} placeholder in the position where the OTP should be placed.</summary>
-    public string Message { get; internal set; }
+    public string Message { get; internal set; } = null!;
     /// <summary>The receiver's phone number.</summary>
-    public string PhoneNumber { get; set; }
+    public string PhoneNumber { get; set; } = null!;
     /// <summary>The purpose.</summary>
-    public string Purpose { get; internal set; }
+    public string Purpose { get; internal set; } = null!;
     /// <summary>A security code. This should be a secret.</summary>
-    public string SecurityToken { get; set; }
+    public string SecurityToken { get; set; } = null!;
     /// <summary>The subject of message.</summary>
-    public string Subject { get; internal set; }
+    public string Subject { get; internal set; } = null!;
     /// <summary>Chosen delivery channel.</summary>
     public TotpDeliveryChannel DeliveryChannel { get; internal set; }
 }

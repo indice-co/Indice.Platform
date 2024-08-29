@@ -27,7 +27,7 @@ public static class LimitUploadFilter
                 .Select(x => '.' + x.Trim().TrimStart('.'))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
             // We can respond with problem details if there's a validation error.
-            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(StatusCodes.Status400BadRequest, typeof(HttpValidationProblemDetails), new[] { "application/problem+json" }));
+            endpointBuilder.Metadata.Add(new ProducesResponseTypeMetadata(StatusCodes.Status400BadRequest, typeof(HttpValidationProblemDetails), [ "application/problem+json" ]));
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
                     var httpContext = invocationContext.HttpContext;
