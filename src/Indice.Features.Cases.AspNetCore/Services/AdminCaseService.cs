@@ -457,6 +457,18 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return timeline;
     }
 
+    public async Task<IEnumerable<Guid>> GetCorrelatedCaseIds(ClaimsPrincipal user, Guid caseId) {
+        // Check that user role can view this case
+        var @case = await GetCaseById(user, caseId, false);
+        var correlationKey = @case.Metadata["externalCorrelationKey"];
+
+        var list = _dbContext.Cases.AsNoTracking()
+            .Where(x => x.Metadata["externalCorrelationKey"] == correlationKey)
+            .Select(x=> x.Id);
+
+        return list;
+    }
+
     private async Task<List<FilterClause>> MapCheckpointTypeCodeToId(List<FilterClause> checkpointTypeCodeFilterClauses) {
         var checkpointTypeCodes = checkpointTypeCodeFilterClauses.Select(f => f.Value).ToList();
         var checkpointTypeIds = new List<FilterClause>();
