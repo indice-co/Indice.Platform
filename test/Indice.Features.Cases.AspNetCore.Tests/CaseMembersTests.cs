@@ -15,7 +15,7 @@ using NSubstitute;
 
 namespace Indice.Features.Cases.Tests;
 
-public class CaseMembersTests : IAsyncDisposable
+public class CaseMembersTests : IAsyncLifetime
 {
     public CaseMembersTests() {
         var inMemorySettings = new Dictionary<string, string> {
@@ -36,12 +36,8 @@ public class CaseMembersTests : IAsyncDisposable
 
     [Fact]
     public async Task GetCaseMembers() {
-        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
-        if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
-            // seed here.
-            await dbContext.SeedAsync();
-        }
 
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         var caseMembersService = new CaseMemberService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
         var result = await caseMembersService.Get(@case.Id);
@@ -53,11 +49,6 @@ public class CaseMembersTests : IAsyncDisposable
     [Fact]
     public async Task AddCaseMember() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
-        if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
-            // seed here.
-            await dbContext.SeedAsync();
-        }
-
         var caseMembersService = new CaseMemberService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
         var id = Guid.NewGuid().ToString();
@@ -69,10 +60,7 @@ public class CaseMembersTests : IAsyncDisposable
     [Fact]
     public async Task RemoveCaseMember() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
-        if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
-            // seed here.
-            await dbContext.SeedAsync();
-        }
+
 
         var @case = await FetchCaseForTestAsync(dbContext);
         var caseMembersService = new CaseMemberService(dbContext);
@@ -90,10 +78,6 @@ public class CaseMembersTests : IAsyncDisposable
     [Fact]
     public async Task UpdateCaseMemberAccessLevel() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
-        if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
-            // seed here.
-            await dbContext.SeedAsync();
-        }
 
         var @case = await FetchCaseForTestAsync(dbContext);
         var caseMembersService = new CaseMemberService(dbContext);
@@ -109,10 +93,6 @@ public class CaseMembersTests : IAsyncDisposable
     [Fact]
     public async Task QueryCaseMember() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
-        if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
-            // seed here.
-            await dbContext.SeedAsync();
-        }
 
         var caseMembersService = new CaseMemberService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
@@ -138,17 +118,13 @@ public class CaseMembersTests : IAsyncDisposable
         var result = await dbContext.Cases
             .AsNoTracking()
            .Where(aggregatedExpressions)
-           .ToListAsync(); 
+           .ToListAsync();
         Assert.NotEmpty(result);
     }
 
     [Fact]
     public async Task NotFoundCaseMember() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
-        if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
-            // seed here.
-            await dbContext.SeedAsync();
-        }
 
         var caseMembersService = new CaseMemberService(dbContext);
         var @case = await FetchCaseForTestAsync(dbContext);
@@ -198,9 +174,19 @@ public class CaseMembersTests : IAsyncDisposable
         return new ClaimsPrincipal(identity);
     }
 
-    public async ValueTask DisposeAsync() {
+    public async Task InitializeAsync() {
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        if (await dbContext.Database.EnsureCreatedAsync() || !await dbContext.Cases.AnyAsync()) {
+            // seed here.
+            await dbContext.SeedAsync();
+        }
+    }
+
+    public async Task DisposeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         await dbContext.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();
     }
+
+
 }
