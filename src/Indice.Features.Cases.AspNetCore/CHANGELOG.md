@@ -5,9 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [7.28.2] - 2024-08-29
-### Added
-- Filter AdminCaseTypes to ignore sending case types when `CanCreate` is `null`, preventing the creation of case types that shouldn't be created from admin role in cases-bo.
+## [7.28.3] - 2024-08-30
 - Added `GridColumnConfig` property to CaseType, you can change your lib-list-view to display custom columns.
 
 ### More specifically:
@@ -27,6 +25,10 @@ Meaning "checkpointType.code" will fetch => items[i].checkpointType.code
     }
 ]
 ```
+
+## [7.28.2] - 2024-08-29
+### Added
+- Filter AdminCaseTypes to ignore sending case types when `CanCreate` is `null`, preventing the creation of case types that shouldn't be created from admin role in cases-bo.
 
 ## [7.28.1] - 2024-08-01
 ### Added
