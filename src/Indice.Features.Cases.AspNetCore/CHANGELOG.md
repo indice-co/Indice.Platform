@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.28.3] - 2024-08-30
+- Added `GridColumnConfig` property to CaseType, you can change your lib-list-view to display custom columns.
+
+### More specifically:
+You can edit a case type from the UI and put a json formatted string like the one below
+Where "title" is the property name of the "cases" object in your translation file (for example: el.json)
+Where "itemProperty" is the data location relative to the item in your "items" object returned from "GetCases"
+Meaning "checkpointType.code" will fetch => items[i].checkpointType.code
+```
+[
+    {
+        "title": "checkpointType",
+        "itemProperty": "checkpointType.code"
+    },
+    {
+        "title": "TaxId",
+        "itemProperty": "metadata.TaxId"
+    }
+]
+```
+
 ## [7.28.2] - 2024-08-29
 ### Added
 - Filter AdminCaseTypes to ignore sending case types when `CanCreate` is `null`, preventing the creation of case types that shouldn't be created from admin role in cases-bo.
