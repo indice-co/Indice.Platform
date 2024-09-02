@@ -460,10 +460,12 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     public async Task<IEnumerable<Guid>> GetCorrelatedCaseIds(ClaimsPrincipal user, Guid caseId) {
         // Check that user role can view this case
         var @case = await GetCaseById(user, caseId, false);
-        var correlationKey = @case.Metadata["externalCorrelationKey"];
+        var correlationKey = @case.Metadata["ExternalCorrelationKey"];
+        var filterClauseItem = new FilterClause("metadata.ExternalCorrelationKey", correlationKey, FilterOperator.Eq,
+            JsonDataType.String);
 
         var list = _dbContext.Cases.AsNoTracking()
-            .Where(x => x.Metadata["externalCorrelationKey"] == correlationKey)
+            .Where([filterClauseItem]) // filter Metadata
             .Select(x=> x.Id);
 
         return list;

@@ -1,17 +1,14 @@
-<div
-     class="mt-auto pt-1 space-y-1 pl-1">
-  <h3
-      class="text-lg leading-6 font-medium text-gray-900 mb-4">
-    Σχετικές
-    Υποθέσεις
+<div class="mt-auto pt-1 space-y-1 pl-1">
+  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
+    Σχετικές Υποθέσεις
   </h3>
-  <ul
-      class="relative border-l border-gray-200 dark:border-gray-700">
-    <li *ngFor="let entry of correlatedCasesIds"
-        class="mb-10 ml-6">
-      {{
-      entry
-      }}
+  <ol class="list-decimal ml-6 space-y-4">
+    <li *ngFor="let entry of correlatedCasesIds">
+      <a
+        [routerLink]="['/cases', entry, 'details']"
+        class="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+        Case: {{ entry }}
+      </a>
     </li>
-  </ul>
+  </ol>
 </div>
