@@ -22,7 +22,7 @@ internal partial class IdentityUIPageRouteModelConvention : IPageRouteModelConve
     }
     public void Apply(PageRouteModel model) {
         // Only modify pages in the Themes folder.
-        if (!model.ViewEnginePath.StartsWith("/Themes/"))
+        if (!model.ViewEnginePath.StartsWith("/Themes/") && !model.ViewEnginePath.StartsWith("/Theme/"))
             return;
 
         foreach (var selector in model.Selectors) {
@@ -39,7 +39,7 @@ internal class IdentityUiThemeActionConstraint : IActionConstraint
     public IdentityUiThemeActionConstraint() {
 
     }
-
+                                                             
     public bool Accept(ActionConstraintContext context) {
         if (context.CurrentCandidate.Action is Microsoft.AspNetCore.Mvc.RazorPages.CompiledPageActionDescriptor pageAction) {
             var themeAttribute = pageAction.ModelTypeInfo?.GetCustomAttribute<ClientThemeAttribute>();
