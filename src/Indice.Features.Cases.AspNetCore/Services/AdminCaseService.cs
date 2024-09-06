@@ -371,11 +371,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
     public async Task<AuditMeta> AssignCase(AuditMeta user, Guid caseId) {
         if (user.Id == default || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Name)) {
-            throw new ArgumentException(nameof(user));
+            throw new ArgumentException($"{BasicClaimTypes.GivenName} or {BasicClaimTypes.FamilyName} is missing from identity claim types");
         }
         var @case = await _dbContext.Cases.FindAsync(caseId);
         if (@case == null) {
-            throw new ArgumentNullException(nameof(@case));
+            throw new ArgumentNullException($"No {nameof(@case)} found with that id");
         }
         if (@case.AssignedTo != null && @case.AssignedTo.Id != user.Id) {
             throw new InvalidOperationException("Case is already assigned to another user.");

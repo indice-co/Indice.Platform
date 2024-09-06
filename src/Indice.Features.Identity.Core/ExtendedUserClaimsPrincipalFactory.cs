@@ -53,9 +53,6 @@ public class ExtendedUserClaimsPrincipalFactory<TUser, TRole>(
             if (!isAdmin) {
                 if (identity.HasClaim(x => x.Type == JwtClaimTypes.Role)) {
                     isAdmin = identity.HasClaim(JwtClaimTypes.Role, BasicRoleNames.Administrator);
-                } else {
-                    var roles = (await UserManager.GetRolesAsync(user)).Select(role => new Claim(JwtClaimTypes.Role, role));
-                    isAdmin = roles.Where(x => x.Value == BasicRoleNames.Administrator).Any();
                 }
             }
             additionalClaims.Add(new Claim(BasicClaimTypes.Admin, isAdmin.ToString().ToLower(), ClaimValueTypes.Boolean));
@@ -67,7 +64,7 @@ public class ExtendedUserClaimsPrincipalFactory<TUser, TRole>(
             additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpirationDate, ToISOString(user.PasswordExpirationDate.Value.UtcDateTime), ClaimValueTypes.DateTime));
         }
         if (!identity.HasClaim(x => x.Type == BasicClaimTypes.PasswordExpirationPolicy) && user.PasswordExpirationPolicy.HasValue) {
-            additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpirationPolicy, user.PasswordExpirationPolicy.ToString()));
+            additionalClaims.Add(new Claim(BasicClaimTypes.PasswordExpirationPolicy, user.PasswordExpirationPolicy.Value.ToString()));
         }
         identity.AddClaims(additionalClaims);
         return identity;

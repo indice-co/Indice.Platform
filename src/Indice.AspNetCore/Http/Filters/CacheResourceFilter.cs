@@ -84,7 +84,7 @@ public static class CacheResourceFilterExtensions
     /// <returns>The builder.</returns>
     public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string dependentRoute) where TBuilder : IEndpointConventionBuilder {
         ArgumentException.ThrowIfNullOrEmpty(dependentRoute, nameof(dependentRoute));
-        InvalidateCache(builder, dependentRoutes: new[] { dependentRoute }, varyByClaimType: null);
+        InvalidateCache(builder, dependentRoutes: [dependentRoute], varyByClaimType: null);
         return builder;
     }
 
@@ -97,7 +97,7 @@ public static class CacheResourceFilterExtensions
     public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string dependentRoute, string varyByClaimType) where TBuilder : IEndpointConventionBuilder {
         ArgumentException.ThrowIfNullOrEmpty(dependentRoute, nameof(dependentRoute));
         ArgumentException.ThrowIfNullOrEmpty(varyByClaimType, nameof(varyByClaimType));
-        InvalidateCache(builder, dependentRoutes: new[] { dependentRoute }, varyByClaimType: new[] { varyByClaimType });
+        InvalidateCache(builder, dependentRoutes: [dependentRoute], varyByClaimType: [varyByClaimType]);
         return builder;
     }
 
@@ -114,8 +114,8 @@ public static class CacheResourceFilterExtensions
             if (cacheResourceFilterOptions?.DisableCache == true) {
                 return;
             }
-            dependentRoutes ??= Array.Empty<string>();
-            varyByClaimType ??= Array.Empty<string>();
+            dependentRoutes ??= [];
+            varyByClaimType ??= [];
             endpointBuilder.FilterFactories.Add((context, next) => {
                 return new EndpointFilterDelegate(async invocationContext => {
                     var request = invocationContext.HttpContext.Request;

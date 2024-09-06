@@ -74,7 +74,7 @@ public abstract class BaseChallengeModel : BasePageModel
         if (user is null) {
             return await UserNotFound(externalLoginInfo, returnUrl);
         }
-        await Events.RaiseAsync(new ExtendedUserLoginSuccessEvent(externalLoginInfo.LoginProvider, externalLoginInfo.Principal.GetSubjectId(), user.Id, user.UserName));
+        await Events.RaiseAsync(new ExtendedUserLoginSuccessEvent(externalLoginInfo.LoginProvider, externalLoginInfo.Principal.GetSubjectId(), user.Id, user.UserName!));
         // Save user tokes retrieved from external provider.
         await SignInManager.UpdateExternalAuthenticationTokensAsync(externalLoginInfo);
         var result = await SignInManager.ExternalLoginSignInAsync(externalLoginInfo.LoginProvider, externalLoginInfo.ProviderKey, isPersistent: true);

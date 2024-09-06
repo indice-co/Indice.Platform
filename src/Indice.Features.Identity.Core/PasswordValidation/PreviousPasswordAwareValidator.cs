@@ -83,9 +83,9 @@ public class PreviousPasswordAwareValidator<TContext, TUser, TRole> : IPasswordV
     /// <param name="user">The user whose password should be validated.</param>
     /// <param name="password">The password supplied for validation</param>
     /// <returns></returns>
-    public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password) {
+    public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string? password) {
         var result = IdentityResult.Success;
-        if (PasswordHistoryLimit > 0) {
+        if (PasswordHistoryLimit > 0 && !string.IsNullOrWhiteSpace(password)) {
             var query = DbContext.UserPasswordHistory
                                  .Where(x => x.UserId == user.Id);
             if (MaximumPasswordAge.HasValue && MaximumPasswordAge.Value > TimeSpan.Zero) {
@@ -102,7 +102,7 @@ public class PreviousPasswordAwareValidator<TContext, TUser, TRole> : IPasswordV
             var isUsedBefore = usedPasswords.Count > 0 &&
                                usedPasswords.Where(hash => !string.IsNullOrEmpty(hash))
                                             .Distinct()
-                                            .Any(hash => manager.PasswordHasher.VerifyHashedPassword(user, hash, password) == PasswordVerificationResult.Success);
+                                            .Any(hash => manager.PasswordHasher.VerifyHashedPassword(user, hash!, password) == PasswordVerificationResult.Success);
             if (isUsedBefore) {
                 result = IdentityResult.Failed(new IdentityError {
                     Code = ErrorDescriber,

@@ -48,7 +48,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
     public ExtendedUserManager<User> UserManager { get; }
     public DeviceAuthenticationOptions DeviceAuthenticationOptions { get; }
 
-    public override async Task<CompleteRegistrationRequestValidationResult> Validate(NameValueCollection parameters, string accessToken = null) {
+    public override async Task<CompleteRegistrationRequestValidationResult> Validate(NameValueCollection parameters, string? accessToken = null) {
         Logger.LogDebug($"[{nameof(CompleteRegistrationRequestValidator)}] Started trusted device registration request validation.");
         // The access token needs to be valid and have at least the OpenID scope.
         var tokenValidationResult = await TokenValidator.ValidateAccessTokenAsync(accessToken, IdentityServerConstants.StandardScopes.OpenId);
@@ -112,17 +112,18 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
             return Error(OidcConstants.AuthorizeErrors.UnauthorizedClient, $"Trusted device flow is not enabled for this client.");
         }
         // Validate authorization code against code verifier given by the client.
-        var codeVerifier = parameters.Get(RegistrationRequestParameters.CodeVerifier);
-        var authorizationCodeValidationResult = await ValidateAuthorizationCode(code, authorizationCode, codeVerifier, parameters.Get(RegistrationRequestParameters.DeviceId), client);
+        var codeVerifier = parameters.Get(RegistrationRequestParameters.CodeVerifier)!;
+        var deviceId = parameters.Get(RegistrationRequestParameters.DeviceId)!;
+        var authorizationCodeValidationResult = await ValidateAuthorizationCode(code, authorizationCode, codeVerifier, deviceId, client);
         if (authorizationCodeValidationResult.IsError) {
             return Error(authorizationCodeValidationResult.Error, authorizationCodeValidationResult.ErrorDescription);
         }
         // Validate given public key against signature for fingerprint.
-        string publicKey = null;
+        string? publicKey = null;
         if (authorizationCode.InteractionMode == InteractionMode.Fingerprint) {
             publicKey = parameters.Get(RegistrationRequestParameters.PublicKey);
-            var codeSignature = parameters.Get(RegistrationRequestParameters.CodeSignature);
-            var publicKeyValidationResult = ValidateSignature(publicKey, code, codeSignature);
+            var codeSignature = parameters.Get(RegistrationRequestParameters.CodeSignature)!;
+            var publicKeyValidationResult = ValidateSignature(publicKey!, code, codeSignature);
             if (publicKeyValidationResult.IsError) {
                 return Error(publicKeyValidationResult.Error, publicKeyValidationResult.ErrorDescription);
             }
@@ -139,7 +140,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
         }
         // Validate OTP code, if needed.
         if (DeviceAuthenticationOptions.AlwaysSendOtp || !mfaPassed) {
-            var totpResult = await TotpServiceFactory.Create<User>().VerifyAsync(user, parameters.Get(RegistrationRequestParameters.OtpCode), Constants.DeviceAuthenticationOtpPurpose(userId, authorizationCode.DeviceId));
+            var totpResult = await TotpServiceFactory.Create<User>().VerifyAsync(user, parameters.Get(RegistrationRequestParameters.OtpCode)!, Constants.DeviceAuthenticationOtpPurpose(userId, authorizationCode.DeviceId!));
             if (!totpResult.Success) {
                 return Error(totpResult.Error);
             }
@@ -150,7 +151,7 @@ internal class CompleteRegistrationRequestValidator : RequestValidatorBase<Compl
             Client = client,
             DeviceId = authorizationCode.DeviceId,
             DeviceName = parameters.Get(RegistrationRequestParameters.DeviceName),
-            DevicePlatform = (DevicePlatform)platform,
+            DevicePlatform = (DevicePlatform)platform!,
             InteractionMode = authorizationCode.InteractionMode,
             Pin = parameters.Get(RegistrationRequestParameters.Pin),
             Principal = principal,

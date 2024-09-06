@@ -21,10 +21,10 @@ public static class ConfigurationExtensions
     /// <param name="apis">The list of predefined APIs.</param>
     /// <param name="apiScopes">The list of predefined API scopes.</param>
     public static IApplicationBuilder ConfigurationStoreSetup<TConfigurationDbContext>(this IApplicationBuilder app,
-        IEnumerable<Client> clients = null,
-        IEnumerable<IdentityResource> identityResources = null,
-        IEnumerable<ApiResource> apis = null,
-        IEnumerable<ApiScope> apiScopes = null) where TConfigurationDbContext : ConfigurationDbContext<TConfigurationDbContext> {
+        IEnumerable<Client>? clients = null,
+        IEnumerable<IdentityResource>? identityResources = null,
+        IEnumerable<ApiResource>? apis = null,
+        IEnumerable<ApiScope>? apiScopes = null) where TConfigurationDbContext : ConfigurationDbContext<TConfigurationDbContext> {
         using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) {
             var dbContext = serviceScope.ServiceProvider.GetService<TConfigurationDbContext>();
             if (dbContext is not null && dbContext.Database.EnsureCreated()) {
@@ -43,8 +43,8 @@ public static class ConfigurationExtensions
     /// <param name="identityResources">The list of predefined identity resources.</param>
     /// <param name="apis">The list of predefined API resources.</param>
     /// <param name="apiScopes">The list of predefined API scopes.</param>
-    public static IApplicationBuilder ConfigurationStoreSetup(this IApplicationBuilder app, IEnumerable<Client> clients = null, IEnumerable<IdentityResource> identityResources = null, IEnumerable<ApiResource> apis = null,
-        IEnumerable<ApiScope> apiScopes = null) =>
+    public static IApplicationBuilder ConfigurationStoreSetup(this IApplicationBuilder app, IEnumerable<Client>? clients = null, IEnumerable<IdentityResource>? identityResources = null, IEnumerable<ApiResource>? apis = null,
+        IEnumerable<ApiScope>? apiScopes = null) =>
         app.ConfigurationStoreSetup<ExtendedConfigurationDbContext>(clients, identityResources, apis, apiScopes);
 
     /// <summary>Sets up the IdentityServer operational store.</summary>
@@ -68,7 +68,7 @@ public static class ConfigurationExtensions
     /// <param name="identityResources">The list of predefined identity resources.</param>
     /// <param name="apis">The list of predefined API resources.</param>
     /// <param name="apiScopes">The list of predefined API scopes.</param>
-    public static void SeedData<TConfigurationDbContext>(this TConfigurationDbContext context, IEnumerable<Client> clients, IEnumerable<IdentityResource> identityResources, IEnumerable<ApiResource> apis, IEnumerable<ApiScope> apiScopes)
+    public static void SeedData<TConfigurationDbContext>(this TConfigurationDbContext context, IEnumerable<Client>? clients, IEnumerable<IdentityResource>? identityResources, IEnumerable<ApiResource>? apis, IEnumerable<ApiScope>? apiScopes)
         where TConfigurationDbContext : ConfigurationDbContext<TConfigurationDbContext> {
         if (!context.Clients.Any() && clients != null) {
             foreach (var client in clients) {

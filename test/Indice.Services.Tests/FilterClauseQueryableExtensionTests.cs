@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Indice.Services.Tests;
 
-public class FilterClauseQueryableExtensionTests : IAsyncDisposable
+public class FilterClauseQueryableExtensionTests : IAsyncLifetime
 {
     public FilterClauseQueryableExtensionTests() {
         var inMemorySettings = new Dictionary<string, string> {
@@ -29,7 +29,6 @@ public class FilterClauseQueryableExtensionTests : IAsyncDisposable
     [Fact]
     public async Task FilterClause_Translates_ToDatabaseQuery_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
-        await dbContext.SeedAsync();
         var filters = new List<FilterClause> {
             //(FilterClause)"extras.id::eq::(integer)15",
             (FilterClause)"data.displayName::contains::κων",
@@ -46,7 +45,6 @@ public class FilterClauseQueryableExtensionTests : IAsyncDisposable
     [Fact]
     public async Task ToResultset_Translates_DynamicJsonPaths_Sort_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
-        await dbContext.SeedAsync();
         var query = dbContext.Dummies;
         var results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName,name" });
         results = await query.ToResultSetAsync(new ListOptions { Sort = "data.displayName" });
@@ -61,17 +59,21 @@ public class FilterClauseQueryableExtensionTests : IAsyncDisposable
     [Fact]
     public async Task ToResultset_Translates_DynamicJsonPaths_MultiSort_Test() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
-        await dbContext.SeedAsync();
         var query = dbContext.Dummies.AsQueryable();
         var options = new ListOptions { Sort = "name-,data.displayName" };
         foreach (var sorting in options.GetSortings()) {
-            query = query.OrderBy(sorting, append:true);
+            query = query.OrderBy(sorting, append: true);
         }
         var results = await query.ToResultSetAsync(options.Page ?? 1, options.Size ?? 100);
         Assert.True(true);
     }
 
-    public async ValueTask DisposeAsync() {
+    public async Task InitializeAsync() {
+        var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
+        await dbContext.SeedAsync();
+    }
+
+    public async Task DisposeAsync() {
         var dbContext = ServiceProvider.GetRequiredService<DummyDbContext>();
         await dbContext.Database.EnsureDeletedAsync();
         await ServiceProvider.DisposeAsync();

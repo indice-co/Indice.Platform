@@ -75,7 +75,7 @@ public abstract class BaseForgotPasswordConfirmationModel : BasePageModel
             ModelState.AddModelError(string.Empty, _localizer["Something went wrong."]);
             return Page();
         }
-        var result = await UserManager.ResetPasswordAsync(user, Input.Token, Input.NewPassword);
+        var result = await UserManager.ResetPasswordAsync(user, Input.Token!, Input.NewPassword!);
         if (!result.Succeeded) {
             AddModelErrors(result);
             return Page();

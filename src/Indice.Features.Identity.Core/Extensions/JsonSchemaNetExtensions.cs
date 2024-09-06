@@ -53,7 +53,7 @@ internal class ExtendedSchemaKeywordIntent : ISchemaKeywordIntent
         builder.Enum(Names.Select(x => x.AsJsonElement().AsNode()));
     }
 
-    public override bool Equals(object obj) => obj is not null;
+    public override bool Equals(object? obj) => obj is not null;
 
     public override int GetHashCode() {
         unchecked {

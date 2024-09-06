@@ -120,6 +120,12 @@
   <data name="ContactInfoDescription" xml:space="preserve">
     <value>Στοιχεία Επικοινωνίας</value>
   </data>
+  <data name="DemographicsDescription" xml:space="preserve">
+    <value>Δημογραφικά Στοιχεία</value>
+  </data>
+  <data name="FamilyStatusDescription" xml:space="preserve">
+    <value>Στοιχεία Οικογενειακής Κατάστασης</value>
+  </data>
   <data name="IdentityDescription" xml:space="preserve">
     <value>Στοιχεία Ταυτότητας</value>
   </data>
@@ -128,5 +134,8 @@
   </data>
   <data name="ProfessionalActivityDescription" xml:space="preserve">
     <value>Στοιχεία Επαγγελματικής Δραστηριότητας</value>
+  </data>
+  <data name="TaxIdInfoDescription" xml:space="preserve">
+    <value>Στοιχεία ΔΟΥ</value>
   </data>
 </root>

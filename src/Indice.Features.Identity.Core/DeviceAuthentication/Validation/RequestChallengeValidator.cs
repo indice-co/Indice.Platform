@@ -82,7 +82,7 @@ internal class RequestChallengeValidator
         return TimeConstantComparer.IsEqual(transformedCodeVerifier.Sha256(), codeChallenge);
     }
 
-    protected static ValidationResult Invalid(string errorDescription = null) => new() {
+    protected static ValidationResult Invalid(string? errorDescription = null) => new() {
         IsError = true,
         Error = OidcConstants.TokenErrors.InvalidGrant,
         ErrorDescription = errorDescription
