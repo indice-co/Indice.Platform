@@ -11,4 +11,10 @@ public static class GovGrKycScopes
     public const string ContactInfo = "contactInfo";
     /// <summary>Access to Professional Activity </summary>
     public const string ProfessionalActivity = "professionalActivity";
+    /// <summary>Access to Tax Information </summary>
+    public const string TaxIdInfo = "taxidInfo";
+    /// <summary>Access to Family Status </summary>
+    public const string FamilyStatus = "familyStatus";
+    /// <summary>Access to Demographic Data </summary>
+    public const string Demographics = "demographics";
 }

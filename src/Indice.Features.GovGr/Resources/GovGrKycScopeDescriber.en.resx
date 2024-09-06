@@ -120,6 +120,12 @@
   <data name="ContactInfoDescription" xml:space="preserve">
     <value>Contact Information</value>
   </data>
+  <data name="DemographicsDescription" xml:space="preserve">
+    <value>Demographics Information</value>
+  </data>
+  <data name="FamilyStatusDescription" xml:space="preserve">
+    <value>Family Status Information</value>
+  </data>
   <data name="IdentityDescription" xml:space="preserve">
     <value>Identity Information</value>
   </data>
@@ -128,5 +134,8 @@
   </data>
   <data name="ProfessionalActivityDescription" xml:space="preserve">
     <value>Professional Activity Information</value>
+  </data>
+  <data name="TaxIdInfoDescription" xml:space="preserve">
+    <value>Tax Information</value>
   </data>
 </root>
