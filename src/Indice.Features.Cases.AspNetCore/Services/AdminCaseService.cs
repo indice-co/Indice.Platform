@@ -84,14 +84,22 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<ResultSet<CasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetCasesListFilter> options) {
+
+        var userId = Guid.NewGuid();
+        
+
+
         var casesQuery = _dbContext.Cases
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
             .Where(options.Filter.Metadata); // filter Metadata
-        if (options.Filter.CaseMembers.Any()) {
+        
 
+
+
+        if (options.Filter.CaseMembers.Any()) {
             var expressions = options.Filter.CaseMembers
-               .Select(f => (Expression<Func<DbCase, bool>>)(c => c.CaseMembers.Any(sh => sh.MemberId == f.Id && sh.Type == f.Type)))
+               .Select(f => (Expression<Func<DbCase, bool>>)(c => c.CaseMembers.Any(sh => sh.MemberUserId == f.Id )))
                .ToList();
             // Aggregate the expressions with OR in SQL
             var aggregatedExpressions = expressions.Aggregate((expression, next) => {
@@ -100,6 +108,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             });
             casesQuery = casesQuery.Where(aggregatedExpressions);
         }
+
         var query = casesQuery.Select(@case => new CasePartial {
             Id = @case.Id,
             ReferenceNumber = @case.ReferenceNumber,

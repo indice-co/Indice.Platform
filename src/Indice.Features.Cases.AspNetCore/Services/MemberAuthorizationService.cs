@@ -94,19 +94,19 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     private async Task<List<Member>> GetMembers() {
         return await _distributedCache.TryGetAndSetAsync(
             cacheKey: $"{MembersCacheKey}",
-            getSourceAsync: async () => await _dbContext.CheckpointTypeAccessRules
+            getSourceAsync: async () => await _dbContext.CaseMembers
                 .AsQueryable()
                 .Select(c => new Member {
                     Id = c.Id,
-                    RoleName = c.RoleName,
-                    CaseTypeId = c.CaseTypeId,
-                    CheckpointTypeId = c.CheckpointTypeId,
+                    RoleName = c.MemberRole,
+                    CaseTypeId = c.RuleCaseTypeId.Value,
+                    CheckpointTypeId = c.RuleCheckpointTypeId.Value,
                     CaseTypePartial = new CaseTypePartial {
-                        Id = c.CaseTypeId,
+                        Id = c.RuleCaseTypeId.Value,
                         Code = c.CaseType!.Code
                     },
                     CheckpointType = new CheckpointType {
-                        Id = c.CheckpointTypeId,
+                        Id = c.RuleCheckpointTypeId.Value,
                         Code = c.CheckpointType!.Code
                     }
                 })

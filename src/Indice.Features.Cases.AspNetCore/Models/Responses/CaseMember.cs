@@ -13,5 +13,5 @@ public class CaseMember
     /// <summary>The access level given. This can hold permission value e.g. 0 Viewer, 1 Contributor, 2 Owner. Or can hold a masked permissions.</summary>
     public int Accesslevel { get; set; }
     /// <summary>When the record was created.</summary>
-    public DateTimeOffset DateInserted { get; set; }
+    public DateTimeOffset CreatedDate { get; set; }
 }

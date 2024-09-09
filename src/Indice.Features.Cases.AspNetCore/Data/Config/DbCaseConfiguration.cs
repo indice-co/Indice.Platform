@@ -82,6 +82,6 @@ internal class DbCaseConfiguration : IEntityTypeConfiguration<DbCase>
         builder
            .HasMany(p => p.CaseMembers)
            .WithOne(p => p.Case)
-           .HasForeignKey(p => p.CaseId);
+           .HasForeignKey(p => p.RuleCaseId);
     }
 }

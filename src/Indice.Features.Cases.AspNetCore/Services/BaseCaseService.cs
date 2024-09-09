@@ -104,12 +104,11 @@ internal abstract class BaseCaseService
                     .ToList(),
                 CaseMembers = c.CaseMembers
                         .Select(p => new CaseMember() {
-                            MemberId = p.MemberId,
-                            Type = p.Type,
-                            Accesslevel = p.Accesslevel,
-                            DateInserted = p.DateInserted
+                            MemberId = p.MemberUserId,
+                            Accesslevel = p.AccessLevel,
+                            CreatedDate = p.CreatedDate
                         })
-                        .OrderBy(p => p.DateInserted)
+                        .OrderBy(p => p.CreatedDate)
                         .ToList()
             };
         return query;

@@ -30,18 +30,18 @@ internal class CaseMemberService : ICaseMemberService
         if (string.IsNullOrEmpty(request.MemberId)) {
             throw new ValidationException("MemberId not provided.");
         }
-        var caseMember = await _dbContext.CaseMembers.FirstOrDefaultAsync(x => x.CaseId == request.CaseId && x.MemberId == request.MemberId && x.Type == request.Type);
-        if (caseMember != null) {
-            throw new ValidationException("A record already exists.");
-        }
-        var newCaseMember = new DbCaseMember {
-            Accesslevel = request.Accesslevel,
-            MemberId = request.MemberId,
-            CaseId = request.CaseId,
-            Type = request.Type,
-        };
-        await _dbContext.CaseMembers.AddAsync(newCaseMember);
-        await _dbContext.SaveChangesAsync();
+        //var caseMember = await _dbContext.CaseMembers.FirstOrDefaultAsync(x => x.RuleCaseId == request.CaseId && x.MemberUserId == request.MemberId && x.Type == request.Type);
+        ////if (caseMember != null) {
+        ////    throw new ValidationException("A record already exists.");
+        ////}
+        ////var newCaseMember = new DbCaseMember {
+        ////    Accesslevel = request.Accesslevel,
+        ////    MemberId = request.MemberId,
+        ////    CaseId = request.CaseId,
+        ////    Type = request.Type,
+        ////};
+        //await _dbContext.CaseMembers.AddAsync(newCaseMember);
+        //await _dbContext.SaveChangesAsync();
     }
 
     public async Task UpdateAccessLevel(CaseMemberRequest request) {
@@ -51,10 +51,10 @@ internal class CaseMemberService : ICaseMemberService
         if (string.IsNullOrEmpty(request.MemberId)) {
             throw new ValidationException("CaseMember not provided.");
         }
-        var caseMember = await _dbContext.CaseMembers.FirstOrDefaultAsync(x => x.CaseId == request.CaseId && x.MemberId == request.MemberId && x.Type == request.Type)
-                                ?? throw new ValidationException("No record was found for the provided data.");
-        caseMember.Accesslevel = request.Accesslevel;
-        await _dbContext.SaveChangesAsync();
+        //var caseMember = await _dbContext.CaseMembers.FirstOrDefaultAsync(x => x.CaseId == request.CaseId && x.MemberId == request.MemberId && x.Type == request.Type)
+        //                        ?? throw new ValidationException("No record was found for the provided data.");
+        //caseMember.Accesslevel = request.Accesslevel;
+        //await _dbContext.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<CaseMember>> Get(Guid caseId) {
@@ -64,13 +64,13 @@ internal class CaseMemberService : ICaseMemberService
 
         return await _dbContext.CaseMembers
             .AsNoTracking()
-            .Where(x => x.CaseId == caseId)
+            //.Where(x => x.CaseId == caseId)
             .Select(caseMember =>
                 new CaseMember {
-                    CaseId = caseMember.CaseId,
-                    Accesslevel = caseMember.Accesslevel,
-                    MemberId = caseMember.MemberId,
-                    Type = caseMember.Type
+                    CaseId = caseMember.RuleCaseId.Value,
+                    Accesslevel = caseMember.AccessLevel,
+                    MemberId = caseMember.MemberUserId,
+                    
                 })
             .ToListAsync();
     }
@@ -85,9 +85,9 @@ internal class CaseMemberService : ICaseMemberService
         if (string.IsNullOrEmpty(request.CaseMemberId)) {
             throw new ValidationException("CaseMember not provided.");
         }
-        var caseMember = await _dbContext.CaseMembers.FirstOrDefaultAsync(x => x.CaseId == request.CaseId && x.MemberId == request.CaseMemberId && x.Type == request.Type) 
-                                    ?? throw new ValidationException("No record was found for the provided input.");
-        _dbContext.CaseMembers.Remove(caseMember);
-        await _dbContext.SaveChangesAsync();
+        //var caseMember = await _dbContext.CaseMembers.FirstOrDefaultAsync(x => x.CaseId == request.CaseId && x.MemberId == request.CaseMemberId && x.Type == request.Type) 
+        //                            ?? throw new ValidationException("No record was found for the provided input.");
+        //_dbContext.CaseMembers.Remove(caseMember);
+        //await _dbContext.SaveChangesAsync();
     }
 }

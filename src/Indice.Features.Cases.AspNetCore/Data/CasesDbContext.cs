@@ -28,8 +28,8 @@ public class CasesDbContext : DbContext
     public DbSet<DbCheckpointType> CheckpointTypes => Set<DbCheckpointType>();
     /// <summary>Comments</summary>
     public DbSet<DbComment> Comments => Set<DbComment>();
-    /// <summary>CaseType members</summary>
-    public DbSet<DbCheckpointTypeAccessRule> CheckpointTypeAccessRules => Set<DbCheckpointTypeAccessRule>();
+    /// <summary>Case Members, users that access to case</summary>
+    public DbSet<DbCaseMember> CaseMembers => Set<DbCaseMember>();
     /// <summary>Member Notifications Subscriptions</summary>
     /// <remarks>Per user subscriptions for case modification alerts via e-mail.</remarks>
     public DbSet<DbNotificationSubscription> NotificationSubscriptions => Set<DbNotificationSubscription>();
@@ -39,10 +39,6 @@ public class CasesDbContext : DbContext
     public DbSet<DbCaseApproval> CaseApprovals => Set<DbCaseApproval>();
     /// <summary>Case type category.</summary>
     public DbSet<DbCategory> Categories => Set<DbCategory>();
-    /// <summary>
-    /// Case Members, users that access to case
-    /// </summary>
-    public DbSet<DbCaseMember> CaseMembers => Set<DbCaseMember>();
 
     /// <inheritdoc />
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
