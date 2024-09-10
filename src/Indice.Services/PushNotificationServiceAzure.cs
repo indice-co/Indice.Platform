@@ -58,7 +58,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
                 });
                 break;
             case DevicePlatform.Android:
-                installationRequest.Platform = NotificationPlatform.Fcm;
+                installationRequest.Platform = NotificationPlatform.FcmV1;
                 installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
                     Body = PushNotificationAzureOptions.SilentNotifications ?? true ? PushNotificationServiceAzureTemplates.Silent.ANDROID : PushNotificationServiceAzureTemplates.Generic.ANDROID
                 });
