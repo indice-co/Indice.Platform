@@ -147,17 +147,21 @@ public class PushNotificationServiceAzureTemplates
             }";
 
         /// <summary>Android generic template.</summary>
-        public const string ANDROID = @"{
-                ""notification"":{
-                    ""title"": ""$(message)"",
-                    ""body"": ""$(body)""
-                },
-                ""data"":{
-                    ""message"": ""$(message)"", 
-                    ""data"": ""$(data)"", 
-                    ""category"": ""$(classification)""
-                }
-            }";
+        public const string ANDROID = """
+            {
+            	"message": {
+            		"notification": {
+            			"title": "$(message)",
+            			"body": "$(body)",
+            		},
+            		"data": {
+            			"message": "$(message)",
+            			"data": "$(data)",
+            			"category": "$(classification)"
+            		}
+            	}
+            }
+            """;
     }
 
     /// <summary>Silent templates.</summary>
@@ -181,12 +185,16 @@ public class PushNotificationServiceAzureTemplates
             }";
 
         /// <summary>Android silent template.</summary>
-        public const string ANDROID = @"{
-                ""data"":{
-                    ""message"": ""$(message)"", 
-                    ""data"": ""$(data)"", 
-                    ""category"": ""$(classification)""
-                }
-            }";
+        public const string ANDROID = """            
+            {
+            	"message": {
+            		"data": {
+            			"message": "$(message)",
+            			"data": "$(data)",
+            			"category": "$(classification)"
+            		}
+            	}
+            }            
+            """;
     }
 }
