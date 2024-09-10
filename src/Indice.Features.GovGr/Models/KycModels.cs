@@ -467,6 +467,54 @@ public class KycPayload
         public KycDataWrapper<SelfEmployedInfoData> SelfEmployedInfo { get; set; }
     }
 
+    /// <summary> Tax Information Data </summary>
+    public class TaxidInfoData
+    {
+        /// <summary>ΑΦΜ του πολίτη (ίδιο με το principal)</summary>
+        [JsonPropertyName("tin")]
+        public string Tin { get; set; }
+
+        /// <summary>Κωδικός της ΔΟΥ που υπάγεται ο πολίτης</summary>
+        [JsonPropertyName("doy")]
+        public string Doy { get; set; }
+
+        /// <summary>Ονομασία της ΔΟΥ που υπάγεται ο πολίτης</summary>
+        [JsonPropertyName("doyDescr")]
+        public string DoyDescription { get; set; }
+    }
+
+    /// <summary> Family Status Data </summary>
+    public class FamilyStatusData
+    {
+        /// <summary>Κωδικός οικογενειακής κατάστασης</summary>
+        [JsonPropertyName("maritalStatus")]
+        public string MaritalStatus { get; set; }
+
+        /// <summary>Περιγραφή οικογενειακής κατάστασης</summary>
+        [JsonPropertyName("maritalStatusDesc")]
+        public string MaritalStatusDescription { get; set; }
+    }
+
+    /// <summary> Demographics Data </summary>
+    public class DemographicsData
+    {
+        /// <summary>Κωδικός χώρας γέννησης</summary>
+        [JsonPropertyName("birthCountryThreeDigitCode")]
+        public string BirthCountryThreeDigitCode { get; set; }
+
+        /// <summary>Ονομασία χώρας γέννησης</summary>
+        [JsonPropertyName("birthCountryName")]
+        public string BirthCountryName { get; set; }
+
+        /// <summary>Κωδικός Υπηκοότητας</summary>
+        [JsonPropertyName("mainNationalityId")]
+        public string MainNationalityId { get; set; }
+
+        /// <summary>Ονομασία Υπηκοότητας</summary>
+        [JsonPropertyName("mainNationalityName")]
+        public string MainNationalityName { get; set; }
+    }
+
     /// <summary>Encapsulates the actual KYC data.</summary>
     public class ResponseData
     {
@@ -482,6 +530,16 @@ public class KycPayload
         /// <summary>Στοιχεία επαγγελματικής δραστηριότητας</summary>
         [JsonPropertyName("professionalActivity")]
         public KycDataWrapper<ProfessionalActivityData> ProfessionalActivity { get; set; }
+        /// <summary>Στοιχεία ΔΟΥ</summary>
+        [JsonPropertyName("taxidInfo")]
+        public KycDataWrapper<TaxidInfoData> TaxidInfo { get; set; }
+        /// <summary>Στοιχεία Οικογενειακής Κατάστασης</summary>
+        [JsonPropertyName("familyStatus")]
+        public KycDataWrapper<FamilyStatusData> FamilyStatus { get; set; }
+        /// <summary>Δημογραφικά Στοιχεία</summary>
+        [JsonPropertyName("demographics")]
+        public KycDataWrapper<DemographicsData> Demographics { get; set; }
+
     }
 
     /// <summary>Encapsulates a govgr KYC response.</summary>
