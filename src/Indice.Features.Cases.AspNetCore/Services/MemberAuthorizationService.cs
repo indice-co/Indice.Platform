@@ -1,6 +1,8 @@
 ﻿using System.Security.Claims;
 using Indice.Features.Cases.Data;
+using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Exceptions;
+using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Security;
@@ -37,27 +39,27 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     /// <param name="user"></param>
     /// <returns></returns>
     public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, ClaimsPrincipal user) {
-        // if client is systemic or admin, then bypass checks since no filtering is required.
-        if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
-            return cases;
-        }
+        //// if client is systemic or admin, then bypass checks since no filtering is required.
+        //if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
+        //    return cases;
+        //}
 
-        // if the user is not systemic or admin then based on their role they have access to specific checkpoint types and case type codes.
-        var roleClaims = GetUserRoles(user);
-        var members = await GetMembers();
+        //// if the user is not systemic or admin then based on their role they have access to specific checkpoint types and case type codes.
+        //var roleClaims = user.GetUserRoles();
+        //var members = await GetMembers();
 
-        if (GetAllowedCheckpointTypes(roleClaims, members) is not { } allowedCheckpointTypeIds ||
-            GetAllowedCaseTypeCodes(roleClaims, members) is not { } allowedCaseTypeCodes) {
-            // if the (non-admin) user comes with no available caseTypes or CheckpointTypes to see, tough luck!
-            throw new ResourceUnauthorizedException("User does not has access to cases");
-        }
+        //if (GetAllowedCheckpointTypes(roleClaims, members) is not { } allowedCheckpointTypeIds ||
+        //    GetAllowedCaseTypeCodes(roleClaims, members) is not { } allowedCaseTypeCodes) {
+        //    // if the (non-admin) user comes with no available caseTypes or CheckpointTypes to see, tough luck!
+        //    throw new ResourceUnauthorizedException("User does not has access to cases");
+        //}
 
-        if (allowedCheckpointTypeIds.Any()) {
-            cases = cases.Where(cp => allowedCheckpointTypeIds.Contains(cp.CheckpointType.Id.ToString()));
-        }
-        if (allowedCaseTypeCodes.Any()) {
-            cases = cases.Where(cp => allowedCaseTypeCodes.Contains(cp.CaseType.Code));
-        }
+        //if (allowedCheckpointTypeIds.Any()) {
+        //    cases = cases.Where(cp => allowedCheckpointTypeIds.Contains(cp.CheckpointType.Id.ToString()));
+        //}
+        //if (allowedCaseTypeCodes.Any()) {
+        //    cases = cases.Where(cp => allowedCaseTypeCodes.Contains(cp.CaseType.Code));
+        //}
         return cases;
     }
 
@@ -72,16 +74,28 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         if ((user.HasClaim(BasicClaimTypes.Scope, _options.ExpectedScope ?? CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin() || IsOwnerOfCase(user, @case)) {
             return true;
         }
+        var userId = user.FindSubjectIdOrClientId();
+        var roles = user.GetUserRoles();
+        var accessRules = await GetAccessRules();
 
-        var roles = GetUserRoles(user);
-        var members = await GetMembers();
+        var appliedRules = accessRules.Where(x => x.RuleCaseTypeId == @case.CaseType!.Id && x.RuleCheckpointTypeId == @case.CheckpointType.Id);
+        if (!appliedRules.Any()) {
+            return await _dbContext.CaseAccessRules
+                .AsQueryable()
+                .Where(x => x.RuleCaseId == @case.Id)
+                .AnyAsync(x =>
+                  roles.Contains(x.MemberRole) ||
+                  x.MemberUserId == userId ||
+                  x.MemberGroupId == @case.GroupId
+                );
+        }
 
-        var memberships = members
-            .Where(c => roles.Contains(c.RoleName!))
-            .ToList();
-
-        return memberships
-            .Any(x => x.CaseTypeId == @case.CaseType!.Id && x.CheckpointTypeId == @case.CheckpointType.Id);
+        return appliedRules.Any( x => roles.Contains(x.MemberRole) || x.MemberUserId == userId || x.MemberGroupId == @case.GroupId);
+        //var memberships = members
+        //    .Where(c => roles.Contains(c.RoleName!))
+        //    .ToList();
+        //return memberships
+        //    .Any(x => x.CaseTypeId == @case.CaseType!.Id && x.CheckpointTypeId == @case.CheckpointType.Id);
     }
 
     /// <summary>Determines whether user is Owner of a Case</summary>
@@ -91,38 +105,18 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         user.FindSubjectId().Equals(@case.CreatedById);
 
     /// <summary>Gets the list of Members</summary>
-    private async Task<List<Member>> GetMembers() {
+    private async Task<List<DbCaseAccessRule>> GetAccessRules() {
         return await _distributedCache.TryGetAndSetAsync(
             cacheKey: $"{MembersCacheKey}",
-            getSourceAsync: async () => await _dbContext.Members
+            getSourceAsync: async () => await _dbContext.CaseAccessRules
                 .AsQueryable()
-                .Select(c => new Member {
-                    Id = c.Id,
-                    RoleName = c.RoleName,
-                    CaseTypeId = c.CaseTypeId,
-                    CheckpointTypeId = c.CheckpointTypeId,
-                    CaseTypePartial = new CaseTypePartial {
-                        Id = c.CaseTypeId,
-                        Code = c.CaseType!.Code
-                    },
-                    CheckpointType = new CheckpointType {
-                        Id = c.CheckpointTypeId,
-                        Code = c.CheckpointType!.Code
-                    }
-                })
+                .Where(x=>x.RuleCaseTypeId.HasValue || x.RuleCheckpointTypeId.HasValue)
                 .ToListAsync(),
             options: new DistributedCacheEntryOptions {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
             });
     }
 
-    /// <summary>Gets user's list of Role Claims</summary>
-    /// <param name="user"></param>
-    private List<string> GetUserRoles(ClaimsPrincipal user) =>
-        user.Claims
-            .Where(c => c.Type == BasicClaimTypes.Role)
-            .Select(c => c.Value)
-            .ToList();
 
     private List<string> GetAllowedCheckpointTypes(List<string> roleClaims, List<Member> members) {
         // what CheckpointTypes can the user see based on their ROLE(S)?

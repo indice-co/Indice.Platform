@@ -119,9 +119,9 @@ internal class CaseTypeService : ICaseTypeService
         if (casesWithCaseType) {
             throw new ValidationException("Case type cannot be deleted because there are cases with this type.");
         }
-        var roleCaseTypes = await _dbContext.Members.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
+        var roleCaseTypes = await _dbContext.CaseAccessRules.AsQueryable().Where(x => x.RuleCaseTypeId == caseTypeId).ToListAsync();
         if (roleCaseTypes.Any()) {
-            roleCaseTypes.ForEach(x => _dbContext.Members.Remove(x));
+            roleCaseTypes.ForEach(x => _dbContext.CaseAccessRules.Remove(x));
         }
         var checkpointTypes = await _dbContext.CheckpointTypes.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
         if (checkpointTypes.Any()) {
@@ -138,8 +138,8 @@ internal class CaseTypeService : ICaseTypeService
             .Include(x => x.CheckpointTypes)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        var caseTypeRoles = await _dbContext.Members.AsQueryable()
-            .Where(p => p.CaseTypeId == id)
+        var caseTypeRoles = await _dbContext.CaseAccessRules.AsQueryable()
+            .Where(p => p.RuleCaseTypeId == id)
             .ToListAsync();
 
         var caseType = new CaseType {
@@ -162,8 +162,8 @@ internal class CaseTypeService : ICaseTypeService
                 Private = checkpointType.Private,
                 Status = checkpointType.Status,
                 Roles = caseTypeRoles
-                    .Where(roleCaseType => roleCaseType.CheckpointTypeId == checkpointType.Id)
-                    .Select(roleCaseType => roleCaseType.RoleName)
+                    .Where(roleCaseType => roleCaseType.RuleCheckpointTypeId == checkpointType.Id)
+                    .Select(roleCaseType => roleCaseType.MemberRole)
             }),
             IsMenuItem = dbCaseType.IsMenuItem,
             GridColumnConfig = dbCaseType.GridColumnConfig,
@@ -268,10 +268,11 @@ internal class CaseTypeService : ICaseTypeService
     }
 
     private async Task<List<Guid>> GetCaseTypeIds(List<string> roleClaims) {
-        return await _dbContext.Members
+        return await _dbContext.CaseAccessRules
                 .AsQueryable()
-                .Where(r => roleClaims.Contains(r.RoleName))
-                .Select(c => c.CaseTypeId)
+                .Where(r => r.RuleCaseTypeId.HasValue)
+                .Where(r => roleClaims.Contains(r.MemberRole))
+                .Select(c => c.RuleCaseTypeId.Value)
                 .ToListAsync();
     }
 
