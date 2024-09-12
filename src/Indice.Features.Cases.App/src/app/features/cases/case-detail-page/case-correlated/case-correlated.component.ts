@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.service';
 
@@ -9,19 +10,13 @@ import { CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.
 export class CaseCorrelatedComponent implements OnInit {
 
   @Input() correlatedCasesIds: string[] | undefined;
+  currentCaseId: string = "";
 
-  constructor(private api: CasesApiService) { }
+  constructor(private api: CasesApiService, private route: ActivatedRoute) { }
 
-  ngOnInit(): void { }
-
-  // onAttachmentClick(attachmentId: string) {
-  //   this.api.downloadAttachment(attachmentId)
-  //     .pipe(
-  //       tap(results => {
-  //         // saveAs(results.data, results.fileName);
-  //         const fileURL = window.URL.createObjectURL(results.data);
-  //         window.open(fileURL, '_blank');
-  //       }))
-  //     .subscribe();
-  // }
+  ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      this.currentCaseId = params['caseId'];
+    });
+  }
 }

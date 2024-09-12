@@ -4,9 +4,12 @@
   </h3>
   <ol class="list-decimal ml-6 space-y-4">
     <li *ngFor="let entry of correlatedCasesIds">
-      <a
-        [routerLink]="['/cases', entry, 'details']"
-        class="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+      <!-- work in progress! its not working
+      <ng-container *ngIf="entry === currentCaseId">
+        <div>Case {{ entry }}</div>
+      </ng-container> -->
+      <a [routerLink]="['/cases', entry, 'details']"
+         class="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
         Case: {{ entry }}
       </a>
     </li>
