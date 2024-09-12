@@ -97,7 +97,7 @@ internal class AdminCasesController : ControllerBase
         return Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });
     }
 
-    /// <summary>Get an Case Attachment</summary>
+    /// <summary>Get a Case Attachment</summary>
     /// <param name="caseId"></param>
     /// <param name="attachmentId"></param>
     /// <returns></returns>
@@ -107,6 +107,24 @@ internal class AdminCasesController : ControllerBase
     [Produces(typeof(IFormFile))]
     public async Task<IActionResult> GetCaseAttachment([FromRoute] Guid caseId, [FromRoute] Guid attachmentId) {
         var attachment = await _adminCaseService.GetAttachment(caseId, attachmentId);
+        if (attachment is null) {
+            return NotFound();
+        }
+        return File(attachment.Data, attachment.ContentType, attachment.Name);
+    }
+
+    /// <summary>
+    /// Get a Case Attachment by name
+    /// </summary>
+    /// <param name="caseId"></param>
+    /// <param name="attachmentName"></param>
+    /// <returns></returns>
+    [HttpGet("{caseId:guid}/attachments/{attachmentName}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+    [Produces(typeof(IFormFile))]
+    public async Task<IActionResult> GetAttachmentByName([FromRoute] Guid caseId, [FromRoute] string attachmentName) {
+        var attachment = await _adminCaseService.GetAttachmentByName(caseId, attachmentName);
         if (attachment is null) {
             return NotFound();
         }
