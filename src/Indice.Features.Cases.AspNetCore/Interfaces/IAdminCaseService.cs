@@ -88,7 +88,7 @@ public interface IAdminCaseService
     Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId);
 
     /// <summary>
-    /// Gets a single Case Attachment 
+    /// Gets a single Case Attachment by name
     /// </summary>
     /// <param name="caseId"></param>
     /// <param name="attachmentName"></param>
