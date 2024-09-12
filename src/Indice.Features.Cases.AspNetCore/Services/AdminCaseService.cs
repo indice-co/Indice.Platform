@@ -355,25 +355,10 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return attachment;
     }
 
-    public async Task<CaseAttachment> GetAttachmentByName(Guid caseId, string attachmentName) {
-        var attachments = await _dbContext.Attachments.AsNoTracking().Where(x => x.CaseId == caseId).ToListAsync();
-
-        foreach (var attachment in attachments) {
-            var json = JsonDocument.Parse(attachment.Data);
-            bool found = json.RootElement.TryGetProperty(attachmentName, out _);
-
-            if (found) {
-                return new CaseAttachment {
-                    Id = attachment.Id,
-                    ContentType = attachment.ContentType,
-                    Name = attachment.Name,
-                    Extension = attachment.FileExtension,
-                    Data = attachment.Data
-                };
-            }
-        }
-
-        return null;
+    public async Task<CaseAttachment> GetAttachmentByField(ClaimsPrincipal user, Guid caseId, string fieldName) {
+        var attachmentId = (await GetCaseById(user, caseId, false)).Metadata[fieldName];
+        var attachment = await GetAttachment(caseId, new Guid(attachmentId));
+        return attachment;
     }
 
     public async Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata) {

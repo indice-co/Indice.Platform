@@ -114,17 +114,17 @@ internal class AdminCasesController : ControllerBase
     }
 
     /// <summary>
-    /// Get a Case Attachment by name
+    /// Get a Case Attachment by field name
     /// </summary>
     /// <param name="caseId"></param>
-    /// <param name="attachmentName"></param>
+    /// <param name="fieldName"></param>
     /// <returns></returns>
     [HttpGet("{caseId:guid}/attachments/{attachmentName}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
     [Produces(typeof(IFormFile))]
-    public async Task<IActionResult> GetAttachmentByName([FromRoute] Guid caseId, [FromRoute] string attachmentName) {
-        var attachment = await _adminCaseService.GetAttachmentByName(caseId, attachmentName);
+    public async Task<IActionResult> GetAttachmentByField([FromRoute] Guid caseId, [FromRoute] string fieldName) {
+        var attachment = await _adminCaseService.GetAttachmentByField(User, caseId, fieldName);
         if (attachment is null) {
             return NotFound();
         }
