@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Linq.Expressions;
 using System.Security.Claims;
+using System.Text.Json;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Events;
@@ -354,10 +355,21 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return attachment;
     }
 
+    public async Task<CaseAttachment> GetAttachmentByField(ClaimsPrincipal user, Guid caseId, string fieldName) {
+        var stringifiedCaseData = (await GetCaseById(user, caseId, false)).DataAs<string>();
+        var json = JsonDocument.Parse(stringifiedCaseData);
+        bool found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
+        if (found) {
+            var attachment = await GetAttachment(caseId, attachmentId.GetGuid());
+            return attachment;
+        }
+        return null;
+    }
+
     public async Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata) {
         // Check that user role can view this case
         await GetCaseById(User, caseId, false);
-        
+
         var dbCase = await _dbContext.Cases.FindAsync(caseId);
         if (dbCase == null) {
             return false;
