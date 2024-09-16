@@ -128,8 +128,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                 });
         } else {
             query = (from @case in queryCases
-                     join checkpoints in _dbContext.Checkpoints
-                        on @case.CheckpointId equals checkpoints.Id
+                     join checkpoint in _dbContext.Checkpoints
+                        on @case.CheckpointId equals checkpoint.Id
                      //into casescheckpoints
                      let caseAccess = _dbContext.CaseAccessRules.Where(x => x.RuleCaseId == @case.Id &&
                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
@@ -144,7 +144,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
-                     let CheckpointIdAccess = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == checkpoints.Id &&
+                     let CheckpointIdAccess = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
@@ -163,7 +163,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .Any()
-                     let CheckpointIdACondition = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == @case.CheckpointId &&
+                     let CheckpointIdACondition = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
                                     (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                     (inputGroupId != null && x.MemberGroupId == inputGroupId)))
@@ -196,7 +196,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                          },
                          AssignedToName = @case.AssignedTo.Name,
                          Data = options.Filter.IncludeData ? @case.Data : null,
-                         AccessLevel = new[] { caseAccess, CaseTypeAccess, CheckpointIdAccess }.Max()
+                         AccessLevel = new List<int> { caseAccess, CaseTypeAccess, CheckpointIdAccess }.Max()
+                         //new[] { caseAccess, CaseTypeAccess, CheckpointIdAccess }.Max()
                      }
                         );
         }
@@ -205,11 +206,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         //// if a CaseAuthorizationService down the line wants to 
         //// not allow a user to see the list of case, it throws a ResourceUnauthorizedException
         //// which we catch and return an empty resultset. 
-        //try {
-        //    query = await _memberAuthorizationProvider.GetCaseMembership(query, user);
-        //} catch (ResourceUnauthorizedException) {
-        //    return new List<CasePartial>().ToResultSet();
-        //}
+        try {
+            query = await _memberAuthorizationProvider.GetCaseMembership(query, user);
+        } catch (ResourceUnauthorizedException) {
+            return new List<CasePartial>().ToResultSet();
+        }
 
         // filter ReferenceNumbers
         if (options.Filter.ReferenceNumbers.Any()) {

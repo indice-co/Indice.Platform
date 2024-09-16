@@ -78,7 +78,7 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         var roles = user.GetUserRoles();
         var accessRules = await GetAccessRules();
 
-        var appliedRules = accessRules.Where(x => x.RuleCaseTypeId == @case.CaseType!.Id && x.RuleCheckpointTypeId == @case.CheckpointType.Id);
+        var appliedRules = accessRules.Where(x => x.RuleCaseTypeId == @case.CaseType!.Id || x.RuleCheckpointTypeId == @case.CheckpointType.Id);
         if (!appliedRules.Any()) {
             return await _dbContext.CaseAccessRules
                 .AsQueryable()

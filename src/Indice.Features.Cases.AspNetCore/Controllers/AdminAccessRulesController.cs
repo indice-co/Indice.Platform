@@ -33,7 +33,7 @@ internal class AdminAccessRulesController : ControllerBase
     [HttpGet]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<AccessRule>))]
-    public async Task<IActionResult> GetAccessRules(ListOptions<GetAccessRulesListFilter> filters) {
+    public async Task<IActionResult> GetAccessRules([FromQuery] ListOptions<GetAccessRulesListFilter> filters) {
         var AccessRuless = await _accessRuleService.Get(filters);
         return Ok(AccessRuless);
     }

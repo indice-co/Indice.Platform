@@ -55,7 +55,7 @@ public class MyCaseServiceTests : IDisposable
             mockMyCaseMessageService.Object,
             mockJsonTranslationService.Object,
             mockResourceService);
-        var options = new ListOptions<GetAccessRulesListFilter>() { };
+        var options = new ListOptions<GetMyCasesListFilter>() { };
         //options.AddSort(new SortByClause("checkpointcontainsDownloaded", "DESC"));
         options.AddSort(new SortByClause("Created", "DESC"));
         var result = await myCaseService.GetCases(User(), options);
@@ -95,10 +95,10 @@ public class MyCaseServiceTests : IDisposable
             mockMyCaseMessageService.Object,
             mockJsonTranslationService.Object,
             mockResourceService);
-        var options = new ListOptions<GetAccessRulesListFilter>() {
+        var options = new ListOptions<GetMyCasesListFilter>() {
             Page = 1,
             Size = 1,
-            Filter = new GetAccessRulesListFilter() {
+            Filter = new GetMyCasesListFilter() {
                 Data = [FilterClause.Parse("data.customerId::Contains::(string)667")]
             }
         };

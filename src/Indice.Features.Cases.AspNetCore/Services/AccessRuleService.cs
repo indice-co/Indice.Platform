@@ -10,6 +10,9 @@ using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Features.Cases.Exceptions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 
 namespace Indice.Features.Cases.Services;
 
@@ -23,20 +26,66 @@ internal class AccessRuleService : IAccessRuleService
 
 
     public Task<ResultSet<AccessRule>> Get(ListOptions<GetAccessRulesListFilter> filters) {
-        return _dbContext.CaseAccessRules
-          .AsNoTracking()
-          .Where(filters.Filter.Metadata)// filter Metadata
-          .Select(rule => new AccessRule {
-              Id = rule.Id,
-              AccessLevel = rule.AccessLevel,
-              RuleCaseId = rule.RuleCaseId,
-              RuleCaseTypeId = rule.RuleCaseTypeId,
-              RuleCheckpointTypeId = rule.RuleCheckpointTypeId,
-              MemberRole = rule.MemberRole,
-              MemberGroupId = rule.MemberGroupId,
-              MemberUserId = rule.MemberUserId
-          })
-        .ToResultSetAsync(filters);
+
+
+
+        var query = _dbContext.CaseAccessRules
+          .AsNoTracking();
+        // also: filter CheckpointTypeIds
+        if (filters.Filter.Checkpoint.HasValue) {
+
+            query = filters.Filter.Checkpoint.Value.Operator switch {
+                FilterOperator.Eq => query.Where(c => c.RuleCheckpointTypeId.Equals(filters.Filter.Checkpoint.Value.Value)),
+                FilterOperator.Neq => query.Where(c => !c.RuleCheckpointTypeId.Equals(filters.Filter.Checkpoint.Value.Value)),
+                _ => query
+            };
+        }
+
+        if (filters.Filter.CaseType.HasValue) {
+            query = filters.Filter.CaseType.Value.Operator switch {
+                FilterOperator.Eq => query.Where(c => c.RuleCaseId.Equals(filters.Filter.CaseType.Value.Value)),
+                FilterOperator.Neq => query.Where(c => !c.RuleCaseId.Equals(filters.Filter.CaseType.Value.Value)),
+                _ => query
+            };
+        }
+
+        if (filters.Filter.GroupId.HasValue) {
+            query = filters.Filter.GroupId.Value.Operator switch {
+                FilterOperator.Eq => query.Where(c => c.RuleCaseId.Equals(filters.Filter.GroupId.Value.Value)),
+                FilterOperator.Neq => query.Where(c => !c.RuleCaseId.Equals(filters.Filter.GroupId.Value.Value)),
+                _ => query
+            };
+        }
+
+        if (filters.Filter.Role.HasValue) {
+            query = filters.Filter.Role.Value.Operator switch {
+                FilterOperator.Eq => query.Where(c => c.RuleCaseId.Equals(filters.Filter.Role.Value.Value)),
+                FilterOperator.Neq => query.Where(c => !c.RuleCaseId.Equals(filters.Filter.Role.Value.Value)),
+                _ => query
+            };
+        }
+
+        var results = query.Select(rule => new AccessRule {
+            Id = rule.Id,
+            AccessLevel = rule.AccessLevel,
+            RuleCaseId = rule.RuleCaseId,
+            RuleCaseTypeId = rule.RuleCaseTypeId,
+            RuleCheckpointTypeId = rule.RuleCheckpointTypeId,
+            MemberRole = rule.MemberRole,
+            MemberGroupId = rule.MemberGroupId,
+            MemberUserId = rule.MemberUserId
+        }).ToList();
+        return query.Select(rule => new AccessRule {
+            Id = rule.Id,
+            AccessLevel = rule.AccessLevel,
+            RuleCaseId = rule.RuleCaseId,
+            RuleCaseTypeId = rule.RuleCaseTypeId,
+            RuleCheckpointTypeId = rule.RuleCheckpointTypeId,
+            MemberRole = rule.MemberRole,
+            MemberGroupId = rule.MemberGroupId,
+            MemberUserId = rule.MemberUserId
+        })
+            .ToResultSetAsync(filters);
     }
 
     public async Task AdminCreate(ClaimsPrincipal user, AddAccessRuleRequest accessRule) {
@@ -44,7 +93,7 @@ internal class AccessRuleService : IAccessRuleService
         var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin());
 
         if (!isSystemOrAdmin) {
-            throw new ValidationException("User does not have administrator rights.");
+            throw new UnauthorizedAccessException("User does not have administrator rights.");
         }
         if (!accessRule.IsValid())
             throw new ValidationException("At least one resource Id must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId) with at least one grant (MemberRole, MemberGroupId, MemberUserId).");
@@ -59,7 +108,7 @@ internal class AccessRuleService : IAccessRuleService
         var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin());
 
         if (!isSystemOrAdmin) {
-            throw new ValidationException("User does not have administrator rights.");
+            throw new UnauthorizedAccessException("User does not have administrator rights.");
         }
         if (accessRules.Exists(x => !x.IsValid()))
             throw new ValidationException("At least one resource Id must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId) with a grant (MemberRole, MemberGroupId, MemberUserId)  for all records.");
@@ -70,21 +119,6 @@ internal class AccessRuleService : IAccessRuleService
 
         await _dbContext.SaveChangesAsync();
     }
-
-    public async Task<AccessRule> AdminUpdate(ClaimsPrincipal user, Guid accessRuleId, int accessLevel) {
-       
-
-        var dbAccessRule = await _dbContext.CaseAccessRules
-                            .AsQueryable()
-                            .FirstOrDefaultAsync(x => x.Id == accessRuleId) ?? throw new ValidationException("Case type code cannot be changed.");
-
-        // Update case type entity
-        dbAccessRule.AccessLevel = accessLevel;
-        _dbContext.CaseAccessRules.Update(dbAccessRule);
-        await _dbContext.SaveChangesAsync();
-        return ToDto(dbAccessRule);
-    }
-
 
 
     public async Task Create(ClaimsPrincipal user, Guid caseId, AddCaseAccessRuleRequest accessRule) {
@@ -107,7 +141,7 @@ internal class AccessRuleService : IAccessRuleService
                              .FirstOrDefaultAsync(x => x.Id == accessRuleId) ?? throw new AccessRuleFoundException("Rule was not not found.");
 
         if (!isSystemOrAdmin && dbAccessRule.RuleCaseId is null) {
-            throw new ValidationException("Only admin users can update this rule");
+            throw new UnauthorizedAccessException("Only admin users can update this rule");
         }
         // Update case type entity
         dbAccessRule.AccessLevel = accessLevel;
@@ -136,7 +170,7 @@ internal class AccessRuleService : IAccessRuleService
                              .FirstOrDefaultAsync(x => x.Id == id) ?? throw new AccessRuleFoundException("Rule was not not found.");
 
         if (!isSystemOrAdmin && dbAccessRule.RuleCaseId is null) {
-            throw new ValidationException("Only admin users can update this rule");
+            throw new UnauthorizedAccessException("Only admin users can update this rule");
         }
         _dbContext.CaseAccessRules.Remove(dbAccessRule);
         await _dbContext.SaveChangesAsync();

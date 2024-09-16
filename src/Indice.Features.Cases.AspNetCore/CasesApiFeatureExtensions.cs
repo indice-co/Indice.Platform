@@ -156,6 +156,7 @@ public static class CasesApiFeatureExtensions
         services.AddTransient<ISchemaValidator, SchemaValidator>();
         services.AddTransient<ICaseApprovalService, CaseApprovalService>();
         services.AddTransient<INotificationSubscriptionService, NotificationSubscriptionService>();
+        services.AddTransient<IAccessRuleService, AccessRuleService>();
         services.AddSmsServiceYubotoOmni(configuration)
             .AddViberServiceYubotoOmni(configuration)
             .AddEmailServiceSparkPost(configuration)
