@@ -138,6 +138,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                                     )
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
+
                      let CaseTypeAccess = _dbContext.CaseAccessRules.Where(x => x.RuleCaseTypeId == @case.CaseTypeId &&
                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
@@ -145,11 +146,19 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
                      let CheckpointIdAccess = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
+                                     x.RuleCaseId == null &&
                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
+                     let caseCheckpointIdAccess = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
+                                      x.RuleCaseId == @case.Id &&
+                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
+                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                                     .Select(x => x.AccessLevel)
+                                     .FirstOrDefault()
 
                      let caseAccessCondition = _dbContext.CaseAccessRules.Where(x => x.RuleCaseId == @case.Id &&
                                       ((userId != null && x.MemberUserId == userId.ToString()) ||
@@ -163,14 +172,23 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .Any()
-                     let CheckpointIdACondition = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
+                     let CheckpointIdACondition = _dbContext.CaseAccessRules.Where(x =>
+                                    x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
+                                    x.RuleCaseId == null &&
                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
                                     (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                     (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .Any()
+                     let caseCheckpointIdCondition = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
+                                  x.RuleCaseId == @case.Id &&
+                                  ((userId != null && x.MemberUserId == userId.ToString()) ||
+                                  (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                  (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                                 .Select(x => x.AccessLevel)
+                                 .Any()
 
-                     where (caseAccessCondition || CaseTypeCondition || CheckpointIdACondition)
+                     where (caseAccessCondition || CaseTypeCondition || CheckpointIdACondition || caseCheckpointIdCondition)
 
                      select new CasePartial {
                          Id = @case.Id,
@@ -196,10 +214,8 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                          },
                          AssignedToName = @case.AssignedTo.Name,
                          Data = options.Filter.IncludeData ? @case.Data : null,
-                         AccessLevel = new List<int> { caseAccess, CaseTypeAccess, CheckpointIdAccess }.Max()
-                         //new[] { caseAccess, CaseTypeAccess, CheckpointIdAccess }.Max()
-                     }
-                        );
+                         AccessLevel = new List<int> { caseAccess, CaseTypeAccess, CheckpointIdAccess, caseCheckpointIdAccess }.Max()
+                     });
         }
 
         //// TODO: not crazy about this one
