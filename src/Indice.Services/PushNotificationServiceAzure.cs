@@ -58,7 +58,7 @@ public class PushNotificationServiceAzure : IPushNotificationService
                 });
                 break;
             case DevicePlatform.Android:
-                installationRequest.Platform = NotificationPlatform.Fcm;
+                installationRequest.Platform = NotificationPlatform.FcmV1;
                 installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
                     Body = PushNotificationAzureOptions.SilentNotifications ?? true ? PushNotificationServiceAzureTemplates.Silent.ANDROID : PushNotificationServiceAzureTemplates.Generic.ANDROID
                 });
@@ -147,17 +147,21 @@ public class PushNotificationServiceAzureTemplates
             }";
 
         /// <summary>Android generic template.</summary>
-        public const string ANDROID = @"{
-                ""notification"":{
-                    ""title"": ""$(message)"",
-                    ""body"": ""$(body)""
-                },
-                ""data"":{
-                    ""message"": ""$(message)"", 
-                    ""data"": ""$(data)"", 
-                    ""category"": ""$(classification)""
-                }
-            }";
+        public const string ANDROID = """
+            {
+            	"message": {
+            		"notification": {
+            			"title": "$(message)",
+            			"body": "$(body)",
+            		},
+            		"data": {
+            			"message": "$(message)",
+            			"data": "$(data)",
+            			"category": "$(classification)"
+            		}
+            	}
+            }
+            """;
     }
 
     /// <summary>Silent templates.</summary>
@@ -181,12 +185,16 @@ public class PushNotificationServiceAzureTemplates
             }";
 
         /// <summary>Android silent template.</summary>
-        public const string ANDROID = @"{
-                ""data"":{
-                    ""message"": ""$(message)"", 
-                    ""data"": ""$(data)"", 
-                    ""category"": ""$(classification)""
-                }
-            }";
+        public const string ANDROID = """            
+            {
+            	"message": {
+            		"data": {
+            			"message": "$(message)",
+            			"data": "$(data)",
+            			"category": "$(classification)"
+            		}
+            	}
+            }            
+            """;
     }
 }

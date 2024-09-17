@@ -34,7 +34,19 @@ public class GovGrKycScopeDescriber
              new ScopeDescription {
                  Scope = GovGrKycScopes.ProfessionalActivity,
                  Description = loc["ProfessionalActivityDescription"]
-             }
+             },
+             new ScopeDescription {
+                 Scope = GovGrKycScopes.TaxIdInfo,
+                 Description = loc["TaxIdInfoDescription"]
+             },
+             new ScopeDescription {
+                 Scope = GovGrKycScopes.FamilyStatus,
+                 Description = loc["FamilyStatusDescription"]
+             },
+            new ScopeDescription {
+                 Scope = GovGrKycScopes.Demographics,
+                 Description = loc["DemographicsDescription"]
+             },
         };
     }
 }
