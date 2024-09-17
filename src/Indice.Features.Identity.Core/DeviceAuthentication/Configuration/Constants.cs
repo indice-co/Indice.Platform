@@ -1,10 +1,12 @@
 ﻿using IdentityModel;
+using Indice.Features.Identity.Core.Data.Models;
 
 namespace Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 
 internal class Constants
 {
-    public static string DeviceAuthenticationOtpPurpose(string userId, string deviceId) => $"device-registration:{userId}:{deviceId}";
+    public static string DeviceAuthenticationOtpPurpose(string userId, string deviceId, InteractionMode interactionMode) => 
+        $"device-registration:{userId}:{deviceId}:{interactionMode}";
 
     public static readonly string[] ProtocolClaimsFilter = {
         JwtClaimTypes.AccessTokenHash,

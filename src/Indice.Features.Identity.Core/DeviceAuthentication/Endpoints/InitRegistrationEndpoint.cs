@@ -112,7 +112,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
                 .ToPrincipal(requestValidationResult?.Principal)
                 .WithMessage(IdentityMessageDescriber.DeviceRegistrationCodeMessage(existingDevice?.Name, requestValidationResult!.InteractionMode))
                 .UsingDeliveryChannel(requestValidationResult!.DeliveryChannel)
-                .WithPurpose(Constants.DeviceAuthenticationOtpPurpose(requestValidationResult!.UserId!, requestValidationResult!.DeviceId!))
+                .WithPurpose(Constants.DeviceAuthenticationOtpPurpose(requestValidationResult!.UserId!, requestValidationResult!.DeviceId!, requestValidationResult!.InteractionMode))
             );
             if (!totpResult.Success) {
                 return Error(totpResult.Error);
