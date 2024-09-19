@@ -59,7 +59,7 @@ public class CasePartial
     /// <summary>Indicate if the case is in draft mode.</summary>
     public bool Draft { get; set; }
 
-
+    /// <summary>Indicates the access of the user on this case. For admin Users the access level is set to default 111</summary>
     public int AccessLevel { get; set; }
 
     /// <summary>Convert case data to typed version.</summary>

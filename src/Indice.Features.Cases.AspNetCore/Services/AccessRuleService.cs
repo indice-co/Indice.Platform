@@ -26,9 +26,6 @@ internal class AccessRuleService : IAccessRuleService
 
 
     public Task<ResultSet<AccessRule>> Get(ListOptions<GetAccessRulesListFilter> filters) {
-
-
-
         var query = _dbContext.CaseAccessRules
           .AsNoTracking();
         // also: filter CheckpointTypeIds
@@ -65,16 +62,6 @@ internal class AccessRuleService : IAccessRuleService
             };
         }
 
-        var results = query.Select(rule => new AccessRule {
-            Id = rule.Id,
-            AccessLevel = rule.AccessLevel,
-            RuleCaseId = rule.RuleCaseId,
-            RuleCaseTypeId = rule.RuleCaseTypeId,
-            RuleCheckpointTypeId = rule.RuleCheckpointTypeId,
-            MemberRole = rule.MemberRole,
-            MemberGroupId = rule.MemberGroupId,
-            MemberUserId = rule.MemberUserId
-        }).ToList();
         return query.Select(rule => new AccessRule {
             Id = rule.Id,
             AccessLevel = rule.AccessLevel,
@@ -85,7 +72,7 @@ internal class AccessRuleService : IAccessRuleService
             MemberGroupId = rule.MemberGroupId,
             MemberUserId = rule.MemberUserId
         })
-            .ToResultSetAsync(filters);
+        .ToResultSetAsync(filters);
     }
 
     public async Task AdminCreate(ClaimsPrincipal user, AddAccessRuleRequest accessRule) {

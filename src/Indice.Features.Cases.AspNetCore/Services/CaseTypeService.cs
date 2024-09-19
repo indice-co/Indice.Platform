@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using Indice.Features.Cases.Data;
@@ -123,6 +124,18 @@ internal class CaseTypeService : ICaseTypeService
         if (roleCaseTypes.Any()) {
             roleCaseTypes.ForEach(x => _dbContext.CaseAccessRules.Remove(x));
         }
+
+        var accessRulecheckpointTypes = await (
+                                         from rule in _dbContext.CaseAccessRules
+                                         join checkpointType in _dbContext.CheckpointTypes
+                                             on rule.RuleCheckpointTypeId equals checkpointType.Id
+                                         where checkpointType.CaseTypeId == caseTypeId
+                                         select rule
+                                         ).ToListAsync();
+        if (accessRulecheckpointTypes.Any()) {
+            accessRulecheckpointTypes.ForEach(x => _dbContext.CaseAccessRules.Remove(x));
+        }
+
         var checkpointTypes = await _dbContext.CheckpointTypes.AsQueryable().Where(x => x.CaseTypeId == caseTypeId).ToListAsync();
         if (checkpointTypes.Any()) {
             checkpointTypes.ForEach(x => _dbContext.CheckpointTypes.Remove(x));

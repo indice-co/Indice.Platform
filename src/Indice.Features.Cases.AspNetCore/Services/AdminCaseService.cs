@@ -124,7 +124,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                     },
                     AssignedToName = @case.AssignedTo.Name,
                     Data = options.Filter.IncludeData ? @case.Data : null,
-                    AccessLevel = 100
+                    AccessLevel = 111
                 });
         } else {
             query = (from @case in queryCases

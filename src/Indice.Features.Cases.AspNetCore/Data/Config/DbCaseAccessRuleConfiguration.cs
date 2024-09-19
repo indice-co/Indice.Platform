@@ -10,7 +10,7 @@ internal class DbCaseAccessRuleConfiguration : IEntityTypeConfiguration<DbCaseAc
 {
     public void Configure(EntityTypeBuilder<DbCaseAccessRule> builder) {
         builder
-            .ToTable("Member");
+            .ToTable("AccessRule");
         builder
             .HasKey(p => p.Id);
 
