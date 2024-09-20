@@ -531,9 +531,9 @@ internal static class MyAccountHandlers
         }
         var result = await userManager.CreateAsync(user, request.Password!);
         if (!result.Succeeded) {
-            TypedResults.ValidationProblem(result.Errors.ToDictionary());
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        //var token = await userManager.GenerateEmailConfirmationTokenAsync(user); // in case we need this
         return TypedResults.NoContent();
     }
 
