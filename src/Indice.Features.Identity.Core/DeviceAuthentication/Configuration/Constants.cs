@@ -6,9 +6,9 @@ namespace Indice.Features.Identity.Core.DeviceAuthentication.Configuration;
 internal class Constants
 {
     public static string DeviceAuthenticationOtpPurpose(string userId, string deviceId, InteractionMode interactionMode) => 
-        $"device-registration:{userId}:{deviceId}:{interactionMode}";
+        $"device-registration:{interactionMode}:{userId}:{deviceId}";
 
-    public static readonly string[] ProtocolClaimsFilter = {
+    public static readonly string[] ProtocolClaimsFilter = [
         JwtClaimTypes.AccessTokenHash,
         JwtClaimTypes.Audience,
         JwtClaimTypes.AuthorizedParty,
@@ -23,7 +23,7 @@ internal class Constants
         JwtClaimTypes.ReferenceTokenId,
         JwtClaimTypes.SessionId,
         JwtClaimTypes.Scope
-    };
+    ];
 }
 
 internal static class RegistrationRequestParameters
