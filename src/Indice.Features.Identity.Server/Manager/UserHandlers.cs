@@ -202,6 +202,19 @@ internal static class UserHandlers
             allRoles.FindAll(r => request.Roles.Contains(r.NormalizedName, StringComparer.OrdinalIgnoreCase))
                     .ForEach(r => user.Roles.Add(new () { UserId = user.Id, RoleId = r.Id }));
         }
+
+        // handle claims addition
+        var claims = request.Claims?.Count > 0 ? request.Claims.Select(x => new Claim(x.Type!, x.Value!)).ToList() : [];
+        if (!string.IsNullOrEmpty(request.FirstName)) {
+            claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
+        }
+        if (!string.IsNullOrEmpty(request.LastName)) {
+            claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
+        }
+        if (claims.Any()) {
+            await userManager.AddClaimsAsync(user, claims);
+        }
+
         if (string.IsNullOrEmpty(request.Password)) {
             result = await userManager.CreateAsync(user);
         } else {
@@ -213,17 +226,17 @@ internal static class UserHandlers
         if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
         }
-        // claims
-        var claims = request.Claims?.Count > 0 ? request.Claims.Select(x => new Claim(x.Type!, x.Value!)).ToList() : [];
-        if (!string.IsNullOrEmpty(request.FirstName)) {
-            claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
-        }
-        if (!string.IsNullOrEmpty(request.LastName)) {
-            claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
-        }
-        if (claims.Any()) {
-            await userManager.AddClaimsAsync(user, claims);
-        }
+        //// claims
+        //var claims = request.Claims?.Count > 0 ? request.Claims.Select(x => new Claim(x.Type!, x.Value!)).ToList() : [];
+        //if (!string.IsNullOrEmpty(request.FirstName)) {
+        //    claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
+        //}
+        //if (!string.IsNullOrEmpty(request.LastName)) {
+        //    claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
+        //}
+        //if (claims.Any()) {
+        //    await userManager.AddClaimsAsync(user, claims);
+        //}
         var response = SingleUserInfo.FromUser(user);
         if (request.Roles?.Count > 0) {
             response.Roles = allRoles.FindAll(r => request.Roles.Contains(r.NormalizedName, StringComparer.OrdinalIgnoreCase)).Select(x => x.Name!).ToList();
