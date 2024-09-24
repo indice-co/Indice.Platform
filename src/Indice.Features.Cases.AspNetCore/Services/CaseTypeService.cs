@@ -151,10 +151,16 @@ internal class CaseTypeService : ICaseTypeService
             .Include(x => x.CheckpointTypes)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        var caseTypeRoles = await _dbContext.CaseAccessRules.AsQueryable()
-            .Where(p => p.RuleCaseTypeId == id)
-            .ToListAsync();
+        var caseTypeRoles = await _dbContext.CaseAccessRules
+                            .AsNoTracking()
+                            .Where(p => p.RuleCaseTypeId == id && !string.IsNullOrEmpty(p.MemberRole))
+                            .ToListAsync();
 
+        var caseCheckPointRoles = await _dbContext.CaseAccessRules
+                                .AsNoTracking()
+                                .Include(x => x.CheckpointType)
+                                .Where(p => p.CheckpointType.CaseTypeId == id && !string.IsNullOrEmpty(p.MemberRole))
+                                .ToListAsync();
         var caseType = new CaseType {
             Id = id,
             Code = dbCaseType.Code,
@@ -174,16 +180,20 @@ internal class CaseTypeService : ICaseTypeService
                 Description = checkpointType.Description,
                 Private = checkpointType.Private,
                 Status = checkpointType.Status,
-                Roles = caseTypeRoles
-                    .Where(roleCaseType => roleCaseType.RuleCheckpointTypeId == checkpointType.Id)
+                Roles =
+                caseTypeRoles.Select(roleCaseType => roleCaseType.MemberRole)
+                .Union(
+                    caseCheckPointRoles
+                    .Where(roleCaseType => roleCaseType.CheckpointType.Id == checkpointType.Id)
                     .Select(roleCaseType => roleCaseType.MemberRole)
+                )
             }),
             IsMenuItem = dbCaseType.IsMenuItem,
             GridColumnConfig = dbCaseType.GridColumnConfig,
             GridFilterConfig = dbCaseType.GridFilterConfig,
         };
-
         return caseType;
+
     }
 
     public async Task<CaseType> Update(CaseTypeRequest caseType) {

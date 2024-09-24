@@ -39,27 +39,6 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
     /// <param name="user"></param>
     /// <returns></returns>
     public async Task<IQueryable<CasePartial>> GetCaseMembership(IQueryable<CasePartial> cases, ClaimsPrincipal user) {
-        //// if client is systemic or admin, then bypass checks since no filtering is required.
-        //if ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin()) {
-        //    return cases;
-        //}
-
-        //// if the user is not systemic or admin then based on their role they have access to specific checkpoint types and case type codes.
-        //var roleClaims = user.GetUserRoles();
-        //var members = await GetMembers();
-
-        //if (GetAllowedCheckpointTypes(roleClaims, members) is not { } allowedCheckpointTypeIds ||
-        //    GetAllowedCaseTypeCodes(roleClaims, members) is not { } allowedCaseTypeCodes) {
-        //    // if the (non-admin) user comes with no available caseTypes or CheckpointTypes to see, tough luck!
-        //    throw new ResourceUnauthorizedException("User does not has access to cases");
-        //}
-
-        //if (allowedCheckpointTypeIds.Any()) {
-        //    cases = cases.Where(cp => allowedCheckpointTypeIds.Contains(cp.CheckpointType.Id.ToString()));
-        //}
-        //if (allowedCaseTypeCodes.Any()) {
-        //    cases = cases.Where(cp => allowedCaseTypeCodes.Contains(cp.CaseType.Code));
-        //}
         return cases;
     }
 
@@ -91,11 +70,6 @@ internal class MemberAuthorizationService : ICaseAuthorizationService
         }
 
         return appliedRules.Any( x => roles.Contains(x.MemberRole) || x.MemberUserId == userId || x.MemberGroupId == @case.GroupId);
-        //var memberships = members
-        //    .Where(c => roles.Contains(c.RoleName!))
-        //    .ToList();
-        //return memberships
-        //    .Any(x => x.CaseTypeId == @case.CaseType!.Id && x.CheckpointTypeId == @case.CheckpointType.Id);
     }
 
     /// <summary>Determines whether user is Owner of a Case</summary>
