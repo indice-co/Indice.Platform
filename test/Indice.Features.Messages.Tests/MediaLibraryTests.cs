@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.Text;
 using System.Text.Json;
+using Indice.AspNetCore.Authorization;
 using Indice.Features.Media.AspNetCore.Models;
 using Indice.Features.Media.AspNetCore.Models.Requests;
 using Indice.Features.Media.Data;
@@ -47,11 +48,11 @@ public class MediaLibraryTests : IAsyncLifetime
                 options.UseFilesLocal();
             });
 
-            services.AddAuthentication(DummyAuthDefaults.AuthenticationScheme)
+            services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
                     .AddJwtBearer((options) => {
-                        options.ForwardDefaultSelector = (httpContext) => DummyAuthDefaults.AuthenticationScheme;
+                        options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
                     })
-                    .AddDummy(() => DummyPrincipals.IndiceUser);
+                    .AddMock(() => DummyPrincipals.IndiceUser);
             _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
