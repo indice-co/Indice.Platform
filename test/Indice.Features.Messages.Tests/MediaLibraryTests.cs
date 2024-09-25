@@ -38,13 +38,12 @@ public class MediaLibraryTests : IAsyncLifetime
                 ["General:Host"] = "https://server"
             });
         });
-        builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+        builder.ConfigureServices((context, services) => {
             services.AddRouting();
             services.AddMediaLibrary(options => {
                 options.AcceptableFileExtensions = ".png, .jpg, .gif, .txt";
                 options.ApiScope = Core.MessagesApi.Scope;
-                options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
+                options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(context.Configuration.GetConnectionString("MessagesDb"));
                 options.UseFilesLocal();
             });
 
