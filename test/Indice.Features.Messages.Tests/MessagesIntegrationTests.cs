@@ -7,6 +7,7 @@ using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Tests.Mocks;
+using Indice.Features.Messages.Tests.Security;
 using Indice.Serialization;
 using Indice.Services;
 using Indice.Types;
@@ -52,11 +53,11 @@ public class MessagesIntegrationTests : IAsyncLifetime
                         options.UseFilesLocal();
                         options.UseContactResolver<MockContactResolver>();
                     });
-            services.AddAuthentication(DummyAuthDefaults.AuthenticationScheme)
+            services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
                     .AddJwtBearer((options) => {
-                        options.ForwardDefaultSelector = (httpContext) => DummyAuthDefaults.AuthenticationScheme;
+                        options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
                     })
-                    .AddDummy(() => DummyPrincipals.IndiceUser);
+                    .AddMock(() => DummyPrincipals.IndiceUser);
             _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
