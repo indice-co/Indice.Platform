@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [7.28.5-beta01] - 2024-09-25
+- Added AccessRule for cases to enhance the existing member access functionality.
+
+### More specifically:
+You can now define access to a case based on aof rules that can be based on CaseType or CheckPoint or CaseId or CheckPoint & CaseId 
+for a member based on either Role or  GroupId or UserId
+
+
+### Migrations
+Add 3 more columns to `CaseType` table.
+```sql
+--Optional Step fro back Up
+--SELECT * INTO [case].[Member_Backup] FROM [case].[Member]
+--Rename table
+EXEC sp_rename 'case.Member', 'AccessRule';
+--ADD New Columns
+ALTER TABLE [case].[AccessRule]
+ADD  
+	R_CaseId uniqueIdentifier NULL,
+	M_GroupId nvarchar(64)  NULL,
+	M_UserId nvarchar(64)  NULL,
+	AccessLevel INT NOT NULL DEFAULT(0),
+	CreatedDate DateTimeOffset(7) NOT NULL
+		CONSTRAINT D_caseMember_CreatedOn 
+		DEFAULT (GETUTCDATE())--Optional Default-Constraint.
+--Alter Existing Columns Names
+EXEC sp_rename '[case].[AccessRule].RoleName',  'M_Role', 'COLUMN';
+EXEC sp_rename '[case].[AccessRule].[CaseTypeId]',  'R_CaseTypeId', 'COLUMN';
+EXEC sp_rename '[case].[AccessRule].[CheckpointTypeId]',  'R_CheckpointTypeId', 'COLUMN';
+--Alter Existing Columns allow nulls
+ALTER TABLE [case].AccessRule ALTER COLUMN R_CaseTypeId uniqueidentifier NULL
+ALTER TABLE [case].AccessRule ALTER COLUMN R_CheckpointTypeId uniqueidentifier NULL
+--Initialise Access level and fix data
+UPDATE [case].AccessRule SET [R_CaseTypeId] = NULL, [AccessLevel] = 1
+
+```
+
+
 ## [7.28.3] - 2024-08-30
 - Added `GridColumnConfig` property to CaseType, you can change your lib-list-view to display custom columns.
 
