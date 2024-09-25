@@ -1,19 +1,18 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using System.Text.Encodings.Web;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Indice.Features.Messages.Tests.Security;
+namespace Indice.AspNetCore.Authorization;
 
 #if NET8_0_OR_GREATER
-internal class DummyAuthHandler(IOptionsMonitor<DummyAuthOptions> options, ILoggerFactory logger, UrlEncoder encoder) 
-    : AuthenticationHandler<DummyAuthOptions>(options, logger, encoder)
+internal class MockAuthenticationHandler(IOptionsMonitor<MockAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder)
+    : AuthenticationHandler<MockAuthenticationOptions>(options, logger, encoder)
 #else
-internal class DummyAuthHandler(IOptionsMonitor<DummyAuthOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) 
-: AuthenticationHandler<DummyAuthOptions>(options, logger, encoder, clock)
+internal class MockAuthenticationHandler(IOptionsMonitor<MockAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
+: AuthenticationHandler<MockAuthenticationOptions>(options, logger, encoder, clock)
 #endif
 {
 
@@ -22,8 +21,8 @@ internal class DummyAuthHandler(IOptionsMonitor<DummyAuthOptions> options, ILogg
     /// </summary>
     /// <returns></returns>
     protected override Task<AuthenticateResult> HandleAuthenticateAsync() {
-        ClaimsPrincipal principal = Options.CreatePrincipal();
-        return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principal, DummyAuthDefaults.AuthenticationScheme)));
+        var principal = Options.CreatePrincipal();
+        return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principal, MockAuthenticationDefaults.AuthenticationScheme)));
     }
 
     protected override async Task HandleChallengeAsync(AuthenticationProperties properties) {

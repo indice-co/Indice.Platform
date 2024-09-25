@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.Text;
 using System.Text.Json;
+using Indice.AspNetCore.Authorization;
 using Indice.Features.Media.AspNetCore.Models;
 using Indice.Features.Media.AspNetCore.Models.Requests;
 using Indice.Features.Media.Data;
@@ -37,21 +38,20 @@ public class MediaLibraryTests : IAsyncLifetime
                 ["General:Host"] = "https://server"
             });
         });
-        builder.ConfigureServices(services => {
-            var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
+        builder.ConfigureServices((context, services) => {
             services.AddRouting();
             services.AddMediaLibrary(options => {
                 options.AcceptableFileExtensions = ".png, .jpg, .gif, .txt";
                 options.ApiScope = Core.MessagesApi.Scope;
-                options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
+                options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(context.Configuration.GetConnectionString("MessagesDb"));
                 options.UseFilesLocal();
             });
 
-            services.AddAuthentication(DummyAuthDefaults.AuthenticationScheme)
+            services.AddAuthentication(MockAuthenticationDefaults.AuthenticationScheme)
                     .AddJwtBearer((options) => {
-                        options.ForwardDefaultSelector = (httpContext) => DummyAuthDefaults.AuthenticationScheme;
+                        options.ForwardDefaultSelector = (httpContext) => MockAuthenticationDefaults.AuthenticationScheme;
                     })
-                    .AddDummy(() => DummyPrincipals.IndiceUser);
+                    .AddMock(() => DummyPrincipals.IndiceUser);
             _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {

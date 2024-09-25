@@ -88,7 +88,7 @@ internal static class MyAccountHandlers
                 ValidationErrors.AddError(nameof(request.Token).ToLower(), userManager.MessageDescriber.EmailAlreadyConfirmed)
             );
         }
-        var result = await userManager.ConfirmEmailAsync(user, request.Token);
+        var result = await userManager.ConfirmEmailAsync(user, request.Token!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -144,7 +144,7 @@ internal static class MyAccountHandlers
                 ValidationErrors.AddError(nameof(request.Token).ToLower(), userManager.MessageDescriber.PhoneNumberAlreadyConfirmed)
             );
         }
-        var result = await userManager.ChangePhoneNumberAsync(user, user.PhoneNumber, request.Token);
+        var result = await userManager.ChangePhoneNumberAsync(user, user.PhoneNumber!, request.Token!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -196,7 +196,7 @@ internal static class MyAccountHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
+        var result = await userManager.ChangePasswordAsync(user, request.OldPassword!, request.NewPassword!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -249,7 +249,7 @@ internal static class MyAccountHandlers
         if (user == null) {
             return TypedResults.NoContent();
         }
-        var result = await userManager.ResetPasswordAsync(user, request.Token, request.NewPassword);
+        var result = await userManager.ResetPasswordAsync(user, request.Token!, request.NewPassword!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -531,9 +531,9 @@ internal static class MyAccountHandlers
         }
         var result = await userManager.CreateAsync(user, request.Password!);
         if (!result.Succeeded) {
-            TypedResults.ValidationProblem(result.Errors.ToDictionary());
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+        //var token = await userManager.GenerateEmailConfirmationTokenAsync(user); // in case we need this
         return TypedResults.NoContent();
     }
 

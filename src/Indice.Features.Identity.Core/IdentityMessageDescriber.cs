@@ -22,7 +22,7 @@ public class IdentityMessageDescriber
     /// <summary>Confirm your account.</summary>
     public virtual string UpdateEmailMessageSubject => string.Format(IdentityResources.Culture, IdentityResources.EmailUpdateMessageSubject);
     /// <summary>Email verification code is {0}.</summary>
-    public virtual string UpdateEmailMessageBody<TUser>(TUser user, string token, string returnUrl) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.EmailUpdateMessageBody, token);
+    public virtual string UpdateEmailMessageBody<TUser>(TUser user, string token, string? returnUrl) where TUser : class => string.Format(IdentityResources.Culture, IdentityResources.EmailUpdateMessageBody, token);
     /// <summary>Forgot password.</summary>
     public virtual string ForgotPasswordMessageSubject => string.Format(IdentityResources.Culture, IdentityResources.ForgotPasswordMessageSubject);
     /// <summary>Email verification code is {0}.</summary>
