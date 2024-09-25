@@ -1,11 +1,11 @@
 ﻿#if NET8_0_OR_GREATER
-using System;
+using Indice.Events;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Data.Stores;
+using Indice.Features.Identity.Core.Events;
 using Indice.Features.Identity.Server.Manager;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +34,7 @@ public class UserHandlersTests : IAsyncLifetime
         services.AddLogging();
         services.AddLocalization();
         services.AddDefaultPlatformEventService();
+        services.AddPlatformEventHandler<UserCreatedEvent, UserCreatedAssetionHanbdler>();
         _serviceProvider = services.BuildServiceProvider();
     }
 
@@ -70,6 +71,15 @@ public class UserHandlersTests : IAsyncLifetime
 
     public Task InitializeAsync() {
         return Task.CompletedTask;
+    }
+
+    public class UserCreatedAssetionHanbdler : IPlatformEventHandler<UserCreatedEvent>
+    {
+        public Task Handle(UserCreatedEvent @event, PlatformEventArgs args) {
+            args.ThrowOnError = true;
+            Assert.Equal(4, @event.User.Claims.Count);
+            return Task.CompletedTask;
+        }
     }
 }
 #endif
