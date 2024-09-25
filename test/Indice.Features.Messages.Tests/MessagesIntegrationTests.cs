@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Text;
 using System.Text.Json;
+using Indice.AspNetCore.Authorization;
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Data;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Tests.Mocks;
-using Indice.Features.Messages.Tests.Security;
 using Indice.Serialization;
 using Indice.Services;
 using Indice.Types;
