@@ -8,7 +8,8 @@ namespace Indice.AspNetCore.Tests;
 public class EmailRenderingTests
 {
     public EmailRenderingTests() {
-        TestServer = new TestServerFixture();
+        TestServer = new 
+            ();
     }
 
     private TestServerFixture TestServer { get; set; }

@@ -29,7 +29,7 @@ public class CasesDbContext : DbContext
     /// <summary>Comments</summary>
     public DbSet<DbComment> Comments => Set<DbComment>();
     /// <summary>CaseType members</summary>
-    public DbSet<DbMember> Members => Set<DbMember>();
+    public DbSet<DbCaseAccessRule> CaseAccessRules => Set<DbCaseAccessRule>();
     /// <summary>Member Notifications Subscriptions</summary>
     /// <remarks>Per user subscriptions for case modification alerts via e-mail.</remarks>
     public DbSet<DbNotificationSubscription> NotificationSubscriptions => Set<DbNotificationSubscription>();
