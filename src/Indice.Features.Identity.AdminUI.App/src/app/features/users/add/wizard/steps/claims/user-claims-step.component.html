@@ -1,0 +1,19 @@
+<p *ngIf="!availableClaims">Loading claim types...</p>
+<app-transfer-lists
+  *ngIf="availableClaims"
+  [source]="availableClaims"
+  [destination]="selectedClaims"
+  [titlePropertyName]="'name'"
+  [subtitlePropertyName]="'description'"
+  (itemAdded)="addClaim($event)"
+  (itemRemoved)="removeClaim($event)"
+  [options]="{
+    sourceListTitle: 'Available Claims',
+    emptySourceListMessage: 'There are no available claims to assign.',
+    destinationListTitle: 'Assigned Claims',
+    emptyDestinationListMessage:
+      'There are no claims assigned to this resource.'
+  }"
+  #transferList
+>
+</app-transfer-lists>
