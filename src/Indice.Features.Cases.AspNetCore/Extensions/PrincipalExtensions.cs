@@ -32,4 +32,14 @@ internal static class PrincipalExtensions
         string.IsNullOrWhiteSpace(user.FindSubjectId()) ?
             user.FindFirstValue(BasicClaimTypes.ClientId) :
             user.FindSubjectId();
+
+
+    /// <summary>Gets user's list of Role Claims</summary>
+    /// <param name="user"></param>
+    public static List<string> GetUserRoles(this ClaimsPrincipal user) =>
+        user.Claims
+            .Where(c => c.Type == BasicClaimTypes.Role)
+            .Select(c => c.Value)
+            .ToList();
+   
 }

@@ -10,6 +10,9 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Indice.Features.Identity.Tests" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="IdentityServer4.AspNetIdentity" Version="4.1.2" />
     <PackageReference Include="Indice.Extensions.Configuration.Database" Version="$(VersionPrefixCore)" />
     <PackageReference Include="Indice.Features.Identity.Core" Version="$(VersionPrefixIdentity)" />

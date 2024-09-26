@@ -9,10 +9,6 @@
     <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Indice.Features.Cases.AspNetCore" Version="$(VersionPrefixCases)" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Indice.Features.Cases.AspNetCore\Indice.Features.Cases.AspNetCore.csproj" />
   </ItemGroup>

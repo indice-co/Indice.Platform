@@ -54,13 +54,17 @@ public class PushNotificationServiceAzure : IPushNotificationService
             case DevicePlatform.iOS:
                 installationRequest.Platform = NotificationPlatform.Apns;
                 installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
-                    Body = PushNotificationAzureOptions.SilentNotifications ?? false ? PushNotificationServiceAzureTemplates.Silent.IOS : PushNotificationServiceAzureTemplates.Generic.IOS
+                    Body = PushNotificationAzureOptions.SilentNotifications ?? false
+                        ? PushNotificationServiceAzureTemplates.Silent.IOS
+                        : PushNotificationServiceAzureTemplates.Generic.IOS
                 });
                 break;
             case DevicePlatform.Android:
                 installationRequest.Platform = NotificationPlatform.FcmV1;
                 installationRequest.Templates.Add("DefaultMessage", new InstallationTemplate {
-                    Body = PushNotificationAzureOptions.SilentNotifications ?? true ? PushNotificationServiceAzureTemplates.Silent.ANDROID : PushNotificationServiceAzureTemplates.Generic.ANDROID
+                    Body = PushNotificationAzureOptions.SilentNotifications ?? true 
+                        ? PushNotificationServiceAzureTemplates.Silent.ANDROID 
+                        : PushNotificationServiceAzureTemplates.Generic.ANDROID
                 });
                 break;
             default:
@@ -134,17 +138,22 @@ public class PushNotificationServiceAzureTemplates
     public class Generic
     {
         /// <summary>iOS generic template.</summary>
-        public const string IOS = @"{
-                ""aps"":{
-                    ""alert"": ""$(message)"", 
-                    ""category"": ""$(classification)""
+        public const string IOS = """
+            {
+                "aps":{
+                    "alert": {
+                        "title": "$(message)",
+            			"body": "$(body)"
+                    }, 
+                    "category": "$(classification)"
                 }, 
-                ""payload"":{
-                    ""message"": ""$(message)"", 
-                    ""data"": ""$(data)"", 
-                    ""category"": ""$(classification)""
+                "payload":{
+                    "message": "$(message)", 
+                    "data": "$(data)", 
+                    "category": "$(classification)"
                 }
-            }";
+            }
+            """;
 
         /// <summary>Android generic template.</summary>
         public const string ANDROID = """
@@ -157,7 +166,8 @@ public class PushNotificationServiceAzureTemplates
             		"data": {
             			"message": "$(message)",
             			"data": "$(data)",
-            			"category": "$(classification)"
+            			"category": "$(classification)",
+                        "body": "$(body)"
             		}
             	}
             }
@@ -168,33 +178,36 @@ public class PushNotificationServiceAzureTemplates
     public class Silent
     {
         /// <summary>iOS silent template.</summary>
-        public const string IOS = @"{
-                ""aps"":{, 
-                    ""category"": ""$(classification)"",
-                    ""content-available"": 1,
-                    ""apns-priority"": 5,
-                    ""sound"": """",
-                    ""badge"": 0
-                },
-                ""message"": ""$(message)"",
-                ""payload"":{
-                    ""message"": ""$(message)"", 
-                    ""data"": ""$(data)"", 
-                    ""category"": ""$(classification)""
+        public const string IOS = """
+            {
+                "aps": { 
+                    "category": "$(classification)",
+                    "content-available": 1,
+                    "apns-priority": 5,
+                    "sound": "",
+                    "badge": 0
+                },              
+                "payload":{
+                    "message": "$(message)", 
+                    "data": "$(data)", 
+                    "category": "$(classification)",
+                    "body": "$(body)"
                 }
-            }";
+            }
+            """;
 
         /// <summary>Android silent template.</summary>
-        public const string ANDROID = """            
+        public const string ANDROID = """
             {
             	"message": {
             		"data": {
             			"message": "$(message)",
             			"data": "$(data)",
-            			"category": "$(classification)"
+            			"category": "$(classification)",
+                        "body": "$(body)"
             		}
             	}
-            }            
+            }
             """;
     }
 }
