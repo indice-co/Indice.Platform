@@ -19,34 +19,46 @@ public class GovGrKycScopeDescriber
     public List<ScopeDescription> GetDescriptions(IStringLocalizer localizer = null) {
         var loc = localizer ?? _localizer;
         return new List<ScopeDescription> {
-             new ScopeDescription {
-                 Scope = GovGrKycScopes.ContactInfo,
-                 Description = loc["ContactInfoDescription"]
-             },
-             new ScopeDescription {
-                 Scope = GovGrKycScopes.Identity,
-                 Description = loc["IdentityDescription"]
-             },
-             new ScopeDescription {
-                 Scope = GovGrKycScopes.Income,
-                 Description = loc["IncomeDescription"]
-             },
-             new ScopeDescription {
-                 Scope = GovGrKycScopes.ProfessionalActivity,
-                 Description = loc["ProfessionalActivityDescription"]
-             },
-             new ScopeDescription {
-                 Scope = GovGrKycScopes.TaxIdInfo,
-                 Description = loc["TaxIdInfoDescription"]
-             },
-             new ScopeDescription {
-                 Scope = GovGrKycScopes.FamilyStatus,
-                 Description = loc["FamilyStatusDescription"]
-             },
             new ScopeDescription {
-                 Scope = GovGrKycScopes.Demographics,
-                 Description = loc["DemographicsDescription"]
-             },
+                Scope = GovGrKycScopes.ContactInfo,
+                Description = loc["ContactInfoDescription"]
+            },
+            new ScopeDescription {
+                Scope = GovGrKycScopes.Identity,
+                Description = loc["IdentityDescription"]
+            },
+            new ScopeDescription {
+                Scope = GovGrKycScopes.Income,
+                Description = loc["IncomeDescription"]
+            },
+            new ScopeDescription {
+                Scope = GovGrKycScopes.ProfessionalActivity,
+                Description = loc["ProfessionalActivityDescription"]
+            },
+            new ScopeDescription {
+                Scope = GovGrKycScopes.TaxIdInfo,
+                Description = loc["TaxIdInfoDescription"]
+            },
+            new ScopeDescription {
+                Scope = GovGrKycScopes.FamilyStatus,
+                Description = loc["FamilyStatusDescription"]
+            },
+            new ScopeDescription {
+                Scope = GovGrKycScopes.Demographics,
+                Description = loc["DemographicsDescription"]
+            },
+            new ScopeDescription {
+                Scope = GovGrKycScopes.ElectricitySupplyPoint,
+                Description = loc["ElectricitySupplyPointDescription"]
+            },
+            new ScopeDescription {
+                Scope = GovGrKycScopes.GasSupplyPoint,
+                Description = loc["GasSupplyPointDescription"]
+            },
+            new ScopeDescription {
+                Scope = GovGrKycScopes.IdentityBasic,
+                Description = loc["IdentityBasicDescription"]
+            }
         };
     }
 }
