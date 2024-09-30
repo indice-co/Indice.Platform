@@ -492,7 +492,7 @@ public class KycPayload
     public class PensionerInfoData {
         /// <summary>Ενεργή ιδιότητα συνταξιούχου</summary>
         [JsonPropertyName("isPensioner")]
-        public bool IsPensioner { get; set; }
+        public string IsPensioner { get; set; }
     }
 
     /// <summary>Academic Info Data</summary>
@@ -506,7 +506,7 @@ public class KycPayload
     public class IekStudentInfo {
         /// <summary>Στοιχεία φοίτησης σε ΙΕΚ</summary>
         [JsonPropertyName("isActive")]
-        public bool IsActive { get; set; }
+        public string IsActive { get; set; }
     }
 
     /// <summary>Professional Activity Data</summary>
