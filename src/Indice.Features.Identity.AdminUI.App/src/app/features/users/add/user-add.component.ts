@@ -30,11 +30,12 @@ import { UserClaimsStepComponent } from "./wizard/steps/claims/user-claims-step.
 import { ExtendedInfoStepComponent } from "./wizard/steps/extended-info/extended-info-step.component";
 import { UserRolesStepComponent } from "./wizard/steps/roles/user-roles-step.component";
 import { Subscription } from "rxjs";
+import { UserStore } from "../edit/user-store.service";
 
 @Component({
   selector: "app-user-add",
   templateUrl: "./user-add.component.html",
-  providers: [],
+  providers: [UserStore],
 })
 export class UserAddComponent implements OnInit {
   @ViewChild("validationSummary", { static: false })
@@ -44,13 +45,13 @@ export class UserAddComponent implements OnInit {
   private _loadedStepInstance: StepBaseComponent<UserWizardModel>;
   private _formValidatedSubscription: Subscription;
   private _navigationOrigin: string;
-  private _saveAndConfigure = false;
 
   public wizardStepIndex = 0;
   public apiResourceSteps: WizardStepDescriptor[] = [];
   public form: UntypedFormGroup;
   public hostFormValidated = false;
   public resource: CreateUserRequest = new CreateUserRequest();
+  public problemDetails: ProblemDetails;
 
   public get canGoFront(): boolean {
     return (
@@ -91,11 +92,11 @@ export class UserAddComponent implements OnInit {
       phoneNumberConfirmed: [false],
       password: ["", [Validators.required]],
       bypassPasswordValidation: [false],
-      userClaims: [[]],
-      userRoles: [[]],
+      claims: [[]],
+      roles: [[]],
     });
     this.apiResourceSteps = [
-      new WizardStepDescriptor("Extended Details", ExtendedInfoStepComponent),
+      new WizardStepDescriptor("User Details", ExtendedInfoStepComponent),
       new WizardStepDescriptor("User Claims", UserClaimsStepComponent),
       new WizardStepDescriptor("User Roles", UserRolesStepComponent),
     ];
@@ -128,25 +129,15 @@ export class UserAddComponent implements OnInit {
     this.loadStep(this.apiResourceSteps[this.wizardStepIndex]);
   }
 
-  public user: CreateUserRequest = new CreateUserRequest();
-  public problemDetails: ProblemDetails;
-
-  public setSaveAndConfigure(value: boolean) {
-    this._saveAndConfigure = value;
-  }
-
   public save(): void {
+    this._validationSummary.clear();
     const newUser = this.form.value as CreateUserRequest;
     this._api.createUser(newUser).subscribe(
       (createdUser: SingleUserInfo) => {
         this._toast.showSuccess(
           `User '${createdUser.email}' was created successfully.`
         );
-        if (this._saveAndConfigure) {
-          this._router.navigateByUrl(`/app/users/${createdUser.id}/details`);
-        } else {
-          this._router.navigate(["../"], { relativeTo: this._route });
-        }
+        this._router.navigate(["../"], { relativeTo: this._route });
       },
       (problemDetails: HttpValidationProblemDetails) => {
         this.problemDetails = problemDetails;

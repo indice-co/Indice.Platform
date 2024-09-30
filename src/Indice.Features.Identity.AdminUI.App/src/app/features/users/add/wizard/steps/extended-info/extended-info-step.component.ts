@@ -54,6 +54,6 @@ export class ExtendedInfoStepComponent
   public ngOnInit(): void {}
 
   public isValid(): boolean {
-    return true;
+    return this.data.form.valid;
   }
 }

@@ -18,7 +18,6 @@ export class UserRolesStepComponent
   implements OnInit
 {
   private _getDataSubscription: Subscription;
-  private _addApiResourceScopeRoles: Subscription;
   private _selectedRolesControl: AbstractControl;
 
   constructor(private _api: IdentityApiService) {
@@ -29,10 +28,10 @@ export class UserRolesStepComponent
   public selectedRoles: RoleInfo[];
 
   public ngOnInit(): void {
-    this._api
+    this._getDataSubscription = this._api
       .getRoles(1, 2147483647, "name+", undefined)
       .subscribe((response: RoleInfoResultSet) => {
-        this._selectedRolesControl = this.data.form.controls["userRoles"];
+        this._selectedRolesControl = this.data.form.controls["roles"];
         this.availableRoles = response.items.filter(
           (x) => !this._selectedRolesControl.value.includes(x.name)
         );
@@ -46,20 +45,17 @@ export class UserRolesStepComponent
     if (this._getDataSubscription) {
       this._getDataSubscription.unsubscribe();
     }
-    if (this._addApiResourceScopeRoles) {
-      this._addApiResourceScopeRoles.unsubscribe();
-    }
   }
 
-  public addRole(claim: RoleInfo): void {
+  public addRole({ name }: RoleInfo): void {
     const resources = this._selectedRolesControl.value as Array<string>;
-    resources.push(claim.name);
+    resources.push(name);
     this._selectedRolesControl.setValue(resources);
   }
 
-  public removeRole(claim: RoleInfo): void {
+  public removeRole({ name }: RoleInfo): void {
     const resources = this._selectedRolesControl.value as Array<string>;
-    const index = resources.indexOf(claim.name, 0);
+    const index = resources.indexOf(name, 0);
     if (index > -1) {
       resources.splice(index, 1);
     }
