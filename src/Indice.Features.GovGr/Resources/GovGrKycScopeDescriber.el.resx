@@ -123,9 +123,6 @@
   <data name="DemographicsDescription" xml:space="preserve">
     <value>Δημογραφικά Στοιχεία</value>
   </data>
-  <data name="FamilyStatusDescription" xml:space="preserve">
-    <value>Στοιχεία Οικογενειακής Κατάστασης</value>
-  </data>
   <data name="IdentityDescription" xml:space="preserve">
     <value>Στοιχεία Ταυτότητας</value>
   </data>
@@ -137,5 +134,12 @@
   </data>
   <data name="TaxIdInfoDescription" xml:space="preserve">
     <value>Στοιχεία ΔΟΥ</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="IdentityBasicDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="ElectricitySupplyPointDescription" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
   </data>
 </root>

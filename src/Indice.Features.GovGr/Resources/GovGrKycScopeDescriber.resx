@@ -123,11 +123,8 @@
   <data name="DemographicsDescription" xml:space="preserve">
     <value>Δημογραφικά Στοιχεία</value>
   </data>
-  <data name="FamilyStatusDescription" xml:space="preserve">
-    <value>Στοιχεία Οικογενειακής Κατάστασης</value>
-  </data>
   <data name="IdentityDescription" xml:space="preserve">
-    <value>Στοιχεία Ταυτότητας</value>
+    <value>Στοιχεία Ταυτότητας (Πλήρη στοιχεία)</value>
   </data>
   <data name="IncomeDescription" xml:space="preserve">
     <value>Στοιχεία Εισοδήματος</value>
@@ -136,6 +133,18 @@
     <value>Στοιχεία Επαγγελματικής Δραστηριότητας</value>
   </data>
   <data name="TaxIdInfoDescription" xml:space="preserve">
-    <value>Στοιχεία ΔΟΥ</value>
+    <value>Στοιχεία φορολογικού μητρώου</value>
+  </data>
+  <data name="IdentityBasicDescription" xml:space="preserve">
+    <value>Στοιχεία ταυτότητας (Βασικά στοιχεία)</value>
+  </data>
+  <data name="ElectricitySupplyPointDescription" xml:space="preserve">
+    <value>Στοιχεία Παροχής Ηλεκτροδότησης</value>
+  </data>
+  <data name="GasSupplyPointDescription" xml:space="preserve">
+    <value>Στοιχεία Παροχής Φυσικού Αερίου</value>
+  </data>
+  <data name="FamilyStatusDescription" xml:space="preserve">
+    <value>Στοιχεία Οικογενειακής Κατάστασης</value>
   </data>
 </root>
