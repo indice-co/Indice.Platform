@@ -12,6 +12,7 @@
       <VersionPrefixRisk>$(VersionPrefixBase).0</VersionPrefixRisk>
       <VersionPrefixMedia>$(VersionPrefixBase).0</VersionPrefixMedia>
       <VersionPrefixGovGr>$(VersionPrefixBase).0</VersionPrefixGovGr>
+      <VersionPrefixAspNet>$(VersionPrefixBase).0</VersionPrefixAspNet>
       <VersionPrefix>$(VersionPrefixBase).0</VersionPrefix>
       <!--<VersionSuffix>beta-01</VersionSuffix>-->
       <Authors>Constantinos Leftheris, Georgios Manoltzas</Authors>
