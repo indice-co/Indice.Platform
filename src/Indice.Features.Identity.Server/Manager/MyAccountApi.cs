@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using IdentityModel;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -162,6 +163,32 @@ public static class MyAccountApi
              .AllowAnonymous()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.CallingCodes);
 
+        /* The avatar must be stored inside the UserClaims Table with the claim type JwtClaimTypes.Picture *
+         * the value format is the binary uri: data:image/png;ivBOR.........                               *
+         * The response must be cahed and taged so it can be invalidated.
+         * The update my avatar should invalidate the cache.
+         * The update my avatar should validate size file type, and resize the bounding box with max side size to sqare. 
+         * The update avatar should do the convert to base64 and store
+         * All get avatar calls should be able to resize to spesific sizes 24,32,64,128
+         * The get avatar by id should be conditionally exposed ExtendedEndpointOptions.
+        group.MapGet("my/avatar", MyAccountHandlers.GetMyAvatar)
+             .WithName(nameof(MyAccountHandlers.UpdateEmail))
+             .WithSummary("Updates the email of the current user.")
+             .WithParameterValidation<UpdateUserEmailRequest>()
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+        group.MapPut("my/avatar", MyAccountHandlers.UpdateMyAvatar)
+             .WithName(nameof(MyAccountHandlers.UpdateEmail))
+             .WithSummary("Updates the email of the current user.")
+             .WithParameterValidation<UpdateUserEmailRequest>()
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+        group.MapPut("avatar/{userId}", MyAccountHandlers.GetUserAvatar)
+             .WithName(nameof(MyAccountHandlers.UpdateEmail))
+             .WithSummary("Updates the email of the current user.")
+             .WithParameterValidation<UpdateUserEmailRequest>()
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        */
         return group;
     }
 }
