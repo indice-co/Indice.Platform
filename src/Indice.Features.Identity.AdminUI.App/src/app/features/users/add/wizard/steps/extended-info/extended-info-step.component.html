@@ -1,0 +1,191 @@
+<div [formGroup]="data.form">
+  <div class="mb-3 row">
+    <label for="first-name" class="col-sm-2 col-form-label"> First Name </label>
+    <div class="col-sm-10">
+      <input
+        id="first-name"
+        name="first-name"
+        type="text"
+        class="form-control"
+        [ngClass]="{ invalid: hostFormValidated && firstName.invalid }"
+        formControlName="firstName"
+        maxlength="256"
+      />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="last-name" class="col-sm-2 col-form-label"> Last Name </label>
+    <div class="col-sm-10">
+      <input
+        id="last-name"
+        name="last-name"
+        type="text"
+        class="form-control"
+        [ngClass]="{ invalid: hostFormValidated && lastName.invalid }"
+        formControlName="lastName"
+        maxlength="256"
+      />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="email" class="col-sm-2 col-form-label"> Email (*) </label>
+    <div class="col-sm-10">
+      <input
+        id="email"
+        name="email"
+        type="email"
+        class="form-control"
+        [ngClass]="{ invalid: hostFormValidated && email.invalid }"
+        formControlName="email"
+        email
+        required
+        maxlength="256"
+        (blur)="checkUserNameShouldUpdate()"
+      />
+      <div
+        *ngIf="hostFormValidated && email.invalid && email.errors['required']"
+        class="form-control-feedback text-danger"
+      >
+        Field 'Email' is required.
+      </div>
+      <div
+        *ngIf="hostFormValidated && email.invalid && email.errors['email']"
+        class="form-control-feedback text-danger"
+      >
+        Please enter a valid email address.
+      </div>
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="user-email-confirmed" class="col-sm-2 col-form-label">
+      Email confirmed
+    </label>
+    <div class="col-sm-10">
+      <div class="form-check col-form-label custom-control custom-checkbox">
+        <input
+          id="user-email-confirmed"
+          name="user-email-confirmed"
+          type="checkbox"
+          class="form-check-input custom-control-input"
+          formControlName="emailConfirmed"
+        />
+        <label class="custom-control-label" for="user-email-confirmed"></label>
+      </div>
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="email-as-user-name" class="col-sm-2 col-form-label">
+      Email as Username
+    </label>
+    <div class="col-sm-4">
+      <div class="form-check col-form-label custom-control custom-checkbox">
+        <input
+          id="email-as-user-name"
+          name="email-as-user-name"
+          type="checkbox"
+          class="form-check-input custom-control-input"
+          formControlName="emailAsUserName"
+          (change)="toggleEmailAsUserName($event)"
+        />
+        <label class="custom-control-label" for="email-as-user-name"></label>
+      </div>
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="user-name" class="col-sm-2 col-form-label">
+      Username (*)
+    </label>
+    <div class="col-sm-10">
+      <input
+        id="user-name"
+        name="user-name"
+        type="text"
+        class="form-control"
+        [ngClass]="{ invalid: hostFormValidated && userName.invalid }"
+        [readonly]="emailAsUserName.value"
+        formControlName="userName"
+        required
+        maxlength="256"
+      />
+      <div
+        *ngIf="hostFormValidated && userName.invalid"
+        class="form-control-feedback text-danger"
+      >
+        Field 'Username' is required.
+      </div>
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="user-phone-number" class="col-sm-2 col-form-label"
+      >Phone Number</label
+    >
+    <div class="col-sm-10">
+      <input
+        id="user-phone-number"
+        name="user-phone-number"
+        type="tel"
+        class="form-control"
+        formControlName="phoneNumber"
+      />
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="user-phone-number-confirmed" class="col-sm-2 col-form-label"
+      >Phone Number Confirmed</label
+    >
+    <div class="col-sm-10">
+      <div class="form-check col-form-label custom-control custom-checkbox">
+        <input
+          id="user-phone-number-confirmed"
+          name="user-phone-number-confirmed"
+          type="checkbox"
+          class="form-check-input custom-control-input"
+          formControlName="phoneNumberConfirmed"
+        />
+        <label
+          class="custom-control-label"
+          for="user-phone-number-confirmed"
+        ></label>
+      </div>
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="password" class="col-sm-2 col-form-label"> Password (*) </label>
+    <div class="col-sm-10">
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="new-password"
+        class="form-control"
+        [ngClass]="{ invalid: hostFormValidated && password.invalid }"
+        formControlName="password"
+        required
+      />
+      <div
+        *ngIf="hostFormValidated && password.invalid"
+        class="form-control-feedback text-danger"
+      >
+        Field 'Password' is required.
+      </div>
+    </div>
+  </div>
+  <div class="mb-3 row">
+    <label for="user-email-confirmed" class="col-sm-2 col-form-label">
+      Bypass password validation
+    </label>
+    <div class="col-sm-10">
+      <div class="form-check col-form-label custom-control custom-checkbox">
+        <input
+          id="bypass-password-validation"
+          name="bypass-password-validation"
+          type="checkbox"
+          class="form-check-input custom-control-input"
+          formControlName="bypassPasswordValidation"
+        />
+        <label class="custom-control-label" for="bypass-password-validation">
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
