@@ -27,6 +27,10 @@ export class ExtendedInfoStepComponent
     return this.data.form.get("userName");
   }
 
+  public get emailAsUserName(): AbstractControl {
+    return this.data.form.get("emailAsUserName");
+  }
+
   public get email(): AbstractControl {
     return this.data.form.get("email");
   }
@@ -52,6 +56,21 @@ export class ExtendedInfoStepComponent
   }
 
   public ngOnInit(): void {}
+
+  public toggleEmailAsUserName({ target }: Event): void {
+    const { checked } = target as HTMLInputElement;
+    if (checked) {
+      this.userName.patchValue(this.email.value);
+    }
+  }
+
+  public checkUserNameShouldUpdate(): void {
+    const shouldUpdate =
+      this.emailAsUserName.value && this.email.value !== this.userName.value;
+    if (shouldUpdate) {
+      this.userName.patchValue(this.email.value);
+    }
+  }
 
   public isValid(): boolean {
     return this.data.form.valid;

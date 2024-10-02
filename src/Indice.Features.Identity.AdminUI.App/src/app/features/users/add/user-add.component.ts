@@ -88,6 +88,7 @@ export class UserAddComponent implements OnInit {
       userName: ["", [Validators.maxLength(1000)]],
       email: ["", [Validators.required, Validators.email]],
       emailConfirmed: [false],
+      emailAsUserName: [false],
       phoneNumber: [""],
       phoneNumberConfirmed: [false],
       password: ["", [Validators.required]],
@@ -129,7 +130,7 @@ export class UserAddComponent implements OnInit {
     this.loadStep(this.apiResourceSteps[this.wizardStepIndex]);
   }
 
-  public save(): void {
+  public save(saveAndConfigure: boolean): void {
     this._validationSummary.clear();
     const newUser = this.form.value as CreateUserRequest;
     this._api.createUser(newUser).subscribe(
@@ -137,7 +138,11 @@ export class UserAddComponent implements OnInit {
         this._toast.showSuccess(
           `User '${createdUser.email}' was created successfully.`
         );
-        this._router.navigate(["../"], { relativeTo: this._route });
+        if (saveAndConfigure) {
+          this._router.navigateByUrl(`/app/users/${createdUser.id}/details`);
+        } else {
+          this._router.navigate(["../"], { relativeTo: this._route });
+        }
       },
       (problemDetails: HttpValidationProblemDetails) => {
         this.problemDetails = problemDetails;

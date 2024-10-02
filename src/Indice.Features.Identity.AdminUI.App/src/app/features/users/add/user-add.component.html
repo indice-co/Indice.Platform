@@ -45,9 +45,17 @@
               </button>
               <button
                 type="submit"
+                class="btn btn-primary m-r-5"
+                *ngIf="isSummaryStep"
+                (click)="save(true)"
+              >
+                Save & Configure
+              </button>
+              <button
+                type="submit"
                 class="btn btn-primary"
                 *ngIf="isSummaryStep"
-                (click)="save()"
+                (click)="save(false)"
               >
                 Save
               </button>
