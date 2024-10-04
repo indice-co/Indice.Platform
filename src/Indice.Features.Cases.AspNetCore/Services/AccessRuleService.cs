@@ -10,9 +10,7 @@ using Indice.Types;
 using Microsoft.EntityFrameworkCore;
 using Indice.Features.Cases.Models.Responses;
 using Indice.Features.Cases.Exceptions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
+using Indice.Features.Cases.Extensions;
 
 namespace Indice.Features.Cases.Services;
 
@@ -75,10 +73,37 @@ internal class AccessRuleService : IAccessRuleService
         .ToResultSetAsync(filters);
     }
 
+    public async Task<List<AccessRule>> GetCaseAccessRules(Guid caseId) {
+        var @case = await _dbContext.Cases
+        .AsNoTracking()
+        .FirstOrDefaultAsync(x => x.Id == caseId);
+
+        var checkpoints = _dbContext.CheckpointTypes
+            .AsNoTracking()
+            .Where(x => x.CaseTypeId == @case.CaseTypeId)
+            .Select(x => x.Id);
+
+        var query = _dbContext.CaseAccessRules
+            .AsNoTracking()
+            .Where(x =>
+                x.RuleCaseId == caseId ||
+                x.RuleCaseTypeId == @case.CaseTypeId ||
+                checkpoints.Contains(x.RuleCheckpointTypeId ?? Guid.Empty));
+
+        return await query.Select(rule => new AccessRule {
+            Id = rule.Id,
+            AccessLevel = rule.AccessLevel,
+            RuleCaseId = rule.RuleCaseId,
+            RuleCaseTypeId = rule.RuleCaseTypeId,
+            RuleCheckpointTypeId = rule.RuleCheckpointTypeId,
+            MemberRole = rule.MemberRole,
+            MemberGroupId = rule.MemberGroupId,
+            MemberUserId = rule.MemberUserId
+        }).ToListAsync();
+    }
     public async Task AdminCreate(ClaimsPrincipal user, AddAccessRuleRequest accessRule) {
         // if client is systemic or admin, then bypass checks since no filtering is required.
         var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin());
-
         if (!isSystemOrAdmin) {
             throw new UnauthorizedAccessException("User does not have administrator rights.");
         }

@@ -84,6 +84,28 @@ public class AccessRulesServiceTest : IAsyncLifetime
 
 
     [Fact]
+    public async Task GetCase_AccessRules() {
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        var caseMembersService = new AccessRuleService(dbContext);
+        var @case = await FetchCaseForTestAsync(dbContext);
+        await caseMembersService.AdminCreate(Admin(),
+            new AddAccessRuleRequest() {
+                AccessLevel = 0,
+                MemberUserId = Guid.NewGuid().ToString(),
+                RuleCaseId = @case.Id
+            });
+        await caseMembersService.AdminCreate(Admin(),
+           new AddAccessRuleRequest() {
+               AccessLevel = 1,
+               MemberRole = "Admin",
+               RuleCaseTypeId = @case.CaseTypeId
+           });
+       
+        var rules = await caseMembersService.GetCaseAccessRules(@case.Id);
+        Assert.True(rules.Count == 2);
+    }
+
+    [Fact]
     public async Task AddAdmin_Batch() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         var caseMembersService = new AccessRuleService(dbContext);

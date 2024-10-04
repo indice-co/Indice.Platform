@@ -33,7 +33,6 @@ internal static class PrincipalExtensions
             user.FindFirstValue(BasicClaimTypes.ClientId) :
             user.FindSubjectId();
 
-
     /// <summary>Gets user's list of Role Claims</summary>
     /// <param name="user"></param>
     public static List<string> GetUserRoles(this ClaimsPrincipal user) =>
@@ -41,5 +40,9 @@ internal static class PrincipalExtensions
             .Where(c => c.Type == BasicClaimTypes.Role)
             .Select(c => c.Value)
             .ToList();
-   
+
+    /// <summary>Gets user's group from Claims</summary>
+    /// <param name="user"></param>
+    /// <param name="groupClaimName">The name of the group claim</param>
+    public static string GetUserGroup(this ClaimsPrincipal user, string groupClaimName) => user.FindFirstValue(groupClaimName);
 }
