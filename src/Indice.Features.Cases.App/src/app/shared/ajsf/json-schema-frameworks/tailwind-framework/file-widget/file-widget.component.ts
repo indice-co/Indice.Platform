@@ -67,12 +67,17 @@ export class FileWidgetComponent implements OnInit {
     }
 
     public onDownload() {
-        this._api.downloadAttachment(this.controlValue!)
-            .pipe(
-                tap(results => {
-                    const fileURL = window.URL.createObjectURL(results.data);
-                    window.open(fileURL, '_blank');
-                }))
-            .subscribe();
-    }
+      this._api.downloadAttachment(this.controlValue!)
+          .pipe(
+              tap(results => {
+                  const fileURL = window.URL.createObjectURL(results.data);
+                  const a = document.createElement('a');
+                  a.href = fileURL;
+                  a.download = results.fileName ?? `response-${new Date().toISOString()}.json`; //filename already contains extension - also setting backup filename
+                  a.click();
+                  window.URL.revokeObjectURL(fileURL); //clean up
+              })
+          )
+          .subscribe();
+  }
 }
