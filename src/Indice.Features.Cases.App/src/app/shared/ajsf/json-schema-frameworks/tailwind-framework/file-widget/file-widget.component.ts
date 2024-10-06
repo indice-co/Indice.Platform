@@ -73,7 +73,7 @@ export class FileWidgetComponent implements OnInit {
                   const fileURL = window.URL.createObjectURL(results.data);
                   const a = document.createElement('a');
                   a.href = fileURL;
-                  a.download = results.fileName ?? `response-${new Date().toISOString()}.json`; //filename already contains extension - also setting backup filename
+                  a.download = results.fileName ?? `response-${new Date().toISOString()}`; //filename already contains extension - also setting backup filename (with no extension)
                   a.click();
                   window.URL.revokeObjectURL(fileURL); //clean up
               })
