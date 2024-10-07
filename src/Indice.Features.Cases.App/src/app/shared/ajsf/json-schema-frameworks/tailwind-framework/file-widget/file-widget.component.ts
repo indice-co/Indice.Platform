@@ -67,17 +67,23 @@ export class FileWidgetComponent implements OnInit {
     }
 
     public onDownload() {
-      this._api.downloadAttachment(this.controlValue!)
-          .pipe(
-              tap(results => {
-                  const fileURL = window.URL.createObjectURL(results.data);
-                  const a = document.createElement('a');
-                  a.href = fileURL;
-                  a.download = results.fileName ?? `response-${new Date().toISOString()}`; //filename already contains extension - also setting backup filename (with no extension)
-                  a.click();
-                  window.URL.revokeObjectURL(fileURL); //clean up
-              })
-          )
-          .subscribe();
-  }
+        this._api.downloadAttachment(this.controlValue!)
+            .pipe(
+                tap(results => {
+                    const fileURL = window.URL.createObjectURL(results.data);
+
+                    //if filename is given (content-disposition header is exposed), then download file
+                    if (results.fileName) {
+                        const a = document.createElement('a');
+                        a.href = fileURL;
+                        a.download = results.fileName;
+                        a.click();
+                        window.URL.revokeObjectURL(fileURL); //clean up
+                    } else { //if filename is not given, open file in new tab to show the content
+                        window.open(fileURL, '_blank');
+                    }
+                })
+            )
+            .subscribe();
+    }
 }
