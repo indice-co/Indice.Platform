@@ -91,7 +91,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin());
 
         var userId = user.FindSubjectIdOrClientId();
-        string inputGroupId = user.GetUserGroup(_options.GroupIdClaimType);
+        string inputGroupId = user.FindFirstValue(_options.GroupIdClaimType);
         var userRoles = user.GetUserRoles();
 
         var queryCases = _dbContext.Cases

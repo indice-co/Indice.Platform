@@ -97,7 +97,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         await caseMembersService.AdminCreate(Admin(),
            new AddAccessRuleRequest() {
                AccessLevel = 1,
-               MemberRole = "Admin",
+               MemberRole = BasicRoleNames.Administrator,
                RuleCaseTypeId = @case.CaseTypeId
            });
        
@@ -120,7 +120,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
                 },
                 new AddAccessRuleRequest() {
                     AccessLevel = 110,
-                    MemberRole = "Admin",
+                    MemberRole = BasicRoleNames.Administrator,
                     RuleCaseId = @case.Id
                 },
                 new AddAccessRuleRequest() {
@@ -157,7 +157,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         await caseMembersService.AdminCreate(Admin(),
             new Cases.Models.Requests.AddAccessRuleRequest() {
                 AccessLevel = 110,
-                MemberRole = "Admin",
+                MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
@@ -173,7 +173,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         await caseMembersService.AdminCreate(Admin(),
             new Cases.Models.Requests.AddAccessRuleRequest() {
                 AccessLevel = 110,
-                MemberRole = "Admin",
+                MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
@@ -189,7 +189,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         await caseMembersService.AdminCreate(Admin(),
             new Cases.Models.Requests.AddAccessRuleRequest() {
                 AccessLevel = 110,
-                MemberRole = "Admin",
+                MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();

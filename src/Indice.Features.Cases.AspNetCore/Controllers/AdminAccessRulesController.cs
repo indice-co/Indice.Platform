@@ -39,7 +39,7 @@ internal class AdminAccessRulesController : ControllerBase {
 
     /// <summary>Get Access rules for the specified case.</summary>
     /// <param name="caseId"></param>
-    [HttpGet("/case/{caseId:Guid}")]
+    [HttpGet("/cases/{caseId:Guid}/access-rules")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<AccessRule>))]
     public async Task<IActionResult> GetAccessRulesForCase(Guid caseId) {
