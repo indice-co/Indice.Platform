@@ -28,4 +28,8 @@ public class ExtendedEndpointOptions
     public PhoneNumberOptions PhoneNumber { get; set; } = new PhoneNumberOptions();
     /// <summary>Options for the email sent when a user updates his email address.</summary>
     public EmailOptions Email { get; set; } = new EmailOptions();
+
+    /// <summary>Options for the avatar feature. By default the feature is disabled.</summary>
+    public AvatarOptions AvatarOptions { get; set; } = new AvatarOptions();
+    
 }

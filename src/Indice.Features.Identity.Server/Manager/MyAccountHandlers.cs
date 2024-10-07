@@ -1,5 +1,10 @@
-﻿using System.Security.Claims;
+﻿using System.IO.Compression;
+using System.Net.NetworkInformation;
+using System.Security.Claims;
+using Azure;
+using Humanizer;
 using IdentityModel;
+using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
@@ -21,6 +26,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using static IdentityServer4.IdentityServerConstants;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -492,8 +498,8 @@ internal static class MyAccountHandlers
                 }
             }
         }
-        return TypedResults.Ok(new CredentialsValidationInfo { 
-            PasswordRules = availableRules.Values.ToList() 
+        return TypedResults.Ok(new CredentialsValidationInfo {
+            PasswordRules = availableRules.Values.ToList()
         });
     }
 
@@ -553,6 +559,39 @@ internal static class MyAccountHandlers
 
     internal static Ok<List<CallingCode>> GetSupportedCallingCodes(CallingCodesProvider callingCodesProvider) {
         return TypedResults.Ok(callingCodesProvider.GetSupportedCallingCodes());
+    }
+
+    internal static async Task<Results<NoContent, StatusCodeHttpResult, ValidationProblem>> UpdateMyAvatar(IFormFile avatarImage) {
+        /*
+        * The avatar must be stored inside the UserClaims Table with the claim type JwtClaimTypes.Picture*
+        * The update my avatar should invalidate the cache.
+        * The update my avatar resize the bounding box with max side size to sqare. 
+        * The update avatar should do the convert to base64 and store
+        */
+        using (var memoryStream = new MemoryStream()) {
+            await avatarImage.CopyToAsync(memoryStream);
+            var content = $"data:image/{GetImageContent(Path.GetExtension(avatarImage.FileName))};base64,{Convert.ToBase64String(memoryStream.ToArray())}";
+        }
+
+        //var fileIds = avatarImage;
+        //if (fileIds.Count > 1) {
+        //    TypedResults.Ok(new UploadFileResponse(fileIds.ToArray()));
+        //}
+        return TypedResults.NoContent();
+    }
+    private static string GetImageContent(string fileExtention) {
+
+        Dictionary<string, string> dicSupportedFormats = new Dictionary<string, string>{
+            {".jpg", "jpeg"},
+            {".jpeg", "jpeg"},
+            {".png", "png"},
+            {".gif", "gif"}
+        };
+
+        if (dicSupportedFormats.TryGetValue(fileExtention, out var fileType))
+            return fileType;
+
+        return "jpeg";
     }
 
     private static User CreateUserFromRequest(RegisterRequest request) {
