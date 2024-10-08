@@ -25,7 +25,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     private readonly ICaseTypeService _caseTypeService;
     private readonly IAdminCaseMessageService _adminCaseMessageService;
     private readonly ICaseEventService _caseEventService;
-
+    private readonly AdminCasesApiOptions _options;
     public AdminCaseService(
         CasesDbContext dbContext,
         AdminCasesApiOptions options,
@@ -38,6 +38,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+        _options = options;
     }
 
     public async Task<Guid> CreateDraft(ClaimsPrincipal user,
@@ -89,15 +90,15 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         // if client is systemic or admin, then bypass checks since no filtering is required.
         var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin());
 
-
         var userId = user.FindSubjectIdOrClientId();
-        string inputGroupId = null;
+        string inputGroupId = user.FindFirstValue(_options.GroupIdClaimType);
         var userRoles = user.GetUserRoles();
 
         var queryCases = _dbContext.Cases
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
             .Where(options.Filter.Metadata); // filter Metadata
+
         IQueryable<CasePartial> query;
         if (isSystemOrAdmin) {
             query = queryCases
@@ -131,8 +132,9 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             query = (from @case in queryCases
                      join checkpoint in _dbContext.Checkpoints
                         on @case.CheckpointId equals checkpoint.Id
-                     //into casescheckpoints
-                     let caseAccess = _dbContext.CaseAccessRules.Where(x => x.RuleCaseId == @case.Id &&
+
+                     let caseAccess = _dbContext.CaseAccessRules.Where(x =>
+                                    x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null &&
                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
                                     (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                     (inputGroupId != null && x.MemberGroupId == inputGroupId))
@@ -140,49 +142,52 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
 
-                     let CaseTypeAccess = _dbContext.CaseAccessRules.Where(x => x.RuleCaseTypeId == @case.CaseTypeId &&
+                     let CaseTypeAccess = _dbContext.CaseAccessRules.Where(x =>
+                                     x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null &&
                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
-                     let CheckpointIdAccess = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
-                                     x.RuleCaseId == null &&
+                     let CheckpointIdAccess = _dbContext.CaseAccessRules.Where(x =>
+                                    x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .FirstOrDefault()
-                     let caseCheckpointIdAccess = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
-                                      x.RuleCaseId == @case.Id &&
+                     let caseCheckpointIdAccess = _dbContext.CaseAccessRules.Where(x =>
+                                      x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
                                       ((userId != null && x.MemberUserId == userId.ToString()) ||
                                       (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                       (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                      .Select(x => x.AccessLevel)
                                      .FirstOrDefault()
 
-                     let caseAccessCondition = _dbContext.CaseAccessRules.Where(x => x.RuleCaseId == @case.Id &&
+                     let caseAccessCondition = _dbContext.CaseAccessRules.Where(x =>
+                                    x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null &&
                                       ((userId != null && x.MemberUserId == userId.ToString()) ||
                                       (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                       (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .Any()
-                     let CaseTypeCondition = _dbContext.CaseAccessRules.Where(x => x.RuleCaseTypeId == @case.CaseTypeId &&
+                     let CaseTypeCondition = _dbContext.CaseAccessRules.Where(x =>
+                                     x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null &&
                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .Any()
                      let CheckpointIdACondition = _dbContext.CaseAccessRules.Where(x =>
-                                    x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
-                                    x.RuleCaseId == null &&
+                                    x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
                                     (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                     (inputGroupId != null && x.MemberGroupId == inputGroupId)))
                                     .Select(x => x.AccessLevel)
                                     .Any()
-                     let caseCheckpointIdCondition = _dbContext.CaseAccessRules.Where(x => x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
-                                  x.RuleCaseId == @case.Id &&
+
+                     let caseCheckpointIdCondition = _dbContext.CaseAccessRules.Where(x =>
+                                    x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
                                   ((userId != null && x.MemberUserId == userId.ToString()) ||
                                   (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
                                   (inputGroupId != null && x.MemberGroupId == inputGroupId)))

@@ -84,6 +84,28 @@ public class AccessRulesServiceTest : IAsyncLifetime
 
 
     [Fact]
+    public async Task GetCase_AccessRules() {
+        var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
+        var caseMembersService = new AccessRuleService(dbContext);
+        var @case = await FetchCaseForTestAsync(dbContext);
+        await caseMembersService.AdminCreate(Admin(),
+            new AddAccessRuleRequest() {
+                AccessLevel = 0,
+                MemberUserId = Guid.NewGuid().ToString(),
+                RuleCaseId = @case.Id
+            });
+        await caseMembersService.AdminCreate(Admin(),
+           new AddAccessRuleRequest() {
+               AccessLevel = 1,
+               MemberRole = BasicRoleNames.Administrator,
+               RuleCaseTypeId = @case.CaseTypeId
+           });
+       
+        var rules = await caseMembersService.GetCaseAccessRules(@case.Id);
+        Assert.True(rules.Count == 2);
+    }
+
+    [Fact]
     public async Task AddAdmin_Batch() {
         var dbContext = ServiceProvider.GetRequiredService<CasesDbContext>();
         var caseMembersService = new AccessRuleService(dbContext);
@@ -98,7 +120,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
                 },
                 new AddAccessRuleRequest() {
                     AccessLevel = 110,
-                    MemberRole = "Admin",
+                    MemberRole = BasicRoleNames.Administrator,
                     RuleCaseId = @case.Id
                 },
                 new AddAccessRuleRequest() {
@@ -135,7 +157,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         await caseMembersService.AdminCreate(Admin(),
             new Cases.Models.Requests.AddAccessRuleRequest() {
                 AccessLevel = 110,
-                MemberRole = "Admin",
+                MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
@@ -151,7 +173,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         await caseMembersService.AdminCreate(Admin(),
             new Cases.Models.Requests.AddAccessRuleRequest() {
                 AccessLevel = 110,
-                MemberRole = "Admin",
+                MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();
@@ -167,7 +189,7 @@ public class AccessRulesServiceTest : IAsyncLifetime
         await caseMembersService.AdminCreate(Admin(),
             new Cases.Models.Requests.AddAccessRuleRequest() {
                 AccessLevel = 110,
-                MemberRole = "Admin",
+                MemberRole = BasicRoleNames.Administrator,
                 RuleCaseTypeId = caseType.Id
             });
         var caseRule = await dbContext.CaseAccessRules.FirstOrDefaultAsync();

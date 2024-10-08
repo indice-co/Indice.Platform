@@ -19,9 +19,8 @@ namespace Indice.Features.Cases.Controllers;
 [ProducesResponseType(StatusCodes.Status401Unauthorized, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status403Forbidden, Type = typeof(ProblemDetails))]
 [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ProblemDetails))]
-[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage/access-rules")]
-internal class AdminAccessRulesController : ControllerBase
-{
+[Route($"{ApiPrefixes.CasesApiTemplatePrefixPlaceholder}/manage")]
+internal class AdminAccessRulesController : ControllerBase {
     private readonly IAccessRuleService _accessRuleService;
 
     public AdminAccessRulesController(IAccessRuleService accessRuleService) {
@@ -30,7 +29,7 @@ internal class AdminAccessRulesController : ControllerBase
 
     /// <summary>Get Access rules.</summary>
     /// <param name="filters">Filters to narrow down the results</param>
-    [HttpGet]
+    [HttpGet("access-rules")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<AccessRule>))]
     public async Task<IActionResult> GetAccessRules([FromQuery] ListOptions<GetAccessRulesListFilter> filters) {
@@ -38,9 +37,19 @@ internal class AdminAccessRulesController : ControllerBase
         return Ok(AccessRuless);
     }
 
+    /// <summary>Get Access rules for the specified case.</summary>
+    /// <param name="caseId"></param>
+    [HttpGet("cases/{caseId:Guid}/access-rules")]
+    [Produces(MediaTypeNames.Application.Json)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ResultSet<AccessRule>))]
+    public async Task<IActionResult> GetAccessRulesForCase(Guid caseId) {
+        var AccessRuless = await _accessRuleService.GetCaseAccessRules(caseId);
+        return Ok(AccessRuless);
+    }
+
 
     /// <summary>Add a new Access rule for admin Users.</summary>
-    [HttpPost("admin")]
+    [HttpPost("access-rules/admin")]
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesAdministrator)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> CreateAccessRuleAdmin([FromBody] AddAccessRuleRequest request) {
@@ -49,7 +58,7 @@ internal class AdminAccessRulesController : ControllerBase
     }
 
     /// <summary>Add a new Access rule for admin Users.</summary>
-    [HttpPost("admin/batch")]
+    [HttpPost("access-rules/admin/batch")]
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesAdministrator)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> CreateBatchAccessRulesAdmin([FromBody] List<AddAccessRuleRequest> request) {
@@ -62,7 +71,7 @@ internal class AdminAccessRulesController : ControllerBase
     /// <param name="caseId">Case type Id</param>
     /// <param name="request">Rule grants</param>
     /// <returns></returns>
-    [HttpPost("{caseId:guid}")]
+    [HttpPost("access-rules/case/{caseId:guid}")]
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesManager)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -71,7 +80,7 @@ internal class AdminAccessRulesController : ControllerBase
         return NoContent();
     }
 
-    [HttpPut("batch/{caseId:guid}")]
+    [HttpPut("access-rules/case/{caseId:guid}/batch")]
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme, Policy = CasesApiConstants.Policies.BeCasesAdministrator)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> UpdateAccessRules([FromRoute] Guid caseId, [FromBody] List<AddCaseAccessRuleRequest> request) {
@@ -82,7 +91,7 @@ internal class AdminAccessRulesController : ControllerBase
     /// <summary>Update a specific Case Type.</summary>
     /// <param name="ruleId">Rule to be updated id</param>
     /// <param name="accessLevel">new access level</param>
-    [HttpPut("{ruleId:guid}/{accessLevel:int}")]
+    [HttpPut("access-rules/{ruleId:guid}/{accessLevel:int}")]
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccessRule))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
@@ -92,7 +101,7 @@ internal class AdminAccessRulesController : ControllerBase
     }
 
     /// <summary>Delete a specific Access rule.</summary>
-    [HttpDelete("{ruleId:guid}")]
+    [HttpDelete("access-rules/{ruleId:guid}")]
     [Authorize(AuthenticationSchemes = CasesApiConstants.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ValidationProblemDetails))]
