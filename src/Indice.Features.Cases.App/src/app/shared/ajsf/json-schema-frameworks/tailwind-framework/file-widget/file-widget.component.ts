@@ -71,8 +71,19 @@ export class FileWidgetComponent implements OnInit {
       .pipe(
         tap(results => {
           const fileURL = window.URL.createObjectURL(results.data);
-          window.open(fileURL, '_blank');
-        }))
+
+          if (this.options?.downloadToDisk) {
+            const a = document.createElement('a');
+            a.href = fileURL;
+            //we get the file name from the content-disposition header, so make sure its exposed
+            a.download = results.fileName ?? `${this.layoutNode.name}-${this.controlValue}`;
+            a.click();
+            window.URL.revokeObjectURL(fileURL); //clean up
+          } else { //if downloadToDisk is not there or set to false, then open file in new tab to show the content
+            window.open(fileURL, '_blank');
+          }
+        })
+      )
       .subscribe();
   }
 
