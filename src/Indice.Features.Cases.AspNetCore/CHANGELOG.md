@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.31.2-beta01] - 2024-10-09
+ - You can now edit attachments, regardless if your case is draft or not
+ - You can override an already uploaded attachment. The previous attachement is not removed (yet)
+ - Added "downloadToDisk" flag on layout file fields. Added proper handling of filenames. Now a file can be either opened in the browser or downloaded to disk
+
 ## [7.31.1] - 2024-10-04
 -  Fix in search query & enchancments
 
