@@ -22,8 +22,14 @@ using Indice.Features.Cases.Workflows.Activities;
 using Indice.Features.Cases.Workflows.Bookmarks.AwaitApproval;
 using Indice.Features.Cases.Workflows.Interfaces;
 using Indice.Features.Cases.Workflows.Services;
+using Indice.Security;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -286,4 +292,52 @@ public static class CasesApiFeatureExtensions
         services.AddScoped<CasesMessageDescriber, TDescriber>();
         return services;
     }
+
+#nullable enable
+    internal const string WorkflowPolicy = "WorkflowPolicy";
+    /// <summary>
+    /// Adds a default security policy for Elsa Controllers and Razor Pages.
+    /// </summary>
+    /// <param name="services">The service collection</param>
+    /// <param name="configurePolicy">Override the default policy</param>
+    /// <returns>The service collection for further configuration</returns>
+    /// <remarks>Should be used in conjunction with the <strong>AddAuthentication().AddOpenIdConnect()</strong> 
+    /// because it makes use of the <seealso cref="OpenIdConnectDefaults.AuthenticationScheme"/> in order to authorize a visiting user</remarks>
+    public static IServiceCollection AddWorkflowAuthoriationPolicy(this IServiceCollection services, Action<AuthorizationPolicyBuilder>? configurePolicy = null) {
+        configurePolicy ??= policy => policy
+                .AddAuthenticationSchemes(CasesApiConstants.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme)
+                .RequireAuthenticatedUser()
+                .RequireAssertion(x => x.User.IsAdmin() || x.User.IsSystemClient());
+
+        services.AddAuthorization(authOptions => {
+            authOptions.AddPolicy(WorkflowPolicy, configurePolicy);
+        });
+
+        services.PostConfigure<MvcOptions>(options => {
+            options.Conventions.Add(new AddWorkflowAuthorizeFiltersConvention());
+        });
+
+        services.PostConfigure<RazorPagesOptions>(options => {
+            options.Conventions.Add(new AddWorkflowAuthorizeFiltersConvention());
+        });
+        return services;
+    }
+
+    internal class AddWorkflowAuthorizeFiltersConvention : IControllerModelConvention, IPageApplicationModelConvention
+    {
+        public void Apply(ControllerModel controller) {
+            // This is for ELSA API
+            if (controller.DisplayName.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
+                controller.Filters.Add(new AuthorizeFilter(WorkflowPolicy));
+            }
+        }
+
+        public void Apply(PageApplicationModel model) {
+            // This is for ELSA razor pages
+            if (model.HandlerType.Namespace!.Contains("elsa", StringComparison.OrdinalIgnoreCase)) {
+                model.Filters.Add(new AuthorizeFilter(WorkflowPolicy)); // razor pages are only elsa
+            }
+        }
+    }
+#nullable disable
 }
