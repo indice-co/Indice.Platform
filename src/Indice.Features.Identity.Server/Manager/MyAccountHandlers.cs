@@ -1,13 +1,8 @@
-﻿using System.IO.Compression;
-using System.Net.NetworkInformation;
+﻿using System.IO;
 using System.Security.Claims;
-using System.Threading;
-using Azure;
-using Humanizer;
+using System.Text;
 using IdentityModel;
-using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
-using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
 using Indice.Features.Identity.Core;
@@ -23,18 +18,18 @@ using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
-using Polly;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Processing;
-using static IdentityModel.ClaimComparer;
 using static IdentityServer4.IdentityServerConstants;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -569,66 +564,61 @@ internal static class MyAccountHandlers
         return TypedResults.Ok(callingCodesProvider.GetSupportedCallingCodes());
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateMyAvatar(IFormFileCollection Files,
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateMyAvatar(FileUploadRequest request,
         ExtendedUserManager<User> userManager,
-        ExtendedIdentityDbContext<User, Role> dbContext,
+        LinkGenerator linkGenerator,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         IOutputCacheStore cache,
         ClaimsPrincipal currentUser,
+        HttpContext httpContext,
         CancellationToken cancellationToken
         ) {
-        if (endpointOptions.Value.AvatarOptions.IsAvatarEnabled)
-            return TypedResults.ValidationProblem(ValidationErrors.AddError("", "Avatar feature is not enabled"));
-
+        if (endpointOptions.Value.AvatarOptions.IsAvatarEnabled) {
+            return TypedResults.NotFound();
+        }
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
             return TypedResults.NotFound();
         }
+        if (!(request.File?.Length > 0)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.File), "The file is mandatory"));
+        }
+        var avatarDataClaimType = JwtClaimTypes.Picture + "_data";
+        // manipulate image resize to max side size.
+        using var stream = request.File?.OpenReadStream();
+        using var image = Image.Load(stream, out IImageFormat format);
+        var maxDimention = endpointOptions.Value.AvatarOptions.AllowedSizes.Max();
+        image.Mutate(i => i.Resize(new Size(maxDimention, maxDimention)));
+
+        var imageStream = new MemoryStream();
+        await image.SaveAsJpegAsync(imageStream);
+        imageStream.Seek(0, SeekOrigin.Begin);
+        var data = new StringBuilder();
+        data.AppendFormat("data:image/{0};base64,", "jpeg");
+        data.Append(Convert.ToBase64String(imageStream.ToArray()));
+
+        var result = await userManager.ReplaceClaimAsync(user, avatarDataClaimType, data.ToString());
+
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        var route = linkGenerator.GetUriByName(httpContext, nameof(UserHandlers.GetAvatar), new { userId = user.Id });
+        // concatenate with relative absolute Authority.
+        //$"{endpointOptions.Value.ApiPrefix}/users/{currentUser.FindSubjectId}/avatar"
         /*
         * The update my avatar should invalidate the cache.
         * The update my avatar resize the bounding box with max side size to sqare. 
         */
-        var files = Files[0];
-        using var outStream = new MemoryStream();
-        using var memoryStream = new MemoryStream();
-        var file = Files[0];
-        var stream = file.OpenReadStream();
-        await stream.CopyToAsync(memoryStream);
-        using var image = Image.Load(memoryStream, out IImageFormat format);
-        var maxDimention = Math.Min(image.Width, image.Height);
-        image.Mutate(i => i.Crop(new Rectangle(0, 0, maxDimention, maxDimention)));
-
-        await image.SaveAsync(outStream, format);
-
-        dbContext.UserClaims.Add(new IdentityUserClaim<string> {
-            UserId = user.Id,
-            ClaimType = JwtClaimTypes.Picture + "-Binary",
-            ClaimValue = Convert.ToBase64String(outStream.ToArray())
-        });
-        dbContext.UserClaims.Add(new IdentityUserClaim<string> {
-            UserId = user.Id,
-            ClaimType = JwtClaimTypes.Picture + "-ContentType",
-
-            ClaimValue = GetImageContent(Path.GetExtension(file.FileName))
-        });
-        dbContext.UserClaims.Add(new IdentityUserClaim<string> {
-            UserId = user.Id,
-            ClaimType = JwtClaimTypes.Picture,
-            ClaimValue = $"{endpointOptions.Value.ApiPrefix}/users/{currentUser.FindSubjectId}/avatar"
-        });
-
-        await dbContext.SaveChangesAsync(cancellationToken);
-
-        await cache.EvictByTagAsync($"MyAvatar-userId:{currentUser.FindSubjectId}", cancellationToken);
+        //await cache.EvictByTagAsync($"MyAvatar-userId:{currentUser.FindSubjectId}", cancellationToken);
         return TypedResults.NoContent();
     }
 
     private static string GetImageContent(string fileExtention) {
         var dicSupportedFormats = new Dictionary<string, string>{
-            {".jpg", "jpeg"},
-            {".jpeg", "jpeg"},
-            {".png", "png"},
-            {".gif", "gif"}
+            [".jpg"] =  "jpeg",
+            [".jpeg"] = "jpeg",
+            [".png"] = "png",
+            [".gif"] = "gif"
         };
 
         if (dicSupportedFormats.TryGetValue(fileExtention, out var fileType))

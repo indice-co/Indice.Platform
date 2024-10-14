@@ -164,11 +164,12 @@ public static class MyAccountApi
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.CallingCodes);
 
 
-        group.MapPut("my/avatar", MyAccountHandlers.UpdateMyAvatar)
+        group.MapPut("my/account/avatar", MyAccountHandlers.UpdateMyAvatar)
              .WithName(nameof(MyAccountHandlers.UpdateMyAvatar))
-             .WithSummary("Updates the email of the current user.")
+             .WithSummary("Updates the profile picture of the current user.")
              .LimitUpload(options.AvatarOptions.MaxFileSize, options.AvatarOptions.AcceptableFileExtensions)
-             .ProducesProblem(StatusCodes.Status400BadRequest)
+             .WithParameterValidation<FileUploadRequest>()
+             .Accepts<FileUploadRequest>("multipart/form-data")
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
 #if NET8_0_OR_GREATER
              .DisableAntiforgery()
