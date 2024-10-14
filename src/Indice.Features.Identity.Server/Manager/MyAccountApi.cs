@@ -169,23 +169,20 @@ public static class MyAccountApi
              .WithSummary("Updates the email of the current user.")
              .LimitUpload(options.AvatarOptions.MaxFileSize, options.AvatarOptions.AcceptableFileExtensions)
              .ProducesProblem(StatusCodes.Status400BadRequest)
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
+#if NET8_0_OR_GREATER
+             .DisableAntiforgery()
+#endif
+             ;
 
-             
-        /* The avatar must be stored inside the UserClaims Table with the claim type JwtClaimTypes.Picture *
+
+
+        /* 
+         * The avatar must be stored inside the UserClaims Table with the claim type JwtClaimTypes.Picture *
          * the value format is the binary uri: data:image/png;ivBOR.........                               *
          * The response must be cahed and taged so it can be invalidated.
-         * The update my avatar should invalidate the cache.
-         * The update my avatar should validate size file type, and resize the bounding box with max side size to sqare. 
-         * The update avatar should do the convert to base64 and store
          * All get avatar calls should be able to resize to spesific sizes 24,32,64,128
-         * The get avatar by id should be conditionally exposed ExtendedEndpointOptions.
-        
-        group.MapGet("my/avatar", MyAccountHandlers.GetMyAvatar)
-             .WithName(nameof(MyAccountHandlers.UpdateEmail))
-             .WithSummary("Updates the email of the current user.")
-             .WithParameterValidation<UpdateUserEmailRequest>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+         * The get avatar by id should be conditionally exposed ExtendedEndpointOptions
 
         group.MapPut("avatar/{userId}", MyAccountHandlers.GetUserAvatar)
              .WithName(nameof(MyAccountHandlers.UpdateEmail))

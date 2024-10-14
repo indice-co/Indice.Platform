@@ -25,4 +25,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Indice.Features.Identity.SignInLogs\Indice.Features.Identity.SignInLogs.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Images\Profile.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

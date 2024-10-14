@@ -1,11 +1,13 @@
 ﻿using System.IO.Compression;
 using System.Net.NetworkInformation;
 using System.Security.Claims;
+using System.Threading;
 using Azure;
 using Humanizer;
 using IdentityModel;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.Models;
+using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
 using Indice.Features.Identity.Core;
@@ -21,10 +23,16 @@ using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
+using Polly;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Processing;
+using static IdentityModel.ClaimComparer;
 using static IdentityServer4.IdentityServerConstants;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
@@ -561,27 +569,62 @@ internal static class MyAccountHandlers
         return TypedResults.Ok(callingCodesProvider.GetSupportedCallingCodes());
     }
 
-    internal static async Task<Results<NoContent, StatusCodeHttpResult, ValidationProblem>> UpdateMyAvatar(IFormFile avatarImage) {
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateMyAvatar(IFormFileCollection Files,
+        ExtendedUserManager<User> userManager,
+        ExtendedIdentityDbContext<User, Role> dbContext,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        IOutputCacheStore cache,
+        ClaimsPrincipal currentUser,
+        CancellationToken cancellationToken
+        ) {
+        if (endpointOptions.Value.AvatarOptions.IsAvatarEnabled)
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("", "Avatar feature is not enabled"));
+
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
         /*
-        * The avatar must be stored inside the UserClaims Table with the claim type JwtClaimTypes.Picture*
         * The update my avatar should invalidate the cache.
         * The update my avatar resize the bounding box with max side size to sqare. 
-        * The update avatar should do the convert to base64 and store
         */
-        using (var memoryStream = new MemoryStream()) {
-            await avatarImage.CopyToAsync(memoryStream);
-            var content = $"data:image/{GetImageContent(Path.GetExtension(avatarImage.FileName))};base64,{Convert.ToBase64String(memoryStream.ToArray())}";
-        }
+        var files = Files[0];
+        using var outStream = new MemoryStream();
+        using var memoryStream = new MemoryStream();
+        var file = Files[0];
+        var stream = file.OpenReadStream();
+        await stream.CopyToAsync(memoryStream);
+        using var image = Image.Load(memoryStream, out IImageFormat format);
+        var maxDimention = Math.Min(image.Width, image.Height);
+        image.Mutate(i => i.Crop(new Rectangle(0, 0, maxDimention, maxDimention)));
 
-        //var fileIds = avatarImage;
-        //if (fileIds.Count > 1) {
-        //    TypedResults.Ok(new UploadFileResponse(fileIds.ToArray()));
-        //}
+        await image.SaveAsync(outStream, format);
+
+        dbContext.UserClaims.Add(new IdentityUserClaim<string> {
+            UserId = user.Id,
+            ClaimType = JwtClaimTypes.Picture + "-Binary",
+            ClaimValue = Convert.ToBase64String(outStream.ToArray())
+        });
+        dbContext.UserClaims.Add(new IdentityUserClaim<string> {
+            UserId = user.Id,
+            ClaimType = JwtClaimTypes.Picture + "-ContentType",
+
+            ClaimValue = GetImageContent(Path.GetExtension(file.FileName))
+        });
+        dbContext.UserClaims.Add(new IdentityUserClaim<string> {
+            UserId = user.Id,
+            ClaimType = JwtClaimTypes.Picture,
+            ClaimValue = $"{endpointOptions.Value.ApiPrefix}/users/{currentUser.FindSubjectId}/avatar"
+        });
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        await cache.EvictByTagAsync($"MyAvatar-userId:{currentUser.FindSubjectId}", cancellationToken);
         return TypedResults.NoContent();
     }
-    private static string GetImageContent(string fileExtention) {
 
-        Dictionary<string, string> dicSupportedFormats = new Dictionary<string, string>{
+    private static string GetImageContent(string fileExtention) {
+        var dicSupportedFormats = new Dictionary<string, string>{
             {".jpg", "jpeg"},
             {".jpeg", "jpeg"},
             {".png", "png"},

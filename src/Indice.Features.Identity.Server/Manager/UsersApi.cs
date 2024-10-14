@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Http.Filters;
+﻿using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Http.Filters;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -6,6 +7,7 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -144,6 +146,12 @@ public static class UsersApi
              .InvalidateCache(nameof(UserHandlers.GetUser))
              .WithParameterValidation<SetPasswordRequest>();
 
+
+        group.MapGet("{userId}/avatar", UserHandlers.GetAvatar)
+             .WithName(nameof(UserHandlers.GetAvatar))
+             .WithSummary("Gets a list of the devices of the specified user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+             //.CacheOutput(nameof(DefaultTagCachePolicy));
         return group;
     }
 }

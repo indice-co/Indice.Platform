@@ -13,7 +13,7 @@ public class AvatarOptions
     /// <summary>Controls whether the avatar management feature is enabled. Defaults to false.</summary>
     public bool IsAvatarEnabled { get; set; } = false;
     /// <summary>The maximum acceptable size of the files to be uploaded in bytes. Defaults to <i>100KB</i>.</summary>
-    public long MaxFileSize { get; set; } = 100 * 1024;;
+    public long MaxFileSize { get; set; } = 100 * 1024;
     /// <summary>The acceptable file extensions. Defaults to <i>.png, .jpg, .gif</i>.</summary>
     public string AcceptableFileExtensions { get; set; } = ".png, .jpg, .gif";
     /// <summary>Allowed tile sizes. Only these sizes are available.</summary>
