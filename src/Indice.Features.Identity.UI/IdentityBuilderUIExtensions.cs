@@ -4,6 +4,7 @@ using FluentValidation.AspNetCore;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.UI;
 using Indice.Features.Identity.UI.Localization;
+using Indice.Features.Identity.UI.Telemetry;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -91,6 +92,7 @@ public static class IdentityBuilderUIExtensions
         // Configure other services.
         services.AddGeneralSettings(configuration);
         services.AddMarkdown();
+        services.TryAddTransient<ITelemetryJavaScriptSnippet, AzureMonitorTelemetryJavaScriptSnippet>(); // browser ui telemetry.
         return services;
     }
 
