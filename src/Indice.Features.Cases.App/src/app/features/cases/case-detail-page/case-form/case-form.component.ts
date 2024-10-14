@@ -134,7 +134,6 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   public onSubmit(event: any): void {
-    if (this.case?.draft) {
       // we have to send user's document(s) to the server
       const callsDict: { [key: string]: Observable<CasesAttachmentLink> } = { '': of({} as CasesAttachmentLink) };
       // what is the key of the dictionary here? the dataPointer (e.g. "/homeAddress/attachmentId") that was added in the file-upload widget
@@ -146,7 +145,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
           path = path.substring(1);
           if (get(event, path)) { // https://lodash.com/docs/4.17.15#get
             const fileParam = { data: this._fileUploadService.files[key], fileName: this._fileUploadService.files[key].name };
-            callsDict[key] = this._api.uploadAdminCaseAttachment(this.case.id!, undefined, fileParam);
+            callsDict[key] = this._api.uploadAdminCaseAttachment(this.case?.id!, undefined, fileParam);
           }
         }
       }
@@ -157,52 +156,53 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
             (response: { [key: string]: CasesAttachmentLink }) => {
               for (const key in response) {
                 if (response.hasOwnProperty(key) && key !== '') {
-                  // transform path to object key (eg. "/home/attachmentId") to a string that lodash update (https://lodash.com/docs/4.17.15#update) 
+                  // transform path to object key (eg. "/home/attachmentId") to a string that lodash update (https://lodash.com/docs/4.17.15#update)
                   // can understand (eg "home.attachmentId") and update its value with the response attachment id
                   update(event, key.slice(1).replace('/', '.'), () => response[key].id!);
                 }
               }
 
-              // finally, submit the case
-              this._api.submitAdminCase(this.case?.id!, undefined, event)
-                .pipe(
-                  tap(() => {
-                    this._fileUploadService.reset();
-                    this._toaster.show(ToastType.Success, 'Επιτυχής Καταχώριση', `Η αρχική καταχώριση της υπόθεσης ολοκληρώθηκε.`, 5000);
-                    this.updateDataEvent.emit({ draft: true });
-                  }),
-                  catchError((err: ProblemDetails) => { // error during case submit
-                    this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της υπόθεσής σας.`, 5000);
-                    this.router.navigate(['/cases']);
-                    return EMPTY;
-                  })
-                )
-                .subscribe();
+              if (this.case?.draft) {
+                // finally, submit the case
+                this._api.submitAdminCase(this.case?.id!, undefined, event)
+                  .pipe(
+                    tap(() => {
+                      this._fileUploadService.reset();
+                      this._toaster.show(ToastType.Success, 'Επιτυχής Καταχώριση', `Η αρχική καταχώριση της υπόθεσης ολοκληρώθηκε.`, 5000);
+                      this.updateDataEvent.emit({ draft: true });
+                    }),
+                    catchError((err: ProblemDetails) => { // error during case submit
+                      this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', err.detail || `Δεν κατέστη εφικτή η καταχώριση της υπόθεσής σας.`, 5000);
+                      this.router.navigate(['/cases']);
+                      return EMPTY;
+                    })
+                  )
+                  .subscribe();
+              } else {
+                const editCaseRequest = new EditCaseRequest({ data: event });
+                this._api.editCase(this.case?.id!, undefined, editCaseRequest)
+                  .pipe(
+                    tap(() => {
+                      this.initialData = event; // initial data are, now, the saved data
+                      this.formIsDirty = false;
+                      this.unSavedChanges.emit(this.formIsDirty);
+                      this.updateDataEvent.emit({ draft: false });
+                      this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Οι αλλαγές σας αποθηκεύτηκαν με επιτυχία.`, 5000);
+                      this._fileUploadService.reset();
+                    }),
+                    catchError(() => {
+                      this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Δεν κατέστη εφικτό να αποθηκευτούν οι αλλαγές σας.`, 5000);
+                      return EMPTY;
+                    })
+                  )
+                  .subscribe();
+              }
             }),
           catchError(() => { // error during attachments upload
             this._toaster.show(ToastType.Error, 'Αποτυχία Καταχώρισης', `Προέκυψε πρόβλημα κατά την αποθήκευση των εγγράφων.`, 5000);
             return EMPTY;
           }))
         .subscribe();
-    } else {
-      const editCaseRequest = new EditCaseRequest({ data: event });
-      this._api.editCase(this.case?.id!, undefined, editCaseRequest)
-        .pipe(
-          tap(() => {
-            this.initialData = event; // initial data are, now, the saved data
-            this.formIsDirty = false;
-            this.unSavedChanges.emit(this.formIsDirty);
-            this.updateDataEvent.emit({ draft: false });
-            this._toaster.show(ToastType.Success, 'Επιτυχής αποθήκευση', `Οι αλλαγές σας αποθηκεύτηκαν με επιτυχία.`, 5000);
-            this._fileUploadService.reset();
-          }),
-          catchError(() => {
-            this._toaster.show(ToastType.Error, 'Αποτυχία αποθήκευσης', `Δεν κατέστη εφικτό να αποθηκευτούν οι αλλαγές σας.`, 5000);
-            return EMPTY;
-          })
-        )
-        .subscribe();
-    }
   }
 
   // property-level onChange implementation from:
@@ -252,7 +252,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
 
   onCancel(): void {
     this.showForm = false;
-    this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form     
+    this.changeDetector.detectChanges(); // enforce the instantaneous deletion of form
     this.schema = JSON.parse(this.case?.caseType?.dataSchema!);
     this.layout = JSON.parse(this.case?.caseType?.layout!);
     this.data = this.initialData;
@@ -270,7 +270,7 @@ export class CaseFormComponent implements OnChanges, OnInit, OnDestroy {
     }
     // case is not draft, check for editability
     if (!viewOnlyMode) {
-      // form is editable      
+      // form is editable
       layout = this.copiedLayout;
       this.jsonFormOptions.addSubmit = true;
     } else {

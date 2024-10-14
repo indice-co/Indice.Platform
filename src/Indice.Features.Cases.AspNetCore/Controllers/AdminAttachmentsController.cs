@@ -33,6 +33,8 @@ internal class AdminAttachmentsController : ControllerBase
             return NotFound();
         }
         var fileName = $"{attachmentId}-{DateTimeOffset.UtcNow.Date:dd-MM-yyyy}.{attachment.FileExtension}";
+
+        //filename will be accessible via the Content-Disposition response header, so remember to expose Content-Disposition in your Cors policy
         return File(attachment.Data, attachment.ContentType, fileName);
     }
 }
