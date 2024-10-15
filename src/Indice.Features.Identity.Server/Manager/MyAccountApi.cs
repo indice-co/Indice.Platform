@@ -1,4 +1,5 @@
 ﻿using IdentityModel;
+using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
@@ -7,6 +8,8 @@ using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
+using Polly;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -171,12 +174,21 @@ public static class MyAccountApi
              .WithParameterValidation<FileUploadRequest>()
              .Accepts<FileUploadRequest>("multipart/form-data")
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
-#if NET8_0_OR_GREATER
-             .DisableAntiforgery()
-#endif
-             ;
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UploadAvatar);
 
-
+        group.MapGet("account/{userId}/avatar", MyAccountHandlers.GetAvatar)
+             .WithName(nameof(MyAccountHandlers.GetAvatar))
+             .WithSummary("Get user's profile picture.")
+             //.AddOpenApiSecurityRequirement("oauth2", allowedScopes)
+             .AllowAnonymous()
+#if NET7_0_OR_GREATER
+              .CacheOutput(policy => {
+                  policy.AddPolicy<DefaultTagCachePolicy>();
+                  policy.Expire(TimeSpan.FromMinutes(30));
+                  policy.SetVaryByRouteValue(["userId"]);
+              })
+              #endif
+                ;
 
         /* 
          * The avatar must be stored inside the UserClaims Table with the claim type JwtClaimTypes.Picture *

@@ -630,48 +630,4 @@ internal static class UserHandlers
         }
         return TypedResults.NoContent();
     }
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="userManager"></param>
-    /// <param name="userId">The for whome we need to get the avatar</param>
-    /// <param name="ext">The desired size of the avatar. Possible values are 16, 24, 32, 48, 64, 128, 192, 256 and 512.</param>
-    /// <param name="circular">Determines whether the tile will be circular or square. Defaults to false (square)</param>
-    /// <returns></returns>
-    internal static async Task<Results<IResult, NotFound, ValidationProblem>> GetAvatar(
-        ExtendedIdentityDbContext<User, Role> dbContext,
-        IOptions<ExtendedEndpointOptions> endpointOptions,
-        string userId,
-        [FromQuery] bool ext,
-        [FromQuery] bool circular
-        //,AvatarGenerator avatarGenerator
-    ) {
-        if (endpointOptions.Value.AvatarOptions.IsAvatarEnabled)
-            return TypedResults.ValidationProblem(ValidationErrors.AddError("", "Avatar feature is not enabled"));
-
-        var user = await dbContext.Users.AsNoTracking()
-                        .Include(x => x.Claims)
-                        .FirstOrDefaultAsync(x => x.Id == userId);
-
-        if (user == null) {
-            return TypedResults.NotFound();
-        }
-
-        var avatarBinary = await dbContext.UserClaims.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.ClaimType == JwtClaimTypes.Picture + "-Binary");
-        var avatarContentType = await dbContext.UserClaims.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.ClaimType == JwtClaimTypes.Picture + "-ContentType");
-
-        if (avatarBinary is null || avatarBinary.ClaimValue is null || avatarContentType is null || avatarContentType.ClaimValue is null) {
-            var firstName = user.Claims!.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.GivenName);
-            var lastName = user.Claims!.FirstOrDefault(x => x.ClaimType == JwtClaimTypes.FamilyName);
-            var data = new MemoryStream();
-            //avatarGenerator.Generate(data, firstName?.ClaimValue ?? "J", lastName?.ClaimValue ?? "D", 64, true, "#fff", "#000", circular);
-            var hash = string.Empty;
-            using (var md5 = MD5.Create()) {
-                hash = md5.ComputeHash(Encoding.UTF8.GetBytes($"{firstName} {lastName}")).ToBase64UrlSafe();
-            }
-            return TypedResults.Ok(Results.File(data, "image/jpeg"));
-        }
-
-        return TypedResults.Ok(Results.File(Convert.FromBase64String(avatarBinary.ClaimValue), avatarContentType.ClaimValue));
-    }
 }
