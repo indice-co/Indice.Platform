@@ -5,7 +5,7 @@
               [style.display]="options?.notitle ? 'none' : ''"
               [innerHTML]="options?.title"></label>
       <ng-container *ngIf="!isGuid(controlValue!)">
-        <input type="file"
+        <input *ngIf="!options?.readonly" type="file"
                [accept]="accept"
                [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
                [attr.list]="'control' + layoutNode?._id + 'Autocomplete'"
@@ -22,7 +22,7 @@
                (change)="onFileSelect($event)">
         <p class="text-sm text-gray-900">Δεν έχει υποβληθεί κάποιο έγγραφο.</p>
       </ng-container>
-      <div class="flex align-items-center justify-content-center align-middle" *ngIf="isGuid(controlValue!)">
+      <div *ngIf="isGuid(controlValue!)" class="flex align-items-center justify-content-center align-middle">
         <button type="button"
                 (click)="onDownload()"
                 class="btn-default">
