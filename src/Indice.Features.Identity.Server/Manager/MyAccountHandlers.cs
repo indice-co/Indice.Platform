@@ -1,10 +1,13 @@
 ﻿using System.IO;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using IdentityModel;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
+using Indice.Extensions;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -602,20 +605,21 @@ internal static class MyAccountHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var route = linkGenerator.GetUriByName(httpContext, nameof(UserHandlers.GetAvatar), new { userId = user.Id });
+        var route = linkGenerator.GetUriByName(httpContext, nameof(MyAccountHandlers.GetAvatar), new { userId = user.Id });
         // concatenate with relative absolute Authority.
         //$"{endpointOptions.Value.ApiPrefix}/users/{currentUser.FindSubjectId}/avatar"
         /*
         * The update my avatar should invalidate the cache.
         * The update my avatar resize the bounding box with max side size to sqare. 
         */
-        //await cache.EvictByTagAsync($"MyAvatar-userId:{currentUser.FindSubjectId}", cancellationToken);
+        var evictionKey = $"GetAvatar-userId:{user.Id}";
+        await cache.EvictByTagAsync(evictionKey, cancellationToken);
         return TypedResults.NoContent();
     }
 
     private static string GetImageContent(string fileExtention) {
-        var dicSupportedFormats = new Dictionary<string, string>{
-            [".jpg"] =  "jpeg",
+        var dicSupportedFormats = new Dictionary<string, string> {
+            [".jpg"] = "jpeg",
             [".jpeg"] = "jpeg",
             [".png"] = "png",
             [".gif"] = "gif"
@@ -625,6 +629,54 @@ internal static class MyAccountHandlers
             return fileType;
 
         return "jpeg";
+    }
+    /// <summary>
+    /// Retrieve user avatar 
+    /// </summary>
+    /// <param name="dbContext"></param>
+    /// <param name="endpointOptions"></param>
+    /// <param name="userId"></param>
+    /// <param name="size"></param>
+    /// <returns></returns>
+    internal static async Task<Results<FileContentHttpResult, NotFound, ValidationProblem>> GetAvatar(
+        ExtendedIdentityDbContext<User, Role> dbContext,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        string userId,
+        [FromQuery] int size = 0) {
+        if (endpointOptions.Value.AvatarOptions.IsAvatarEnabled)
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("", "Avatar feature is not enabled"));
+
+        if (size > 0 && !endpointOptions.Value.AvatarOptions.AllowedSizes.Contains(size)) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError("size", $"The specified size is not in the allowed list ({string.Join(',', endpointOptions.Value.AvatarOptions.AllowedSizes)})"));
+        }
+        //var user = await dbContext.Users.AsNoTracking()
+        //                .Include(x => x.Claims)
+        //                .FirstOrDefaultAsync(x => x.Id == userId);
+
+        //if (user == null) {
+        //    return TypedResults.NotFound();
+        //}
+
+        var avatarDataClaimType = JwtClaimTypes.Picture + "_data";
+        var avatarBinary = await dbContext.UserClaims.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.ClaimType == avatarDataClaimType);
+        if (avatarBinary != null && !string.IsNullOrEmpty(avatarBinary.ClaimValue)) {
+            var mime = Regex.Match(avatarBinary.ClaimValue, "(?<=data[:])(.*)(?=[;])")!.Value;
+            var base64 = Regex.Match(avatarBinary.ClaimValue, "(?<=[;]base64[,])(.*)")!.Value;
+            if (size == 0 || size == endpointOptions.Value.AvatarOptions.AllowedSizes.Max())
+                return TypedResults.File(Convert.FromBase64String(base64), contentType: mime);
+
+            var stream = new MemoryStream(Convert.FromBase64String(base64));
+            using var image = Image.Load(stream, out IImageFormat format);
+            image.Mutate(i => i.Resize(new Size(size, size)));
+
+            var imageStream = new MemoryStream();
+            await image.SaveAsJpegAsync(imageStream);
+            imageStream.Seek(0, SeekOrigin.Begin);
+
+            return TypedResults.File(imageStream.ToArray(), contentType: mime);
+        }
+
+        return TypedResults.NotFound();
     }
 
     private static User CreateUserFromRequest(RegisterRequest request) {

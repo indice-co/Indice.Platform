@@ -61,7 +61,8 @@ public static partial class IdentityEndpoints
             "account/username-exists",
             "account/validate-password",
             "totp",
-            "account/calling-codes"
+            "account/calling-codes",
+            "my/account/avatar"
         };
 
         public static class Policies 
@@ -73,6 +74,8 @@ public static partial class IdentityEndpoints
             public static readonly string ValidatePassword = Endpoints[4];
             public static readonly string Totp = Endpoints[5];
             public static readonly string CallingCodes = Endpoints[6];
+            public static readonly string UploadAvatar = Endpoints[7];
+            
         }
     }
 }

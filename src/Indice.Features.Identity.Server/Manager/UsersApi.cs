@@ -147,11 +147,6 @@ public static class UsersApi
              .WithParameterValidation<SetPasswordRequest>();
 
 
-        group.MapGet("{userId}/avatar", UserHandlers.GetAvatar)
-             .WithName(nameof(UserHandlers.GetAvatar))
-             .WithSummary("Gets a list of the devices of the specified user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
-             //.CacheOutput(nameof(DefaultTagCachePolicy));
         return group;
     }
 }
