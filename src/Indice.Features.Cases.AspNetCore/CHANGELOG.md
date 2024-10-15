@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.31.3] - 2024-10-15
+### Fixed
+ - Remove attachment button is now shown only when readonly is not true
+
 ## [7.31.2] - 2024-10-11
 ### Added
 - `downloadToDisk` flag on layout file fields. Added proper handling of filenames. Now a file can be either opened in the browser or downloaded to the disk.
