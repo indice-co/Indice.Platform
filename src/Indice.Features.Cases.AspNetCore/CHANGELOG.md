@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.31.4] - 2024-10-15
+### Added
+ - Added mb-4 to the every element of the case details
+ 
+### Fixed
+ - "Choose file" button now respects readonly option set in layout
+
 ## [7.31.3] - 2024-10-15
 ### Fixed
  - Remove attachment button is now shown only when readonly is not true
