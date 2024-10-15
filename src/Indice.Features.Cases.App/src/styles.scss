@@ -57,6 +57,10 @@
   }
 
   .form-container {
+    .form-group {
+      @apply mb-4;
+    }
+
     input[type="text"] {
       @apply appearance-none border rounded w-full mb-2 py-2 px-3 text-gray-700 leading-tight focus:outline-none ring-transparent focus:border-blue-300;
     }
