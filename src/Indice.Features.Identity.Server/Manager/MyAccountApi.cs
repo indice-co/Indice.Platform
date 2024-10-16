@@ -166,43 +166,39 @@ public static class MyAccountApi
              .AllowAnonymous()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.CallingCodes);
 
+        if (options.AvatarOptions.IsAvatarEnabled) {
+            group.MapPut("my/account/picture", MyAccountHandlers.SaveMyPicture)
+                 .WithName(nameof(MyAccountHandlers.SaveMyPicture))
+                 .WithSummary("Updates the profile picture of the current user.")
+                 .LimitUpload(options.AvatarOptions.MaxFileSize, options.AvatarOptions.AcceptableFileExtensions)
+                 .WithParameterValidation<FileUploadRequest>()
+                 .Accepts<FileUploadRequest>("multipart/form-data")
+                 .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
+                 .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UploadPicture);
 
-        group.MapPut("my/account/avatar", MyAccountHandlers.UpdateMyAvatar)
-             .WithName(nameof(MyAccountHandlers.UpdateMyAvatar))
-             .WithSummary("Updates the profile picture of the current user.")
-             .LimitUpload(options.AvatarOptions.MaxFileSize, options.AvatarOptions.AcceptableFileExtensions)
-             .WithParameterValidation<FileUploadRequest>()
-             .Accepts<FileUploadRequest>("multipart/form-data")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UploadAvatar);
+            group.MapDelete("my/account/picture", MyAccountHandlers.ClearMyPicture)
+                 .WithName(nameof(MyAccountHandlers.ClearMyPicture))
+                 .WithSummary("Removes picture from the current user.")
+                 .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-        group.MapGet("account/{userId}/avatar", MyAccountHandlers.GetAvatar)
-             .WithName(nameof(MyAccountHandlers.GetAvatar))
-             .WithSummary("Get user's profile picture.")
-             //.AddOpenApiSecurityRequirement("oauth2", allowedScopes)
-             .AllowAnonymous()
+            group.MapGet("my/account/picture", MyAccountHandlers.GetMyPicture)
+                .WithName(nameof(MyAccountHandlers.GetMyPicture))
+                .WithSummary("Get my picture.")
+                .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+            group.MapGet("account/{userId}/picture", MyAccountHandlers.GetUserPicture)
+                 .WithName(nameof(MyAccountHandlers.GetUserPicture))
+                 .WithSummary("Get user's profile picture.")
+                 .AllowAnonymous()
 #if NET7_0_OR_GREATER
-              .CacheOutput(policy => {
-                  policy.AddPolicy<DefaultTagCachePolicy>();
-                  policy.Expire(TimeSpan.FromMinutes(30));
-                  policy.SetVaryByRouteValue(["userId"]);
-              })
-              #endif
-                ;
-
-        /* 
-         * The avatar must be stored inside the UserClaims Table with the claim type JwtClaimTypes.Picture *
-         * the value format is the binary uri: data:image/png;ivBOR.........                               *
-         * The response must be cahed and taged so it can be invalidated.
-         * All get avatar calls should be able to resize to spesific sizes 24,32,64,128
-         * The get avatar by id should be conditionally exposed ExtendedEndpointOptions
-
-        group.MapPut("avatar/{userId}", MyAccountHandlers.GetUserAvatar)
-             .WithName(nameof(MyAccountHandlers.UpdateEmail))
-             .WithSummary("Updates the email of the current user.")
-             .WithParameterValidation<UpdateUserEmailRequest>()
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-        */
+                  .CacheOutput(policy => {
+                      policy.AddPolicy<DefaultTagCachePolicy>();
+                      policy.Expire(TimeSpan.FromMinutes(30));
+                      policy.SetVaryByRouteValue(["userId"]);
+                  })
+#endif
+                    ;
+        }
         return group;
     }
 }

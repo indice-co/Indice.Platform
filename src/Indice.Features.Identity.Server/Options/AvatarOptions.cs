@@ -14,8 +14,8 @@ public class AvatarOptions
     public bool IsAvatarEnabled { get; set; } = false;
     /// <summary>The maximum acceptable size of the files to be uploaded in bytes. Defaults to <i>200KB</i>.</summary>
     public long MaxFileSize { get; set; } = 200 * 1024;
-    /// <summary>The acceptable file extensions. Defaults to <i>.png, .jpg, .gif</i>.</summary>
-    public string AcceptableFileExtensions { get; set; } = ".png, .jpg, .gif";
+    /// <summary>The acceptable file extensions. Defaults to <i>.png, .jpg</i>.</summary>
+    public string AcceptableFileExtensions { get; set; } = ".png, .jpg";
     /// <summary>Allowed tile sizes. Only these sizes are available.</summary>
     public ICollection<int> AllowedSizes => _allowedSizes;
 }

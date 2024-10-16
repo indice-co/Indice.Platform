@@ -1,13 +1,13 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using IdentityModel;
+using IdentityServer4.Configuration;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
-using Indice.Extensions;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -29,14 +29,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Processing;
 using static IdentityServer4.IdentityServerConstants;
 
 namespace Indice.Features.Identity.Server.Manager;
 
-internal static class MyAccountHandlers
+internal static partial class MyAccountHandlers
 {
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateEmail(
         ExtendedUserManager<User> userManager,
@@ -567,7 +566,7 @@ internal static class MyAccountHandlers
         return TypedResults.Ok(callingCodesProvider.GetSupportedCallingCodes());
     }
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateMyAvatar(FileUploadRequest request,
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SaveMyPicture(FileUploadRequest request,
         ExtendedUserManager<User> userManager,
         LinkGenerator linkGenerator,
         IOptions<ExtendedEndpointOptions> endpointOptions,
@@ -576,9 +575,6 @@ internal static class MyAccountHandlers
         HttpContext httpContext,
         CancellationToken cancellationToken
         ) {
-        if (endpointOptions.Value.AvatarOptions.IsAvatarEnabled) {
-            return TypedResults.NotFound();
-        }
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
             return TypedResults.NotFound();
@@ -586,97 +582,69 @@ internal static class MyAccountHandlers
         if (!(request.File?.Length > 0)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(request.File), "The file is mandatory"));
         }
-        var avatarDataClaimType = JwtClaimTypes.Picture + "_data";
-        // manipulate image resize to max side size.
-        using var stream = request.File?.OpenReadStream();
-        using var image = Image.Load(stream, out IImageFormat format);
-        var maxDimention = endpointOptions.Value.AvatarOptions.AllowedSizes.Max();
-        image.Mutate(i => i.Resize(new Size(maxDimention, maxDimention)));
 
-        var imageStream = new MemoryStream();
-        await image.SaveAsJpegAsync(imageStream);
-        imageStream.Seek(0, SeekOrigin.Begin);
-        var data = new StringBuilder();
-        data.AppendFormat("data:image/{0};base64,", "jpeg");
-        data.Append(Convert.ToBase64String(imageStream.ToArray()));
-
-        var result = await userManager.ReplaceClaimAsync(user, avatarDataClaimType, data.ToString());
-
+        using var stream = request.File!.OpenReadStream();
+        var result = await userManager.SetUserPicture(user, stream, endpointOptions.Value.AvatarOptions.AllowedSizes.Max());
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var route = linkGenerator.GetUriByName(httpContext, nameof(MyAccountHandlers.GetAvatar), new { userId = user.Id });
-        // concatenate with relative absolute Authority.
-        //$"{endpointOptions.Value.ApiPrefix}/users/{currentUser.FindSubjectId}/avatar"
-        /*
-        * The update my avatar should invalidate the cache.
-        * The update my avatar resize the bounding box with max side size to sqare. 
-        */
-        var evictionKey = $"GetAvatar-userId:{user.Id}";
+        var route = linkGenerator.GetUriByName(httpContext, nameof(GetUserPicture), new { userId = user.Id });
+        var evictionKey = $"{nameof(GetUserPicture)}-userId:{currentUser.FindSubjectId()}";
         await cache.EvictByTagAsync(evictionKey, cancellationToken);
         return TypedResults.NoContent();
     }
 
-    private static string GetImageContent(string fileExtention) {
-        var dicSupportedFormats = new Dictionary<string, string> {
-            [".jpg"] = "jpeg",
-            [".jpeg"] = "jpeg",
-            [".png"] = "png",
-            [".gif"] = "gif"
-        };
-
-        if (dicSupportedFormats.TryGetValue(fileExtention, out var fileType))
-            return fileType;
-
-        return "jpeg";
-    }
-    /// <summary>
-    /// Retrieve user avatar 
-    /// </summary>
-    /// <param name="dbContext"></param>
-    /// <param name="endpointOptions"></param>
-    /// <param name="userId"></param>
-    /// <param name="size"></param>
-    /// <returns></returns>
-    internal static async Task<Results<FileContentHttpResult, NotFound, ValidationProblem>> GetAvatar(
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> ClearMyPicture(
+        ExtendedUserManager<User> userManager,
         ExtendedIdentityDbContext<User, Role> dbContext,
+        IOutputCacheStore cache,
+        ClaimsPrincipal currentUser,
+        HttpContext httpContext,
+    CancellationToken cancellationToken
+        ) {
+        var user = await userManager.GetUserAsync(currentUser);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var result = await userManager.ClearUserPicture(user);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+        var evictionKey = $"{nameof(GetUserPicture)}-userId:{currentUser.FindSubjectId()}";
+        await cache.EvictByTagAsync(evictionKey, cancellationToken);
+        return TypedResults.NoContent();
+    }
+
+    internal static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetMyPicture(
+         ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        ClaimsPrincipal currentUser,
+        int? size) {
+        return await GetUserPicture(userManager, endpointOptions, currentUser.FindSubjectId(), size);
+    }
+
+    internal static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetUserPicture(
+         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         string userId,
-        [FromQuery] int size = 0) {
-        if (endpointOptions.Value.AvatarOptions.IsAvatarEnabled)
-            return TypedResults.ValidationProblem(ValidationErrors.AddError("", "Avatar feature is not enabled"));
+        int? size) {
 
-        if (size > 0 && !endpointOptions.Value.AvatarOptions.AllowedSizes.Contains(size)) {
+        if (size > 0 && !endpointOptions.Value.AvatarOptions.AllowedSizes.Contains(size.Value)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("size", $"The specified size is not in the allowed list ({string.Join(',', endpointOptions.Value.AvatarOptions.AllowedSizes)})"));
         }
-        //var user = await dbContext.Users.AsNoTracking()
-        //                .Include(x => x.Claims)
-        //                .FirstOrDefaultAsync(x => x.Id == userId);
-
-        //if (user == null) {
-        //    return TypedResults.NotFound();
-        //}
-
-        var avatarDataClaimType = JwtClaimTypes.Picture + "_data";
-        var avatarBinary = await dbContext.UserClaims.AsNoTracking().SingleOrDefaultAsync(x => x.UserId == userId && x.ClaimType == avatarDataClaimType);
-        if (avatarBinary != null && !string.IsNullOrEmpty(avatarBinary.ClaimValue)) {
-            var mime = Regex.Match(avatarBinary.ClaimValue, "(?<=data[:])(.*)(?=[;])")!.Value;
-            var base64 = Regex.Match(avatarBinary.ClaimValue, "(?<=[;]base64[,])(.*)")!.Value;
-            if (size == 0 || size == endpointOptions.Value.AvatarOptions.AllowedSizes.Max())
-                return TypedResults.File(Convert.FromBase64String(base64), contentType: mime);
-
-            var stream = new MemoryStream(Convert.FromBase64String(base64));
-            using var image = Image.Load(stream, out IImageFormat format);
-            image.Mutate(i => i.Resize(new Size(size, size)));
-
-            var imageStream = new MemoryStream();
-            await image.SaveAsJpegAsync(imageStream);
-            imageStream.Seek(0, SeekOrigin.Begin);
-
-            return TypedResults.File(imageStream.ToArray(), contentType: mime);
+        if (size == endpointOptions.Value.AvatarOptions.AllowedSizes.Max()) {
+            size = null;
         }
 
-        return TypedResults.NotFound();
+        var user = await userManager.FindByIdAsync(userId);
+        if (user is null) {
+            return TypedResults.NotFound();
+        }
+        (Stream? stream, string contentType) = await userManager.GetUserPicture(user, size);
+        if (stream is null) {
+            return TypedResults.NotFound();
+        }
+        return TypedResults.File(stream, contentType: contentType);
     }
 
     private static User CreateUserFromRequest(RegisterRequest request) {
@@ -871,4 +839,7 @@ internal static class MyAccountHandlers
         }
         return list;
     }
+
+
+
 }

@@ -32,4 +32,16 @@ public interface IExtendedUserStore<TUser> where TUser : User
     /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp, CancellationToken cancellationToken);
+    /// <summary>Removes all claim instances of the specified type from the specified user</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="claimType">The claim type to be removed</param>
+    /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    Task<IdentityResult> RemoveAllClaimsAsync(TUser user, string claimType, CancellationToken cancellationToken = default);
+    /// <summary>Find all user cliams of the specified type</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="claimType">The claim type to be removed</param>
+    /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+    /// <returns>A list of <see cref="IdentityUserClaim{TKey}"/></returns>
+    Task<IList<IdentityUserClaim<string>>> FindClaimsByTypeAsync(TUser user, string claimType, CancellationToken cancellationToken = default);
 }

@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using IdentityServer4.EntityFramework.Entities;
+using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Models;
 using Microsoft.AspNetCore.Identity;
@@ -46,6 +47,8 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     private DbSet<UserDevice> UserDeviceSet => Context.Set<UserDevice>();
+    private DbSet<IdentityUserClaim<string>> UserClaimsSet => Context.Set<IdentityUserClaim<string>>();
+
     /// <inheritdoc/>
     public IQueryable<UserDevice> UserDevices => UserDeviceSet.AsQueryable();
     /// <inheritdoc/>
@@ -222,5 +225,27 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
             return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
         }
         return IdentityResult.Success;
+    }
+
+    /// <inheritdoc/>
+    public async Task<IdentityResult> RemoveAllClaimsAsync(TUser user, string claimType, CancellationToken cancellationToken = default) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        var claimsToRemove = await UserClaimsSet.Where(x => x.ClaimType == claimType && x.UserId == user.Id).ToListAsync(cancellationToken);
+        UserClaimsSet.RemoveRange(claimsToRemove);
+        try {
+            await SaveChanges(cancellationToken);
+        } catch (DbUpdateConcurrencyException) {
+            return IdentityResult.Failed(ErrorDescriber.ConcurrencyFailure());
+        }
+        return IdentityResult.Success;
+    }
+
+    /// <inheritdoc/>
+    public async Task<IList<IdentityUserClaim<string>>> FindClaimsByTypeAsync(TUser user, string claimType, CancellationToken cancellationToken = default) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        var claimsOfType = await UserClaimsSet.Where(x => x.ClaimType == claimType && x.UserId == user.Id).ToListAsync(cancellationToken);
+        return claimsOfType;
     }
 }
