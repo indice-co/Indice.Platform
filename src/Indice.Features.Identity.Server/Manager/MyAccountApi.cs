@@ -192,15 +192,15 @@ public static class MyAccountApi
                 .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
 
-            var pictureGroup = routes.MapGroup($"{options.ApiPrefix}");
+            var pictureGroup = routes.MapGroup("/");
             pictureGroup.WithTags("Picture");
             pictureGroup.WithGroupName("identity");
             pictureGroup.ExcludeFromDescription();
-            pictureGroup.MapGet("account/{userId}/picture", MyAccountHandlers.GetAccountPicture)
+            pictureGroup.MapGet("pictures/{userId}", MyAccountHandlers.GetAccountPicture)
                  .WithName(nameof(MyAccountHandlers.GetAccountPicture))
                  .WithSummary("Get user's profile picture.");
 
-            pictureGroup.MapGet("account/{userId}/picture.{format:regex(jpg|png|webp)}", MyAccountHandlers.GetAccountPictureFormat)
+            pictureGroup.MapGet("pictures/{userId}.{format:regex(jpg|png|webp)}", MyAccountHandlers.GetAccountPictureFormat)
                  .WithName(nameof(MyAccountHandlers.GetAccountPictureFormat))
                  .WithSummary("Get user's profile picture.");
 

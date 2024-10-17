@@ -620,39 +620,42 @@ internal static partial class MyAccountHandlers
         return TypedResults.NoContent();
     }
 
-    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetMyPicture(
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetMyPicture(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
-        int? size) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: null, size);
+        int? size) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: null, size, fallbackUrl: null);
     
-    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetMyPictureFormat(
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetMyPictureFormat(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
         string format,
-        int? size) =>  GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: '.' + format, size);
+        int? size) =>  GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: '.' + format, size, fallbackUrl: null);
 
 
-    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetAccountPicture(
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPicture(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         Base64Id userId,
-        int? size) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: null, size);
+        int? size,
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: null, size, fallbackUrl);
 
-    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetAccountPictureFormat(
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureFormat(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         Base64Id userId,
         string format,
-        int? size) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: '.' + format, size);
+        int? size,
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: '.' + format, size, fallbackUrl);
 
-    private static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetUserPictureInternal(
-         ExtendedUserManager<User> userManager,
+    private static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetUserPictureInternal(
+        ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         string userId,
         string? extension,
-        int? size) {
+        int? size,
+        string? fallbackUrl) {
         if (size > 0 && !endpointOptions.Value.AvatarOptions.AllowedSizes.Contains(size.Value)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("size", $"The specified size is not in the allowed list ({string.Join(',', endpointOptions.Value.AvatarOptions.AllowedSizes)})"));
         }
@@ -667,6 +670,9 @@ internal static partial class MyAccountHandlers
 
         (var stream, var contentType) = await userManager.GetUserPicture(user, GetImageContentType(extension), size);
         if (stream is null) {
+            if (fallbackUrl is not null && fallbackUrl.StartsWith("/avatar/")) {
+                return TypedResults.LocalRedirect(fallbackUrl);
+            }
             return TypedResults.NotFound();
         }
         return TypedResults.File(stream, contentType: contentType);
