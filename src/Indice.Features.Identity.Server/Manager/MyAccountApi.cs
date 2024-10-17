@@ -181,12 +181,12 @@ public static class MyAccountApi
                  .WithSummary("Removes picture from the current user.")
                  .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-            group.MapGet("my/account/picture", MyAccountHandlers.GetMyPicture)
+            group.MapGet("my/account/picture/{extension?}", MyAccountHandlers.GetMyPicture)
                 .WithName(nameof(MyAccountHandlers.GetMyPicture))
                 .WithSummary("Get my picture.")
                 .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-            group.MapGet("account/{userId}/picture", MyAccountHandlers.GetUserPicture)
+            group.MapGet("account/{userId}/picture/{extension?}", MyAccountHandlers.GetUserPicture)
                  .WithName(nameof(MyAccountHandlers.GetUserPicture))
                  .WithSummary("Get user's profile picture.")
                  .AllowAnonymous()

@@ -619,14 +619,16 @@ internal static partial class MyAccountHandlers
          ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
+        string? extension,
         int? size) {
-        return await GetUserPicture(userManager, endpointOptions, currentUser.FindSubjectId(), size);
+        return await GetUserPicture(userManager, endpointOptions, currentUser.FindSubjectId(), extension, size);
     }
 
     internal static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetUserPicture(
          ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         string userId,
+        string? extension,
         int? size) {
 
         if (size > 0 && !endpointOptions.Value.AvatarOptions.AllowedSizes.Contains(size.Value)) {
@@ -640,13 +642,29 @@ internal static partial class MyAccountHandlers
         if (user is null) {
             return TypedResults.NotFound();
         }
-        (Stream? stream, string contentType) = await userManager.GetUserPicture(user, size);
+
+        (Stream? stream, string contentType) = await userManager.GetUserPicture(user, GetImageContentType(extension), size);
         if (stream is null) {
             return TypedResults.NotFound();
         }
         return TypedResults.File(stream, contentType: contentType);
     }
 
+    private static string? GetImageContentType(string? fileExtention) {
+        if(fileExtention is null) return null;
+
+        var dicSupportedFormats = new Dictionary<string, string>{
+            {".jpg", "image/jpeg"},
+            {".jpeg", "image/jpeg"},
+            {".png", "image/png"},
+            {".webp", "image/webp"}
+        };
+
+        if (dicSupportedFormats.TryGetValue(fileExtention, out var fileType))
+            return fileType;
+
+        return null;
+    }
     private static User CreateUserFromRequest(RegisterRequest request) {
         var user = new User {
             UserName = request.UserName,

@@ -689,19 +689,11 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         image.Mutate(i => i.Resize(resizeOptions));
 
         var outputStream = new MemoryStream();
-        string contentType = "image/jpeg";
-        switch (format.DefaultMimeType) {
-            case "image/png":
-                contentType = "image/png";
-                await image.SaveAsPngAsync(outputStream);
-                break;
-            default:
-                await image.SaveAsJpegAsync(outputStream);
-                break;
-        }
+        await image.SaveAsWebpAsync(outputStream);
         outputStream.Seek(0, SeekOrigin.Begin);
+
         var data = new StringBuilder();
-        data.AppendFormat("data:{0};base64,", contentType);
+        data.AppendFormat("data:{0};base64,", "image/webp");
         data.Append(Convert.ToBase64String(outputStream.ToArray()));
 
         var result = await ReplaceClaimAsync(user, PictureDataClaimType, data.ToString());
@@ -719,9 +711,10 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
 
     /// <summary>Return user picture stream and content type</summary>
     /// <param name="user">The user instance</param>
+    /// <param name="contentType">Content type of file to be returned</param>
     /// <param name="size">Image size to be returned</param>
     /// <returns>A tupple of <see cref="Stream"/> and Content Type </returns>
-    public async Task<(Stream? Stream, string ContentType)> GetUserPicture(TUser user, int? size = null) {
+    public async Task<(Stream? Stream, string ContentType)> GetUserPicture(TUser user, string? contentType = null, int? size = null) {
         var userStore = GetUserStore();
         var claims = await userStore!.FindClaimsByTypeAsync(user, PictureDataClaimType);
         var avatarBinary = claims.FirstOrDefault();
@@ -738,19 +731,16 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             var mime = match.Groups["ContentType"].Value;
             MemoryStream outputStream;
 
-            if (!size.HasValue) {
+            if (!size.HasValue && string.IsNullOrEmpty(contentType)) {
                 outputStream = new MemoryStream(Convert.FromBase64String(base64));
                 return (Stream: outputStream, ContentType: mime);
             }
 
             using var originalStream = new MemoryStream(Convert.FromBase64String(base64));
             using var image = Image.Load(originalStream, out var format);
-            var factor = (double)size / Math.Max(image.Width, image.Height);
-            //var resizeOptions = new ResizeOptions() {
-            //    Size = new Size((int)(image.Width * factor), (int)(image.Height * factor))
-            //};
+
             var resizeOptions = new ResizeOptions() {
-                Size = new Size(size.Value, size.Value),
+                Size = new Size(size ?? image.Width, size ?? image.Height),
                 Mode = ResizeMode.Pad
             };
             image.Mutate(i => i.Resize(resizeOptions));
@@ -758,6 +748,9 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             switch (format.DefaultMimeType) {
                 case "image/png":
                     await image.SaveAsPngAsync(outputStream);
+                    break;
+                case "image/jpg":
+                    await image.SaveAsJpegAsync(outputStream);
                     break;
                 default:
                     await image.SaveAsJpegAsync(outputStream);
