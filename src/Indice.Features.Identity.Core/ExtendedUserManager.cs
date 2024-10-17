@@ -671,7 +671,8 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     private static Regex GetBase64PictureRegex() => _base64PictureRegex;
 #endif
 
-    private const string PictureDataClaimType = JwtClaimTypes.Picture + "_data";
+    /// <summary>Profile Picture backing store claim type.</summary>
+    internal const string PictureDataClaimType = JwtClaimTypes.Picture + "_data";
     /// <summary>Sets user profile picture</summary>
     /// <param name="user">The user instance</param>
     /// <param name="inputStream">The picture stream</param>
