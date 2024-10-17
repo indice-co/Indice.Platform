@@ -678,8 +678,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="sideSize">Image side size to store</param>
     /// <returns>An <see cref="IdentityResult"/></returns>
     public async Task<IdentityResult> SetUserPicture(TUser user, Stream inputStream, int sideSize = 256) {
-
-
         using var image = Image.Load(inputStream, out var format);
         // manipulate image resize to max side size.
         var factor = (double)sideSize / Math.Max(image.Width, image.Height);
@@ -728,12 +726,12 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
                 return (null, string.Empty);
             }
             var base64 = match.Groups["Data"].Value;
-            var mime = match.Groups["ContentType"].Value;
+            var savedContentType = match.Groups["ContentType"].Value;
             MemoryStream outputStream;
 
             if (!size.HasValue && string.IsNullOrEmpty(contentType)) {
                 outputStream = new MemoryStream(Convert.FromBase64String(base64));
-                return (Stream: outputStream, ContentType: mime);
+                return (Stream: outputStream, ContentType: savedContentType);
             }
 
             using var originalStream = new MemoryStream(Convert.FromBase64String(base64));
@@ -745,20 +743,21 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             };
             image.Mutate(i => i.Resize(resizeOptions));
             outputStream = new MemoryStream();
-            switch (format.DefaultMimeType) {
+            contentType ??= format.DefaultMimeType;
+            switch (contentType) {
                 case "image/png":
                     await image.SaveAsPngAsync(outputStream);
                     break;
-                case "image/jpg":
+                case "image/jpeg":
                     await image.SaveAsJpegAsync(outputStream);
                     break;
                 default:
-                    await image.SaveAsJpegAsync(outputStream);
+                    await image.SaveAsWebpAsync(outputStream);
                     break;
             }
             outputStream.Seek(0, SeekOrigin.Begin);
 
-            return (Stream: outputStream, ContentType: mime);
+            return (Stream: outputStream, ContentType: contentType);
         }
         return (null, string.Empty);
     }

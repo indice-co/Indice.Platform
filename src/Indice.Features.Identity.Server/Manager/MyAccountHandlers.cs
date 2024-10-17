@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -588,8 +589,13 @@ internal static partial class MyAccountHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var route = linkGenerator.GetUriByName(httpContext, nameof(GetUserPicture), new { userId = user.Id });
-        var evictionKey = $"{nameof(GetUserPicture)}-userId:{currentUser.FindSubjectId()}";
+        var route = linkGenerator.GetUriByName(httpContext, nameof(GetAccountPicture), new { userId = Base64Id.Parse(user.Id) });
+        result = await userManager.ReplaceClaimAsync(user, JwtClaimTypes.Picture, route!);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(result.Errors.ToDictionary());
+        }
+
+        var evictionKey = $"{nameof(GetUserPictureInternal)}-userId:{currentUser.FindSubjectId()}";
         await cache.EvictByTagAsync(evictionKey, cancellationToken);
         return TypedResults.NoContent();
     }
@@ -599,9 +605,8 @@ internal static partial class MyAccountHandlers
         ExtendedIdentityDbContext<User, Role> dbContext,
         IOutputCacheStore cache,
         ClaimsPrincipal currentUser,
-        HttpContext httpContext,
-    CancellationToken cancellationToken
-        ) {
+        CancellationToken cancellationToken) {
+        
         var user = await userManager.GetUserAsync(currentUser);
         if (user == null) {
             return TypedResults.NotFound();
@@ -610,27 +615,44 @@ internal static partial class MyAccountHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var evictionKey = $"{nameof(GetUserPicture)}-userId:{currentUser.FindSubjectId()}";
+        var evictionKey = $"{nameof(GetUserPictureInternal)}-userId:{currentUser.FindSubjectId()}";
         await cache.EvictByTagAsync(evictionKey, cancellationToken);
         return TypedResults.NoContent();
     }
 
-    internal static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetMyPicture(
-         ExtendedUserManager<User> userManager,
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetMyPicture(
+        ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
-        string? extension,
-        int? size) {
-        return await GetUserPicture(userManager, endpointOptions, currentUser.FindSubjectId(), extension, size);
-    }
+        int? size) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: null, size);
+    
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetMyPictureFormat(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        ClaimsPrincipal currentUser,
+        string format,
+        int? size) =>  GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: '.' + format, size);
 
-    internal static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetUserPicture(
+
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetAccountPicture(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        Base64Id userId,
+        int? size) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: null, size);
+
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetAccountPictureFormat(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        Base64Id userId,
+        string format,
+        int? size) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: '.' + format, size);
+
+    private static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem>> GetUserPictureInternal(
          ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         string userId,
         string? extension,
         int? size) {
-
         if (size > 0 && !endpointOptions.Value.AvatarOptions.AllowedSizes.Contains(size.Value)) {
             return TypedResults.ValidationProblem(ValidationErrors.AddError("size", $"The specified size is not in the allowed list ({string.Join(',', endpointOptions.Value.AvatarOptions.AllowedSizes)})"));
         }
@@ -643,7 +665,7 @@ internal static partial class MyAccountHandlers
             return TypedResults.NotFound();
         }
 
-        (Stream? stream, string contentType) = await userManager.GetUserPicture(user, GetImageContentType(extension), size);
+        (var stream, var contentType) = await userManager.GetUserPicture(user, GetImageContentType(extension), size);
         if (stream is null) {
             return TypedResults.NotFound();
         }
@@ -654,10 +676,10 @@ internal static partial class MyAccountHandlers
         if(fileExtention is null) return null;
 
         var dicSupportedFormats = new Dictionary<string, string>{
-            {".jpg", "image/jpeg"},
-            {".jpeg", "image/jpeg"},
-            {".png", "image/png"},
-            {".webp", "image/webp"}
+            [".jpg"] = "image/jpeg",
+            [".jpeg"] = "image/jpeg",
+            [".png"]  ="image/png",
+            [".webp"] = "image/webp"
         };
 
         if (dicSupportedFormats.TryGetValue(fileExtention, out var fileType))

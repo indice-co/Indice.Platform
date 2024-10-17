@@ -166,10 +166,10 @@ public static class MyAccountApi
              .AllowAnonymous()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.CallingCodes);
 
-        if (options.AvatarOptions.IsAvatarEnabled) {
+        if (options.AvatarOptions.Enabled) {
             group.MapPut("my/account/picture", MyAccountHandlers.SaveMyPicture)
                  .WithName(nameof(MyAccountHandlers.SaveMyPicture))
-                 .WithSummary("Updates the profile picture of the current user.")
+                 .WithSummary("Create or update profile picture of the current user.")
                  .LimitUpload(options.AvatarOptions.MaxFileSize, options.AvatarOptions.AcceptableFileExtensions)
                  .WithParameterValidation<FileUploadRequest>()
                  .Accepts<FileUploadRequest>("multipart/form-data")
@@ -178,18 +178,33 @@ public static class MyAccountApi
 
             group.MapDelete("my/account/picture", MyAccountHandlers.ClearMyPicture)
                  .WithName(nameof(MyAccountHandlers.ClearMyPicture))
-                 .WithSummary("Removes picture from the current user.")
+                 .WithSummary("Clear profile picture from the current user.")
                  .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-            group.MapGet("my/account/picture/{extension?}", MyAccountHandlers.GetMyPicture)
+            group.MapGet("my/account/picture", MyAccountHandlers.GetMyPicture)
                 .WithName(nameof(MyAccountHandlers.GetMyPicture))
-                .WithSummary("Get my picture.")
+                .WithSummary("Get my profile picture.")
                 .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-            group.MapGet("account/{userId}/picture/{extension?}", MyAccountHandlers.GetUserPicture)
-                 .WithName(nameof(MyAccountHandlers.GetUserPicture))
-                 .WithSummary("Get user's profile picture.")
-                 .AllowAnonymous()
+            group.MapGet("my/account/picture.{format:regex(jpg|png|webp)}", MyAccountHandlers.GetMyPictureFormat)
+                .WithName(nameof(MyAccountHandlers.GetMyPictureFormat))
+                .WithSummary("Get my profile picture.")
+                .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+
+
+            var pictureGroup = routes.MapGroup($"{options.ApiPrefix}");
+            pictureGroup.WithTags("Picture");
+            pictureGroup.WithGroupName("identity");
+            pictureGroup.ExcludeFromDescription();
+            pictureGroup.MapGet("account/{userId}/picture", MyAccountHandlers.GetAccountPicture)
+                 .WithName(nameof(MyAccountHandlers.GetAccountPicture))
+                 .WithSummary("Get user's profile picture.");
+
+            pictureGroup.MapGet("account/{userId}/picture.{format:regex(jpg|png|webp)}", MyAccountHandlers.GetAccountPictureFormat)
+                 .WithName(nameof(MyAccountHandlers.GetAccountPictureFormat))
+                 .WithSummary("Get user's profile picture.");
+
+            pictureGroup.AllowAnonymous()
 #if NET7_0_OR_GREATER
                   .CacheOutput(policy => {
                       policy.AddPolicy<DefaultTagCachePolicy>();
