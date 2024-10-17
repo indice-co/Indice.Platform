@@ -38,16 +38,14 @@ public class TranslationEndpointTests : IAsyncLifetime
             services.AddTranslationGraph((o) => {
                 o.DefaultTranslationsBaseName = "Resources.TranslationsApi";
                 o.DefaultTranslationsLocation = typeof(EndpointTests).Assembly.GetName().Name;
-                o.AddResource(
-                    translationsBaseName: "https://raw.githubusercontent.com", 
-                    endpointRoutePattern: "/http-translations.{lang:culture}.json", 
-                    translationsLocation: "/ngx-translate/example/refs/heads/master/src/assets/i18n/{0}.json"); // alternate assemby different resex. different path
+                o.AddResource("https://raw.githubusercontent.com", translationsLocation: "/ngx-translate/example/refs/heads/master/src/assets/i18n/{0}.json"); // alternate assemby different resex. different path
             });
-            services.AddDecorator<IStringLocalizerFactory, HttpStringLocalizerFactory>();
-            services.AddHttpClient(nameof(HttpStringLocalizer));
-            services.Configure<HttpStringLocalizerOptions>(options => {
-                options.HttpLocations.Add("https://raw.githubusercontent.com/ngx-translate/example/refs/heads/master/src/assets/i18n/{0}.json");
+
+            /* this is the AddHttpStringLocalizerFactory  */
+            services.AddLocalizationHttpClient(options => {
+                options.AddHttpEndpoint("https://yourdomainhere.com", "/api/translations.{0}.json");
             });
+
             _serviceProvider = services.BuildServiceProvider();
         });
         builder.Configure(app => {
@@ -73,7 +71,7 @@ public class TranslationEndpointTests : IAsyncLifetime
             Assert.True(response.IsSuccessStatusCode);
             return json;
         };
-        var defaultJson = await getTranslationsAsync("/http-translations.en.json");
+        var defaultJson = await getTranslationsAsync("/translations.el.json");
     }
     
 

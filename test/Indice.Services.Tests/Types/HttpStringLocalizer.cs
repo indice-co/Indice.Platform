@@ -1,5 +1,8 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
@@ -40,6 +43,21 @@ public class HttpStringLocalizer : IStringLocalizer
 public class HttpStringLocalizerOptions 
 {
     public HashSet<string> HttpLocations { get; set; } = [];
+
+    /// <summary>
+    /// This must have a mask for the current culture!!!
+    /// </summary>
+    /// <returns></returns>
+    public HttpStringLocalizerOptions AddHttpEndpoint(string host,
+#if NET7_0_OR_GREATER
+        [StringSyntax("Route")]string path
+#else
+        string path
+#endif
+        ) {
+        HttpLocations.Add(host + path);
+        return this;
+    }
 }
 
 public class HttpStringLocalizerFactory : IStringLocalizerFactory
@@ -68,4 +86,22 @@ public class HttpStringLocalizerFactory : IStringLocalizerFactory
     }
 
     private bool CanHandle(string baseName, string location) => Options.Value.HttpLocations.Contains(baseName + location);
+}
+
+public static class HttpStringLocalizerFeatureExtensions
+{
+    public static IServiceCollection AddLocalizationHttpClient(this IServiceCollection services, Action<HttpStringLocalizerOptions> configureAction) {
+        services.AddLocalization();
+        services.AddDecorator<IStringLocalizerFactory, HttpStringLocalizerFactory>();
+        services.AddHttpClient(nameof(HttpStringLocalizer));
+        services.Configure(configureAction);
+        return services;
+    }
+    public static IServiceCollection AddLocalizationHttpClient(this IServiceCollection services, IConfiguration configuration) {
+        services.AddLocalization();
+        services.AddDecorator<IStringLocalizerFactory, HttpStringLocalizerFactory>();
+        services.AddHttpClient(nameof(HttpStringLocalizer));
+        services.Configure<HttpStringLocalizerOptions>(configuration);
+        return services;
+    }
 }

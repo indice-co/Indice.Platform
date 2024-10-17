@@ -44,9 +44,11 @@ public static class TranslationsGraphFeatureExtensions
     /// <param name="routes">The endpoint route builder</param>
     /// <returns>The builder for further configureation</returns>
     
-    public static IEndpointRouteBuilder MapTranslationGraph(this IEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapTranslationGraph(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<TranslationsGraphOptions>>().Value;
         var endpoints = options.GetEndpoints();
+        var group = routes.MapGroup("/");
+        group.WithTags("Localisation");
         int counter = 0;
         foreach (var endpoint in endpoints) {
             var operationName = "GetTranslations";
@@ -62,7 +64,7 @@ public static class TranslationsGraphFeatureExtensions
             .WithName(operationName);
             counter++;
         }
-        return routes;
+        return group;
     }
 }
 
