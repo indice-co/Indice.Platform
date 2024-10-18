@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Security.Claims;
 using System.Text;
@@ -19,6 +20,7 @@ using Indice.Security;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -624,21 +626,44 @@ internal static partial class MyAccountHandlers
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
-        int? size) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: null, size, fallbackUrl: null);
-    
+        int? size,
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: null, size, fallbackUrl);
+
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetMyPictureSize(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        ClaimsPrincipal currentUser,
+        int size,
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: null, size, fallbackUrl);
+
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetMyPictureFormat(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
         string format,
-        int? size) =>  GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: '.' + format, size, fallbackUrl: null);
+        int? size,
+        [FromQuery(Name = "d")] string? fallbackUrl) =>  GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: '.' + format, size, fallbackUrl);
 
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetMyPictureSizeFormat(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        ClaimsPrincipal currentUser,
+        int size,
+        string format,
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: '.' + format, size, fallbackUrl);
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPicture(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         Base64Id userId,
         int? size,
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: null, size, fallbackUrl);
+    
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureSize(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        Base64Id userId,
+        int size,
         [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: null, size, fallbackUrl);
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureFormat(
@@ -647,6 +672,14 @@ internal static partial class MyAccountHandlers
         Base64Id userId,
         string format,
         int? size,
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: '.' + format, size, fallbackUrl);
+    
+    internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureSizeFormat(
+        ExtendedUserManager<User> userManager,
+        IOptions<ExtendedEndpointOptions> endpointOptions,
+        Base64Id userId,
+        int size,
+        string format,
         [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: '.' + format, size, fallbackUrl);
 
     private static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetUserPictureInternal(
@@ -671,7 +704,7 @@ internal static partial class MyAccountHandlers
         (var stream, var contentType) = await userManager.GetUserPicture(user, GetImageContentType(extension), size);
         if (stream is null) {
             if (fallbackUrl is not null && fallbackUrl.StartsWith("/avatar/")) {
-                return TypedResults.LocalRedirect(fallbackUrl);
+                return TypedResults.LocalRedirect(UriHelper.Encode(new Uri(fallbackUrl, UriKind.RelativeOrAbsolute)));
             }
             return TypedResults.NotFound();
         }

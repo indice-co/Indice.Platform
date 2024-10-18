@@ -1,12 +1,8 @@
-﻿using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+﻿using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
 using Indice.Events;
-using Indice.Extensions;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -16,15 +12,11 @@ using Indice.Features.Identity.Server.Devices.Models;
 using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Features.Identity.Server.Options;
 using Indice.Globalization;
-using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using SixLabors.ImageSharp.Formats.Tiff.Compression.Decompressors;
 
 namespace Indice.Features.Identity.Server.Manager;
 
