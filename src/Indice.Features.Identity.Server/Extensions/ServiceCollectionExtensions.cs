@@ -165,13 +165,10 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
             identityServerBuilder.AddSigningCredential(certificate);
         }
-
-
-        #if NET8_0_OR_GREATER
         services.AddOutputCache(options => {
             options.AddPolicy(nameof(DefaultTagCachePolicy), builder => builder.AddPolicy<DefaultTagCachePolicy>());
         });
-        #endif
+
 
         return identityServerBuilder;
     }

@@ -207,20 +207,8 @@ public static class MyAccountApi
 
             pictureGroup.AllowAnonymous()
 #if NET7_0_OR_GREATER
-                  .CacheOutput(policy => {
-                      policy.AddPolicy<DefaultTagCachePolicy>().With((ctx) => {
-                          if (!StringValues.IsNullOrEmpty(ct.request.Headers.Authorization) || ct.request.HttpContext.User?.Identity?.IsAuthenticated)
-                              return true;
-                      });
 
-                      policy.Expire(TimeSpan.FromMinutes(30));
-
-                      policy.SetCacheKeyPrefix((ctx) => ctx.GetCacheTag(new OutputCacheMetadata() {
-                          TagPrefix = "Picture",
-                          CacheForAuthorisedUsers = true,
-                          VarByRouteParams = ["userId"]
-                      }));
-                  })
+                .WithCacheOutPutMetadata(new OutputCacheSettings() { TagPrefix = "Picture", CacheForAuthorisedUsers = true, TagRouteParams = [""] })
 #endif
                   ;
         }
