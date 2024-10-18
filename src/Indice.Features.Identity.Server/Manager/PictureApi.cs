@@ -17,10 +17,7 @@ public static class PictureApi
     public static IEndpointRouteBuilder MapProfilePictures(this IdentityServerEndpointRouteBuilder routes) {
 
         var options = routes.GetEndpointOptions();
-        if (!options.Avatar.Enabled) {
-            return routes;
-        }
-
+        
         var group = routes.MapGroup($"{options.ApiPrefix}");
         group.WithTags("MyAccount");
         group.WithGroupName("identity");
@@ -72,7 +69,9 @@ public static class PictureApi
             .WithName(nameof(PictureHandlers.GetMyPictureSizeFormat))
             .WithSummary("Get my profile picture.")
             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-
+        if (!options.Avatar.Enabled) { // disable only public access
+            return routes;
+        }
         var publicPictureGroup = routes.MapGroup("/");
         publicPictureGroup.WithTags("Picture");
         publicPictureGroup.WithGroupName("identity");
