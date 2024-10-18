@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Filters;
+﻿using Bogus.DataSets;
+using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -98,8 +99,12 @@ public static class PictureApi
 #if NET7_0_OR_GREATER
         publicPictureGroup.CacheOutput(policy => {
             policy.AddPolicy<DefaultTagCachePolicy>();
-            policy.Expire(TimeSpan.FromMinutes(30));
-            policy.SetVaryByRouteValue(["userId"]);
+            policy.SetVaryByRouteValue(["userId", "size", "format"]);
+            policy.SetVaryByQuery(["size"]);
+            policy.SetCacheKeyPrefix((ctx) => {
+                var key = $"Picture-userId:{ctx.GetRouteValue("userId")}";
+                return key;
+            });
         });
 #endif
 

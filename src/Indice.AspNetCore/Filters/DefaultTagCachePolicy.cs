@@ -40,19 +40,19 @@ public class DefaultTagCachePolicy : IOutputCachePolicy
     /// At that point cacheability of the response can be updated.
     /// </summary>
     public ValueTask ServeResponseAsync(OutputCacheContext context, CancellationToken cancellation) {
-        var endpoint = context.HttpContext.GetEndpoint();
-        var routeName = endpoint?.Metadata.GetMetadata<RouteNameMetadata>();
+        //var endpoint = context.HttpContext.GetEndpoint();
+        //var routeName = endpoint?.Metadata.GetMetadata<RouteNameMetadata>();
 
-        var suffix = string.Empty;
-        if (context.CacheVaryByRules.RouteValueNames == "*" || string.IsNullOrEmpty(context.CacheVaryByRules.RouteValueNames)) {
-            var routeData = context.HttpContext.GetRouteData();
-            suffix = string.Join('|', routeData.Values.Select(x => $"{x.Key}:{x.Value}"));
-        } else {
-            suffix = string.Join('|', context.CacheVaryByRules.RouteValueNames.Select(name => $"{name}:{context.HttpContext.GetRouteValue(name)}"));
-        }
-        var cacheTag = (routeName?.RouteName ?? "") + "-" + suffix;
+        //var suffix = string.Empty;
+        //if (context.CacheVaryByRules.RouteValueNames == "*" || string.IsNullOrEmpty(context.CacheVaryByRules.RouteValueNames)) {
+        //    var routeData = context.HttpContext.GetRouteData();
+        //    suffix = string.Join('|', routeData.Values.Select(x => $"{x.Key}:{x.Value}"));
+        //} else {
+        //    suffix = string.Join('|', context.CacheVaryByRules.RouteValueNames.Select(name => $"{name}:{context.HttpContext.GetRouteValue(name)}"));
+        //}
+        //var cacheTag = (routeName?.RouteName ?? "") + "-" + suffix;
         
-        context.Tags.Add(cacheTag);
+        //context.Tags.Add(cacheTag);
         return ValueTask.CompletedTask;
     }
 
