@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Http.Filters;
+﻿using Indice.AspNetCore.Filters;
+using Indice.AspNetCore.Http.Filters;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -6,6 +7,7 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -143,6 +145,40 @@ public static class UsersApi
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
              .InvalidateCache(nameof(UserHandlers.GetUser))
              .WithParameterValidation<SetPasswordRequest>();
+
+
+        group.MapPut("{userId}/picture", PictureHandlers.SaveUserPicture)
+             .WithName(nameof(PictureHandlers.SaveUserPicture))
+             .WithSummary("Create or update profile picture of the given user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .LimitUpload(options.Avatar.MaxFileSize, options.Avatar.AcceptableFileExtensions)
+             .WithParameterValidation<FileUploadRequest>()
+             .Accepts<FileUploadRequest>("multipart/form-data");
+
+        group.MapDelete("{userId}/picture", PictureHandlers.ClearUserPicture)
+             .WithName(nameof(PictureHandlers.ClearUserPicture))
+             .WithSummary("Clear profile picture from the given user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
+        group.MapGet("{userId}/picture", PictureHandlers.GetAccountPicture)
+             .WithName("GetUserPicture")
+             .WithSummary("Get user's profile picture.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        group.MapGet("{userId}/picture/{size}", PictureHandlers.GetAccountPictureSize)
+             .WithName("GetUserPictureSize")
+             .WithSummary("Get user's profile picture.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        group.MapGet("{userId}/picture.{format:regex(jpg|png|webp)}", PictureHandlers.GetAccountPictureFormat)
+             .WithName("GetUserPictureFormat")
+             .WithSummary("Get user's profile picture.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        group.MapGet("{userId}/picture/{size}.{format:regex(jpg|png|webp)}", PictureHandlers.GetAccountPictureSizeFormat)
+             .WithName("GetUserPictureSizeFormat")
+             .WithSummary("Get user's profile picture.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
         return group;
     }

@@ -1,5 +1,9 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 using IdentityModel;
+using IdentityServer4.Configuration;
 using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
@@ -9,16 +13,20 @@ using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Processing;
 
 namespace Indice.Features.Identity.Core;
 
 /// <summary>Provides the APIs for managing users and their related data in a persistence store.</summary>
 /// <typeparam name="TUser"></typeparam>
-public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
+public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IPlatformEventService _eventService;
@@ -200,7 +208,7 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
             await signInManager.DoPartialSignInAsync(user, deviceId, ["pwd"]);
         }
         if (StateProvider.CurrentState == UserState.LoggedIn) {
-            await signInManager.SignInWithClaimsAsync(user, false, [ new(JwtClaimTypes.AuthenticationMethod, "pwd") ]);
+            await signInManager.SignInWithClaimsAsync(user, false, [new(JwtClaimTypes.AuthenticationMethod, "pwd")]);
         }
         return result;
     }
@@ -649,6 +657,110 @@ public class ExtendedUserManager<TUser> : UserManager<TUser> where TUser : User
         device.TrustActivationDate = null;
         device.IsTrusted = false;
         return await UpdateDeviceAsync(user, device, cancellationToken);
+    }
+
+#if NET7_0_OR_GREATER
+    [StringSyntax("Regex")]
+#endif
+    private const string Base64PicturePattern = "data:(?<ContentType>.+);base64,(?<Data>.+)";
+#if NET7_0_OR_GREATER
+    [GeneratedRegex(Base64PicturePattern)]
+    private static partial Regex GetBase64PictureRegex();
+#else
+    private static Regex _base64PictureRegex = new Regex(Base64PicturePattern, RegexOptions.Compiled);
+    private static Regex GetBase64PictureRegex() => _base64PictureRegex;
+#endif
+
+    /// <summary>Profile Picture backing store claim type.</summary>
+    internal const string PictureDataClaimType = JwtClaimTypes.Picture + "_data";
+    /// <summary>Sets user profile picture</summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="inputStream">The picture stream</param>
+    /// <param name="sideSize">Image side size to store</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    public async Task<IdentityResult> SetUserPicture(TUser user, Stream inputStream, int sideSize = 256) {
+        using var image = Image.Load(inputStream, out var format);
+        // manipulate image resize to max side size.
+        var factor = (double)sideSize / Math.Max(image.Width, image.Height);
+        var resizeOptions = new ResizeOptions() {
+            Size = new Size((int)(image.Width * factor), (int)(image.Height * factor))
+        };
+        image.Mutate(i => i.Resize(resizeOptions));
+
+        var outputStream = new MemoryStream();
+        await image.SaveAsWebpAsync(outputStream);
+        outputStream.Seek(0, SeekOrigin.Begin);
+
+        var data = new StringBuilder();
+        data.AppendFormat("data:{0};base64,", "image/webp");
+        data.Append(Convert.ToBase64String(outputStream.ToArray()));
+
+        var result = await ReplaceClaimAsync(user, PictureDataClaimType, data.ToString());
+        return result;
+    }
+
+    /// <summary>Clear user profile picture</summary>
+    /// <param name="user">The user instance</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    public async Task<IdentityResult> ClearUserPicture(TUser user) {
+        var userStore = GetUserStore();
+        var result = await userStore!.RemoveAllClaimsAsync(user, PictureDataClaimType);
+        return result;
+    }
+
+    /// <summary>Return user picture stream and content type</summary>
+    /// <param name="user">The user instance</param>
+    /// <param name="contentType">Content type of file to be returned</param>
+    /// <param name="size">Image size to be returned</param>
+    /// <returns>A tupple of <see cref="Stream"/> and Content Type </returns>
+    public async Task<(Stream? Stream, string ContentType)> GetUserPicture(TUser user, string? contentType = null, int? size = null) {
+        var userStore = GetUserStore();
+        var claims = await userStore!.FindClaimsByTypeAsync(user, PictureDataClaimType);
+        var avatarBinary = claims.FirstOrDefault();
+        if (avatarBinary != null && !string.IsNullOrEmpty(avatarBinary.ClaimValue)) {
+            var regex = GetBase64PictureRegex();
+            var match = regex.Match(avatarBinary.ClaimValue);
+            if (!match.Groups["ContentType"].Success) {
+                return (null, string.Empty);
+            }
+            if (!match.Groups["Data"].Success) {
+                return (null, string.Empty);
+            }
+            var base64 = match.Groups["Data"].Value;
+            var savedContentType = match.Groups["ContentType"].Value;
+            MemoryStream outputStream;
+
+            if (!size.HasValue && string.IsNullOrEmpty(contentType)) {
+                outputStream = new MemoryStream(Convert.FromBase64String(base64));
+                return (Stream: outputStream, ContentType: savedContentType);
+            }
+
+            using var originalStream = new MemoryStream(Convert.FromBase64String(base64));
+            using var image = Image.Load(originalStream, out var format);
+
+            var resizeOptions = new ResizeOptions() {
+                Size = new Size(size ?? image.Width, size ?? image.Height),
+                Mode = ResizeMode.Pad
+            };
+            image.Mutate(i => i.Resize(resizeOptions));
+            outputStream = new MemoryStream();
+            contentType ??= format.DefaultMimeType;
+            switch (contentType) {
+                case "image/png":
+                    await image.SaveAsPngAsync(outputStream);
+                    break;
+                case "image/jpeg":
+                    await image.SaveAsJpegAsync(outputStream);
+                    break;
+                default:
+                    await image.SaveAsWebpAsync(outputStream);
+                    break;
+            }
+            outputStream.Seek(0, SeekOrigin.Begin);
+
+            return (Stream: outputStream, ContentType: contentType);
+        }
+        return (null, string.Empty);
     }
 
     #region Helper Methods

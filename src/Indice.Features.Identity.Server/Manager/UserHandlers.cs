@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -200,11 +199,11 @@ internal static class UserHandlers
             // add roles to user before sending down to user manager.
             // avoid multiple roundtript to db this way.
             allRoles.FindAll(r => request.Roles.Contains(r.NormalizedName, StringComparer.OrdinalIgnoreCase))
-                    .ForEach(r => user.Roles.Add(new () { UserId = user.Id, RoleId = r.Id }));
+                    .ForEach(r => user.Roles.Add(new() { UserId = user.Id, RoleId = r.Id }));
         }
 
         // handle claims addition
-        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != JwtClaimTypes.GivenName && 
+        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != JwtClaimTypes.GivenName &&
                                                                            x.Type != JwtClaimTypes.FamilyName)
                                                                .Select(x => new Claim(x.Type!, x.Value!))
                                                                .ToList() : [];
@@ -215,7 +214,7 @@ internal static class UserHandlers
             claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
         }
         if (claims.Any()) {
-            claims.ForEach(c => user.Claims.Add(new() { ClaimType = c.Type, ClaimValue = c.Value, UserId = user.Id } ));
+            claims.ForEach(c => user.Claims.Add(new() { ClaimType = c.Type, ClaimValue = c.Value, UserId = user.Id }));
         }
 
         if (string.IsNullOrEmpty(request.Password)) {

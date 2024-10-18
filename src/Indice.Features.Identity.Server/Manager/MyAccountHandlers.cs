@@ -1,5 +1,11 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Security.Claims;
+using System.Text;
+using System.Text.RegularExpressions;
 using IdentityModel;
+using IdentityServer4.Configuration;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
@@ -14,17 +20,25 @@ using Indice.Security;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.FeatureManagement;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Processing;
 using static IdentityServer4.IdentityServerConstants;
 
 namespace Indice.Features.Identity.Server.Manager;
 
-internal static class MyAccountHandlers
+internal static partial class MyAccountHandlers
 {
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> UpdateEmail(
         ExtendedUserManager<User> userManager,
@@ -492,8 +506,8 @@ internal static class MyAccountHandlers
                 }
             }
         }
-        return TypedResults.Ok(new CredentialsValidationInfo { 
-            PasswordRules = availableRules.Values.ToList() 
+        return TypedResults.Ok(new CredentialsValidationInfo {
+            PasswordRules = availableRules.Values.ToList()
         });
     }
 
@@ -747,4 +761,7 @@ internal static class MyAccountHandlers
         }
         return list;
     }
+
+
+
 }

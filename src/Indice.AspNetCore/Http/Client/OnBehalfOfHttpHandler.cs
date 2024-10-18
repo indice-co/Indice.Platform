@@ -167,7 +167,14 @@ public static class OnBehalfOfHttpHandlerExtensions
     /// </summary>
     /// <param name="httpContext">The current httpContext</param>
     /// <returns>The access token located or null</returns>
-    public static string? ResolveAuthorizationHeaderValue(this HttpContext httpContext) => httpContext.Request.Headers.Authorization.Skip(1).FirstOrDefault(); // accessToken.ToString().Split(' ')[1];
+    public static string? ResolveAuthorizationHeaderValue(this HttpContext httpContext) {
+        var authHeader = httpContext.Request.Headers.Authorization.ToString();
+        if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) {
+            return authHeader["Bearer ".Length..];
+        }
+
+        return null;
+    }
 
     /// <summary>
     /// Add the on behalf of functionality to the current <see cref="IHttpClientBuilder"/>. The the <seealso cref="OnBehalfOfHttpHandler"/> will be added to the message pipeline
@@ -177,7 +184,7 @@ public static class OnBehalfOfHttpHandlerExtensions
     /// <param name="tokenClientName">The http client name to use in order to make the calls to the authority (token endpoint)</param>
     /// <param name="configureAction">Configures the available options.</param>
     /// <returns>The builder for further configuration.</returns>
-    public static IHttpClientBuilder AddOnBehlafOfTokenHandler(this IHttpClientBuilder httpClientBuilder, string tokenClientName, Action<OnBehalfOfHttpHandlerOptions> configureAction) {
+    public static IHttpClientBuilder AddOnBehalfOfTokenHandler(this IHttpClientBuilder httpClientBuilder, string tokenClientName, Action<OnBehalfOfHttpHandlerOptions> configureAction) {
 
         httpClientBuilder.Services.TryAddTransient<OnBehalfOfAccessTokenSelector>(sp => new(() => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.ResolveAuthorizationHeaderValue()));
         httpClientBuilder.Services.TryAddTransient<OnBehalfOfSubjectIdSelector>(sp => new(() => sp.GetRequiredService<IHttpContextAccessor>().HttpContext?.User.FindSubjectId()));
@@ -204,7 +211,7 @@ public static class OnBehalfOfHttpHandlerExtensions
     /// </param>
     /// <returns>The builder for further configuration.</returns>
     public static IHttpClientBuilder AddOnBehlafOfTokenHandler(this IHttpClientBuilder httpClientBuilder, string tokenClientName, IConfiguration configuration) =>
-        httpClientBuilder.AddOnBehlafOfTokenHandler(tokenClientName, (options) => {
+        httpClientBuilder.AddOnBehalfOfTokenHandler(tokenClientName, (options) => {
             var apiSecrets = configuration.GetApiSecrets();
             options.ClientId = apiSecrets["ClientId"];
             options.ClientSecret = apiSecrets["ClientSecret"];

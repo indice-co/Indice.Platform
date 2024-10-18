@@ -47,6 +47,13 @@ public class ExtendedUserClaimsPrincipalFactory<TUser, TRole>(
     protected override async Task<ClaimsIdentity> GenerateClaimsAsync(TUser user) {
         // https://github.com/aspnet/AspNetCore/blob/master/src/Identity/Extensions.Core/src/UserClaimsPrincipalFactory.cs#L135
         var identity = await base.GenerateClaimsAsync(user);
+        if (identity.HasClaim(x => x.Type == ExtendedUserManager<TUser>.PictureDataClaimType)) {
+            // here we remove the claim because otherwize it will be included in the identity main app cookie
+            // and as we use the claim to store base64 image data
+            // it will explode the header size and break the application!
+            var pictureData = identity.FindFirst(x => x.Type == ExtendedUserManager<TUser>.PictureDataClaimType);
+            identity.RemoveClaim(pictureData); 
+        }
         var additionalClaims = new List<Claim>();
         if (!identity.HasClaim(x => x.Type == BasicClaimTypes.Admin)) {
             var isAdmin = user.Admin;

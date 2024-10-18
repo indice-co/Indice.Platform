@@ -71,6 +71,8 @@ internal static class AvatarsHandlers
         return GetAvatarFull(response, avatarGenerator, firstName, lastName, size, ext, background, foreground, circular ?? false, null);
     }
 
+    internal static readonly string[] supportedFileExtensions = [ "png", "jpg" ];
+
     /// <summary>Creates an avatar based on first and last name plus parameters</summary>
     /// <param name="response"></param>
     /// <param name="avatarGenerator">Avatar generator</param>
@@ -91,7 +93,7 @@ internal static class AvatarsHandlers
         if (size.HasValue && !avatarGenerator.AllowedSizes.Contains((int)size)) {
             errors.AddError(nameof(size), $"Size is out of range. Valid sizes are {string.Join(", ", avatarGenerator.AllowedSizes.OrderBy(x => x))}.");
         }
-        if (!string.IsNullOrEmpty(ext) && !new[] { "png", "jpg" }.Contains(ext)) {
+        if (!string.IsNullOrEmpty(ext) && !supportedFileExtensions.Contains(ext)) {
             errors.AddError(nameof(size), "Extension is out of range of valid values. Accepts only .png and .jpg.");
         }
         if (errors.Count > 0) {
