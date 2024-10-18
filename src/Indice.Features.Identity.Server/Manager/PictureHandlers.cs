@@ -20,15 +20,15 @@ namespace Indice.Features.Identity.Server.Manager;
 
 internal static partial class PictureHandlers
 {
-    internal static Task<Results<NoContent, NotFound, ValidationProblem>> SaveMyPicture(FileUploadRequest request,
+    internal static Task<Results<NoContent, NotFound, ValidationProblem>> SaveMyPicture(
+        FileUploadRequest request,
         ExtendedUserManager<User> userManager,
         LinkGenerator linkGenerator,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         IOutputCacheStore cache,
         ClaimsPrincipal currentUser,
         HttpContext httpContext,
-        CancellationToken cancellationToken
-        ) => SaveUserPicture(request, userManager, linkGenerator, endpointOptions, cache, currentUser.FindSubjectId(), httpContext, cancellationToken);
+        CancellationToken cancellationToken) => SaveUserPicture(request, userManager, linkGenerator, endpointOptions, cache, currentUser.FindSubjectId(), httpContext, cancellationToken);
 
     internal static Task<Results<NoContent, NotFound, ValidationProblem>> ClearMyPicture(
         ExtendedUserManager<User> userManager,
@@ -37,15 +37,15 @@ internal static partial class PictureHandlers
         ClaimsPrincipal currentUser,
         CancellationToken cancellationToken) => ClearUserPicture(userManager, dbContext, cache, currentUser.FindSubjectId(), cancellationToken);
 
-    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SaveUserPicture(FileUploadRequest request,
+    internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SaveUserPicture(
+        FileUploadRequest request,
         ExtendedUserManager<User> userManager,
         LinkGenerator linkGenerator,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         IOutputCacheStore cache,
         string userId,
         HttpContext httpContext,
-        CancellationToken cancellationToken
-        ) {
+        CancellationToken cancellationToken) {
         var user = await userManager.FindByIdAsync(userId);
         if (user == null) {
             return TypedResults.NotFound();
@@ -110,7 +110,7 @@ internal static partial class PictureHandlers
         ClaimsPrincipal currentUser,
         string format,
         int? size,
-        [FromQuery(Name = "d")] string? fallbackUrl) =>  GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: '.' + format, size, fallbackUrl);
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: '.' + format, size, fallbackUrl);
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetMyPictureSizeFormat(
         ExtendedUserManager<User> userManager,
@@ -126,7 +126,7 @@ internal static partial class PictureHandlers
         Base64Id userId,
         int? size,
         [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: null, size, fallbackUrl);
-    
+
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureSize(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
@@ -141,7 +141,7 @@ internal static partial class PictureHandlers
         string format,
         int? size,
         [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: '.' + format, size, fallbackUrl);
-    
+
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureSizeFormat(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
@@ -180,12 +180,12 @@ internal static partial class PictureHandlers
     }
 
     private static string? GetImageContentType(string? fileExtention) {
-        if(fileExtention is null) return null;
+        if (fileExtention is null) return null;
 
-        var dicSupportedFormats = new Dictionary<string, string>{
+        var dicSupportedFormats = new Dictionary<string, string> {
             [".jpg"] = "image/jpeg",
             [".jpeg"] = "image/jpeg",
-            [".png"]  ="image/png",
+            [".png"] = "image/png",
             [".webp"] = "image/webp"
         };
 
@@ -194,5 +194,5 @@ internal static partial class PictureHandlers
 
         return null;
     }
-  
+
 }
