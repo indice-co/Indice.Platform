@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using IdentityModel;
@@ -8,6 +9,7 @@ using IdentityServer4.Configuration;
 using IdentityServer4.Models;
 using IdentityServer4.Stores;
 using IdentityServer4.Stores.Serialization;
+using Indice.Extensions;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
 using Indice.Features.Identity.Core.Data.Models;
@@ -595,7 +597,7 @@ internal static partial class MyAccountHandlers
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
 
-        var evictionKey = $"{nameof(GetUserPictureInternal)}-userId:{currentUser.FindSubjectId()}";
+        var evictionKey = $"Picture-userId:{currentUser.FindSubjectId()}";
         await cache.EvictByTagAsync(evictionKey, cancellationToken);
         return TypedResults.NoContent();
     }
@@ -643,11 +645,19 @@ internal static partial class MyAccountHandlers
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureFormat(
         ExtendedUserManager<User> userManager,
+         HttpResponse response,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         Base64Id userId,
         string format,
         int? size,
-        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: '.' + format, size, fallbackUrl);
+        [FromQuery(Name = "d")] string? fallbackUrl) {
+
+        var hash = MD5.HashData(Encoding.UTF8.GetBytes(userId)).ToBase64UrlSafe();
+        response.Headers.ETag = $"\"{hash}\"";
+
+        return GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: '.' + format, size, fallbackUrl);
+    }
+    
 
     private static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetUserPictureInternal(
         ExtendedUserManager<User> userManager,

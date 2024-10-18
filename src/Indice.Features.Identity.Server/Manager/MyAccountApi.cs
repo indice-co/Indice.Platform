@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 using Polly;
 
 namespace Microsoft.AspNetCore.Routing;
@@ -207,12 +208,21 @@ public static class MyAccountApi
             pictureGroup.AllowAnonymous()
 #if NET7_0_OR_GREATER
                   .CacheOutput(policy => {
-                      policy.AddPolicy<DefaultTagCachePolicy>();
+                      policy.AddPolicy<DefaultTagCachePolicy>().With((ctx) => {
+                          if (!StringValues.IsNullOrEmpty(ct.request.Headers.Authorization) || ct.request.HttpContext.User?.Identity?.IsAuthenticated)
+                              return true;
+                      });
+
                       policy.Expire(TimeSpan.FromMinutes(30));
-                      policy.SetVaryByRouteValue(["userId"]);
+
+                      policy.SetCacheKeyPrefix((ctx) => ctx.GetCacheTag(new OutputCacheMetadata() {
+                          TagPrefix = "Picture",
+                          CacheForAuthorisedUsers = true,
+                          VarByRouteParams = ["userId"]
+                      }));
                   })
 #endif
-                    ;
+                  ;
         }
         return group;
     }
