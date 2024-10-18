@@ -1,6 +1,4 @@
-﻿using IdentityModel;
-using Indice.AspNetCore.Filters;
-using Indice.Features.Identity.Core.Data.Models;
+﻿using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -8,8 +6,6 @@ using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
-using Polly;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -166,77 +162,6 @@ public static class MyAccountApi
              .AllowAnonymous()
              .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.CallingCodes);
 
-        if (options.AvatarOptions.Enabled) {
-            var myPictureGroup = routes.MapGroup($"{options.ApiPrefix}");
-            myPictureGroup.WithTags("MyAccount");
-            myPictureGroup.RequireAuthorization(builder => builder
-                .RequireAuthenticatedUser()
-            );
-            myPictureGroup.MapPut("my/account/picture", MyAccountHandlers.SaveMyPicture)
-             .WithName(nameof(MyAccountHandlers.SaveMyPicture))
-             .WithSummary("Create or update profile picture of the current user.")
-             .LimitUpload(options.AvatarOptions.MaxFileSize, options.AvatarOptions.AcceptableFileExtensions)
-             .WithParameterValidation<FileUploadRequest>()
-             .Accepts<FileUploadRequest>("multipart/form-data")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
-             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UploadPicture);
-
-            myPictureGroup.MapDelete("my/account/picture", MyAccountHandlers.ClearMyPicture)
-                 .WithName(nameof(MyAccountHandlers.ClearMyPicture))
-                 .WithSummary("Clear profile picture from the current user.")
-                 .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-
-            myPictureGroup.MapGet("my/account/picture", MyAccountHandlers.GetMyPicture)
-                .WithName(nameof(MyAccountHandlers.GetMyPicture))
-                .WithSummary("Get my profile picture.")
-                .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-
-            myPictureGroup.MapGet("my/account/picture/{size}", MyAccountHandlers.GetMyPictureSize)
-                .WithName(nameof(MyAccountHandlers.GetMyPictureSize))
-                .WithSummary("Get my profile picture.")
-                .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-
-            myPictureGroup.MapGet("my/account/picture.{format:regex(jpg|png|webp)}", MyAccountHandlers.GetMyPictureFormat)
-                .WithName(nameof(MyAccountHandlers.GetMyPictureFormat))
-                .WithSummary("Get my profile picture.")
-                .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-
-            myPictureGroup.MapGet("my/account/picture/{size}.{format:regex(jpg|png|webp)}", MyAccountHandlers.GetMyPictureSizeFormat)
-                .WithName(nameof(MyAccountHandlers.GetMyPictureSizeFormat))
-                .WithSummary("Get my profile picture.")
-                .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
-
-            var pictureGroup = routes.MapGroup("/");
-            pictureGroup.WithTags("Picture");
-            pictureGroup.WithGroupName("identity");
-            pictureGroup.ExcludeFromDescription();
-            pictureGroup.MapGet("pictures/{userId}", MyAccountHandlers.GetAccountPicture)
-                 .WithName(nameof(MyAccountHandlers.GetAccountPicture))
-                 .WithSummary("Get user's profile picture.");
-
-            pictureGroup.MapGet("pictures/{userId}/{size}", MyAccountHandlers.GetAccountPictureSize)
-                 .WithName(nameof(MyAccountHandlers.GetAccountPictureSize))
-                 .WithSummary("Get user's profile picture.");
-
-            pictureGroup.MapGet("pictures/{userId}.{format:regex(jpg|png|webp)}", MyAccountHandlers.GetAccountPictureFormat)
-                 .WithName(nameof(MyAccountHandlers.GetAccountPictureFormat))
-                 .WithSummary("Get user's profile picture.");
-
-            pictureGroup.MapGet("pictures/{userId}/{size}.{format:regex(jpg|png|webp)}", MyAccountHandlers.GetAccountPictureSizeFormat)
-                 .WithName(nameof(MyAccountHandlers.GetAccountPictureSizeFormat))
-                 .WithSummary("Get user's profile picture.");
-
-
-            pictureGroup.AllowAnonymous()
-#if NET7_0_OR_GREATER
-                  .CacheOutput(policy => {
-                      policy.AddPolicy<DefaultTagCachePolicy>();
-                      policy.Expire(TimeSpan.FromMinutes(30));
-                      policy.SetVaryByRouteValue(["userId"]);
-                  })
-#endif
-                    ;
-        }
         return group;
     }
 }

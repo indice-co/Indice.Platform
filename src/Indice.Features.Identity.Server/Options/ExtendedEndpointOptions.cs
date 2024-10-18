@@ -30,6 +30,6 @@ public class ExtendedEndpointOptions
     public EmailOptions Email { get; set; } = new EmailOptions();
 
     /// <summary>Options for the avatar feature. By default the feature is disabled.</summary>
-    public AvatarOptions AvatarOptions { get; set; } = new AvatarOptions();
+    public AvatarOptions Avatar { get; set; } = new AvatarOptions();
     
 }

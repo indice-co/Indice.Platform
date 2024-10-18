@@ -147,6 +147,39 @@ public static class UsersApi
              .WithParameterValidation<SetPasswordRequest>();
 
 
+        group.MapPut("{userId}/picture", PictureHandlers.SaveUserPicture)
+             .WithName(nameof(PictureHandlers.SaveUserPicture))
+             .WithSummary("Create or update profile picture of the given user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .LimitUpload(options.Avatar.MaxFileSize, options.Avatar.AcceptableFileExtensions)
+             .WithParameterValidation<FileUploadRequest>()
+             .Accepts<FileUploadRequest>("multipart/form-data");
+
+        group.MapDelete("{userId}/picture", PictureHandlers.ClearUserPicture)
+             .WithName(nameof(PictureHandlers.ClearUserPicture))
+             .WithSummary("Clear profile picture from the given user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
+        group.MapGet("{userId}/picture", PictureHandlers.GetAccountPicture)
+             .WithName("GetUserPicture")
+             .WithSummary("Get user's profile picture.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        group.MapGet("{userId}/picture/{size}", PictureHandlers.GetAccountPictureSize)
+             .WithName("GetUserPictureSize")
+             .WithSummary("Get user's profile picture.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        group.MapGet("{userId}/picture.{format:regex(jpg|png|webp)}", PictureHandlers.GetAccountPictureFormat)
+             .WithName("GetUserPictureFormat")
+             .WithSummary("Get user's profile picture.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
+        group.MapGet("{userId}/picture/{size}.{format:regex(jpg|png|webp)}", PictureHandlers.GetAccountPictureSizeFormat)
+             .WithName("GetUserPictureSizeFormat")
+             .WithSummary("Get user's profile picture.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
+
         return group;
     }
 }
