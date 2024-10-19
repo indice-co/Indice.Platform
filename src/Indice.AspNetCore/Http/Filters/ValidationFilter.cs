@@ -104,28 +104,48 @@ public static partial class ValidationFilterExtensions
     /// <typeparam name="TException"></typeparam>
     /// <param name="builder">A builder for defining groups of endpoints with a common prefix.</param>
     /// <param name="statusCode">The HTTP status code.</param>
-    /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation.</param>
+    /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation. This takes precedence over <see cref="exceptionHandlerWithContext"/>.</param>
+    /// <param name="exceptionHandlerWithContext">The action to perform when the exception occurs. This also passes the <see cref="EndpointFilterInvocationContext"/> on invocation. Can be left null for default implementation.</param>
     /// <returns>The builder.</returns>
-    public static RouteGroupBuilder WithHandledException<TException>(this RouteGroupBuilder builder, int statusCode = StatusCodes.Status400BadRequest, Func<TException, ValidationProblem> exceptionHandler = null)
-        where TException : Exception => WithHandledException<RouteGroupBuilder, TException>(builder, statusCode, exceptionHandler);
+    public static RouteGroupBuilder WithHandledException<TException>(
+        this RouteGroupBuilder builder,
+        int statusCode = StatusCodes.Status400BadRequest,
+        Func<TException, ValidationProblem> exceptionHandler = null,
+        Func<TException, EndpointFilterInvocationContext, IResult> exceptionHandlerWithContext = null)
+        where TException : Exception => WithHandledException<RouteGroupBuilder, TException>(builder, statusCode, exceptionHandler, exceptionHandlerWithContext);
 
     /// <summary>Adds exception handling for the specified exception.</summary>
     /// <typeparam name="TException"></typeparam>
-    /// <param name="builder">A builder for defining groups of endpoints with a common prefix.</param>
+    /// <param name="builder">A builder for defining single endpoint.</param>
     /// <param name="statusCode">The HTTP status code.</param>
-    /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation.</param>
+    /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation. This takes precedence over <see cref="exceptionHandlerWithContext"/>.</param>
+    /// <param name="exceptionHandlerWithContext">The action to perform when the exception occurs. This also passes the <see cref="EndpointFilterInvocationContext"/> on invocation. Can be left null for default implementation.</param>
     /// <returns>The builder.</returns>
-    public static RouteHandlerBuilder WithHandledException<TException>(this RouteHandlerBuilder builder, int statusCode = StatusCodes.Status400BadRequest, Func<TException, ValidationProblem> exceptionHandler = null)
-        where TException : Exception => WithHandledException<RouteHandlerBuilder, TException>(builder, statusCode, exceptionHandler);
+    public static RouteHandlerBuilder WithHandledException<TException>(
+        this RouteHandlerBuilder builder,
+        int statusCode = StatusCodes.Status400BadRequest,
+        Func<TException, ValidationProblem> exceptionHandler = null,
+        Func<TException, EndpointFilterInvocationContext, IResult> exceptionHandlerWithContext = null)
+        where TException : Exception => WithHandledException<RouteHandlerBuilder, TException>(builder, statusCode, exceptionHandler, exceptionHandlerWithContext);
 
-    /// <summary>Adds the validation of input parameters and <see cref="HttpValidationProblemDetails"/> automatic response when something is out of place.</summary>
+    /// <summary>
+    /// Adds the validation of input parameters and <see cref="HttpValidationProblemDetails"/> automatic response when something is out of place.
+    /// If multiple filters are specified for a type of <see cref="TException"/> order is:
+    /// Code Before `next` --> FIFO
+    /// Code After `next` --> FILO
+    /// </summary>
     /// <typeparam name="TBuilder"></typeparam>
     /// <typeparam name="TException"></typeparam>
     /// <param name="builder">A builder for defining groups of endpoints with a common prefix.</param>
     /// <param name="statusCode">The HTTP status code.</param>
-    /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation.</param>
+    /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation. This takes precedence over <see cref="exceptionHandlerWithContext"/>.</param>
+    /// <param name="exceptionHandlerWithContext">The action to perform when the exception occurs. This also passes the <see cref="EndpointFilterInvocationContext"/> on invocation. Can be left null for default implementation.</param>
     /// <returns>The builder.</returns>
-    public static TBuilder WithHandledException<TBuilder, TException>(this TBuilder builder, int statusCode, Func<TException, IResult> exceptionHandler = null)
+    public static TBuilder WithHandledException<TBuilder, TException>(
+        this TBuilder builder,
+        int statusCode,
+        Func<TException, IResult> exceptionHandler = null,
+        Func<TException, EndpointFilterInvocationContext, IResult> exceptionHandlerWithContext = null)
         where TBuilder : IEndpointConventionBuilder
         where TException : Exception {
         builder.Add(endpointBuilder => {
@@ -142,6 +162,10 @@ public static partial class ValidationFilterExtensions
                     } catch (TException exception) {
                         if (exceptionHandler is not null) {
                             return exceptionHandler.Invoke(exception);
+                        }
+
+                        if (exceptionHandlerWithContext is not null) {
+                            return exceptionHandlerWithContext.Invoke(exception, invocationContext);
                         }
 
                         if (exception is BusinessException businessException) {
