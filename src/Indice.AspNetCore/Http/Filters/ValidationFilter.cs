@@ -116,7 +116,7 @@ public static partial class ValidationFilterExtensions
 
     /// <summary>Adds exception handling for the specified exception.</summary>
     /// <typeparam name="TException"></typeparam>
-    /// <param name="builder">A builder for defining single endpoint.</param>
+    /// <param name="builder">A builder for defining a single endpoint.</param>
     /// <param name="statusCode">The HTTP status code.</param>
     /// <param name="exceptionHandler">The action to perform when the exception occurs. Can be left null for default implementation. This takes precedence over <see cref="exceptionHandlerWithContext"/>.</param>
     /// <param name="exceptionHandlerWithContext">The action to perform when the exception occurs. This also passes the <see cref="EndpointFilterInvocationContext"/> on invocation. Can be left null for default implementation.</param>
@@ -131,8 +131,8 @@ public static partial class ValidationFilterExtensions
     /// <summary>
     /// Adds the validation of input parameters and <see cref="HttpValidationProblemDetails"/> automatic response when something is out of place.
     /// If multiple filters are specified for a type of <see cref="TException"/> order is:
-    /// Code Before `next` --> FIFO
-    /// Code After `next` --> FILO
+    /// Code Before `next()` method call --> FIFO
+    /// Code After `next()` method call --> FILO
     /// </summary>
     /// <typeparam name="TBuilder"></typeparam>
     /// <typeparam name="TException"></typeparam>
