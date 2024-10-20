@@ -55,7 +55,7 @@ internal static partial class PictureHandlers
         }
 
         using var stream = request.File!.OpenReadStream();
-        var result = await userManager.SetUserPicture(user, stream, endpointOptions.Value.Avatar.AllowedSizes.Max());
+        var result = await userManager.SetUserPictureAsync(user, stream, endpointOptions.Value.Avatar.AllowedSizes.Max());
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -81,7 +81,7 @@ internal static partial class PictureHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.ClearUserPicture(user);
+        var result = await userManager.ClearUserPictureAsync(user);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -169,7 +169,7 @@ internal static partial class PictureHandlers
             return TypedResults.NotFound();
         }
 
-        (var stream, var contentType) = await userManager.GetUserPicture(user, GetImageContentType(extension), size);
+        (var stream, var contentType) = await userManager.GetUserPictureAsync(user, GetImageContentType(extension), size);
         if (stream is null) {
             if (fallbackUrl is not null && fallbackUrl.StartsWith("/avatar/")) {
                 return TypedResults.LocalRedirect(UriHelper.Encode(new Uri(fallbackUrl, UriKind.RelativeOrAbsolute)));

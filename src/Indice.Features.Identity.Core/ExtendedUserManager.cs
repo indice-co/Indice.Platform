@@ -572,7 +572,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="swapDeviceId">The id of the device to remove before trusting the defined device.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task<IdentityResult> SetTrustedDevice(TUser user, UserDevice device, string? swapDeviceId = null, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> SetTrustedDeviceAsync(TUser user, UserDevice device, string? swapDeviceId = null, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -606,7 +606,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
                     Description = "Device specified for swap is not valid."
                 });
             }
-            var result = await SetUntrustedDevice(user, swapDevice, cancellationToken);
+            var result = await SetUntrustedDeviceAsync(user, swapDevice, cancellationToken);
             if (!result.Succeeded) {
                 return result;
             }
@@ -640,7 +640,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="user">The user instance.</param>
     /// <param name="device">The device to mark as trusted.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
-    public async Task<IdentityResult> SetUntrustedDevice(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
+    public async Task<IdentityResult> SetUntrustedDeviceAsync(TUser user, UserDevice device, CancellationToken cancellationToken = default) {
         ThrowIfDisposed();
         if (user is null) {
             throw new ArgumentNullException(nameof(user));
@@ -667,7 +667,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     [GeneratedRegex(Base64PicturePattern)]
     private static partial Regex GetBase64PictureRegex();
 #else
-    private static Regex _base64PictureRegex = new Regex(Base64PicturePattern, RegexOptions.Compiled);
+    private static readonly Regex _base64PictureRegex = new(Base64PicturePattern, RegexOptions.Compiled);
     private static Regex GetBase64PictureRegex() => _base64PictureRegex;
 #endif
 
@@ -678,7 +678,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="inputStream">The picture stream</param>
     /// <param name="sideSize">Image side size to store</param>
     /// <returns>An <see cref="IdentityResult"/></returns>
-    public async Task<IdentityResult> SetUserPicture(TUser user, Stream inputStream, int sideSize = 256) {
+    public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256) {
         using var image = Image.Load(inputStream, out var format);
         // manipulate image resize to max side size.
         var factor = (double)sideSize / Math.Max(image.Width, image.Height);
@@ -702,7 +702,7 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <summary>Clear user profile picture</summary>
     /// <param name="user">The user instance</param>
     /// <returns>An <see cref="IdentityResult"/></returns>
-    public async Task<IdentityResult> ClearUserPicture(TUser user) {
+    public async Task<IdentityResult> ClearUserPictureAsync(TUser user) {
         var userStore = GetUserStore();
         var result = await userStore!.RemoveAllClaimsAsync(user, PictureDataClaimType);
         return result;
@@ -713,13 +713,13 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="contentType">Content type of file to be returned</param>
     /// <param name="size">Image size to be returned</param>
     /// <returns>A tupple of <see cref="Stream"/> and Content Type </returns>
-    public async Task<(Stream? Stream, string ContentType)> GetUserPicture(TUser user, string? contentType = null, int? size = null) {
+    public async Task<(Stream? Stream, string ContentType)> GetUserPictureAsync(TUser user, string? contentType = null, int? size = null) {
         var userStore = GetUserStore();
         var claims = await userStore!.FindClaimsByTypeAsync(user, PictureDataClaimType);
         var avatarBinary = claims.FirstOrDefault();
-        if (avatarBinary != null && !string.IsNullOrEmpty(avatarBinary.ClaimValue)) {
+        if (avatarBinary != null && !string.IsNullOrEmpty(avatarBinary.Value)) {
             var regex = GetBase64PictureRegex();
-            var match = regex.Match(avatarBinary.ClaimValue);
+            var match = regex.Match(avatarBinary.Value);
             if (!match.Groups["ContentType"].Success) {
                 return (null, string.Empty);
             }

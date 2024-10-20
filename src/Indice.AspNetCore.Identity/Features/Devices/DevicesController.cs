@@ -203,7 +203,7 @@ internal class DevicesController : ControllerBase
         if (device is null) {
             return NotFound();
         }
-        var result = await UserManager.SetTrustedDevice(user, device, request.SwapDeviceId);
+        var result = await UserManager.SetTrustedDeviceAsync(user, device, request.SwapDeviceId);
         if (!result.Succeeded) {
             return BadRequest(result.Errors.ToValidationProblemDetails());
         }
@@ -227,7 +227,7 @@ internal class DevicesController : ControllerBase
         if (device is null) {
             return NotFound();
         }
-        var result = await UserManager.SetUntrustedDevice(user, device);
+        var result = await UserManager.SetUntrustedDeviceAsync(user, device);
         if (!result.Succeeded) {
             return BadRequest(result.Errors.ToValidationProblemDetails());
         }

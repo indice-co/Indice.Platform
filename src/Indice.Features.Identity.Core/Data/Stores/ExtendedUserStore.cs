@@ -1,4 +1,10 @@
-﻿using IdentityServer4.EntityFramework.Entities;
+﻿using System.Runtime.Intrinsics.Arm;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using Bogus.DataSets;
+using IdentityModel;
+using IdentityServer4.EntityFramework.Entities;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Extensions;
 using Indice.Features.Identity.Core.Models;
@@ -6,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
 
 namespace Indice.Features.Identity.Core.Data.Stores;
 
@@ -30,7 +38,7 @@ public class ExtendedUserStore<TContext> : ExtendedUserStore<TContext, User, Ide
 }
 
 /// <inheritdoc/>
-public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>, IExtendedUserStore<TUser>, IUserDeviceStore<TUser>
+public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole, TContext>, IExtendedUserStore<TUser>, IUserDeviceStore<TUser>, IUserPictureStore<TUser>
     where TContext : IdentityDbContext<TUser, TRole>
     where TUser : User
     where TRole : IdentityRole
@@ -48,6 +56,7 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
 
     private DbSet<UserDevice> UserDeviceSet => Context.Set<UserDevice>();
     private DbSet<IdentityUserClaim<string>> UserClaimsSet => Context.Set<IdentityUserClaim<string>>();
+    private DbSet<UserPicture> UserPictureSet => Context.Set<UserPicture>();
 
     /// <inheritdoc/>
     public IQueryable<UserDevice> UserDevices => UserDeviceSet.AsQueryable();
@@ -242,10 +251,99 @@ public class ExtendedUserStore<TContext, TUser, TRole> : UserStore<TUser, TRole,
     }
 
     /// <inheritdoc/>
-    public async Task<IList<IdentityUserClaim<string>>> FindClaimsByTypeAsync(TUser user, string claimType, CancellationToken cancellationToken = default) {
+    public async Task<IList<Claim>> FindClaimsByTypeAsync(TUser user, string claimType, CancellationToken cancellationToken = default) {
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
-        var claimsOfType = await UserClaimsSet.Where(x => x.ClaimType == claimType && x.UserId == user.Id).ToListAsync(cancellationToken);
+        var claimsOfType = await UserClaimsSet.Where(x => x.ClaimType == claimType && x.UserId == user.Id).Select(x => new Claim(x.ClaimType!, x.ClaimValue!)).ToListAsync(cancellationToken);
         return claimsOfType;
+    }
+
+    /// <inheritdoc/>
+    public async Task<IdentityResult> ReplaceClaimAsync(TUser user, string claimType, string? claimValue, CancellationToken cancellationToken = default) {
+        cancellationToken.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+        var claimsToReplace = await FindClaimsByTypeAsync(user, claimType, cancellationToken);
+        if (string.IsNullOrWhiteSpace(claimValue)) {
+            await RemoveClaimsAsync(user, claimsToReplace, cancellationToken);
+        } else {
+            var newClaim = new Claim(claimType, claimValue!);
+            if (claimsToReplace.Count > 0) {
+                if (claimsToReplace.Count == 1) {
+                    await ReplaceClaimAsync(user, claimsToReplace.First(), newClaim, cancellationToken);
+                } else {
+                    await RemoveClaimsAsync(user, claimsToReplace, cancellationToken);
+                    await AddClaimsAsync(user, [newClaim], cancellationToken);
+                }
+            }
+        }
+        try {
+            await SaveChanges(cancellationToken);
+        } catch (DbUpdateException) {
+            return IdentityResult.Failed();
+        }
+        return IdentityResult.Success;
+    }
+
+    private static bool _SaveToClaim = false;
+    /// <inheritdoc/>
+    public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256, CancellationToken cancellationToken = default) {
+        using var image = Image.Load(inputStream, out var format);
+        // manipulate image resize to max side size.
+        var factor = (double)sideSize / Math.Max(image.Width, image.Height);
+        var resizeOptions = new ResizeOptions() {
+            Size = new Size((int)(image.Width * factor), (int)(image.Height * factor))
+        };
+        image.Mutate(i => i.Resize(resizeOptions));
+
+        var outputStream = new MemoryStream();
+        await image.SaveAsWebpAsync(outputStream);
+        outputStream.Seek(0, SeekOrigin.Begin);
+        var contentType = "image/webp";
+        if (_SaveToClaim) {
+            var data = new StringBuilder();
+            data.AppendFormat("data:{0};base64,", contentType);
+            data.Append(Convert.ToBase64String(outputStream.ToArray()));
+            return await ReplaceClaimAsync(user, IUserPictureStore<TUser>.PictureDataClaimType, data.ToString(), cancellationToken);
+        }
+
+        var picture = await UserPictureSet.Where(x => x.UserId == user.Id).FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        if (picture is not null) {
+            UserPictureSet.Remove(picture);
+        }
+        picture = new() {
+            UserId = user.Id,
+            PictureKey = user.Id.ToSha256(),
+            ContentType = contentType,
+            ContentLength = (int)outputStream.Length,
+            Data = outputStream.ToArray(),
+
+        };
+        UserPictureSet.Add(picture);
+        try {
+            await SaveChanges(cancellationToken);
+        } catch (DbUpdateException) {
+            return IdentityResult.Failed();
+        }
+        return IdentityResult.Success;
+    }
+
+    /// <inheritdoc/>
+    public Task<IdentityResult> ClearUserPictureAsync(TUser user, CancellationToken cancellationToken = default) {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public Task<(Stream? Stream, string ContentType)> GetUserPictureAsync(TUser user, string? contentType = null, int? size = null, CancellationToken cancellationToken = default) {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public Task<bool> UserPictureExistsAsync(TUser user, CancellationToken cancellationToken = default) {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
+    public Task<(Stream? Stream, string ContentType)> FindUserPictureByKeyAsync(string pictureKey, string? contentType = null, int? size = null, CancellationToken cancellationToken = default) {
+        throw new NotImplementedException();
     }
 }
