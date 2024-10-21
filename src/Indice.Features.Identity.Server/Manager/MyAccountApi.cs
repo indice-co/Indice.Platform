@@ -206,9 +206,18 @@ public static class MyAccountApi
                  .WithSummary("Get user's profile picture.");
 
             pictureGroup.AllowAnonymous()
+                .CacheOutput()
 #if NET7_0_OR_GREATER
 
-                .WithCacheOutPutMetadata(new OutputCacheSettings() { TagPrefix = "Picture", CacheForAuthorisedUsers = true, TagRouteParams = [""] })
+                .WithOutputCache(new OutputCacheOptions() { 
+                    TagPrefix = "Picture",
+                    TagRouteParams = ["userId"],
+                    CacheForAuthorisedUsers = true, 
+
+                    VaryByRouteValues = ["userId", "format"], 
+                    Expire = TimeSpan.FromMinutes(30) 
+                })
+
 #endif
                   ;
         }

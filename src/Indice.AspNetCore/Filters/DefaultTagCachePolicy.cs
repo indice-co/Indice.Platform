@@ -22,14 +22,14 @@ public class DefaultTagCachePolicy : IOutputCachePolicy
     /// <param name="cancellation"></param>
     public ValueTask CacheRequestAsync(OutputCacheContext context, CancellationToken cancellation) {
 
-        var outputCacheSettings = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<OutputCacheSettings>();
+        var outputCacheSettings = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<OutputCacheOptions>();
         context.EnableOutputCaching = true;
         context.AllowLocking = true;
         context.AllowCacheLookup = AttemptOutputCaching(context, outputCacheSettings);
         context.AllowCacheStorage = AttemptOutputCaching(context, outputCacheSettings);
 
-        //if (outputCacheMetadata != null)
-        //    context.Tags.Add(GetCacheTag(context, outputCacheMetadata));
+        if (outputCacheSettings != null && !string.IsNullOrEmpty(outputCacheSettings.TagPrefix))
+            context.Tags.Add(GetCacheTag(context.HttpContext, outputCacheSettings));
 
         return ValueTask.CompletedTask;
     }
@@ -49,9 +49,7 @@ public class DefaultTagCachePolicy : IOutputCachePolicy
     public ValueTask ServeResponseAsync(OutputCacheContext context, CancellationToken cancellation) => ValueTask.CompletedTask;
 
 
-    private string GetCacheTag(HttpContext context) {
-
-        var outputCacheSettings = context.GetEndpoint()?.Metadata.GetMetadata<OutputCacheSettings>();
+    private static string GetCacheTag(HttpContext context, OutputCacheOptions outputCacheSettings) {
         var suffix = string.Empty;
         if (outputCacheSettings == null || outputCacheSettings.TagRouteParams?.Any() == false) {
             var routeData = context.GetRouteData();
@@ -60,11 +58,11 @@ public class DefaultTagCachePolicy : IOutputCachePolicy
             suffix = string.Join('|', outputCacheSettings.TagRouteParams.Select(name => $"{name}:{context.GetRouteValue(name)}"));
         }
 
-        var cacheTag = (outputCacheSettings.TagPrefix ?? "") + "-" + suffix;
+        var cacheTag = (outputCacheSettings?.TagPrefix ?? "") + "-" + suffix;
         return cacheTag;
     }
 
-    private bool AttemptOutputCaching(OutputCacheContext context, OutputCacheSettings outputCacheSettings) {
+    private static bool AttemptOutputCaching(OutputCacheContext context, OutputCacheOptions outputCacheSettings) {
         // Check if the current request fulfills the requirements to be cached
 
         var request = context.HttpContext.Request;
@@ -88,13 +86,12 @@ public static class CacheBuilder
 {
 
     /// <summary>
-    /// Adds the provided metadata <paramref name="items"/> to <see cref="EndpointBuilder.Metadata"/> for all builders and adds a CacheouputPolicy
-    /// produced by <paramref name="builder"/>.
+    /// Adds output cache support using the the provided settings <paramref name="settings"/>  for all builders produced by <paramref name="builder"/>.
     /// </summary>
     /// <param name="builder">The <see cref="IEndpointConventionBuilder"/>.</param>
-    /// <param name="settings">A <see cref="OutputCacheSettings"></see> with cache settings.</param>
+    /// <param name="settings">A <see cref="OutputCacheOptions"></see> with cache settings.</param>
     /// <returns>The <see cref="IEndpointConventionBuilder"/>.</returns>
-    public static TBuilder WithCacheOutPutMetadata<TBuilder>(this TBuilder builder, OutputCacheSettings settings) where TBuilder : IEndpointConventionBuilder {
+    public static TBuilder WithOutputCache<TBuilder>(this TBuilder builder, OutputCacheOptions settings) where TBuilder : IEndpointConventionBuilder {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(settings);
 
@@ -103,48 +100,51 @@ public static class CacheBuilder
         });
         builder.CacheOutput(policy => {
             policy.AddPolicy<DefaultTagCachePolicy>();
-            policy.Expire(settings.Expire);
 
-            if (settings.VaryByRouteValues?.Any() == true) {
-                policy.SetVaryByRouteValue(settings.VaryByRouteValues);
+            if (settings.Expire.TotalSeconds > 0) {
+                policy.Expire(settings.Expire);
+            }
+
+            if (settings.VaryByHeaderNames?.Any() == true) {
+                policy.SetVaryByHeader(settings.VaryByHeaderNames);
+            }
+
+            if (settings.Tags?.Any() == true) {
+                policy.Tag(settings.Tags);
+            }
+
+            if (settings.VaryByQueryKeys?.Any() == true) {
+                policy.SetVaryByQuery(settings.VaryByQueryKeys);
+            }
+
+            if (settings.VaryByHeaderNames?.Any() == true) {
+                policy.SetVaryByHeader(settings.VaryByHeaderNames);
             }
         });
         return builder;
     }
 }
-/// <summary>
-/// 
-/// </summary>
-public class OutputCacheSettings
-{
-    /// <summary>
-    /// 
-    /// </summary>
-    public required string TagPrefix { get; set; }
-    /// <summary>
-    /// 
-    /// </summary>
-    public bool CacheForAuthorisedUsers { get; set; }
-    /// <summary>
-    /// 
-    /// </summary>
-    public List<string> TagRouteParams { get; set; } = new List<string>();
-    /// <summary>
-    /// The route value names to vary the cached responses by
-    /// </summary>
-    public string[] VaryByRouteValues { get; set; }
-    
-    /// <summary>
-    /// The query keys to vary the cached responses by 
-    /// </summary>
-    /// <remarks>
-    /// By default all query keys vary the cache entries. However when specific query keys are specified only these are then taken into account.
-    /// </remarks>
-    public string[] VaryByRouteKeys { get; set; }
 
-    /// <summary>
-    /// 
-    /// </summary>
+/// <summary>Options for configuring ASP.NET Core Output caching.</summary>
+public class OutputCacheOptions
+{
+    /// <summary>The tag prefix for the custom key to add to the cached reponse</summary>
+    /// <remarks>This key is to be used with <see cref="TagRouteParams"/> </remarks>
+    public required string TagPrefix { get; set; }
+    /// <summary>The Route params to include in the custom tag</summary>
+    public List<string> TagRouteParams { get; set; } = new List<string>();
+    /// <summary>The tags to add to the cached reponse.</summary>
+    public string[] Tags { get; set; }
+    /// <summary>The header names to vary the cached responses by.</summary>
+    public string[] VaryByHeaderNames { get; set; }
+    /// <summary>Indicates wether the cache should be enforced to authorized users.</summary>
+    public bool CacheForAuthorisedUsers { get; set; }
+    /// <summary>The route value names to vary the cached responses by</summary>
+    public string[] VaryByRouteValues { get; set; }
+    /// <summary>The query keys to vary the cached responses by </summary>
+    /// <remarks>By default all query keys vary the cache entries. However when specific query keys are specified only these are then taken into account.</remarks>
+    public string[] VaryByQueryKeys { get; set; }
+    /// <summary>The expiration of the cached reponse</summary>
     public TimeSpan Expire { get; set; }
 }
 #endif
