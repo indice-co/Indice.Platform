@@ -170,6 +170,7 @@ public static class IdentityServerEndpointServiceCollectionExtensions
         #if NET8_0_OR_GREATER
         services.AddOutputCache(options => {
             options.AddPolicy(nameof(DefaultTagCachePolicy), builder => builder.AddPolicy<DefaultTagCachePolicy>());
+            options.AddPolicy(nameof(OutputCacheTagPolicy), builder => builder.AddPolicy<OutputCacheTagPolicy>());
         });
         #endif
 
