@@ -1,8 +1,10 @@
-﻿using Bogus.DataSets;
+﻿using System.Security.Claims;
+using Bogus.DataSets;
 using Indice.AspNetCore.Filters;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
+using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +31,9 @@ public static class PictureApi
         );
         group.WithOpenApi();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
-             .ProducesProblem(StatusCodes.Status401Unauthorized);
+             .ProducesProblem(StatusCodes.Status401Unauthorized)
+             .InvalidateCacheTag("Picture", [], [BasicClaimTypes.Subject])
+             .InvalidateCacheTag("Picture", ctx => [new("userId", ctx.User.FindSubjectId())]);
 
         group.MapPut("my/account/picture", PictureHandlers.SaveMyPicture)
          .WithName(nameof(PictureHandlers.SaveMyPicture))
@@ -43,13 +47,19 @@ public static class PictureApi
         group.MapDelete("my/account/picture", PictureHandlers.ClearMyPicture)
              .WithName(nameof(PictureHandlers.ClearMyPicture))
              .WithSummary("Clear profile picture from the current user.")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
+             ;
 
         var getMyPicture = routes.MapGroup($"{options.ApiPrefix}");
         getMyPicture.WithTags("MyAccount");
-        getMyPicture.RequireAuthorization(builder => builder
-            .RequireAuthenticatedUser()
-        );
+        getMyPicture.RequireAuthorization(builder => builder.RequireAuthenticatedUser())
+            .CacheOutput(policy => policy.SetVaryByRouteValue(["size", "format"])
+                                      .SetVaryByQuery(["size"])
+                                      .SetAutoTag()
+                                      .SetAuthorized()
+                                      .SetCacheKeyPrefix(ctx => ctx.User.FindSubjectId()))
+            .WithCacheTag("Picture", [], [BasicClaimTypes.Subject])
+            .CacheAuthorized();
 
         getMyPicture.MapGet("my/account/picture", PictureHandlers.GetMyPicture)
             .WithName(nameof(PictureHandlers.GetMyPicture))
@@ -92,8 +102,8 @@ public static class PictureApi
 
         publicPictureGroup.MapGet("pictures/{userId}/{size}.{format:regex(jpg|png|webp)}", PictureHandlers.GetAccountPictureSizeFormat)
              .WithName(nameof(PictureHandlers.GetAccountPictureSizeFormat))
-             .WithSummary("Get user's profile picture.")
-             .CacheAuthorized();
+             .WithSummary("Get user's profile picture.");
+
 
 
 #if NET7_0_OR_GREATER
@@ -101,7 +111,8 @@ public static class PictureApi
                                                        .SetVaryByQuery(["size"])
                                                        .SetAutoTag()
                                                        .SetAuthorized())
-                          .WithCacheTag("Picture", "userId");
+                          .WithCacheTag("Picture", ["userId"])
+                          .CacheAuthorized();
 #endif
 
         return group;

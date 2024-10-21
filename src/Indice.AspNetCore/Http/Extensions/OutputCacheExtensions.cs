@@ -130,6 +130,15 @@ public static class OutputCacheFilterExtensions
     public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, string[] routeValueNames, string[] claimTypes) where TBuilder : IEndpointConventionBuilder =>
         InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagPrefixMetadata.CreateTag(httpContext, tagPrefix, routeValueNames, claimTypes)));
 
+    /// <summary>Adds the ability to invalidate cache for responses.</summary>
+    /// <typeparam name="TBuilder"></typeparam>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
+    /// <param name="tagPrefix">The tag prefix to use</param>
+    /// <param name="getTagData">The method that will return the tag data to use to create the tagName to invalidate</param>
+    /// <returns>The builder.</returns>
+    public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, Func<HttpContext, IEnumerable<KeyValuePair<string, object?>>> getTagData) where TBuilder : IEndpointConventionBuilder =>
+        InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagPrefixMetadata.CreateTag(tagPrefix, getTagData(httpContext))));
+
 
     /// <summary>Adds the ability to invalidate cache for responses.</summary>
     /// <typeparam name="TBuilder"></typeparam>
@@ -214,7 +223,7 @@ internal record CacheTagPrefixMetadata(string TagPrefix, string[]? RouteValueNam
     internal const char TAG_PART_DELIMITER = '|';
     internal string SetTag(OutputCacheContext cacheContext) {
         var routeParams = RouteValueNames?.Length > 0 ? RouteValueNames.Select(name => new KeyValuePair<string, object?>(name, cacheContext.HttpContext.GetRouteValue(name))) 
-                                               : cacheContext.HttpContext.GetRouteData().Values;
+                                               : [];
         var claimParams = ClaimTypes?.Select(name => new KeyValuePair<string, object?>(name, cacheContext.HttpContext.User.FindFirstValue(name))) ?? [];
         var tag = CreateTag(TagPrefix, [.. routeParams, .. claimParams]);
         cacheContext.Tags.Add(tag);
