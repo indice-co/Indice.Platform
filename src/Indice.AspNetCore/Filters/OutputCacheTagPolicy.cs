@@ -22,12 +22,12 @@ public class OutputCacheTagPolicy : IOutputCachePolicy
     public ValueTask CacheRequestAsync(OutputCacheContext context, CancellationToken cancellation) {
 
         var outputCacheSettings = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<OutputCacheTagMetadata>();
-        context.EnableOutputCaching = true;
-        context.AllowLocking = true;
-        context.AllowCacheLookup = AttemptOutputCaching(context, outputCacheSettings);
-        context.AllowCacheStorage = AttemptOutputCaching(context, outputCacheSettings);
+        context.EnableOutputCaching = true; // default behavior
+        context.AllowLocking = true;        // default behavior
+        context.AllowCacheLookup = AttemptOutputCaching(context, outputCacheSettings);  // CacheAuthorized
+        context.AllowCacheStorage = AttemptOutputCaching(context, outputCacheSettings); // CacheAuthorized
 
-        if (outputCacheSettings != null && !string.IsNullOrEmpty(outputCacheSettings.TagPrefix))
+        if (outputCacheSettings != null && !string.IsNullOrEmpty(outputCacheSettings.TagPrefix)) // CacheWithTagPrefix (parameters routeParams)
             context.Tags.Add(GetCacheTag(context.HttpContext, outputCacheSettings));
 
         return ValueTask.CompletedTask;

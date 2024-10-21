@@ -105,6 +105,10 @@ public static class PictureApi
                 return key;
             });
         });
+        //publicPictureGroup
+        //    .CacheOutput(policy => policy.SetTagPrefix().SetAuthorized())
+        //    .CacheAuthorized()
+        //    .WithCacheTag("users", ["userId"]);
 #endif
 
         return group;

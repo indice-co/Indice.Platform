@@ -11,7 +11,7 @@ public static class ValidationErrors
         if (errors.TryGetValue(key, out var array)) {
             errors[key] = array.Append(message).ToArray();
         } else {
-            errors.Add(key, new[] { message });
+            errors.Add(key, [message]);
         }
         return errors;
     }
