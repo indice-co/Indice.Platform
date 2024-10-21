@@ -73,9 +73,9 @@ public static class OutputCacheFilterExtensions
     /// Adds a policy that varies the cache tag using the <strong>WithCacheTag()</strong> metadata.
     /// </summary>
     /// <param name="builder">The builder to configure</param>
-    public static OutputCachePolicyBuilder SetTagPrefix(this OutputCachePolicyBuilder builder) {
+    public static OutputCachePolicyBuilder SetAutoTag(this OutputCachePolicyBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
-        return builder.AddPolicy<SetCacheTagPrefixPolicy>();
+        return builder.AddPolicy<SetCacheAutoTagPolicy>();
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ internal sealed class SetCacheAuthorizedPolicy : IOutputCachePolicy
 /// <summary>
 /// A policy that sets the cache tag using the specified value.
 /// </summary>
-internal sealed class SetCacheTagPrefixPolicy : IOutputCachePolicy
+internal sealed class SetCacheAutoTagPolicy : IOutputCachePolicy
 {
     /// <inheritdoc/>
     ValueTask IOutputCachePolicy.CacheRequestAsync(OutputCacheContext context, CancellationToken cancellationToken) {

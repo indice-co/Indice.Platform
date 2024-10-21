@@ -65,7 +65,7 @@ internal static partial class PictureHandlers
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
 
-        var evictionKey = $"Picture-userId:{userId}";
+        var evictionKey = $"Picture|userId:{userId}";
         await cache.EvictByTagAsync(evictionKey, cancellationToken);
         return TypedResults.NoContent();
     }
@@ -85,7 +85,7 @@ internal static partial class PictureHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var evictionKey = $"Picture-userId:{userId}";
+        var evictionKey = $"Picture|userId:{userId}";
         await cache.EvictByTagAsync(evictionKey, cancellationToken);
         return TypedResults.NoContent();
     }
@@ -176,6 +176,7 @@ internal static partial class PictureHandlers
             }
             return TypedResults.NotFound();
         }
+        
         return TypedResults.File(stream, contentType: contentType);
     }
 

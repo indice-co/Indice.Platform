@@ -18,7 +18,7 @@ public static class PictureApi
     public static IEndpointRouteBuilder MapProfilePictures(this IdentityServerEndpointRouteBuilder routes) {
 
         var options = routes.GetEndpointOptions();
-        
+
         var group = routes.MapGroup($"{options.ApiPrefix}");
         group.WithTags("MyAccount");
         group.WithGroupName("identity");
@@ -92,23 +92,16 @@ public static class PictureApi
 
         publicPictureGroup.MapGet("pictures/{userId}/{size}.{format:regex(jpg|png|webp)}", PictureHandlers.GetAccountPictureSizeFormat)
              .WithName(nameof(PictureHandlers.GetAccountPictureSizeFormat))
-             .WithSummary("Get user's profile picture.");
+             .WithSummary("Get user's profile picture.")
+             .CacheAuthorized();
 
 
 #if NET7_0_OR_GREATER
-        publicPictureGroup.CacheOutput(policy => {
-            policy.AddPolicy<DefaultTagCachePolicy>();
-            policy.SetVaryByRouteValue(["userId", "size", "format"]);
-            policy.SetVaryByQuery(["size"]);
-            policy.SetCacheKeyPrefix((ctx) => {
-                var key = $"Picture-userId:{ctx.GetRouteValue("userId")}";
-                return key;
-            });
-        });
-        //publicPictureGroup
-        //    .CacheOutput(policy => policy.SetTagPrefix().SetAuthorized())
-        //    .CacheAuthorized()
-        //    .WithCacheTag("users", ["userId"]);
+        publicPictureGroup.CacheOutput(policy => policy.SetVaryByRouteValue(["userId", "size", "format"])
+                                                       .SetVaryByQuery(["size"])
+                                                       .SetAutoTag()
+                                                       .SetAuthorized())
+                          .WithCacheTag("Picture", "userId");
 #endif
 
         return group;
