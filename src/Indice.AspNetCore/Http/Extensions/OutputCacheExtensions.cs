@@ -1,7 +1,14 @@
 ﻿#if NET7_0_OR_GREATER
+#nullable enable
+using System.Security.Claims;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using SixLabors.Fonts.Tables.AdvancedTypographic;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -39,33 +46,36 @@ public static class OutputCacheFilterExtensions
     }
 
     /// <summary>
-    /// Adds tagging metadata used by the output cache in conjunction with the <see cref="SetTagPrefix"/> policy .
+    /// Adds tagging metadata used by the output cache in conjunction with the <see cref="SetAutoTag(OutputCachePolicyBuilder)"/> policy .
     /// </summary>
     /// <param name="builder">The builder to configure</param>
     /// <param name="tagPrefix">The tag prefix to use</param>
     /// <param name="routeValueNames">Route parameter names</param>
+    /// <param name="claimTypes">Claim type names</param>
     /// <returns>The builder for further configuration</returns>
-    public static RouteGroupBuilder WithCacheTag(this RouteGroupBuilder builder, string tagPrefix, params string[] routeValueNames) => WithCacheTag<RouteGroupBuilder>(builder, tagPrefix, routeValueNames);
+    public static RouteGroupBuilder WithCacheTag(this RouteGroupBuilder builder, string tagPrefix, string[]? routeValueNames = null, string[]? claimTypes = null) => WithCacheTag<RouteGroupBuilder>(builder, tagPrefix, routeValueNames, claimTypes);
 
     /// <summary>
-    /// Adds tagging metadata used by the output cache in conjunction with the <see cref="SetTagPrefix"/> policy .
+    /// Adds tagging metadata used by the output cache in conjunction with the <see cref="SetAutoTag(OutputCachePolicyBuilder)"/> policy .
     /// </summary>
     /// <param name="builder">The builder to configure</param>
     /// <param name="tagPrefix">The tag prefix to use</param>
     /// <param name="routeValueNames">Route parameter names</param>
+    /// <param name="claimTypes"></param>
     /// <returns>The builder for further configuration</returns>
-    public static RouteHandlerBuilder WithCacheTag(this RouteHandlerBuilder builder, string tagPrefix, params string[] routeValueNames) => WithCacheTag<RouteHandlerBuilder>(builder, tagPrefix, routeValueNames);
+    public static RouteHandlerBuilder WithCacheTag(this RouteHandlerBuilder builder, string tagPrefix, string[]? routeValueNames = null, string[]? claimTypes = null) => WithCacheTag<RouteHandlerBuilder>(builder, tagPrefix, routeValueNames, claimTypes);
 
     /// <summary>
-    /// Adds tagging metadata used by the output cache in conjunction with the <see cref="SetTagPrefix"/> policy .
+    /// Adds tagging metadata used by the output cache in conjunction with the <see cref="SetAutoTag(OutputCachePolicyBuilder)"/> policy .
     /// </summary>
     /// <typeparam name="TBuilder">The builder type</typeparam>
     /// <param name="builder">The builder to configure</param>
     /// <param name="tagPrefix">The tag prefix to use</param>
     /// <param name="routeValueNames">Route parameter names</param>
+    /// <param name="claimTypes">Claim type names</param>
     /// <returns>The builder for further configuration</returns>
-    public static TBuilder WithCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, params string[] routeValueNames) where TBuilder : IEndpointConventionBuilder {
-        builder.WithMetadata(new CacheTagPrefixMetadata(tagPrefix, routeValueNames));
+    public static TBuilder WithCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, string[]? routeValueNames, string[]? claimTypes) where TBuilder : IEndpointConventionBuilder {
+        builder.WithMetadata(new CacheTagPrefixMetadata(tagPrefix, routeValueNames, claimTypes));
         return builder;
     }
 
@@ -86,6 +96,69 @@ public static class OutputCacheFilterExtensions
     public static OutputCachePolicyBuilder SetAuthorized(this OutputCachePolicyBuilder builder) {
         ArgumentNullException.ThrowIfNull(builder);
         return builder.AddPolicy<SetCacheAuthorizedPolicy>();
+    }
+
+
+
+    /// <summary>Adds the ability to invalidate cache for responses.</summary>
+    /// <typeparam name="TBuilder"></typeparam>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
+    /// <param name="tagName">A tag name that must be invalidated.</param>
+    /// <returns>The builder.</returns>
+    public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagName) where TBuilder : IEndpointConventionBuilder {
+        ArgumentException.ThrowIfNullOrEmpty(tagName, nameof(tagName));
+        InvalidateCacheTag(builder, getTagName: (httpContext) => ValueTask.FromResult(tagName));
+        return builder;
+    }
+
+    /// <summary>Adds the ability to invalidate cache for responses.</summary>
+    /// <typeparam name="TBuilder"></typeparam>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
+    /// <param name="tagPrefix">The tag prefix to use</param>
+    /// <param name="routeValueNames">Route parameter names</param>
+    /// <returns>The builder.</returns>
+    public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, string [] routeValueNames) where TBuilder : IEndpointConventionBuilder =>
+        InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagPrefixMetadata.CreateTag(httpContext, tagPrefix, routeValueNames)));
+
+    /// <summary>Adds the ability to invalidate cache for responses.</summary>
+    /// <typeparam name="TBuilder"></typeparam>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
+    /// <param name="tagPrefix">The tag prefix to use</param>
+    /// <param name="routeValueNames">Route parameter names</param>
+    /// <param name="claimTypes">Claim type names</param>
+    /// <returns>The builder.</returns>
+    public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, string[] routeValueNames, string[] claimTypes) where TBuilder : IEndpointConventionBuilder =>
+        InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagPrefixMetadata.CreateTag(httpContext, tagPrefix, routeValueNames, claimTypes)));
+
+
+    /// <summary>Adds the ability to invalidate cache for responses.</summary>
+    /// <typeparam name="TBuilder"></typeparam>
+    /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
+    /// <param name="getTagName">The method that will return the tag name to invalidate</param>
+    /// <returns>The builder.</returns>
+    public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, Func<HttpContext, ValueTask<string>> getTagName) where TBuilder : IEndpointConventionBuilder {
+        builder.Add(endpointBuilder => {
+            endpointBuilder.FilterFactories.Add((context, next) => {
+                return new EndpointFilterDelegate(async (invocationContext) => {
+                    var requestMethod = invocationContext.HttpContext.Request.Method;
+                    var outputCacheStore = invocationContext.HttpContext.RequestServices.GetRequiredService<IOutputCacheStore>();
+                    
+                    var result = await next(invocationContext);
+
+                    var isSuccessStatusCode = invocationContext.HttpContext.Response.StatusCode >= 200 && invocationContext.HttpContext.Response.StatusCode < 300;
+                    var isStateChangingMethod = requestMethod == HttpMethod.Post.Method || requestMethod == HttpMethod.Put.Method || requestMethod == HttpMethod.Patch.Method || requestMethod == HttpMethod.Delete.Method;
+                    if (isSuccessStatusCode && isStateChangingMethod) {
+
+                        // Handle cache invalidation.
+                        var tagName = await getTagName(invocationContext.HttpContext);
+                        await outputCacheStore.EvictByTagAsync(tagName, default);
+                    }
+
+                    return result;
+                });
+            });
+        });
+        return builder;
     }
 }
 
@@ -136,19 +209,27 @@ internal record CacheAuthorizedMetadata {
     }
 }
 
-internal record CacheTagPrefixMetadata(string TagPrefix, params string[] RouteValueNames)
+internal record CacheTagPrefixMetadata(string TagPrefix, string[]? RouteValueNames, string[]? ClaimTypes)
 {
     internal const char TAG_PART_DELIMITER = '|';
     internal string SetTag(OutputCacheContext cacheContext) {
-        var tag = TagPrefix + TAG_PART_DELIMITER;
-        if (RouteValueNames?.Length > 0) {
-            tag += string.Join(TAG_PART_DELIMITER, RouteValueNames.Select(name => $"{name}:{cacheContext.HttpContext.GetRouteValue(name)}"));
-        } else {
-            var routeData = cacheContext.HttpContext.GetRouteData();
-            tag += string.Join(TAG_PART_DELIMITER, routeData.Values.Select(x => $"{x.Key}:{x.Value}"));
-        }
+        var routeParams = RouteValueNames?.Length > 0 ? RouteValueNames.Select(name => new KeyValuePair<string, object?>(name, cacheContext.HttpContext.GetRouteValue(name))) 
+                                               : cacheContext.HttpContext.GetRouteData().Values;
+        var claimParams = ClaimTypes?.Select(name => new KeyValuePair<string, object?>(name, cacheContext.HttpContext.User.FindFirstValue(name))) ?? [];
+        var tag = CreateTag(TagPrefix, [.. routeParams, .. claimParams]);
         cacheContext.Tags.Add(tag);
         return tag;
     }
+
+
+    internal static string CreateTag(HttpContext httpContext, string tagPrefix, string[] RouteValueNames, string[] claimTypes = null) {
+        var routeParams = RouteValueNames.Select(name => new KeyValuePair<string, object?>(name, httpContext.GetRouteValue(name)));
+        var claimParams = claimTypes.Select(name => new KeyValuePair<string, object?>(name, httpContext.User.FindFirstValue(name)));
+        return CreateTag(tagPrefix, [.. routeParams, .. claimParams]);
+    }
+
+    internal static string CreateTag(string tagPrefix, IEnumerable<KeyValuePair<string, object?>> keyValuePairs) =>
+        tagPrefix + TAG_PART_DELIMITER + string.Join(TAG_PART_DELIMITER, keyValuePairs.Select(x => $"{x.Key}:{x.Value}"));
 }
+#nullable disable
 #endif
