@@ -286,7 +286,7 @@ internal class AdminCasesController : ControllerBase
     }
 
     /// <summary>
-    /// 
+    /// Deletes an attachment with the given fieldName from the case
     /// </summary>
     /// <param name="caseId"></param>
     /// <param name="fieldName"></param>
