@@ -53,13 +53,13 @@ public static class PictureApi
         var getMyPicture = routes.MapGroup($"{options.ApiPrefix}");
         getMyPicture.WithTags("MyAccount");
         getMyPicture.RequireAuthorization(builder => builder.RequireAuthenticatedUser())
-            .CacheOutput(policy => policy.SetVaryByRouteValue(["size", "format"])
-                                      .SetVaryByQuery(["size"])
-                                      .SetAutoTag()
-                                      .SetAuthorized()
-                                      .SetCacheKeyPrefix(ctx => ctx.User.FindSubjectId()))
-            .WithCacheTag("Picture", [], [BasicClaimTypes.Subject])
-            .CacheAuthorized();
+                    .CacheOutput(policy => policy.SetVaryByRouteValue(["size", "format"])
+                                              .SetVaryByQuery(["size"])
+                                              .SetAutoTag()
+                                              .SetAuthorized()
+                                              .SetCacheKeyPrefix(ctx => ctx.User.FindSubjectId()))
+                    .WithCacheTag("Picture", [], [BasicClaimTypes.Subject])
+                    .CacheAuthorized();
 
         getMyPicture.MapGet("my/account/picture", PictureHandlers.GetMyPicture)
             .WithName(nameof(PictureHandlers.GetMyPicture))
@@ -88,6 +88,15 @@ public static class PictureApi
         publicPictureGroup.WithGroupName("identity");
         publicPictureGroup.ExcludeFromDescription();
         publicPictureGroup.AllowAnonymous();
+        publicPictureGroup.CacheOutput(policy => policy.SetVaryByRouteValue(["userId", "size", "format"])
+                                                       .SetVaryByQuery(["size"])
+                                                       .SetAutoTag()
+                                                       .SetAuthorized()
+                                                       //.Expire(TimeSpan.FromMinutes(5))
+                                                       )
+                          .WithCacheTag("Picture", ["userId"])
+                          .CacheAuthorized();
+
         publicPictureGroup.MapGet("pictures/{userId}", PictureHandlers.GetAccountPicture)
              .WithName(nameof(PictureHandlers.GetAccountPicture))
              .WithSummary("Get user's profile picture.");
@@ -103,17 +112,6 @@ public static class PictureApi
         publicPictureGroup.MapGet("pictures/{userId}/{size}.{format:regex(jpg|png|webp)}", PictureHandlers.GetAccountPictureSizeFormat)
              .WithName(nameof(PictureHandlers.GetAccountPictureSizeFormat))
              .WithSummary("Get user's profile picture.");
-
-
-
-#if NET7_0_OR_GREATER
-        publicPictureGroup.CacheOutput(policy => policy.SetVaryByRouteValue(["userId", "size", "format"])
-                                                       .SetVaryByQuery(["size"])
-                                                       .SetAutoTag()
-                                                       .SetAuthorized())
-                          .WithCacheTag("Picture", ["userId"])
-                          .CacheAuthorized();
-#endif
 
         return group;
     }
