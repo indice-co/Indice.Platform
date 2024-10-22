@@ -24,7 +24,7 @@ namespace Indice.Features.Identity.Server.Manager;
 internal static partial class PictureHandlers
 {
     internal static Task<Results<NoContent, NotFound, ValidationProblem>> SaveMyPicture(
-        FileUploadRequest request,
+        ImageUploadRequest request,
         ExtendedUserManager<User> userManager,
         LinkGenerator linkGenerator,
         IOptions<ExtendedEndpointOptions> endpointOptions,
@@ -41,7 +41,7 @@ internal static partial class PictureHandlers
         CancellationToken cancellationToken) => ClearUserPicture(userManager, dbContext, cache, currentUser.FindSubjectId(), cancellationToken);
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SaveUserPicture(
-        FileUploadRequest request,
+        ImageUploadRequest request,
         ExtendedUserManager<User> userManager,
         LinkGenerator linkGenerator,
         IOptions<ExtendedEndpointOptions> endpointOptions,
@@ -58,7 +58,7 @@ internal static partial class PictureHandlers
         }
 
         using var stream = request.File!.OpenReadStream();
-        var result = await userManager.SetUserPictureAsync(user, stream, endpointOptions.Value.Avatar.AllowedSizes.Max());
+        var result = await userManager.SetUserPictureAsync(user, stream, endpointOptions.Value.Avatar.AllowedSizes.Max(), zoomLevel: request.Zoom ?? 1, request.OffsetX ?? 0 , request.OffsetY ?? 0);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -182,7 +182,7 @@ internal static partial class PictureHandlers
         }
 
         var hash = MD5.HashData(Encoding.UTF8.GetBytes(userId)).ToBase64UrlSafe();
-        return TypedResults.File(stream, contentType: contentType, entityTag: new Microsoft.Net.Http.Headers.EntityTagHeaderValue(new Microsoft.Extensions.Primitives.StringSegment($"\"{hash}\"")));
+        return TypedResults.File(stream, contentType: contentType, entityTag: new Microsoft.Net.Http.Headers.EntityTagHeaderValue(new Microsoft.Extensions.Primitives.StringSegment($"\"{hash}_{stream.Length}\"")));
     }
 
     private static string? GetImageContentType(string? fileExtention) {

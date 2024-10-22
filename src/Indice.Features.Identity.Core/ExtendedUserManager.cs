@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using IdentityModel;
-using IdentityServer4.Configuration;
 using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
 using Indice.Features.Identity.Core.Data.Models;
@@ -13,7 +12,6 @@ using Indice.Features.Identity.Core.Events.Models;
 using Indice.Features.Identity.Core.Models;
 using Indice.Security;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -676,16 +674,32 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <summary>Sets user profile picture</summary>
     /// <param name="user">The user instance</param>
     /// <param name="inputStream">The picture stream</param>
+    /// <param name="zoomLevel">used to crop the source <paramref name="inputStream"/></param>
+    /// <param name="offsetX">used to crop the source <paramref name="inputStream"/></param>
+    /// <param name="offsetY">used to crop the source <paramref name="inputStream"/></param>
     /// <param name="sideSize">Image side size to store</param>
     /// <returns>An <see cref="IdentityResult"/></returns>
-    public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256) {
+    public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256, double zoomLevel = 1, int offsetX = 0, int offsetY = 0) {
         using var image = Image.Load(inputStream, out var format);
         // manipulate image resize to max side size.
-        var factor = (double)sideSize / Math.Max(image.Width, image.Height);
+        var maxSide = Math.Max(image.Width, image.Height);
+        
         var resizeOptions = new ResizeOptions() {
-            Size = new Size((int)(image.Width * factor), (int)(image.Height * factor))
+            Size = new Size(sideSize),
+            Mode = ResizeMode.Pad
         };
-        image.Mutate(i => i.Resize(resizeOptions));
+
+        if (zoomLevel > 1 && (zoomLevel * sideSize) <= maxSide) {
+            var cropOptions = new Rectangle() {
+                Size = new Size((int)(maxSide / zoomLevel)),
+                X = (int)(offsetX * zoomLevel),
+                Y = (int)(offsetY * zoomLevel)
+            };
+            image.Mutate(i => i.Crop(cropOptions).Resize(resizeOptions));
+        } else {
+            image.Mutate(i => i.Resize(resizeOptions));
+        }
+        
 
         var outputStream = new MemoryStream();
         await image.SaveAsWebpAsync(outputStream);

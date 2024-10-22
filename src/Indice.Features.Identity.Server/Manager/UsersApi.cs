@@ -144,8 +144,8 @@ public static class UsersApi
              .WithSummary("Create or update profile picture of the given user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
              .LimitUpload(options.Avatar.MaxFileSize, options.Avatar.AcceptableFileExtensions)
-             .WithParameterValidation<FileUploadRequest>()
-             .Accepts<FileUploadRequest>("multipart/form-data");
+             .WithParameterValidation<ImageUploadRequest>()
+             .Accepts<ImageUploadRequest>("multipart/form-data");
 
         group.MapDelete("{userId}/picture", PictureHandlers.ClearUserPicture)
              .WithName(nameof(PictureHandlers.ClearUserPicture))

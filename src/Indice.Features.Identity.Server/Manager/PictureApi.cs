@@ -40,16 +40,15 @@ public static class PictureApi
          .WithName(nameof(PictureHandlers.SaveMyPicture))
          .WithSummary("Create or update profile picture of the current user.")
          .LimitUpload(options.Avatar.MaxFileSize, options.Avatar.AcceptableFileExtensions)
-         .WithParameterValidation<FileUploadRequest>()
-         .Accepts<FileUploadRequest>("multipart/form-data")
+         .WithParameterValidation<ImageUploadRequest>()
+         .Accepts<ImageUploadRequest>("multipart/form-data")
          .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
          .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UploadPicture);
 
         group.MapDelete("my/account/picture", PictureHandlers.ClearMyPicture)
              .WithName(nameof(PictureHandlers.ClearMyPicture))
              .WithSummary("Clear profile picture from the current user.")
-             .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
-             ;
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         var getMyPicture = routes.MapGroup($"{options.ApiPrefix}");
         getMyPicture.WithTags("MyAccount");
