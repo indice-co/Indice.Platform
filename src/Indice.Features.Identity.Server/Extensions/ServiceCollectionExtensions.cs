@@ -165,7 +165,6 @@ public static class IdentityServerEndpointServiceCollectionExtensions
             var certificate = new X509Certificate2(Path.Combine(webHostEnvironment.ContentRootPath, configuration["IdentityServer:SigningPfxFile"] ?? string.Empty), configuration["IdentityServer:SigningPfxPass"], X509KeyStorageFlags.MachineKeySet);
             identityServerBuilder.AddSigningCredential(certificate);
         }
-        services.AddOutputCache();
 
         return identityServerBuilder;
     }
@@ -316,6 +315,8 @@ public static class IdentityServerEndpointServiceCollectionExtensions
                .AddLocalApi(IdentityEndpoints.AuthenticationScheme, options => {
                    options.ExpectedScope = IdentityEndpoints.Scope;
                });
+        //Add output cache
+        builder.Services.AddOutputCache();
         return builder;
     }
 

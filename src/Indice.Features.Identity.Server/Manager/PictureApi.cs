@@ -15,6 +15,7 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for managing a user's account.</summary>
 public static class PictureApi
 {
+    internal const string CacheTagPrefix = "Picture";
     /// <summary>Adds Indice Identity Server user profile picture endpoints.</summary>
     /// <param name="routes">Indice Identity Server route builder.</param>
     public static IEndpointRouteBuilder MapProfilePictures(this IdentityServerEndpointRouteBuilder routes) {
@@ -32,8 +33,8 @@ public static class PictureApi
         group.WithOpenApi();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .InvalidateCacheTag("Picture", [], [BasicClaimTypes.Subject])
-             .InvalidateCacheTag("Picture", ctx => [new("userId", ctx.User.FindSubjectId())]);
+             .InvalidateCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject])
+             .InvalidateCacheTag(CacheTagPrefix, ctx => [new("userId", ctx.User.FindSubjectId())]);
 
         group.MapPut("my/account/picture", PictureHandlers.SaveMyPicture)
          .WithName(nameof(PictureHandlers.SaveMyPicture))
@@ -58,7 +59,7 @@ public static class PictureApi
                                               .SetAutoTag()
                                               .SetAuthorized()
                                               .SetCacheKeyPrefix(ctx => ctx.User.FindSubjectId()))
-                    .WithCacheTag("Picture", [], [BasicClaimTypes.Subject])
+                    .WithCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject])
                     .CacheAuthorized();
 
         getMyPicture.MapGet("my/account/picture", PictureHandlers.GetMyPicture)
@@ -84,7 +85,7 @@ public static class PictureApi
             return routes;
         }
         var publicPictureGroup = routes.MapGroup("/");
-        publicPictureGroup.WithTags("Picture");
+        publicPictureGroup.WithTags(CacheTagPrefix);
         publicPictureGroup.WithGroupName("identity");
         publicPictureGroup.ExcludeFromDescription();
         publicPictureGroup.AllowAnonymous();
@@ -94,7 +95,7 @@ public static class PictureApi
                                                        .SetAuthorized()
                                                        //.Expire(TimeSpan.FromMinutes(5))
                                                        )
-                          .WithCacheTag("Picture", ["userId"])
+                          .WithCacheTag(CacheTagPrefix, ["userId"])
                           .CacheAuthorized();
 
         publicPictureGroup.MapGet("pictures/{userId}", PictureHandlers.GetAccountPicture)

@@ -22,6 +22,7 @@ public static class CacheResourceFilterExtensions
     /// <param name="expiration">The absolute expiration in minutes of the cache item, expressed as an <see cref="int"/>. Defaults to 60 minutes.</param>
     /// <param name="varyByClaimType">The claim to use which value is included in the cache key.</param>
     /// <returns>The builder.</returns>
+    [Obsolete("Method should no longer be used. Instead use OutpuCache", true)]
     public static TBuilder CacheOutputMemory<TBuilder>(this TBuilder builder, int expiration = 60, string[] varyByClaimType = null)
         where TBuilder : IEndpointConventionBuilder {
         builder.Add(endpointBuilder => {
@@ -82,6 +83,7 @@ public static class CacheResourceFilterExtensions
     /// <param name="builder">Builds conventions that will be used for customization of <see cref="EndpointBuilder"/> instances.</param>
     /// <param name="dependentRoute">Parent RouteName of the current method that must be invalidated. Path template variables must match by name.</param>
     /// <returns>The builder.</returns>
+    [Obsolete("Method should no longer be used. Instead use OutpuCache")]
     public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string dependentRoute) where TBuilder : IEndpointConventionBuilder {
         ArgumentException.ThrowIfNullOrEmpty(dependentRoute, nameof(dependentRoute));
         InvalidateCache(builder, dependentRoutes: [dependentRoute], varyByClaimType: null);
@@ -94,6 +96,7 @@ public static class CacheResourceFilterExtensions
     /// <param name="dependentRoute">Parent RouteName of the current method that must be invalidated. Path template variables must match by name.</param>
     /// <param name="varyByClaimType">The claim to use which value is included in the cache key.</param>
     /// <returns>The builder.</returns>
+    [Obsolete("Method should no longer be used. Instead use OutpuCache")]
     public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string dependentRoute, string varyByClaimType) where TBuilder : IEndpointConventionBuilder {
         ArgumentException.ThrowIfNullOrEmpty(dependentRoute, nameof(dependentRoute));
         ArgumentException.ThrowIfNullOrEmpty(varyByClaimType, nameof(varyByClaimType));
@@ -107,6 +110,7 @@ public static class CacheResourceFilterExtensions
     /// <param name="dependentRoutes">Parent paths of the current method that must be invalidated. Path template variables must match by name.</param>
     /// <param name="varyByClaimType">The claim to use which value is included in the cache key.</param>
     /// <returns>The builder.</returns>
+    [Obsolete("Method should no longer be used. Instead use OutpuCache")]
     public static TBuilder InvalidateCache<TBuilder>(this TBuilder builder, string[] dependentRoutes, string[] varyByClaimType = null) where TBuilder : IEndpointConventionBuilder {
         ArgumentNullException.ThrowIfNull(dependentRoutes, nameof(dependentRoutes));
         builder.Add(endpointBuilder => {
@@ -157,6 +161,7 @@ public static class CacheResourceFilterExtensions
     /// <summary>Adds No cache metadata to the current operation <see cref="RouteHandlerBuilder"/>.</summary>
     /// <param name="builder">Builds conventions that will be used for customization of MapAction <see cref="EndpointBuilder"/> instances.</param>
     /// <returns>The builder.</returns>
+    [Obsolete("Method should no longer be used. Instead use CacheOutput(policy => policy.NoCache())")]
     public static RouteHandlerBuilder NoCache(this RouteHandlerBuilder builder) {
         builder.Add(eb => eb.Metadata.Add(new NoCacheMetadata()));
         return builder;

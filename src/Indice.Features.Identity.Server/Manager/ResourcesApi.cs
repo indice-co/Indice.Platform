@@ -5,15 +5,18 @@ using Indice.Features.Identity.Server.Manager.Models;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Routing;
 
 /// <summary>Contains operations for managing application API and Identity resources.</summary>
 public static class ResourcesApi
 {
+    internal const string CacheTagPrefix = "Resources";
     /// <summary>Adds Indice Identity Server API and Identity resources endpoints.</summary>
     /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageResources(this IdentityServerEndpointRouteBuilder routes) {
+        
         var options = routes.GetEndpointOptions();
         var group = routes.MapGroup($"{options.ApiPrefix}/resources");
         group.WithTags("Resources");
@@ -22,12 +25,12 @@ public static class ResourcesApi
         var allowedScopes = new[] { options.ApiScope, IdentityEndpoints.SubScopes.Clients }.Where(x => x != null).Cast<string>().ToArray();
         group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
                                            .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme));
-        
-             
+
+
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
-        
+
         group.MapGet("identity", ResourceHandlers.GetIdentityResources)
              .WithName(nameof(ResourceHandlers.GetIdentityResources))
              .WithSummary("Returns a list of IdentityResourceInfo objects containing the total number of identity resources in the database and the data filtered according to the provided ListOptions.")
@@ -37,7 +40,12 @@ public static class ResourcesApi
              .WithName(nameof(ResourceHandlers.GetIdentityResource))
              .WithSummary("Gets an identity resource by it's unique id.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsReader)
-             .CacheOutputMemory();
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(60))
+                                          .SetAutoTag()
+                                          .SetAuthorized()
+                                          .SetVaryByRouteValue(["resourceId"]))
+             .WithCacheTag(CacheTagPrefix, ["resourceId"])
+             .CacheAuthorized();
 
         group.MapPost("identity/{resourceId:int}", ResourceHandlers.CreateIdentityResource)
              .WithName(nameof(ResourceHandlers.CreateIdentityResource))
@@ -49,26 +57,26 @@ public static class ResourcesApi
              .WithName(nameof(ResourceHandlers.UpdateIdentityResource))
              .WithSummary("Updates an identity resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetIdentityResource))
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], [])
              .WithParameterValidation<UpdateIdentityResourceRequest>();
 
         group.MapPost("identity/{resourceId:int}/claims", ResourceHandlers.AddIdentityResourceClaims)
              .WithName(nameof(ResourceHandlers.AddIdentityResourceClaims))
              .WithSummary("Adds claims to an identity resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetIdentityResource));
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], []);
 
         group.MapDelete("identity/{resourceId:int}/claims/{claim}", ResourceHandlers.DeleteIdentityResourceClaim)
              .WithName(nameof(ResourceHandlers.DeleteIdentityResourceClaim))
              .WithSummary("Removes a specified claim from an identity resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetIdentityResource));
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], []);
 
         group.MapDelete("identity/{resourceId:int}", ResourceHandlers.DeleteIdentityResource)
              .WithName(nameof(ResourceHandlers.DeleteIdentityResource))
              .WithSummary("Permanently deletes an identity resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetIdentityResource));
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], []);
 
         group.MapGet("protected", ResourceHandlers.GetApiResources)
              .WithName(nameof(ResourceHandlers.GetApiResources))
@@ -95,71 +103,71 @@ public static class ResourcesApi
              .WithName(nameof(ResourceHandlers.UpdateApiResource))
              .WithSummary("Updates an API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource))
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], [])
              .WithParameterValidation<UpdateApiResourceRequest>();
 
         group.MapPost("protected/{resourceId:int}/secrets", ResourceHandlers.AddApiResourceSecret)
              .WithName(nameof(ResourceHandlers.AddApiResourceSecret))
              .WithSummary("Adds a new scope to an existing API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource))
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], [])
              .WithParameterValidation<CreateSecretRequest>();
 
         group.MapDelete("protected/{resourceId:int}/secrets/{secretId}", ResourceHandlers.DeleteApiResourceSecret)
              .WithName(nameof(ResourceHandlers.DeleteApiResourceSecret))
              .WithSummary("Removes a specified claim from an API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], []);
 
         group.MapPost("protected/{resourceId:int}/claims", ResourceHandlers.AddApiResourceClaims)
              .WithName(nameof(ResourceHandlers.AddApiResourceClaims))
              .WithSummary("Adds claims to an API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], []);
 
         group.MapDelete("protected/{resourceId:int}/claims/{claim}", ResourceHandlers.DeleteApiResourceClaim)
              .WithName(nameof(ResourceHandlers.DeleteApiResourceClaim))
              .WithSummary("Removes a specified claim from an API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], []);
 
         group.MapPost("protected/{resourceId:int}/scopes", ResourceHandlers.AddApiResourceScope)
              .WithName(nameof(ResourceHandlers.AddApiResourceScope))
              .WithSummary("Adds a new scope to an existing API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource))
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], [])
              .WithParameterValidation<CreateApiScopeRequest>();
 
         group.MapPut("protected/{resourceId:int}/scopes/{scopeId:int}", ResourceHandlers.UpdateApiResourceScope)
              .WithName(nameof(ResourceHandlers.UpdateApiResourceScope))
              .WithSummary("Updates a specified scope of an API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource))
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], [])
              .WithParameterValidation<UpdateApiScopeRequest>();
 
         group.MapDelete("protected/{resourceId:int}/scopes/{scopeId:int}", ResourceHandlers.DeleteApiResourceScope)
              .WithName(nameof(ResourceHandlers.DeleteApiResourceScope))
              .WithSummary("Deletes a specified scope from an API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], []);
 
         group.MapPost("protected/{resourceId:int}/scopes/{scopeId:int}/claims", ResourceHandlers.AddApiResourceScopeClaims)
              .WithName(nameof(ResourceHandlers.AddApiResourceScopeClaims))
              .WithSummary("Adds claims to an API scope of a protected resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], []);
 
         group.MapDelete("protected/{resourceId:int}/scopes/{scopeId:int}/claims/{claim}", ResourceHandlers.DeleteApiResourceScopeClaim)
              .WithName(nameof(ResourceHandlers.DeleteApiResourceScopeClaim))
              .WithSummary("Deletes a claim from an API scope of a protected resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], []);
 
         group.MapDelete("protected/{resourceId:int}", ResourceHandlers.DeleteApiResource)
              .WithName(nameof(ResourceHandlers.DeleteApiResource))
              .WithSummary("Permanently deletes an API resource.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCache(nameof(ResourceHandlers.GetApiResource));
+             .InvalidateCacheTag(CacheTagPrefix, ["resourceId"], []);
 
         return group;
     }
