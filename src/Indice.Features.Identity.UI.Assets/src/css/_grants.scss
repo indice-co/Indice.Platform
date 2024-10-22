@@ -1,0 +1,112 @@
+﻿@import '_colors';
+@import '_variables';
+@import '_mixins';
+
+body {
+    &.grants {
+        .container {
+            padding: 20px;
+
+            @include phone {
+                box-shadow: none;
+            }
+        }
+
+        .page-grants {
+            padding: 48px 40px 36px;
+            height: auto;
+            transition: .2s;
+            background-color: white;
+            border-radius: 10px;
+            color: $gray-900;
+            max-width: $standalone-page-width-lg;
+            font-size: .9rem;
+
+            .page-header {
+                padding-bottom: 1rem;
+                text-align: center;
+
+                .header-logo {
+                    width: 100%;
+                    display: inline-block;
+                    color: transparent;
+
+                    img {
+                        height: 60px;
+                        margin-bottom: 1.5rem !important;
+                    }
+                }
+            }
+
+            .grant-card {
+                background-color: transparent;
+                border: none;
+
+                .list-group-item {
+                    background-color: transparent;
+                }
+
+                .grant-header {
+                    justify-content: flex-start;
+                    align-items: center;
+                    display: flex;
+                    flex-direction: column;
+                    padding-top: 1.25rem;
+                }
+
+                .card-title {
+                    word-break: break-word;
+                    text-align: center;
+                    padding: 0 10px;
+                }
+
+                .card-body {
+                    padding: 1.25rem 0;
+                }
+
+                .client-logo {
+                    max-width: 60px;
+                    height: 60px;
+                    display: flex;
+                    align-items: center;
+                    position: relative;
+                }
+
+                .time-text {
+                    small {
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: center;
+                        align-items: center;
+                    }
+                }
+
+                .created {
+                    font-weight: 600;
+                }
+
+                .expires {
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    font-weight: 300;
+                    font-style: italic;
+                    color: $text-color;
+                    padding: .5rem;
+                }
+
+                .grant-type {
+                    display: flex;
+                    align-items: center;
+                }
+            }
+
+            @include phone {
+                padding: 28px 20px 16px;
+                border: none;
+                box-shadow: none;
+                background-color: transparent;
+            }
+        }
+    }
+}

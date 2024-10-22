@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1855422">
+  <PropertyGroup>
+    <BuildOutputFolder>.\wwwroot</BuildOutputFolder>
+    <StartupCommand>npm start</StartupCommand>
+    <BuildCommand>npm run build</BuildCommand>
+    <PublishCommand>npm run build</PublishCommand>
+    <CleanCommand>npm run clean</CleanCommand>
+    <JavaScriptTestFramework>Jasmine</JavaScriptTestFramework>
+    <!-- Allows the build (or compile) script located on package.json to run on Build -->
+    <ShouldRunBuildScript>true</ShouldRunBuildScript>
+    <ShouldRunNpmInstall>true</ShouldRunNpmInstall>
+    <!-- Folder where production build objects will be placed -->
+    <PublishAssetsDirectory>$(MSBuildProjectDirectory)\wwwwroot\</PublishAssetsDirectory>
+    <!-- Disable tests -->
+    <JavaScriptTestRoot>
+    </JavaScriptTestRoot>
+    <JavaScriptTestFramework>
+    </JavaScriptTestFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+</Project>

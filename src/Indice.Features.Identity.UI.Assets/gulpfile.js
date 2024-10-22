@@ -21,23 +21,26 @@ import postcssSass from '@csstools/postcss-sass';
 
 const sass = gulpSass(dartSass);
 
-var webroot = './wwwroot/',
-    lib = './wwwroot/lib/';
+let paths = {
+    src: './src/',
+    dist: './wwwroot/'
+};
+
 
 task('sass-bootstrap', function () {
-    return src([webroot + 'css/**/*.scss', '!' + webroot + 'css/identity.tw.scss'])
+    return src([paths.src + 'css/**/*.scss', '!' + paths.src + 'css/identity.tw.scss'])
         .pipe(sass().on('error', sass.logError))
         .pipe(cssbeautify())
-        .pipe(dest(webroot + 'css/'));
+        .pipe(dest(paths.dist + 'css/'));
 });
 
 task('sass:watch', function () {
-    watch([webroot + 'css/**/*.scss', '!' + webroot + 'css/identity.tw.scss'], gulp.series('sass-bootstrap'));
+    watch([paths.src + 'css/**/*.scss', '!' + paths.src + 'css/identity.tw.scss'], gulp.series('sass-bootstrap'));
 });
 
 task('clean:lib', function (cb) {
     deleteAsync([
-        lib + '**'
+        paths.dist + '/lib/**'
     ]).then(function () {
         cb();
     });
@@ -49,12 +52,12 @@ task('copy:libs', async function () {
         return;
     }
     return src(npmDist(), { base: './node_modules' })
-               .pipe(dest(lib));
+        .pipe(dest(paths.dist + '/lib/'));
 });
 
 /* tailwind specific */
 function tailwind(cb) {
-    src(webroot + 'css/identity.tw.scss')
+    src(paths.src + 'css/identity.tw.scss')
         .pipe(stripCssComments({ preserve: false }))
         .pipe(postcss([
             postcssSass,
@@ -67,13 +70,13 @@ function tailwind(cb) {
         ], { includePaths: ["node_modules"] }))
         .pipe(rename({ extname: '.css' }))
         .pipe(cleanCSS({ level: 2 }))
-        .pipe(dest(webroot + 'css/'));
+        .pipe(dest(paths.dist + 'css/'));
     cb();
 };
 
 
 function tailwind_watch(cb) {
-    watch(webroot + 'css/**/*.scss', tailwind);
+    watch(paths.src + 'css/**/*.scss', tailwind);
     cb();
 }
 
@@ -81,3 +84,5 @@ task('tailwind', tailwind);
 task('tailwind:watch', tailwind_watch);
 
 task('sass', series('sass-bootstrap', 'tailwind'));
+task('build', series('sass-bootstrap', 'tailwind', 'copy:libs'));
+task('clean', series('clean:lib'));
