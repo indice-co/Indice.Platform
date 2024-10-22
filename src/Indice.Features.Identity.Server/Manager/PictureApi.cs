@@ -15,6 +15,7 @@ namespace Microsoft.AspNetCore.Routing;
 /// <summary>Contains operations for managing a user's account.</summary>
 public static class PictureApi
 {
+    internal const string CacheTagPrefix = "Picture";
     /// <summary>Adds Indice Identity Server user profile picture endpoints.</summary>
     /// <param name="routes">Indice Identity Server route builder.</param>
     public static IEndpointRouteBuilder MapProfilePictures(this IdentityServerEndpointRouteBuilder routes) {
@@ -32,8 +33,8 @@ public static class PictureApi
         group.WithOpenApi();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
-             .InvalidateCacheTag("Picture", [], [BasicClaimTypes.Subject])
-             .InvalidateCacheTag("Picture", ctx => [new("userId", ctx.User.FindSubjectId())]);
+             .InvalidateCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject])
+             .InvalidateCacheTag(CacheTagPrefix, ctx => [new("userId", ctx.User.FindSubjectId())]);
 
         group.MapPut("my/account/picture", PictureHandlers.SaveMyPicture)
          .WithName(nameof(PictureHandlers.SaveMyPicture))
@@ -53,13 +54,11 @@ public static class PictureApi
         var getMyPicture = routes.MapGroup($"{options.ApiPrefix}");
         getMyPicture.WithTags("MyAccount");
         getMyPicture.RequireAuthorization(builder => builder.RequireAuthenticatedUser())
-            .CacheOutput(policy => policy.SetVaryByRouteValue(["size", "format"])
-                                      .SetVaryByQuery(["size"])
-                                      .SetAutoTag()
-                                      .SetAuthorized()
-                                      .SetCacheKeyPrefix(ctx => ctx.User.FindSubjectId()))
-            .WithCacheTag("Picture", [], [BasicClaimTypes.Subject])
-            .CacheAuthorized();
+                    .CacheOutput(policy => policy.SetVaryByRouteValue(["size", "format"])
+                                              .SetVaryByQuery(["size"])
+                                              .SetAutoTag()
+                                              .SetAuthorized(ctx => ctx.User.FindSubjectId()))
+                    .WithCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject]);
 
         getMyPicture.MapGet("my/account/picture", PictureHandlers.GetMyPicture)
             .WithName(nameof(PictureHandlers.GetMyPicture))
@@ -84,10 +83,18 @@ public static class PictureApi
             return routes;
         }
         var publicPictureGroup = routes.MapGroup("/");
-        publicPictureGroup.WithTags("Picture");
+        publicPictureGroup.WithTags(CacheTagPrefix);
         publicPictureGroup.WithGroupName("identity");
         publicPictureGroup.ExcludeFromDescription();
         publicPictureGroup.AllowAnonymous();
+        publicPictureGroup.CacheOutput(policy => policy.SetVaryByRouteValue(["userId", "size", "format"])
+                                                       .SetVaryByQuery(["size"])
+                                                       .SetAutoTag()
+                                                       .SetAuthorized()
+                                                       //.Expire(TimeSpan.FromMinutes(5))
+                                                       )
+                          .WithCacheTag(CacheTagPrefix, ["userId"]);
+
         publicPictureGroup.MapGet("pictures/{userId}", PictureHandlers.GetAccountPicture)
              .WithName(nameof(PictureHandlers.GetAccountPicture))
              .WithSummary("Get user's profile picture.");
@@ -103,17 +110,6 @@ public static class PictureApi
         publicPictureGroup.MapGet("pictures/{userId}/{size}.{format:regex(jpg|png|webp)}", PictureHandlers.GetAccountPictureSizeFormat)
              .WithName(nameof(PictureHandlers.GetAccountPictureSizeFormat))
              .WithSummary("Get user's profile picture.");
-
-
-
-#if NET7_0_OR_GREATER
-        publicPictureGroup.CacheOutput(policy => policy.SetVaryByRouteValue(["userId", "size", "format"])
-                                                       .SetVaryByQuery(["size"])
-                                                       .SetAutoTag()
-                                                       .SetAuthorized())
-                          .WithCacheTag("Picture", ["userId"])
-                          .CacheAuthorized();
-#endif
 
         return group;
     }

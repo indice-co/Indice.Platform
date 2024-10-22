@@ -53,7 +53,7 @@
                         <div class="bg-white shadow rounded-sm">
                             <ng-container *ngIf="timelineEntries$ | async as timelineEntries">
                                 <div class="mt-2 px-4 py-1 flow-root">
-                                    <app-case-timeline [timelineEntries]="timelineEntries"></app-case-timeline>
+                                    <app-case-timeline [timelineEntries]="timelineEntries" [hideStatuses]="caseTypeConfig?.hideStatuses ?? false"></app-case-timeline>
                                 </div>
                             </ng-container>
                         </div>

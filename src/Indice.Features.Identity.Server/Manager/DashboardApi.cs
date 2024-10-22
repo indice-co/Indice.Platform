@@ -1,4 +1,5 @@
-﻿using IdentityModel;
+﻿using Azure.Core.GeoJson;
+using IdentityModel;
 using Indice.AspNetCore.Http.Filters;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
@@ -6,12 +7,15 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Routing;
 
 /// <summary>Contains operations that provide useful information for the system.</summary>
 public static class DashboardApi
 {
+    internal const string CacheTagPrefix = "Dashboard";
     /// <summary>Adds endpoints that provide useful information for the system.</summary>
     /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageDashboard(this IdentityServerEndpointRouteBuilder routes) {
@@ -26,6 +30,7 @@ public static class DashboardApi
             .AddAuthenticationSchemes(IdentityEndpoints.AuthenticationScheme)
             .RequireClaim(BasicClaimTypes.Scope, allowedScopes)
         );
+
         group.WithOpenApi();
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized);
@@ -34,20 +39,29 @@ public static class DashboardApi
              .WithName(nameof(DashboardHandlers.GetNews))
              .WithSummary("Displays blog posts from the official IdentityServer blog.")
              .AllowAnonymous()
-             .CacheOutputMemory(expiration: 3600);
+             .CacheOutput(policy => policy.SetAuthorized()
+                                          .Expire(TimeSpan.FromMinutes(3600))
+                                          .Tag(CacheTagPrefix));
 
         group.MapGet("summary", DashboardHandlers.GetSystemSummary)
              .WithName(nameof(DashboardHandlers.GetSystemSummary))
              .WithSummary("Gets some useful information as a summary of the system.")
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersOrClientsReader)
-             .CacheOutputMemory(expiration: 5, varyByClaimType: new string[] { JwtClaimTypes.Subject });
+             .CacheOutput(policy => policy.SetAutoTag()
+                                          .SetAuthorized()
+                                          .Expire(TimeSpan.FromMinutes(5))
+                                          .SetCacheKeyPrefix(ctx=>ctx.User.FindSubjectId())
+                                          .Tag(CacheTagPrefix))
+             .WithCacheTag(CacheTagPrefix, [], [JwtClaimTypes.Subject]);
 
         group.MapGet("ui", DashboardHandlers.GetUiFeatures)
              .WithName(nameof(DashboardHandlers.GetUiFeatures))
              .WithSummary("Gets the UI features status.")
              .AllowAnonymous()
-             .CacheOutputMemory(expiration: 120);
+             .CacheOutput(policy => policy.SetAuthorized()
+                                          .Expire(TimeSpan.FromMinutes(120))
+                                          .Tag(CacheTagPrefix));
 
         return group;
     }

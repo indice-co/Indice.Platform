@@ -34,16 +34,19 @@ public static class MediaApi
              .WithSummary("Retrieves an existing file.")
              .ProducesProblem(StatusCodes.Status404NotFound)
              .Produces(StatusCodes.Status200OK, typeof(IFormFile))
-             .CacheOutputMemory()
-             .AllowAnonymous();
+             .AllowAnonymous()
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(30))
+                                          .SetAuthorized());
 
         group.MapGet("/media/{fileGuid}.{format}", MediaHandlers.GetFile)
              .WithName(nameof(MediaHandlers.GetFile))
              .WithSummary("Retrieves an existing file.")
              .ProducesProblem(StatusCodes.Status404NotFound)
              .Produces(StatusCodes.Status200OK, typeof(IFormFile))
-             .CacheOutputMemory()
-             .AllowAnonymous();
+             .AllowAnonymous()
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(30))
+                                          .SetAuthorized()
+                                          .SetVaryByRouteValue(["fileGuid", "format"]));
 
         group.MapGet("/media/{fileId}", MediaHandlers.GetFileDetails)
              .WithName(nameof(MediaHandlers.GetFileDetails))

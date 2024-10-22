@@ -14,30 +14,27 @@ public static class OutputCacheFilterExtensions
 {
 
     /// <summary>
-    /// Adds support for caching authorized request as well as public ones (default behavior). It adds metadata used by the output cache in conjunction with the <see cref="SetAuthorized"/> policy.
+    /// Removes support for caching authorized request that has been set with the <see cref="SetAuthorized"/> policy.
     /// </summary>
     /// <param name="builder">The builder to configure</param>
     /// <returns>The builder for further configuration</returns>
-    /// <remarks><strong>Be careful!!</strong> This could make endpoints that otherwize would not cache between different user context now to return the same value.</remarks>
-    public static RouteGroupBuilder CacheAuthorized(this RouteGroupBuilder builder) => CacheAuthorized<RouteGroupBuilder>(builder);
+    public static RouteGroupBuilder IgnoreCacheAuthorized(this RouteGroupBuilder builder) => IgnoreCacheAuthorized<RouteGroupBuilder>(builder);
 
     /// <summary>
-    /// Adds support for caching authorized request as well as public ones (default behavior). It adds metadata used by the output cache in conjunction with the <see cref="SetAuthorized"/> policy.
+    /// Removes support for caching authorized request that has been set with the <see cref="SetAuthorized"/> policy.
     /// </summary>
     /// <param name="builder">The builder to configure</param>
     /// <returns>The builder for further configuration</returns>
-    /// <remarks><strong>Be careful!!</strong> This could make endpoints that otherwize would not cache between different user context now to return the same value.</remarks>
-    public static RouteHandlerBuilder CacheAuthorized(this RouteHandlerBuilder builder) => CacheAuthorized<RouteHandlerBuilder>(builder);
+    public static RouteHandlerBuilder IgnoreCacheAuthorized(this RouteHandlerBuilder builder) => IgnoreCacheAuthorized<RouteHandlerBuilder>(builder);
 
     /// <summary>
-    /// Adds support for caching authorized request as well as public ones (default behavior). It adds metadata used by the output cache in conjunction with the <see cref="SetAuthorized"/> policy.
+    /// Removes support for caching authorized request that has been set with the <see cref="SetAuthorized"/> policy.
     /// </summary>
     /// <typeparam name="TBuilder">The builder type</typeparam>
     /// <param name="builder">The builder to configure</param>
     /// <returns>The builder for further configuration</returns>
-    /// <remarks><strong>Be careful!!</strong> This could make endpoints that otherwize would not cache between different user context now to return the same value.</remarks>
-    public static TBuilder CacheAuthorized<TBuilder>(this TBuilder builder) where TBuilder : IEndpointConventionBuilder {
-        builder.WithMetadata(new CacheAuthorizedMetadata());
+    public static TBuilder IgnoreCacheAuthorized<TBuilder>(this TBuilder builder) where TBuilder : IEndpointConventionBuilder {
+        builder.WithMetadata(new IgnoreCacheAuthorizedMetadata());
         return builder;
     }
 
@@ -88,13 +85,15 @@ public static class OutputCacheFilterExtensions
     /// Adds a policy that varies the cache key using the <strong>CacheAuthorized()</strong> metadata.
     /// </summary>
     /// <param name="builder">The builder to configure</param>
+    /// <param name="keyPrefix">The value to vary the cache key by. Optional will also set the Cache key prefix policy</param>
     /// <remarks><strong>Be careful!!</strong> This could make endpoints that otherwize would not cache between different user context now to return the same value.</remarks>
-    public static OutputCachePolicyBuilder SetAuthorized(this OutputCachePolicyBuilder builder) {
+    public static OutputCachePolicyBuilder SetAuthorized(this OutputCachePolicyBuilder builder, Func<HttpContext, string>? keyPrefix = null) {
         ArgumentNullException.ThrowIfNull(builder);
+        if (keyPrefix is not null) {
+            builder.SetCacheKeyPrefix(keyPrefix);
+        }
         return builder.AddPolicy<SetCacheAuthorizedPolicy>();
     }
-
-
 
     /// <summary>Adds the ability to invalidate cache for responses.</summary>
     /// <typeparam name="TBuilder"></typeparam>
@@ -102,7 +101,7 @@ public static class OutputCacheFilterExtensions
     /// <param name="tagName">A tag name that must be invalidated.</param>
     /// <returns>The builder.</returns>
     public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagName) where TBuilder : IEndpointConventionBuilder {
-        ArgumentException.ThrowIfNullOrEmpty(tagName, nameof(tagName));
+        ArgumentException.ThrowIfNullOrEmpty(tagName);
         InvalidateCacheTag(builder, getTagName: (httpContext) => ValueTask.FromResult(tagName));
         return builder;
     }
@@ -113,7 +112,7 @@ public static class OutputCacheFilterExtensions
     /// <param name="tagPrefix">The tag prefix to use</param>
     /// <param name="routeValueNames">Route parameter names</param>
     /// <returns>The builder.</returns>
-    public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, string [] routeValueNames) where TBuilder : IEndpointConventionBuilder =>
+    public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, string[] routeValueNames) where TBuilder : IEndpointConventionBuilder =>
         InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagMetadata.CreateTag(httpContext, tagPrefix, routeValueNames, [])));
 
     /// <summary>Adds the ability to invalidate cache for responses.</summary>
@@ -147,7 +146,7 @@ public static class OutputCacheFilterExtensions
                 return new EndpointFilterDelegate(async (invocationContext) => {
                     var requestMethod = invocationContext.HttpContext.Request.Method;
                     var outputCacheStore = invocationContext.HttpContext.RequestServices.GetRequiredService<IOutputCacheStore>();
-                    
+
                     var result = await next(invocationContext);
 
                     var isSuccessStatusCode = invocationContext.HttpContext.Response.StatusCode >= 200 && invocationContext.HttpContext.Response.StatusCode < 300;
@@ -174,35 +173,19 @@ public static class OutputCacheFilterExtensions
 internal sealed class SetCacheAuthorizedPolicy : IOutputCachePolicy
 {
     /// <inheritdoc/>
-    ValueTask IOutputCachePolicy.CacheRequestAsync(OutputCacheContext context, CancellationToken cancellationToken) {
-        var metadata = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<CacheAuthorizedMetadata>();
-        metadata?.SetAllowCache(context);
+    ValueTask IOutputCachePolicy.CacheRequestAsync(OutputCacheContext context, CancellationToken cancellation) {
+        var metadata = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<IgnoreCacheAuthorizedMetadata>();
+        if (metadata is null) {
+            SetAllowCache(context);
+        }
         return ValueTask.CompletedTask;
     }
     /// <inheritdoc/>
-    ValueTask IOutputCachePolicy.ServeFromCacheAsync(OutputCacheContext context, CancellationToken cancellationToken) => ValueTask.CompletedTask;
+    ValueTask IOutputCachePolicy.ServeFromCacheAsync(OutputCacheContext context, CancellationToken cancellation) => ValueTask.CompletedTask;
     /// <inheritdoc/>
-    ValueTask IOutputCachePolicy.ServeResponseAsync(OutputCacheContext context, CancellationToken cancellationToken) => ValueTask.CompletedTask;
-}
+    ValueTask IOutputCachePolicy.ServeResponseAsync(OutputCacheContext context, CancellationToken cancellation) => ValueTask.CompletedTask;
 
-/// <summary>
-/// A policy that sets the cache tag using the specified value.
-/// </summary>
-internal sealed class SetCacheAutoTagPolicy : IOutputCachePolicy
-{
-    /// <inheritdoc/>
-    ValueTask IOutputCachePolicy.CacheRequestAsync(OutputCacheContext context, CancellationToken cancellationToken) {
-        var metadata = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<CacheTagMetadata>();
-        metadata?.SetTag(context);
-        return ValueTask.CompletedTask;
-    }
-    /// <inheritdoc/>
-    ValueTask IOutputCachePolicy.ServeFromCacheAsync(OutputCacheContext context, CancellationToken cancellationToken) => ValueTask.CompletedTask;
-    /// <inheritdoc/>
-    ValueTask IOutputCachePolicy.ServeResponseAsync(OutputCacheContext context, CancellationToken cancellationToken) => ValueTask.CompletedTask;
-}
 
-internal sealed record CacheAuthorizedMetadata {
     internal void SetAllowCache(OutputCacheContext cacheContext) {
         var request = cacheContext.HttpContext.Request;
         var shoudCache = HttpMethods.IsGet(request.Method) || HttpMethods.IsHead(request.Method);
@@ -213,6 +196,25 @@ internal sealed record CacheAuthorizedMetadata {
         cacheContext.AllowCacheLookup = cacheContext.AllowCacheStorage = true;
     }
 }
+
+/// <summary>
+/// A policy that sets the cache tag using the specified value.
+/// </summary>
+internal sealed class SetCacheAutoTagPolicy : IOutputCachePolicy
+{
+    /// <inheritdoc/>
+    ValueTask IOutputCachePolicy.CacheRequestAsync(OutputCacheContext context, CancellationToken cancellation) {
+        var metadata = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<CacheTagMetadata>();
+        metadata?.SetTag(context);
+        return ValueTask.CompletedTask;
+    }
+    /// <inheritdoc/>
+    ValueTask IOutputCachePolicy.ServeFromCacheAsync(OutputCacheContext context, CancellationToken cancellation) => ValueTask.CompletedTask;
+    /// <inheritdoc/>
+    ValueTask IOutputCachePolicy.ServeResponseAsync(OutputCacheContext context, CancellationToken cancellation) => ValueTask.CompletedTask;
+}
+
+internal sealed record IgnoreCacheAuthorizedMetadata();
 
 internal sealed record CacheTagMetadata(string TagPrefix, string[]? RouteValueNames, string[]? ClaimTypes)
 {

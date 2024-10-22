@@ -1,4 +1,6 @@
 ﻿using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using IdentityModel;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data;
@@ -15,6 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
+using Indice.Extensions;
 
 namespace Indice.Features.Identity.Server.Manager;
 
@@ -145,6 +148,7 @@ internal static partial class PictureHandlers
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureSizeFormat(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
+
         Base64Id userId,
         int size,
         string format,
@@ -176,8 +180,9 @@ internal static partial class PictureHandlers
             }
             return TypedResults.NotFound();
         }
-        
-        return TypedResults.File(stream, contentType: contentType);
+
+        var hash = MD5.HashData(Encoding.UTF8.GetBytes(userId)).ToBase64UrlSafe();
+        return TypedResults.File(stream, contentType: contentType, entityTag: new Microsoft.Net.Http.Headers.EntityTagHeaderValue(new Microsoft.Extensions.Primitives.StringSegment($"\"{hash}\"")));
     }
 
     private static string? GetImageContentType(string? fileExtention) {
