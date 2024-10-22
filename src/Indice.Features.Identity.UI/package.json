@@ -11,8 +11,8 @@
     "jquery-validation-unobtrusive": "4.0.0",
     "knockout": "3.5.1",
     "knockout-secure-binding": "0.5.5",
-    "popper.js": "2.0.0-next.3",
-    "popper.js.v1": "npm:popper.js@^1.16.1",
+    "@popperjs/core": "2.11.8",
+    "popper.js": "1.16.1",
     "swiper": "9.4.1",
     "flowbite": "2.5.2"
   },
@@ -31,17 +31,17 @@
     "gulp-strip-debug": "6.0.0",
     "gulp-uglify": "3.0.2",
     "postcss-assets": "6.0.0",
-    "sass": "1.77.1",
+    "sass": "1.80.3",
 
     "postcss-simple-vars": "7.0.1",
-    "postcss-nested": "6.0.1",
-    "postcss-mixins": "10.0.1",
+    "postcss-nested": "6.2.0",
+    "postcss-mixins": "11.0.3",
     "@csstools/postcss-sass": "5.1.1",
     "gulp-postcss": "10.0.0",
     "gulp-rename": "2.0.0",
-    "postcss": "8.4.38",
+    "postcss": "8.4.47",
     "precss": "4.0.0",
-    "tailwindcss": "3.4.13"
+    "tailwindcss": "3.4.14"
   },
   "name": "indice-features-identity-ui",
   "private": true,
