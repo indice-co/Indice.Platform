@@ -285,6 +285,23 @@ internal class AdminCasesController : ControllerBase
         return File(file, "application/pdf", fileName);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="caseId"></param>
+    /// <param name="fieldName"></param>
+    /// <returns></returns>
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
+    [HttpDelete("{caseId:guid}/delete-attachment-by-field-name")]
+    public async Task<IActionResult> DeleteAttachmentByFieldName(Guid caseId, string fieldName) {
+        var deleteSucceeded = await _adminCaseService.DeleteAttachmentByField(User, caseId, fieldName);
+        if (!deleteSucceeded) {
+            return NotFound();
+        }
+        return Ok();
+    }
+
     private async Task<byte[]> CreatePdf(Case @case) {
         var template = await _caseTemplateService.RenderTemplateAsync(@case);
         var pdfOptions = new PdfOptions(@case.CaseType.Config);

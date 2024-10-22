@@ -103,4 +103,13 @@ public interface IAdminCaseService
     /// <param name="metadata">The metadata to add or edit.</param>
     /// <returns></returns>
     Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata);
+
+    /// <summary>
+    /// Deletes an attachment with the given fieldName from the case 
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="caseId"></param>
+    /// <param name="fieldName"></param>
+    /// <returns></returns>
+    Task<bool> DeleteAttachmentByField(ClaimsPrincipal user, Guid caseId, string fieldName);
 }

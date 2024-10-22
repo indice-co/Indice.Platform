@@ -477,6 +477,22 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return null;
     }
 
+    public async Task<bool> DeleteAttachmentByField(ClaimsPrincipal user, Guid caseId, string fieldName) {
+        var caseObj = await GetCaseById(user, caseId, false);
+        var stringifiedCaseData = caseObj.DataAs<string>();
+        var json = JsonDocument.Parse(stringifiedCaseData);
+        bool found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
+
+        if (found) {
+            var query = _dbContext.Attachments.FirstOrDefault(x => x.Id == new Guid(attachmentId.ToString()));
+            _dbContext.Attachments.Remove(query);
+            //attachment deleted successfully
+            return true;
+        }
+        //attachment not found
+        return false;
+    }
+
     public async Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata) {
         // Check that user role can view this case
         await GetCaseById(User, caseId, false);
