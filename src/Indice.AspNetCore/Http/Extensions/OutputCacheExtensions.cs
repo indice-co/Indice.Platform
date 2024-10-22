@@ -1,14 +1,10 @@
 ﻿#if NET7_0_OR_GREATER
 #nullable enable
 using System.Security.Claims;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OutputCaching;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using SixLabors.Fonts.Tables.AdvancedTypographic;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -75,7 +71,7 @@ public static class OutputCacheFilterExtensions
     /// <param name="claimTypes">Claim type names</param>
     /// <returns>The builder for further configuration</returns>
     public static TBuilder WithCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, string[]? routeValueNames, string[]? claimTypes) where TBuilder : IEndpointConventionBuilder {
-        builder.WithMetadata(new CacheTagPrefixMetadata(tagPrefix, routeValueNames, claimTypes));
+        builder.WithMetadata(new CacheTagMetadata(tagPrefix, routeValueNames, claimTypes));
         return builder;
     }
 
@@ -118,7 +114,7 @@ public static class OutputCacheFilterExtensions
     /// <param name="routeValueNames">Route parameter names</param>
     /// <returns>The builder.</returns>
     public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, string [] routeValueNames) where TBuilder : IEndpointConventionBuilder =>
-        InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagPrefixMetadata.CreateTag(httpContext, tagPrefix, routeValueNames)));
+        InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagMetadata.CreateTag(httpContext, tagPrefix, routeValueNames, [])));
 
     /// <summary>Adds the ability to invalidate cache for responses.</summary>
     /// <typeparam name="TBuilder"></typeparam>
@@ -128,7 +124,7 @@ public static class OutputCacheFilterExtensions
     /// <param name="claimTypes">Claim type names</param>
     /// <returns>The builder.</returns>
     public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, string[] routeValueNames, string[] claimTypes) where TBuilder : IEndpointConventionBuilder =>
-        InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagPrefixMetadata.CreateTag(httpContext, tagPrefix, routeValueNames, claimTypes)));
+        InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagMetadata.CreateTag(httpContext, tagPrefix, routeValueNames, claimTypes)));
 
     /// <summary>Adds the ability to invalidate cache for responses.</summary>
     /// <typeparam name="TBuilder"></typeparam>
@@ -137,7 +133,7 @@ public static class OutputCacheFilterExtensions
     /// <param name="getTagData">The method that will return the tag data to use to create the tagName to invalidate</param>
     /// <returns>The builder.</returns>
     public static TBuilder InvalidateCacheTag<TBuilder>(this TBuilder builder, string tagPrefix, Func<HttpContext, IEnumerable<KeyValuePair<string, object?>>> getTagData) where TBuilder : IEndpointConventionBuilder =>
-        InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagPrefixMetadata.CreateTag(tagPrefix, getTagData(httpContext))));
+        InvalidateCacheTag(builder, (httpContext) => ValueTask.FromResult(CacheTagMetadata.CreateTag(tagPrefix, getTagData(httpContext))));
 
 
     /// <summary>Adds the ability to invalidate cache for responses.</summary>
@@ -196,7 +192,7 @@ internal sealed class SetCacheAutoTagPolicy : IOutputCachePolicy
 {
     /// <inheritdoc/>
     ValueTask IOutputCachePolicy.CacheRequestAsync(OutputCacheContext context, CancellationToken cancellationToken) {
-        var metadata = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<CacheTagPrefixMetadata>();
+        var metadata = context.HttpContext.GetEndpoint()?.Metadata.GetMetadata<CacheTagMetadata>();
         metadata?.SetTag(context);
         return ValueTask.CompletedTask;
     }
@@ -206,7 +202,7 @@ internal sealed class SetCacheAutoTagPolicy : IOutputCachePolicy
     ValueTask IOutputCachePolicy.ServeResponseAsync(OutputCacheContext context, CancellationToken cancellationToken) => ValueTask.CompletedTask;
 }
 
-internal record CacheAuthorizedMetadata {
+internal sealed record CacheAuthorizedMetadata {
     internal void SetAllowCache(OutputCacheContext cacheContext) {
         var request = cacheContext.HttpContext.Request;
         var shoudCache = HttpMethods.IsGet(request.Method) || HttpMethods.IsHead(request.Method);
@@ -218,20 +214,17 @@ internal record CacheAuthorizedMetadata {
     }
 }
 
-internal record CacheTagPrefixMetadata(string TagPrefix, string[]? RouteValueNames, string[]? ClaimTypes)
+internal sealed record CacheTagMetadata(string TagPrefix, string[]? RouteValueNames, string[]? ClaimTypes)
 {
     internal const char TAG_PART_DELIMITER = '|';
     internal string SetTag(OutputCacheContext cacheContext) {
-        var routeParams = RouteValueNames?.Length > 0 ? RouteValueNames.Select(name => new KeyValuePair<string, object?>(name, cacheContext.HttpContext.GetRouteValue(name))) 
-                                               : [];
-        var claimParams = ClaimTypes?.Select(name => new KeyValuePair<string, object?>(name, cacheContext.HttpContext.User.FindFirstValue(name))) ?? [];
-        var tag = CreateTag(TagPrefix, [.. routeParams, .. claimParams]);
+        var tag = CreateTag(cacheContext.HttpContext, TagPrefix, RouteValueNames ?? [], ClaimTypes ?? []);
         cacheContext.Tags.Add(tag);
         return tag;
     }
 
 
-    internal static string CreateTag(HttpContext httpContext, string tagPrefix, string[] RouteValueNames, string[] claimTypes = null) {
+    internal static string CreateTag(HttpContext httpContext, string tagPrefix, string[] RouteValueNames, string[] claimTypes) {
         var routeParams = RouteValueNames.Select(name => new KeyValuePair<string, object?>(name, httpContext.GetRouteValue(name)));
         var claimParams = claimTypes.Select(name => new KeyValuePair<string, object?>(name, httpContext.User.FindFirstValue(name)));
         return CreateTag(tagPrefix, [.. routeParams, .. claimParams]);
