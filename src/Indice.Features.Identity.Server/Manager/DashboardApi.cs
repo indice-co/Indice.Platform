@@ -39,24 +39,29 @@ public static class DashboardApi
              .WithName(nameof(DashboardHandlers.GetNews))
              .WithSummary("Displays blog posts from the official IdentityServer blog.")
              .AllowAnonymous()
-             .CacheOutput(policy => policy.SetAuthorized().Expire(TimeSpan.FromMinutes(3600)))
-             .CacheAuthorized();
+             .CacheOutput(policy => policy.SetAuthorized()
+                                          .Expire(TimeSpan.FromMinutes(3600))
+                                          .Tag(CacheTagPrefix));
 
         group.MapGet("summary", DashboardHandlers.GetSystemSummary)
              .WithName(nameof(DashboardHandlers.GetSystemSummary))
              .WithSummary("Gets some useful information as a summary of the system.")
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersOrClientsReader)
-             .CacheOutput(policy => policy.SetAutoTag().SetAuthorized().Expire(TimeSpan.FromMinutes(5)))
-             .CacheAuthorized()
+             .CacheOutput(policy => policy.SetAutoTag()
+                                          .SetAuthorized()
+                                          .Expire(TimeSpan.FromMinutes(5))
+                                          .SetCacheKeyPrefix(ctx=>ctx.User.FindSubjectId())
+                                          .Tag(CacheTagPrefix))
              .WithCacheTag(CacheTagPrefix, [], [JwtClaimTypes.Subject]);
 
         group.MapGet("ui", DashboardHandlers.GetUiFeatures)
              .WithName(nameof(DashboardHandlers.GetUiFeatures))
              .WithSummary("Gets the UI features status.")
              .AllowAnonymous()
-             .CacheOutput(policy => policy.SetAuthorized().Expire(TimeSpan.FromMinutes(120)))
-             .CacheAuthorized();
+             .CacheOutput(policy => policy.SetAuthorized()
+                                          .Expire(TimeSpan.FromMinutes(120))
+                                          .Tag(CacheTagPrefix));
 
         return group;
     }

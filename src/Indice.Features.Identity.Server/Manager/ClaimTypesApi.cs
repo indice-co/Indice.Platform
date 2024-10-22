@@ -47,8 +47,7 @@ public static class ClaimTypesApi
                                           .SetAutoTag()
                                           .SetAuthorized()
                                           .SetVaryByRouteValue(["claimTypeId"]))
-             .WithCacheTag(CacheTagPrefix, ["claimTypeId"])
-             .CacheAuthorized();
+             .WithCacheTag(CacheTagPrefix, ["claimTypeId"]);
 
         group.MapPost("", ClaimTypeHandlers.CreateClaimType)
              .WithName(nameof(ClaimTypeHandlers.CreateClaimType))

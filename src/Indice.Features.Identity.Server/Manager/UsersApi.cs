@@ -1,4 +1,5 @@
-﻿using Indice.AspNetCore.Filters;
+﻿using IdentityModel;
+using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Http.Filters;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
@@ -43,80 +44,62 @@ public static class UsersApi
         group.MapGet("{userId}", UserHandlers.GetUser)
              .WithName(nameof(UserHandlers.GetUser))
              .WithSummary("Gets a user by it's unique id.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader)
-             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(1))
-                                          .SetAutoTag()
-                                          .SetAuthorized()
-                                          .SetVaryByRouteValue(["userId"]))
-             .WithCacheTag(CacheTagPrefix, ["userId"], [])
-             .CacheAuthorized();
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
         group.MapPost("", UserHandlers.CreateUser)
              .WithName(nameof(UserHandlers.CreateUser))
              .WithSummary("Creates a new user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .WithParameterValidation<CreateUserRequest>();
+             .WithParameterValidation<CreateUserRequest>()
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
 
         group.MapPut("{userId}", UserHandlers.UpdateUser)
              .WithName(nameof(UserHandlers.UpdateUser))
              .WithSummary("Updates an existing user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .WithParameterValidation<UpdateUserRequest>()
-             .InvalidateCacheTag(CacheTagPrefix, ["userId"], []);
+             .WithParameterValidation<UpdateUserRequest>();
 
         group.MapDelete("{userId}", UserHandlers.DeleteUser)
              .WithName(nameof(UserHandlers.DeleteUser))
              .WithSummary("Permanently deletes an existing user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCacheTag(CacheTagPrefix, ["userId"], []);
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix);
 
         group.MapPost("{userId}/email/confirmation", UserHandlers.ResendConfirmationEmail)
              .WithName(nameof(UserHandlers.ResendConfirmationEmail))
-             .WithSummary("Resends the confirmation email for a given user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+             .WithSummary("Resends the confirmation email for a given user.");
 
         group.MapPost("{userId}/roles/{roleId}", UserHandlers.AddUserRole)
              .WithName(nameof(UserHandlers.AddUserRole))
              .WithSummary("Adds a new role to the specified user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCacheTag(CacheTagPrefix, ["userId"], []);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapDelete("{userId}/roles/{roleId}", UserHandlers.DeleteUserRole)
              .WithName(nameof(UserHandlers.DeleteUserRole))
              .WithSummary("Removes an existing role from the specified user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCacheTag(CacheTagPrefix, ["userId"], []);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapGet("{userId}/claims/{claimId}", UserHandlers.GetUserClaim)
              .WithName(nameof(UserHandlers.GetUserClaim))
              .WithSummary("Gets a specified claim for a given user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader)
-             .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(1))
-                                          .SetAutoTag()
-                                          .SetAuthorized()
-                                          .SetVaryByRouteValue(["userId", "claimId"]))
-             .WithCacheTag(CacheTagPrefix, ["userId"], [])
-             .CacheAuthorized();
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
         group.MapPost("{userId}/claims", UserHandlers.AddUserClaim)
              .WithName(nameof(UserHandlers.AddUserClaim))
              .WithSummary("Adds a claim for the specified user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .WithParameterValidation<CreateClaimRequest>()
-             .InvalidateCacheTag(CacheTagPrefix, ["userId"], []);
+             .WithParameterValidation<CreateClaimRequest>();
 
         group.MapPut("{userId}/claims/{claimId}", UserHandlers.UpdateUserClaim)
              .WithName(nameof(UserHandlers.UpdateUserClaim))
              .WithSummary("Updates an existing user claim.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .WithParameterValidation<CreateUserRequest>()
-             .InvalidateCacheTag(CacheTagPrefix, ["userId"], []);
+             .WithParameterValidation<CreateUserRequest>();
 
         group.MapDelete("{userId}/claims/{claimId}", UserHandlers.DeleteUserClaim)
              .WithName(nameof(UserHandlers.DeleteUserClaim))
              .WithSummary("Permanently deletes a specified claim from a user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCacheTag(CacheTagPrefix, ["userId"], []);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapGet("{userId}/applications", UserHandlers.GetUserApplications)
              .WithName(nameof(UserHandlers.GetUserApplications))
@@ -142,20 +125,17 @@ public static class UsersApi
              .WithName(nameof(UserHandlers.SetUserBlock))
              .WithSummary("Toggles user block state.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCacheTag(CacheTagPrefix, ["userId"], [])
              .WithParameterValidation<SetUserBlockRequest>();
 
         group.MapPut("{userId}/unlock", UserHandlers.UnlockUser)
              .WithName(nameof(UserHandlers.UnlockUser))
              .WithSummary("Unlocks a user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCacheTag(CacheTagPrefix, ["userId"], []);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
 
         group.MapPut("{userId}/set-password", UserHandlers.SetPassword)
              .WithName(nameof(UserHandlers.SetPassword))
              .WithSummary("Sets the password for a given user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCacheTag(CacheTagPrefix, ["userId"], [])
              .WithParameterValidation<SetPasswordRequest>();
 
 

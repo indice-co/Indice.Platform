@@ -36,8 +36,7 @@ public static class MediaApi
              .Produces(StatusCodes.Status200OK, typeof(IFormFile))
              .AllowAnonymous()
              .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(30))
-                                          .SetAuthorized())
-             .CacheAuthorized();
+                                          .SetAuthorized());
 
         group.MapGet("/media/{fileGuid}.{format}", MediaHandlers.GetFile)
              .WithName(nameof(MediaHandlers.GetFile))
@@ -47,8 +46,7 @@ public static class MediaApi
              .AllowAnonymous()
              .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(30))
                                           .SetAuthorized()
-                                          .SetVaryByRouteValue(["fileGuid", "format"]))
-             .CacheAuthorized();
+                                          .SetVaryByRouteValue(["fileGuid", "format"]));
 
         group.MapGet("/media/{fileId}", MediaHandlers.GetFileDetails)
              .WithName(nameof(MediaHandlers.GetFileDetails))

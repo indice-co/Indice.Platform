@@ -54,14 +54,13 @@ public static class RolesApi
                                           .SetAutoTag()
                                           .SetAuthorized()
                                           .SetVaryByRouteValue(["roleId"]))
-             .WithCacheTag(CacheTagPrefix, ["roleId"])
-             .CacheAuthorized();
+             .WithCacheTag(CacheTagPrefix, ["roleId"]);
 
         group.MapPost("", RoleHandlers.CreateRole)
              .WithName(nameof(RoleHandlers.CreateRole))
              .WithSummary("Creates a new role.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
-             .InvalidateCacheTag(DashboardApi.CacheTagPrefix, [], [JwtClaimTypes.Subject])
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix)
              .WithParameterValidation<CreateRoleRequest>();
 
         group.MapPut("{roleId}", RoleHandlers.UpdateRole)

@@ -47,14 +47,13 @@ public static class ClientsApi
              .CacheOutput(policy => policy.Expire(TimeSpan.FromMinutes(60))
                                           .SetAuthorized()
                                           .SetAutoTag())
-             .WithCacheTag(CacheTagPrefix, ["clientId"], [])
-             .CacheAuthorized();
+             .WithCacheTag(CacheTagPrefix, ["clientId"], []);
 
         group.MapPost("", ClientHandlers.CreateClient)
              .WithName(nameof(ClientHandlers.CreateClient))
              .WithSummary("Creates a new client.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter)
-             .InvalidateCacheTag(DashboardApi.CacheTagPrefix, [], [JwtClaimTypes.Subject])
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix)
              .WithParameterValidation<CreateClientRequest>();
 
         group.MapPut("{clientId}", ClientHandlers.UpdateClient)
@@ -146,7 +145,7 @@ public static class ClientsApi
         group.MapDelete("{clientId}", ClientHandlers.DeleteClient)
              .WithName(nameof(ClientHandlers.DeleteClient))
              .WithSummary("Permanently deletes an existing client.")
-             .InvalidateCacheTag(DashboardApi.CacheTagPrefix, [], [JwtClaimTypes.Subject])
+             .InvalidateCacheTag(DashboardApi.CacheTagPrefix)
              .InvalidateCacheTag(CacheTagPrefix, ["clientId"], [])
              .RequireAuthorization(IdentityEndpoints.Policies.BeClientsWriter);
 

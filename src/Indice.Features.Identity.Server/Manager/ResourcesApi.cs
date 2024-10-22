@@ -44,8 +44,7 @@ public static class ResourcesApi
                                           .SetAutoTag()
                                           .SetAuthorized()
                                           .SetVaryByRouteValue(["resourceId"]))
-             .WithCacheTag(CacheTagPrefix, ["resourceId"])
-             .CacheAuthorized();
+             .WithCacheTag(CacheTagPrefix, ["resourceId"]);
 
         group.MapPost("identity/{resourceId:int}", ResourceHandlers.CreateIdentityResource)
              .WithName(nameof(ResourceHandlers.CreateIdentityResource))

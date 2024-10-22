@@ -57,10 +57,8 @@ public static class PictureApi
                     .CacheOutput(policy => policy.SetVaryByRouteValue(["size", "format"])
                                               .SetVaryByQuery(["size"])
                                               .SetAutoTag()
-                                              .SetAuthorized()
-                                              .SetCacheKeyPrefix(ctx => ctx.User.FindSubjectId()))
-                    .WithCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject])
-                    .CacheAuthorized();
+                                              .SetAuthorized(ctx => ctx.User.FindSubjectId()))
+                    .WithCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject]);
 
         getMyPicture.MapGet("my/account/picture", PictureHandlers.GetMyPicture)
             .WithName(nameof(PictureHandlers.GetMyPicture))
@@ -95,8 +93,7 @@ public static class PictureApi
                                                        .SetAuthorized()
                                                        //.Expire(TimeSpan.FromMinutes(5))
                                                        )
-                          .WithCacheTag(CacheTagPrefix, ["userId"])
-                          .CacheAuthorized();
+                          .WithCacheTag(CacheTagPrefix, ["userId"]);
 
         publicPictureGroup.MapGet("pictures/{userId}", PictureHandlers.GetAccountPicture)
              .WithName(nameof(PictureHandlers.GetAccountPicture))
