@@ -8,8 +8,8 @@ import { CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.
 })
 export class CaseTimelineComponent implements OnInit {
 
-  @Input()
-  timelineEntries: TimelineEntry[] | undefined;
+  @Input() timelineEntries: TimelineEntry[] | undefined;
+  @Input() hideStatuses: boolean = false;
 
   constructor(private api: CasesApiService) { }
 

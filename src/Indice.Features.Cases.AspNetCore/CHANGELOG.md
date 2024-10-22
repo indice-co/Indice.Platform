@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.32.1] - 2024-10-22
+### Added
+ - `hideStatuses` case type configuration to hide timeline statuses. You can set it up by setting the flag to true like this: {"backoffice":{"hideStatuses": true}}
+
 ## [7.31.4] - 2024-10-15
 ### Added
  - Added mb-4 to the every element of the case details
