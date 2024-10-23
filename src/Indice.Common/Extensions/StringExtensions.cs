@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿#nullable enable
+using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -90,4 +92,27 @@ public static partial class StringExtensions
         return stringBuilder.ToString().Normalize(NormalizationForm.FormC);
     }
 #endif
+
+
+
+    /// <summary>
+    /// Creates a SHA256 hash of the specified input.
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <param name="encoding">How to interpret the string when converting to bytes. Defaults to <see cref="ASCIIEncoding"/></param>
+    /// <returns>A hash</returns>
+    public static string ToSha256Hex(this string input, Encoding? encoding = null) => ToSha256Hex((encoding ?? Encoding.ASCII).GetBytes(input));
+
+    /// <summary>
+    /// Creates a SHA256 hash of the specified input.
+    /// </summary>
+    /// <param name="input">The input.</param>
+    /// <returns>A hash</returns>
+    public static string ToSha256Hex(this byte[] input) =>
+#if !NETSTANDARD
+        string.Join("", SHA256.HashData(Guid.NewGuid().ToByteArray()).Select(x => $"{x:x2}"));
+#else
+        string.Join("", SHA256.Create().ComputeHash(Guid.NewGuid().ToByteArray()).Select(x => $"{x:x2}"));
+#endif
 }
+#nullable disable
