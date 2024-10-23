@@ -19,11 +19,11 @@ public static class AvatarsApi
               .CacheOutput(policy=> policy.Expire(TimeSpan.FromMinutes(10))
                                           .SetAuthorized());
         group.MapGet("{fullname}", AvatarsHandlers.GetAvatar1);
-        group.MapGet("{fullname}.{ext?}", AvatarsHandlers.GetAvatar1);
+        group.MapGet("{fullname}.{ext:regex(jpg|png|webp)}", AvatarsHandlers.GetAvatar1);
         group.MapGet("{fullname}/{size?}", AvatarsHandlers.GetAvatar2);
-        group.MapGet("{fullname}/{size}.{ext?}", AvatarsHandlers.GetAvatar3);
+        group.MapGet("{fullname}/{size}.{ext:regex(jpg|png|webp)}", AvatarsHandlers.GetAvatar3);
         group.MapGet("{fullname}/{size}/{background}", AvatarsHandlers.GetAvatar);
-        group.MapGet("{fullname}/{size}/{background}.{ext?}", AvatarsHandlers.GetAvatar);
+        group.MapGet("{fullname}/{size}/{background}.{ext:regex(jpg|png|webp)}", AvatarsHandlers.GetAvatar);
         group.MapGet("", AvatarsHandlers.GetAvatarFull);
 
         return routes;

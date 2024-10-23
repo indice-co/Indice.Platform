@@ -98,14 +98,14 @@ public class ProfilePictureImageTagHelper : UrlResolutionTagHelper
             if (Size.HasValue) {
                 url.Append($"/{Size}");
             }
-            var fallBackUrl = new Uri($"/avatar/{User.FindDisplayName()}/{Size ?? 128}/{_UiOptions.Value.AvatarColorHex}.png", UriKind.RelativeOrAbsolute);
+            var fallBackUrl = new Uri($"/avatar/{User.FindDisplayName()}/{Size ?? 128}/{_UiOptions.Value.AvatarColorHex}.webp", UriKind.RelativeOrAbsolute);
             url.Append($"?d={UriHelper.Encode(fallBackUrl)}");
         } else {
             url.Append($"pictures/{PictureId}");
             if (Size.HasValue) {
                 url.Append($"/{Size}");
             }
-            var fallBackUrl = new Uri($"/avatar/{User.FindDisplayName()}/{Size ?? 128}/{_UiOptions.Value.AvatarColorHex}.png", UriKind.RelativeOrAbsolute);
+            var fallBackUrl = new Uri($"/avatar/{User.FindDisplayName()}/{Size ?? 128}/{_UiOptions.Value.AvatarColorHex}.webp", UriKind.RelativeOrAbsolute);
             url.Append($"?d={UriHelper.Encode(fallBackUrl)}");
         }
         output.Attributes.Add("src", url.ToString());

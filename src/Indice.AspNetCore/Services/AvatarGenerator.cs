@@ -1,10 +1,12 @@
 ﻿using Indice.Extensions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -65,11 +67,12 @@ public class AvatarGenerator
     /// <param name="firstName">First name to use.</param>
     /// <param name="lastName">Last name to use.</param>
     /// <param name="size">Image size.</param>
+    /// <param name="contentType">Specifies the image content type. Defaults to image/webp</param>
     /// <param name="jpeg">Specifies whether the image has .jpg extension.</param>
     /// <param name="background">The background color to use.</param>
     /// <param name="foreground">The foreground color to use.</param>
     /// <param name="circular">Determines whether the tile will be circular or sqare. Defaults to false (sqare)</param>
-    public void Generate(Stream output, string firstName, string lastName, int size = 192, bool jpeg = false, string background = null, string foreground = null, bool circular = false) {
+    public void Generate(Stream output, string firstName, string lastName, int size = 192, string contentType = "image/webp", string background = null, string foreground = null, bool circular = false) {
         var avatarText = string.Format("{0}{1}", firstName?.Length > 0 ? firstName[0] : ' ', lastName?.Length > 0 ? lastName[0] : ' ').ToUpper().RemoveDiacritics().Trim();
         if (int.TryParse(firstName, out var number) && string.IsNullOrWhiteSpace(lastName)) {
             avatarText = firstName;
@@ -102,7 +105,11 @@ public class AvatarGenerator
                 Origin = center
             };
             image.Mutate(x => x.DrawText(textOptions, avatarText, accentColor.Color));
-            image.Save(output, jpeg ? JpegFormat.Instance : PngFormat.Instance);
+            image.Save(output, contentType switch { 
+                "image/jpeg" => JpegFormat.Instance, 
+                "image/png" => PngFormat.Instance, 
+                "image/webp" => WebpFormat.Instance, 
+                _ => throw new Exception($"Unsupported ContentType {contentType}") });
         }
         output.Seek(0, SeekOrigin.Begin);
     }
