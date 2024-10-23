@@ -52,6 +52,9 @@ public class IdentityUIOptions
     public bool EnableLocalLogin { get; set; } = true;
     /// <summary>RGB color to be used with avatar endpoints to render the user avatar background with initials.</summary>
     public string AvatarColorHex { get; set; } = "1abc9c";
+    /// <summary>Profile picture upload limit in bytes when uploading from /manage/profile ui</summary>
+    /// <remarks>Defaults to 5MB</remarks>
+    public int PictureUploadSizeLimit { get; set; } = 1024 * 1024 * 5;
     /// <summary>RGB color to be used with email default templates for links.</summary>
     public string EmailLinkColorHex { get; set; } = "1abc9c";
     /// <summary>RGB color to be used with email default templates for links.</summary>

@@ -683,10 +683,10 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         using var image = Image.Load(inputStream, out var format);
         // manipulate image resize to max side size.
         var maxSide = Math.Max(image.Width, image.Height);
-        
+
+        var factor = (double)sideSize / Math.Max(image.Width, image.Height);
         var resizeOptions = new ResizeOptions() {
-            Size = new Size(sideSize),
-            Mode = ResizeMode.Pad
+            Size = new Size((int)(image.Width * factor), (int)(image.Height * factor))
         };
 
         if (zoomLevel > 1 && (zoomLevel * sideSize) <= maxSide) {
