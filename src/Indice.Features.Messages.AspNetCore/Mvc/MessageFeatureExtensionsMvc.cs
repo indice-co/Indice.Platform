@@ -17,7 +17,7 @@ using Microsoft.Extensions.Options;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Contains extension methods on <see cref="IMvcBuilder"/> for configuring Campaigns API feature.</summary>
-public static class MessageFeatureExtensions
+public static class MessageFeatureExtensionsMvc
 {
     /// <summary>Adds all Messages (both management and self-service) API endpoints in the MVC project.</summary>
     /// <param name="mvcBuilder">An interface for configuring MVC services.</param>
@@ -54,7 +54,7 @@ public static class MessageFeatureExtensions
         mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new MessageFeatureProvider(includeManagementApi: true, includeInboxApi: false)));
         var services = mvcBuilder.Services;
         // Register framework services.
-        services.AddMessageManagementEndpoints(configureAction);
+        services.AddMessageManagement(configureAction);
         services.AddSingleton<IConfigureOptions<MvcOptions>, MessageManagementConfigureMvcOptions>();
         return mvcBuilder;
     }
@@ -66,7 +66,7 @@ public static class MessageFeatureExtensions
         mvcBuilder.ConfigureApplicationPartManager(x => x.FeatureProviders.Add(new MessageFeatureProvider(includeManagementApi: false, includeInboxApi: true)));
         var services = mvcBuilder.Services;
         // Register framework services.
-        services.AddMessageInboxEndpoints(configureAction);
+        services.AddMessageInbox(configureAction);
         services.AddSingleton<IConfigureOptions<MvcOptions>, MessageInboxConfigureMvcOptions>();
         return mvcBuilder;
     }

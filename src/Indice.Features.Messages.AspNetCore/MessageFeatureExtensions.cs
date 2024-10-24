@@ -25,17 +25,17 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>Contains extension methods on <see cref="IServiceCollection"/> for configuring Messaging API endpoints.</summary>
-public static class MessageEndpointsExtensions
+public static class MessageFeatureExtensions
 {
-    /// <summary>Adds all Messages (both management and self-service) API endpoints to the DI.</summary>
-    /// <param name="services">The service collection.</param>
+    /// <summary>Adds all Messages (both management and self-service) dependencies to the DI.</summary>
+    /// <param name="services">The service collection.</param> 
     /// <param name="configureAction">Configuration for several options of Campaigns API feature.</param>
-    public static IServiceCollection AddMessageEndpoints(this IServiceCollection services, Action<MessageEndpointOptions> configureAction = null) {
+    public static IServiceCollection AddMessaging(this IServiceCollection services, Action<MessageEndpointOptions> configureAction = null) {
         // Configure options.
         var apiOptions = new MessageEndpointOptions(services);
         configureAction?.Invoke(apiOptions);
 
-        return services.AddMessageManagementEndpoints(options => {
+        return services.AddMessageManagement(options => {
             options.ApiPrefix = apiOptions.ApiPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
@@ -43,7 +43,7 @@ public static class MessageEndpointsExtensions
             options.UserClaimType = apiOptions.UserClaimType;
             options.GroupName = apiOptions.ManagementGroupName;
         })
-        .AddMessageInboxEndpoints(options => {
+        .AddMessageInbox(options => {
             options.ApiPrefix = apiOptions.ApiPrefix;
             options.ConfigureDbContext = apiOptions.ConfigureDbContext;
             options.DatabaseSchema = apiOptions.DatabaseSchema;
@@ -52,10 +52,10 @@ public static class MessageEndpointsExtensions
         });
     }
 
-    /// <summary>Adds Messages management API endpoints to the DI.</summary>
+    /// <summary>Adds Messages management dependencies to the DI.</summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns management API feature.</param>
-    public static IServiceCollection AddMessageManagementEndpoints(this IServiceCollection services, Action<MessageManagementOptions> configureAction = null) {
+    public static IServiceCollection AddMessageManagement(this IServiceCollection services, Action<MessageManagementOptions> configureAction = null) {
         // Configure options.
         var apiOptions = new MessageManagementOptions(services);
         configureAction?.Invoke(apiOptions);
@@ -93,10 +93,10 @@ public static class MessageEndpointsExtensions
         return services;
     }
 
-    /// <summary>Adds Messages inbox API endpoints in the MVC project.</summary>
+    /// <summary>Adds Messages inbox API dependencies.</summary>
     /// <param name="services">The service collection.</param>
     /// <param name="configureAction">Configuration for several options of Campaigns inbox API feature.</param>
-    public static IServiceCollection AddMessageInboxEndpoints(this IServiceCollection services, Action<MessageInboxOptions> configureAction = null) {
+    public static IServiceCollection AddMessageInbox(this IServiceCollection services, Action<MessageInboxOptions> configureAction = null) {
         // Configure options.
         var apiOptions = new MessageInboxOptions(services);
         configureAction?.Invoke(apiOptions);
@@ -135,10 +135,6 @@ public static class MessageEndpointsExtensions
                 options.SchemaFilter<EnumFlagsSchemaFilter>();
             }
         });
-        // Post configure MVC options.
-        services.PostConfigure<MvcOptions>(options => {
-            options.FormatterMappings.SetMediaTypeMappingForFormat("json", MediaTypeNames.Application.Json);
-        });
         // Register validators.
         services.AddFluentValidationAutoValidation();
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
@@ -154,6 +150,9 @@ public static class MessageEndpointsExtensions
         services.TryAddScoped<UserNameAccessorAggregate>();
         services.TryAddTransient<IFileService, FileServiceNoop>();
         services.TryAddTransient<IFileServiceFactory, DefaultFileServiceFactory>();
+        services.TryAddTransient<IContactResolver, ContactResolverNoop>();
+        services.AddEventDispatcherNoop();
+        services.AddFilesNoop();
         // Register application DbContext.
         Action<IServiceProvider, DbContextOptionsBuilder> sqlServerConfiguration = (serviceProvider, builder) => builder.UseSqlServer(serviceProvider.GetRequiredService<IConfiguration>().GetConnectionString("MessagesDbConnection"));
         services.AddDbContext<CampaignsDbContext>(baseOptions.ConfigureDbContext ?? sqlServerConfiguration);
