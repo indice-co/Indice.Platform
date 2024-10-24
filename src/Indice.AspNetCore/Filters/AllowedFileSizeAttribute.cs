@@ -21,7 +21,7 @@ public class AllowedFileSizeAttribute : Attribute, IActionFilter
 
     /// <inheritdoc />
     public void OnActionExecuting(ActionExecutingContext context) {
-        long sizeLimit = _defaultSizeLimit;
+        var sizeLimit = _defaultSizeLimit;
 
         if (!string.IsNullOrWhiteSpace(_configurationKey)) {
             var configuration = context.HttpContext.RequestServices.GetService<IConfiguration>();
