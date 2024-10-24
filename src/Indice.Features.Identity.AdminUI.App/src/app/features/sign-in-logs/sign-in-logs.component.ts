@@ -63,9 +63,22 @@ export class SignInLogsComponent implements OnInit {
     }
 
     public getLogs(event: SearchEvent): void {
-        let dateFrom = event.filter.dateFrom ? (new Date(event.filter.dateFrom)).toISOString() : undefined;
-        let dateTo = event.filter.dateFrom ? (new Date(event.filter.dateTo)).toISOString() : undefined;
-        this._api.getSignInLogs(event.page , event.pageSize, event.sortField, event.searchTerm, event.filter.subject, undefined, undefined, event.filter.succeeded, dateFrom, dateTo, undefined, event.filter.signInType)
+        let dateFrom = event.filter.dateFrom ? (new Date(event.filter.dateFrom)) : undefined;
+        let dateTo = event.filter.dateFrom ? (new Date(event.filter.dateTo)) : undefined;
+      this._api.getSignInLogs(
+        event.page,
+        event.pageSize,
+        event.sortField,
+        event.searchTerm,
+        event.filter.subject,
+        undefined /*sessionId*/,
+        undefined /*maekedForReview*/,
+        event.filter.succeeded,
+        undefined /*actionName*/,
+        dateFrom,
+        dateTo,
+        undefined  /*applicationId*/,
+        event.filter.signInType)
             .pipe(finalize(() => {
                 this.isLoading = false;
             }))
