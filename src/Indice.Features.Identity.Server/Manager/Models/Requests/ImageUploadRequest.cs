@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 
@@ -9,12 +10,19 @@ public class ImageUploadRequest
     /// <summary>File data</summary>
     [Required]
     public IFormFile? File { get; set; }
-    /// <summary>Zoom level</summary>
-    public double? Zoom { get; set; }
-    /// <summary>Center offset X axis</summary>
-    public int? OffsetX { get; set; }
-    /// <summary>Center offset Y axis</summary>
-    public int? OffsetY { get; set; }
+    /// <summary>Zoom level. Defaults to 1.0</summary>
+    public double? Scale { get; set; }
+    /// <summary>offset X axis. Defaults to 0.</summary>
+    /// <remarks>Offsets are essentially panning </remarks>
+    public int? TranslateX { get; set; }
+    /// <summary>offset Y axis. Defaults to 0</summary>
+    public int? TranslateY { get; set; }
+    /// <summary>
+    /// The side size of the viewport square used to crop the image source. 
+    /// This is used as a reference for converting the <see cref="TranslateX"/> and <see cref="TranslateY"/> to the internal crop sqare the will be used as the final size of the picture.
+    /// If left empty it is asumed as if it is the same as the size of the internal crop square.
+    /// </summary>
+    public int? ViewPort { get; set; }
 
     /// <summary>
     /// Bind method
@@ -28,9 +36,10 @@ public class ImageUploadRequest
         var file = form.Files[nameof(File)];
         return new ImageUploadRequest {
             File = file,
-            Zoom = double.TryParse(form[nameof(Zoom)], out var zoom) ? zoom : null,
-            OffsetX = int.TryParse(form[nameof(OffsetX)], out var offsetX) ? offsetX : null,
-            OffsetY = int.TryParse(form[nameof(OffsetY)], out var offsetY) ? offsetY : null,
+            Scale = double.TryParse(form[nameof(Scale)], CultureInfo.InvariantCulture, out var scale) ? scale : null,
+            TranslateX = int.TryParse(form[nameof(TranslateX)], CultureInfo.InvariantCulture, out var translateX) ? translateX : null,
+            TranslateY = int.TryParse(form[nameof(TranslateY)], CultureInfo.InvariantCulture, out var translateY) ? translateY : null,
+            ViewPort = int.TryParse(form[nameof(ViewPort)], CultureInfo.InvariantCulture, out var viewPort) ? viewPort : null
         };
     }
 }

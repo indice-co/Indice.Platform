@@ -110,9 +110,9 @@ public static partial class StringExtensions
     /// <returns>A hash</returns>
     public static string ToSha256Hex(this byte[] input) =>
 #if !NETSTANDARD
-        string.Join("", SHA256.HashData(Guid.NewGuid().ToByteArray()).Select(x => $"{x:x2}"));
+        string.Join("", SHA256.HashData(input).Select(x => $"{x:x2}"));
 #else
-        string.Join("", SHA256.Create().ComputeHash(Guid.NewGuid().ToByteArray()).Select(x => $"{x:x2}"));
+        string.Join("", SHA256.Create().ComputeHash(input).Select(x => $"{x:x2}"));
 #endif
 }
 #nullable disable

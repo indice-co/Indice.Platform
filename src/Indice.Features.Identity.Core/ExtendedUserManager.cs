@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -674,29 +675,38 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <summary>Sets user profile picture</summary>
     /// <param name="user">The user instance</param>
     /// <param name="inputStream">The picture stream</param>
-    /// <param name="zoomLevel">used to crop the source <paramref name="inputStream"/></param>
-    /// <param name="offsetX">used to crop the source <paramref name="inputStream"/></param>
-    /// <param name="offsetY">used to crop the source <paramref name="inputStream"/></param>
+    /// <param name="scale">used to crop the source <paramref name="inputStream"/></param>
+    /// <param name="translateX">used to crop the source <paramref name="inputStream"/></param>
+    /// <param name="translateY">used to crop the source <paramref name="inputStream"/></param>
+    /// <param name="viewPortSize">The side size of the viewport square used to crop the image source. 
+    /// This is used as a reference for converting the <paramref name="translateX"/> and <paramref name="translateY"/> to the internal crop sqare the will be used with <paramref name="sideSize"/>. Defaults to 256 (same as the <paramref name="sideSize"/>)</param>
     /// <param name="sideSize">Image side size to store</param>
     /// <returns>An <see cref="IdentityResult"/></returns>
-    public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256, double zoomLevel = 1, int offsetX = 0, int offsetY = 0) {
+    public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256) {
         using var image = Image.Load(inputStream, out var format);
         // manipulate image resize to max side size.
         var maxSide = Math.Max(image.Width, image.Height);
-
-        var factor = (double)sideSize / Math.Max(image.Width, image.Height);
-        var resizeOptions = new ResizeOptions() {
-            Size = new Size((int)(image.Width * factor), (int)(image.Height * factor))
-        };
-
-        if (zoomLevel > 1 && (zoomLevel * sideSize) <= maxSide) {
+        
+        if (scale > 1 && scale <= 10) {
+            // convert pan X and Y to my coord system.
+            translateX = viewPortSize > 0 ? maxSide * translateX / viewPortSize : translateX;
+            translateY = viewPortSize > 0 ? maxSide * translateY / viewPortSize : translateY;
+            var cropWindow = new Size(Math.Max((int)(image.Width / scale), (int)(image.Height / scale)));
             var cropOptions = new Rectangle() {
-                Size = new Size((int)(maxSide / zoomLevel)),
-                X = (int)(offsetX * zoomLevel),
-                Y = (int)(offsetY * zoomLevel)
+                Size = cropWindow,
+                X = (int)(((image.Width - cropWindow.Width) / 2d) - translateX),
+                Y = (int)(((image.Height - cropWindow.Height) / 2d) - translateY),
+            };
+
+            var resizeOptions = new ResizeOptions() {
+                Size = new Size(sideSize, sideSize),
             };
             image.Mutate(i => i.Crop(cropOptions).Resize(resizeOptions));
         } else {
+            var factor = (double)sideSize / maxSide;
+            var resizeOptions = new ResizeOptions() {
+                Size = new Size((int)(image.Width * factor), (int)(image.Height * factor)),
+            };
             image.Mutate(i => i.Resize(resizeOptions));
         }
         
