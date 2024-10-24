@@ -680,14 +680,23 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="translateY">used to crop the source <paramref name="inputStream"/></param>
     /// <param name="viewPortSize">The side size of the viewport square used to crop the image source. 
     /// This is used as a reference for converting the <paramref name="translateX"/> and <paramref name="translateY"/> to the internal crop sqare the will be used with <paramref name="sideSize"/>. Defaults to 256 (same as the <paramref name="sideSize"/>)</param>
-    /// <param name="sideSize">Image side size to store</param>
+    /// <param name="sideSize">Image side size to store in pixels</param>
     /// <returns>An <see cref="IdentityResult"/></returns>
     public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256) {
         using var image = Image.Load(inputStream, out var format);
         // manipulate image resize to max side size.
         var maxSide = Math.Max(image.Width, image.Height);
-        
-        if (scale > 1 && scale <= 10) {
+        var errors = new List<IdentityError>();
+        if (scale < 1) {
+            errors.Add(new IdentityError() { Code = nameof(scale), Description = "Scale cannot be less that 1." });
+        }
+        if (sideSize < 24) {
+            errors.Add(new IdentityError() { Code = nameof(sideSize), Description = "Side size of the target imagage cannot be less that 24 pxels." });
+        }
+        if (errors.Count > 0) {
+            return IdentityResult.Failed([..errors]);
+        }
+        if (scale > 1) {
             // convert pan X and Y to my coord system.
             translateX = viewPortSize > 0 ? maxSide * translateX / viewPortSize : translateX;
             translateY = viewPortSize > 0 ? maxSide * translateY / viewPortSize : translateY;
@@ -701,7 +710,11 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
             var resizeOptions = new ResizeOptions() {
                 Size = new Size(sideSize, sideSize),
             };
-            image.Mutate(i => i.Crop(cropOptions).Resize(resizeOptions));
+            try { 
+                image.Mutate(i => i.Crop(cropOptions).Resize(resizeOptions));
+            } catch {
+                return IdentityResult.Failed(new IdentityError() { Code = "Crop", Description = "Scale and translate out of bounds." });
+            }
         } else {
             var factor = (double)sideSize / maxSide;
             var resizeOptions = new ResizeOptions() {
