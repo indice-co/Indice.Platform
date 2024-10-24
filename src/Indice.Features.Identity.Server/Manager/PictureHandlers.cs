@@ -58,7 +58,8 @@ internal static partial class PictureHandlers
         }
 
         using var stream = request.File!.OpenReadStream();
-        var result = await userManager.SetUserPictureAsync(user, stream, endpointOptions.Value.Avatar.AllowedSizes.Max(), zoomLevel: request.Zoom ?? 1, request.OffsetX ?? 0 , request.OffsetY ?? 0);
+        var maxSideSize = endpointOptions.Value.Avatar.AllowedSizes.Max();
+        var result = await userManager.SetUserPictureAsync(user, stream, maxSideSize, request.Scale ?? 1, request.TranslateX ?? 0 , request.TranslateY ?? 0, viewPortSize: request.ViewPort ?? maxSideSize);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }

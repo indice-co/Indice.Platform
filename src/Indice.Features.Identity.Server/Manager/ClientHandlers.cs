@@ -363,7 +363,7 @@ internal static class ClientHandlers
         }
         var newSecret = new ClientSecret {
             Description = request.Description,
-            Value = request.Value.ToSha256(),
+            Value = request.Value!.ToSha256(),
             Expiration = request.Expiration,
             Type = IdentityServerConstants.SecretTypes.SharedSecret,
             ClientId = client.Id
@@ -584,7 +584,7 @@ internal static class ClientHandlers
                 Type = IdentityServerConstants.SecretTypes.SharedSecret,
                 Description = x.Description,
                 Expiration = x.Expiration,
-                Value = x.Value.ToSha256()
+                Value = x.Value!.ToSha256()
             })
             .ToList();
         }

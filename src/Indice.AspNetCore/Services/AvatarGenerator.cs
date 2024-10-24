@@ -68,7 +68,6 @@ public class AvatarGenerator
     /// <param name="lastName">Last name to use.</param>
     /// <param name="size">Image size.</param>
     /// <param name="contentType">Specifies the image content type. Defaults to image/webp</param>
-    /// <param name="jpeg">Specifies whether the image has .jpg extension.</param>
     /// <param name="background">The background color to use.</param>
     /// <param name="foreground">The foreground color to use.</param>
     /// <param name="circular">Determines whether the tile will be circular or sqare. Defaults to false (sqare)</param>
