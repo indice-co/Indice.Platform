@@ -134,69 +134,6 @@
   </div>
 </div>
 
-<!-- <div
-  class="modal fade"
-  id="staticBackdrop"
-  data-bs-backdrop="static"
-  data-bs-keyboard="false"
-  tabindex="-1"
-  aria-labelledby="staticBackdropLabel"
-  aria-hidden="!isModalOpen"
-  [class.show]="isModalOpen"
-  [style.display]="isModalOpen ? 'block' : 'none'"
->
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="modal-body">
-          <div class="row mb-3 justify-content-center">
-            <div class="col-auto">
-              <canvas
-                #canvas
-                width="400"
-                height="400"
-                (mousedown)="onPanStart($event)"
-                (mousemove)="onPan($event)"
-                (mouseup)="onPanEnd()"
-                (touchstart)="onPanStart($event)"
-                (touchmove)="onPan($event)"
-                (touchend)="onPanEnd()"
-              >
-              </canvas>
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col">
-              <label for="zoomRange" class="form-label">Zoom</label>
-              <input
-                id="zoomRange"
-                type="range"
-                [min]="minScale"
-                [max]="maxScale"
-                step="0.01"
-                [value]="scale"
-                (input)="onZoomChange($event)"
-                class="form-range"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button
-          type="button"
-          class="btn btn-secondary"
-          data-bs-dismiss="modal"
-          (click)="closeModal()"
-        >
-          Close
-        </button>
-        <button (click)="cropImage()" class="btn btn-primary">Done</button>
-      </div>
-    </div>
-  </div>
-</div> -->
-
 <ng-template let-modal #content>
   <div class="modal-header"></div>
   <div class="modal-body">
