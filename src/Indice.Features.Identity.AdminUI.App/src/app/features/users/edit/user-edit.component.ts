@@ -20,6 +20,7 @@ import {
 import { UiFeaturesService } from "src/app/core/services/ui-features.service";
 import { forkJoin, map, Subscription } from "rxjs";
 import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: "app-user-edit",
@@ -94,12 +95,10 @@ export class UserEditComponent implements OnInit, OnDestroy {
           const { userName, claims } = result.user;
           const givenName = claims.find((c) => c.type === "given_name");
           const familyName = claims.find((c) => c.type === "family_name");
-          const avatar = claims.find((c) => c.type === "picture");
+
           this.userName = userName;
           this.displayName = `${givenName.value} ${familyName.value}`;
-          this.avatar =
-            avatar?.value ||
-            `https://localhost:2000/pictures/${this.userId}/128?d=/avatar/${this.displayName}/128.png`;
+          // this.avatar = `${environment.api_url}/pictures/${this.userId}?d=/avatar/${this.displayName}/512.png`;
         }
       );
   }
@@ -308,17 +307,18 @@ export class UserEditComponent implements OnInit, OnDestroy {
   }
 
   private upload(imageData: string) {
-    const blob = this.dataURLtoBlob(imageData);
-    const formData = new FormData();
-    formData.append("file", blob, "canvas-image.png");
+    const data = this.dataURLtoBlob(imageData);
+    const fileName = `${this.userId}.png`;
 
-    this.apiService
-      .updateUserPicture(this.userId, formData)
-      .subscribe((response) => {
-        console.log(response);
-        this.avatar = imageData;
-        this.closeModal();
-      });
+    const file: FileParameter = {
+      data,
+      fileName,
+    };
+
+    this.apiService.saveUserPicture(this.userId, file).subscribe((response) => {
+      this.avatar = imageData;
+      this.closeModal();
+    });
   }
 
   private dataURLtoBlob(dataUrl) {

@@ -18,8 +18,8 @@ export class TopBarComponent implements OnInit {
 
   public ngOnInit(): void {
     const profile = this.authService.getUserProfile();
-    this.picture = profile.picture;
     this.displayName = this.authService.getDisplayName();
+    this.picture = `${profile.picture}?d=/avatar/${this.displayName}/64.png`;
   }
 
   public signOut(): void {
