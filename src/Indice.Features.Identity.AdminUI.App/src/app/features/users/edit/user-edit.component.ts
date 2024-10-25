@@ -52,16 +52,20 @@ export class UserEditComponent implements OnInit, OnDestroy {
 
   private ctx!: CanvasRenderingContext2D;
   private img!: HTMLImageElement;
+  private imgSource: File;
 
   private panX = 0;
   private panY = 0;
+  private panFromCenterX = 0;
+  private panFromCenterY = 0;
 
   private posX = 0;
   private posY = 0;
   private isPanning = false;
-  private initialDistance = 0;
+  private hasPanned = false;
 
   private _getDataSubscription: Subscription;
+  private _modalSubscription: Subscription;
 
   constructor(
     private route: ActivatedRoute,
@@ -98,7 +102,7 @@ export class UserEditComponent implements OnInit, OnDestroy {
 
           this.userName = userName;
           this.displayName = `${givenName.value} ${familyName.value}`;
-          // this.avatar = `${environment.api_url}/pictures/${this.userId}?d=/avatar/${this.displayName}/512.png`;
+          this.avatar = `${environment.api_url}/pictures/${this.userId}?d=/avatar/${this.displayName}/512.png`;
         }
       );
   }
@@ -108,14 +112,19 @@ export class UserEditComponent implements OnInit, OnDestroy {
     if (this._getDataSubscription) {
       this._getDataSubscription.unsubscribe();
     }
+    if (this._modalSubscription) {
+      this._modalSubscription.unsubscribe();
+    }
   }
 
   public openModal(): void {
     this.modalRef = this.modalService.open(this.contentRef);
-    this.modalRef.shown.subscribe((_) => {
+    this._modalSubscription = this.modalRef.shown.subscribe((_) => {
       this.canvas = document.getElementById("canvas") as HTMLCanvasElement;
       this.ctx = this.canvas.getContext("2d")!;
 
+      this.calculateMinAndMaxScale();
+      this.resetImagePosition();
       this.drawImage();
     });
   }
@@ -129,6 +138,10 @@ export class UserEditComponent implements OnInit, OnDestroy {
     this.scale = this.minScale;
     this.panX = 0;
     this.panY = 0;
+    this.panFromCenterX = 0;
+    this.panFromCenterY = 0;
+    this.isPanning = false;
+    this.hasPanned = false;
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -138,16 +151,13 @@ export class UserEditComponent implements OnInit, OnDestroy {
   public onFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files ? input.files[0] : null;
+    this.imgSource = file;
     if (file) {
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
         this.img = new Image();
         this.img.src = e.target?.result as string;
         this.img.onload = () => {
-          this.calculateMinAndMaxScale();
-          this.resetImagePosition();
-          // this.drawImage();
-
           this.openModal();
         };
       };
@@ -159,23 +169,25 @@ export class UserEditComponent implements OnInit, OnDestroy {
     const scaleWidth = this.img.width / this.canvasWidth;
     const scaleHeight = this.img.height / this.canvasHeight;
 
-    // const isLoRes =
-    //   this.img.width <= this.canvasWidth &&
-    //   this.img.height <= this.canvasHeight;
+    const isLoRes =
+      this.img.width <= this.canvasWidth &&
+      this.img.height <= this.canvasHeight;
 
-    // this.minScale = 1;
-    // if (this.img.width === this.img.height) {
-    this.minScale = Math.min(
-      this.canvasWidth / this.img.width,
-      this.canvasHeight / this.img.height
-    );
-    // }
-    // if (isLoRes) {
-    //   this.minScale = Math.min(
-    //     this.canvasWidth / this.img.width,
-    //     this.canvasHeight / this.img.height
-    //   );
-    // }
+    this.minScale = 1;
+    if (this.img.width === this.img.height) {
+      this.minScale = Math.min(
+        this.canvasWidth / this.img.width,
+        this.canvasHeight / this.img.height
+      );
+    } else if (this.img.height > this.img.width) {
+      this.minScale = this.canvasWidth / this.img.width;
+    }
+    if (isLoRes) {
+      this.minScale = Math.min(
+        this.canvasWidth / this.img.width,
+        this.canvasHeight / this.img.height
+      );
+    }
     this.maxScale = Math.max(scaleWidth, scaleHeight);
     this.scale = this.minScale;
   }
@@ -183,6 +195,8 @@ export class UserEditComponent implements OnInit, OnDestroy {
   public resetImagePosition(): void {
     this.panX = (this.canvasWidth - this.img.width * this.scale) / 2;
     this.panY = (this.canvasHeight - this.img.height * this.scale) / 2;
+    this.panFromCenterX = 0;
+    this.panFromCenterY = 0;
   }
 
   public drawImage(): void {
@@ -216,6 +230,7 @@ export class UserEditComponent implements OnInit, OnDestroy {
   }
 
   public onPanStart(event: MouseEvent | TouchEvent): void {
+    this.isPanning = true;
     if (event instanceof MouseEvent) {
       this.isPanning = true;
       this.posX = event.clientX;
@@ -224,57 +239,58 @@ export class UserEditComponent implements OnInit, OnDestroy {
       this.isPanning = true;
       this.posX = event.touches[0].clientX;
       this.posY = event.touches[0].clientY;
-    } else if (event instanceof TouchEvent && event.touches.length === 2) {
-      this.initialDistance = this.getTouchDistance(event);
     }
   }
 
   public onPan(event: MouseEvent | TouchEvent): void {
     event.preventDefault();
+    if (!this.isPanning) return;
 
-    if (this.isPanning) {
-      let dx = 0;
-      let dy = 0;
+    this.hasPanned = true;
+    let dx = 0;
+    let dy = 0;
 
-      if (event instanceof MouseEvent) {
-        dx = event.clientX - this.posX;
-        dy = event.clientY - this.posY;
-
-        this.posX = event.clientX;
-        this.posY = event.clientY;
-      } else if (event instanceof TouchEvent && event.touches.length === 1) {
-        dx = event.touches[0].clientX - this.posX;
-        dy = event.touches[0].clientY - this.posY;
-
-        this.posX = event.touches[0].clientX;
-        this.posY = event.touches[0].clientY;
-      }
-
-      this.panX += dx;
-      this.panY += dy;
-      this.drawImage();
-    } else if (event instanceof TouchEvent && event.touches.length === 2) {
-      const currentDistance = this.getTouchDistance(event);
-      const scaleChange = currentDistance / this.initialDistance;
-      this.zoomAtCenter(this.scale * scaleChange);
-      this.initialDistance = currentDistance;
+    if (event instanceof MouseEvent) {
+      dx = event.clientX - this.posX;
+      dy = event.clientY - this.posY;
+      this.posX = event.clientX;
+      this.posY = event.clientY;
+    } else if (event instanceof TouchEvent && event.touches.length === 1) {
+      dx = event.touches[0].clientX - this.posX;
+      dy = event.touches[0].clientY - this.posY;
+      this.posX = event.touches[0].clientX;
+      this.posY = event.touches[0].clientY;
     }
+
+    let newPanX = this.panX + dx;
+    let newPanY = this.panY + dy;
+
+    const scaledWidth = this.img.width * this.scale;
+    const scaledHeight = this.img.height * this.scale;
+    const minPanX = Math.min(0, this.canvasWidth - scaledWidth);
+    const maxPanX = 0;
+    const minPanY = Math.min(0, this.canvasHeight - scaledHeight);
+    const maxPanY = 0;
+
+    newPanX = Math.max(minPanX, Math.min(maxPanX, newPanX));
+    newPanY = Math.max(minPanY, Math.min(maxPanY, newPanY));
+
+    const actualDx = newPanX - this.panX;
+    const actualDy = newPanY - this.panY;
+
+    this.panFromCenterX += actualDx;
+    this.panFromCenterY += actualDy;
+
+    this.panX = newPanX;
+    this.panY = newPanY;
+
+    this.drawImage();
   }
 
   @HostListener("window:mouseup")
   @HostListener("window:touchend")
   public onPanEnd(): void {
     this.isPanning = false;
-  }
-
-  public getTouchDistance(event: TouchEvent): number {
-    const touch1 = event.touches[0];
-    const touch2 = event.touches[1];
-
-    const dx = touch1.clientX - touch2.clientX;
-    const dy = touch1.clientY - touch2.clientY;
-
-    return Math.sqrt(dx * dx + dy * dy);
   }
 
   public cropImage(): void {
@@ -302,35 +318,31 @@ export class UserEditComponent implements OnInit, OnDestroy {
     );
 
     const croppedImageURL = offScreenCanvas.toDataURL("image/png", 1.0);
-    this.upload(croppedImageURL);
+    this.upload(this.imgSource, croppedImageURL);
     // this.profileImageUrl = croppedImageURL;
   }
 
-  private upload(imageData: string) {
-    const data = this.dataURLtoBlob(imageData);
+  private upload(data: File, avatar: string) {
     const fileName = `${this.userId}.png`;
-
     const file: FileParameter = {
       data,
       fileName,
     };
 
-    this.apiService.saveUserPicture(this.userId, file).subscribe((response) => {
-      this.avatar = imageData;
-      this.closeModal();
-    });
-  }
+    const baseFitScale = Math.min(
+      this.canvasWidth / this.img.width,
+      this.canvasHeight / this.img.height
+    );
 
-  private dataURLtoBlob(dataUrl) {
-    const byteString = atob(dataUrl.split(",")[1]);
-    const mimeString = dataUrl.split(",")[0].split(":")[1].split(";")[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
+    const effectiveZoom = this.scale / baseFitScale;
+    const offsetX = -this.panFromCenterX / effectiveZoom;
+    const offsetY = -this.panFromCenterY / effectiveZoom;
 
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-
-    return new Blob([ab], { type: mimeString });
+    this.apiService
+      .saveUserPicture(this.userId, file, effectiveZoom, offsetX, offsetY, 400)
+      .subscribe((response) => {
+        this.avatar = avatar;
+        this.closeModal();
+      });
   }
 }
