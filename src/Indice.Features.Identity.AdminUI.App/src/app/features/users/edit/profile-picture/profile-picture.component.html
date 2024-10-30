@@ -1,0 +1,57 @@
+<label for="user-profile-picture">
+  <div class="profilepic">
+    <img
+      class="profilepic__image img-fluid rounded-circle"
+      src="{{ avatar }}?v={{ fileVersion }}"
+      alt="profile picture"
+    />
+    <div class="profilepic__content">
+      <i class="material-icons profilepic__icon">photo_camera</i>
+      <input
+        #fileInput
+        type="file"
+        accept="image/*"
+        id="user-profile-picture"
+        (change)="onSelectFile($event)"
+        class="d-none"
+      />
+    </div>
+  </div>
+</label>
+
+<ng-template let-modal #modalContent>
+  <div class="modal-body text-center">
+    <div class="alert alert-info" role="alert" *ngIf="isPortrait">
+      Adjust your image up or down to reposition
+    </div>
+    <div class="alert alert-info" role="alert" *ngIf="isLandscape">
+      Adjust your image left or right to reposition
+    </div>
+    <div
+      #container
+      class="cropcontainer"
+      (wheel)="onMouseWheel($event)"
+      (mousedown)="dragStart($event)"
+      (mousemove)="drag($event)"
+      (mouseup)="dragEnd()"
+    >
+      <div class="profilepiceditor">
+        <img
+          #pic
+          id="pic"
+          class="profilepiceditor__image"
+          [class.dragging]="dragCoords"
+          [src]="imageURL"
+          alt="Profile"
+        />
+        <div class="profilepiceditor__content"></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="closeModal()">
+      Cancel
+    </button>
+    <button type="button" class="btn btn-primary" (click)="crop()">Save</button>
+  </div>
+</ng-template>
