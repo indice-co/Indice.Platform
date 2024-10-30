@@ -1,9 +1,29 @@
-canvas {
-  border: 1px solid #dee2e6;
-  cursor: grab;
+.cropcontainer {
+  height: 400px;
+  width: 400px;
+  display: inline-block;
 
-  &:active {
-    cursor: grabbing;
+  .profilepiceditor {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    display: inline-block;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: transparent;
+    height: inherit;
+    text-align: center;
+
+    .profilepiceditor__image {
+      cursor: grab;
+      opacity: 1;
+      transition: opacity 0.2s ease-in-out;
+      height: inherit;
+      width: inherit;
+
+      &.dragging {
+        cursor: grabbing;
+      }
+    }
   }
 }
 

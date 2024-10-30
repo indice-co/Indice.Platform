@@ -8,28 +8,10 @@
               <div class="row no-gutters">
                 <div class="col-md-3">
                   <div class="profile-container text-center">
-                    <label for="user-profile-picture">
-                      <div class="profilepic">
-                        <img
-                          class="profilepic__image img-fluid rounded-circle"
-                          [src]="avatar"
-                          alt="{{ displayName }} profile picture"
-                        />
-                        <div class="profilepic__content">
-                          <i class="material-icons profilepic__icon"
-                            >photo_camera</i
-                          >
-                          <input
-                            #fileInput
-                            type="file"
-                            accept="image/*"
-                            id="user-profile-picture"
-                            (change)="onFileChange($event)"
-                            class="d-none"
-                          />
-                        </div>
-                      </div>
-                    </label>
+                    <app-user-profile-picture
+                      [userId]="userId"
+                      [avatar]="avatar"
+                    ></app-user-profile-picture>
                   </div>
                 </div>
                 <div class="col-md-9">
@@ -132,53 +114,3 @@
     </div>
   </div>
 </div>
-
-<ng-template let-modal #content>
-  <div class="modal-header justify-content-center">
-    <h3>Drag the image to reposition</h3>
-  </div>
-  <div class="modal-body">
-    <div class="row mb-3 justify-content-center">
-      <div class="col-auto">
-        <canvas
-          id="canvas"
-          width="400"
-          height="400"
-          (mousedown)="onPanStart($event)"
-          (mousemove)="onPan($event)"
-          (mouseup)="onPanEnd()"
-          (touchstart)="onPanStart($event)"
-          (touchmove)="onPan($event)"
-          (touchend)="onPanEnd()"
-        >
-        </canvas>
-      </div>
-    </div>
-    <div class="row mb-3">
-      <div class="col">
-        <label for="zoomRange" class="form-label">Zoom</label>
-        <input
-          id="zoomRange"
-          type="range"
-          [min]="minScale"
-          [max]="maxScale"
-          step="0.01"
-          [value]="scale"
-          (input)="onZoomChange($event)"
-          class="form-range"
-        />
-      </div>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button
-      type="button"
-      class="btn btn-secondary"
-      data-bs-dismiss="modal"
-      (click)="closeModal()"
-    >
-      Close
-    </button>
-    <button (click)="cropImage()" class="btn btn-primary">Done</button>
-  </div>
-</ng-template>
