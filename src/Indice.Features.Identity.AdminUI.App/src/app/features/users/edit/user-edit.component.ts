@@ -58,7 +58,7 @@ export class UserEditComponent implements OnInit, OnDestroy {
 
           this.userName = userName;
           this.displayName = `${givenName.value} ${familyName.value}`;
-          this.avatar = `${environment.api_url}/pictures/${this.userId}?d=/avatar/${this.displayName}/512.png`;
+          this.avatar = `${environment.api_url}/pictures/${this.userId}/256?d=/avatar/${this.displayName}/256`;
         }
       );
   }
