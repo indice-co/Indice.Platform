@@ -1,3 +1,4 @@
+using System.Net.Http;
 using IdentityModel;
 using Indice.AspNetCore.Extensions;
 using Indice.AspNetCore.Filters;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
@@ -161,7 +163,7 @@ public abstract class BaseProfileModel : BasePageModel
             TempData.Put("Alert", AlertModel.Error($"file cannot over {UiOptions.PictureUploadSizeLimit.ToFileSize()}."));
             return RedirectToPage("/Profile");
         }
-        var result = await UserManager.SetUserPictureAsync(user, file!.OpenReadStream());
+        var result = await UserManager.SetUserPictureAsync(user, file!.OpenReadStream(), UiOptions.PictureMaxSideSize);
         if (!result.Succeeded) {
             TempData.Put("Alert", AlertModel.Error(string.Join(", ", result.Errors.Select(x => x.Description))));
             return RedirectToPage("/Profile");

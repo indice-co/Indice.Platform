@@ -63,14 +63,11 @@ internal static partial class PictureHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var route = linkGenerator.GetUriByName(httpContext, nameof(GetAccountPicture), new { userId = Base64Id.Parse(user.Id) });
+        var route = linkGenerator.GetUriByName(httpContext, nameof(GetAccountPicture), new { pictureKey = user.Id.ToSha256Hex() });
         result = await userManager.ReplaceClaimAsync(user, JwtClaimTypes.Picture, route!);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-
-        //var evictionKey = $"Picture|userId:{userId}";
-        //await cache.EvictByTagAsync(evictionKey, cancellationToken);
         return TypedResults.NoContent();
     }
 
@@ -89,8 +86,6 @@ internal static partial class PictureHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        //var evictionKey = $"Picture|userId:{userId}";
-        //await cache.EvictByTagAsync(evictionKey, cancellationToken);
         return TypedResults.NoContent();
     }
 
@@ -127,38 +122,37 @@ internal static partial class PictureHandlers
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPicture(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
-        Base64Id userId,
+        string userId,
         int? size,
-        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: null, size, fallbackUrl);
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId, extension: null, size, fallbackUrl);
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureSize(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
-        Base64Id userId,
+        string userId,
         int size,
-        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: null, size, fallbackUrl);
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId, extension: null, size, fallbackUrl);
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureFormat(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
-        Base64Id userId,
+        string userId,
         string format,
         int? size,
-        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: '.' + format, size, fallbackUrl);
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId, extension: '.' + format, size, fallbackUrl);
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPictureSizeFormat(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
-
-        Base64Id userId,
+        string userId,
         int size,
         string format,
-        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId.Id.ToString(), extension: '.' + format, size, fallbackUrl);
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, userId, extension: '.' + format, size, fallbackUrl);
 
     private static async Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetUserPictureInternal(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
-        string userId,
+        string pictureKey,
         string? extension,
         int? size,
         string? fallbackUrl) {
@@ -168,13 +162,10 @@ internal static partial class PictureHandlers
         if (size == endpointOptions.Value.Avatar.AllowedSizes.Max()) {
             size = null;
         }
-
-        var user = await userManager.FindByIdAsync(userId);
-        if (user is null) {
+        (var stream, var contentType, var userExists) = await userManager.FindPictureByKeyAsync(pictureKey, GetImageContentType(extension), size);
+        if (!userExists) {
             return TypedResults.NotFound();
         }
-
-        (var stream, var contentType) = await userManager.GetUserPictureAsync(user, GetImageContentType(extension), size);
         if (stream is null) {
             if (fallbackUrl is not null && fallbackUrl.StartsWith("/avatar/")) {
                 return TypedResults.LocalRedirect(UriHelper.Encode(new Uri(fallbackUrl, UriKind.RelativeOrAbsolute)));
@@ -182,7 +173,7 @@ internal static partial class PictureHandlers
             return TypedResults.NotFound();
         }
 
-        var hash = MD5.HashData(Encoding.UTF8.GetBytes(userId)).ToBase64UrlSafe();
+        var hash = MD5.HashData(Encoding.UTF8.GetBytes(pictureKey)).ToBase64UrlSafe();
         return TypedResults.File(stream, contentType: contentType, entityTag: new Microsoft.Net.Http.Headers.EntityTagHeaderValue(new Microsoft.Extensions.Primitives.StringSegment($"\"{hash}_{stream.Length}\"")));
     }
 

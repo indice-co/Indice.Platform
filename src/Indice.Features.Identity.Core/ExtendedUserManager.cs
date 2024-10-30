@@ -1,8 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
-using System.Security.Claims;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Security.Claims;
 using IdentityModel;
 using Indice.Events;
 using Indice.Features.Identity.Core.Configuration;
@@ -17,9 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Processing;
 
 namespace Indice.Features.Identity.Core;
 
@@ -658,20 +651,6 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         return await UpdateDeviceAsync(user, device, cancellationToken);
     }
 
-#if NET7_0_OR_GREATER
-    [StringSyntax("Regex")]
-#endif
-    private const string Base64PicturePattern = "data:(?<ContentType>.+);base64,(?<Data>.+)";
-#if NET7_0_OR_GREATER
-    [GeneratedRegex(Base64PicturePattern)]
-    private static partial Regex GetBase64PictureRegex();
-#else
-    private static readonly Regex _base64PictureRegex = new(Base64PicturePattern, RegexOptions.Compiled);
-    private static Regex GetBase64PictureRegex() => _base64PictureRegex;
-#endif
-
-    /// <summary>Profile Picture backing store claim type.</summary>
-    internal const string PictureDataClaimType = JwtClaimTypes.Picture + "_data";
     /// <summary>Sets user profile picture</summary>
     /// <param name="user">The user instance</param>
     /// <param name="inputStream">The picture stream</param>
@@ -683,66 +662,16 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="sideSize">Image side size to store in pixels</param>
     /// <returns>An <see cref="IdentityResult"/></returns>
     public async Task<IdentityResult> SetUserPictureAsync(TUser user, Stream inputStream, int sideSize = 256, double scale = 1, int translateX = 0, int translateY = 0, int viewPortSize = 256) {
-        using var image = Image.Load(inputStream, out var format);
-        // manipulate image resize to max side size.
-        var maxSide = Math.Max(image.Width, image.Height);
-        var errors = new List<IdentityError>();
-        if (scale < 1) {
-            errors.Add(new IdentityError() { Code = nameof(scale), Description = "Scale cannot be less that 1." });
-        }
-        if (sideSize < 24) {
-            errors.Add(new IdentityError() { Code = nameof(sideSize), Description = "Side size of the target imagage cannot be less that 24 pxels." });
-        }
-        if (errors.Count > 0) {
-            return IdentityResult.Failed([..errors]);
-        }
-        if (scale > 1) {
-            // convert pan X and Y to my coord system.
-            translateX = viewPortSize > 0 ? maxSide * translateX / viewPortSize : translateX;
-            translateY = viewPortSize > 0 ? maxSide * translateY / viewPortSize : translateY;
-            var cropWindow = new Size(Math.Max((int)(image.Width / scale), (int)(image.Height / scale)));
-            var cropOptions = new Rectangle() {
-                Size = cropWindow,
-                X = (int)(((image.Width - cropWindow.Width) / 2d) - translateX),
-                Y = (int)(((image.Height - cropWindow.Height) / 2d) - translateY),
-            };
-
-            var resizeOptions = new ResizeOptions() {
-                Size = new Size(sideSize, sideSize),
-            };
-            try { 
-                image.Mutate(i => i.Crop(cropOptions).Resize(resizeOptions));
-            } catch {
-                return IdentityResult.Failed(new IdentityError() { Code = "Crop", Description = "Scale and translate out of bounds." });
-            }
-        } else {
-            var factor = (double)sideSize / maxSide;
-            var resizeOptions = new ResizeOptions() {
-                Size = new Size((int)(image.Width * factor), (int)(image.Height * factor)),
-            };
-            image.Mutate(i => i.Resize(resizeOptions));
-        }
-        
-
-        var outputStream = new MemoryStream();
-        await image.SaveAsWebpAsync(outputStream);
-        outputStream.Seek(0, SeekOrigin.Begin);
-
-        var data = new StringBuilder();
-        data.AppendFormat("data:{0};base64,", "image/webp");
-        data.Append(Convert.ToBase64String(outputStream.ToArray()));
-
-        var result = await ReplaceClaimAsync(user, PictureDataClaimType, data.ToString());
-        return result;
+        var pictureStore = GetPictureStore();
+        return await pictureStore!.SetUserPictureAsync(user, inputStream, sideSize, scale, translateX, translateY, viewPortSize);
     }
 
     /// <summary>Clear user profile picture</summary>
     /// <param name="user">The user instance</param>
     /// <returns>An <see cref="IdentityResult"/></returns>
     public async Task<IdentityResult> ClearUserPictureAsync(TUser user) {
-        var userStore = GetUserStore();
-        var result = await userStore!.RemoveAllClaimsAsync(user, PictureDataClaimType);
-        return result;
+        var pictureStore = GetPictureStore();
+        return await pictureStore!.ClearUserPictureAsync(user);
     }
 
     /// <summary>Return user picture stream and content type</summary>
@@ -751,53 +680,18 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
     /// <param name="size">Image size to be returned</param>
     /// <returns>A tupple of <see cref="Stream"/> and Content Type </returns>
     public async Task<(Stream? Stream, string ContentType)> GetUserPictureAsync(TUser user, string? contentType = null, int? size = null) {
-        var userStore = GetUserStore();
-        var claims = await userStore!.FindClaimsByTypeAsync(user, PictureDataClaimType);
-        var avatarBinary = claims.FirstOrDefault();
-        if (avatarBinary != null && !string.IsNullOrEmpty(avatarBinary.Value)) {
-            var regex = GetBase64PictureRegex();
-            var match = regex.Match(avatarBinary.Value);
-            if (!match.Groups["ContentType"].Success) {
-                return (null, string.Empty);
-            }
-            if (!match.Groups["Data"].Success) {
-                return (null, string.Empty);
-            }
-            var base64 = match.Groups["Data"].Value;
-            var savedContentType = match.Groups["ContentType"].Value;
-            MemoryStream outputStream;
+        var pictureStore = GetPictureStore();
+        return await pictureStore!.GetUserPictureAsync(user, contentType, size);
+    }
 
-            if (!size.HasValue && string.IsNullOrEmpty(contentType)) {
-                outputStream = new MemoryStream(Convert.FromBase64String(base64));
-                return (Stream: outputStream, ContentType: savedContentType);
-            }
-
-            using var originalStream = new MemoryStream(Convert.FromBase64String(base64));
-            using var image = Image.Load(originalStream, out var format);
-
-            var resizeOptions = new ResizeOptions() {
-                Size = new Size(size ?? image.Width, size ?? image.Height),
-                Mode = ResizeMode.Pad
-            };
-            image.Mutate(i => i.Resize(resizeOptions));
-            outputStream = new MemoryStream();
-            contentType ??= format.DefaultMimeType;
-            switch (contentType) {
-                case "image/png":
-                    await image.SaveAsPngAsync(outputStream);
-                    break;
-                case "image/jpeg":
-                    await image.SaveAsJpegAsync(outputStream);
-                    break;
-                default:
-                    await image.SaveAsWebpAsync(outputStream);
-                    break;
-            }
-            outputStream.Seek(0, SeekOrigin.Begin);
-
-            return (Stream: outputStream, ContentType: contentType);
-        }
-        return (null, string.Empty);
+    /// <summary>Return user picture stream and content type</summary>
+    /// <param name="pictureKey">The key assiciated with this picture. Can be the Sha256 of the userid or email, or the userid itself</param>
+    /// <param name="contentType">Content type of file to be returned</param>
+    /// <param name="size">Image size to be returned</param>
+    /// <returns>A tupple of <see cref="Stream"/> and Content Type.</returns>
+    public async Task<(Stream? Stream, string ContentType, bool Exists)> FindPictureByKeyAsync(string pictureKey, string? contentType = null, int? size = null) {
+        var pictureStore = GetPictureStore();
+        return await pictureStore!.FindUserPictureByKeyAsync(pictureKey, contentType, size);
     }
 
     #region Helper Methods
@@ -813,6 +707,13 @@ public partial class ExtendedUserManager<TUser> : UserManager<TUser> where TUser
         var cast = Store as IUserDeviceStore<TUser>;
         if (throwOnFail && cast is null) {
             throw new NotSupportedException($"Store does not implement {nameof(IUserDeviceStore<TUser>)}.");
+        }
+        return cast;
+    }
+    private IUserPictureStore<TUser>? GetPictureStore(bool throwOnFail = true) {
+        var cast = Store as IUserPictureStore<TUser>;
+        if (throwOnFail && cast is null) {
+            throw new NotSupportedException($"Store does not implement {nameof(IUserPictureStore<TUser>)}.");
         }
         return cast;
     }
