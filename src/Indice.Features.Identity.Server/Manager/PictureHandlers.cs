@@ -63,8 +63,10 @@ internal static partial class PictureHandlers
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
-        var route = linkGenerator.GetUriByName(httpContext, nameof(GetAccountPicture), new { pictureKey = user.Id.ToSha256Hex() });
-        result = await userManager.ReplaceClaimAsync(user, JwtClaimTypes.Picture, route!);
+        var route = linkGenerator.GetUriByName(httpContext, nameof(GetAccountPicture), new { userId = user.Id.ToSha256Hex() });
+        if (route is not null) { 
+            result = await userManager.ReplaceClaimAsync(user, JwtClaimTypes.Picture, route!);
+        }
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
