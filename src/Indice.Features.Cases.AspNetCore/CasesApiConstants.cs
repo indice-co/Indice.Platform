@@ -36,9 +36,6 @@ public static class CasesApiConstants
     /// <summary>The default permitted file extensions to check when uploading an attachment to an existing case.</summary>
     public static IReadOnlyCollection<string> DefaultPermittedAttachmentFileExtensions = new HashSet<string> { ".pdf", ".jpeg", ".jpg", ".tif", ".tiff" };
 
-    /// <summary>The default file size limit in request body (6 megabytes).</summary>
-    public const long ALLOWED_FILE_SIZE_BYTES_DEFAULT = 6291456;
-
     /// <summary>Cases API policies.</summary>
     public static class Policies
     {

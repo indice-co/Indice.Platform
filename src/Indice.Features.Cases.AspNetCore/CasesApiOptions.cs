@@ -35,9 +35,6 @@ public abstract class CasesApiOptions
 
     /// <summary>Specifies the permitted file extensions to check when uploading an attachment to an existing case.</summary>
     public IReadOnlyCollection<string> PermittedAttachmentFileExtensions { get; set; } = CasesApiConstants.DefaultPermittedAttachmentFileExtensions;
-
-    /// <summary>The file size limit in request body.</summary>
-    public long AllowedFileSizeBytes { get; set; } = CasesApiConstants.ALLOWED_FILE_SIZE_BYTES_DEFAULT;
 }
 
 /// <summary>

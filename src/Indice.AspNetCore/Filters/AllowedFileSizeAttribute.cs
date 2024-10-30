@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Indice.AspNetCore.Configuration;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Indice.AspNetCore.Filters;
 
@@ -10,28 +11,30 @@ namespace Indice.AspNetCore.Filters;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class AllowedFileSizeAttribute : Attribute, IActionFilter
 {
-    private long _defaultSizeLimit;
-    private readonly string _configurationKey;
+    private readonly long? _sizeLimit;
 
     /// <summary>Creates a new instance of <see cref="AllowedFileSizeAttribute"/>.</summary>
-    public AllowedFileSizeAttribute(long defaultSizeLimit, string configurationKey = null) {
-        _configurationKey = configurationKey;
-        _defaultSizeLimit = defaultSizeLimit;
+    public AllowedFileSizeAttribute(long sizeLimit) {
+        _sizeLimit = sizeLimit;
+    }
+
+    /// <summary>Creates a new instance of <see cref="AllowedFileSizeAttribute"/>.</summary>
+    public AllowedFileSizeAttribute() {
+        _sizeLimit = null;
     }
 
     /// <inheritdoc />
     public void OnActionExecuting(ActionExecutingContext context) {
-        var sizeLimit = _defaultSizeLimit;
+        var options = context.HttpContext.RequestServices.GetService<IOptions<AllowedFileSizeAttributeOptions>>()?.Value 
+            ?? new AllowedFileSizeAttributeOptions();
 
-        if (!string.IsNullOrWhiteSpace(_configurationKey)) {
-            var configuration = context.HttpContext.RequestServices.GetService<IConfiguration>();
-            sizeLimit = configuration?.GetValue(_configurationKey, _defaultSizeLimit) ?? _defaultSizeLimit;
-        }
+        var allowedFileSize = _sizeLimit
+            ?? options.AllowedFileSizeBytes;
 
         IEnumerable<IFormFile> files = context.HttpContext.Request.Form.Files;
         foreach (var file in files) {
-            if (file.Length > sizeLimit) {
-                context.ModelState.AddModelError($"{file.FileName}", $"File size cannot exceed {sizeLimit} bytes.");
+            if (file.Length > allowedFileSize) {
+                context.ModelState.AddModelError($"{file.FileName}", $"File size cannot exceed {allowedFileSize} bytes.");
                 context.Result = new BadRequestObjectResult(context.ModelState);
             }
         }
