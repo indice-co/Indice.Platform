@@ -15,6 +15,7 @@ import { WizardStepDirective } from './components/step-base/wizard-step.directiv
 import { FormReadonlyDirective } from './directives/form-readonly.directive';
 import { TranslateInputComponent } from './components/translate-input/translate-input.component';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
+import { ImgUserPictureDirective } from './directives/user-picture.directive';
 
 @NgModule({
     declarations: [
@@ -25,7 +26,8 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
         ValidationSummaryComponent,
         RouterLinkMatchDirective,
         WizardStepDirective,
-        FormReadonlyDirective
+        FormReadonlyDirective,
+        ImgUserPictureDirective
     ],
     imports: [
         CommonModule,
