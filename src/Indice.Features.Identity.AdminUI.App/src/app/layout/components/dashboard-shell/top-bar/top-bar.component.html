@@ -19,8 +19,9 @@
           ngbDropdownToggle
         >
           <img
-            [src]="picture"
-            alt="{{ displayName }} profile picture"
+            [userPicture]="profile.sub"
+            [displayName]="displayName"
+            size="64"
             class="rounded-circle m-r-10"
           />
           <span class="d-none d-md-inline-block m-l-1">

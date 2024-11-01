@@ -76,6 +76,7 @@ export class ImgUserPictureDirective implements OnInit {
             let srcParts = ['/pictures', hash, this._size].join('/');
             this._img.src=`${app.settings.auth_settings.authority}${srcParts}?d=${encodeURIComponent(fallbackParts)}&v=${this._version}`;
         })();
+        this._img.alt = `Profile picture ${this._displayName}`;
     }
 
     private async generateSHA256Hash(text) {
