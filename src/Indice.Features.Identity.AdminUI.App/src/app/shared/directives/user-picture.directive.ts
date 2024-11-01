@@ -1,17 +1,22 @@
-import { AfterContentInit, Directive, ElementRef, Input } from '@angular/core';
+import { AfterContentInit, OnInit, Directive, ElementRef, Input } from '@angular/core';
 import * as app from 'src/app/core/models/settings';
 
 @Directive({
     selector: 'img[userPicture]'
 })
-export class ImgUserPictureDirective implements AfterContentInit {
+export class ImgUserPictureDirective implements OnInit {
     private _userId: string;
     private _size: number = 48;
     private _displayName: string = 'John Doe';
+    private _color: string | undefined | null = undefined;
     private _img: HTMLImageElement;
+    private _version: number = 0;
 
     constructor(element: ElementRef) {
         this._img = element.nativeElement as HTMLImageElement;
+    }
+    ngOnInit(): void {
+        this.setProfileSrc();
     }
 
     @Input('userPicture')
@@ -23,23 +28,51 @@ export class ImgUserPictureDirective implements AfterContentInit {
     public set setSize(value: number) {
         this._size = value;
     }
+    @Input('version')
+    public set setVersion(value: number) {
+        if (this._version !== value) {
+            this._version = value;
 
-    @Input('displayName')
-    public set setDisplayName(value: string) {
-        this._displayName = value;
+            this.setProfileSrc();
+        }
     }
 
-    public ngAfterContentInit(): void {
+    @Input('displayName')
+    public set setDisplayName(value: string | { given_name: string | undefined, family_name: string | undefined, firstName: string| undefined, lastName: string| undefined, email: string| undefined, name: string| undefined, userName: string| undefined }) {
+        if (!value) {
+            return;
+        }
+        let text = this._displayName;
+        if (typeof value === 'string') {
+            text = value    
+        } else {
+            text = (value.firstName + ' ' + value.lastName).trim() ? (value.firstName + ' ' + value.lastName).trim() : 
+                    (value.given_name + ' ' + value.family_name).trim() ? (value.given_name + ' ' + value.family_name).trim() :
+                    value.email ? value.email :
+                    value.userName ? value.userName : 
+                    value.name;
+        }
+        this._displayName = text?.split('@')[0].replaceAll(/[\+\(\)\{\}\.,\[\]]/g, ' '); // removes any special characters
+    }
+
+    @Input('color')
+    public set setColor(value: string | undefined | null) {
+        this._color = value?.replace(/^#+/, '');
+    }
+
+    private setProfileSrc() {
+        let fallbackParts = ['/avatar', this._displayName, this._size, this._color].filter(x => !!(x)).join('/');
         if (!this._userId) {
+            let srcParts = ['/api/my/account/picture', this._size].join('/');
+            this._img.src=`${app.settings.auth_settings.authority}${srcParts}?d=${encodeURIComponent(fallbackParts)}&v=${this._version}`;// create my link
             return;
         }
         (async () => {
+            // create public link
             const hash = await this.generateSHA256Hash(this._userId);
             let srcParts = ['/pictures', hash, this._size].join('/');
-            let fallbackParts = ['/avatar', this._displayName, this._size].join('/');
-            this._img.src=`${app.settings.auth_settings.authority}${srcParts}?d=${encodeURIComponent(fallbackParts)}`;
+            this._img.src=`${app.settings.auth_settings.authority}${srcParts}?d=${encodeURIComponent(fallbackParts)}&v=${this._version}`;
         })();
-        
     }
 
     private async generateSHA256Hash(text) {

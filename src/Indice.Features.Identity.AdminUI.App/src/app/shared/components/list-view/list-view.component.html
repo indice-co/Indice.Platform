@@ -5,7 +5,7 @@
                [externalPaging]="!clientSide" [externalSorting]="!clientSide" [loadingIndicator]="isLoading" (page)="setPage($event)" (sort)="setSort($event)" #dataTable>
 </ngx-datatable>
 <ng-template let-row="row" let-value="value" #usernameTemplate>
-    <img *ngIf="value" class="avatar rounded-circle" style="height: 24px;" [userPicture]="row.id" size="48">
+    <img *ngIf="value" class="avatar rounded-circle" style="height: 24px;" [userPicture]="row.id" size="48" [displayName]="row">
     <span *ngIf="value" style="padding-right: 16px; position: relative;" [title]="value">
         <i *ngIf="row.blocked" class="material-icons font-14 checkmark" style="color: rgba(255, 81, 81, 0.61) !important;" title="Account is blocked">block</i>
         <i *ngIf="row.isLocked && !row.blocked" class="material-icons font-14 checkmark" style="color: rgba(255, 81, 81, 0.61) !important;" title="Account is locked">vpn_key</i>
