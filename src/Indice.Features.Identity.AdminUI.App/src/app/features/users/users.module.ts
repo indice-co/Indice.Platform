@@ -21,6 +21,7 @@ import { ExtendedInfoStepComponent } from "./add/wizard/steps/extended-info/exte
 import { UserClaimsStepComponent } from "./add/wizard/steps/claims/user-claims-step.component";
 import { UserRolesStepComponent } from "./add/wizard/steps/roles/user-roles-step.component";
 import { UserProfilePictureComponent } from "./edit/profile-picture/profile-picture.component";
+import { ImgUserPictureDirective } from "src/app/shared/directives/user-picture.directive";
 
 @NgModule({
   declarations: [
@@ -48,7 +49,7 @@ import { UserProfilePictureComponent } from "./edit/profile-picture/profile-pict
     NgbDropdownModule,
     NgbModalModule,
     SharedModule,
-    SweetAlert2Module,
+    SweetAlert2Module
   ],
 })
 export class UsersModule {}
