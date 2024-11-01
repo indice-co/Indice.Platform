@@ -15,10 +15,8 @@ public static class MessageEndpointExtensions
     public static IEndpointRouteBuilder MapMessaging(this IEndpointRouteBuilder routes) {
         // my messages / inbox api
         //routes.MapMyMessages();
-
         // management
-        //routes.MapCampaigns();
-        //routes.MapCampaigns();
+        routes.MapCampaigns();
         return routes;
     }
 }
