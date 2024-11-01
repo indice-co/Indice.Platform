@@ -52,13 +52,11 @@ export class UserEditComponent implements OnInit, OnDestroy {
         (result: { user: SingleUserInfo; features: UiFeaturesInfo }) => {
           this.signInLogsEnabled = result.features.signInLogsEnabled;
 
-          const { userName, claims } = result.user;
-          const givenName = claims.find((c) => c.type === "given_name");
-          const familyName = claims.find((c) => c.type === "family_name");
-
-          this.userName = userName;
-          this.displayName = `${givenName.value} ${familyName.value}`;
-          this.avatar = `${environment.api_url}/pictures/${this.userId}/256?d=/avatar/${this.displayName}/256`;
+          this.userName = result.user.userName;
+          this.displayName = this.getDisplayName(result.user);
+          this.avatar = `${environment.api_url}/pictures/${
+            this.userId
+          }/256?d=/avatar/${encodeURIComponent(this.displayName)}/256`;
         }
       );
   }
@@ -68,5 +66,15 @@ export class UserEditComponent implements OnInit, OnDestroy {
     if (this._getDataSubscription) {
       this._getDataSubscription.unsubscribe();
     }
+  }
+
+  private getDisplayName(user: SingleUserInfo): string {
+    const { userName, claims } = user;
+    const givenName = claims.find((c) => c.type === "given_name");
+    const familyName = claims.find((c) => c.type === "family_name");
+
+    return givenName?.value && familyName?.value
+      ? `${givenName?.value} ${familyName?.value}`
+      : userName;
   }
 }

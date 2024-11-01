@@ -12,7 +12,7 @@
         type="file"
         accept="image/*"
         id="user-profile-picture"
-        (change)="onSelectFile($event)"
+        (change)="onFileSelected($event)"
         class="d-none"
       />
     </div>
@@ -27,13 +27,19 @@
     <div class="alert alert-info" role="alert" *ngIf="isLandscape">
       Adjust your image left or right to reposition
     </div>
+    <div class="alert alert-info" role="alert" *ngIf="isSquare">
+      Zoom in to adjust your image
+    </div>
     <div
       #container
       class="cropcontainer"
       (wheel)="onMouseWheel($event)"
-      (mousedown)="dragStart($event)"
-      (mousemove)="drag($event)"
-      (mouseup)="dragEnd()"
+      (mousedown)="onDragStart($event)"
+      (mousemove)="onDrag($event)"
+      (mouseup)="onDragEnd()"
+      (touchstart)="onDragStart($event)"
+      (touchmove)="onDrag($event)"
+      (touchend)="onDragEnd()"
     >
       <div class="profilepiceditor">
         <img
@@ -47,6 +53,18 @@
         <div class="profilepiceditor__content"></div>
       </div>
     </div>
+    <label for="zoom-level" class="form-label">Zoom in/out</label>
+    <input
+      type="range"
+      class="form-range"
+      id="zoom-level"
+      [min]="minScale"
+      [max]="maxScale"
+      [step]="step"
+      [disabled]="maxScale === 1"
+      [(ngModel)]="scale"
+      (input)="onScale(scale)"
+    />
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-secondary" (click)="closeModal()">

@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 
 import { AuthService } from "src/app/core/services/auth.service";
 import { MenuService } from "src/app/layout/services/menu.service";
-import * as app from 'src/app/core/models/settings';
+import * as app from "src/app/core/models/settings";
 
 @Component({
   selector: "app-top-bar",
@@ -21,7 +21,7 @@ export class TopBarComponent implements OnInit {
     const profile = this.authService.getUserProfile();
     this.displayName = this.authService.getDisplayName();
     if (!profile.picture) {
-      profile.picture = `${app.settings.auth_settings.authority}/api/my/account/picture/64`
+      profile.picture = `${app.settings.auth_settings.authority}/api/my/account/picture/64`;
     }
     this.picture = `${profile.picture}?d=/avatar/${this.displayName}/64`;
   }
