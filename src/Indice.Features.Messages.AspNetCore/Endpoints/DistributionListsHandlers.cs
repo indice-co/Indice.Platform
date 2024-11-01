@@ -11,7 +11,7 @@ namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
 
 
-public static class DistributionListsHandler
+public static class DistributionListsHandlers
 {
     public static async Task<IResult> GetDistributionLists(IDistributionListService distributionListService, [AsParameters] ListOptions options, [AsParameters] DistributionListFilter filter) {
         var lists = await distributionListService.GetList(options, filter);

@@ -19,14 +19,20 @@ using Microsoft.AspNetCore.Http.HttpResults;
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
 
-internal static class CampaignsHandler
+internal static class CampaignsHandlers
 {
+    /// <summary>Gets the list of all campaigns using the provided <see cref="ListOptions"/>.</summary>
+    /// <param name="campaignService">The service responsible for accessing and managing campaign data.</param>
+    /// <param name="options">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+    /// <param name="filter">Filtering criteria applied to refine the list of campaigns based on specific fields.</param>
     public static async Task<Ok<ResultSet<Campaign>>> GetCampaigns(ICampaignService campaignService, [AsParameters] ListOptions options, [AsParameters] CampaignListFilter filter) {
         var campaigns = await campaignService.GetList(ListOptions.Create(options, filter));
         return TypedResults.Ok(campaigns);
     }
 
-
+    /// <summary>Gets a campaign with the specified id.</summary>
+    /// <param name="campaignService">The service responsible for accessing and managing campaign data.</param>
+    /// <param name="campaignId">The id of the campaign.</param>
     public static async Task<Results<Ok<CampaignDetails>, NotFound>> GetCampaignById(ICampaignService campaignService, Guid campaignId) {
         var campaign = await campaignService.GetById(campaignId);
         if (campaign is null) {
@@ -35,7 +41,10 @@ internal static class CampaignsHandler
         return TypedResults.Ok(campaign);
     }
 
-
+    /// <summary>Publishes a campaign.</summary>
+    /// <param name="campaignService">The service responsible for accessing and managing campaign data.</param>
+    /// <param name="eventDispatcher">Handles events raised when a campaign is published, allowing integration with other services.</param>
+    /// <param name="campaignId">The id of the campaign.</param>
     public static async Task<NoContent> PublishCampaign(ICampaignService campaignService, IEventDispatcher eventDispatcher, Guid campaignId) {
         var publishedCampaign = await campaignService.Publish(campaignId);
 
@@ -47,7 +56,9 @@ internal static class CampaignsHandler
         return TypedResults.NoContent();
     }
 
-
+    /// <summary>Gets the statistics for a specified campaign.</summary>
+    /// <param name="campaignService">The service responsible for accessing and managing campaign data.</param>
+    /// <param name="campaignId">The id of the campaign.</param>
     public static async Task<Results<Ok<CampaignStatistics>, NotFound>> GetCampaignStatistics(ICampaignService campaignService, Guid campaignId) {
         var statistics = await campaignService.GetStatistics(campaignId);
         if (statistics is null) {
@@ -55,6 +66,16 @@ internal static class CampaignsHandler
         }
         return TypedResults.Ok(statistics);
     }
+
+    public static async Task<Results<Ok<CampaignStatistics>, NotFound>> ExportCampaignStatistics(ICampaignService campaignService, IFileServiceFactory fileServiceFactory, Guid campaignId) {
+        var statistics = await campaignService.GetStatistics(campaignId);
+        if (statistics == null) {
+            return TypedResults.NotFound();
+        }
+        return TypedResults.Ok(statistics);
+    }
+
+
 
     public static async Task<Created<Campaign>> CreateCampaign(NotificationsManager notificationsManager, IConfiguration configuration, CreateCampaignRequest request) {
         if (request != null && string.IsNullOrWhiteSpace(request.MediaBaseHref)) {
@@ -118,6 +139,7 @@ internal static class CampaignsHandler
 
         return TypedResults.File(data, contentType, lastModified: properties.LastModified, entityTag: new EntityTagHeaderValue(properties.ETag, true));
     }
+
 }
 
 #endif

@@ -33,18 +33,18 @@ public static class ContactsApi
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);
 
-        group.MapGet("", ContactsHandler.GetContacts)
+        group.MapGet("", ContactsHandlers.GetContacts)
             .Produces<ResultSet<Contact>>(StatusCodes.Status200OK, MediaTypeNames.Application.Json);
 
-        group.MapGet("{contactId:guid}", ContactsHandler.GetContactById)
+        group.MapGet("{contactId:guid}", ContactsHandlers.GetContactById)
             .Produces<Contact>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound);
 
-        group.MapPost("", ContactsHandler.CreateContact)
+        group.MapPost("", ContactsHandlers.CreateContact)
             .Produces<MessageType>(StatusCodes.Status200OK)
             .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
 
-        group.MapPut("{contactId:guid}", ContactsHandler.UpdateContact)
+        group.MapPut("{contactId:guid}", ContactsHandlers.UpdateContact)
             .Produces(StatusCodes.Status204NoContent);
     }
 }

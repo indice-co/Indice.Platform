@@ -35,33 +35,33 @@ public static class DistributionListsApi
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-        group.MapGet("", DistributionListsHandler.GetDistributionLists)
+        group.MapGet("", DistributionListsHandlers.GetDistributionLists)
             .Produces<ResultSet<DistributionList>>(StatusCodes.Status200OK, MediaTypeNames.Application.Json);
 
-        group.MapGet("{distributionListId:guid}", DistributionListsHandler.GetDistributionListById)
+        group.MapGet("{distributionListId:guid}", DistributionListsHandlers.GetDistributionListById)
             .Produces<DistributionList>(StatusCodes.Status200OK, MediaTypeNames.Application.Json)
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound);
 
-        group.MapPost("", DistributionListsHandler.CreateDistributionList)
+        group.MapPost("", DistributionListsHandlers.CreateDistributionList)
             .Produces<DistributionList>(StatusCodes.Status201Created)
             .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
 
-        group.MapDelete("{distributionListId:guid}", DistributionListsHandler.DeleteDistributionList)
+        group.MapDelete("{distributionListId:guid}", DistributionListsHandlers.DeleteDistributionList)
             .Produces(StatusCodes.Status204NoContent)
             .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
 
-        group.MapPut("{distributionListId:guid}", DistributionListsHandler.UpdateDistributionList)
+        group.MapPut("{distributionListId:guid}", DistributionListsHandlers.UpdateDistributionList)
             .Produces(StatusCodes.Status204NoContent)
             .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
 
-        group.MapGet("{distributionListId:guid}/contacts", DistributionListsHandler.GetDistributionListContacts)
+        group.MapGet("{distributionListId:guid}/contacts", DistributionListsHandlers.GetDistributionListContacts)
             .Produces<ResultSet<Contact>>(StatusCodes.Status200OK);
 
-        group.MapPost("{distributionListId:guid}/contacts", DistributionListsHandler.AddContactToDistributionList)
+        group.MapPost("{distributionListId:guid}/contacts", DistributionListsHandlers.AddContactToDistributionList)
             .Produces(StatusCodes.Status204NoContent)
             .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
 
-        group.MapDelete("{distributionListId:guid}/contacts/{contactId:guid}", DistributionListsHandler.RemoveContactFromDistributionList)
+        group.MapDelete("{distributionListId:guid}/contacts/{contactId:guid}", DistributionListsHandlers.RemoveContactFromDistributionList)
             .Produces(StatusCodes.Status204NoContent)
             .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
     }

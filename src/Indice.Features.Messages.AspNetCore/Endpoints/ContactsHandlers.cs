@@ -12,7 +12,7 @@ namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
 
 
-internal static class ContactsHandler
+internal static class ContactsHandlers
 {
     public static async Task<IResult> GetContacts(
         IContactService contactService,

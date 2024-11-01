@@ -14,7 +14,7 @@ using System.Security.Claims;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
-internal static class MyMessagesHandler
+internal static class MyMessagesHandlers
 {
     
     public static async Task<IResult> GetMessages(

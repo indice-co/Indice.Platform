@@ -32,7 +32,7 @@ public static class MyMessagesApi
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden);
 
-        group.MapGet("", MyMessagesHandler.GetMessages)
+        group.MapGet("", MyMessagesHandlers.GetMessages)
              .WithName("GetMessages")
              .WithSummary("Gets the list of all user messages using the provided <see cref=\"ListOptions\"/>.")
              .WithDescription("<summary>Gets the list of all user messages using the provided <see cref=\"ListOptions\"/>.</summary>\r\n <param name=\"options\">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>\r\n <response code=\"200\">OK</response>")
@@ -40,24 +40,24 @@ public static class MyMessagesApi
              .Produces(StatusCodes.Status401Unauthorized, typeof(ProblemDetails))
              .Produces(StatusCodes.Status403Forbidden, typeof(ProblemDetails));
 
-        group.MapGet("types", MyMessagesHandler.GetInboxMessageTypes)
+        group.MapGet("types", MyMessagesHandlers.GetInboxMessageTypes)
                     .WithName("GetInboxMessageTypes")
                     .WithSummary("Gets the list of available campaign types.")
                     .Produces<ResultSet<MessageType>>(StatusCodes.Status200OK);
 
-        group.MapGet("{messageId:guid}", MyMessagesHandler.GetMessageById)
+        group.MapGet("{messageId:guid}", MyMessagesHandlers.GetMessageById)
              .WithName("GetMessageById")
              .WithSummary("Gets the message with the specified ID.")
              .Produces<Message>(StatusCodes.Status200OK)
              .ProducesProblem(StatusCodes.Status404NotFound);
 
-        group.MapPut("{messageId:guid}/read", MyMessagesHandler.MarkMessageAsRead)
+        group.MapPut("{messageId:guid}/read", MyMessagesHandlers.MarkMessageAsRead)
              .WithName("MarkMessageAsRead")
              .WithSummary("Marks the specified message as read.")
              .Produces(StatusCodes.Status204NoContent)
              .ProducesProblem(StatusCodes.Status400BadRequest);
 
-        group.MapDelete("{messageId:guid}", MyMessagesHandler.DeleteMessage)
+        group.MapDelete("{messageId:guid}", MyMessagesHandlers.DeleteMessage)
              .WithName("DeleteMessage")
              .WithSummary("Marks the specified message as deleted.")
              .Produces(StatusCodes.Status204NoContent)
