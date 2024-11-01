@@ -11,9 +11,9 @@ import {
   FileParameter,
   IdentityApiService,
 } from "src/app/core/services/identity-api.service";
+import { ToastService } from "src/app/layout/services/app-toast.service";
 
 // TODO: add touch event and pinch to zoom
-// TODO: calculate bounds when zoom in/out
 @Component({
   selector: "app-user-profile-picture",
   templateUrl: "./profile-picture.component.html",
@@ -27,21 +27,23 @@ export class UserProfilePictureComponent implements OnDestroy {
   @Input() public displayName: string;
 
   modalRef: NgbModalRef;
-  modalSubscription: Subscription;
 
   viewPort: number = 400;
   viewPortOrientation: "landscape" | "portrait" | "square" = "square";
+  step: number = 0.01;
   scale: number = 1;
-  scaleFit: number = 1;
   minScale: number = 1;
   maxScale: number = 1;
-  panX: number = 0;
-  panY: number = 0;
   initialTranslateX: number = 0;
   initialTranslateY: number = 0;
   translateX: number = 0;
   translateY: number = 0;
   dragCoords: { x: number; y: number } | null = null;
+
+  initialLeftBound = 0;
+  initialRightBound = 0;
+  initialTopBound = 0;
+  initialBottomBound = 0;
 
   leftBound = 0;
   rightBound = 0;
@@ -52,12 +54,15 @@ export class UserProfilePictureComponent implements OnDestroy {
   imageURL: string = "";
 
   file: File;
+  fileParameter: FileParameter;
   fileVersion = 1;
 
   apiSubscription: Subscription;
+  modalSubscription: Subscription;
 
   constructor(
     private api: IdentityApiService,
+    private toast: ToastService,
     private modalService: NgbModal
   ) {}
 
@@ -65,6 +70,13 @@ export class UserProfilePictureComponent implements OnDestroy {
     if (this.apiSubscription) {
       this.apiSubscription.unsubscribe();
     }
+    if (this.modalSubscription) {
+      this.modalSubscription.unsubscribe();
+    }
+  }
+
+  get isSquare(): boolean {
+    return this.viewPortOrientation === "square";
   }
 
   get isPortrait(): boolean {
@@ -75,41 +87,21 @@ export class UserProfilePictureComponent implements OnDestroy {
     return this.viewPortOrientation === "landscape";
   }
 
-  onSelectFile(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) {
-      this.file = file;
+  public onFileSelected(event: Event): void {
+    this.file = (event.target as HTMLInputElement).files?.[0];
+    if (this.file) {
+      this.fileParameter = {
+        fileName: this.file.name,
+        data: this.file,
+      };
+
       this.openModal();
     }
   }
 
-  onTransform() {
-    this.image.style.transform = `scale(${this.scale}) translate(${this.translateX}px, ${this.translateY}px)`;
-  }
-
-  reset() {
-    this.viewPortOrientation = "square";
-    this.scale = 1;
-    this.scaleFit = 1;
-    this.minScale = 1;
-    this.maxScale = 1;
-    this.panX = 0;
-    this.panY = 0;
-    this.initialTranslateX = 0;
-    this.initialTranslateY = 0;
-    this.translateX = 0;
-    this.translateY = 0;
-    this.leftBound = 0;
-    this.rightBound = 0;
-    this.topBound = 0;
-    this.bottomBound = 0;
-    this.image = null;
-    this.imageURL = "";
-    this.file = null;
-  }
-
-  dragStart(event: MouseEvent | TouchEvent) {
+  public onDragStart(event: MouseEvent | TouchEvent): void {
     event.preventDefault();
+
     if (!this.dragCoords) {
       const clientX =
         event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
@@ -123,7 +115,7 @@ export class UserProfilePictureComponent implements OnDestroy {
     }
   }
 
-  drag(event: MouseEvent | TouchEvent) {
+  public onDrag(event: MouseEvent | TouchEvent): void {
     if (this.dragCoords) {
       event.preventDefault();
 
@@ -135,154 +127,43 @@ export class UserProfilePictureComponent implements OnDestroy {
       this.translateX = clientX - this.dragCoords.x;
       this.translateY = clientY - this.dragCoords.y;
 
-      switch (this.viewPortOrientation) {
-        case "square":
-          if (Math.abs(this.translateX) > 0) {
-            this.translateX = 0;
-          }
-          if (Math.abs(this.translateY) > 0) {
-            this.translateY = 0;
-          }
-          break;
-        case "portrait":
-          if (this.translateY > this.topBound) {
-            this.translateY = this.topBound;
-          }
-          if (this.translateY < this.bottomBound) {
-            this.translateY = this.bottomBound;
-          }
-          this.translateX = 0;
-          break;
-        case "landscape":
-          if (this.translateX > this.leftBound) {
-            this.translateX = this.leftBound;
-          }
-          if (this.translateX < this.rightBound) {
-            this.translateX = this.rightBound;
-          }
-          if (this.translateY > this.topBound) {
-            this.translateY = this.topBound;
-          }
-          if (this.translateY < this.bottomBound) {
-            this.translateY = this.bottomBound;
-          }
-          break;
-      }
+      this.translateY = Math.max(this.translateY, this.bottomBound);
+      this.translateY = Math.min(this.translateY, this.topBound);
+      this.translateX = Math.max(this.translateX, this.rightBound);
+      this.translateX = Math.min(this.translateX, this.leftBound);
 
-      this.panX = this.translateX - this.initialTranslateX;
-      this.panY = this.translateY - this.initialTranslateY;
-
-      this.onTransform();
+      this.transform();
     }
   }
 
-  dragEnd() {
+  public onDragEnd(): void {
     this.dragCoords = null;
   }
 
-  onMouseWheel(event: WheelEvent) {
-    // event.preventDefault();
-    // this.scale += event.deltaY < 0 ? 0.15 : -0.15;
-    // this.scale = Math.max(this.minScale, this.scale);
-    // this.calcBounds();
-    // this.onTransform();
+  public onMouseWheel(event: WheelEvent): void {
+    event.preventDefault();
+
+    this.scale += event.deltaY < 0 ? this.step : -this.step;
+    this.scale = Math.max(this.minScale, Math.min(this.scale, this.maxScale));
+
+    this.calculateBounds();
+    this.transform();
   }
 
-  calcBounds() {
-    const { width, height } = this.image;
+  public onScale(newScale: number): void {
+    this.scale = newScale;
 
-    const scaledWidth = width * this.scale;
-    const scaledHeight = height * this.scale;
-
-    let translateXBounds = { left: 0, right: 0 };
-    let translateYBounds = { top: 0, bottom: 0 };
-
-    if (scaledWidth > this.viewPort) {
-      const overflowX = (scaledWidth - this.viewPort) / 2;
-      translateXBounds = {
-        left: -overflowX,
-        right: overflowX,
-      };
-    } else {
-      translateXBounds.left = 0;
-      translateXBounds.right = 0;
-    }
-
-    if (scaledHeight > this.viewPort) {
-      const overflowY = (scaledHeight - this.viewPort) / 2;
-      translateYBounds = {
-        top: -overflowY,
-        bottom: overflowY,
-      };
-    } else {
-      translateYBounds.top = 0;
-      translateYBounds.bottom = 0;
-    }
-
-    this.leftBound = translateXBounds.right + this.translateX;
-    this.rightBound = translateXBounds.left + this.translateX;
-    this.topBound = translateYBounds.top + this.translateY;
-    this.bottomBound = translateYBounds.bottom + this.translateY;
-  }
-
-  setBounds() {
-    const { width, height } = this.image;
-    if (height > width) {
-      const scaleFactor = this.viewPort / height;
-      const scaledWidth = width * scaleFactor;
-
-      this.viewPortOrientation = "portrait";
-      this.scale = this.viewPort / scaledWidth;
-      this.scaleFit = this.viewPort / this.image.naturalHeight;
-      this.minScale = this.scale;
-
-      this.topBound = -Math.round(
-        Math.ceil(scaledWidth) / 2 - this.viewPort / 2
-      );
-      this.bottomBound = -this.topBound;
-    }
-
-    if (width > height) {
-      const scaleFactor = this.viewPort / height;
-      const scaledWidth = width * scaleFactor;
-
-      this.viewPortOrientation = "landscape";
-      this.scaleFit = this.viewPort / this.image.naturalWidth;
-      this.translateX = -scaledWidth / 2 + this.viewPort / 2;
-      this.translateY = 0;
-      this.initialTranslateX = this.translateX;
-      this.initialTranslateY = this.translateY;
-
-      this.calcBounds();
-    }
-
-    if (width === height) {
-      this.viewPortOrientation = "square";
-      this.scaleFit = this.viewPort / this.image.naturalWidth;
-      this.topBound = 0;
-      this.bottomBound = 0;
-      this.leftBound = 0;
-      this.rightBound = 0;
-    }
+    this.calculateBounds();
+    this.transform();
   }
 
   public openModal(): void {
     this.modalRef = this.modalService.open(this.modalContent);
     this.modalSubscription = this.modalRef.shown.subscribe((_) => {
-      const image = document.getElementById("pic") as HTMLImageElement;
-      image.src = this.imageURL = URL.createObjectURL(this.file);
-      image.onload = () => {
-        const imgWidth = image.naturalWidth;
-
-        this.scale = 1;
-        this.minScale = 1;
-        this.maxScale = imgWidth / this.viewPort;
-        this.translateX = 0;
-        this.translateY = 0;
-        this.image = image;
-
-        this.setBounds();
-        this.onTransform();
+      this.image = document.getElementById("pic") as HTMLImageElement;
+      this.image.src = this.imageURL = URL.createObjectURL(this.file);
+      this.image.onload = () => {
+        this.setup();
       };
     });
   }
@@ -294,38 +175,137 @@ export class UserProfilePictureComponent implements OnDestroy {
     }
   }
 
-  public crop() {
-    const { naturalWidth, naturalHeight, width, height } = this.image;
-    let scale;
+  private calculateBounds(): void {
+    const scaledHeight = this.image.height * this.scale;
+    const horizontalOverflow = (scaledHeight - this.viewPort) / 2;
+
     switch (this.viewPortOrientation) {
       case "square":
       case "landscape":
-        scale = naturalHeight / height;
+        this.leftBound = Math.round(horizontalOverflow / this.scale);
+        this.rightBound = -this.leftBound;
+        this.topBound = Math.round(this.leftBound - this.initialLeftBound);
+        this.bottomBound = -this.topBound;
         break;
       case "portrait":
-        scale = naturalWidth / width;
+        this.topBound = Math.round(
+          horizontalOverflow / this.scale - this.initialLeftBound
+        );
+        this.bottomBound = -this.topBound;
+        this.leftBound = this.topBound - this.initialTopBound;
+        this.rightBound = -this.leftBound;
         break;
     }
-    const scaleFit = this.scale / this.scaleFit;
-    const scaleRatio = scaleFit / scale;
+  }
 
-    const fileParameter: FileParameter = {
-      fileName: this.file.name,
-      data: this.file,
-    };
+  private transform(): void {
+    this.image.style.transform = `scale(${this.scale}) translate(${this.translateX}px, ${this.translateY}px)`;
+  }
 
+  private setup(): void {
+    const { naturalWidth, naturalHeight } = this.image;
+    const scaleFactor = this.viewPort / this.image.height;
+    const scaledWidth = this.image.width * scaleFactor;
+
+    if (naturalHeight > naturalWidth) {
+      this.configurePortraitViewOrientation(scaledWidth);
+    } else if (naturalWidth > naturalHeight) {
+      this.configureLandscapeViewOrientation(scaledWidth);
+    } else {
+      this.configureSquareViewOrientation();
+    }
+
+    this.minScale = this.scale;
+
+    this.calculateBounds();
+    this.transform();
+  }
+
+  private configurePortraitViewOrientation(scaledWidth: number): void {
+    const ratio = this.viewPort / scaledWidth;
+    this.viewPortOrientation = "portrait";
+    this.scale = (this.image.naturalHeight / this.image.naturalWidth) * ratio;
+    this.maxScale = this.image.naturalWidth / this.viewPort;
+
+    const horizontalOverflow =
+      (this.image.height * this.scale - this.viewPort) / 2;
+    this.initialTopBound = Math.round(horizontalOverflow / this.scale);
+    this.initialBottomBound = -this.initialTopBound;
+    this.initialLeftBound = 0;
+    this.initialRightBound = 0;
+  }
+
+  private configureLandscapeViewOrientation(scaledWidth: number): void {
+    this.viewPortOrientation = "landscape";
+    this.scale =
+      (this.image.naturalWidth / this.image.naturalHeight) * this.scale;
+    this.maxScale = this.image.naturalHeight / this.viewPort;
+
+    this.translateX = -scaledWidth / 2 + this.viewPort / 2;
+    this.translateY = 0;
+    this.initialTranslateX = this.translateX;
+    this.initialTranslateY = this.translateY;
+
+    const horizontalOverflow =
+      (this.image.height * this.scale - this.viewPort) / 2;
+    this.initialLeftBound = Math.round(horizontalOverflow / this.scale);
+    this.initialRightBound = -this.initialLeftBound;
+  }
+
+  private configureSquareViewOrientation(): void {
+    this.viewPortOrientation = "square";
+    this.scale =
+      (this.image.naturalWidth / this.image.naturalHeight) * this.scale;
+    this.maxScale = this.image.naturalHeight / this.viewPort;
+  }
+
+  public crop(): void {
     this.apiSubscription = this.api
       .saveUserPicture(
         this.userId,
-        fileParameter,
-        scaleRatio,
-        Math.round(this.panX / scaleRatio),
-        Math.round(this.panY / scaleRatio)
-        // this.viewPort
+        this.fileParameter,
+        this.scale,
+        this.translateX,
+        this.translateY,
+        this.viewPort
       )
-      .subscribe((_) => {
-        this.fileVersion++;
-        this.closeModal();
+      .subscribe({
+        next: (_) => {
+          this.fileVersion++;
+          this.toast.showSuccess(
+            "Your profile picture was updated successfully!"
+          );
+          this.closeModal();
+        },
+        error: (_) => {
+          this.toast.showDanger(
+            "There was an error updating your profile picture."
+          );
+          this.closeModal();
+        },
       });
+  }
+
+  private reset(): void {
+    this.viewPortOrientation = "square";
+    this.scale = 1;
+    this.minScale = 1;
+    this.maxScale = 1;
+    this.initialTranslateX = 0;
+    this.initialTranslateY = 0;
+    this.translateX = 0;
+    this.translateY = 0;
+    this.initialLeftBound = 0;
+    this.initialRightBound = 0;
+    this.initialTopBound = 0;
+    this.initialBottomBound = 0;
+    this.leftBound = 0;
+    this.rightBound = 0;
+    this.topBound = 0;
+    this.bottomBound = 0;
+    this.image = null;
+    this.imageURL = "";
+    this.file = null;
+    this.fileParameter = null;
   }
 }

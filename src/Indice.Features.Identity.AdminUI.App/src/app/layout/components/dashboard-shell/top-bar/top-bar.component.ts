@@ -2,7 +2,7 @@ import { Component, OnInit } from "@angular/core";
 
 import { AuthService } from "src/app/core/services/auth.service";
 import { MenuService } from "src/app/layout/services/menu.service";
-import * as app from 'src/app/core/models/settings';
+import * as app from "src/app/core/models/settings";
 import { IdTokenClaims } from "oidc-client-ts";
 
 @Component({
