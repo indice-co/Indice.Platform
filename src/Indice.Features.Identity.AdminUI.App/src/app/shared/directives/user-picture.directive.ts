@@ -48,11 +48,11 @@ export class ImgUserPictureDirective implements OnInit {
         if (typeof value === 'string') {
             text = value    
         } else {
-            text = (value.firstName + ' ' + value.lastName).trim() ? (value.firstName + ' ' + value.lastName).trim() : 
-                    (value.given_name + ' ' + value.family_name).trim() ? (value.given_name + ' ' + value.family_name).trim() :
-                    value.email ? value.email :
-                    value.userName ? value.userName : 
-                    value.name;
+            text = `${value.firstName || ''} ${value.lastName || ''}`.trim() ? `${value.firstName || ''} ${value.lastName || ''}`.trim() : 
+                   `${value.given_name || ''} ${value.family_name || ''}`.trim() ? `${value.given_name || ''} ${value.family_name || ''}`.trim() :
+                   value.email ? value.email :
+                   value.userName ? value.userName : 
+                   value.name;
         }
         this._displayName = text?.split('@')[0].replaceAll(/[\+\(\)\{\}\.,\[\]]/g, ' '); // removes any special characters
         this.setProfileSrc();
