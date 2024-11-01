@@ -21,7 +21,10 @@ export class ImgUserPictureDirective implements OnInit {
 
     @Input('userPicture')
     public set setUserId(value: string) {
-        this._userId = value;
+        if (this._userId !== value) {
+            this._userId = value;
+            this.setProfileSrc();
+        }
     }
     
     @Input('size')
@@ -32,7 +35,6 @@ export class ImgUserPictureDirective implements OnInit {
     public set setVersion(value: number) {
         if (this._version !== value) {
             this._version = value;
-
             this.setProfileSrc();
         }
     }
@@ -53,6 +55,7 @@ export class ImgUserPictureDirective implements OnInit {
                     value.name;
         }
         this._displayName = text?.split('@')[0].replaceAll(/[\+\(\)\{\}\.,\[\]]/g, ' '); // removes any special characters
+        this.setProfileSrc();
     }
 
     @Input('color')

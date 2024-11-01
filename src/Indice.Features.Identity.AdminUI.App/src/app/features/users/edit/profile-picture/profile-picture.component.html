@@ -2,7 +2,10 @@
   <div class="profilepic">
     <img
       class="profilepic__image img-fluid rounded-circle"
-      src="{{ avatar }}?v={{ fileVersion }}"
+      [userPicture]="userId"
+      [displayName]="displayName"
+      [version]="fileVersion"
+      size="256"
       alt="profile picture"
     />
     <div class="profilepic__content">

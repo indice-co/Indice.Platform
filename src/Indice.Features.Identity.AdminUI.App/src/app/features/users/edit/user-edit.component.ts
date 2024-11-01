@@ -20,7 +20,6 @@ export class UserEditComponent implements OnInit, OnDestroy {
   public userId = "";
   public userName = "";
   public displayName = "";
-  public avatar = "";
   public signInLogsEnabled = false;
 
   private _getDataSubscription: Subscription;
@@ -53,12 +52,11 @@ export class UserEditComponent implements OnInit, OnDestroy {
           this.signInLogsEnabled = result.features.signInLogsEnabled;
 
           const { userName, claims } = result.user;
-          const givenName = claims.find((c) => c.type === "given_name");
-          const familyName = claims.find((c) => c.type === "family_name");
+          const givenName = claims.find((c) => c.type === "given_name")?.value;
+          const familyName = claims.find((c) => c.type === "family_name")?.value;
 
           this.userName = userName;
-          this.displayName = `${givenName.value} ${familyName.value}`;
-          this.avatar = `${environment.api_url}/pictures/${this.userId}/256?d=/avatar/${this.displayName}/256`;
+          this.displayName = `${givenName || ''} ${familyName || ''}`.trim();
         }
       );
   }

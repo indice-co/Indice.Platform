@@ -46,7 +46,8 @@ import { ImgUserPictureDirective } from './directives/user-picture.directive';
         ValidationSummaryComponent,
         RouterLinkMatchDirective,
         WizardStepDirective,
-        FormReadonlyDirective
+        FormReadonlyDirective,
+        ImgUserPictureDirective
     ],
     providers: [
         NgbDatepickerConfig,
