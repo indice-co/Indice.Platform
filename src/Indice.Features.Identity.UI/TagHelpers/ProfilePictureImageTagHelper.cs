@@ -28,7 +28,7 @@ public class ProfilePictureImageTagHelper : UrlResolutionTagHelper
 {
     private const string ProfilePictureAttributeName = "profile-pic";
     private const string ProfilePictureIdAttributeName = "profile-pic-id";
-    //private const string ProfilePictureSizeAttributeName = "profile-pic-size";
+    private const string ProfilePictureBackgroundColorAttributeName = "profile-pic-background";
     private const string ProfileDisplayNameAttributeName = "profile-display-name";
     private readonly IOptions<IdentityUIOptions> _UiOptions;
 
@@ -68,6 +68,15 @@ public class ProfilePictureImageTagHelper : UrlResolutionTagHelper
     public string? DisplayName { get; set; }
 
     /// <summary>
+    /// Background color for fallback image. Example CECECE.
+    /// </summary>
+    /// <remarks>
+    /// Optional, fallbacks to the <see cref="IdentityUIOptions.AvatarColorHex"/>
+    /// </remarks>
+    [HtmlAttributeName(ProfilePictureBackgroundColorAttributeName)]
+    public string? BackgroundColor { get; set; }
+
+    /// <summary>
     /// Users picture requested size.
     /// </summary>
     /// <remarks>
@@ -93,24 +102,26 @@ public class ProfilePictureImageTagHelper : UrlResolutionTagHelper
         }
        
         var url = new StringBuilder("~/");
+        var displayName = DisplayName ?? User.FindDisplayName();
+        var backgroundColor = BackgroundColor?.TrimStart('#') ?? _UiOptions.Value.AvatarColorHex;
         if (User.IsAuthenticated()) {
             url.Append("api/my/account/picture");
             if (Size.HasValue) {
                 url.Append($"/{Size}");
             }
-            var fallBackUrl = new Uri($"/avatar/{User.FindDisplayName()}/{Size ?? 128}/{_UiOptions.Value.AvatarColorHex}.png", UriKind.RelativeOrAbsolute);
+            var fallBackUrl = new Uri($"/avatar/{displayName}/{Size ?? 128}/{backgroundColor}.webp", UriKind.RelativeOrAbsolute);
             url.Append($"?d={UriHelper.Encode(fallBackUrl)}");
         } else {
             url.Append($"pictures/{PictureId}");
             if (Size.HasValue) {
                 url.Append($"/{Size}");
             }
-            var fallBackUrl = new Uri($"/avatar/{User.FindDisplayName()}/{Size ?? 128}/{_UiOptions.Value.AvatarColorHex}.png", UriKind.RelativeOrAbsolute);
+            var fallBackUrl = new Uri($"/avatar/{displayName}/{Size ?? 128}/{backgroundColor}.webp", UriKind.RelativeOrAbsolute);
             url.Append($"?d={UriHelper.Encode(fallBackUrl)}");
         }
         output.Attributes.Add("src", url.ToString());
         if (!output.Attributes.ContainsName("alt")) {
-            output.Attributes.Add("alt", $"{DisplayName ?? User.FindDisplayName()} avatar");
+            output.Attributes.Add("alt", $"{displayName} profile picture");
         }
         ProcessUrlAttribute("src", output);
     }

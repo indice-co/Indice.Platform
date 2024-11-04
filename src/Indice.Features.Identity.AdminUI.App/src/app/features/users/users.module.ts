@@ -20,6 +20,8 @@ import { UserSignInLogsComponent } from "./edit/sign-in-logs/user-sign-in-logs.c
 import { ExtendedInfoStepComponent } from "./add/wizard/steps/extended-info/extended-info-step.component";
 import { UserClaimsStepComponent } from "./add/wizard/steps/claims/user-claims-step.component";
 import { UserRolesStepComponent } from "./add/wizard/steps/roles/user-roles-step.component";
+import { UserProfilePictureComponent } from "./edit/profile-picture/profile-picture.component";
+import { ImgUserPictureDirective } from "src/app/shared/directives/user-picture.directive";
 
 @NgModule({
   declarations: [
@@ -32,6 +34,7 @@ import { UserRolesStepComponent } from "./add/wizard/steps/roles/user-roles-step
     UserEditComponent,
     UserLoginsComponent,
     UserRolesComponent,
+    UserProfilePictureComponent,
     UsersComponent,
     UserSignInLogsComponent,
     ExtendedInfoStepComponent,
@@ -46,7 +49,7 @@ import { UserRolesStepComponent } from "./add/wizard/steps/roles/user-roles-step
     NgbDropdownModule,
     NgbModalModule,
     SharedModule,
-    SweetAlert2Module,
+    SweetAlert2Module
   ],
 })
 export class UsersModule {}

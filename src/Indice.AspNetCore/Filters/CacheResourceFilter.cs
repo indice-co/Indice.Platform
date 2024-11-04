@@ -50,8 +50,8 @@ public sealed class CacheResourceFilter : IAsyncResourceFilter
         _cacheResourceFilterOptions = cacheResourceFilterOptions?.Value ?? throw new ArgumentNullException(nameof(cacheResourceFilterOptions));
         _keyExtensionResolver = keyExtensionResolver?.FirstOrDefault(); // this is optional do not throw argument null exception!
         _cacheResourceKeysManager = cacheResourceKeysManager ?? throw new ArgumentNullException(nameof(cacheResourceKeysManager));
-        _dependentPaths = dependentPaths ?? Array.Empty<string>();
-        _dependentStaticPaths = dependentStaticPaths ?? Array.Empty<string>();
+        _dependentPaths = dependentPaths ?? [];
+        _dependentStaticPaths = dependentStaticPaths ?? [];
         _expiration = expiration;
         _varyByClaimType = varyByClaimType;
     }
@@ -130,7 +130,7 @@ public sealed class CacheResourceFilter : IAsyncResourceFilter
                     _cacheResourceKeysManager.Remove(await AddCacheKeyDiscriminatorAsync(context.HttpContext, dependentKey));
                 }
                 foreach (var path in _dependentStaticPaths) {
-                    var dependentKey = path.StartsWith("/") ? path : $"/{path}";
+                    var dependentKey = path.StartsWith('/') ? path : $"/{path}";
                     _cacheResourceKeysManager.Remove(await AddCacheKeyDiscriminatorAsync(context.HttpContext, dependentKey));
                 }
             }
@@ -176,10 +176,10 @@ public sealed class CacheResourceFilterAttribute : TypeFilterAttribute
     /// <summary>Creates a new instance of <see cref="CacheResourceFilterAttribute"/>.</summary>
     public CacheResourceFilterAttribute() : base(typeof(CacheResourceFilter)) {
         Arguments = new object[4];
-        DependentPaths = Array.Empty<string>();
-        DependentStaticPaths = Array.Empty<string>();
+        DependentPaths = [];
+        DependentStaticPaths = [];
         Expiration = 60;
-        VaryByClaimType = Array.Empty<string>();
+        VaryByClaimType = [];
     }
 
     /// <summary>Parent paths of the current method that must be invalidated. Path template variables must match by name.</summary>

@@ -1,38 +1,116 @@
 <div class="row">
-    <div class="col-12">
-        <div class="card m-b-30 m-t-30">
-            <div class="card-body">
-                <h4 class="mt-0 header-title">Edit User - {{ userId }}</h4>
-                <p class="text-muted m-b-30 font-14">Here you can modify some properties of a system user.</p>
-                <ul role="tablist" class="nav nav-tabs justify-content-start">
-                    <li class="nav-item">
-                        <a class="nav-link" [routerLink]="['details']" routerLinkActive="active" role="tab" id="user-details-tab">Details</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" [routerLink]="['additional-details']" routerLinkActive="active" role="tab" id="user-additional-details-tab">Additional Details</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" [routerLink]="['roles']" routerLinkActive="active" role="tab" id="user-roles-tab">Roles</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" [routerLink]="['applications']" routerLinkActive="active" role="tab" id="user-applications-tab">Applications</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" [routerLink]="['external-logins']" routerLinkActive="active" role="tab" id="user-logins-tab">External Logins</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" [routerLink]="['devices']" routerLinkActive="active" role="tab" id="user-devices-tab">Devices</a>
-                    </li>
-                    <li class="nav-item" *ngIf="signInLogsEnabled">
-                        <a class="nav-link" [routerLink]="['sign-in-logs']" routerLinkActive="active" role="tab" id="user-sign-in-logs-tab">Sign In Logs</a>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane active">
-                        <router-outlet></router-outlet>
-                    </div>
+  <div class="col-12">
+    <div class="card m-b-30 m-t-30">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-12 m-b-5">
+            <div class="card mb-3" style="max-width: 540px">
+              <div class="row no-gutters">
+                <div class="col-md-3">
+                  <div class="profile-container text-center">
+                    <app-user-profile-picture
+                      [userId]="userId"
+                      [displayName]="(displayName || userName)"
+                    ></app-user-profile-picture>
+                  </div>
                 </div>
+                <div class="col-md-9">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ displayName }}</h5>
+                    <p class="card-text m-b-5">
+                      {{ userName }}
+                    </p>
+                    <p class="card-text">
+                      {{ userId }}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+        <h4 class="mt-0 header-title">Edit User</h4>
+        <p class="text-muted m-b-30 font-14">
+          Here you can modify some properties of a system user.
+        </p>
+        <ul role="tablist" class="nav nav-tabs justify-content-start">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [routerLink]="['details']"
+              routerLinkActive="active"
+              role="tab"
+              id="user-details-tab"
+              >Details</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [routerLink]="['additional-details']"
+              routerLinkActive="active"
+              role="tab"
+              id="user-additional-details-tab"
+              >Additional Details</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [routerLink]="['roles']"
+              routerLinkActive="active"
+              role="tab"
+              id="user-roles-tab"
+              >Roles</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [routerLink]="['applications']"
+              routerLinkActive="active"
+              role="tab"
+              id="user-applications-tab"
+              >Applications</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [routerLink]="['external-logins']"
+              routerLinkActive="active"
+              role="tab"
+              id="user-logins-tab"
+              >External Logins</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [routerLink]="['devices']"
+              routerLinkActive="active"
+              role="tab"
+              id="user-devices-tab"
+              >Devices</a
+            >
+          </li>
+          <li class="nav-item" *ngIf="signInLogsEnabled">
+            <a
+              class="nav-link"
+              [routerLink]="['sign-in-logs']"
+              routerLinkActive="active"
+              role="tab"
+              id="user-sign-in-logs-tab"
+              >Sign In Logs</a
+            >
+          </li>
+        </ul>
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane active">
+            <router-outlet></router-outlet>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 </div>

@@ -75,7 +75,7 @@ internal class AdminCasesController : ControllerBase
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="file">The file to attach.</param>
     /// <returns></returns>
-    [AllowedFileSize(6291456)] // 6 MegaBytes
+    [AllowedFileSize(CasesApiConstants.ALLOWED_FILE_SIZE_BYTES_DEFAULT, $"{nameof(CasesApiOptions)}:{nameof(CasesApiOptions.AllowedFileSizeBytes)}")] // 6 MegaBytes
     [Consumes("multipart/form-data")]
     [DisableRequestSizeLimit]
     [HttpPost("{caseId:guid}/attachments")]

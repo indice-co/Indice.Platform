@@ -71,7 +71,7 @@ internal static class AvatarsHandlers
         return GetAvatarFull(response, avatarGenerator, firstName, lastName, size, ext, background, foreground, circular ?? false, null);
     }
 
-    internal static readonly string[] supportedFileExtensions = [ "png", "jpg" ];
+    internal static readonly string[] supportedFileExtensions = [ "png", "jpg", "webp" ];
 
     /// <summary>Creates an avatar based on first and last name plus parameters</summary>
     /// <param name="response"></param>
@@ -99,14 +99,19 @@ internal static class AvatarsHandlers
         if (errors.Count > 0) {
             return TypedResults.ValidationProblem(errors);
         }
+        var contentType = ext switch {
+            "jpg" => "image/jpeg",
+            "png" => "image/png",
+            _ => "image/webp"
+        };
         var data = new MemoryStream();
-        avatarGenerator.Generate(data, firstName, lastName, size ?? 192, ext == "jpg", background, foreground, circular ?? false);
+        avatarGenerator.Generate(data, firstName, lastName, size ?? 192, contentType, background, foreground, circular ?? false);
         var hash = string.Empty;
         hash = MD5.HashData(Encoding.UTF8.GetBytes($"{firstName} {lastName}")).ToBase64UrlSafe();
         response.Headers.Append("Cache-Control", "max-age=345600");
         //var filename = $"{firstName}_{lastName}_{size ?? 192}.{ext}";
         return TypedResults.File(data,
-                                contentType: ext == "jpg" ? "image/jpeg" : "image/png",
+                                contentType: contentType,
                                 lastModified: DateTimeOffset.UtcNow,
                                 entityTag: new EntityTagHeaderValue($"\"{hash}\""));
     }

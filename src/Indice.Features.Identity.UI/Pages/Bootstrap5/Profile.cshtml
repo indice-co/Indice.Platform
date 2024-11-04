@@ -12,7 +12,25 @@
 }
 
 <section class="sign-up m-auto">
-    <vc:page-heading title="@title" image-src="" />
+    <div class="text-center">
+        <form asp-page-handler="UploadPicture" enctype="multipart/form-data">
+            <div class="profilepic">
+                <img class="profilepic__image" profile-pic="128" profile-display-name="@Model.Input.DisplayName" profile-pic-background="cecece" />
+                <div class="profilepic__content">
+                    <span class="profilepic__icon"><i class="fas fa-camera"></i></span>
+                    <span class="profilepic__text">Edit</span>
+                    <input type="file" id="profile_picture" name="file" accept="image/*" style="position: absolute;opacity: 0;width:100%;height:100%" />
+                </div>
+            </div>
+        </form>
+        <script csp-nonce="true">
+            var fileInput = document.getElementById('profile_picture');
+            fileInput.addEventListener('change', function () {
+                fileInput.closest('form').submit();
+            });
+        </script>
+        <h4 class="header-text">@Model.Input.DisplayName</h4>
+    </div>
     <div id="send-confirmation-success" class="alert alert-success d-none" style="margin-bottom: 5px;">
         @Localizer["A confirmation email has been sent to {0}.", Model.View.Email ?? throw new InvalidOperationException("User email cannot be null.")]
     </div>
