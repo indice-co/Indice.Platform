@@ -1,4 +1,5 @@
 ﻿#if NET7_0_OR_GREATER
+#nullable enable
 
 using System.Net.Mime;
 using Indice.Features.Messages.AspNetCore.Endpoints;
@@ -15,9 +16,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Routing;
 
-
+/// <summary>
+/// Provides endpoints for managing contact-related operations, including retrieving, creating, and updating contacts.
+/// </summary>
 public static class ContactsApi
 {
+    /// <summary>Registers the endpoints for Contacts API.</summary>
+    /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
+    /// <returns></returns>
     public static void MapContacts(this IEndpointRouteBuilder routes) {
         var configuration = routes.ServiceProvider.GetRequiredService<IConfiguration>();
         var options = configuration.GetApiSettings();
@@ -30,23 +36,34 @@ public static class ContactsApi
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
-        group.ProducesProblem(StatusCodes.Status401Unauthorized)
-             .ProducesProblem(StatusCodes.Status403Forbidden);
+        group.WithHandledException<BusinessException>()
+             .ProducesProblem(StatusCodes.Status401Unauthorized)
+             .ProducesProblem(StatusCodes.Status403Forbidden)
+             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("", ContactsHandlers.GetContacts)
-            .Produces<ResultSet<Contact>>(StatusCodes.Status200OK, MediaTypeNames.Application.Json);
+        group.MapGet(string.Empty, ContactsHandlers.GetContacts)
+             .WithName(nameof(ContactsHandlers.GetContacts))
+             .WithSummary("Gets the list of all contacts using the provided ListOptions.")
+             .WithDescription(ContactsHandlers.GET_CONTACTS_DESCRIPTION);
 
         group.MapGet("{contactId:guid}", ContactsHandlers.GetContactById)
-            .Produces<Contact>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status404NotFound);
+             .WithName(nameof(ContactsHandlers.GetContactById))
+             .WithSummary("Gets the contact with the specified id.")
+             .WithDescription(ContactsHandlers.GET_CONTACT_BY_ID_DESCRIPTION);
 
-        group.MapPost("", ContactsHandlers.CreateContact)
-            .Produces<MessageType>(StatusCodes.Status200OK)
-            .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
+        group.MapPost(string.Empty, ContactsHandlers.CreateContact)
+             .WithName(nameof(ContactsHandlers.CreateContact))
+             .WithSummary("Creates a new contact in the store.")
+             .WithDescription(ContactsHandlers.CREATE_CONTACT_DESCRIPTION)
+             .WithParameterValidation<CreateContactRequest>();
 
         group.MapPut("{contactId:guid}", ContactsHandlers.UpdateContact)
-            .Produces(StatusCodes.Status204NoContent);
+             .WithName(nameof(ContactsHandlers.UpdateContact))
+             .WithSummary("Updates the specified contact in the store.")
+             .WithDescription(ContactsHandlers.UPDATE_CONTACT_DESCRIPTION)
+             .WithParameterValidation<UpdateContactRequest>();
     }
 }
 
+#nullable disable
 #endif

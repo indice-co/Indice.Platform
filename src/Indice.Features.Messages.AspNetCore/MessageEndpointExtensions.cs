@@ -17,6 +17,7 @@ public static class MessageEndpointExtensions
         //routes.MapMyMessages();
         // management
         routes.MapCampaigns();
+        routes.MapContacts();
         return routes;
     }
 }

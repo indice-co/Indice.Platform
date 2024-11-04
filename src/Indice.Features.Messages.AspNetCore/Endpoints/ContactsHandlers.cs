@@ -1,20 +1,19 @@
 ﻿#if NET7_0_OR_GREATER
-
+#nullable enable
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Serialization;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
-
-
 internal static class ContactsHandlers
 {
-    public static async Task<IResult> GetContacts(
+    public static async Task<Ok<ResultSet<Contact>>> GetContacts(
         IContactService contactService,
         IContactResolver contactResolver,
         [AsParameters] ListOptions options,
@@ -32,23 +31,59 @@ internal static class ContactsHandlers
         } else {
             contacts = await contactService.GetList(ListOptions.Create(options, filter));
         }
-        return Results.Ok(contacts);
+        return TypedResults.Ok(contacts);
     }
 
-    public static async Task<IResult> GetContactById(IContactService contactService, Guid contactId) {
+    public static async Task<Results<Ok<Contact>, NotFound>> GetContactById(IContactService contactService, Guid contactId) {
         var contact = await contactService.GetById(contactId);
-        return contact != null ? Results.Ok(contact) : Results.NotFound();
+        if (contact is null) {
+            return TypedResults.NotFound();
+        }
+        return TypedResults.Ok(contact);
     }
 
-    public static async Task<IResult> CreateContact(IContactService contactService, CreateContactRequest request) {
+    public static async Task<Ok<Contact>> CreateContact(IContactService contactService, CreateContactRequest request) {
         var contact = await contactService.Create(request);
-        return Results.Ok(contact);
+        return TypedResults.Ok(contact);
     }
 
-    public static async Task<IResult> UpdateContact(IContactService contactService, Guid contactId, UpdateContactRequest request) {
+    public static async Task<NoContent> UpdateContact(IContactService contactService, Guid contactId, UpdateContactRequest request) {
         await contactService.Update(contactId, request);
-        return Results.NoContent();
+        return TypedResults.NoContent();
     }
-}
 
+    #region Descriptions
+    public static readonly string GET_CONTACTS_DESCRIPTION = @"
+    Retrieves the list of all contacts using the provided ListOptions.
+
+    Parameters:
+    - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
+    - resolve: Determines whether to use the contact resolver service for additional processing; set to true to resolve contacts, or false to retrieve directly from contactService.
+    ";
+
+    public static readonly string GET_CONTACT_BY_ID_DESCRIPTION = @"
+    Retrieves a contact by its unique ID.
+
+    Parameters:
+    - contactId: The unique ID of the contact to retrieve.
+    ";
+
+    public static readonly string CREATE_CONTACT_DESCRIPTION = @"
+    Creates a new contact in the store.
+
+    Parameters:
+    - request: The request model used to create a new contact.
+    ";
+
+    public static readonly string UPDATE_CONTACT_DESCRIPTION = @"
+    Updates an existing contact in the store.
+
+    Parameters:
+    - contactId: The unique ID of the contact to update.
+    - request: The request model used to update the contact.
+    ";
+
+    #endregion
+}
+#nullable disable
 #endif
