@@ -24,6 +24,8 @@ public class UsersActivityInfo
 {
     /// <summary>Daily basis.</summary>
     public SummaryStatistic? Day { get; set; }
+    /// <summary>Yesterday Daily basis.</summary>
+    public SummaryStatistic? Yesterday { get; set; }
     /// <summary>Weekly basis.</summary>
     public SummaryStatistic? Week { get; set; }
     /// <summary>Monthly basis.</summary>
@@ -45,13 +47,17 @@ public class SummaryStatistic
     /// <summary>Creates a new instance of <see cref="SummaryStatistic"/>.</summary>
     /// <param name="count">The count.</param>
     /// <param name="percent">The percent.</param>
-    public SummaryStatistic(int count, double percent) {
+    /// <param name="trend">The trend from previous period</param>
+    public SummaryStatistic(int count, double percent, double? trend = null) {
         Count = count;
         Percent = percent;
+        Trend = trend;
     }
 
     /// <summary>The count.</summary>
     public int Count { get; set; }
     /// <summary>The percent.</summary>
     public double Percent { get; set; }
+    /// <summary>The trend.</summary>
+    public double? Trend { get; set; }
 }
