@@ -1,31 +1,25 @@
 ﻿#if NET7_0_OR_GREATER
+#nullable enable
 
-using System.Net.Mime;
 using Indice.AspNetCore.Filters;
-using Indice.Configuration;
-using Indice.Events;
 using Indice.Features.Messages.AspNetCore.Endpoints;
-using Indice.Features.Messages.AspNetCore.Extensions;
-using Indice.Features.Messages.Core;
-using Indice.Features.Messages.Core.Events;
-using Indice.Features.Messages.Core.Manager;
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
-using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Security;
 using Indice.Services;
 using Indice.Types;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Routing;
 
-
+/// <summary>
+/// Provides endpoints for managing campaign-related operations, including retrieving, creating, updating, publishing, 
+/// and deleting campaigns, as well as handling attachments and statistics.
+/// </summary>
 public static class CampaignsApi
 {
     /// <summary>Registers the endpoints for Campaigns API.</summary>
@@ -43,58 +37,72 @@ public static class CampaignsApi
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.WithHandledException<BusinessException>()
-             .ProducesProblem(StatusCodes.Status400BadRequest)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden)
-             .ProducesProblem(StatusCodes.Status404NotFound)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("", CampaignsHandlers.GetCampaigns)
-            .WithName(nameof(CampaignsHandlers.GetCampaigns))
-            .WithSummary("Gets the list of all campaigns.")
-            .WithDescription("test");
+        group.MapGet(string.Empty, CampaignsHandlers.GetCampaigns)
+             .WithName(nameof(CampaignsHandlers.GetCampaigns))
+             .WithSummary("Gets the list of all campaigns using the provided ListOptions.")
+             .WithDescription(CampaignsHandlers.GET_CAMPAIGNS_DESCRIPTION);
 
-        group.MapGet("{campaignId:guid}", CampaignsHandlers.GetCampaignById)
-            .Produces<CampaignDetails>(StatusCodes.Status200OK)
-            .Produces<NotFound>(StatusCodes.Status404NotFound);
+        group.MapGet("{campaignId}", CampaignsHandlers.GetCampaignById)
+             .WithName(nameof(CampaignsHandlers.GetCampaignById))
+             .WithSummary("Gets a campaign with the specified id.")
+             .WithDescription(CampaignsHandlers.GET_CAMPAIGN_BY_ID_DESCRIPTION);
 
-        group.MapPut("{campaignId:guid}/publish", CampaignsHandlers.PublishCampaign)
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
+        group.MapPut("{campaignId}/publish", CampaignsHandlers.PublishCampaign)
+             .WithName(nameof(CampaignsHandlers.PublishCampaign))
+             .WithSummary("Publishes a campaign.")
+             .WithDescription(CampaignsHandlers.PUBLISH_CAMPAIGN_DESCRIPTION);
 
-        group.MapGet("{campaignId:guid}/statistics", CampaignsHandlers.GetCampaignStatistics)
-            .Produces<CampaignStatistics>(StatusCodes.Status200OK)
-            .Produces<ProblemDetails>(StatusCodes.Status404NotFound);
+        group.MapGet("{campaignId}/statistics", CampaignsHandlers.GetCampaignStatistics)
+             .WithName(nameof(CampaignsHandlers.GetCampaignStatistics))
+             .WithSummary("Gets the statistics for a specified campaign.")
+             .WithDescription(CampaignsHandlers.GET_CAMPAIGN_STATISTICS_DESCRIPTION);
 
-        group.MapGet("{campaignId:guid}/statistics/export", CampaignsHandlers.ExportCampaignStatistics)
-            .WithName("ExportCampaignStatistics");
+        group.MapGet("{campaignId}/statistics/export", CampaignsHandlers.ExportCampaignStatistics)
+             .WithName(nameof(CampaignsHandlers.ExportCampaignStatistics))
+             .WithSummary("Gets the statistics for a specified campaign in the form of an Excel file.")
+             .WithDescription(CampaignsHandlers.EXPORT_CAMPAIGN_STATISTICS_DESCRIPTION);
 
-        group.MapPost("", CampaignsHandlers.CreateCampaign)
-            .Produces<Campaign>(StatusCodes.Status201Created)
-            .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
+        group.MapPost(string.Empty, CampaignsHandlers.CreateCampaign)
+             .WithName(nameof(CampaignsHandlers.CreateCampaign))
+             .WithSummary("Creates a new campaign.")
+             .WithDescription(CampaignsHandlers.CREATE_CAMPAIGN_DESCRIPTION)
+             .WithParameterValidation<CreateCampaignRequest>();
 
-        group.MapPut("{campaignId:guid}", CampaignsHandlers.UpdateCampaign)
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
+        group.MapPut("{campaignId}", CampaignsHandlers.UpdateCampaign)
+             .WithName(nameof(CampaignsHandlers.UpdateCampaign))
+             .WithSummary("Updates an existing unpublished campaign.")
+             .WithDescription(CampaignsHandlers.UPDATE_CAMPAIGN_DESCRIPTION)
+             .WithParameterValidation<UpdateCampaignRequest>();
 
-        group.MapDelete("{campaignId:guid}", CampaignsHandlers.DeleteCampaign)
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
+        group.MapDelete("{campaignId}", CampaignsHandlers.DeleteCampaign)
+             .WithName(nameof(CampaignsHandlers.DeleteCampaign))
+             .WithSummary("Permanently deletes a campaign.")
+             .WithDescription(CampaignsHandlers.DELETE_CAMPAIGN_DESCRIPTION);
 
         group.MapPost("{campaignId}/attachment", CampaignsHandlers.UploadCampaignAttachment)
-            .Produces<AttachmentLink>(StatusCodes.Status200OK)
-            .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest)
-            .Accepts<IFormFile>("multipart/form-data");
+             .WithName(nameof(CampaignsHandlers.UploadCampaignAttachment))
+             .WithSummary("Uploads an attachment for the specified campaign.")
+             .WithDescription(CampaignsHandlers.UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION)
+             .Accepts<IFormFile>("multipart/form-data");
 
         group.MapDelete("{campaignId}/attachments/{attachmentId}", CampaignsHandlers.DeleteCampaignAttachment)
-            .Produces(StatusCodes.Status204NoContent)
-            .Produces<ValidationProblemDetails>(StatusCodes.Status400BadRequest);
+             .WithName(nameof(CampaignsHandlers.DeleteCampaignAttachment))
+             .WithSummary("Deletes the camapaign attachment")
+             .WithDescription(CampaignsHandlers.DELETE_CAMPAIGN_ATTACHMENT_DESCRIPTION);
 
         group.MapGet("attachments/{fileGuid}.{format}", CampaignsHandlers.GetCampaignAttachment)
-            .AllowAnonymous()
-            .Produces<IFormFile>(StatusCodes.Status200OK)
-            .Produces<ProblemDetails>(StatusCodes.Status404NotFound);
+             .WithName(nameof(CampaignsHandlers.GetCampaignAttachment))
+             .WithSummary("Gets the attachment associated with a campaign.")
+             .WithDescription(CampaignsHandlers.GET_CAMPAIGN_ATTACHMENT_DESCRIPTION)
+             .AllowAnonymous();
+             // TODO: manage cache
+             //.CacheOutput();
     }
 }
 
+#nullable disable
 #endif
