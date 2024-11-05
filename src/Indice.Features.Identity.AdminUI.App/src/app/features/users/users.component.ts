@@ -9,6 +9,7 @@ import {
 import { SearchEvent } from "src/app/shared/components/list-view/models/search-event";
 import { ListViewComponent } from "src/app/shared/components/list-view/list-view.component";
 import { AuthService } from "src/app/core/services/auth.service";
+import { UiFeaturesService } from "src/app/core/services/ui-features.service";
 
 @Component({
   selector: "app-users",
@@ -24,7 +25,8 @@ export class UsersComponent implements OnInit {
 
   constructor(
     private api: IdentityApiService,
-    private _authService: AuthService
+    private _authService: AuthService,
+    private uiFeaturesService: UiFeaturesService
   ) {}
 
   public count = 0;
@@ -122,6 +124,13 @@ export class UsersComponent implements OnInit {
         width: 100,
       },
     ];
+    
+    // const getFeatures = this.uiFeaturesService.getUiFeatures().subscribe(result => {
+    //   if (result.emailAsUserName) {
+    //     //this.columns.splice(1, 1);
+    //   }
+
+    // });
   }
 
   public getUsers(event: SearchEvent): void {
