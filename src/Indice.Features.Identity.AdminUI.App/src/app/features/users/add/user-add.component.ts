@@ -93,6 +93,7 @@ export class UserAddComponent implements OnInit {
       phoneNumberConfirmed: [false],
       password: ["", [Validators.required]],
       bypassPasswordValidation: [false],
+      changePasswordAfterFirstSignIn: [false],
       claims: [[]],
       roles: [[]],
     });
