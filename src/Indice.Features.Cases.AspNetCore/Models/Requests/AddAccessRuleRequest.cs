@@ -19,9 +19,19 @@ public class AddAccessRuleRequest
     /// <summary>Access level for member on the resource.</summary>
     public int AccessLevel { get; set; }
 
-    public bool IsValid() {
-        return
-            (RuleCaseId != null || RuleCheckpointTypeId != null || RuleCaseTypeId != null ) &&
-            !(string.IsNullOrEmpty(MemberRole) && string.IsNullOrEmpty(MemberGroupId) && string.IsNullOrEmpty(MemberUserId));
-    }
+    public bool IsValid() => 
+            //Validate Rules
+            (
+                (RuleCaseTypeId != null && RuleCheckpointTypeId == null && RuleCaseId == null) ||
+                (RuleCaseTypeId == null && RuleCheckpointTypeId != null && RuleCaseId == null) ||
+                (RuleCaseTypeId == null && RuleCheckpointTypeId == null && RuleCaseId != null) ||
+                (RuleCaseTypeId == null && RuleCheckpointTypeId != null && RuleCaseId != null)
+            )
+            &&
+            //Validate Members
+            (
+             (!string.IsNullOrEmpty(MemberRole) && string.IsNullOrEmpty(MemberGroupId) && string.IsNullOrEmpty(MemberUserId)) ||
+             (string.IsNullOrEmpty(MemberRole) && !string.IsNullOrEmpty(MemberGroupId) && string.IsNullOrEmpty(MemberUserId)) ||
+             (string.IsNullOrEmpty(MemberRole) && string.IsNullOrEmpty(MemberGroupId) && !string.IsNullOrEmpty(MemberUserId))
+            );
 }
