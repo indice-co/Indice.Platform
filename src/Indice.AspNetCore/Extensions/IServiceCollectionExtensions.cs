@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Text.RegularExpressions;
 using Azure.Storage.Blobs;
+using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Filters;
 using Indice.AspNetCore.Middleware;
 using Indice.AspNetCore.TagHelpers;
@@ -203,6 +204,35 @@ public static class ServiceCollectionExtensions
         if (serviceDescriptor is not null) {
             services.Remove(serviceDescriptor);
         }
+        return services;
+    }
+
+    /// <summary>
+    /// Configures the limit upload options for <see cref="AllowedFileExtensionsAttribute"/> and <see cref="AllowedFileSizeAttribute"/>
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configureAction">The action to configure. Use null for default options.</param>
+    /// <returns></returns>
+    public static IServiceCollection AddLimitUpload(this IServiceCollection services, Action<LimitUploadOptions>? configureAction = null) {
+        var options = new LimitUploadOptions();
+        configureAction?.Invoke(options);
+
+        services.Configure<LimitUploadOptions>((options) => {
+            options.DefaultMaxFileSizeBytes = options.DefaultMaxFileSizeBytes;
+            options.DefaultAllowedFileExtensions = options.DefaultAllowedFileExtensions;
+        });
+
+        return services;
+    }
+
+    /// <summary>
+    /// Configures the limit upload options for <see cref="AllowedFileExtensionsAttribute"/> and <see cref="AllowedFileSizeAttribute"/>
+    /// </summary>
+    /// <param name="services">The services collection.</param>
+    /// <param name="configuration">The IConfiguration.</param>
+    /// <returns></returns>
+    public static IServiceCollection AddLimitUpload(this IServiceCollection services, IConfiguration configuration) {
+        services.Configure<LimitUploadOptions>(configuration);
         return services;
     }
 }

@@ -1,4 +1,6 @@
-﻿using Indice.AspNetCore.Configuration;
+﻿#if NET7_0_OR_GREATER
+#nullable enable
+using Indice.AspNetCore.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -25,11 +27,9 @@ public class AllowedFileSizeAttribute : Attribute, IActionFilter
 
     /// <inheritdoc />
     public void OnActionExecuting(ActionExecutingContext context) {
-        var options = context.HttpContext.RequestServices.GetService<IOptions<AllowedFileSizeAttributeOptions>>()?.Value 
-            ?? new AllowedFileSizeAttributeOptions();
+        var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<LimitUploadOptions>>().Value;
 
-        var allowedFileSize = _sizeLimit
-            ?? options.AllowedFileSizeBytes;
+        var allowedFileSize = _sizeLimit ?? options.DefaultMaxFileSizeBytes;
 
         IEnumerable<IFormFile> files = context.HttpContext.Request.Form.Files;
         foreach (var file in files) {
@@ -43,3 +43,5 @@ public class AllowedFileSizeAttribute : Attribute, IActionFilter
     /// <inheritdoc />
     public void OnActionExecuted(ActionExecutedContext context) { }
 }
+#nullable disable
+#endif

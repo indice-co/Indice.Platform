@@ -60,6 +60,8 @@ public static class CasesApiFeatureExtensions
         services.AddMvc()
             .AddNewtonsoftJson(x => x.SerializerSettings.Converters.Add(new SystemTextConverter()));
 
+        services.AddLimitUpload();
+
         // Configure options given by the consumer.
         var casesApiOptions = new MyCasesApiOptions();
         configureAction?.Invoke(casesApiOptions);
@@ -71,7 +73,6 @@ public static class CasesApiFeatureExtensions
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
-            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
 
         // Post configure MVC options.
@@ -128,6 +129,8 @@ public static class CasesApiFeatureExtensions
         // Try add general settings.
         services.AddGeneralSettings(configuration);
 
+        services.AddLimitUpload();
+
         // Configure options given by the consumer.
         var casesApiOptions = new AdminCasesApiOptions();
         configureAction?.Invoke(casesApiOptions);
@@ -140,7 +143,6 @@ public static class CasesApiFeatureExtensions
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
-            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
 
         // Post configure MVC options.
