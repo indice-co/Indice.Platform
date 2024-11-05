@@ -213,14 +213,14 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The service collection.</param>
     /// <param name="configureAction">The action to configure. Use null for default options.</param>
     /// <returns></returns>
-    public static IServiceCollection AddLimitUpload(this IServiceCollection services, Action<LimitUploadOptions>? configureAction = null) {
+    public static IServiceCollection AddLimitUpload(this IServiceCollection services, Action<LimitUploadOptions> configureAction = null) {
         var options = new LimitUploadOptions();
         configureAction?.Invoke(options);
-
-        services.Configure<LimitUploadOptions>((options) => {
+        
+        services.Configure<LimitUploadOptions>(configureAction ?? (options => {
             options.DefaultMaxFileSizeBytes = options.DefaultMaxFileSizeBytes;
             options.DefaultAllowedFileExtensions = options.DefaultAllowedFileExtensions;
-        });
+        }));
 
         return services;
     }

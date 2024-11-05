@@ -1,4 +1,5 @@
-﻿using Indice.Security;
+﻿using Indice.AspNetCore.Configuration;
+using Indice.Security;
 using Microsoft.EntityFrameworkCore;
 
 namespace Indice.Features.Cases;
@@ -11,6 +12,11 @@ public abstract class CasesApiOptions
     /// If not provided the underlying store defaults to SQL Server expecting the setting <i>ConnectionStrings:DefaultConnection</i> to be present.
     /// </summary>
     public Action<DbContextOptionsBuilder> ConfigureDbContext { get; set; }
+
+    /// <summary>
+    /// Configuration for overriding the default <see cref="LimitUploadOptions"/>
+    /// </summary>
+    public Action<LimitUploadOptions> ConfigureLimitUpload { get; set; }
    
     /// <summary>The default scope name to be used for Cases API. Defaults to <see cref="CasesApiConstants.Scope"/>.</summary>
     public string ExpectedScope { get; set; } = CasesApiConstants.Scope;

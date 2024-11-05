@@ -5,9 +5,9 @@ namespace Indice.AspNetCore.Configuration;
 /// <summary>Options for the <see cref="AllowedFileSizeAttribute"/>.</summary>
 public class LimitUploadOptions
 {
-    /// <summary>Configures the file size limit. Default is 6MB.</summary>
-    public long DefaultMaxFileSizeBytes { get; set; } = 6291456;
+    /// <summary>Configures the file size limit. Default is 4 MB.</summary>
+    public long DefaultMaxFileSizeBytes { get; set; } = 4 * 1024 * 1024;
 
     /// <summary>Configures the permitted file extensions.</summary>
-    public IReadOnlyCollection<string> DefaultAllowedFileExtensions { get; set; } = new HashSet<string> { ".pdf", ".jpeg", ".jpg", ".tif", ".tiff" };
+    public HashSet<string> DefaultAllowedFileExtensions { get; set; } = [".jpg", ".jpeg", ".png", ".bmp", ".svg", ".webp"];
 }
