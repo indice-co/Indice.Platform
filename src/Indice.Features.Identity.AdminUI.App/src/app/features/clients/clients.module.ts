@@ -6,7 +6,7 @@ import { NgbDropdownModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstr
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { ApiResourcesStepComponent } from './add/wizard/steps/api-resources/api-resources-step.component';
 import { BasicInfoStepComponent } from './add/wizard/steps/basic-info/basic-info-step.component';
-import { Bootstrap4FrameworkModule } from '@ajsf/bootstrap4';
+import { JsonFormsModule  } from '@jsonforms/angular';
 import { ClientAddComponent } from './add/client-add.component';
 import { ClientAdvancedComponent } from './edit/advanced/client-advanced.component';
 import { ClientApiResourcesComponent } from './edit/resources/api/client-api-resources.component';
@@ -62,7 +62,7 @@ import { UrlsStepComponent } from './add/wizard/steps/urls/urls-step.component';
         SharedModule,
         SweetAlert2Module,
         NgbDatepickerModule,
-        Bootstrap4FrameworkModule
+        JsonFormsModule
     ]
 })
 export class ClientsModule { }
