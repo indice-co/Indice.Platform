@@ -15,7 +15,7 @@ namespace Indice.AspNetCore.Filters;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class AllowedFileExtensionsAttribute : Attribute, IActionFilter
 {
-    private List<string> _allowedExtensions { get; }
+    private HashSet<string> _allowedExtensions;
 
     /// <summary>Creates a new instance of <see cref="AllowedFileExtensionsAttribute"/>.</summary>
     /// <param name="fileExtensions">Allowed file extensions as a comma or space separated string.</param>
@@ -23,25 +23,25 @@ public class AllowedFileExtensionsAttribute : Attribute, IActionFilter
     /// .xlsx, .docx, .jpg
     /// </remarks>
     public AllowedFileExtensionsAttribute(params string[] fileExtensions) {
-        _allowedExtensions = fileExtensions.Select(x => '.' + x.Trim().TrimStart('.')).ToList();
+        _allowedExtensions = fileExtensions.Select(x => '.' + x.Trim().TrimStart('.')).ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>Creates a new instance of <see cref="AllowedFileExtensionsAttribute"/>.</summary>
-    public AllowedFileExtensionsAttribute() { 
-        _allowedExtensions = new List<string>();
+    public AllowedFileExtensionsAttribute() {
+        _allowedExtensions = [];
     }
 
     /// <inheritdoc />
     public void OnActionExecuting(ActionExecutingContext context) {
-        if (!_allowedExtensions.Any()) {
+        if (_allowedExtensions.Count == 0) {
             var options = context.HttpContext.RequestServices.GetRequiredService<IOptions<LimitUploadOptions>>().Value;
-            var extensions = options.DefaultAllowedFileExtensions.Select(x => '.' + x.Trim().TrimStart('.')).ToList();
-            _allowedExtensions.AddRange(extensions);
+            _allowedExtensions = options.DefaultAllowedFileExtensions.Select(x => '.' + x.Trim().TrimStart('.')).ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
 
         IEnumerable<IFormFile> files = context.HttpContext.Request.Form.Files;
         foreach (var file in files) {
-            if (!_allowedExtensions.Any(x => file.FileName.ToLowerInvariant().EndsWith(x))) {
+            var extension = Path.GetExtension(file.FileName);
+            if (!_allowedExtensions.Contains(extension)) {
                 context.ModelState.AddModelError($"{file.FileName}", $"File with extension {Path.GetExtension(file.FileName)} is not permitted. Allowed file extensions are {string.Join(", ", _allowedExtensions)}");
                 context.Result = new BadRequestObjectResult(new ValidationProblemDetails(context.ModelState));
             }
