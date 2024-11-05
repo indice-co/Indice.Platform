@@ -1,5 +1,4 @@
-﻿#if NET7_0_OR_GREATER
-#nullable enable
+﻿#nullable enable
 using Indice.AspNetCore.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -44,4 +43,3 @@ public class AllowedFileSizeAttribute : Attribute, IActionFilter
     public void OnActionExecuted(ActionExecutedContext context) { }
 }
 #nullable disable
-#endif
