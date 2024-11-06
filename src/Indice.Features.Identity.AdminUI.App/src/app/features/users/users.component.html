@@ -12,7 +12,7 @@
 </div>
 <div class="row">
     <div class="col-12">
-        <app-list-view [clientSide]="false" [columns]="columns" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'createDate'" [defaultSortDirection]="'Desc'" (search)="getUsers($event)" [canFilter]="true" #usersList>
+        <app-list-view [clientSide]="false" [columns]="columns | async" [rows]="rows" [count]="count" [rowsPerPage]="15" [defaultSortField]="'createDate'" [defaultSortDirection]="'Desc'" (search)="getUsers($event)" [canFilter]="true" #usersList>
         </app-list-view>
     </div>
 </div>
