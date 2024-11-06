@@ -9,8 +9,8 @@ public class JsonSchemaGeneratorTests
 {
     [Fact]
     public void TestJsonSchemaGeneratorFromClrType() {
-        var element = typeof(TestClassWithConventions).ToJsonSchema().AsJsonElement();
-        var json = JsonSerializer.Serialize(element);
+        var schema = typeof(TestClassWithConventions).ToJsonSchema();
+        var json = schema.AsJsonString();
     }
 
     [Json.Schema.Generation.Nullable(false)]

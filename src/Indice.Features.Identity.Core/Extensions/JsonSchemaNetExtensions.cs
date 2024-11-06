@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using Json.More;
 using Json.Pointer;
 using Json.Schema;
@@ -30,6 +31,20 @@ public static class JsonSchemaNetExtensions
     /// <returns>A string containing JSON schema for a given class type.</returns>
     public static JsonElement AsJsonElement(this JsonSchema schema) {
         return JsonSerializer.SerializeToElement(schema);
+    }
+
+    /// <summary>Serializes a JSON schema to element.</summary>
+    /// <param name="schema">Class type</param>
+    /// <returns>A string containing JSON schema for a given class type.</returns>
+    public static JsonNode? AsJsonNode(this JsonSchema schema) {
+        return JsonSerializer.SerializeToNode(schema);
+    }
+
+    /// <summary>Serializes a JSON schema to element.</summary>
+    /// <param name="schema">Class type</param>
+    /// <returns>A string containing JSON schema for a given class type.</returns>
+    public static string? AsJsonString(this JsonSchema schema) {
+        return JsonSerializer.SerializeToNode(schema)?.ToJsonString();
     }
 }
 
