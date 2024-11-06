@@ -26,25 +26,26 @@ public static class JsonSchemaNetExtensions
         return schema;
     }
 
-    /// <summary>Serializes a JSON schema to element.</summary>
+    /// <summary>Serializes a JSON schema to <see cref="JsonElement"/>.</summary>
     /// <param name="schema">Class type</param>
-    /// <returns>A string containing JSON schema for a given class type.</returns>
+    /// <returns>A <see cref="JsonElement"/> containing JSON schema for a given class type.</returns>
     public static JsonElement AsJsonElement(this JsonSchema schema) {
         return JsonSerializer.SerializeToElement(schema);
     }
 
-    /// <summary>Serializes a JSON schema to element.</summary>
+    /// <summary>Serializes a JSON schema to <see cref="JsonNode"/>.</summary>
     /// <param name="schema">Class type</param>
-    /// <returns>A string containing JSON schema for a given class type.</returns>
+    /// <returns>A <see cref="JsonNode"/> containing JSON schema for a given class type.</returns>
     public static JsonNode? AsJsonNode(this JsonSchema schema) {
         return JsonSerializer.SerializeToNode(schema);
     }
 
-    /// <summary>Serializes a JSON schema to element.</summary>
+    /// <summary>Serializes a JSON schema to string.</summary>
     /// <param name="schema">Class type</param>
+    /// <param name="options">Options to control the serialization behavior.</param>
     /// <returns>A string containing JSON schema for a given class type.</returns>
-    public static string? AsJsonString(this JsonSchema schema) {
-        return JsonSerializer.SerializeToNode(schema)?.ToJsonString();
+    public static string? AsJsonString(this JsonSchema schema, JsonSerializerOptions? options = null) {
+        return JsonSerializer.SerializeToNode(schema)?.ToJsonString(options);
     }
 }
 
@@ -52,7 +53,8 @@ internal class EnumSchemaGenerator : ISchemaGenerator
 {
     public void AddConstraints(SchemaGenerationContextBase context) {
         var values = Enum.GetNames(context.Type).ToList();
-        context.Intents.Add(new ExtendedSchemaKeywordIntent(values));
+        context.Intents.Add(new TypeIntent(SchemaValueType.String));
+        context.Intents.Add(new EnumIntent(values));
     }
     public bool Handles(Type type) => type.IsEnum;
 }
@@ -69,29 +71,5 @@ internal class DateTimeSchemaGenerator : ISchemaGenerator
     public void AddConstraints(SchemaGenerationContextBase context) {
         context.Intents.Add(new TypeIntent(SchemaValueType.String));
         context.Intents.Add(new FormatIntent(Formats.DateTime));
-    }
-}
-
-internal class ExtendedSchemaKeywordIntent : ISchemaKeywordIntent
-{
-    public ExtendedSchemaKeywordIntent(IEnumerable<string> names) : this(names.ToArray()) { }
-
-    public ExtendedSchemaKeywordIntent(params string[] names) => Names = names.ToList();
-
-    public List<string> Names { get; set; }
-
-    public void Apply(JsonSchemaBuilder builder) {
-        builder.Type(SchemaValueType.String);
-        builder.Enum(Names.Select(x => x.AsJsonElement().AsNode()));
-    }
-
-    public override bool Equals(object? obj) => obj is not null;
-
-    public override int GetHashCode() {
-        unchecked {
-            var hashCode = GetType().GetHashCode();
-            hashCode = (hashCode * 397) ^ Names.GetCollectionHashCode();
-            return hashCode;
-        }
     }
 }
