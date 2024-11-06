@@ -4,6 +4,7 @@ using Json.Pointer;
 using Json.Schema;
 using Json.Schema.Generation;
 using Json.Schema.Generation.Generators;
+using Json.Schema.Generation.Intents;
 
 namespace Indice.Features.Identity.Core.Extensions;
 
@@ -15,9 +16,11 @@ public static class JsonSchemaNetExtensions
     /// <returns>A string containing JSON schema for a given class type.</returns>
     public static JsonSchema ToJsonSchema(this Type type) {
         var configuration = new SchemaGeneratorConfiguration {
-            PropertyNameResolver = PropertyNameResolvers.CamelCase
+            PropertyNameResolver = Json.Schema.Generation.PropertyNameResolvers.CamelCase,
+            Nullability = Nullability.AllowForAllTypes,
         };
         configuration.Generators.Add(new EnumSchemaGenerator());
+        configuration.Generators.Add(new DateTimeSchemaGenerator());
         var schema = new JsonSchemaBuilder().FromType(type, configuration).Build();
         return schema;
     }
@@ -36,8 +39,22 @@ internal class EnumSchemaGenerator : ISchemaGenerator
         var values = Enum.GetNames(context.Type).ToList();
         context.Intents.Add(new ExtendedSchemaKeywordIntent(values));
     }
-
     public bool Handles(Type type) => type.IsEnum;
+}
+
+internal class DateTimeSchemaGenerator : ISchemaGenerator
+{
+    public bool Handles(Type type) => type == typeof(DateTime)
+                                   || type == typeof(DateTimeOffset)
+                                   || type == typeof(DateOnly)
+                                   || Nullable.GetUnderlyingType(type) == typeof(DateTime)
+                                   || Nullable.GetUnderlyingType(type) == typeof(DateTimeOffset)
+                                   || Nullable.GetUnderlyingType(type) == typeof(DateOnly);
+
+    public void AddConstraints(SchemaGenerationContextBase context) {
+        context.Intents.Add(new TypeIntent(SchemaValueType.String));
+        context.Intents.Add(new FormatIntent(Formats.DateTime));
+    }
 }
 
 internal class ExtendedSchemaKeywordIntent : ISchemaKeywordIntent
