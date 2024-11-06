@@ -1,24 +1,24 @@
-﻿using System.Text.Json;
+﻿#nullable enable
 using System.Text.Json.Nodes;
-using Json.More;
-using Json.Pointer;
-using Json.Schema;
-using Json.Schema.Generation;
-using Json.Schema.Generation.Generators;
+using System.Text.Json;
 using Json.Schema.Generation.Intents;
+using Json.Schema.Generation;
+using Json.Schema;
+using Json.Schema.Generation.Generators;
 
-namespace Indice.Features.Identity.Core.Extensions;
+namespace Indice.AspNetCore.Extensions;
 
 /// <summary>Extensions related to <see cref="JsonSchema"/></summary>
 public static class JsonSchemaNetExtensions
 {
     /// <summary>Generates JSON schema for a given C# class using a new untested library :)</summary>
     /// <param name="type">Class type</param>
+    /// <param name="nullability">If json schema will inclue nullable annotation for members. Defaults to <see cref="Nullability.AllowForNullableValueTypes"/></param>
     /// <returns>A string containing JSON schema for a given class type.</returns>
-    public static JsonSchema ToJsonSchema(this Type type) {
+    public static JsonSchema ToJsonSchema(this Type type, Nullability nullability = Nullability.AllowForNullableValueTypes) {
         var configuration = new SchemaGeneratorConfiguration {
             PropertyNameResolver = Json.Schema.Generation.PropertyNameResolvers.CamelCase,
-            Nullability = Nullability.AllowForAllTypes,
+            Nullability = nullability,
         };
         configuration.Generators.Add(new EnumSchemaGenerator());
         configuration.Generators.Add(new DateTimeSchemaGenerator());
@@ -73,3 +73,5 @@ internal class DateTimeSchemaGenerator : ISchemaGenerator
         context.Intents.Add(new FormatIntent(Formats.DateTime));
     }
 }
+
+#nullable disable

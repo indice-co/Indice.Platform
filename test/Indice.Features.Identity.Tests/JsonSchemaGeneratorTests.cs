@@ -1,6 +1,5 @@
 ﻿#nullable enable
-using System.Text.Json;
-using Indice.Features.Identity.Core.Extensions;
+using Indice.AspNetCore.Extensions;
 using Json.Schema.Generation;
 using Xunit;
 
