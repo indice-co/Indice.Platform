@@ -16,7 +16,11 @@
                 </div>
                 <div class="col-md-9">
                   <div class="card-body">
-                    <h5 class="card-title">{{ displayName }}</h5>
+                    <h5 class="card-title">
+                      {{ displayName }}  
+                      <span *ngIf="blocked" class="badge bg-light font-12 text-danger">blocked</span>
+                      <span *ngIf="locked" class="badge bg-light font-12 text-warning">locked</span>
+                    </h5>
                     <p class="card-text m-b-5">
                       {{ userName }}
                     </p>

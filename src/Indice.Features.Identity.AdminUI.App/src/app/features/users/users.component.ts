@@ -44,18 +44,11 @@ export class UsersComponent implements OnInit {
         name: "Username",
         draggable: false,
         canAutoResize: true,
+        width: 227,
         sortable: true,
         resizeable: true,
-        cellTemplate: this._usersList.usernameTemplate,
-      },
-      {
-        prop: "email",
-        name: "Email",
-        draggable: false,
-        canAutoResize: true,
-        sortable: true,
-        resizeable: true,
-        cellTemplate: this._usersList.emailTemplate,
+        frozenLeft: true,
+        cellTemplate: this._usersList.usernameOrEmailTemplate,
       },
       {
         prop: "lastName",
@@ -129,9 +122,17 @@ export class UsersComponent implements OnInit {
     
     this.columns = this.uiFeaturesService.getUiFeatures()
     .pipe(map(result => {
-      if (result.emailAsUserName) {
-        this._columns.splice(1, 1);
-        this._columns[0].cellTemplate = this._usersList.usernameOrEmailTemplate;
+      if (!result.emailAsUserName) {
+        this._columns.splice(1, 0, {
+          prop: "email",
+          name: "Email",
+          draggable: false,
+          canAutoResize: true,
+          sortable: true,
+          resizeable: true,
+          cellTemplate: this._usersList.emailTemplate,
+        });
+        this._columns[0].cellTemplate = this._usersList.usernameTemplate;
       }
       return this._columns;
     }));

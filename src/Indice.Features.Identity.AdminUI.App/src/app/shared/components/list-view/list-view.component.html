@@ -1,15 +1,15 @@
 <div class="col-sm-12 col-md-4 m-auto" [hidden]="!canFilter">
     <input class="search mt-0" type="text" [placeholder]="'Type at least ' + minimumSearchCharacters + ' characters to filter results...'" [(ngModel)]="searchTerm" #filterInput />
 </div>
-<ngx-datatable class="material expandable" trackByProp="id" [rows]="rows" [columns]="columns" [columnMode]="'force'" [count]="count" [rowHeight]="rowHeight" [headerHeight]="50" [footerHeight]="50" [limit]="rowsPerPage" reorderable="false"
+<ngx-datatable class="material expandable" trackByProp="id" [rows]="rows" [columns]="columns" [columnMode]="'force'" [scrollbarH]="true" [count]="count" [rowHeight]="rowHeight" [headerHeight]="50" [footerHeight]="50" [limit]="rowsPerPage" reorderable="false"
                [externalPaging]="!clientSide" [externalSorting]="!clientSide" [loadingIndicator]="isLoading" (page)="setPage($event)" (sort)="setSort($event)" #dataTable>
 </ngx-datatable>
 <ng-template let-row="row" let-value="value" #usernameTemplate>
     <img *ngIf="value" class="avatar rounded-circle" style="height: 24px;" [userPicture]="row.id" size="48" [displayName]="row">
     <span *ngIf="value" style="padding-right: 16px; position: relative;" [title]="value">
-        <i *ngIf="row.blocked" class="material-icons font-14 checkmark text-danger" title="Account is blocked">block</i>
-        <i *ngIf="row.isLocked && !row.blocked" class="material-icons font-14 checkmark text-danger" title="Account is locked">vpn_key</i>
         {{ value }}
+        <i *ngIf="row.blocked" class="material-icons font-14 text-danger" title="Account is blocked">block</i>
+        <i *ngIf="row.isLocked && !row.blocked" class="material-icons font-14 text-danger" title="Account is locked">vpn_key</i>
     </span>
     <span *ngIf="!value"> - </span>
 </ng-template>
@@ -46,4 +46,12 @@
 <ng-template let-row="row" let-value="value" #booleanTemplate>
     <i *ngIf="value === true" class="material-icons text-info">check</i>
     <i *ngIf="value === false" class="material-icons text-danger">remove</i>
+</ng-template>
+
+<ng-template let-row="row"
+             let-value="value"
+             #keyTemplate>
+    <span class="badge text-muted border boder-primary bg-light m-1" [title]="value">
+        {{ value }}
+    </span>
 </ng-template>
