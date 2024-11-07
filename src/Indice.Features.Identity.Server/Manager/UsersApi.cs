@@ -111,6 +111,11 @@ public static class UsersApi
              .WithSummary("Gets a list of the devices of the specified user.")
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersReader);
 
+        group.MapDelete("{userId}/devices/{deviceId}", UserHandlers.DeleteUserDevice)
+             .WithName(nameof(UserHandlers.DeleteUserDevice))
+             .WithSummary("Permanently deletes a registered device from a user.")
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+
         group.MapGet("{userId}/external-logins", UserHandlers.GetUserExternalLogins)
              .WithName(nameof(UserHandlers.GetUserExternalLogins))
              .WithSummary("Gets a list of the external login providers for the specified user.")

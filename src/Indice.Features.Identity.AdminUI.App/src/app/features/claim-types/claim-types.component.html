@@ -17,7 +17,7 @@
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
     <a class="icon-link text-primary" href="#" role="button" *ngIf="value" [routerLink]="value + '/edit'" title="{{ canEditClaimType ? 'Edit' : 'View' }}">
-        <i class="material-icons align-middle">{{ canEditClaimType ? 'edit_outlined' : 'view_headline_outlined' }}</i>
+        <i class="material-icons align-middle">{{ canEditClaimType ? 'edit' : 'view_headline' }}</i>
     </a>
 </ng-template>
 <ng-template let-row="row" let-value="value" #valueTypeTemplate>
