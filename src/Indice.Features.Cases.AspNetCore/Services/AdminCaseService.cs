@@ -470,7 +470,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var stringifiedCaseData = (await GetCaseById(user, caseId, false)).DataAs<string>();
         var json = JsonDocument.Parse(stringifiedCaseData);
         bool found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
-        if (found) {
+        if (found && !string.IsNullOrEmpty(attachmentId.GetString())) {
             var attachment = await GetAttachment(caseId, attachmentId.GetGuid());
             return attachment;
         }
