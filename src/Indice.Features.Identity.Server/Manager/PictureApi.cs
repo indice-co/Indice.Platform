@@ -56,7 +56,7 @@ public static class PictureApi
                     .CacheOutput(policy => policy.SetVaryByRouteValue(["size", "format"])
                                               .SetVaryByQuery(["size"])
                                               .SetAutoTag()
-                                              .SetAuthorized(ctx => ctx.User.FindSubjectId()))
+                                              .SetAuthorized(ctx => ctx.User.FindSubjectId()!))
                     .WithCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject]);
 
         getMyPicture.MapGet("my/account/picture", PictureHandlers.GetMyPicture)

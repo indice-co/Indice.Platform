@@ -115,7 +115,7 @@ internal class InitRegistrationEndpoint : IEndpointHandler
                 .WithPurpose(Constants.DeviceAuthenticationOtpPurpose(requestValidationResult!.UserId!, requestValidationResult!.DeviceId!, requestValidationResult!.InteractionMode))
             );
             if (!totpResult.Success) {
-                return Error(totpResult.Error);
+                return Error(totpResult.Error!);
             }
         }
         // Create endpoint response.

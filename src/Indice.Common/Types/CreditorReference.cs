@@ -71,9 +71,9 @@ public class CreditorReference
     /// <param name="creditorReference">The creditor reference to parse.</param>
     /// <param name="result">The creditor reference as a <see cref="CreditorReference"/> object.</param>
     /// <returns>Returns true if given string is valid, otherwise false.</returns>
-    public static bool TryParse(string creditorReference, out CreditorReference result) {
+    public static bool TryParse(string? creditorReference, out CreditorReference? result) {
         if (IsValid(creditorReference)) {
-            result = new CreditorReference(creditorReference);
+            result = new CreditorReference(creditorReference!);
             return true;
         }
         result = null;
@@ -87,14 +87,17 @@ public class CreditorReference
     public static CreditorReference Parse(string creditorReference) {
         var isValid = TryParse(creditorReference, out var result);
         if (isValid) {
-            return result;
+            return result!;
         }
         throw new FormatException("Creditor reference is not in a valid format.");
     }
 
     /// <summary>Validates a creditor reference.</summary>
     /// <param name="creditorReference">The creditor reference to validate.</param>
-    public static bool IsValid(string creditorReference) {
+    public static bool IsValid(string? creditorReference) {
+        if (string.IsNullOrWhiteSpace(creditorReference)) {
+            return false;
+        }
         creditorReference = Regex.Replace(creditorReference, @"\s+", string.Empty).ToUpper();
         var firstFourChars = creditorReference.Substring(0, 4);
         creditorReference = $"{creditorReference.Replace(firstFourChars, string.Empty)}{firstFourChars}";

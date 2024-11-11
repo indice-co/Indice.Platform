@@ -1,8 +1,8 @@
 ﻿using System.Text;
+using System.Text.Json;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace Indice.Services;
 
@@ -63,7 +63,7 @@ public class SmsServiceYuboto : ISmsService, IDisposable
         .CreateRequest();
         httpResponse = await HttpClient.GetAsync(request);
         var stringifyResponse = await httpResponse.Content.ReadAsStringAsync();
-        response = JsonConvert.DeserializeObject<YubotoResponse>(stringifyResponse);
+        response = JsonSerializer.Deserialize<YubotoResponse>(stringifyResponse, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         if (response.HasError) {
             throw new SmsServiceException($"SMS Delivery failed. {response}");
         } else {

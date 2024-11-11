@@ -6,10 +6,10 @@ namespace Indice.Services;
 public class EmailServiceNoop : IEmailService
 {
     /// <inheritdoc/>
-    public IHtmlRenderingEngine HtmlRenderingEngine { get; } = null;
+    public IHtmlRenderingEngine? HtmlRenderingEngine { get; } = null;
 
     /// <inheritdoc/>
-    public Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
+    public Task SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null) {
         foreach (var recipient in recipients) {
             Debug.WriteLine($"Email:\n\t\t{recipient}/{subject}\n\n\t\t{body}");
         }

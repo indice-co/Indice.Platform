@@ -65,7 +65,7 @@ internal static partial class MyAccountHandlers
         var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
         await emailService.SendAsync(message => {
             var builder = message
-                .To(user.Email)
+                .To(user.Email!)
                 .WithSubject(userManager.MessageDescriber.UpdateEmailMessageSubject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.UpdateEmailTemplate)) {
                 var data = new IdentityApiEmailData {
@@ -133,10 +133,10 @@ internal static partial class MyAccountHandlers
         if (!endpointOptions.Value.PhoneNumber.SendOtpOnUpdate) {
             return TypedResults.NoContent();
         }
-        var smsService = smsServiceFactory.Create(request.DeliveryChannel) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
+        var smsService = smsServiceFactory.Create(request.DeliveryChannel!) ?? throw new Exception($"No concrete implementation of {nameof(ISmsService)} is registered.");
 
         var token = await userManager.GenerateChangePhoneNumberTokenAsync(user, request.PhoneNumber!);
-        await smsService.SendAsync(request.PhoneNumber, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token));
+        await smsService.SendAsync(request.PhoneNumber!, string.Empty, userManager.MessageDescriber.PhoneNumberVerificationMessage(token));
         return TypedResults.NoContent();
     }
 
@@ -243,7 +243,7 @@ internal static partial class MyAccountHandlers
         };
         await emailService.SendAsync(message => {
             var builder = message
-                .To(user.Email)
+                .To(user.Email!)
                 .WithSubject(userManager.MessageDescriber.ForgotPasswordMessageSubject);
             if (!string.IsNullOrWhiteSpace(endpointOptions.Value.Email.ForgotPasswordTemplate)) {
                 builder.UsingTemplate(endpointOptions.Value.Email.ForgotPasswordTemplate)

@@ -23,7 +23,7 @@ public struct Base64Id
     /// <summary>Compare equality with the giver object. </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         if (obj != null && obj is Base64Id id) {
             var other = id;
             return other.Id == Id;
@@ -83,7 +83,7 @@ public class Base64IdTypeConverter : TypeConverter
     /// <summary>Overrides can convert to declare support for string conversion.</summary>
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
         if (sourceType == typeof(string)) {
             return true;
         }
@@ -94,7 +94,7 @@ public class Base64IdTypeConverter : TypeConverter
     /// <param name="context"></param>
     /// <param name="culture"></param>
     /// <param name="value"></param>
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
         if (value is string) {
             return Base64Id.Parse((string)value);
         }
@@ -106,9 +106,9 @@ public class Base64IdTypeConverter : TypeConverter
     /// <param name="culture"></param>
     /// <param name="value"></param>
     /// <param name="destinationType"></param>
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType) {
         if (destinationType == typeof(string)) {
-            return ((Base64Id)value).ToString();
+            return ((Base64Id)value!).ToString();
         }
         return base.ConvertTo(context, culture, value, destinationType);
     }

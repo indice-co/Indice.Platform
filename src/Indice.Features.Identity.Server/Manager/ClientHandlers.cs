@@ -660,7 +660,7 @@ internal static class ClientHandlers
         return client;
     }
 
-    private static void AddClientTranslations(Client client, string translations) {
+    private static void AddClientTranslations(Client client, string? translations) {
         client.Properties ??= new List<ClientProperty>();
         client.Properties.Add(new ClientProperty {
             Key = ClientPropertyKeys.Translation,

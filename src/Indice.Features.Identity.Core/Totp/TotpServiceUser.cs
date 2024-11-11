@@ -156,12 +156,12 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
                     new TotpRecipient {
                         DeviceId = device.Id.ToString(),
                         UserId = user.Id,
-                        PhoneNumber = user.PhoneNumber,
-                        Email = user.Email
+                        PhoneNumber = user.PhoneNumber!,
+                        Email = user.Email!
                     },
                     new TotpMessage {
                         Message = message,
-                        Subject = subject,
+                        Subject = subject!,
                         Category = classification,
                         Data = augmentedData
                     }
@@ -172,12 +172,12 @@ public class TotpServiceUser<TUser> : TotpServiceBase where TUser : User
                 channel,
                 new TotpRecipient {
                     UserId = user.Id,
-                    PhoneNumber = user.PhoneNumber,
-                    Email = user.Email
+                    PhoneNumber = user.PhoneNumber!,
+                    Email = user.Email!
                 },
                 new TotpMessage {
                     Message = message,
-                    Subject = subject,
+                    Subject = subject!,
                     Category = classification,
                     Data = data,
                     EmailTemplate = emailTemplate

@@ -18,7 +18,7 @@ public class SmsSender
     /// <summary>Checks for id existence.</summary>
     public bool IsEmpty => string.IsNullOrWhiteSpace(Id);
     /// <inheritdoc/>
-    public override string ToString() => IsEmpty ? base.ToString() : $"{DisplayName} <{Id}>";
+    public override string ToString() => IsEmpty ? base.ToString()! : $"{DisplayName} <{Id}>";
 }
 
 /// <summary>Exception for SMS service failure.</summary>
@@ -43,17 +43,27 @@ public class SmsServiceSettings
     /// <summary>Key in the configuration.</summary>
     public static readonly string Name = "Sms";
     /// <summary>The API key.</summary>
-    public string ApiKey { get; set; }
+    public string? ApiKey { get; set; }
     /// <summary>The default sender.</summary>
-    public string Sender { get; set; }
+    public string? Sender { get; set; }
     /// <summary>The sender display name.</summary>
-    public string SenderName { get; set; }
+    public string? SenderName { get; set; }
     /// <summary>If true then test mode should not charge any credits.</summary>
     public bool TestMode { get; set; }
     /// <summary>In case of Viber failure fall-back to SMS.</summary>
     public bool ViberFallbackEnabled { get; set; } = false;
     /// <summary>The number of a seconds that a message is considered active. Defaults to 4320 seconds.</summary>
     public int Validity { get; set; } = 4320;
+}
+
+/// <summary>Result class encapiuslating the message id or multiple ids as well as any errors that may accur class for configuring SMS service clients.</summary>
+public class SmsServiceResult
+{
+    /// <summary>Message unique identifiers for each recipient message sent in the order of the recipients</summary>
+    public List<string> MessageIds { get; } = [];
+
+    /// <summary>The Message id if the transmission is for one recipient or the first message id of the first recipient in case of multiple recipients.</summary>
+    public string? MessageId => MessageIds.FirstOrDefault();
 }
 
 /// <summary>SMS service abstraction in order support different providers.</summary>
@@ -68,5 +78,5 @@ public interface ISmsService
     /// <param name="subject">Message subject.</param>
     /// <param name="body">Message content.</param>
     /// <param name="sender">The sender id visible in the recipients phone. i.e. INDICE. Defaults to the configuration value <strong>sender</strong>.</param>
-    Task SendAsync(string destination, string subject, string body, SmsSender sender = null);
+    Task SendAsync(string destination, string subject, string? body, SmsSender? sender = null);
 }

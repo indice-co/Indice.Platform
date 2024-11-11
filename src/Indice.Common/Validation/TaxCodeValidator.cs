@@ -61,7 +61,7 @@ public static class TaxCodeValidator
     /// <param name="taxIdentificationNumber">The number to check</param>
     /// <param name="countryISO">Optionaly pass the country iso in order to cover tax numbers not providing their country prefix.</param>
     /// <returns></returns>
-    public static bool CheckNumber(string taxIdentificationNumber, string countryISO = null) {
+    public static bool CheckNumber(string taxIdentificationNumber, string? countryISO = null) {
         if (countryISO != null && !supportedCountryMap.ContainsKey(countryISO)) {
             throw new NotSupportedException($"country iso \"{countryISO}\" is not supported for VAT number validation.");
         }
@@ -101,7 +101,7 @@ public static class TaxCodeValidator
 #else
                 var method = typeof(TaxCodeValidator).GetTypeInfo().GetDeclaredMethod(methodName);
 #endif
-                if (method != null && (bool)method.Invoke(null, [cNumber]))
+                if (method != null && (bool)method.Invoke(null, [cNumber])!)
                     valid = true;
 
                 // Having processed the number, we break from the loop

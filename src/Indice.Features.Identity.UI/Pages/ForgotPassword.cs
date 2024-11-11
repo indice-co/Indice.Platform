@@ -80,7 +80,7 @@ public abstract class BaseForgotPasswordModel : BasePageModel
         var callbackUrl = Url.PageLink("/ForgotPasswordConfirmation", values: new { email = user.Email, token, client_id = HttpContext.GetClientIdFromReturnUrl() });
         Logger.LogDebug("{PageTitle}: Confirmation token is {Token}", "Forgot password", token);
         await EmailService.SendAsync(builder =>
-            builder.To(user.Email)
+            builder.To(user.Email!)
                    .WithSubject(_localizer["Please confirm your account"])
                    .UsingTemplate("EmailForgotPassword")
                    .WithData(new {

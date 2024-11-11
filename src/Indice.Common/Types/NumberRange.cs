@@ -9,8 +9,8 @@ namespace Indice.Types;
 public class NumberRange<TNumberType> where TNumberType : INumber<TNumberType>
 {
     /// <summary>Lower limit of range.</summary>
-    public TNumberType LowerLimit { get; set; }
+    public TNumberType? LowerLimit { get; set; }
     /// <summary>Upper limit of range.</summary>
-    public TNumberType UpperLimit { get; set; }
+    public TNumberType? UpperLimit { get; set; }
 }
 #endif
