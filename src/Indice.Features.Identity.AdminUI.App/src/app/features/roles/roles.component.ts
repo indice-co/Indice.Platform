@@ -18,6 +18,7 @@ export class RolesComponent implements OnInit {
 
     @ViewChild('rolesList', { static: true }) public rolesList: ListViewComponent;
     @ViewChild('actionsTemplate', { static: true }) public actionsTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('keyTemplate', { static: true }) public keyTemplate: TemplateRef<HTMLElement>;
     public count = 0;
     public rows: RoleInfo[] = [];
     public columns: TableColumn[] = [];
@@ -26,7 +27,7 @@ export class RolesComponent implements OnInit {
     public ngOnInit(): void {
         this.canEditRole = this._authService.isAdminUIUsersWriter();
         this.columns = [
-            { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false },
+            { prop: 'name', name: 'Name', draggable: false, canAutoResize: true, sortable: true, resizeable: false, cellTemplate: this.keyTemplate },
             { prop: 'description', name: 'Description', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
             { prop: 'id', name: 'Actions', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this.actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];

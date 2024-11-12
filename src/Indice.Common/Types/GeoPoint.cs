@@ -67,10 +67,10 @@ public class GeoPoint
     /// <summary>Tries to parse the given <paramref name="latLong"/> into a <paramref name="point"/>. In case of exception it handles it and returns false.</summary>
     /// <param name="latLong">Latitude and longitude as a string.</param>
     /// <param name="point">The parsed <see cref="GeoPoint"/> instance.</param>
-    public static bool TryParse(string latLong, out GeoPoint point) {
+    public static bool TryParse(string? latLong, out GeoPoint? point) {
         point = null;
         try {
-            point = Parse(latLong);
+            point = Parse(latLong!);
             return true;
         } catch {
             return false;
@@ -119,7 +119,7 @@ public class GeoPoint
 
     /// <summary>Cast operator.</summary>
     /// <param name="value">The text to parse.</param>
-    public static explicit operator GeoPoint(string value) => string.IsNullOrEmpty(value) ? null : Parse(value);
+    public static explicit operator GeoPoint(string? value) => string.IsNullOrEmpty(value) ? null! : Parse(value);
 }
 
 /// <summary>Type converter for converting between <see cref="GeoPoint"/> and <seealso cref="string"/></summary>
@@ -128,7 +128,7 @@ public class GeoPointTypeConverter : TypeConverter
     /// <summary>Overrides can convert to declare support for string conversion.</summary>
     /// <param name="context">Provides contextual information about a component, such as its container and property descriptor.</param>
     /// <param name="sourceType"></param>
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
         if (sourceType == typeof(string)) {
             return true;
         }
@@ -139,7 +139,7 @@ public class GeoPointTypeConverter : TypeConverter
     /// <param name="context">Provides contextual information about a component, such as its container and property descriptor.</param>
     /// <param name="culture"></param>
     /// <param name="value"></param>
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
         if (value is string) {
             return GeoPoint.Parse((string)value);
         }
@@ -151,9 +151,9 @@ public class GeoPointTypeConverter : TypeConverter
     /// <param name="culture"></param>
     /// <param name="value"></param>
     /// <param name="destinationType"></param>
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType) {
         if (destinationType == typeof(string)) {
-            return ((GeoPoint)value).ToString();
+            return ((GeoPoint)value!).ToString();
         }
         return base.ConvertTo(context, culture, value, destinationType);
     }

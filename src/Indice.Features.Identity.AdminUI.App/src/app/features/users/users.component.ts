@@ -9,6 +9,8 @@ import {
 import { SearchEvent } from "src/app/shared/components/list-view/models/search-event";
 import { ListViewComponent } from "src/app/shared/components/list-view/list-view.component";
 import { AuthService } from "src/app/core/services/auth.service";
+import { UiFeaturesService } from "src/app/core/services/ui-features.service";
+import { Observable, map } from "rxjs";
 
 @Component({
   selector: "app-users",
@@ -24,34 +26,29 @@ export class UsersComponent implements OnInit {
 
   constructor(
     private api: IdentityApiService,
-    private _authService: AuthService
+    private _authService: AuthService,
+    private uiFeaturesService: UiFeaturesService
   ) {}
 
   public count = 0;
   public rows: UserInfo[] = [];
-  public columns: TableColumn[] = [];
+  public columns: Observable<TableColumn[]> = undefined;
+  private _columns: TableColumn[] = [];
   public canEditUser: boolean;
 
   public ngOnInit(): void {
     this.canEditUser = this._authService.isAdminUIUsersWriter();
-    this.columns = [
+    this._columns = [
       {
         prop: "userName",
         name: "Username",
         draggable: false,
         canAutoResize: true,
+        width: 227,
         sortable: true,
         resizeable: true,
-        cellTemplate: this._usersList.usernameTemplate,
-      },
-      {
-        prop: "email",
-        name: "Email",
-        draggable: false,
-        canAutoResize: true,
-        sortable: true,
-        resizeable: true,
-        cellTemplate: this._usersList.emailTemplate,
+        frozenLeft: true,
+        cellTemplate: this._usersList.usernameOrEmailTemplate,
       },
       {
         prop: "lastName",
@@ -122,6 +119,23 @@ export class UsersComponent implements OnInit {
         width: 100,
       },
     ];
+    
+    this.columns = this.uiFeaturesService.getUiFeatures()
+    .pipe(map(result => {
+      if (!result.emailAsUserName) {
+        this._columns.splice(1, 0, {
+          prop: "email",
+          name: "Email",
+          draggable: false,
+          canAutoResize: true,
+          sortable: true,
+          resizeable: true,
+          cellTemplate: this._usersList.emailTemplate,
+        });
+        this._columns[0].cellTemplate = this._usersList.usernameTemplate;
+      }
+      return this._columns;
+    }));
   }
 
   public getUsers(event: SearchEvent): void {

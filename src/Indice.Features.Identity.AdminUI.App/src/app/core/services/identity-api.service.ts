@@ -677,6 +677,11 @@ export interface IIdentityApiService {
      */
     getUserDevices(userId: string): Observable<DeviceInfoResultSet>;
     /**
+     * Permanently deletes a registered device from a user.
+     * @return No Content
+     */
+    deleteUserDevice(userId: string, deviceId: string): Observable<void>;
+    /**
      * Resends the confirmation email for a given user.
      * @return No Content
      */
@@ -9905,6 +9910,85 @@ export class IdentityApiService implements IIdentityApiService {
     }
 
     /**
+     * Permanently deletes a registered device from a user.
+     * @return No Content
+     */
+    deleteUserDevice(userId: string, deviceId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/users/{userId}/devices/{deviceId}";
+        if (userId === undefined || userId === null)
+            throw new Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        if (deviceId === undefined || deviceId === null)
+            throw new Error("The parameter 'deviceId' must be defined.");
+        url_ = url_.replace("{deviceId}", encodeURIComponent("" + deviceId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteUserDevice(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteUserDevice(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteUserDevice(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 401) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result401: any = null;
+            let resultData401 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result401 = ProblemDetails.fromJS(resultData401);
+            return throwException("Unauthorized", status, _responseText, _headers, result401);
+            }));
+        } else if (status === 403) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result403: any = null;
+            let resultData403 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result403 = ProblemDetails.fromJS(resultData403);
+            return throwException("Forbidden", status, _responseText, _headers, result403);
+            }));
+        } else if (status === 500) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result500: any = null;
+            let resultData500 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result500 = ProblemDetails.fromJS(resultData500);
+            return throwException("Internal Server Error", status, _responseText, _headers, result500);
+            }));
+        } else if (status === 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status === 404) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("Not Found", status, _responseText, _headers);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * Resends the confirmation email for a given user.
      * @return No Content
      */
@@ -16226,6 +16310,8 @@ export class SummaryStatistic implements ISummaryStatistic {
     count?: number;
     /** The percent. */
     percent?: number;
+    /** The trend. */
+    trend?: number | undefined;
 
     constructor(data?: ISummaryStatistic) {
         if (data) {
@@ -16240,6 +16326,7 @@ export class SummaryStatistic implements ISummaryStatistic {
         if (_data) {
             this.count = _data["count"];
             this.percent = _data["percent"];
+            this.trend = _data["trend"];
         }
     }
 
@@ -16254,6 +16341,7 @@ export class SummaryStatistic implements ISummaryStatistic {
         data = typeof data === 'object' ? data : {};
         data["count"] = this.count;
         data["percent"] = this.percent;
+        data["trend"] = this.trend;
         return data;
     }
 }
@@ -16264,6 +16352,8 @@ export interface ISummaryStatistic {
     count?: number;
     /** The percent. */
     percent?: number;
+    /** The trend. */
+    trend?: number | undefined;
 }
 
 export enum TokenExpiration {
@@ -16463,6 +16553,8 @@ export class UiFeaturesInfo implements IUiFeaturesInfo {
     metricsEnabled?: boolean;
     /** Determines whether sign in logs should be visible. */
     signInLogsEnabled?: boolean;
+    /** Gets a flag indicating whether the backing user store supports user name that are the same as emails. */
+    emailAsUserName?: boolean;
 
     constructor(data?: IUiFeaturesInfo) {
         if (data) {
@@ -16477,6 +16569,7 @@ export class UiFeaturesInfo implements IUiFeaturesInfo {
         if (_data) {
             this.metricsEnabled = _data["metricsEnabled"];
             this.signInLogsEnabled = _data["signInLogsEnabled"];
+            this.emailAsUserName = _data["emailAsUserName"];
         }
     }
 
@@ -16491,6 +16584,7 @@ export class UiFeaturesInfo implements IUiFeaturesInfo {
         data = typeof data === 'object' ? data : {};
         data["metricsEnabled"] = this.metricsEnabled;
         data["signInLogsEnabled"] = this.signInLogsEnabled;
+        data["emailAsUserName"] = this.emailAsUserName;
         return data;
     }
 }
@@ -16500,6 +16594,8 @@ export interface IUiFeaturesInfo {
     metricsEnabled?: boolean;
     /** Determines whether sign in logs should be visible. */
     signInLogsEnabled?: boolean;
+    /** Gets a flag indicating whether the backing user store supports user name that are the same as emails. */
+    emailAsUserName?: boolean;
 }
 
 /** Models an API resource that will be updated on the server. */
@@ -18227,6 +18323,7 @@ export interface IUserLoginProviderInfoResultSet {
 /** Models percentage of user activity. */
 export class UsersActivityInfo implements IUsersActivityInfo {
     day?: SummaryStatistic;
+    yesterday?: SummaryStatistic;
     week?: SummaryStatistic;
     month?: SummaryStatistic;
 
@@ -18242,6 +18339,7 @@ export class UsersActivityInfo implements IUsersActivityInfo {
     init(_data?: any) {
         if (_data) {
             this.day = _data["day"] ? SummaryStatistic.fromJS(_data["day"]) : <any>undefined;
+            this.yesterday = _data["yesterday"] ? SummaryStatistic.fromJS(_data["yesterday"]) : <any>undefined;
             this.week = _data["week"] ? SummaryStatistic.fromJS(_data["week"]) : <any>undefined;
             this.month = _data["month"] ? SummaryStatistic.fromJS(_data["month"]) : <any>undefined;
         }
@@ -18257,6 +18355,7 @@ export class UsersActivityInfo implements IUsersActivityInfo {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["day"] = this.day ? this.day.toJSON() : <any>undefined;
+        data["yesterday"] = this.yesterday ? this.yesterday.toJSON() : <any>undefined;
         data["week"] = this.week ? this.week.toJSON() : <any>undefined;
         data["month"] = this.month ? this.month.toJSON() : <any>undefined;
         return data;
@@ -18266,6 +18365,7 @@ export class UsersActivityInfo implements IUsersActivityInfo {
 /** Models percentage of user activity. */
 export interface IUsersActivityInfo {
     day?: SummaryStatistic;
+    yesterday?: SummaryStatistic;
     week?: SummaryStatistic;
     month?: SummaryStatistic;
 }

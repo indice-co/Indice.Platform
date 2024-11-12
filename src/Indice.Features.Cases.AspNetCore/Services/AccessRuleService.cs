@@ -88,7 +88,8 @@ internal class AccessRuleService : IAccessRuleService
             .Where(x =>
                 x.RuleCaseId == caseId ||
                 x.RuleCaseTypeId == @case.CaseTypeId ||
-                checkpoints.Contains(x.RuleCheckpointTypeId ?? Guid.Empty));
+                (x.RuleCaseId == null && checkpoints.Contains(x.RuleCheckpointTypeId ?? Guid.Empty))
+                );
 
         return await query.Select(rule => new AccessRule {
             Id = rule.Id,
@@ -108,7 +109,7 @@ internal class AccessRuleService : IAccessRuleService
             throw new UnauthorizedAccessException("User does not have administrator rights.");
         }
         if (!accessRule.IsValid())
-            throw new ValidationException("At least one resource Id must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId) with at least one grant (MemberRole, MemberGroupId, MemberUserId).");
+            throw new ValidationException("At least one resource rule must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId or RuleCaseId & RuleCheckpointTypeId) with at least one grant (MemberRole, MemberGroupId, MemberUserId).");
 
         var entity = ToDbObject(accessRule);
         await _dbContext.CaseAccessRules.AddAsync(entity);
@@ -123,7 +124,7 @@ internal class AccessRuleService : IAccessRuleService
             throw new UnauthorizedAccessException("User does not have administrator rights.");
         }
         if (accessRules.Exists(x => !x.IsValid()))
-            throw new ValidationException("At least one resource Id must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId) with a grant (MemberRole, MemberGroupId, MemberUserId)  for all records.");
+            throw new ValidationException("At least one resource rule must be set (RuleCaseId, RuleCheckpointTypeId, RuleCaseTypeId or RuleCaseId & RuleCheckpointTypeId) with at least one grant (MemberRole, MemberGroupId, MemberUserId) for all records.");
 
         foreach (var accessRule in accessRules) {
             await _dbContext.CaseAccessRules.AddAsync(ToDbObject(accessRule));

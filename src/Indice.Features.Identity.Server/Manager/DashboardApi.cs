@@ -48,7 +48,7 @@ public static class DashboardApi
              .WithSummary("Gets some useful information as a summary of the system.")
              .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersOrClientsReader)
-             .CacheOutput(policy => policy.SetAuthorized(ctx => ctx.User.FindSubjectId())
+             .CacheOutput(policy => policy.SetAuthorized(ctx => ctx.User.FindSubjectId()!)
                                           .Expire(TimeSpan.FromMinutes(5))
                                           .Tag(CacheTagPrefix))
              .WithCacheTag(CacheTagPrefix, [], [JwtClaimTypes.Subject]);

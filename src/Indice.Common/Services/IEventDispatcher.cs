@@ -14,7 +14,7 @@ public interface IEventDispatcher
     /// <param name="wrap">Wrap around an envelope object. Defaults to true.</param>
     /// <param name="queueName">The name of the queue. If not specified, the name of <typeparamref name="TEvent"/> in kebab case is used.</param>
     /// <param name="prependEnvironmentInQueueName">When set to true, it prepends the queue name with the environment name. For example <b>production-my-queue-name</b>. Defaults to true.</param>
-    Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class;
+    Task RaiseEventAsync<TEvent>(TEvent payload, ClaimsPrincipal? actingPrincipal = null, TimeSpan? visibilityTimeout = null, bool wrap = true, string? queueName = null, bool prependEnvironmentInQueueName = true) where TEvent : class;
 }
 
 /// <summary>Extension methods on <see cref="IEventDispatcher"/>.</summary>
@@ -25,7 +25,7 @@ public static class IEventDispatcherExtensions
     /// <param name="eventDispatcher">Provides methods that allow application components to communicate with each other by dispatching events.</param>
     /// <param name="payload">The actual payload data to send.</param>
     /// <param name="configure">Configuration action for <see cref="EventDispatcherRaiseOptions"/>.</param>
-    public static Task RaiseEventAsync<TEvent>(this IEventDispatcher eventDispatcher, TEvent payload, Action<EventDispatcherRaiseOptionsBuilder> configure = null) where TEvent : class {
+    public static Task RaiseEventAsync<TEvent>(this IEventDispatcher eventDispatcher, TEvent payload, Action<EventDispatcherRaiseOptionsBuilder>? configure = null) where TEvent : class {
         var optionsBuilder = new EventDispatcherRaiseOptionsBuilder();
         configure?.Invoke(optionsBuilder);
         var options = optionsBuilder.Build();
@@ -37,13 +37,13 @@ public static class IEventDispatcherExtensions
 public class EventDispatcherRaiseOptions
 {
     /// <summary>A <see cref="System.Security.Claims.ClaimsPrincipal"/> instance that contains information about the entity that triggered the event.</summary>
-    public ClaimsPrincipal ClaimsPrincipal { get; set; }
+    public ClaimsPrincipal? ClaimsPrincipal { get; set; }
     /// <summary>Delays the sending of payload to the queue for the specified amount of time. The maximum delay can reach up to 7 days.</summary>
     public TimeSpan? VisibilityTimeout { get; set; }
     /// <summary>Wrap around an envelope object. Defaults to true.</summary>
     public bool Wrap { get; set; } = true;
     /// <summary>The name of the queue. If not specified, the name of event in kebab case is used.</summary>
-    public string QueueName { get; set; }
+    public string? QueueName { get; set; }
     /// <summary>When set to true, it prepends the queue name with the environment name. For example <b>production-my-queue-name</b>. Defaults to true.</summary>
     public bool PrependEnvironmentInQueueName { get; set; } = true;
 }

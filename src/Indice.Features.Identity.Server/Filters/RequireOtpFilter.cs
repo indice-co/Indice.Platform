@@ -3,10 +3,11 @@ using IdentityModel;
 using Indice.Features.Identity.Core;
 using Indice.Features.Identity.Core.Data.Models;
 using Indice.Features.Identity.Core.Totp;
+using Indice.Features.Identity.Server.Options;
 using Indice.Security;
-using Indice.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using static Microsoft.AspNetCore.Http.RequireOtpFilterExtensions;
 
 namespace Microsoft.AspNetCore.Http;
@@ -43,9 +44,10 @@ public static class RequireOtpFilterExtensions
                     if (principal is null || !principal.Identity!.IsAuthenticated) {
                         return Results.ValidationProblem(ValidationErrors.AddError("Forbidden", "Authenticated user is required"), detail: "Principal is not present or not authenticated.");
                     }
-                    // Check if user has an elevated access token and is already TOTP authenticated.
-                    var isOtpAuthenticated = principal.FindFirstValue<bool>(JwtClaimTypes.AuthenticationMethod) ?? false;
-                    if (isOtpAuthenticated) {
+                    // Check if user has an elevated access token and is already mfa authenticated.
+                    var amr = principal.FindAll(JwtClaimTypes.AuthenticationMethod).Select(x => x.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                    var isMfad = amr.Contains("mfa") || amr.Count > 1;
+                    if (isMfad) {
                         return await next(invocationContext);
                     }
                     var subject = principal.FindSubjectId();
@@ -67,14 +69,19 @@ public static class RequireOtpFilterExtensions
                     var purpose = policy.ResolvePurpose(httpContext.RequestServices, principal, subject, phoneNumber, userState);
                     // No TOTP is present in the request, so will try to send one using the preferred delivery channel.
                     if (string.IsNullOrWhiteSpace(totp)) {
-                        var deliveryChannel = TotpDeliveryChannel.Sms; //_serviceProvider.GetRequiredService<IOptions<DeviceOptions>>().Value.DefaultTotpDeliveryChannel;
+                        var deliveryChannel = httpContext.RequestServices.GetRequiredService<IOptions<DeviceOptions>>().Value.DefaultTotpDeliveryChannel;
                         await totpService.SendAsync(totp =>
                             totp.ToPrincipal(principal)
                                 .WithMessage(policy.ResolveMessageTemplate(httpContext.RequestServices, principal, userState))
                                 .UsingDeliveryChannel(deliveryChannel)
                                 .WithPurpose(purpose)
                         );
-                        return Results.ValidationProblem(ValidationErrors.AddError("requiresOtp", "Invalid totp"), detail: "The TOTP code could not be verified.", extensions: new Dictionary<string, object?> { ["requiresOtp"] = true });
+                        return Results.ValidationProblem(ValidationErrors.AddError("requiresOtp", "Invalid totp"), detail: "The TOTP code could not be verified.");
+                    }
+                    // TOTP is present, so try and verify the otp.
+                    var otpResult = await totpService.VerifyAsync(principal, totp, purpose);
+                    if (!otpResult.Success) {
+                        return Results.ValidationProblem(ValidationErrors.AddError("requiresOtp", "Invalid totp"), detail: "The TOTP code could not be verified.");
                     }
                     return await next(invocationContext);
                 });

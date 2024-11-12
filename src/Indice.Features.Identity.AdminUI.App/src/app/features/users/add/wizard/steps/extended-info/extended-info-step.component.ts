@@ -55,6 +55,10 @@ export class ExtendedInfoStepComponent
     return this.data.form.get("bypassPasswordValidation");
   }
 
+  public get changePasswordAfterFirstSignIn(): AbstractControl {
+    return this.data.form.get("changePasswordAfterFirstSignIn");
+  }
+
   public ngOnInit(): void {}
 
   public toggleEmailAsUserName({ target }: Event): void {

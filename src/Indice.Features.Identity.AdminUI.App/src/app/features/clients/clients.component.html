@@ -16,10 +16,12 @@
     </div>
 </div>
 <ng-template let-row="row" let-value="value" #actionsTemplate>
-    <a class="btn btn-success" href="#" role="button" [routerLink]="value + '/details'">{{ canEditClient ? 'Edit' : 'View' }}</a>
+    <a class="icon-link text-primary" href="#" role="button" *ngIf="value" [routerLink]="value + '/details'" title="{{ canEditClient ? 'Edit' : 'View' }}">
+        <i class="material-icons align-middle">{{ canEditClient ? 'edit' : 'view_headline' }}</i>
+    </a>
 </ng-template>
 <ng-template let-row="row" let-value="value" #clientIdTemplate>
-    <span [title]="value">{{ value }}</span>
-    &nbsp;
-    <span *ngIf="row.nonEditable" class="badge badge-warning">reserved</span>
+    <span class="badge text-muted border boder-primary bg-light m-1" [title]="value">
+        {{ value }}
+        <i *ngIf="row.nonEditable" title="reserved" class="align-middle text-warning material-icons" style="font-size: 12px;">lock</i></span>
 </ng-template>

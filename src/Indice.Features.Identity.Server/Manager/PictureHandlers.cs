@@ -31,14 +31,14 @@ internal static partial class PictureHandlers
         IOutputCacheStore cache,
         ClaimsPrincipal currentUser,
         HttpContext httpContext,
-        CancellationToken cancellationToken) => SaveUserPicture(request, userManager, linkGenerator, endpointOptions, cache, currentUser.FindSubjectId(), httpContext, cancellationToken);
+        CancellationToken cancellationToken) => SaveUserPicture(request, userManager, linkGenerator, endpointOptions, cache, currentUser.FindSubjectId()!, httpContext, cancellationToken);
 
     internal static Task<Results<NoContent, NotFound, ValidationProblem>> ClearMyPicture(
         ExtendedUserManager<User> userManager,
         ExtendedIdentityDbContext<User, Role> dbContext,
         IOutputCacheStore cache,
         ClaimsPrincipal currentUser,
-        CancellationToken cancellationToken) => ClearUserPicture(userManager, dbContext, cache, currentUser.FindSubjectId(), cancellationToken);
+        CancellationToken cancellationToken) => ClearUserPicture(userManager, dbContext, cache, currentUser.FindSubjectId()!, cancellationToken);
 
     internal static async Task<Results<NoContent, NotFound, ValidationProblem>> SaveUserPicture(
         ImageUploadRequest request,
@@ -96,14 +96,14 @@ internal static partial class PictureHandlers
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
         int? size,
-        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: null, size, fallbackUrl);
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId()!, extension: null, size, fallbackUrl);
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetMyPictureSize(
         ExtendedUserManager<User> userManager,
         IOptions<ExtendedEndpointOptions> endpointOptions,
         ClaimsPrincipal currentUser,
         int size,
-        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: null, size, fallbackUrl);
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId()!, extension: null, size, fallbackUrl);
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetMyPictureFormat(
         ExtendedUserManager<User> userManager,
@@ -111,7 +111,7 @@ internal static partial class PictureHandlers
         ClaimsPrincipal currentUser,
         string format,
         int? size,
-        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: '.' + format, size, fallbackUrl);
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId()!, extension: '.' + format, size, fallbackUrl);
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetMyPictureSizeFormat(
         ExtendedUserManager<User> userManager,
@@ -119,7 +119,7 @@ internal static partial class PictureHandlers
         ClaimsPrincipal currentUser,
         int size,
         string format,
-        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId(), extension: '.' + format, size, fallbackUrl);
+        [FromQuery(Name = "d")] string? fallbackUrl) => GetUserPictureInternal(userManager, endpointOptions, currentUser.FindSubjectId()!, extension: '.' + format, size, fallbackUrl);
 
     internal static Task<Results<FileStreamHttpResult, NotFound, ValidationProblem, RedirectHttpResult>> GetAccountPicture(
         ExtendedUserManager<User> userManager,

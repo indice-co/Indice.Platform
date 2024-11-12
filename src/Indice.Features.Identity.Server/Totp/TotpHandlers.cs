@@ -48,29 +48,29 @@ internal static class TotpHandlers
             case TotpDeliveryChannel.Viber:
                 result = await totpService.SendAsync(totp => totp
                     .ToPrincipal(currentUser)
-                    .WithMessage(request.Message)
+                    .WithMessage(request.Message!)
                     .UsingDeliveryChannel(channel)
-                    .WithSubject(request.Subject)
-                    .WithPurpose(request.Purpose)
-                    .UsingTokenProvider(tokenProvider));
+                    .WithSubject(request.Subject!)
+                    .WithPurpose(request.Purpose!)
+                    .UsingTokenProvider(tokenProvider!));
                 break;
             case TotpDeliveryChannel.PushNotification:
                 result = await totpService.SendAsync(totp => totp
                     .ToPrincipal(currentUser)
-                    .WithMessage(request.Message)
+                    .WithMessage(request.Message!)
                     .UsingPushNotification()
-                    .WithSubject(request.Subject)
-                    .WithPurpose(request.Purpose)
-                    .UsingTokenProvider(tokenProvider)
+                    .WithSubject(request.Subject!)
+                    .WithPurpose(request.Purpose!)
+                    .UsingTokenProvider(tokenProvider!)
                     .WithData(request.Data)
                     .WithClassification(request.Classification));
                 break;
             case TotpDeliveryChannel.Email:
                 result = await totpService.SendAsync(totp => totp.ToPrincipal(currentUser)
-                    .WithMessage(request.Message)
+                    .WithMessage(request.Message!)
                     .UsingEmail(request.EmailTemplate)
-                    .WithSubject(request.Subject)
-                    .WithPurpose(request.Purpose)
+                    .WithSubject(request.Subject!)
+                    .WithPurpose(request.Purpose!)
                     .WithData(request.Data)
                     .UsingTokenProvider(tokenProvider));
                 break;

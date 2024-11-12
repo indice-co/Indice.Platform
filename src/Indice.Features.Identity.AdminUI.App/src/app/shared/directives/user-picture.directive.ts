@@ -11,18 +11,23 @@ export class ImgUserPictureDirective implements OnInit {
     private _color: string | undefined | null = undefined;
     private _img: HTMLImageElement;
     private _version: number = 0;
+    private _initialized: boolean = false;
 
     constructor(element: ElementRef) {
         this._img = element.nativeElement as HTMLImageElement;
     }
     ngOnInit(): void {
         this.setProfileSrc();
+        this._initialized = true;
     }
 
     @Input('userPicture')
     public set setUserId(value: string) {
-        if (this._userId !== value) {
-            this._userId = value;
+        if (this._userId === value) {
+            return;
+        }
+        this._userId = value;
+        if (this._initialized) {
             this.setProfileSrc();
         }
     }
@@ -33,8 +38,11 @@ export class ImgUserPictureDirective implements OnInit {
     }
     @Input('version')
     public set setVersion(value: number) {
-        if (this._version !== value) {
-            this._version = value;
+        if (this._version === value) {
+            return;
+        }
+        this._version = value;
+        if (this._initialized) {
             this.setProfileSrc();
         }
     }
@@ -55,7 +63,9 @@ export class ImgUserPictureDirective implements OnInit {
                    value.name;
         }
         this._displayName = text?.split('@')[0].replaceAll(/[\+\(\)\{\}\.,\[\]]/g, ' '); // removes any special characters
-        this.setProfileSrc();
+        if (this._initialized) {
+            this.setProfileSrc();
+        }
     }
 
     @Input('color')

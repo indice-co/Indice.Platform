@@ -69,7 +69,7 @@ internal static class DeviceInfoExtensions
         RequiresPassword = device.RequiresPassword,
         SupportsFingerprintLogin = device.SupportsFingerprintLogin,
         SupportsPinLogin = device.SupportsPinLogin,
-        Tags = device.Tags,
+        Tags = device.Tags!,
         TrustActivationDate = device.TrustActivationDate
     };
 }

@@ -6,6 +6,7 @@ using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Elsa.Retention.Contracts;
 using Elsa.Retention.Extensions;
 using Elsa.Retention.Specifications;
+using Indice.AspNetCore.Configuration;
 using Indice.AspNetCore.Mvc.ApplicationModels;
 using Indice.Features.Cases.Converters;
 using Indice.Features.Cases.Data;
@@ -66,13 +67,15 @@ public static class CasesApiFeatureExtensions
         services.Configure<MyCasesApiOptions>(options => {
             options.ApiPrefix = casesApiOptions.ApiPrefix;
             options.ConfigureDbContext = casesApiOptions.ConfigureDbContext;
+            options.ConfigureLimitUpload = casesApiOptions.ConfigureLimitUpload;
             options.DatabaseSchema = casesApiOptions.DatabaseSchema;
             options.ExpectedScope = casesApiOptions.ExpectedScope;
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
-            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
+
+        services.AddLimitUploadOptions(casesApiOptions.ConfigureLimitUpload);
 
         // Post configure MVC options.
         services.PostConfigure<MvcOptions>(options => {
@@ -113,6 +116,20 @@ public static class CasesApiFeatureExtensions
         return mvcBuilder;
     }
 
+    /// <summary>
+    /// Adds the default limit upload options for Cases API.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="configureLimitUpload"></param>
+    /// <returns></returns>
+    internal static IServiceCollection AddLimitUploadOptions(this IServiceCollection services, Action<LimitUploadOptions> configureLimitUpload = null) {
+        services.AddLimitUpload(configureLimitUpload ?? (options => {
+            options.DefaultMaxFileSizeBytes = 6 * 1024 * 1024; // 6 megabytes
+            options.DefaultAllowedFileExtensions = [".pdf", ".jpeg", ".jpg", ".tif", ".tiff"];
+        }));
+        return services;
+    }
+
     /// <summary>Add case management Api endpoints for manage cases from back-office (api/manage prefix).</summary>
     /// <param name="mvcBuilder">The <see cref="IMvcBuilder"/>.</param>
     /// <param name="configureAction">The <see cref="IConfiguration"/>.</param>
@@ -134,14 +151,16 @@ public static class CasesApiFeatureExtensions
         services.Configure<AdminCasesApiOptions>(options => {
             options.ApiPrefix = casesApiOptions.ApiPrefix;
             options.ConfigureDbContext = casesApiOptions.ConfigureDbContext;
+            options.ConfigureLimitUpload = casesApiOptions.ConfigureLimitUpload;
             options.DatabaseSchema = casesApiOptions.DatabaseSchema;
             options.ExpectedScope = casesApiOptions.ExpectedScope;
             PrincipalExtensions.Scope = casesApiOptions.ExpectedScope;
             options.UserClaimType = casesApiOptions.UserClaimType;
             options.GroupIdClaimType = casesApiOptions.GroupIdClaimType;
             options.GroupName = casesApiOptions.GroupName;
-            options.PermittedAttachmentFileExtensions = casesApiOptions.PermittedAttachmentFileExtensions ?? options.PermittedAttachmentFileExtensions;
         }).AddSingleton(casesApiOptions);
+
+        services.AddLimitUploadOptions(casesApiOptions.ConfigureLimitUpload);
 
         // Post configure MVC options.
         services.PostConfigure<MvcOptions>(options => {
@@ -292,6 +311,8 @@ public static class CasesApiFeatureExtensions
         services.AddScoped<CasesMessageDescriber, TDescriber>();
         return services;
     }
+
+    
 
 #nullable enable
     internal const string WorkflowPolicy = "WorkflowPolicy";

@@ -41,24 +41,24 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
                 ;
             }
         }
-        Currencies = currencies.Values.OrderByDescending(ci => ci.IsCommon).ThenBy(ci => ci.IsCommon ? "0" : ci.Name).ToArray();
+        Currencies = currencies!.Values.OrderByDescending(ci => ci.IsCommon).ThenBy(ci => ci.IsCommon ? "0" : ci.Name).ToArray();
         CurrencySymbols = new HashSet<string>(symbols.Distinct());
     }
 
     /// <summary>The display name.</summary>
-    public string Name { get; protected set; }
+    public string Name { get; protected set; } = null!;
     /// <summary>The native name.</summary>
-    public string NativeName { get; protected set; }
+    public string NativeName { get; protected set; } = null!;
     /// <summary>The symbol.</summary>
-    public string Symbol { get; protected set; }
+    public string Symbol { get; protected set; } = null!;
     /// <summary>The position beside the number.</summary>
     public bool AlignRight { get; protected set; }
     /// <summary>This is a common currency among countries or not.</summary>
     public bool IsCommon => commonIsoSymbols.Contains(ISOSymbol);
     /// <summary>Three letter ISO symbol.</summary>
-    public string ISOSymbol { get; protected set; }
+    public string ISOSymbol { get; protected set; } = null!;
     /// <summary>The fraction information.</summary>
-    public FractionInfo Fraction { get; protected set; }
+    public FractionInfo Fraction { get; protected set; } = null!;
 
     /// <summary>Utility that checks for existance of a symbol (ie $) in the list.</summary>
     /// <param name="symbol"></param>
@@ -82,7 +82,7 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
     /// <param name="symbol"></param>
     /// <param name="currencyInfo"></param>
     /// <returns></returns>
-    public static bool TryGetBySymbol(string symbol, out CurrencyInfo currencyInfo) {
+    public static bool TryGetBySymbol(string symbol, out CurrencyInfo? currencyInfo) {
         currencyInfo = null;
         var success = false;
         if (ContainsSymbol(symbol)) {
@@ -95,7 +95,7 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
     /// <summary>Tries to get the <see cref="CurrencyInfo"/> by ISO symbol (ie USD).</summary>
     /// <param name="isoSymbol"></param>
     /// <param name="currencyInfo"></param>
-    public static bool TryGetByIsoSymbol(string isoSymbol, out CurrencyInfo currencyInfo) {
+    public static bool TryGetByIsoSymbol(string isoSymbol, out CurrencyInfo? currencyInfo) {
         currencyInfo = Currencies.Where(c => c.ISOSymbol == isoSymbol).SingleOrDefault();
         var success = currencyInfo != null;
         return success;
@@ -113,9 +113,9 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
     /// <param name="format"></param>
     /// <param name="arg"></param>
     /// <param name="formatProvider"></param>
-    public string Format(string format, object arg, IFormatProvider formatProvider) {
+    public string Format(string? format, object? arg, IFormatProvider? formatProvider) {
         if (arg is double || arg is decimal || arg is int || arg is long || arg is short) {
-            var numberFormatInfo = (NumberFormatInfo)GetFormat(typeof(NumberFormatInfo));
+            var numberFormatInfo = (NumberFormatInfo)GetFormat(typeof(NumberFormatInfo))!;
             if (string.IsNullOrEmpty(format)) {
                 // By default, format doubles to 3 decimal places.
                 return string.Format(numberFormatInfo, "C", arg);
@@ -128,13 +128,13 @@ public class CurrencyInfo : IFormatProvider, ICustomFormatter
         if (arg is IFormattable formattable) {
             return formattable.ToString(format, formatProvider);
         } else {
-            return arg.ToString();
+            return arg?.ToString()!;
         }
     }
 
     /// <summary>Get the format according to the formatType.</summary>
     /// <param name="formatType"></param>
-    public object GetFormat(Type formatType) {
+    public object? GetFormat(Type? formatType) {
         if (formatType == typeof(ICustomFormatter)) {
             return this;
         } else if (formatType == typeof(NumberFormatInfo)) {

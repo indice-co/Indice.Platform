@@ -19,7 +19,7 @@ internal static class ClaimTypeHandlers
         var query = configurationDbContext.ClaimTypes.AsNoTracking().AsQueryable();
         if (!string.IsNullOrEmpty(options.Search)) {
             var searchTerm = options.Search.ToLower();
-            query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description.Contains(searchTerm));
+            query = query.Where(x => x.Name.ToLower().Contains(searchTerm) || x.Description!.Contains(searchTerm));
         }
         if (filter?.Required.HasValue == true) {
             query = query.Where(x => x.Required == filter.Required.Value);

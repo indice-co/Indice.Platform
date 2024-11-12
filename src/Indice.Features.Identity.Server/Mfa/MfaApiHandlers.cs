@@ -38,7 +38,7 @@ internal static class MfaApiHandlers
             throw new InvalidOperationException("SignalR service is not configured.");
         }
         await authenticationMethodProvider
-            .HubContext
+            .HubContext!
             .Clients
             .Client(request.ConnectionId ?? throw new ArgumentNullException(nameof(request), "SignalR connection id is not present in the request."))
             .SendAsync(nameof(IMultiFactorAuthenticationHub.LoginApproved), request.Otp);
@@ -53,7 +53,7 @@ internal static class MfaApiHandlers
             throw new InvalidOperationException("SignalR service is not configured.");
         }
         await authenticationMethodProvider
-            .HubContext
+            .HubContext!
             .Clients
             .Client(request.ConnectionId ?? throw new ArgumentNullException(nameof(request), "SignalR connection id is not present in the request."))
             .SendAsync(nameof(IMultiFactorAuthenticationHub.LoginRejected));

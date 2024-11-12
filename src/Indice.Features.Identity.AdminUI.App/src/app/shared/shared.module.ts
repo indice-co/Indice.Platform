@@ -14,8 +14,8 @@ import { ValidationSummaryComponent } from './components/validation-summary/vali
 import { WizardStepDirective } from './components/step-base/wizard-step.directive';
 import { FormReadonlyDirective } from './directives/form-readonly.directive';
 import { TranslateInputComponent } from './components/translate-input/translate-input.component';
-import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { ImgUserPictureDirective } from './directives/user-picture.directive';
+import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 
 @NgModule({
     declarations: [

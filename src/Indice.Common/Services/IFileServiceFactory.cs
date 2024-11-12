@@ -13,7 +13,7 @@ public interface IFileServiceFactory
     /// <param name="name">The name of the configuration</param>
     /// <returns>The <see cref="IFileService"/> for the requested channel.</returns>
     /// <exception cref="NotSupportedException"></exception>
-    IFileService Create(string name);
+    IFileService Create(string? name);
 }
 
 /// <summary>Extension methods on the <see cref="IFileServiceFactory"/>.</summary>
@@ -43,6 +43,6 @@ public class DefaultFileServiceFactory : IFileServiceFactory
     }
 
     /// <inheritdoc/>
-    public IFileService Create(string name) => name is null ? 
-                                               _serviceProvider.GetRequiredService<IFileService>() : _serviceProvider.GetKeyedService<IFileService>(name);
+    public IFileService Create(string? name) => name is null ? 
+                                               _serviceProvider.GetRequiredService<IFileService>() : _serviceProvider.GetRequiredKeyedService<IFileService>(name);
 }

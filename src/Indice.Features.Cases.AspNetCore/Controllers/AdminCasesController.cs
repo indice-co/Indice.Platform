@@ -75,7 +75,8 @@ internal class AdminCasesController : ControllerBase
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="file">The file to attach.</param>
     /// <returns></returns>
-    [AllowedFileSize(CasesApiConstants.ALLOWED_FILE_SIZE_BYTES_DEFAULT, $"{nameof(CasesApiOptions)}:{nameof(CasesApiOptions.AllowedFileSizeBytes)}")] // 6 MegaBytes
+    [AllowedFileSize()]
+    [AllowedFileExtensions()]
     [Consumes("multipart/form-data")]
     [DisableRequestSizeLimit]
     [HttpPost("{caseId:guid}/attachments")]
@@ -88,11 +89,6 @@ internal class AdminCasesController : ControllerBase
             return BadRequest(new ValidationProblemDetails(ModelState));
         }
         var fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
-        if (!_options.PermittedAttachmentFileExtensions.Contains(fileExtension)) {
-            return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                { CasesApiConstants.ValidationErrorKeys.FileExtension, new[] { "File type extension is not acceptable." } }
-            }));
-        }
         var attachmentId = await _adminCaseMessageService.Send(caseId, User, new Message { File = file });
         return Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });
     }
