@@ -3,6 +3,7 @@ using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
+using MimeKit.Utils;
 
 namespace Indice.Services;
 
@@ -25,7 +26,8 @@ public class EmailServiceSmtp : IEmailService
     public IHtmlRenderingEngine HtmlRenderingEngine { get; }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
+    public async Task<SendReceipt> SendAsync(string[] recipients, string subject, string body, EmailAttachment[] attachments = null, EmailSender from = null) {
+        var messageId = MimeUtils.GenerateMessageId();
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(from?.DisplayName ?? Settings.SenderName, from?.Address ?? Settings.Sender));
         message.To.AddRange(recipients.Select(InternetAddress.Parse));
@@ -34,6 +36,7 @@ public class EmailServiceSmtp : IEmailService
             message.Bcc.AddRange(bccRecipients.Select(InternetAddress.Parse));
         }
         message.Subject = subject;
+        message.MessageId = messageId;
         var bodyPart = new TextPart(TextFormat.Html) {
             Text = body
         };
@@ -71,8 +74,13 @@ public class EmailServiceSmtp : IEmailService
             if (!string.IsNullOrEmpty(Settings.Username)) {
                 client.Authenticate(Settings.Username, Settings.Password);
             }
-            await client.SendAsync(message);
+            var response = await client.SendAsync(message);
+            if (!string.IsNullOrWhiteSpace(response)) {
+                // 250 Ok: queued as Yo60h6C5ScGPeP5fUWU3K
+                
+            }
             await client.DisconnectAsync(true);
         }
+        return new SendReceipt(messageId, DateTimeOffset.UtcNow);
     }
 }

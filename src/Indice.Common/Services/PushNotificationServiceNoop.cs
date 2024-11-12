@@ -6,7 +6,7 @@ namespace Indice.Services;
 public class PushNotificationServiceNoop : IPushNotificationService
 {
     ///<inheritdoc/>
-    public Task Register(string deviceId, string pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags) => Task.CompletedTask;
+    public Task Register(string deviceId, string? pnsHandle, DevicePlatform devicePlatform, IList<PushNotificationTag> tags) => Task.CompletedTask;
 
     ///<inheritdoc/>
     public Task SendAsync(string title, string? body, IList<PushNotificationTag>? tags, string? data = null, string? classification = null) => Task.CompletedTask;

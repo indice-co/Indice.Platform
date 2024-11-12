@@ -36,7 +36,23 @@ public interface IEmailService
     /// <param name="body">The body of the email message.</param>
     /// <param name="attachments">The files that will be attached in the email message.</param>
     /// <param name="from">Optional email address in the form field. Defaults to the configuration values <strong>Email:Sender</strong> and <strong>Email:SenderName</strong>.</param>    
-    Task SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null);
+    Task<SendReceipt> SendAsync(string[] recipients, string subject, string? body, EmailAttachment[]? attachments = null, EmailSender? from = null);
+}
+
+/// <summary>Exception for Email service failure.</summary>
+public class EmailServiceException : Exception
+{
+    /// <summary>Initializes a new instance of the <see cref="EmailServiceException"/> class.</summary>
+    public EmailServiceException() { }
+
+    /// <summary>Initializes a new instance of the <see cref="EmailServiceException"/> class with a specified error message.</summary>
+    /// <param name="message">The message that describes the error.</param>
+    public EmailServiceException(string? message) : base(message) { }
+
+    /// <summary>Initializes a new instance of the <see cref="EmailServiceException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.</summary>
+    /// <param name="message">The error message that explains the reason for the exception.</param>
+    /// <param name="innerException">The exception that is the cause of the current exception, or a null reference if no inner exception is specified.</param>
+    public EmailServiceException(string? message, Exception? innerException) : base(message, innerException) { }
 }
 
 /// <summary>Service extensions for <see cref="IEmailService"/>.</summary>
@@ -47,13 +63,13 @@ public static class EmailServiceExtensions
     /// <param name="recipient">The recipient of the email message.</param>
     /// <param name="subject">The subject of the email message.</param>
     /// <param name="body">The body of the email message.</param>
-    public static async Task SendAsync(this IEmailService emailService, string recipient, string subject, string body) =>
-        await emailService.SendAsync(new string[] { recipient }, subject, body);
+    public static async Task<SendReceipt> SendAsync(this IEmailService emailService, string recipient, string subject, string body) =>
+        await emailService.SendAsync([ recipient ], subject, body);
 
     /// <summary>Sends an email by using a fluent configuration.</summary>
     /// <param name="emailService">Abstraction for sending email through different providers and implementations. SMTP, SparkPost, Mailchimp etc.</param>
     /// <param name="configureMessage">The delegate that will be used to build the message.</param>
-    public static async Task SendAsync(this IEmailService emailService, Action<EmailMessageBuilder> configureMessage) {
+    public static async Task<SendReceipt> SendAsync(this IEmailService emailService, Action<EmailMessageBuilder> configureMessage) {
         if (configureMessage == null) {
             throw new ArgumentNullException(nameof(configureMessage));
         }
@@ -63,7 +79,7 @@ public static class EmailServiceExtensions
         if (!string.IsNullOrWhiteSpace(message.Template) && emailService.HtmlRenderingEngine is not null) {
             message.Body = await emailService.HtmlRenderingEngine.RenderAsync(message.Template!, message.Data);
         }
-        await emailService.SendAsync([.. message.Recipients], message.Subject, message.Body, [.. message.Attachments], message.Sender);
+        return await emailService.SendAsync([.. message.Recipients], message.Subject, message.Body, [.. message.Attachments], message.Sender);
     }
 }
 
