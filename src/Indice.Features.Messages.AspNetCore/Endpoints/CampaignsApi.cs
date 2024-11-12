@@ -1,16 +1,13 @@
 ﻿#if NET7_0_OR_GREATER
 #nullable enable
 
-using Indice.AspNetCore.Filters;
 using Indice.Features.Messages.AspNetCore.Endpoints;
-using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Security;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,7 +21,6 @@ public static class CampaignsApi
 {
     /// <summary>Registers the endpoints for Campaigns API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    /// <returns></returns>
     public static void MapCampaigns(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetService<IConfiguration>().GetApiSettings();
         var group = routes.MapGroup("/api/campaigns");
@@ -86,8 +82,9 @@ public static class CampaignsApi
         group.MapPost("{campaignId}/attachment", CampaignsHandlers.UploadCampaignAttachment)
              .WithName(nameof(CampaignsHandlers.UploadCampaignAttachment))
              .WithSummary("Uploads an attachment for the specified campaign.")
-             .WithDescription(CampaignsHandlers.UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION)
-             .Accepts<IFormFile>("multipart/form-data");
+             .WithDescription(CampaignsHandlers.UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION);
+            //TODO
+             //.Accepts<IFormFile>("multipart/form-data");
 
         group.MapDelete("{campaignId}/attachments/{attachmentId}", CampaignsHandlers.DeleteCampaignAttachment)
              .WithName(nameof(CampaignsHandlers.DeleteCampaignAttachment))

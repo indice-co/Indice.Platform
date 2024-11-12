@@ -23,7 +23,6 @@ public static class ContactsApi
 {
     /// <summary>Registers the endpoints for Contacts API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    /// <returns></returns>
     public static void MapContacts(this IEndpointRouteBuilder routes) {
         var configuration = routes.ServiceProvider.GetRequiredService<IConfiguration>();
         var options = configuration.GetApiSettings();

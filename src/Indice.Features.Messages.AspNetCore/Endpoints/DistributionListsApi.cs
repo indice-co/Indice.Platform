@@ -19,9 +19,13 @@ using System.Net.Mime;
 namespace Microsoft.AspNetCore.Routing;
 
 
-
+/// <summary>
+/// Provides endpoints for managing distribution lists, including retrieving, creating, updating, and deleting lists, as well as managing contacts within distribution lists.
+/// </summary>
 public static class DistributionListsApi
 {
+    /// <summary>Registers the endpoints for Contacts API.</summary>
+    /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static void MapDistributionLists(this IEndpointRouteBuilder routes) {
         //.RequireAuthorization(MessagesApi.AuthenticationScheme, MessagesApi.Policies.BeCampaignManager)
         var configuration = routes.ServiceProvider.GetRequiredService<IConfiguration>();

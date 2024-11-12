@@ -1,12 +1,8 @@
 ﻿#if NET7_0_OR_GREATER
 
-using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Models;
-using Indice.Features.Messages.Core.Services.Abstractions;
-using Indice.Features.Messages.Core;
 using Indice.Types;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Indice.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,8 +12,13 @@ using Indice.Features.Messages.AspNetCore.Endpoints;
 
 namespace Microsoft.AspNetCore.Routing;
 
+/// <summary>
+/// Provides endpoints for managing user my messages-related operations, including retrieving messages, retrieving message types, marking messages as read, deleting messages, and retrieving attachments associated with messages.
+/// </summary>
 public static class MyMessagesApi
 {
+    /// <summary>Registers the endpoints for MyMessages API.</summary>
+    /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapMyMessages(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetService<IConfiguration>().GetApiSettings();
         var group = routes.MapGroup("/api/my/messages");
@@ -30,45 +31,39 @@ public static class MyMessagesApi
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
-             .ProducesProblem(StatusCodes.Status403Forbidden);
+             .ProducesProblem(StatusCodes.Status403Forbidden)
+             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet("", MyMessagesHandlers.GetMessages)
-             .WithName("GetMessages")
-             .WithSummary("Gets the list of all user messages using the provided <see cref=\"ListOptions\"/>.")
-             .WithDescription("<summary>Gets the list of all user messages using the provided <see cref=\"ListOptions\"/>.</summary>\r\n <param name=\"options\">List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>\r\n <response code=\"200\">OK</response>")
-             .Produces(StatusCodes.Status200OK, typeof(ResultSet<Message>))
-             .Produces(StatusCodes.Status401Unauthorized, typeof(ProblemDetails))
-             .Produces(StatusCodes.Status403Forbidden, typeof(ProblemDetails));
+             .WithName(nameof(MyMessagesHandlers.GetMessages))
+             .WithSummary("Gets the list of all user messages using the provided ListOptions.")
+             .WithDescription(MyMessagesHandlers.GET_MESSAGES_DESCRIPTION);
 
         group.MapGet("types", MyMessagesHandlers.GetInboxMessageTypes)
-                    .WithName("GetInboxMessageTypes")
-                    .WithSummary("Gets the list of available campaign types.")
-                    .Produces<ResultSet<MessageType>>(StatusCodes.Status200OK);
+             .WithName(nameof(MyMessagesHandlers.GetInboxMessageTypes))
+             .WithSummary("Gets the list of available campaign types.")
+             .WithDescription(MyMessagesHandlers.GET_INBOX_MESSAGE_TYPES_DESCRIPTION);
 
         group.MapGet("{messageId:guid}", MyMessagesHandlers.GetMessageById)
-             .WithName("GetMessageById")
+             .WithName(nameof(MyMessagesHandlers.GetMessageById))
              .WithSummary("Gets the message with the specified ID.")
-             .Produces<Message>(StatusCodes.Status200OK)
-             .ProducesProblem(StatusCodes.Status404NotFound);
+             .WithDescription(MyMessagesHandlers.GET_MESSAGE_BY_ID_DESCRIPTION);
 
         group.MapPut("{messageId:guid}/read", MyMessagesHandlers.MarkMessageAsRead)
-             .WithName("MarkMessageAsRead")
+             .WithName(nameof(MyMessagesHandlers.MarkMessageAsRead))
              .WithSummary("Marks the specified message as read.")
-             .Produces(StatusCodes.Status204NoContent)
-             .ProducesProblem(StatusCodes.Status400BadRequest);
+             .WithDescription(MyMessagesHandlers.MARK_MESSAGE_AS_READ_DESCRIPTION);
 
         group.MapDelete("{messageId:guid}", MyMessagesHandlers.DeleteMessage)
-             .WithName("DeleteMessage")
+             .WithName(nameof(MyMessagesHandlers.DeleteMessage))
              .WithSummary("Marks the specified message as deleted.")
-             .Produces(StatusCodes.Status204NoContent)
-             .ProducesProblem(StatusCodes.Status400BadRequest);
+             .WithDescription(MyMessagesHandlers.DELETE_MESSAGE_DESCRIPTION);
 
-        //group.MapGet("/attachments/{fileGuid}.{format}", MyMessagesHandler.GetMessageAttachment)
-        //     .WithName("GetMessageAttachment")
-        //     .WithSummary("Gets the attachment associated with a campaign.")
-        //     .AllowAnonymous()
-        //     .Produces<IFormFile>(StatusCodes.Status200OK)
-        //     .ProducesProblem(StatusCodes.Status404NotFound);
+        group.MapGet("/attachments/{fileGuid}.{format}", MyMessagesHandlers.GetMessageAttachment)
+             .WithName(nameof(MyMessagesHandlers.GetMessageAttachment))
+             .WithSummary("Gets the attachment associated with a campaign.")
+             .WithDescription(MyMessagesHandlers.GET_MESSAGE_ATTACHMENT_DESCRIPTION)
+             .AllowAnonymous();
 
         return group;
     }

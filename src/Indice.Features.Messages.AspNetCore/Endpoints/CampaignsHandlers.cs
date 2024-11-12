@@ -19,7 +19,6 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
-
 internal static class CampaignsHandlers
 {
     public static async Task<Ok<ResultSet<Campaign>>> GetCampaigns(ICampaignService campaignService, [AsParameters] ListOptions options, [AsParameters] CampaignListFilter filter) {
@@ -83,6 +82,7 @@ internal static class CampaignsHandlers
     public static async Task<Results<Ok<AttachmentLink>, BadRequest<string>>> UploadCampaignAttachment(ICampaignAttachmentService campaignAttachmentService, IFormFile file, Guid campaignId) {
         if (file is null) {
             return TypedResults.BadRequest("File is empty.");
+            // validation problem, key to file kai message file is required
         }
 
         var attachment = new FileAttachment(() => file.OpenReadStream()).PopulateFrom(file);
@@ -100,7 +100,7 @@ internal static class CampaignsHandlers
         return await GetFile(fileServiceFactory, "campaigns", fileGuid, format);
     }
 
-    private static async Task<Results<FileContentHttpResult, NotFound>> GetFile(IFileServiceFactory fileServiceFactory, string rootFolder, Guid fileGuid, string format) {
+    public static async Task<Results<FileContentHttpResult, NotFound>> GetFile(IFileServiceFactory fileServiceFactory, string rootFolder, Guid fileGuid, string format) {
         var fileService = fileServiceFactory.Create(KeyedServiceNames.FileServiceKey)
                           ?? throw new ArgumentNullException(nameof(fileServiceFactory));
 
