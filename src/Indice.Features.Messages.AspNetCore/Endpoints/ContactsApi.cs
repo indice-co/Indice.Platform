@@ -1,18 +1,15 @@
 ﻿#if NET7_0_OR_GREATER
 #nullable enable
 
-using System.Net.Mime;
 using Indice.Features.Messages.AspNetCore.Endpoints;
-using Indice.Features.Messages.Core.Models;
+using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Models.Requests;
-using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -24,13 +21,17 @@ public static class ContactsApi
     /// <summary>Registers the endpoints for Contacts API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static void MapContacts(this IEndpointRouteBuilder routes) {
-        var configuration = routes.ServiceProvider.GetRequiredService<IConfiguration>();
-        var options = configuration.GetApiSettings();
-        var group = routes.MapGroup("/api/contacts");
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
+        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/contacts");
+        if (!string.IsNullOrEmpty(options.GroupName)) {
+            group.WithGroupName(options.GroupName);
+        }
         group.WithTags("Contacts");
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
 
-        var allowedScopes = new[] { options.ResourceName }.Where(x => x != null).ToArray();
-        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
+        group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
+                                           .RequireAuthenticatedUser()
+                                           .RequireCampaignsManagement()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
@@ -45,7 +46,7 @@ public static class ContactsApi
              .WithSummary("Gets the list of all contacts using the provided ListOptions.")
              .WithDescription(ContactsHandlers.GET_CONTACTS_DESCRIPTION);
 
-        group.MapGet("{contactId:guid}", ContactsHandlers.GetContactById)
+        group.MapGet("{contactId}", ContactsHandlers.GetContactById)
              .WithName(nameof(ContactsHandlers.GetContactById))
              .WithSummary("Gets the contact with the specified id.")
              .WithDescription(ContactsHandlers.GET_CONTACT_BY_ID_DESCRIPTION);
@@ -56,7 +57,7 @@ public static class ContactsApi
              .WithDescription(ContactsHandlers.CREATE_CONTACT_DESCRIPTION)
              .WithParameterValidation<CreateContactRequest>();
 
-        group.MapPut("{contactId:guid}", ContactsHandlers.UpdateContact)
+        group.MapPut("{contactId}", ContactsHandlers.UpdateContact)
              .WithName(nameof(ContactsHandlers.UpdateContact))
              .WithSummary("Updates the specified contact in the store.")
              .WithDescription(ContactsHandlers.UPDATE_CONTACT_DESCRIPTION)

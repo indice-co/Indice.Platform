@@ -1,12 +1,11 @@
 ﻿#if NET7_0_OR_GREATER
-
+#nullable enable
 using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using System;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 
@@ -25,9 +24,9 @@ internal static class DistributionListsHandlers
         return TypedResults.Ok(list);
     }
 
-    public static async Task<Created<DistributionList>> CreateDistributionList(IDistributionListService distributionListService, CreateDistributionListRequest request) {
+    public static async Task<CreatedAtRoute<DistributionList>> CreateDistributionList(IDistributionListService distributionListService, CreateDistributionListRequest request) {
         var list = await distributionListService.Create(request);
-        return TypedResults.Created(nameof(GetDistributionListById), new { distributionListId = list.Id }, list);
+        return TypedResults.CreatedAtRoute(list, nameof(GetDistributionListById), new { distributionListId = list.Id });
     }
     public static async Task<NoContent> DeleteDistributionList(IDistributionListService distributionListService, Guid distributionListId) {
         await distributionListService.Delete(distributionListId);
@@ -110,5 +109,5 @@ internal static class DistributionListsHandlers
     - contactId: The unique ID of the contact to remove.";
     #endregion
 }
-
+#nullable disable
 #endif

@@ -79,13 +79,12 @@ internal static class CampaignsHandlers
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<Ok<AttachmentLink>, BadRequest<string>>> UploadCampaignAttachment(ICampaignAttachmentService campaignAttachmentService, IFormFile file, Guid campaignId) {
-        if (file is null) {
-            return TypedResults.BadRequest("File is empty.");
-            // validation problem, key to file kai message file is required
+    public static async Task<Results<Ok<AttachmentLink>, ValidationProblem>> UploadCampaignAttachment(ICampaignAttachmentService campaignAttachmentService, Guid campaignId, UploadFileRequest uploadFileRequest) {
+        if (uploadFileRequest.File is null) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddError(nameof(uploadFileRequest.File), "The file is required"));
         }
-
-        var attachment = new FileAttachment(() => file.OpenReadStream()).PopulateFrom(file);
+        var attachment = new FileAttachment(() => uploadFileRequest.File.OpenReadStream())
+                                            .PopulateFrom(uploadFileRequest.File);
         var attachmentLink = await campaignAttachmentService.Create(attachment);
         await campaignAttachmentService.Associate(campaignId, attachmentLink.Id);
         return TypedResults.Ok(attachmentLink);
@@ -128,85 +127,85 @@ internal static class CampaignsHandlers
 
     #region Descriptions
     public static readonly string GET_CAMPAIGNS_DESCRIPTION = @"
-    Retrieves the list of all campaigns based on the provided ListOptions.
+Retrieves the list of all campaigns based on the provided ListOptions.
 
-    Parameters:
-    - options: List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
-    ";
+Parameters:
+- options: List parameters used to navigate through collections. Contains parameters such as sort, search, page number and page size.</param>
+";
 
     public static readonly string GET_CAMPAIGN_BY_ID_DESCRIPTION = @"
-    Retrieves a campaign with the specified ID.
+Retrieves a campaign with the specified ID.
 
-    Parameters:
-    - campaignId: The ID of the campaign to retrieve.
-    ";
+Parameters:
+- campaignId: The ID of the campaign to retrieve.
+";
 
     public static readonly string PUBLISH_CAMPAIGN_DESCRIPTION = @"
-    Publishes a campaign.
+Publishes a campaign.
 
-    Parameters:
-    - campaignId: The ID of the campaign to publish.
-    ";
+Parameters:
+- campaignId: The ID of the campaign to publish.
+";
 
     public static readonly string GET_CAMPAIGN_STATISTICS_DESCRIPTION = @"
-    Retrieves the statistics for a specified campaign.
+Retrieves the statistics for a specified campaign.
 
-    Parameters:
-    - campaignId: The ID of the campaign to retrieve statistics for.
-    ";
+Parameters:
+- campaignId: The ID of the campaign to retrieve statistics for.
+";
 
     public static readonly string EXPORT_CAMPAIGN_STATISTICS_DESCRIPTION = @"
-    Retrieves the statistics for a specified campaign in the form of an Excel file.
+Retrieves the statistics for a specified campaign in the form of an Excel file.
 
-    Parameters:
-    - campaignId: The ID of the campaign to export statistics for.
-    ";
+Parameters:
+- campaignId: The ID of the campaign to export statistics for.
+";
 
     public static readonly string CREATE_CAMPAIGN_DESCRIPTION = @"
-    Creates a new campaign.
+Creates a new campaign.
 
-    Parameters:
-    - request: Contains information about the campaign to be created.
-    ";
+Parameters:
+- request: Contains information about the campaign to be created.
+";
 
     public static readonly string UPDATE_CAMPAIGN_DESCRIPTION = @"
-    Updates an existing unpublished campaign.
+Updates an existing unpublished campaign.
 
-    Parameters:
-    - campaignId: The ID of the campaign to update.
-    - request: Contains information about the campaign to update.
-    ";
+Parameters:
+- campaignId: The ID of the campaign to update.
+- request: Contains information about the campaign to update.
+";
 
     public static readonly string DELETE_CAMPAIGN_DESCRIPTION = @"
-    Permanently deletes a campaign.
+Permanently deletes a campaign.
 
-    Parameters:
-    - campaignId: The ID of the campaign to delete.
-    ";
+Parameters:
+- campaignId: The ID of the campaign to delete.
+";
 
     public static readonly string UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION = @"
-    Uploads an attachment for the specified campaign.
+Uploads an attachment for the specified campaign.
 
-    Parameters:
-    - campaignId: The ID of the campaign.
-    - file: Contains the stream of the attachment to be uploaded.
-    ";
+Parameters:
+- campaignId: The ID of the campaign.
+- file: Contains the stream of the attachment to be uploaded.
+";
 
     public static readonly string DELETE_CAMPAIGN_ATTACHMENT_DESCRIPTION = @"
-    Deletes the campaign attachment.
+Deletes the campaign attachment.
 
-    Parameters:
-    - campaignId: The ID of the campaign.
-    - attachmentId: The ID of the attachment to be deleted.
-    ";
+Parameters:
+- campaignId: The ID of the campaign.
+- attachmentId: The ID of the attachment to be deleted.
+";
 
     public static readonly string GET_CAMPAIGN_ATTACHMENT_DESCRIPTION = @"
-    Retrieves the attachment associated with a campaign.
+Retrieves the attachment associated with a campaign.
 
-    Parameters:
-    - fileGuid: The ID of the attachment.
-    - format: The format of the uploaded attachment extension.
-    ";
+Parameters:
+- fileGuid: The ID of the attachment.
+- format: The format of the uploaded attachment extension.
+";
 
     #endregion
 }

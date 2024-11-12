@@ -1,4 +1,5 @@
 ﻿#if NET7_0_OR_GREATER
+#nullable enable
 
 using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Models;
@@ -8,7 +9,6 @@ using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
@@ -22,9 +22,9 @@ internal static class MyMessagesHandlers
         [AsParameters] MessagesFilter filter,
         IMessageService messageService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
-        HttpContext context
+        ClaimsPrincipal currentUser
     ) {
-        var userCode = context.User.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
         var messages = await messageService.GetList(userCode, ListOptions.Create(options, filter));
 
         return TypedResults.Ok(messages); 
@@ -44,9 +44,9 @@ internal static class MyMessagesHandlers
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         Guid messageId,
         MessageChannelKind? channel,
-        HttpContext context
+        ClaimsPrincipal currentUser
     ) {
-        var userCode = context.User.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
         var message = await messageService.GetById(messageId, userCode, channel);
         if (message is null) {
             return TypedResults.NotFound();
@@ -59,9 +59,9 @@ internal static class MyMessagesHandlers
         IMessageService messageService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         Guid messageId,
-        HttpContext context
+        ClaimsPrincipal currentUser
     ) {
-        var userCode = context.User.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
         await messageService.MarkAsRead(messageId, userCode);
         return TypedResults.NoContent();
     }
@@ -70,9 +70,9 @@ internal static class MyMessagesHandlers
         IMessageService messageService,
         IOptions<MessageInboxOptions> campaignEndpointOptions,
         Guid messageId,
-        HttpContext context
+        ClaimsPrincipal currentUser
     ) {
-        var userCode = context.User.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
+        var userCode = currentUser.FindFirstValue(campaignEndpointOptions.Value.UserClaimType);
         await messageService.MarkAsDeleted(messageId, userCode);
         return TypedResults.NoContent();
     }
@@ -133,5 +133,5 @@ internal static class MyMessagesHandlers
     #endregion
 
 }
-
+#nullable disable
 #endif

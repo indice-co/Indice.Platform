@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Indice.Features.Messages.AspNetCore.Endpoints;
+using Microsoft.Extensions.Options;
+using Indice.Features.Messages.Core;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -20,15 +22,17 @@ public static class MyMessagesApi
     /// <summary>Registers the endpoints for MyMessages API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapMyMessages(this IEndpointRouteBuilder routes) {
-        var options = routes.ServiceProvider.GetService<IConfiguration>().GetApiSettings();
-        var group = routes.MapGroup("/api/my/messages");
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageInboxOptions>>().Value;
+        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/my/messages");
+        if (!string.IsNullOrEmpty(options.GroupName)) { 
+            group.WithGroupName(options.GroupName);
+        }
         group.WithTags("MyMessages");
-        var allowedScopes = new[] { options.ResourceName }.Where(x => x != null).ToArray();
+        
+        group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
+                                           .RequireAuthenticatedUser());
 
-        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
-                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
-
-        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
+        group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2");
 
         group.ProducesProblem(StatusCodes.Status401Unauthorized)
              .ProducesProblem(StatusCodes.Status403Forbidden)
@@ -44,17 +48,17 @@ public static class MyMessagesApi
              .WithSummary("Gets the list of available campaign types.")
              .WithDescription(MyMessagesHandlers.GET_INBOX_MESSAGE_TYPES_DESCRIPTION);
 
-        group.MapGet("{messageId:guid}", MyMessagesHandlers.GetMessageById)
+        group.MapGet("{messageId}", MyMessagesHandlers.GetMessageById)
              .WithName(nameof(MyMessagesHandlers.GetMessageById))
              .WithSummary("Gets the message with the specified ID.")
              .WithDescription(MyMessagesHandlers.GET_MESSAGE_BY_ID_DESCRIPTION);
 
-        group.MapPut("{messageId:guid}/read", MyMessagesHandlers.MarkMessageAsRead)
+        group.MapPut("{messageId}/read", MyMessagesHandlers.MarkMessageAsRead)
              .WithName(nameof(MyMessagesHandlers.MarkMessageAsRead))
              .WithSummary("Marks the specified message as read.")
              .WithDescription(MyMessagesHandlers.MARK_MESSAGE_AS_READ_DESCRIPTION);
 
-        group.MapDelete("{messageId:guid}", MyMessagesHandlers.DeleteMessage)
+        group.MapDelete("{messageId}", MyMessagesHandlers.DeleteMessage)
              .WithName(nameof(MyMessagesHandlers.DeleteMessage))
              .WithSummary("Marks the specified message as deleted.")
              .WithDescription(MyMessagesHandlers.DELETE_MESSAGE_DESCRIPTION);

@@ -14,10 +14,11 @@ public static class MessageEndpointExtensions
     /// <returns>The <see cref="IEndpointRouteBuilder"/> instance for further configuration.</returns>
     public static IEndpointRouteBuilder MapMessaging(this IEndpointRouteBuilder routes) {
         // my messages / inbox api
-        //routes.MapMyMessages();
+        routes.MapMyMessages();
         // management
         routes.MapCampaigns();
         routes.MapContacts();
+        routes.MapDistributionLists();
         return routes;
     }
 }

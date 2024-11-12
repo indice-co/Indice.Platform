@@ -6,8 +6,6 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Types;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Serialization;
 
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 

@@ -2,14 +2,15 @@
 #nullable enable
 
 using Indice.Features.Messages.AspNetCore.Endpoints;
+using Indice.Features.Messages.Core;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Security;
 using Indice.Services;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.AspNetCore.Routing;
 
@@ -21,13 +22,18 @@ public static class CampaignsApi
 {
     /// <summary>Registers the endpoints for Campaigns API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    public static void MapCampaigns(this IEndpointRouteBuilder routes) {
-        var options = routes.ServiceProvider.GetService<IConfiguration>().GetApiSettings();
-        var group = routes.MapGroup("/api/campaigns");
+    public static RouteGroupBuilder MapCampaigns(this IEndpointRouteBuilder routes) {
+        var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
+        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/campaigns");
+        if (!string.IsNullOrEmpty(options.GroupName)) {
+            group.WithGroupName(options.GroupName);
+        }
         group.WithTags("Campaigns");
-        var allowedScopes = new[] { options.ResourceName }.Where(x => x != null).ToArray();
+        var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
 
-        group.RequireAuthorization(pb => pb.RequireAuthenticatedUser()
+        group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
+                                           .RequireAuthenticatedUser()
+                                           .RequireCampaignsManagement()
                                            .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
@@ -82,9 +88,8 @@ public static class CampaignsApi
         group.MapPost("{campaignId}/attachment", CampaignsHandlers.UploadCampaignAttachment)
              .WithName(nameof(CampaignsHandlers.UploadCampaignAttachment))
              .WithSummary("Uploads an attachment for the specified campaign.")
-             .WithDescription(CampaignsHandlers.UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION);
-            //TODO
-             //.Accepts<IFormFile>("multipart/form-data");
+             .WithDescription(CampaignsHandlers.UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION)
+             .Accepts<UploadFileRequest>("multipart/form-data");
 
         group.MapDelete("{campaignId}/attachments/{attachmentId}", CampaignsHandlers.DeleteCampaignAttachment)
              .WithName(nameof(CampaignsHandlers.DeleteCampaignAttachment))
@@ -96,8 +101,10 @@ public static class CampaignsApi
              .WithSummary("Gets the attachment associated with a campaign.")
              .WithDescription(CampaignsHandlers.GET_CAMPAIGN_ATTACHMENT_DESCRIPTION)
              .AllowAnonymous();
-             // TODO: manage cache
-             //.CacheOutput();
+        // TODO: manage cache
+        //.CacheOutput();
+
+        return group;
     }
 }
 
