@@ -26,7 +26,7 @@ public class TranslationDictionary<T> : Dictionary<string, T> where T : class
     }
 
     /// <summary>Converts the current instance of <see cref="TranslationDictionary{T}"/> to it's JSON representation.</summary>
-    public string ToJson() {
+    public string? ToJson() {
         if (this != null) {
             return JsonSerializer.Serialize(this, JsonSerializerOptionDefaults.GetDefaultSettings());
         }
@@ -35,7 +35,7 @@ public class TranslationDictionary<T> : Dictionary<string, T> where T : class
 
     /// <summary>Creates a <see cref="TranslationDictionary{T}"/> from it's JSON representation.</summary>
     /// <param name="json">The JSON to create the <see cref="TranslationDictionary{T}"/>.</param>
-    public static TranslationDictionary<T> FromJson(string json) {
+    public static TranslationDictionary<T>? FromJson(string json) {
         if (string.IsNullOrWhiteSpace(json)) {
             return default;
         }

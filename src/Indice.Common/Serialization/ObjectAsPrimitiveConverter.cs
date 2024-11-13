@@ -12,7 +12,7 @@ namespace Indice.Serialization;
 /// <param name="floatFormat">Float json type CLR equivalent</param>
 /// <param name="unknownNumberFormat">The fallback option for the case of an <strong>Unknown</strong> numeric type.</param>
 /// <param name="objectFormat">The contaner format for a JSON object in CLR.</param>
-public class ObjectAsPrimitiveConverter(ObjectAsPrimitiveConverter.FloatKind floatFormat, ObjectAsPrimitiveConverter.UnknownNumberKind unknownNumberFormat, ObjectAsPrimitiveConverter.ObjectKind objectFormat) : JsonConverter<object>
+public class ObjectAsPrimitiveConverter(ObjectAsPrimitiveConverter.FloatKind floatFormat, ObjectAsPrimitiveConverter.UnknownNumberKind unknownNumberFormat, ObjectAsPrimitiveConverter.ObjectKind objectFormat) : JsonConverter<object?>
 {
 #if NET6_0_OR_GREATER
     FloatKind FloatFormat { get; init; } = floatFormat;
@@ -27,8 +27,8 @@ public class ObjectAsPrimitiveConverter(ObjectAsPrimitiveConverter.FloatKind flo
     public ObjectAsPrimitiveConverter() : this(FloatKind.Double, UnknownNumberKind.Error, ObjectKind.Expando) { }
 
     /// <inheritdoc/>
-    public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options) {
-        if (value.GetType() == typeof(object)) {
+    public override void Write(Utf8JsonWriter writer, object? value, JsonSerializerOptions options) {
+        if (value!.GetType() == typeof(object)) {
             writer.WriteStartObject();
             writer.WriteEndObject();
         } else {
@@ -37,7 +37,7 @@ public class ObjectAsPrimitiveConverter(ObjectAsPrimitiveConverter.FloatKind flo
     }
 
     /// <inheritdoc/>
-    public override object Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+    public override object? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
         switch (reader.TokenType) {
             case JsonTokenType.Null:
                 return null;
@@ -46,7 +46,7 @@ public class ObjectAsPrimitiveConverter(ObjectAsPrimitiveConverter.FloatKind flo
             case JsonTokenType.True:
                 return true;
             case JsonTokenType.String:
-                return reader.GetString();
+                return reader.GetString()!;
             case JsonTokenType.Number: {
                     if (reader.TryGetInt32(out var i))
                         return i;
@@ -63,7 +63,7 @@ public class ObjectAsPrimitiveConverter(ObjectAsPrimitiveConverter.FloatKind flo
                     throw new JsonException(string.Format("Cannot parse number {0}", doc.RootElement.ToString()));
                 }
             case JsonTokenType.StartArray: {
-                    var list = new List<object>();
+                    var list = new List<object?>();
                     while (reader.Read()) {
                         switch (reader.TokenType) {
                             default:
@@ -82,7 +82,7 @@ public class ObjectAsPrimitiveConverter(ObjectAsPrimitiveConverter.FloatKind flo
                         case JsonTokenType.EndObject:
                             return dict;
                         case JsonTokenType.PropertyName:
-                            var key = reader.GetString();
+                            var key = reader.GetString()!;
                             reader.Read();
                             dict.Add(key, Read(ref reader, typeof(object), options));
                             break;
@@ -98,8 +98,8 @@ public class ObjectAsPrimitiveConverter(ObjectAsPrimitiveConverter.FloatKind flo
 
     /// <summary>Creates the container in order to populate the json members.</summary>
     /// <returns>The dictionary according to the <see cref="ObjectKind"/> preference.</returns>
-    protected virtual IDictionary<string, object> CreateDictionary() =>
-        ObjectFormat == ObjectKind.Expando ? new ExpandoObject() : new Dictionary<string, object>();
+    protected virtual IDictionary<string, object?> CreateDictionary() =>
+        ObjectFormat == ObjectKind.Expando ? new ExpandoObject() : new Dictionary<string, object?>();
 
 
     /// <summary>Float json type CLR equivalent</summary>

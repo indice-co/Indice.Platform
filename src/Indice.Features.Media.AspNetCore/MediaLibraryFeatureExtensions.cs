@@ -62,7 +62,8 @@ public static class MediaLibraryFeatureExtensions
         // Configure authorization. It's important to register the authorization policy provider at this point.
         services.AddAuthorization(policy => policy.AddMediaLibraryManagementPolicy(apiOptions.ApiScope))
                            .AddTransient<IAuthorizationHandler, BeMediaLibraryManagerHandler>();
-
+        //Resgister Output Cache
+        services.AddOutputCache();
         return services;
     }
 

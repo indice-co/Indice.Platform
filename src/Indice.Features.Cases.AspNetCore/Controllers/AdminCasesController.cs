@@ -75,7 +75,8 @@ internal class AdminCasesController : ControllerBase
     /// <param name="caseId">The Id of the case.</param>
     /// <param name="file">The file to attach.</param>
     /// <returns></returns>
-    [AllowedFileSize(6291456)] // 6 MegaBytes
+    [AllowedFileSize()]
+    [AllowedFileExtensions()]
     [Consumes("multipart/form-data")]
     [DisableRequestSizeLimit]
     [HttpPost("{caseId:guid}/attachments")]
@@ -88,16 +89,11 @@ internal class AdminCasesController : ControllerBase
             return BadRequest(new ValidationProblemDetails(ModelState));
         }
         var fileExtension = Path.GetExtension(file.FileName)?.ToLowerInvariant();
-        if (!_options.PermittedAttachmentFileExtensions.Contains(fileExtension)) {
-            return BadRequest(new ValidationProblemDetails(new Dictionary<string, string[]> {
-                { CasesApiConstants.ValidationErrorKeys.FileExtension, new[] { "File type extension is not acceptable." } }
-            }));
-        }
         var attachmentId = await _adminCaseMessageService.Send(caseId, User, new Message { File = file });
         return Ok(new CasesAttachmentLink { Id = attachmentId.GetValueOrDefault() });
     }
 
-    /// <summary>Get an Case Attachment</summary>
+    /// <summary>Get a Case Attachment</summary>
     /// <param name="caseId"></param>
     /// <param name="attachmentId"></param>
     /// <returns></returns>
@@ -107,6 +103,24 @@ internal class AdminCasesController : ControllerBase
     [Produces(typeof(IFormFile))]
     public async Task<IActionResult> GetCaseAttachment([FromRoute] Guid caseId, [FromRoute] Guid attachmentId) {
         var attachment = await _adminCaseService.GetAttachment(caseId, attachmentId);
+        if (attachment is null) {
+            return NotFound();
+        }
+        return File(attachment.Data, attachment.ContentType, attachment.Name);
+    }
+
+    /// <summary>
+    /// Get a Case Attachment by field name
+    /// </summary>
+    /// <param name="caseId"></param>
+    /// <param name="fieldName"></param>
+    /// <returns></returns>
+    [HttpGet("{caseId:guid}/attachments/{attachmentName}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IFormFile))]
+    [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(void))]
+    [Produces(typeof(IFormFile))]
+    public async Task<IActionResult> GetAttachmentByField([FromRoute] Guid caseId, [FromRoute] string fieldName) {
+        var attachment = await _adminCaseService.GetAttachmentByField(User, caseId, fieldName);
         if (attachment is null) {
             return NotFound();
         }

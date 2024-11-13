@@ -1,4 +1,5 @@
-﻿using Indice.Features.Identity.Core.Data.Models;
+﻿using System.Security.Claims;
+using Indice.Features.Identity.Core.Data.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Indice.Features.Identity.Core.Data.Stores;
@@ -32,4 +33,24 @@ public interface IExtendedUserStore<TUser> where TUser : User
     /// <param name="timestamp">The <see cref="DateTimeOffset"/> value that the user signed in. Defaults to <see cref="DateTimeOffset.UtcNow"/>.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
     Task SetLastSignInDateAsync(TUser user, DateTimeOffset? timestamp, CancellationToken cancellationToken);
+    /// <summary>Removes all claim instances of the specified type from the specified user</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="claimType">The claim type to be removed</param>
+    /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+    /// <returns>An <see cref="IdentityResult"/></returns>
+    Task<IdentityResult> RemoveAllClaimsAsync(TUser user, string claimType, CancellationToken cancellationToken = default);
+    /// <summary>Find all user cliams of the specified type</summary>
+    /// <param name="user">The user instance.</param>
+    /// <param name="claimType">The claim type to be removed</param>
+    /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+    /// <returns>A list of <see cref="IdentityUserClaim{TKey}"/></returns>
+    Task<IList<Claim>> FindClaimsByTypeAsync(TUser user, string claimType, CancellationToken cancellationToken = default);
+    /// <summary>Replaces any claims with the same claim type on the specified user with the newClaim.</summary>
+    /// <param name="user">The user to replace the claim on.</param>
+    /// <param name="claimType">The claim type to replace.</param>
+    /// <param name="claimValue">The claim value.</param>
+    /// <param name="cancellationToken">The <see cref="CancellationToken"/> used to propagate notifications that the operation should be canceled.</param>
+    /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
+    /// <remarks>This overload will purge any other instances of the claim type so that the added claim is has a single instance in the claims list. For example the 'given_name' claim that is commonly used as the FirstName</remarks>
+    Task<IdentityResult> ReplaceClaimAsync(TUser user, string claimType, string? claimValue, CancellationToken cancellationToken = default);
 }

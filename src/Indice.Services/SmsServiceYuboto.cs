@@ -1,8 +1,8 @@
 ﻿using System.Text;
+using System.Text.Json;
 using Indice.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace Indice.Services;
 
@@ -37,9 +37,10 @@ public class SmsServiceYuboto : ISmsService, IDisposable
     protected ILogger<SmsServiceYuboto> Logger { get; }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) {
         HttpResponseMessage httpResponse;
         YubotoResponse response;
+        var messageId = Guid.NewGuid().ToString();
         var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
         if (recipients == null) {
             throw new ArgumentNullException(nameof(recipients));
@@ -63,12 +64,13 @@ public class SmsServiceYuboto : ISmsService, IDisposable
         .CreateRequest();
         httpResponse = await HttpClient.GetAsync(request);
         var stringifyResponse = await httpResponse.Content.ReadAsStringAsync();
-        response = JsonConvert.DeserializeObject<YubotoResponse>(stringifyResponse);
+        response = JsonSerializer.Deserialize<YubotoResponse>(stringifyResponse, new JsonSerializerOptions(JsonSerializerDefaults.Web));
         if (response.HasError) {
             throw new SmsServiceException($"SMS Delivery failed. {response}");
-        } else {
-            Logger?.LogInformation("SMS message successfully sent: {1}", response.OK.FirstOrDefault());
-        }
+        } 
+        
+        Logger?.LogInformation("SMS message successfully sent: {okResponse}", response.OK.FirstOrDefault());
+        return new SendReceipt(messageId, DateTimeOffset.UtcNow);
     }
 
     /// <summary>Disposes the <see cref="System.Net.Http.HttpClient"/> if not managed by the DI.</summary>

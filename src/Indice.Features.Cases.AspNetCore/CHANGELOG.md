@@ -1,25 +1,131 @@
-# Changelog
+﻿# Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.39.1] - 2024-11-08
+### Fixed
+- Calling `GetAttachmentByField` while a property is filled with an empty string will no longer be problematic. 
+
+## [7.32.1] - 2024-10-22
+### Added
+ - `hideStatuses` case type configuration to hide timeline statuses. You can set it up by setting the flag to true like this: {"backoffice":{"hideStatuses": true}}
+
+## [7.31.4] - 2024-10-15
+### Added
+ - Added mb-4 to the every element of the case details
+ 
+### Fixed
+ - "Choose file" button now respects readonly option set in layout
+
+## [7.31.3] - 2024-10-15
+### Fixed
+ - Remove attachment button is now shown only when readonly is not true
+
+## [7.31.2] - 2024-10-11
+### Added
+- `downloadToDisk` flag on layout file fields. Added proper handling of filenames. Now a file can be either opened in the browser or downloaded to the disk.
+- `AddWorkflowAuthoriationPolicy` with a policy name `WorkflowPolicy`, to enforce authorization for elsa api and elsa razor pages.
+
+### Action Required
+- You need to add the `AddWorkflowAuthoriationPolicy` to your `AuthorizationConfig` file.
+
+### Fixed
+ - You can now edit attachments, regardless if your case is draft or not.
+ - You can override an already uploaded attachment. The previous attachement is not removed (yet). 
+
+## [7.31.1] - 2024-10-04
+### Added
+- Support for filter with user group extractd from claims.
+
+### Changed
+- You can now define get all rules for a specific `CaseId`.
+
+### Fixed
+- Query issue when both case & checkpoint were specfied but filtered only with one of them.
+- Cases Search query & enchancments
+
+## [7.28.5-beta01] - 2024-09-25
+### Changed
+- AccessRule for cases to enhance the existing member access functionality.
+####  More specifically:
+- You can now define access to a case based on aof rules that can be based on CaseType or CheckPoint or CaseId or CheckPoint & CaseId 
+for a member based on either Role or  GroupId or UserId
+
+### Migrations
+Add 3 more columns to `CaseType` table.
+```sql
+--Optional Step fro back Up
+--SELECT * INTO [case].[Member_Backup] FROM [case].[Member]
+--Rename table
+EXEC sp_rename 'case.Member', 'AccessRule';
+--ADD New Columns
+ALTER TABLE [case].[AccessRule]
+ADD  
+	R_CaseId uniqueIdentifier NULL,
+	M_GroupId nvarchar(64)  NULL,
+	M_UserId nvarchar(64)  NULL,
+	AccessLevel INT NOT NULL DEFAULT(0),
+	CreatedDate DateTimeOffset(7) NOT NULL
+		CONSTRAINT D_caseMember_CreatedOn 
+		DEFAULT (GETUTCDATE())--Optional Default-Constraint.
+--Alter Existing Columns Names
+EXEC sp_rename '[case].[AccessRule].RoleName',  'M_Role', 'COLUMN';
+EXEC sp_rename '[case].[AccessRule].[CaseTypeId]',  'R_CaseTypeId', 'COLUMN';
+EXEC sp_rename '[case].[AccessRule].[CheckpointTypeId]',  'R_CheckpointTypeId', 'COLUMN';
+--Alter Existing Columns allow nulls
+ALTER TABLE [case].AccessRule ALTER COLUMN R_CaseTypeId uniqueidentifier NULL
+ALTER TABLE [case].AccessRule ALTER COLUMN R_CheckpointTypeId uniqueidentifier NULL
+--Initialise Access level and fix data
+UPDATE [case].AccessRule SET [R_CaseTypeId] = NULL, [AccessLevel] = 1
+
+```
+
+
+## [7.28.3] - 2024-08-30
+### Added
+- Added `GridColumnConfig` property to CaseType, you can change your `lib-list-view` to display custom columns.
+
+#### More specifically:
+You can edit a case type from the UI and put a json formatted string like the one below
+Where `title` is the property name of the "cases" object in your translation file (for example: el.json)
+Where `itemProperty` is the data location relative to the item in your `items` object returned from `GetCases`
+Meaning `checkpointType.code` will fetch => `items[i].checkpointType.code`
+
+```json
+[
+    {
+        "title": "checkpointType",
+        "itemProperty": "checkpointType.code"
+    },
+    {
+        "title": "TaxId",
+        "itemProperty": "metadata.TaxId"
+    }
+]
+```
+
+## [7.28.2] - 2024-08-29
+### Added
+- Filter AdminCaseTypes to ignore sending case types when `CanCreate` is `null`, preventing the creation of case types that shouldn't be created from admin role in cases-bo.
+
 ## [7.28.1] - 2024-08-01
 ### Added
-- Added `AdminAddComment` to AdminCasesController, so you post comments to a case.
+- `AdminAddComment` to AdminCasesController, so you post comments to a case.
 
 ## [7.25.1] - 2024-07-22
 ### Added
-- Added `PatchCaseMetadata` to AdminCasesController, so you can now update a case's metadata.
-- Also added `PatchCaseMetadata` to the IAdminCaseService, so you can now update a case's metadata from your code.
+- `PatchCaseMetadata` to AdminCasesController, so you can now update a case's metadata.
+- `PatchCaseMetadata` to the IAdminCaseService, so you can now update a case's metadata from your code.
 
 ## [7.23.2] - 2024-06-05
 ### Added
-- Added `IsMenuItem` property to CaseType, you can now have all your cases displayed in a separate category as a menu item based on their case type
-- Added `GridFilterConfig` property to CaseType, you can add a case type specific filter to your searchOptions dropdown.
+- `IsMenuItem` property to CaseType, you can now have all your cases displayed in a separate category as a menu item based on their case type
+- `GridFilterConfig` property to CaseType, you can add a case type specific filter to your searchOptions dropdown.
 
-### For example, you can edit a case type from the UI and put a `SearchOption` json formatted string like so:
+> For example, you can edit a case type from the UI and put a `SearchOption` json formatted string like so:
 ```
 [
     {
@@ -40,6 +146,7 @@ ALTER TABLE [case].[CaseType]
 ```
 
 ## [7.23.0] - 2024-06-03
+### Changed
 - Allow `SystemClient` users to `GetCaseActions`.
 
 ## [7.22.1] - 2024-04-23
@@ -52,9 +159,9 @@ ALTER TABLE [case].[CaseType]
 
 ## [7.21.0] - 2024-03-13
 ### Added
-- New `HttpEndpointWithValidation` Activity that validates body with the provided json schema.
+- `HttpEndpointWithValidation` Activity that validates body with the provided json schema.
 ### Bugfix
-- Add hardcoded reference `<PackageReference Include="MediatR" Version="12.2.0" />` to resolve keyed service exceptions in net8.
+- Ηardcoded reference `<PackageReference Include="MediatR" Version="12.2.0" />` to resolve keyed service exceptions in `net8`.
 
 ## [7.18.3] - 2024-01-22
 ### Added

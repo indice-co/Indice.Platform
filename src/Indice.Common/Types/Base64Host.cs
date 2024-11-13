@@ -44,7 +44,7 @@ public struct Base64Host
     /// <summary>Compare equality with the giver object. </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         if (obj != null && obj is Base64Host host) {
             var other = host;
             return other.Host == Host;
@@ -122,7 +122,7 @@ public class Base64HostTypeConverter : TypeConverter
     /// <param name="context"></param>
     /// <param name="sourceType"></param>
     /// <returns></returns>
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) {
         if (sourceType == typeof(string)) {
             return true;
         }
@@ -134,7 +134,7 @@ public class Base64HostTypeConverter : TypeConverter
     /// <param name="culture"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value) {
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) {
         if (value is string @string) {
             return Base64Host.Parse(@string);
         }
@@ -147,9 +147,9 @@ public class Base64HostTypeConverter : TypeConverter
     /// <param name="value"></param>
     /// <param name="destinationType"></param>
     /// <returns></returns>
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) {
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType) {
         if (destinationType == typeof(string)) {
-            return ((Base64Host)value).ToString();
+            return ((Base64Host)value!).ToString();
         }
         return base.ConvertTo(context, culture, value, destinationType);
     }

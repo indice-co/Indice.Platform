@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using IdentityModel;
 using IdentityServer4.Services;
 using IdentityServer4.Stores;
@@ -200,8 +199,24 @@ internal static class UserHandlers
             // add roles to user before sending down to user manager.
             // avoid multiple roundtript to db this way.
             allRoles.FindAll(r => request.Roles.Contains(r.NormalizedName, StringComparer.OrdinalIgnoreCase))
-                    .ForEach(r => user.Roles.Add(new () { UserId = user.Id, RoleId = r.Id }));
+                    .ForEach(r => user.Roles.Add(new() { UserId = user.Id, RoleId = r.Id }));
         }
+
+        // handle claims addition
+        var claims = request.Claims?.Count > 0 ? request.Claims.Where(x => x.Type != JwtClaimTypes.GivenName &&
+                                                                           x.Type != JwtClaimTypes.FamilyName)
+                                                               .Select(x => new Claim(x.Type!, x.Value!))
+                                                               .ToList() : [];
+        if (!string.IsNullOrEmpty(request.FirstName)) {
+            claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
+        }
+        if (!string.IsNullOrEmpty(request.LastName)) {
+            claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
+        }
+        if (claims.Any()) {
+            claims.ForEach(c => user.Claims.Add(new() { ClaimType = c.Type, ClaimValue = c.Value, UserId = user.Id }));
+        }
+
         if (string.IsNullOrEmpty(request.Password)) {
             result = await userManager.CreateAsync(user);
         } else {
@@ -212,17 +227,6 @@ internal static class UserHandlers
         }
         if (request.ChangePasswordAfterFirstSignIn.HasValue && request.ChangePasswordAfterFirstSignIn.Value == true) {
             await userManager.SetPasswordExpiredAsync(user, true);
-        }
-        // claims
-        var claims = request.Claims?.Count > 0 ? request.Claims.Select(x => new Claim(x.Type!, x.Value!)).ToList() : [];
-        if (!string.IsNullOrEmpty(request.FirstName)) {
-            claims.Add(new Claim(JwtClaimTypes.GivenName, request.FirstName));
-        }
-        if (!string.IsNullOrEmpty(request.LastName)) {
-            claims.Add(new Claim(JwtClaimTypes.FamilyName, request.LastName));
-        }
-        if (claims.Any()) {
-            await userManager.AddClaimsAsync(user, claims);
         }
         var response = SingleUserInfo.FromUser(user);
         if (request.Roles?.Count > 0) {
@@ -522,6 +526,23 @@ internal static class UserHandlers
         return TypedResults.Ok(response);
     }
 
+    internal static async Task<Results<NoContent, NotFound>> DeleteUserDevice(
+        ExtendedUserManager<User> userManager,
+        string userId,
+        string deviceId
+    ) {
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) {
+            return TypedResults.NotFound();
+        }
+        var device = await userManager.GetDeviceByIdAsync(user, userId);
+        if (device == null) {
+            return TypedResults.NotFound();
+        }
+        await userManager.RemoveDeviceAsync(user, device);
+        return TypedResults.NoContent();
+    }
+
     internal static async Task<Ok<ResultSet<UserLoginProviderInfo>>> GetUserExternalLogins(
         ExtendedUserManager<User> userManager,
         string userId
@@ -609,7 +630,7 @@ internal static class UserHandlers
         if (user == null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.ResetPasswordAsync(user, request.Password, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
+        var result = await userManager.ResetPasswordAsync(user, request.Password!, validatePassword: !request.BypassPasswordValidation.GetValueOrDefault());
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }

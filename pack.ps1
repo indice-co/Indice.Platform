@@ -6,6 +6,7 @@ dotnet pack src/Indice.AspNetCore.Authentication.GovGr/Indice.AspNetCore.Authent
 dotnet pack src/Indice.AspNetCore.EmbeddedUI/Indice.AspNetCore.EmbeddedUI.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.AspNetCore.Identity/Indice.AspNetCore.Identity.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.AspNetCore/Indice.AspNetCore.csproj --no-restore --no-build -c Release -o ./artifacts
+dotnet pack src/Indice.AspNetCore.Builder/Indice.AspNetCore.Builder.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Common/Indice.Common.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.EntityFrameworkCore/Indice.EntityFrameworkCore.csproj --no-restore --no-build -c Release -o ./artifacts
 dotnet pack src/Indice.Extensions.Configuration.Database/Indice.Extensions.Configuration.Database.csproj --no-restore --no-build -c Release -o ./artifacts

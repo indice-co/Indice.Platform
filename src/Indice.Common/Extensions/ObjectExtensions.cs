@@ -12,7 +12,7 @@ public static class ObjectExtensions
 {
     /// <summary>Converts an object to an <see cref="ExpandoObject"/>.</summary>
     /// <param name="value">The object to convert.</param>
-    public static ExpandoObject ToExpandoObject(this object value) {
+    public static ExpandoObject? ToExpandoObject(this object? value) {
         if (value is null) {
             return default;
         }
@@ -20,22 +20,14 @@ public static class ObjectExtensions
             return expando;
         }
         if (value is JsonElement json) {
-#if NET5_0
-            var bufferWriter = new ArrayBufferWriter<byte>();
-            using (var writer = new Utf8JsonWriter(bufferWriter)) {
-                json.WriteTo(writer);
-            }
-            return (ExpandoObject)JsonSerializer.Deserialize(bufferWriter.WrittenSpan, typeof(ExpandoObject));
-#else 
-            return json.Deserialize<ExpandoObject>();
-#endif
+            return json.Deserialize<ExpandoObject>()!;
         }
 
         var dataType = value.GetType();
-        var obj = new ExpandoObject() as IDictionary<string, object>;
+        IDictionary<string, object?> obj = new ExpandoObject();
         foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => x.GetIndexParameters().Length == 0)) {
             obj.Add(property.Name, property.GetValue(value, null));
         }
-        return obj as ExpandoObject;
+        return (ExpandoObject)obj;
     }
 }

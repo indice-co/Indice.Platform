@@ -33,9 +33,6 @@ public static class CasesApiConstants
     /// <summary>The default name for the ReferenceNumber sequence.</summary>
     public const string ReferenceNumberSequence = "ReferenceNumberSequence";
 
-    /// <summary>The default permitted file extensions to check when uploading an attachment to an existing case.</summary>
-    public static IReadOnlyCollection<string> DefaultPermittedAttachmentFileExtensions = new HashSet<string> { ".pdf", ".jpeg", ".jpg", ".tif", ".tiff" };
-
     /// <summary>Cases API policies.</summary>
     public static class Policies
     {

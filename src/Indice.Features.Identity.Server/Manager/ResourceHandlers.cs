@@ -329,7 +329,7 @@ internal static class ResourceHandlers
         }
         var secretToAdd = new ApiResourceSecret {
             Description = request.Description,
-            Value = request.Value.ToSha256(),
+            Value = request.Value!.ToSha256(),
             Expiration = request.Expiration,
             Type = IdentityServerConstants.SecretTypes.SharedSecret
         };
@@ -578,7 +578,7 @@ internal static class ResourceHandlers
         return TypedResults.NoContent();
     }
 
-    private static void AddTranslationsToApiScope(ApiScope apiScope, string translations) {
+    private static void AddTranslationsToApiScope(ApiScope apiScope, string? translations) {
         apiScope.Properties ??= new List<ApiScopeProperty>();
         apiScope.Properties.Add(new ApiScopeProperty {
             Key = ClientPropertyKeys.Translation,

@@ -1,10 +1,13 @@
 ﻿using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Claims;
+using System.Text.Json;
 using Indice.Features.Cases.Data;
 using Indice.Features.Cases.Data.Models;
 using Indice.Features.Cases.Events;
 using Indice.Features.Cases.Exceptions;
+using Indice.Features.Cases.Extensions;
 using Indice.Features.Cases.Interfaces;
 using Indice.Features.Cases.Models;
 using Indice.Features.Cases.Models.Responses;
@@ -22,7 +25,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     private readonly ICaseTypeService _caseTypeService;
     private readonly IAdminCaseMessageService _adminCaseMessageService;
     private readonly ICaseEventService _caseEventService;
-
+    private readonly AdminCasesApiOptions _options;
     public AdminCaseService(
         CasesDbContext dbContext,
         AdminCasesApiOptions options,
@@ -35,6 +38,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         _caseTypeService = caseTypeService ?? throw new ArgumentNullException(nameof(caseTypeService));
         _adminCaseMessageService = adminCaseMessageService ?? throw new ArgumentNullException(nameof(adminCaseMessageService));
         _caseEventService = caseEventService ?? throw new ArgumentNullException(nameof(caseEventService));
+        _options = options;
     }
 
     public async Task<Guid> CreateDraft(ClaimsPrincipal user,
@@ -82,40 +86,148 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
     }
 
     public async Task<ResultSet<CasePartial>> GetCases(ClaimsPrincipal user, ListOptions<GetCasesListFilter> options) {
-        var query = _dbContext.Cases
+
+        // if client is systemic or admin, then bypass checks since no filtering is required.
+        var isSystemOrAdmin = ((user.HasClaim(BasicClaimTypes.Scope, CasesApiConstants.Scope) && user.IsSystemClient()) || user.IsAdmin());
+
+        var userId = user.FindSubjectIdOrClientId();
+        string inputGroupId = user.FindFirstValue(_options.GroupIdClaimType);
+        var userRoles = user.GetUserRoles();
+
+        var queryCases = _dbContext.Cases
             .AsNoTracking()
             .Where(c => !c.Draft) // filter out draft cases
-            .Where(options.Filter.Metadata) // filter Metadata
-            .Select(@case => new CasePartial {
-                Id = @case.Id,
-                ReferenceNumber = @case.ReferenceNumber,
-                CustomerId = @case.Customer.CustomerId,
-                CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
-                CreatedByWhen = @case.CreatedBy.When,
-                CaseType = new CaseTypePartial {
-                    Id = @case.CaseType.Id,
-                    Code = @case.CaseType.Code,
-                    Title = @case.CaseType.Title,
-                    Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(@case.CaseType.Translations)
-                },
-                Metadata = @case.Metadata,
-                GroupId = @case.GroupId,
-                CheckpointType = new CheckpointType {
-                    Id = @case.Checkpoint.CheckpointType.Id,
-                    Status = @case.Checkpoint.CheckpointType.Status,
-                    Code = @case.Checkpoint.CheckpointType.Code,
-                    Title = @case.Checkpoint.CheckpointType.Title ?? @case.Checkpoint.CheckpointType.Code,
-                    Description = @case.Checkpoint.CheckpointType.Description,
-                    Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
-                },
-                AssignedToName = @case.AssignedTo.Name,
-                Data = options.Filter.IncludeData ? @case.Data : null
-            });
+            .Where(options.Filter.Metadata); // filter Metadata
 
-        // TODO: not crazy about this one
-        // if a CaseAuthorizationService down the line wants to 
-        // not allow a user to see the list of case, it throws a ResourceUnauthorizedException
-        // which we catch and return an empty resultset. 
+        IQueryable<CasePartial> query;
+        if (isSystemOrAdmin) {
+            query = queryCases
+                .Select(@case => new CasePartial {
+                    Id = @case.Id,
+                    ReferenceNumber = @case.ReferenceNumber,
+                    CustomerId = @case.Customer.CustomerId,
+                    CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
+                    CreatedByWhen = @case.CreatedBy.When,
+                    CaseType = new CaseTypePartial {
+                        Id = @case.CaseType.Id,
+                        Code = @case.CaseType.Code,
+                        Title = @case.CaseType.Title,
+                        Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(@case.CaseType.Translations)
+                    },
+                    Metadata = @case.Metadata,
+                    GroupId = @case.GroupId,
+                    CheckpointType = new CheckpointType {
+                        Id = @case.Checkpoint.CheckpointType.Id,
+                        Status = @case.Checkpoint.CheckpointType.Status,
+                        Code = @case.Checkpoint.CheckpointType.Code,
+                        Title = @case.Checkpoint.CheckpointType.Title ?? @case.Checkpoint.CheckpointType.Code,
+                        Description = @case.Checkpoint.CheckpointType.Description,
+                        Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
+                    },
+                    AssignedToName = @case.AssignedTo.Name,
+                    Data = options.Filter.IncludeData ? @case.Data : null,
+                    AccessLevel = 111
+                });
+        } else {
+            query = (from @case in queryCases
+                     join checkpoint in _dbContext.Checkpoints
+                        on @case.CheckpointId equals checkpoint.Id
+
+                     let caseAccess = _dbContext.CaseAccessRules.Where(x =>
+                                    x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null &&
+                                    ((userId != null && x.MemberUserId == userId.ToString()) ||
+                                    (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                    (inputGroupId != null && x.MemberGroupId == inputGroupId))
+                                    )
+                                    .Select(x => x.AccessLevel)
+                                    .FirstOrDefault()
+
+                     let CaseTypeAccess = _dbContext.CaseAccessRules.Where(x =>
+                                     x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null &&
+                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
+                                     (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                     (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                                    .Select(x => x.AccessLevel)
+                                    .FirstOrDefault()
+                     let CheckpointIdAccess = _dbContext.CaseAccessRules.Where(x =>
+                                    x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
+                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
+                                     (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                     (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                                    .Select(x => x.AccessLevel)
+                                    .FirstOrDefault()
+                     let caseCheckpointIdAccess = _dbContext.CaseAccessRules.Where(x =>
+                                      x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
+                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
+                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                                     .Select(x => x.AccessLevel)
+                                     .FirstOrDefault()
+
+                     let caseAccessCondition = _dbContext.CaseAccessRules.Where(x =>
+                                    x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == null &&
+                                      ((userId != null && x.MemberUserId == userId.ToString()) ||
+                                      (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                      (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                                    .Select(x => x.AccessLevel)
+                                    .Any()
+                     let CaseTypeCondition = _dbContext.CaseAccessRules.Where(x =>
+                                     x.RuleCaseId == null && x.RuleCaseTypeId == @case.CaseTypeId && x.RuleCheckpointTypeId == null &&
+                                     ((userId != null && x.MemberUserId == userId.ToString()) ||
+                                     (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                     (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                                    .Select(x => x.AccessLevel)
+                                    .Any()
+                     let CheckpointIdACondition = _dbContext.CaseAccessRules.Where(x =>
+                                    x.RuleCaseId == null && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
+                                    ((userId != null && x.MemberUserId == userId.ToString()) ||
+                                    (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                    (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                                    .Select(x => x.AccessLevel)
+                                    .Any()
+
+                     let caseCheckpointIdCondition = _dbContext.CaseAccessRules.Where(x =>
+                                    x.RuleCaseId == @case.Id && x.RuleCaseTypeId == null && x.RuleCheckpointTypeId == checkpoint.CheckpointTypeId &&
+                                  ((userId != null && x.MemberUserId == userId.ToString()) ||
+                                  (userRoles.Any() && userRoles.Contains(x.MemberRole)) ||
+                                  (inputGroupId != null && x.MemberGroupId == inputGroupId)))
+                                 .Select(x => x.AccessLevel)
+                                 .Any()
+
+                     where (caseAccessCondition || CaseTypeCondition || CheckpointIdACondition || caseCheckpointIdCondition)
+
+                     select new CasePartial {
+                         Id = @case.Id,
+                         ReferenceNumber = @case.ReferenceNumber,
+                         CustomerId = @case.Customer.CustomerId,
+                         CustomerName = @case.Customer.FirstName + " " + @case.Customer.LastName, // concat like this to enable searching with "contains"
+                         CreatedByWhen = @case.CreatedBy.When,
+                         CaseType = new CaseTypePartial {
+                             Id = @case.CaseType.Id,
+                             Code = @case.CaseType.Code,
+                             Title = @case.CaseType.Title,
+                             Translations = TranslationDictionary<CaseTypeTranslation>.FromJson(@case.CaseType.Translations)
+                         },
+                         Metadata = @case.Metadata,
+                         GroupId = @case.GroupId,
+                         CheckpointType = new CheckpointType {
+                             Id = @case.Checkpoint.CheckpointType.Id,
+                             Status = @case.Checkpoint.CheckpointType.Status,
+                             Code = @case.Checkpoint.CheckpointType.Code,
+                             Title = @case.Checkpoint.CheckpointType.Title ?? @case.Checkpoint.CheckpointType.Code,
+                             Description = @case.Checkpoint.CheckpointType.Description,
+                             Translations = TranslationDictionary<CheckpointTypeTranslation>.FromJson(@case.Checkpoint.CheckpointType.Translations)
+                         },
+                         AssignedToName = @case.AssignedTo.Name,
+                         Data = options.Filter.IncludeData ? @case.Data : null,
+                         AccessLevel = new List<int> { caseAccess, CaseTypeAccess, CheckpointIdAccess, caseCheckpointIdAccess }.Max()
+                     });
+        }
+
+        //// TODO: not crazy about this one
+        //// if a CaseAuthorizationService down the line wants to 
+        //// not allow a user to see the list of case, it throws a ResourceUnauthorizedException
+        //// which we catch and return an empty resultset. 
         try {
             query = await _memberAuthorizationProvider.GetCaseMembership(query, user);
         } catch (ResourceUnauthorizedException) {
@@ -354,10 +466,21 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return attachment;
     }
 
+    public async Task<CaseAttachment> GetAttachmentByField(ClaimsPrincipal user, Guid caseId, string fieldName) {
+        var stringifiedCaseData = (await GetCaseById(user, caseId, false)).DataAs<string>();
+        var json = JsonDocument.Parse(stringifiedCaseData);
+        bool found = json.RootElement.TryGetProperty(fieldName, out JsonElement attachmentId);
+        if (found && !string.IsNullOrEmpty(attachmentId.GetString())) {
+            var attachment = await GetAttachment(caseId, attachmentId.GetGuid());
+            return attachment;
+        }
+        return null;
+    }
+
     public async Task<bool> PatchCaseMetadata(Guid caseId, ClaimsPrincipal User, Dictionary<string, string> metadata) {
         // Check that user role can view this case
         await GetCaseById(User, caseId, false);
-        
+
         var dbCase = await _dbContext.Cases.FindAsync(caseId);
         if (dbCase == null) {
             return false;
@@ -371,11 +494,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
 
     public async Task<AuditMeta> AssignCase(AuditMeta user, Guid caseId) {
         if (user.Id == default || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Name)) {
-            throw new ArgumentException(nameof(user));
+            throw new ArgumentException($"{BasicClaimTypes.GivenName} or {BasicClaimTypes.FamilyName} is missing from identity claim types");
         }
         var @case = await _dbContext.Cases.FindAsync(caseId);
         if (@case == null) {
-            throw new ArgumentNullException(nameof(@case));
+            throw new ArgumentNullException($"No {nameof(@case)} found with that id");
         }
         if (@case.AssignedTo != null && @case.AssignedTo.Id != user.Id) {
             throw new InvalidOperationException("Case is already assigned to another user.");

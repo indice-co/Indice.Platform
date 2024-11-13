@@ -37,26 +37,26 @@ public class SmsServiceMstat : ISmsService
     protected ILogger<SmsServiceMstat> Logger { get; }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string destination, string subject, string body, SmsSender sender = null) {
+    public async Task<SendReceipt> SendAsync(string destination, string subject, string body, SmsSender sender = null) {
         HttpResponseMessage httpResponse;
         MstatResponse response;
-        
-        if (destination is null || destination.Length is 0) {
-            throw new ArgumentException("Recipient cannot be null.", nameof(destination));
-        }
-        if (!PhoneNumber.TryParse(destination, out var phone)) {
-            throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(destination));
-        }
-        destination = phone.ToString("D");
-        if (!destination.All(char.IsDigit)) {
-            throw new ArgumentException("Invalid recipients. Recipients cannot contain letters.", nameof(destination));
-        }
 
+        var recipients = (destination ?? string.Empty).Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+        if (recipients == null) {
+            throw new ArgumentNullException(nameof(recipients));
+        }
+        if (recipients.Length == 0) {
+            throw new ArgumentException("Recipients list is empty.", nameof(recipients));
+        }
+        recipients = recipients.Select(recipient => {
+            if (!PhoneNumber.TryParse(recipient, out var phone)) {
+                throw new ArgumentException("Invalid recipients. Recipients should be valid phone numbers", nameof(recipients));
+            }
+            return phone.ToString("D");
+        })
+        .ToArray();
         var uniqueId = Settings.GenerateUniqueId ? Guid.NewGuid().ToString() : null;
-        var payload = new List<MstatRequest>() 
-        { 
-            new MstatRequest(ViberMessageType.OneWayTextSmartphones, message: body, Settings.SenderName, Settings.Channel, uniqueId, destination) 
-        };
+        var payload = recipients.Select(phoneNumber => new MstatRequest(ViberMessageType.OneWayTextSmartphones, message: body, Settings.SenderName, Settings.Channel, uniqueId, phoneNumber)).ToList();
         var payloadJson = JsonSerializer.Serialize(payload, GetJsonSerializerOptions());
         var request = new HttpRequestMessage {
             Content = new StringContent(payloadJson, Encoding.UTF8, MediaTypeNames.Application.Json),
@@ -92,6 +92,10 @@ public class SmsServiceMstat : ISmsService
         Logger.LogInformation("Message to Number: {Destination} - UniqueId: {UniqueId}", destination, uniqueId ?? responseDataList.Where(x => !x.HasErrros)
                                                                                                                                   .Select(x => x.UniqueId)
                                                                                                                                   .FirstOrDefault());
+        if (responseDataList?.Where(x => !x.HasErrros).Count() > 0) {
+            uniqueId = string.Join(',', responseDataList.Select(x => x.UniqueId));
+        }
+        return new SendReceipt(uniqueId, DateTimeOffset.UtcNow);
     }
 
     /// <summary>Checks the implementation if supports the given <paramref name="deliveryChannel"/>.</summary>
@@ -137,7 +141,7 @@ public class SmsServiceMstat : ISmsService
             ];
         }
     }
-    
+
 
     internal class MstatFlow
     {
@@ -185,7 +189,7 @@ public class SmsServiceMstat : ISmsService
             }
 
             public MstatViber(ViberMessageType type, string message) {
-                Type = (int) type;
+                Type = (int)type;
                 ViberMessage = new MstatViberMessage(message);
             }
         }
@@ -226,7 +230,7 @@ public class SmsServiceMstat : ISmsService
                 SmsMessage = new MstatSmsMessage(from, message);
             }
         }
-        
+
     }
 
     internal class MstatViberMessage

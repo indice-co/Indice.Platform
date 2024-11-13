@@ -11,6 +11,7 @@ import { SearchEvent } from 'src/app/shared/components/list-view/models/search-e
 export class SettingsComponent implements OnInit {
     @ViewChild('actionsTemplate', { static: true }) public _actionsTemplate: TemplateRef<HTMLElement>;
     @ViewChild('valueTemplate', { static: true }) public _valueTemplate: TemplateRef<HTMLElement>;
+    @ViewChild('keyTemplate', { static: true }) public _keyTemplate: TemplateRef<HTMLElement>;
 
     constructor(private _api: IdentityApiService) { }
 
@@ -20,7 +21,7 @@ export class SettingsComponent implements OnInit {
 
     public ngOnInit(): void {
         this.columns = [
-            { prop: 'key', name: 'Name', draggable: false, canAutoResize: true, sortable: false, resizeable: false },
+            { prop: 'key', name: 'Name', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._keyTemplate },
             { prop: 'value', name: 'Value', draggable: false, canAutoResize: true, sortable: false, resizeable: false, cellTemplate: this._valueTemplate },
             { prop: 'key', name: 'Actions', draggable: false, canAutoResize: false, sortable: false, resizeable: false, cellTemplate: this._actionsTemplate, cellClass: 'd-flex align-items-center' }
         ];

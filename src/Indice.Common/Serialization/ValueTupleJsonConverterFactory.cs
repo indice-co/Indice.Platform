@@ -27,6 +27,6 @@ public class ValueTupleJsonConverterFactory : JsonConverterFactory
             // And add other cases as needed
             _ => throw new NotSupportedException(),
         };
-        return (JsonConverter)Activator.CreateInstance(converterType);
+        return (JsonConverter)Activator.CreateInstance(converterType)!;
     }
 }

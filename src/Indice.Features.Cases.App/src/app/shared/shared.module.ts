@@ -31,6 +31,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { QuillModule } from 'ngx-quill';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
+import { ValueFromPathPipe } from './pipes.services';
 
 @NgModule({
   declarations: [
@@ -60,7 +61,8 @@ import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
     HrefWidgetComponent,
     LabelOnlyWidgetComponent,
     // pipes
-    BeautifyBooleanPipe
+    BeautifyBooleanPipe,
+    ValueFromPathPipe
   ],
   imports: [
     CommonModule,
@@ -98,7 +100,8 @@ import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
     TailwindFrameworkComponent,
     // pipes
     BeautifyBooleanPipe,
-    TranslateModule
+    TranslateModule,
+    ValueFromPathPipe
   ],
   providers: [
     provideNgxMask()

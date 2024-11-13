@@ -20,6 +20,6 @@ public class TypeConverterJsonAdapterFactory : JsonConverterFactory
     /// <inheritdoc />
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) {
         var converterType = typeof(TypeConverterJsonAdapter<>).MakeGenericType(typeToConvert);
-        return (JsonConverter)Activator.CreateInstance(converterType);
+        return (JsonConverter)Activator.CreateInstance(converterType)!;
     }
 }

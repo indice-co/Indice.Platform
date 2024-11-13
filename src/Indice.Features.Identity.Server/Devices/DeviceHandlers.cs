@@ -154,7 +154,7 @@ internal static class DeviceHandlers
         if (device is null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.SetTrustedDevice(user, device, request.SwapDeviceId);
+        var result = await userManager.SetTrustedDeviceAsync(user, device, request.SwapDeviceId);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }
@@ -174,7 +174,7 @@ internal static class DeviceHandlers
         if (device is null) {
             return TypedResults.NotFound();
         }
-        var result = await userManager.SetUntrustedDevice(user, device);
+        var result = await userManager.SetUntrustedDeviceAsync(user, device);
         if (!result.Succeeded) {
             return TypedResults.ValidationProblem(result.Errors.ToDictionary());
         }

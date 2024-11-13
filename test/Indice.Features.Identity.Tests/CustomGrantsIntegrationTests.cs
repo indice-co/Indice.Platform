@@ -158,8 +158,6 @@ public class CustomGrantsIntegrationTests
     private const string DEVICE_REGISTRATION_INITIATION_URL = $"{BASE_URL}/my/devices/register/init";
     private const string DEVICE_REGISTRATION_COMPLETE_URL = $"{BASE_URL}/my/devices/register/complete";
     private const string DEVICE_AUTHORIZATION_URL = $"{BASE_URL}/my/devices/connect/authorize";
-    private const string IDENTITY_DATABASE_NAME = "IdentityDb";
-    private const string SIGN_IN_LOG_DATABASE_NAME = "SignInLogDb";
     private const string AUTHORIZATION_DETAILS_PAYLOAD = """
         [
            {
@@ -210,6 +208,8 @@ public class CustomGrantsIntegrationTests
     private readonly HttpClient _httpClient;
     private readonly ITestOutputHelper _output;
     private IServiceProvider _serviceProvider;
+    private string _identityDatabaseName = $"IdentityDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
+    private string _signInLogDatabaseName = $"SignInLogDb.Test_{Environment.Version.Major}_{Guid.NewGuid()}";
 
     public CustomGrantsIntegrationTests(ITestOutputHelper output) {
         _output = output;
@@ -227,7 +227,7 @@ public class CustomGrantsIntegrationTests
                     .AddSmsServiceNoop()
                     .AddPushNotificationServiceNoop()
                     .AddLocalization()
-                    .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(IDENTITY_DATABASE_NAME));
+                    .AddDbContext<ExtendedIdentityDbContext<User, Role>>(builder => builder.UseInMemoryDatabase(_identityDatabaseName));
             services.AddTransient<IUserStateProvider<User>, UserStateProviderNoop>();
             services.AddIdentity<User, Role>()
                     .AddExtendedUserManager()
@@ -252,7 +252,7 @@ public class CustomGrantsIntegrationTests
             .AddDeviceAuthentication(options => options.AddUserDeviceStoreEntityFrameworkCore())
             .AddDeveloperSigningCredential(persistKey: false)
             .AddSignInLogs(options => {
-                options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(SIGN_IN_LOG_DATABASE_NAME));
+                options.UseEntityFrameworkCoreStore(dbBuilder => dbBuilder.UseInMemoryDatabase(_signInLogDatabaseName));
                 options.Enable = true;
                 options.ImpossibleTravel.Guard = true;
                 options.ImpossibleTravel.AcceptableSpeed = 90d;

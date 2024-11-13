@@ -55,7 +55,7 @@ public static class OrderByExtensions
         Expression expression = argument;
         foreach (var prop in properties) {
             // Use reflection (not ComponentModel) to mirror LINQ.
-            var propertyInfo = type.GetProperty(prop, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            var propertyInfo = type.GetProperty(prop, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance)!;
             expression = Expression.Property(expression, propertyInfo);
             type = propertyInfo.PropertyType;
         }
@@ -64,7 +64,7 @@ public static class OrderByExtensions
         var result = typeof(Queryable).GetMethods()
                                       .Single(method => method.Name == methodName && method.IsGenericMethodDefinition && method.GetGenericArguments().Length == 2 && method.GetParameters().Length == 2)
                                       .MakeGenericMethod(typeof(T), type)
-                                      .Invoke(null, new object[] { source, lambda });
-        return (IOrderedQueryable<T>)result;
+                                      .Invoke(null, [source, lambda]);
+        return (IOrderedQueryable<T>)result!;
     }
 }

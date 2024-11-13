@@ -92,7 +92,15 @@ public interface IAdminCaseService
     /// <param name="attachmentId"></param>
     /// <returns></returns>
     Task<CaseAttachment> GetAttachment(Guid caseId, Guid attachmentId);
-    
+
+    /// <summary>
+    /// Gets a single Case Attachment by field name
+    /// </summary>
+    /// <param name="caseId"></param>
+    /// <param name="fieldName"></param>
+    /// <returns></returns>
+    Task<CaseAttachment> GetAttachmentByField(ClaimsPrincipal user, Guid caseId, string fieldName);
+
     /// <summary>
     /// Adds or edits metadata for a case.
     /// </summary>

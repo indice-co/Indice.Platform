@@ -9,7 +9,7 @@ public static class ClaimsPrincipalExtensions
 {
     /// <summary>Finds a display name for the user based on <see cref="BasicClaimTypes.GivenName"/>, <see cref="BasicClaimTypes.FamilyName"/> and <see cref="BasicClaimTypes.Email"/> claims.</summary>
     /// <param name="principal">The current principal.</param>
-    public static string FindDisplayName(this ClaimsPrincipal principal) {
+    public static string? FindDisplayName(this ClaimsPrincipal principal) {
         var displayName = default(string);
         var name = principal.FindFirst(BasicClaimTypes.Name)?.Value;
         var firstName = principal.FindFirst(BasicClaimTypes.GivenName)?.Value;
@@ -27,7 +27,7 @@ public static class ClaimsPrincipalExtensions
 
     /// <summary>Gets the user's unique id.</summary>
     /// <param name="principal">The current principal.</param>
-    public static string FindSubjectId(this ClaimsPrincipal principal) => principal.FindFirst(BasicClaimTypes.Subject)?.Value;
+    public static string? FindSubjectId(this ClaimsPrincipal principal) => principal.FindFirst(BasicClaimTypes.Subject)?.Value;
 
     private static bool TryFindFirstValue<T>(this ClaimsPrincipal principal, string claimType, out T result) where T : struct {
         result = default;
@@ -104,7 +104,7 @@ public static class ClaimsPrincipalExtensions
             var identity = new ClaimsIdentity(id.AuthenticationType, id.NameClaimType, id.RoleClaimType);
             foreach (var claim in id.Claims) {
                 if (claim.Type == "scope") {
-                    if (claim.Value.Contains(" ")) {
+                    if (claim.Value.Contains(' ')) {
                         var scopes = claim.Value.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
                         foreach (var scope in scopes) {
                             identity.AddClaim(new Claim("scope", scope, claim.ValueType, claim.Issuer));
