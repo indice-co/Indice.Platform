@@ -244,17 +244,17 @@ internal class AdminCasesController : ControllerBase
         return Ok(timeline);
     }
 
-    /// <summary>Gets the ids of the correlated cases for a case.</summary>
+    /// <summary>Gets the ids of the related cases for a case.</summary>
     /// <param name="caseId">The id of the case.</param>
     /// <response code="200">OK</response>
     /// <response code="404">Not Found</response>
-    [HttpGet("{caseId:guid}/correlated-case-ids")]
+    [HttpGet("{caseId:guid}/related-case-ids")]
     [Produces(MediaTypeNames.Application.Json)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Guid>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> GetCorrelatedCases([FromRoute] Guid caseId) {
-        var correlatedCaseIds = await _adminCaseService.GetCorrelatedCaseIds(User, caseId);
-        return Ok(correlatedCaseIds);
+    public async Task<IActionResult> GetRelatedCases([FromRoute] Guid caseId) {
+        var relatedCaseIds = await _adminCaseService.GetRelatedCaseIds(User, caseId);
+        return Ok(relatedCaseIds);
     }
 
     /// <summary>Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.</summary>

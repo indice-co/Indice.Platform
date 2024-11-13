@@ -580,11 +580,11 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return timeline;
     }
 
-    public async Task<IEnumerable<Guid>> GetCorrelatedCaseIds(ClaimsPrincipal user, Guid caseId) {
+    public async Task<IEnumerable<Guid>> GetRelatedCaseIds(ClaimsPrincipal user, Guid caseId) {
         // Check that user role can view this case
         var @case = await GetCaseById(user, caseId, false);
-        var correlationKey = @case.Metadata["ExternalCorrelationKey"];
-        var filterClauseItem = new FilterClause("metadata.ExternalCorrelationKey", correlationKey, FilterOperator.Eq,
+        var relationKey = @case.Metadata["ExternalRelationKey"];
+        var filterClauseItem = new FilterClause("metadata.ExternalRelationKey", relationKey, FilterOperator.Eq,
             JsonDataType.String);
 
         var list = _dbContext.Cases.AsNoTracking()
