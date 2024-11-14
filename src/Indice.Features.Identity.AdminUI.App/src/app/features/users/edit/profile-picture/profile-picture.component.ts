@@ -13,7 +13,6 @@ import {
 } from "src/app/core/services/identity-api.service";
 import { ToastService } from "src/app/layout/services/app-toast.service";
 
-// TODO: add touch event and pinch to zoom
 @Component({
   selector: "app-user-profile-picture",
   templateUrl: "./profile-picture.component.html",
@@ -30,10 +29,11 @@ export class UserProfilePictureComponent implements OnDestroy {
 
   viewPort: number = 400;
   viewPortOrientation: "landscape" | "portrait" | "square" = "square";
-  step: number = 0.01;
+  step: number = 0.05;
   scale: number = 1;
   minScale: number = 1;
   maxScale: number = 1;
+  prevScale: number = 1;
   initialTranslateX: number = 0;
   initialTranslateY: number = 0;
   translateX: number = 0;
@@ -57,8 +57,10 @@ export class UserProfilePictureComponent implements OnDestroy {
   fileParameter: FileParameter;
   fileVersion = 1;
 
+  isInteractionEnabled: boolean = false;
+  isOverlayShown: boolean = false;
+
   apiSubscription: Subscription;
-  modalSubscription: Subscription;
 
   constructor(
     private api: IdentityApiService,
@@ -70,24 +72,10 @@ export class UserProfilePictureComponent implements OnDestroy {
     if (this.apiSubscription) {
       this.apiSubscription.unsubscribe();
     }
-    if (this.modalSubscription) {
-      this.modalSubscription.unsubscribe();
-    }
-  }
-
-  get isSquare(): boolean {
-    return this.viewPortOrientation === "square";
-  }
-
-  get isPortrait(): boolean {
-    return this.viewPortOrientation === "portrait";
-  }
-
-  get isLandscape(): boolean {
-    return this.viewPortOrientation === "landscape";
   }
 
   public onFileSelected(event: Event): void {
+    this.reset();
     this.file = (event.target as HTMLInputElement).files?.[0];
     if (this.file) {
       this.fileParameter = {
@@ -95,12 +83,24 @@ export class UserProfilePictureComponent implements OnDestroy {
         data: this.file,
       };
 
-      this.openModal();
+      this.image = document.getElementById("pic") as HTMLImageElement;
+      this.image.src = this.imageURL = URL.createObjectURL(this.file);
+      this.image.onload = () => {
+        this.isInteractionEnabled = true;
+        this.isOverlayShown = true;
+        this.setup();
+      };
     }
   }
 
   public onDragStart(event: MouseEvent | TouchEvent): void {
+    if (!this.isInteractionEnabled) return;
+
     event.preventDefault();
+
+    if (this.isOverlayShown) {
+      this.isOverlayShown = false;
+    }
 
     if (!this.dragCoords) {
       const clientX =
@@ -116,6 +116,8 @@ export class UserProfilePictureComponent implements OnDestroy {
   }
 
   public onDrag(event: MouseEvent | TouchEvent): void {
+    if (!this.isInteractionEnabled) return;
+
     if (this.dragCoords) {
       event.preventDefault();
 
@@ -137,21 +139,41 @@ export class UserProfilePictureComponent implements OnDestroy {
   }
 
   public onDragEnd(): void {
+    if (!this.isInteractionEnabled) return;
+
     this.dragCoords = null;
   }
 
   public onMouseWheel(event: WheelEvent): void {
+    if (!this.isInteractionEnabled) return;
+
     event.preventDefault();
 
-    this.scale += event.deltaY < 0 ? this.step : -this.step;
-    this.scale = Math.max(this.minScale, Math.min(this.scale, this.maxScale));
+    const newScale = this.scale + (event.deltaY < 0 ? this.step : -this.step);
+    const clampedScale = Math.max(
+      this.minScale,
+      Math.min(newScale, this.maxScale)
+    );
+
+    if (clampedScale < this.prevScale) {
+      this.scaleDownWithinBounds(clampedScale);
+    }
+
+    this.scale = clampedScale;
+    this.prevScale = this.scale;
 
     this.calculateBounds();
     this.transform();
   }
 
   public onScale(newScale: number): void {
+    if (newScale < this.prevScale) {
+      this.scaleDownWithinBounds(newScale);
+    }
+
     this.scale = newScale;
+
+    this.prevScale = this.scale;
 
     this.calculateBounds();
     this.transform();
@@ -159,13 +181,6 @@ export class UserProfilePictureComponent implements OnDestroy {
 
   public openModal(): void {
     this.modalRef = this.modalService.open(this.modalContent);
-    this.modalSubscription = this.modalRef.shown.subscribe((_) => {
-      this.image = document.getElementById("pic") as HTMLImageElement;
-      this.image.src = this.imageURL = URL.createObjectURL(this.file);
-      this.image.onload = () => {
-        this.setup();
-      };
-    });
   }
 
   public closeModal(): void {
@@ -198,11 +213,33 @@ export class UserProfilePictureComponent implements OnDestroy {
     }
   }
 
+  private scaleDownWithinBounds(newScale: number): void {
+    this.translateX = Math.max(
+      this.rightBound,
+      Math.min(this.translateX, this.leftBound)
+    );
+    this.translateY = Math.max(
+      this.bottomBound,
+      Math.min(this.translateY, this.topBound)
+    );
+
+    const originalX = this.translateX,
+      originalY = this.translateY;
+
+    this.translateX /= newScale;
+    this.translateY /= newScale;
+
+    this.translateX = originalX - this.translateX;
+    this.translateY = originalY - this.translateY;
+  }
+
   private transform(): void {
     this.image.style.transform = `scale(${this.scale}) translate(${this.translateX}px, ${this.translateY}px)`;
   }
 
   private setup(): void {
+    if (!this.image) return;
+
     const { naturalWidth, naturalHeight } = this.image;
     const scaleFactor = this.viewPort / this.image.height;
     const scaledWidth = this.image.width * scaleFactor;
@@ -286,11 +323,35 @@ export class UserProfilePictureComponent implements OnDestroy {
       });
   }
 
+  public delete(): void {
+    this.apiSubscription = this.api.clearUserPicture(this.userId).subscribe({
+      next: (_) => {
+        this.fileVersion++;
+        this.toast.showSuccess(
+          "Your profile picture was deleted successfully!"
+        );
+        this.closeModal();
+      },
+      error: (_) => {
+        this.toast.showDanger(
+          "There was an error deleting your profile picture."
+        );
+        this.closeModal();
+      },
+    });
+  }
+
   private reset(): void {
+    if (this.image) {
+      this.image.onload = () => {};
+      this.image = null;
+    }
+
     this.viewPortOrientation = "square";
     this.scale = 1;
     this.minScale = 1;
     this.maxScale = 1;
+    this.prevScale = 1;
     this.initialTranslateX = 0;
     this.initialTranslateY = 0;
     this.translateX = 0;
@@ -303,9 +364,10 @@ export class UserProfilePictureComponent implements OnDestroy {
     this.rightBound = 0;
     this.topBound = 0;
     this.bottomBound = 0;
-    this.image = null;
     this.imageURL = "";
     this.file = null;
     this.fileParameter = null;
+    this.isOverlayShown = false;
+    this.isInteractionEnabled = false;
   }
 }

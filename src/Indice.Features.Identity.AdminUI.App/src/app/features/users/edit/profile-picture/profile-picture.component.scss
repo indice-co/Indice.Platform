@@ -13,8 +13,13 @@
     height: inherit;
     text-align: center;
 
+    &.draggable {
+      .profilepiceditor__image {
+        cursor: grab;
+      }
+    }
+
     .profilepiceditor__image {
-      cursor: grab;
       opacity: 1;
       transition: opacity 0.2s ease-in-out;
       object-fit: contain;
@@ -24,6 +29,26 @@
 
       &.dragging {
         cursor: grabbing;
+      }
+    }
+
+    .profilepiceditor__overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.6);
+      font-size: 1.5em;
+      transition: opacity 0.5s ease;
+
+      &.hidden {
+        opacity: 0;
+        pointer-events: none;
       }
     }
   }
@@ -48,9 +73,6 @@
     object-fit: cover;
     opacity: 1;
     transition: opacity 0.2s ease-in-out;
-  }
-
-  .profilepic__content {
   }
 
   .profilepic__icon {
