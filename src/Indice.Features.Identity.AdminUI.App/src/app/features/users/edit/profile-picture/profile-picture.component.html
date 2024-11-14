@@ -8,7 +8,7 @@
     alt="profile picture"
   />
   <div class="profilepic__content">
-    <i class="material-icons profilepic__icon">photo_camera</i>
+    <i class="material-icons profilepic__icon text-primary">edit</i>
   </div>
 </div>
 
@@ -41,6 +41,13 @@
           Drag image to reposition
         </div>
       </div>
+      <i
+        *ngIf="!isInteractionEnabled"
+        class="material-icons cropcontainer__icon text-danger"
+        (click)="delete()"
+      >
+        delete
+      </i>
     </div>
     <div *ngIf="isInteractionEnabled">
       <label for="zoom-level" class="form-label">Zoom in/out</label>
@@ -58,14 +65,11 @@
     </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="closeModal()">
+    <button class="btn btn-outline-secondary me-auto" (click)="closeModal()">
       Cancel
     </button>
-    <button type="button" class="btn btn-danger" (click)="delete()">
-      Delete
-    </button>
-    <label for="user-profile-picture" class="btn btn-info">
-      Change
+    <label for="user-profile-picture" class="btn btn-icon btn-outline-primary">
+      <i class="material-icons">camera_alt</i> Select picture
       <input
         #fileInput
         type="file"
@@ -78,11 +82,11 @@
     <button
       *ngIf="isInteractionEnabled"
       type="button"
-      class="btn btn-primary"
+      class="btn btn-icon btn-outline-primary"
       (click)="crop()"
-      [disabled]="!isInteractionEnabled"
+      [disabled]="isLoading"
     >
-      Save
+      <i class="material-icons">check</i> Save
     </button>
   </div>
 </ng-template>

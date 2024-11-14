@@ -9,6 +9,7 @@ import { NgbModal, NgbModalRef } from "@ng-bootstrap/ng-bootstrap";
 import { Subscription } from "rxjs";
 import {
   FileParameter,
+  HttpValidationProblemDetails,
   IdentityApiService,
 } from "src/app/core/services/identity-api.service";
 import { ToastService } from "src/app/layout/services/app-toast.service";
@@ -59,6 +60,7 @@ export class UserProfilePictureComponent implements OnDestroy {
 
   isInteractionEnabled: boolean = false;
   isOverlayShown: boolean = false;
+  isLoading: boolean = false;
 
   apiSubscription: Subscription;
 
@@ -297,6 +299,7 @@ export class UserProfilePictureComponent implements OnDestroy {
   }
 
   public crop(): void {
+    this.isLoading = true;
     this.apiSubscription = this.api
       .saveUserPicture(
         this.userId,
@@ -308,17 +311,23 @@ export class UserProfilePictureComponent implements OnDestroy {
       )
       .subscribe({
         next: (_) => {
+          this.isLoading = false;
           this.fileVersion++;
           this.toast.showSuccess(
             "Your profile picture was updated successfully!"
           );
           this.closeModal();
         },
-        error: (_) => {
-          this.toast.showDanger(
-            "There was an error updating your profile picture."
-          );
-          this.closeModal();
+        error: ({ errors }: HttpValidationProblemDetails) => {
+          this.isLoading = false;
+          for (const [file, messages] of Object.entries(errors)) {
+            messages.forEach((message) => {
+              this.toast.showDanger(
+                `There was an error updating your profile picture: ${message}`
+              );
+            });
+          }
+          // this.closeModal();
         },
       });
   }
@@ -367,6 +376,7 @@ export class UserProfilePictureComponent implements OnDestroy {
     this.imageURL = "";
     this.file = null;
     this.fileParameter = null;
+    this.isLoading = false;
     this.isOverlayShown = false;
     this.isInteractionEnabled = false;
   }
