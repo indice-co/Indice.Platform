@@ -11,19 +11,12 @@ using Indice.Features.Messages.Core.Services.Abstractions;
 namespace Indice.Features.Messages.AspNetCore.Endpoints;
 internal static class MessageSendersHandlers
 {
-    public static async Task<Ok<ResultSet<MessageSender>>> GetMessageSenders(
-        [AsParameters] ListOptions options,
-        [AsParameters] MessageSenderListFilter filter,
-        IMessageSenderService messageSenderService
-    ) {
+    public static async Task<Ok<ResultSet<MessageSender>>> GetMessageSenders([AsParameters] ListOptions options, [AsParameters] MessageSenderListFilter filter, IMessageSenderService messageSenderService) {
         var messageSenders = await messageSenderService.GetList(options, filter);
         return TypedResults.Ok(messageSenders);
     }
 
-    public static async Task<Results<Ok<MessageSender>, NotFound>> GetMessageSenderById(
-        IMessageSenderService messageSenderService,
-        Guid senderId
-    ) {
+    public static async Task<Results<Ok<MessageSender>, NotFound>> GetMessageSenderById(IMessageSenderService messageSenderService, Guid senderId) {
         var messageSender = await messageSenderService.GetById(senderId);
         if (messageSender is null) {
             return TypedResults.NotFound();
@@ -31,27 +24,17 @@ internal static class MessageSendersHandlers
         return TypedResults.Ok(messageSender);
     }
 
-    public static async Task<Results<Created<MessageSender>, ValidationProblem>> CreateMessageSender(
-        IMessageSenderService messageSenderService,
-        CreateMessageSenderRequest request
-    ) {
+    public static async Task<Results<Created<MessageSender>, ValidationProblem>> CreateMessageSender(IMessageSenderService messageSenderService, CreateMessageSenderRequest request) {
         var messageSender = await messageSenderService.Create(request);
         return TypedResults.Created($"/message-senders/{messageSender.Id}", messageSender);
     }
 
-    public static async Task<Results<NoContent, ValidationProblem>> UpdateMessageSender(
-        IMessageSenderService messageSenderService,
-        Guid senderId,
-        UpdateMessageSenderRequest request
-    ) {
+    public static async Task<Results<NoContent, ValidationProblem>> UpdateMessageSender(IMessageSenderService messageSenderService, Guid senderId, UpdateMessageSenderRequest request) {
         await messageSenderService.Update(senderId, request);
         return TypedResults.NoContent();
     }
 
-    public static async Task<Results<NoContent, ValidationProblem>> DeleteMessageSender(
-        IMessageSenderService messageSenderService,
-        Guid senderId
-    ) {
+    public static async Task<Results<NoContent, ValidationProblem>> DeleteMessageSender(IMessageSenderService messageSenderService, Guid senderId) {
         await messageSenderService.Delete(senderId);
         return TypedResults.NoContent();
     }

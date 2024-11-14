@@ -8,6 +8,8 @@ using Microsoft.Extensions.Options;
 using Indice.Features.Messages.Core;
 using Indice.Security;
 using Indice.Types;
+using Indice.Features.Messages.Core.Models.Requests;
+using Npgsql.Replication.PgOutput.Messages;
 
 namespace Microsoft.AspNetCore.Routing;
 /// <summary>
@@ -26,10 +28,10 @@ public static class MessageSendersApi
         group.WithTags("MessageSenders");
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
 
-        group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
-                                           .RequireAuthenticatedUser()
-                                           .RequireCampaignsManagement()
-                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
+        //group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
+        //                                   .RequireAuthenticatedUser()
+        //                                   .RequireCampaignsManagement()
+        //                                   .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
@@ -51,12 +53,14 @@ public static class MessageSendersApi
         group.MapPost(string.Empty, MessageSendersHandlers.CreateMessageSender)
              .WithName(nameof(MessageSendersHandlers.CreateMessageSender))
              .WithSummary("Creates a new message sender.")
-             .WithDescription(MessageSendersHandlers.CREATE_MESSAGE_SENDER_DESCRIPTION);
+             .WithDescription(MessageSendersHandlers.CREATE_MESSAGE_SENDER_DESCRIPTION)
+             .WithParameterValidation<CreateMessageSenderRequest>();
 
         group.MapPut("{senderId}", MessageSendersHandlers.UpdateMessageSender)
              .WithName(nameof(MessageSendersHandlers.UpdateMessageSender))
              .WithSummary("Updates an existing message sender.")
-             .WithDescription(MessageSendersHandlers.UPDATE_MESSAGE_SENDER_DESCRIPTION);
+             .WithDescription(MessageSendersHandlers.UPDATE_MESSAGE_SENDER_DESCRIPTION)
+             .WithParameterValidation<UpdateMessageSenderRequest>();
 
         group.MapDelete("{senderId}", MessageSendersHandlers.DeleteMessageSender)
              .WithName(nameof(MessageSendersHandlers.DeleteMessageSender))

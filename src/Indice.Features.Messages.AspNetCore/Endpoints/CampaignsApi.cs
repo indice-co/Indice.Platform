@@ -89,6 +89,7 @@ public static class CampaignsApi
              .WithName(nameof(CampaignsHandlers.UploadCampaignAttachment))
              .WithSummary("Uploads an attachment for the specified campaign.")
              .WithDescription(CampaignsHandlers.UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION)
+             .WithParameterValidation<UploadFileRequest>()
              .Accepts<UploadFileRequest>("multipart/form-data");
 
         group.MapDelete("{campaignId}/attachments/{attachmentId}", CampaignsHandlers.DeleteCampaignAttachment)
