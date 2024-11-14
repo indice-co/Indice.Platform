@@ -20,6 +20,7 @@ public static class MessageEndpointExtensions
         routes.MapContacts();
         routes.MapDistributionLists();
         routes.MapMessageSenders();
+        routes.MapMessageTypes();
         return routes;
     }
 }

@@ -28,10 +28,10 @@ public static class MessageSendersApi
         group.WithTags("MessageSenders");
         var allowedScopes = new[] { options.RequiredScope }.Where(x => x != null).ToArray();
 
-        //group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
-        //                                   .RequireAuthenticatedUser()
-        //                                   .RequireCampaignsManagement()
-        //                                   .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
+        group.RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
+                                           .RequireAuthenticatedUser()
+                                           .RequireCampaignsManagement()
+                                           .RequireClaim(BasicClaimTypes.Scope, allowedScopes));
 
         group.WithOpenApi().AddOpenApiSecurityRequirement("oauth2", allowedScopes);
 
