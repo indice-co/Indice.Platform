@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Bogus.DataSets;
 using Indice.AspNetCore.Filters;
+using Indice.Extensions;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -34,16 +35,17 @@ public static class PictureApi
         group.ProducesProblem(StatusCodes.Status500InternalServerError)
              .ProducesProblem(StatusCodes.Status401Unauthorized)
              .InvalidateCacheTag(CacheTagPrefix, [], [BasicClaimTypes.Subject])
-             .InvalidateCacheTag(CacheTagPrefix, ctx => [new("userId", ctx.User.FindSubjectId())]);
+             .InvalidateCacheTag(CacheTagPrefix, ctx => [new("userId", ctx.User.FindSubjectId())])
+             .InvalidateCacheTag(CacheTagPrefix, ctx => [new("userId", ctx.User.FindSubjectId().ToSha256Hex())]);
 
         group.MapPut("my/account/picture", PictureHandlers.SaveMyPicture)
-         .WithName(nameof(PictureHandlers.SaveMyPicture))
-         .WithSummary("Create or update profile picture of the current user.")
-         .LimitUpload(options.Avatar.MaxFileSize, options.Avatar.AcceptableFileExtensions)
-         .WithParameterValidation<ImageUploadRequest>()
-         .Accepts<ImageUploadRequest>("multipart/form-data")
-         .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
-         .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UploadPicture);
+             .WithName(nameof(PictureHandlers.SaveMyPicture))
+             .WithSummary("Create or update profile picture of the current user.")
+             .LimitUpload(options.Avatar.MaxFileSize, options.Avatar.AcceptableFileExtensions)
+             .WithParameterValidation<ImageUploadRequest>()
+             .Accepts<ImageUploadRequest>("multipart/form-data")
+             .AddOpenApiSecurityRequirement("oauth2", allowedScopes)
+             .RequireRateLimiting(IdentityEndpoints.RateLimiter.Policies.UploadPicture);
 
         group.MapDelete("my/account/picture", PictureHandlers.ClearMyPicture)
              .WithName(nameof(PictureHandlers.ClearMyPicture))
