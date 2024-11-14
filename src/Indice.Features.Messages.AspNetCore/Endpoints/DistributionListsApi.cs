@@ -27,7 +27,7 @@ public static class DistributionListsApi
 {
     /// <summary>Registers the endpoints for Contacts API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    public static void MapDistributionLists(this IEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapDistributionLists(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
         var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/distribution-lists"); 
         if (!string.IsNullOrEmpty(options.GroupName)) {
@@ -82,6 +82,8 @@ public static class DistributionListsApi
         group.MapDelete("{distributionListId}/contacts/{contactId}", DistributionListsHandlers.RemoveContactFromDistributionList)
              .WithName(nameof(DistributionListsHandlers.RemoveContactFromDistributionList))
              .WithSummary("Removes an existing contact from the specified distribution list.");
+
+        return group;
     }
 }
 

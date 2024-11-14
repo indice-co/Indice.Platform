@@ -100,9 +100,9 @@ public static class CampaignsApi
              .WithName(nameof(CampaignsHandlers.GetCampaignAttachment))
              .WithSummary("Gets the attachment associated with a campaign.")
              .WithDescription(CampaignsHandlers.GET_CAMPAIGN_ATTACHMENT_DESCRIPTION)
-             .AllowAnonymous();
-        // TODO: manage cache
-        //.CacheOutput();
+             .AllowAnonymous()
+             .CacheOutput(policy => policy.Expire(TimeSpan.FromDays(4))
+                                          .SetVaryByRouteValue(["fileGuid", "format"]));
 
         return group;
     }

@@ -1,10 +1,6 @@
 ﻿#if NET7_0_OR_GREATER
+#nullable enable
 
-using Indice.Features.Messages.Core.Models;
-using Indice.Types;
-using Microsoft.AspNetCore.Mvc;
-using Indice.Security;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -74,4 +70,5 @@ public static class MyMessagesApi
 
 }
 
+#nullable disable
 #endif

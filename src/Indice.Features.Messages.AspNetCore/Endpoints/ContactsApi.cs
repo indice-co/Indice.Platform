@@ -20,7 +20,7 @@ public static class ContactsApi
 {
     /// <summary>Registers the endpoints for Contacts API.</summary>
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
-    public static void MapContacts(this IEndpointRouteBuilder routes) {
+    public static RouteGroupBuilder MapContacts(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageManagementOptions>>().Value;
         var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "/contacts");
         if (!string.IsNullOrEmpty(options.GroupName)) {
@@ -62,6 +62,8 @@ public static class ContactsApi
              .WithSummary("Updates the specified contact in the store.")
              .WithDescription(ContactsHandlers.UPDATE_CONTACT_DESCRIPTION)
              .WithParameterValidation<UpdateContactRequest>();
+
+        return group;
     }
 }
 
