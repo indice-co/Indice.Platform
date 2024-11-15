@@ -45,7 +45,7 @@ public static class TaxCodeValidator
            ["LT"] = ["^(LT)?(\\d{9}|\\d{12})$"],               //** Lithunia
            ["LU"] = ["^(LU)?(\\d{8})$"],                       //** Luxembourg 
            ["MT"] = ["^(MT)?([1-9]\\d{7})$"],                  //** Malta
-           ["NL"] = ["^(NL)?(\\d{9})B\\d{2}$"],                //** Netherlands
+           ["NL"] = ["^(NL)?(\\d{9}B\\d{2})$"],                //** Netherlands
            ["NO"] = ["^(NO)?(\\d{9})$"],                       //** Norway (not EU)
            ["PL"] = ["^(PL)?(\\d{10})$"],                      //** Poland
            ["PT"] = ["^(PT)?(\\d{9})$"],                       //** Portugal
@@ -869,23 +869,29 @@ public static class TaxCodeValidator
     static bool NLCheckDigit(string vatnumber) {
 
         // Checks the check digits of a Dutch VAT number.
-
-        var total = 0;
-        var multipliers = new[] { 9, 8, 7, 6, 5, 4, 3, 2 };
-
-        // Extract the next digit and multiply by the counter.
-        for (var i = 0; i < 8; i++) total += int.Parse(vatnumber[i].ToString()) * multipliers[i];
-
-        // Establish check digits by getting modulus 11.
-        total = total % 11;
-        if (total > 9) { total = 0; };
+        var sum = NLweightedSum(vatnumber.Substring(0, 9), weights: [9, 8, 7, 6, 5, 4, 3, 2, -1], modulus: 11);
 
         // Compare it with the last character of the VAT number. If it's the same, then it's valid.
-        if (total == int.Parse(vatnumber.Substring(8, 1)))
-            return true;
-        else
+        if (sum % 11 != 0 && !NLmod97base10Validate($"NL{vatnumber}"))
             return false;
+        
+        return true;
     }
+
+    static int NLweightedSum(string input, int[] weights, int modulus) {
+        var sum = 0;
+        for (var i = 0; i < input.Length; i++) {
+            sum += int.Parse(input[i].ToString()) * weights[i];
+        }
+        return sum % modulus;
+    }
+
+    static bool NLmod97base10Validate(string input) {
+        var remainderText = string.Join(string.Empty, input.Select(c => int.TryParse(c.ToString(), out var num) ? num : c - 55).Select(x => $"{x}").ToArray());
+        var remainder = long.Parse(remainderText) % 97;
+        return remainder == 1;
+    }
+
 
     static bool NOCheckDigit(string vatnumber) {
         // Checks the check digits of a Norwegian VAT number.
