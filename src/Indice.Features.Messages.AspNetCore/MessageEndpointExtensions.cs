@@ -21,6 +21,8 @@ public static class MessageEndpointExtensions
         routes.MapDistributionLists();
         routes.MapMessageSenders();
         routes.MapMessageTypes();
+        routes.MapTemplates();
+        routes.MapTracking();
         return routes;
     }
 }

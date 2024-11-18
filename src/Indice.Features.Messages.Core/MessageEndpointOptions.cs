@@ -19,7 +19,8 @@ public class MessageEndpointOptions : CampaignOptionsBase
     /// <summary>Group name for inbox controllers, used in API explorer. If not set, no group is used.</summary>
     public string InboxGroupName { get; set; }
     /// <summary>Group name for management controllers, used in API explorer. Default is 'messages';</summary>
-    public string ManagementGroupName { get; set; } = "messages";
+    public string ManagementGroupName { get; set; } = "backoffice";
+    //public string ManagementGroupName { get; set; } = "messages";
 }
 
 /// <summary>Options used to configure the Messages management API feature.</summary>
@@ -35,7 +36,8 @@ public class MessageManagementOptions : CampaignOptionsBase
     /// <summary>The default scope name to be used for Messages API. Defaults to <see cref="MessagesApi.Scope"/>.</summary>
     public string RequiredScope { get; set; } = MessagesApi.Scope;
     /// <summary>Group name for management controllers, used in API explorer. Default is 'messages';</summary>
-    public string GroupName { get; set; } = "messages";
+    public string GroupName { get; set; } = "backoffice";
+    //public string GroupName { get; set; } = "messages";
 }
 
 /// <summary>Options used to configure the Campaigns inbox API feature.</summary>
