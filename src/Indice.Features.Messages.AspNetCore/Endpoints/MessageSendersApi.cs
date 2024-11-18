@@ -1,5 +1,6 @@
 ﻿#if NET7_0_OR_GREATER
 #nullable enable
+
 using Indice.Features.Messages.AspNetCore.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +10,6 @@ using Indice.Features.Messages.Core;
 using Indice.Security;
 using Indice.Types;
 using Indice.Features.Messages.Core.Models.Requests;
-using Npgsql.Replication.PgOutput.Messages;
 
 namespace Microsoft.AspNetCore.Routing;
 /// <summary>
@@ -70,7 +70,6 @@ public static class MessageSendersApi
         return group;
     }
 }
-
 
 #nullable disable
 #endif

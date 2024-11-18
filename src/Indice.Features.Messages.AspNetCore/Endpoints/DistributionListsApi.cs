@@ -2,23 +2,16 @@
 
 using Indice.Features.Messages.AspNetCore.Endpoints;
 using Indice.Features.Messages.Core;
-using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
-using Indice.Features.Messages.Core.Services.Abstractions;
 using Indice.Security;
 using Indice.Types;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.Net.Mime;
 
 namespace Microsoft.AspNetCore.Routing;
-
 
 /// <summary>
 /// Provides endpoints for managing distribution lists, including retrieving, creating, updating, and deleting lists, as well as managing contacts within distribution lists.

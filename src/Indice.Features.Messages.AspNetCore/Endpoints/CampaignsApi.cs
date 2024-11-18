@@ -90,7 +90,8 @@ public static class CampaignsApi
              .WithSummary("Uploads an attachment for the specified campaign.")
              .WithDescription(CampaignsHandlers.UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION)
              .WithParameterValidation<UploadFileRequest>()
-             .Accepts<UploadFileRequest>("multipart/form-data");
+             .Accepts<UploadFileRequest>("multipart/form-data")
+             .LimitUpload(6291456); // 6 MegaBytes
 
         group.MapDelete("{campaignId}/attachments/{attachmentId}", CampaignsHandlers.DeleteCampaignAttachment)
              .WithName(nameof(CampaignsHandlers.DeleteCampaignAttachment))
@@ -102,6 +103,7 @@ public static class CampaignsApi
              .WithSummary("Gets the attachment associated with a campaign.")
              .WithDescription(CampaignsHandlers.GET_CAMPAIGN_ATTACHMENT_DESCRIPTION)
              .AllowAnonymous()
+             .ExcludeFromDescription()
              .CacheOutput(policy => policy.Expire(TimeSpan.FromDays(4))
                                           .SetVaryByRouteValue(["fileGuid", "format"]));
 
