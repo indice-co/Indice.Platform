@@ -4,12 +4,12 @@ import { tap } from 'rxjs/operators';
 import { CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.service';
 
 @Component({
-  selector: 'app-case-correlated',
-  templateUrl: './case-correlated.component.html'
+  selector: 'app-case-related',
+  templateUrl: './case-related.component.html'
 })
-export class CaseCorrelatedComponent implements OnInit {
+export class CaseRelatedComponent implements OnInit {
 
-  @Input() correlatedCasesIds: string[] | undefined;
+  @Input() relatedCasesIds: string[] | undefined;
   currentCaseId: string = "";
 
   constructor(private api: CasesApiService, private route: ActivatedRoute) { }

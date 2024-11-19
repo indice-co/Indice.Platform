@@ -19,7 +19,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   public timelineEntries$: Observable<TimelineEntry[]> | undefined;
 
-  public correlatedCasesIds$: Observable<string[]> | undefined;
+  public relatedCasesIds$: Observable<string[]> | undefined;
 
   public formValid: boolean = false;
   public formUnSavedChanges: boolean = false;
@@ -51,7 +51,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
       this.requestModel();
       this.getCaseActions();
       this.getTimeline();
-      this.getCorrelatedCases();
+      this.getRelatedCases();
     });
   }
 
@@ -173,7 +173,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
     this.timelineEntries$ = this.api.getCaseTimeline(this.caseId!);
   }
 
-  private getCorrelatedCases() {
-    this.correlatedCasesIds$ = this.api.getCorrelatedCases(this.caseId);
+  private getRelatedCases() {
+    this.relatedCasesIds$ = this.api.getRelatedCases(this.caseId);
   }
 }

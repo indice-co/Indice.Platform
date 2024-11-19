@@ -20,7 +20,7 @@ import { QueriesModalComponent } from "src/app/shared/components/query-modal/que
 import { QueriesPageComponent } from "./queries-page/queries-page.component";
 import { GeneralCasesComponent } from "./general-cases/general-cases.component";
 import { CaseTypeSpecificCasesComponent } from "./case-type-specific-cases/case-type-specific-cases.component";
-import { CaseCorrelatedComponent } from "./case-detail-page/case-correlated/case-correlated.component";
+import { CaseRelatedComponent } from "./case-detail-page/case-related/case-related.component";
 import { ValueFromPathPipe } from "src/app/shared/pipes.services";
 
 @NgModule({
@@ -38,7 +38,7 @@ import { ValueFromPathPipe } from "src/app/shared/pipes.services";
     QueriesModalComponent,
     GeneralCasesComponent,
     CaseTypeSpecificCasesComponent,
-    CaseCorrelatedComponent
+    CaseRelatedComponent
   ],
   imports: [
     BrowserModule,
