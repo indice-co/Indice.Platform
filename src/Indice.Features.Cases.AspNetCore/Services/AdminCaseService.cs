@@ -580,18 +580,16 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         return timeline;
     }
 
-    public async Task<IEnumerable<Guid>> GetRelatedCaseIds(ClaimsPrincipal user, Guid caseId) {
+    public async Task<List<CasePartial>> GetRelatedCases(ClaimsPrincipal user, Guid caseId) {
         // Check that user role can view this case
         var @case = await GetCaseById(user, caseId, false);
-        var relationKey = @case.Metadata["ExternalRelationKey"];
-        var filterClauseItem = new FilterClause("metadata.ExternalRelationKey", relationKey, FilterOperator.Eq,
-            JsonDataType.String);
+        var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
+            Filter = new GetCasesListFilter {
+                Metadata = [new FilterClause("metadata.ExternalRelationKey", @case.Metadata["ExternalRelationKey"], FilterOperator.Eq, JsonDataType.String)]
+            }
+        });
 
-        var list = _dbContext.Cases.AsNoTracking()
-            .Where([filterClauseItem]) // filter Metadata
-            .Select(x=> x.Id);
-
-        return list;
+        return result.Items.ToList();
     }
 
     private async Task<List<FilterClause>> MapCheckpointTypeCodeToId(List<FilterClause> checkpointTypeCodeFilterClauses) {

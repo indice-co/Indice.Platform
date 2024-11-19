@@ -1,22 +1,23 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { tap } from 'rxjs/operators';
-import { CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.service';
+import { CasePartial, CasesApiService } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-related',
-  templateUrl: './case-related.component.html'
+  templateUrl: './related-cases.component.html'
 })
 export class RelatedCasesComponent implements OnInit {
 
-  @Input() relatedCasesIds: string[] | undefined;
+  @Input() relatedCases: CasePartial[] = [];
   currentCaseId: string = "";
 
   constructor(private api: CasesApiService, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
-    this.route.queryParams.subscribe(params => {
-      this.currentCaseId = params['caseId'];
+    // From the related cases, remove the currently opened case from the list
+    this.route.paramMap.subscribe(params => {
+      this.currentCaseId = params.get('caseId') ?? "";
+      console.log(this.relatedCases);
     });
   }
 }

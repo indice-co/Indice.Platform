@@ -4,7 +4,7 @@ import { ToasterService, ToastType } from '@indice/ng-components';
 import { iif, Observable, ReplaySubject, of } from 'rxjs';
 import { map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { CaseDetailsService } from 'src/app/core/services/case-details.service';
-import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage } from 'src/app/core/services/cases-api.service';
+import { CaseActions, Case, CasesApiService, ActionRequest, TimelineEntry, CaseStatus, SuccessMessage, CasePartial } from 'src/app/core/services/cases-api.service';
 
 @Component({
   selector: 'app-case-detail-page',
@@ -19,7 +19,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   public timelineEntries$: Observable<TimelineEntry[]> | undefined;
 
-  public relatedCasesIds$: Observable<string[]> | undefined;
+  public relatedCases$: Observable<CasePartial[]> | undefined;
 
   public formValid: boolean = false;
   public formUnSavedChanges: boolean = false;
@@ -174,6 +174,6 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
   }
 
   private getRelatedCases() {
-    this.relatedCasesIds$ = this.api.getRelatedCases(this.caseId);
+    this.relatedCases$ = this.api.getRelatedCases(this.caseId);
   }
 }

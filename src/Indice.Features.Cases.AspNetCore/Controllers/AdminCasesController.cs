@@ -253,8 +253,8 @@ internal class AdminCasesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Guid>))]
     [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(ProblemDetails))]
     public async Task<IActionResult> GetRelatedCases([FromRoute] Guid caseId) {
-        var relatedCaseIds = await _adminCaseService.GetRelatedCaseIds(User, caseId);
-        return Ok(relatedCaseIds);
+        var relatedCases = await _adminCaseService.GetRelatedCases(User, caseId);
+        return Ok(relatedCases);
     }
 
     /// <summary>Gets the cases actions (Approval, edit, assignments, etc) for a case Id. Actions differ based on user role.</summary>

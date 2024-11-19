@@ -1,17 +1,30 @@
-<div class="mt-auto pt-1 space-y-1 pl-1">
+<div class="mt-auto pt-1 pl-1">
   <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
     Σχετικές Υποθέσεις
   </h3>
-  <ol class="list-decimal ml-6 space-y-4">
-    <li *ngFor="let entry of relatedCasesIds">
-      <!-- work in progress! its not working
-      <ng-container *ngIf="entry === currentCaseId">
-        <div>Case {{ entry }}</div>
-      </ng-container> -->
-      <a [routerLink]="['/cases', entry, 'details']"
-         class="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
-        Case: {{ entry }}
-      </a>
-    </li>
-  </ol>
+  <table class="table-auto border-collapse border border-gray-300 w-full">
+    <thead>
+      <tr>
+        <th class="border border-gray-300 px-4 py-2 text-left text-gray-800 font-medium">#</th>
+        <th class="border border-gray-300 px-4 py-2 text-left text-gray-800 font-medium">Υπόθεση</th>
+        <th class="border border-gray-300 px-4 py-2 text-left text-gray-800 font-medium">Status</th>
+        <th class="border border-gray-300 px-4 py-2 text-left text-gray-800 font-medium">Ημερομηνία Δημιουργίας</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let relatedCase of relatedCases; let i = index"
+        [ngClass]="{'bg-blue-100': relatedCase.id === currentCaseId, 'hover:bg-gray-100': true}">
+        <td class="border border-gray-300 px-4 py-2">{{ i + 1 }}</td>
+        <td class="border border-gray-300 px-4 py-2">
+          <a [routerLink]="['/cases', relatedCase.id, 'details']"
+             class="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+            {{ relatedCase.id }}
+          </a>
+        </td>
+        <td class="border border-gray-300 px-4 py-2">{{ relatedCase.checkpointType?.code }}</td>
+        <td class="border border-gray-300 px-4 py-2">{{ relatedCase.createdByWhen }}</td>
+      </tr>
+    </tbody>
+  </table>
 </div>

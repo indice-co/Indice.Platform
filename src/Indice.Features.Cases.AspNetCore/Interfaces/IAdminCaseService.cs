@@ -76,11 +76,11 @@ public interface IAdminCaseService
     /// <returns></returns>
     Task<IEnumerable<TimelineEntry>> GetTimeline(ClaimsPrincipal user, Guid caseId);
 
-    /// <summary>Gets the ids of the related cases for a case.</summary>
+    /// <summary>Gets the related cases for a case.</summary>
     /// <param name="user">The user that creates the request.</param>
     /// <param name="caseId">The Id of the case.</param>
     /// <returns></returns>
-    Task<IEnumerable<Guid>> GetRelatedCaseIds(ClaimsPrincipal user, Guid caseId);
+    Task<List<CasePartial>> GetRelatedCases(ClaimsPrincipal user, Guid caseId);
 
     /// <summary>Get a list of attachments by CaseId</summary>
     /// <param name="caseId"></param>
