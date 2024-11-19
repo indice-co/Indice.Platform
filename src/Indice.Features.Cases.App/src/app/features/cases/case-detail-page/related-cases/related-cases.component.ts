@@ -7,7 +7,7 @@ import { CasesApiService, TimelineEntry } from 'src/app/core/services/cases-api.
   selector: 'app-case-related',
   templateUrl: './case-related.component.html'
 })
-export class CaseRelatedComponent implements OnInit {
+export class RelatedCasesComponent implements OnInit {
 
   @Input() relatedCasesIds: string[] | undefined;
   currentCaseId: string = "";
