@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Indice.Serialization;
 using Indice.Types;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace Indice.Common.Tests;
@@ -224,7 +225,6 @@ public class JsonSerializerTests
 
         var data = "{ \"year\": 2020.0 }";
         var obj = JsonSerializer.Deserialize<FloatingIntegerIssue>(data, options);
-
         Assert.Equal(2020, obj.Year);
     }
 
@@ -314,6 +314,23 @@ public class JsonSerializerTests
         dynamic json = JsonSerializer.Deserialize<dynamic>(jsonText, settings);
         var text = JsonSerializer.Serialize(json, settings);
         Assert.True(true);
+    }
+
+
+    [Fact]
+    public void JsonQuircksHaveNotbeen_Implemented_in_framework_test() {
+        var defaults = new JsonSerializerOptions {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString,
+        };
+        // booleans
+        JsonSerializer.Deserialize<bool>("true", defaults);
+        Assert.ThrowsAny<Exception>(() => JsonSerializer.Deserialize<bool>("\"true\"", defaults)); // text to bool not supported
+        // numbers
+        Assert.ThrowsAny<Exception>(() => JsonSerializer.Deserialize<int>("343.0", defaults)); // float to int not supported
+        JsonSerializer.Deserialize<int>("\"343\"", defaults); // text to int OK
+
     }
 
     private static void RoundtripSerialize<T>(PocoValue<T> source, JsonSerializerOptions options) {

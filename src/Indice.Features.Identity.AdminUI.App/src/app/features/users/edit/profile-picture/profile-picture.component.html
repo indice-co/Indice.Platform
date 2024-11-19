@@ -1,38 +1,19 @@
-<label for="user-profile-picture">
-  <div class="profilepic">
-    <img
-      class="profilepic__image img-fluid rounded-circle"
-      [userPicture]="userId"
-      [displayName]="displayName"
-      [version]="fileVersion"
-      size="256"
-      alt="profile picture"
-    />
-    <div class="profilepic__content">
-      <i class="material-icons profilepic__icon">photo_camera</i>
-      <input
-        #fileInput
-        type="file"
-        accept="image/*"
-        id="user-profile-picture"
-        (change)="onFileSelected($event)"
-        class="d-none"
-      />
-    </div>
+<div class="profilepic" (click)="openModal()">
+  <img
+    class="profilepic__image img-fluid rounded-circle"
+    [userPicture]="userId"
+    [displayName]="displayName"
+    [version]="fileVersion"
+    size="256"
+    alt="profile picture"
+  />
+  <div class="profilepic__content">
+    <i class="material-icons profilepic__icon">photo_camera</i>
   </div>
-</label>
+</div>
 
 <ng-template let-modal #modalContent>
   <div class="modal-body text-center">
-    <div class="alert alert-info" role="alert" *ngIf="isPortrait">
-      Adjust your image up or down to reposition
-    </div>
-    <div class="alert alert-info" role="alert" *ngIf="isLandscape">
-      Adjust your image left or right to reposition
-    </div>
-    <div class="alert alert-info" role="alert" *ngIf="isSquare">
-      Zoom in to adjust your image
-    </div>
     <div
       #container
       class="cropcontainer"
@@ -44,35 +25,68 @@
       (touchmove)="onDrag($event)"
       (touchend)="onDragEnd()"
     >
-      <div class="profilepiceditor">
+      <div class="profilepiceditor" [class.draggable]="isInteractionEnabled">
         <img
           #pic
           id="pic"
           class="profilepiceditor__image"
           [class.dragging]="dragCoords"
-          [src]="imageURL"
-          alt="Profile"
+          [userPicture]="userId"
+          [displayName]="displayName"
+          [version]="fileVersion"
+          size="256"
+          alt="profile picture"
         />
-        <div class="profilepiceditor__content"></div>
+        <div class="profilepiceditor__overlay" [class.hidden]="!isOverlayShown">
+          Drag image to reposition
+        </div>
       </div>
+      <i
+        *ngIf="!isInteractionEnabled"
+        class="material-icons cropcontainer__icon text-danger"
+        (click)="delete()"
+      >
+        delete
+      </i>
     </div>
-    <label for="zoom-level" class="form-label">Zoom in/out</label>
-    <input
-      type="range"
-      class="form-range"
-      id="zoom-level"
-      [min]="minScale"
-      [max]="maxScale"
-      [step]="step"
-      [disabled]="maxScale === 1"
-      [(ngModel)]="scale"
-      (input)="onScale(scale)"
-    />
+    <div *ngIf="isInteractionEnabled">
+      <label for="zoom-level" class="form-label">Zoom in/out</label>
+      <input
+        type="range"
+        class="form-range"
+        id="zoom-level"
+        [min]="minScale"
+        [max]="maxScale"
+        [step]="step"
+        [disabled]="maxScale === 1"
+        [(ngModel)]="scale"
+        (input)="onScale(scale)"
+      />
+    </div>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="closeModal()">
+    <button class="btn btn-outline-secondary me-auto" (click)="closeModal()">
       Cancel
     </button>
-    <button type="button" class="btn btn-primary" (click)="crop()">Save</button>
+    <label for="user-profile-picture" class="btn btn-icon btn-outline-primary">
+      <i class="material-icons">camera_alt</i> Select picture
+      <input
+        #fileInput
+        type="file"
+        accept="image/*"
+        id="user-profile-picture"
+        (change)="onFileSelected($event)"
+        class="d-none"
+      />
+    </label>
+    <button
+      *ngIf="isInteractionEnabled"
+      type="button"
+      class="btn btn-icon btn-outline-primary"
+      (click)="crop()"
+      [disabled]="isLoading"
+    >
+      <i class="material-icons">check</i> Save
+    </button>
   </div>
 </ng-template>
