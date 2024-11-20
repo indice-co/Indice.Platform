@@ -31,11 +31,10 @@ internal static class MyMessagesHandlers
     }
 
     public static async Task<Ok<ResultSet<MessageType>>> GetInboxMessageTypes(
-       IMessageTypeService messageTypeService,
        [AsParameters] ListOptions options,
-       [AsParameters] MessagesFilter filter
+       IMessageTypeService messageTypeService
     ) {
-        var campaignTypes = await messageTypeService.GetList(ListOptions.Create(options, filter));
+        var campaignTypes = await messageTypeService.GetList(options);
         return TypedResults.Ok(campaignTypes);
     }
 

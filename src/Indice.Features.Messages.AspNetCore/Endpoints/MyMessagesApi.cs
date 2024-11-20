@@ -34,15 +34,23 @@ public static class MyMessagesApi
              .ProducesProblem(StatusCodes.Status403Forbidden)
              .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        group.MapGet("", MyMessagesHandlers.GetMessages)
+        group.MapGet(string.Empty, MyMessagesHandlers.GetMessages)
              .WithName(nameof(MyMessagesHandlers.GetMessages))
              .WithSummary("Gets the list of all user messages using the provided ListOptions.")
              .WithDescription(MyMessagesHandlers.GET_MESSAGES_DESCRIPTION);
 
-        group.MapGet("types", MyMessagesHandlers.GetInboxMessageTypes)
-             .WithName(nameof(MyMessagesHandlers.GetInboxMessageTypes))
-             .WithSummary("Gets the list of available campaign types.")
-             .WithDescription(MyMessagesHandlers.GET_INBOX_MESSAGE_TYPES_DESCRIPTION);
+        var typesRoute = routes.MapGet("messages/types", MyMessagesHandlers.GetInboxMessageTypes)
+            .WithName(nameof(MyMessagesHandlers.GetInboxMessageTypes))
+            .WithSummary("Gets the list of available campaign types.")
+            .WithDescription(MyMessagesHandlers.GET_INBOX_MESSAGE_TYPES_DESCRIPTION)
+            .WithTags("MyMessages")
+            .RequireAuthorization(pb => pb.AddAuthenticationSchemes(MessagesApi.AuthenticationScheme)
+                                           .RequireAuthenticatedUser())
+            .WithOpenApi().AddOpenApiSecurityRequirement("oauth2");
+
+        if (!string.IsNullOrEmpty(options.GroupName)) {
+            typesRoute.WithGroupName(options.GroupName);
+        }
 
         group.MapGet("{messageId}", MyMessagesHandlers.GetMessageById)
              .WithName(nameof(MyMessagesHandlers.GetMessageById))
