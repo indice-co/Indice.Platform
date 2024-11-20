@@ -16,10 +16,10 @@ internal static class ContactsHandlers
         IContactResolver contactResolver,
         [AsParameters] ListOptions options,
         [AsParameters] ContactListFilter filter,
-        bool resolve) {
+        bool? resolve) {
 
         ResultSet<Contact> contacts;
-        if (resolve) {
+        if (resolve == true) {
             contacts = await contactResolver.Find(new ListOptions {
                 Page = options.Page,
                 Search = options.Search,

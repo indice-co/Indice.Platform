@@ -61,7 +61,12 @@ public static class CampaignsApi
         group.MapGet("{campaignId}/statistics", CampaignsHandlers.GetCampaignStatistics)
              .WithName(nameof(CampaignsHandlers.GetCampaignStatistics))
              .WithSummary("Gets the statistics for a specified campaign.")
-             .WithDescription(CampaignsHandlers.GET_CAMPAIGN_STATISTICS_DESCRIPTION);
+             .WithDescription(CampaignsHandlers.GET_CAMPAIGN_STATISTICS_DESCRIPTION)
+             .CacheOutput(policy => policy.SetVaryByRouteValue(["campaignId"])
+                                          .SetAutoTag()
+                                          .SetAuthorized()
+                                          .Expire(TimeSpan.FromMinutes(5)))
+                          .WithCacheTag("Campaign", ["campaignId"]);
 
         group.MapGet("{campaignId}/statistics/export", CampaignsHandlers.ExportCampaignStatistics)
              .WithName(nameof(CampaignsHandlers.ExportCampaignStatistics))
@@ -91,7 +96,7 @@ public static class CampaignsApi
              .WithDescription(CampaignsHandlers.UPLOAD_CAMPAIGN_ATTACHMENT_DESCRIPTION)
              .WithParameterValidation<UploadFileRequest>()
              .Accepts<UploadFileRequest>("multipart/form-data")
-             .LimitUpload(6291456); // 6 MegaBytes
+             .LimitUpload(options.FileUploadLimit);
 
         group.MapDelete("{campaignId}/attachments/{attachmentId}", CampaignsHandlers.DeleteCampaignAttachment)
              .WithName(nameof(CampaignsHandlers.DeleteCampaignAttachment))
@@ -103,9 +108,7 @@ public static class CampaignsApi
              .WithSummary("Gets the attachment associated with a campaign.")
              .WithDescription(CampaignsHandlers.GET_CAMPAIGN_ATTACHMENT_DESCRIPTION)
              .AllowAnonymous()
-             .ExcludeFromDescription()
-             .CacheOutput(policy => policy.Expire(TimeSpan.FromDays(4))
-                                          .SetVaryByRouteValue(["fileGuid", "format"]));
+             .ExcludeFromDescription();
 
         return group;
     }

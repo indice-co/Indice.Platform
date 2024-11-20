@@ -31,7 +31,7 @@ export class ListContactCreateComponent implements AfterViewInit {
 public onContactsSearch(searchTerm: string | undefined): void {
     this.isLoading = true;
     this._api
-        .getContacts(undefined, undefined, undefined, undefined, 1, 10, 'email', searchTerm, true)
+      .getContacts(1, 10, 'email', searchTerm, undefined, undefined, undefined, undefined, true)
         .subscribe((contacts: ContactResultSet) => {
             this.contacts = contacts.items || [];
             this.contacts.forEach((contact: Contact, index: number) => {
