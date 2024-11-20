@@ -19,7 +19,8 @@ public static class TrackingApi
     /// <param name="routes">Defines a contract for a route builder in an application. A route builder specifies the routes for an application.</param>
     public static RouteGroupBuilder MapTracking(this IEndpointRouteBuilder routes) {
         var options = routes.ServiceProvider.GetRequiredService<IOptions<MessageInboxOptions>>().Value;
-        var group = routes.MapGroup("_tracking");
+        var group = routes.MapGroup(options.ApiPrefix.TrimEnd('/') + "_tracking");
+
         if (!string.IsNullOrEmpty(options.GroupName)) {
             group.WithGroupName(options.GroupName);
         }
