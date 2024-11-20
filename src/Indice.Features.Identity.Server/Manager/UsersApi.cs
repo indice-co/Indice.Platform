@@ -1,6 +1,4 @@
-﻿using IdentityModel;
-using Indice.AspNetCore.Filters;
-using Indice.AspNetCore.Http.Filters;
+﻿using Indice.Extensions;
 using Indice.Features.Identity.Server;
 using Indice.Features.Identity.Server.Manager;
 using Indice.Features.Identity.Server.Manager.Models;
@@ -8,14 +6,12 @@ using Indice.Security;
 using Indice.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.AspNetCore.Routing;
 
 /// <summary>Contains operations for managing application users.</summary>
 public static class UsersApi
 {
-    internal const string CacheTagPrefix = "Routes";
     /// <summary>Adds endpoints for managing application users.</summary>
     /// <param name="routes">Indice Identity Server route builder.</param>
     public static RouteGroupBuilder MapManageUsers(this IdentityServerEndpointRouteBuilder routes) {
@@ -150,12 +146,14 @@ public static class UsersApi
              .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
              .LimitUpload(options.Avatar.MaxFileSize, options.Avatar.AcceptableFileExtensions)
              .WithParameterValidation<ImageUploadRequest>()
-             .Accepts<ImageUploadRequest>("multipart/form-data");
+             .Accepts<ImageUploadRequest>("multipart/form-data")
+             .InvalidateCacheTag(PictureApi.CacheTagPrefix, ctx => [new("userId", ctx.GetRouteValue("userId")!.ToString()!.ToSha256Hex())]);
 
         group.MapDelete("{userId}/picture", PictureHandlers.ClearUserPicture)
              .WithName(nameof(PictureHandlers.ClearUserPicture))
              .WithSummary("Clear profile picture from the given user.")
-             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter);
+             .RequireAuthorization(IdentityEndpoints.Policies.BeUsersWriter)
+             .InvalidateCacheTag(PictureApi.CacheTagPrefix, ctx => [new("userId", ctx.GetRouteValue("userId")!.ToString()!.ToSha256Hex())]);
 
         group.MapGet("{userId}/picture", PictureHandlers.GetAccountPicture)
              .WithName("GetUserPicture")

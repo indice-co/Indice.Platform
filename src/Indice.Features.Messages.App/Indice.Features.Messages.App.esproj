@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1751888">
+<Project Sdk="Microsoft.VisualStudio.JavaScript.Sdk/1.0.1948920">
   <PropertyGroup>
     <StartupCommand>npm start</StartupCommand>
     <BuildCommand>npm run build:template</BuildCommand>
