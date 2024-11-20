@@ -52,34 +52,34 @@ internal static class ContactsHandlers
 
     #region Descriptions
     public static readonly string GET_CONTACTS_DESCRIPTION = @"
-    Retrieves the list of all contacts using the provided ListOptions.
+Retrieves the list of all contacts using the provided ListOptions.
 
-    Parameters:
-    - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
-    - resolve: Determines whether to use the contact resolver service for additional processing; set to true to resolve contacts, or false to retrieve directly from contactService.
-    ";
+Parameters:
+- options: List parameters used to navigate through collections, including sort, search, page number, and page size.
+- resolve: Determines whether to use the contact resolver service for additional processing; set to true to resolve contacts, or false to retrieve directly from contactService.
+";
 
     public static readonly string GET_CONTACT_BY_ID_DESCRIPTION = @"
-    Retrieves a contact by its unique ID.
+Retrieves a contact by its unique ID.
 
-    Parameters:
-    - contactId: The unique ID of the contact to retrieve.
-    ";
+Parameters:
+- contactId: The unique ID of the contact to retrieve.
+";
 
     public static readonly string CREATE_CONTACT_DESCRIPTION = @"
-    Creates a new contact in the store.
+Creates a new contact in the store.
 
-    Parameters:
-    - request: The request model used to create a new contact.
-    ";
+Parameters:
+- request: The request model used to create a new contact.
+";
 
     public static readonly string UPDATE_CONTACT_DESCRIPTION = @"
-    Updates an existing contact in the store.
+Updates an existing contact in the store.
 
-    Parameters:
-    - contactId: The unique ID of the contact to update.
-    - request: The request model used to update the contact.
-    ";
+Parameters:
+- contactId: The unique ID of the contact to update.
+- request: The request model used to update the contact.
+";
 
     #endregion
 }

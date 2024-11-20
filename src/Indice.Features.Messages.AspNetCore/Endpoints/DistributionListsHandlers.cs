@@ -56,57 +56,57 @@ internal static class DistributionListsHandlers
 
     #region Descriptions
     public static readonly string GET_DISTRIBUTION_LISTS_DESCRIPTION = @"
-    Retrieves the list of available distribution lists based on the provided ListOptions and DistributionListFilter.
+Retrieves the list of available distribution lists based on the provided ListOptions and DistributionListFilter.
 
-    Parameters:
-    - options: List parameters used to navigate through collections. Contains parameters such as sort, search, page number, and page size.
-    - filter: The filter applied to limit the results.";
+Parameters:
+- options: List parameters used to navigate through collections. Contains parameters such as sort, search, page number, and page size.
+- filter: The filter applied to limit the results.";
 
     public static readonly string GET_DISTRIBUTION_LIST_BY_ID_DESCRIPTION = @"
-    Retrieves a distribution list with the specified ID.
+Retrieves a distribution list with the specified ID.
 
-    Parameters:
-    - distributionListId: The unique ID of the distribution list to retrieve.";
+Parameters:
+- distributionListId: The unique ID of the distribution list to retrieve.";
 
     public static readonly string CREATE_DISTRIBUTION_LIST_DESCRIPTION = @"
-    Creates a new distribution list in the system.
+Creates a new distribution list in the system.
 
-    Parameters:
-    - request: Contains information about the distribution list to be created.";
+Parameters:
+- request: Contains information about the distribution list to be created.";
 
     public static readonly string DELETE_DISTRIBUTION_LIST_DESCRIPTION = @"
-    Deletes a distribution list from the system.
+Deletes a distribution list from the system.
 
-    Parameters:
-    - distributionListId: The unique ID of the distribution list to delete.";
+Parameters:
+- distributionListId: The unique ID of the distribution list to delete.";
 
     public static readonly string UPDATE_DISTRIBUTION_LIST_DESCRIPTION = @"
-    Updates an existing distribution list with new details.
+Updates an existing distribution list with new details.
 
-    Parameters:
-    - distributionListId: The unique ID of the distribution list to update.
-    - request: Models a request containing updated details of the distribution list.";
+Parameters:
+- distributionListId: The unique ID of the distribution list to update.
+- request: Models a request containing updated details of the distribution list.";
 
     public static readonly string GET_DISTRIBUTION_LIST_CONTACTS_DESCRIPTION = @"
-    Retrieves contacts associated with the specified distribution list.
+Retrieves contacts associated with the specified distribution list.
 
-    Parameters:
-    - distributionListId: The unique ID of the distribution list.
-    - options: List parameters used to navigate through collections. Contains parameters such as sort, search, page number, and page size.";
+Parameters:
+- distributionListId: The unique ID of the distribution list.
+- options: List parameters used to navigate through collections. Contains parameters such as sort, search, page number, and page size.";
 
     public static readonly string ADD_CONTACT_TO_DISTRIBUTION_LIST_DESCRIPTION = @"
-    Adds a new or existing contact to the specified distribution list. If the request contains an ID, an existing contact is added; otherwise, a new contact is created.
+Adds a new or existing contact to the specified distribution list. If the request contains an ID, an existing contact is added; otherwise, a new contact is created.
 
-    Parameters:
-    - distributionListId: The unique ID of the distribution list.
-    - request: Contains information about the contact to add to the distribution list.";
+Parameters:
+- distributionListId: The unique ID of the distribution list.
+- request: Contains information about the contact to add to the distribution list.";
 
     public static readonly string REMOVE_CONTACT_FROM_DISTRIBUTION_LIST_DESCRIPTION = @"
-    Removes a contact from the specified distribution list.
+Removes a contact from the specified distribution list.
 
-    Parameters:
-    - distributionListId: The unique ID of the distribution list.
-    - contactId: The unique ID of the contact to remove.";
+Parameters:
+- distributionListId: The unique ID of the distribution list.
+- contactId: The unique ID of the contact to remove.";
     #endregion
 }
 #nullable disable

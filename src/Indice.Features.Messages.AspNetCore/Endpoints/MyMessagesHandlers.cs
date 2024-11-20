@@ -86,48 +86,48 @@ internal static class MyMessagesHandlers
 
     #region Descriptions
     public static readonly string GET_MESSAGES_DESCRIPTION = @"
-    Gets the list of all user messages using the provided ListOptions.
+Gets the list of all user messages using the provided ListOptions.
 
-    Parameters:
-    - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
-    ";
+Parameters:
+- options: List parameters used to navigate through collections, including sort, search, page number, and page size.
+";
 
-    public static readonly string GET_INBOX_MESSAGE_TYPES_DESCRIPTION = @"
-    Gets the list of available campaign types.
+public static readonly string GET_INBOX_MESSAGE_TYPES_DESCRIPTION = @"
+Gets the list of available campaign types.
 
-    Parameters:
-    - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
-    ";
+Parameters:
+- options: List parameters used to navigate through collections, including sort, search, page number, and page size.
+";
 
-    public static readonly string GET_MESSAGE_BY_ID_DESCRIPTION = @"
-    Gets the message with the specified ID.
+public static readonly string GET_MESSAGE_BY_ID_DESCRIPTION = @"
+Gets the message with the specified ID.
 
-    Parameters:
-    - messageId: The ID of the message.
-    - channel: The channel of the message.
-    ";
+Parameters:
+- messageId: The ID of the message.
+- channel: The channel of the message.
+";
 
-    public static readonly string MARK_MESSAGE_AS_READ_DESCRIPTION = @"
-    Marks the specified message as read.
+public static readonly string MARK_MESSAGE_AS_READ_DESCRIPTION = @"
+Marks the specified message as read.
 
-    Parameters:
-    - messageId: The ID of the message.
-    ";
+Parameters:
+- messageId: The ID of the message.
+";
 
-    public static readonly string DELETE_MESSAGE_DESCRIPTION = @"
-    Marks the specified message as deleted.
+public static readonly string DELETE_MESSAGE_DESCRIPTION = @"
+Marks the specified message as deleted.
 
-    Parameters:
-    - messageId: The ID of the message.
-    ";
+Parameters:
+- messageId: The ID of the message.
+";
 
-    public static readonly string GET_MESSAGE_ATTACHMENT_DESCRIPTION = @"
-    Gets the attachment associated with a campaign.
+public static readonly string GET_MESSAGE_ATTACHMENT_DESCRIPTION = @"
+Gets the attachment associated with a campaign.
 
-    Parameters:
-    - fileGuid: Contains the photo's ID.
-    - format: Contains the format of the uploaded attachment extension.
-    ";
+Parameters:
+- fileGuid: Contains the photo's ID.
+- format: Contains the format of the uploaded attachment extension.
+";
 
     #endregion
 

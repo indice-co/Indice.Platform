@@ -27,11 +27,11 @@ internal static class TrackingHandlers
 
     #region Descriptions
     public const string TRACK_DESCRIPTION = @"
-    Tracks a campaign message click using a tracking code and redirects to the campaign's action link.
+Tracks a campaign message click using a tracking code and redirects to the campaign's action link.
 
-    Parameters:
-    - trackingCode: The Base64-encoded tracking code for the campaign.
-    ";
+Parameters:
+- trackingCode: The Base64-encoded tracking code for the campaign.
+";
     #endregion
 }
 

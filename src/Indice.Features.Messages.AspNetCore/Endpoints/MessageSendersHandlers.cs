@@ -41,41 +41,41 @@ internal static class MessageSendersHandlers
 
     #region Descriptions
     public static readonly string GET_MESSAGE_SENDERS_DESCRIPTION = @"
-    Gets the list of available message senders.
+Gets the list of available message senders.
 
-    Parameters:
-    - options: List parameters used to navigate through collections, including sort, search, page number, and page size.
-    - filter: Contains filter criteria for the message senders.
-    ";
+Parameters:
+- options: List parameters used to navigate through collections, including sort, search, page number, and page size.
+- filter: Contains filter criteria for the message senders.
+";
 
     public static readonly string GET_MESSAGE_SENDER_BY_ID_DESCRIPTION = @"
-    Gets a message sender by its unique ID.
+Gets a message sender by its unique ID.
 
-    Parameters:
-    - senderId: The unique ID of the message sender.
-    ";
+Parameters:
+- senderId: The unique ID of the message sender.
+";
 
     public static readonly string CREATE_MESSAGE_SENDER_DESCRIPTION = @"
-    Creates a new message sender.
+Creates a new message sender.
 
-    Parameters:
-    - request: Contains the details of the message sender to be created.
-    ";
+Parameters:
+- request: Contains the details of the message sender to be created.
+";
 
     public static readonly string UPDATE_MESSAGE_SENDER_DESCRIPTION = @"
-    Updates an existing message sender.
+Updates an existing message sender.
 
-    Parameters:
-    - senderId: The unique ID of the message sender.
-    - request: Contains the updated details of the message sender.
-    ";
+Parameters:
+- senderId: The unique ID of the message sender.
+- request: Contains the updated details of the message sender.
+";
 
     public static readonly string DELETE_MESSAGE_SENDER_DESCRIPTION = @"
-    Permanently deletes a message sender.
+Permanently deletes a message sender.
 
-    Parameters:
-    - senderId: The unique ID of the message sender.
-    ";
+Parameters:
+- senderId: The unique ID of the message sender.
+";
     #endregion
 }
 

@@ -43,40 +43,40 @@ internal static class TemplatesHandlers
     #region Descriptions
 
     public static readonly string GET_TEMPLATES_DESCRIPTION = @"
-    Retrieves a list of available templates.
+Retrieves a list of available templates.
     
-    Parameters:
-    - options: List parameters including sorting, searching, page number, and page size.
-    ";
+Parameters:
+- options: List parameters including sorting, searching, page number, and page size.
+";
 
     public static readonly string GET_TEMPLATE_BY_ID_DESCRIPTION = @"
-    Retrieves a template by its unique ID.
+Retrieves a template by its unique ID.
     
-    Parameters:
-    - templateId: The unique identifier of the template.
-    ";
+Parameters:
+- templateId: The unique identifier of the template.
+";
 
     public static readonly string CREATE_TEMPLATE_DESCRIPTION = @"
-    Creates a new template.
+Creates a new template.
     
-    Parameters:
-    - request: Information about the template to be created.
-    ";
+Parameters:
+- request: Information about the template to be created.
+";
 
     public static readonly string UPDATE_TEMPLATE_DESCRIPTION = @"
-    Updates an existing template.
+Updates an existing template.
     
-    Parameters:
-    - templateId: The unique identifier of the template.
-    - request: Information to update the template.
-    ";
+Parameters:
+- templateId: The unique identifier of the template.
+- request: Information to update the template.
+";
 
     public static readonly string DELETE_TEMPLATE_DESCRIPTION = @"
-    Deletes a template permanently.
+Deletes a template permanently.
     
-    Parameters:
-    - templateId: The unique identifier of the template.
-    ";
+Parameters:
+- templateId: The unique identifier of the template.
+";
 
     #endregion
 }
