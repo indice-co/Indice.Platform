@@ -1,30 +1,19 @@
 <div class="mt-auto pt-1 pl-1">
-  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
-    Σχετικές Υποθέσεις
-  </h3>
-  <table class="table-auto border-collapse border border-gray-300 w-full">
-    <thead>
-      <tr>
-        <th class="border border-gray-300 px-4 py-2 text-left text-gray-800 font-medium">#</th>
-        <th class="border border-gray-300 px-4 py-2 text-left text-gray-800 font-medium">Υπόθεση</th>
-        <th class="border border-gray-300 px-4 py-2 text-left text-gray-800 font-medium">Status</th>
-        <th class="border border-gray-300 px-4 py-2 text-left text-gray-800 font-medium">Ημερομηνία Δημιουργίας</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        *ngFor="let relatedCase of relatedCases; let i = index"
-        [ngClass]="{'bg-blue-100': relatedCase.id === currentCaseId, 'hover:bg-gray-100': true}">
-        <td class="border border-gray-300 px-4 py-2">{{ i + 1 }}</td>
-        <td class="border border-gray-300 px-4 py-2">
-          <a [routerLink]="['/cases', relatedCase.id, 'details']"
-             class="text-blue-600 hover:text-blue-800 font-semibold hover:underline">
-            {{ relatedCase.id }}
-          </a>
-        </td>
-        <td class="border border-gray-300 px-4 py-2">{{ relatedCase.checkpointType?.code }}</td>
-        <td class="border border-gray-300 px-4 py-2">{{ relatedCase.createdByWhen }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4"> Σχετικές Υποθέσεις </h3>
+  <ul *ngFor="let relatedCase of relatedCases">
+    <li class="flex flex-row items-center p-1">
+      <div class="text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-200 dark:text-blue-800 w-32 text-center">
+        {{ relatedCase.caseType?.code }}
+      </div>
+      <div class="ml-2 text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-200 dark:text-blue-800 w-32 text-center">
+        {{ relatedCase.checkpointType?.code }}
+      </div>
+      <div class="flex-1">
+        <a [routerLink]="['/cases', relatedCase.id, 'details']"
+           class="ml-4 text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+          {{ relatedCase.createdByWhen | toReadableDate }}
+        </a>
+      </div>
+    </li>
+  </ul>
 </div>
