@@ -589,7 +589,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
             }
         });
 
-        return result.Items.ToList();
+        return result.Items.OrderByDescending(x=> x.CreatedByWhen).ToList();
     }
 
     private async Task<List<FilterClause>> MapCheckpointTypeCodeToId(List<FilterClause> checkpointTypeCodeFilterClauses) {
