@@ -51,13 +51,7 @@
                             </div>
                         </div>
 
-                        <div class="bg-white shadow rounded-sm">
-                          <ng-container *ngIf="relatedCases$ | async as relatedCases">
-                              <div class="mt-2 px-4 py-1 flow-root">
-                                  <app-case-related [relatedCases]="relatedCases"></app-case-related>
-                              </div>
-                          </ng-container>
-                      </div>
+                        <app-case-related class="bg-white shadow rounded-sm mt-2 px-4 py-1 flow-root" *ngIf="relatedCases$ | async as relatedCases" [relatedCases]="relatedCases"></app-case-related>
 
                         <div class="bg-white shadow rounded-sm">
                             <ng-container *ngIf="timelineEntries$ | async as timelineEntries">
