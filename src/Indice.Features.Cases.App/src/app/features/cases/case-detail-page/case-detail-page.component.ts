@@ -174,7 +174,7 @@ export class CaseDetailPageComponent implements OnInit, OnDestroy {
 
   private getRelatedCases(): void {
     this.relatedCases$ = this.model$?.pipe(
-      filter(model => !!model.metadata && !!model.metadata['ExternalRelationKey']), // Check if ExternalRelationKey has value
+      filter(model => !!model.metadata && !!model.metadata['ExternalCorrelationKey']), // Check if ExternalCorrelationKey has value
       switchMap(() => this.api.getRelatedCases(this.caseId)),
       takeUntil(this.componentDestroy$)
     );

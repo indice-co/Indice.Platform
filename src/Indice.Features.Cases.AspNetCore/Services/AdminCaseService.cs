@@ -585,7 +585,7 @@ internal class AdminCaseService : BaseCaseService, IAdminCaseService
         var @case = await GetCaseById(user, caseId, false);
         var result = await GetCases(user, new ListOptions<GetCasesListFilter>() {
             Filter = new GetCasesListFilter {
-                Metadata = [new FilterClause("metadata.ExternalRelationKey", @case.Metadata["ExternalRelationKey"], FilterOperator.Eq, JsonDataType.String)]
+                Metadata = [new FilterClause("metadata.ExternalCorrelationKey", @case.Metadata["ExternalCorrelationKey"], FilterOperator.Eq, JsonDataType.String)]
             }
         });
 
