@@ -255,7 +255,8 @@ export interface ICasesApiService {
      */
     getCaseRejectReasons(caseId: string, api_version?: string | undefined): Observable<RejectReason[]>;
     /**
-     * Gets the ids of the related cases for a case.
+     * Gets the cases that are related to the given id.
+    Set a value to the case's metadata with the key ExternalCorrelationKey to correlate cases.
      * @param caseId The id of the case.
      * @param api_version (optional)
      * @return OK
@@ -3466,13 +3467,14 @@ export class CasesApiService implements ICasesApiService {
     }
 
     /**
-     * Gets the ids of the related cases for a case.
+     * Gets the cases that are related to the given id.
+    Set a value to the case's metadata with the key ExternalCorrelationKey to correlate cases.
      * @param caseId The id of the case.
      * @param api_version (optional)
      * @return OK
      */
     getRelatedCases(caseId: string, api_version?: string | undefined): Observable<CasePartial[]> {
-        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/related-case-ids?";
+        let url_ = this.baseUrl + "/api/manage/cases/{caseId}/related-cases?";
         if (caseId === undefined || caseId === null)
             throw new Error("The parameter 'caseId' must be defined.");
         url_ = url_.replace("{caseId}", encodeURIComponent("" + caseId));
