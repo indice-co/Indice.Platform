@@ -3,6 +3,7 @@
 
 using Indice.Features.Messages.AspNetCore.Endpoints;
 using Indice.Features.Messages.Core;
+using Indice.Features.Messages.Core.Models;
 using Indice.Features.Messages.Core.Models.Requests;
 using Indice.Security;
 using Indice.Services;
@@ -47,6 +48,7 @@ public static class CampaignsApi
              .WithName(nameof(CampaignsHandlers.GetCampaigns))
              .WithSummary("Gets the list of all campaigns using the provided ListOptions.")
              .WithDescription(CampaignsHandlers.GET_CAMPAIGNS_DESCRIPTION);
+             //.WithOpenApiEnum<MessageChannelKind>(nameof(CampaignListFilter.MessageChannelKind));
 
         group.MapGet("{campaignId}", CampaignsHandlers.GetCampaignById)
              .WithName(nameof(CampaignsHandlers.GetCampaignById))
