@@ -1,7 +1,7 @@
 <div class="mt-auto pt-1 pl-1">
   <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4"> Σχετικές Υποθέσεις </h3>
-  <ul *ngFor="let relatedCase of relatedCases">
-    <li class="flex flex-row items-center p-1">
+  <ul>
+    <li *ngFor="let relatedCase of relatedCases" class="flex flex-row items-center p-1">
       <div class="text-xs font-semibold px-2.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-200 dark:text-blue-800 w-32 text-center">
         {{ relatedCase.caseType?.code }}
       </div>
@@ -9,10 +9,15 @@
         {{ relatedCase.checkpointType?.code }}
       </div>
       <div class="flex-1">
-        <a [routerLink]="['/cases', relatedCase.id, 'details']"
-           class="ml-4 text-blue-600 hover:text-blue-800 font-semibold hover:underline">
-          {{ relatedCase.createdByWhen | toReadableDate }}
-        </a>
+        <ng-container *ngIf="relatedCase.id === currentCaseId; else clickableLink">
+          <div class="ml-4">{{ relatedCase.createdByWhen | toReadableDate }}</div>
+        </ng-container>
+        <ng-template #clickableLink>
+          <a [routerLink]="['/cases', relatedCase.id, 'details']"
+             class="ml-4 text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+            {{ relatedCase.createdByWhen | toReadableDate }}
+          </a>
+        </ng-template>
       </div>
     </li>
   </ul>
