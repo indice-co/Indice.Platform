@@ -39,6 +39,7 @@ public static class TrackingApi
              .WithName(nameof(TrackingHandlers.Track))
              .WithSummary("Tracks a campaign message click and redirects to the action link.")
              .WithDescription(TrackingHandlers.TRACK_DESCRIPTION)
+             .ExcludeFromDescription()
              .AllowAnonymous();
 
         return group;
