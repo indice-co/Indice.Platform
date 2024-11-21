@@ -1,4 +1,4 @@
-﻿#if NET7_0_OR_GREATER
+﻿using System;
 using System.Text;
 using System.Text.Json;
 using Indice.AspNetCore.Authorization;
@@ -23,7 +23,7 @@ using Xunit.Abstractions;
 
 namespace Indice.Features.Messages.Tests;
 
-public class MessagesIntegrationTests : IAsyncLifetime
+public class MessagesIntegrationMvcTests : IAsyncLifetime
 {
     // Constants
     private const string BASE_URL = "https://server";
@@ -32,7 +32,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
     private readonly ITestOutputHelper _output;
     private ServiceProvider _serviceProvider;
 
-    public MessagesIntegrationTests(ITestOutputHelper output) {
+    public MessagesIntegrationMvcTests(ITestOutputHelper output) {
         _output = output;
         var builder = new WebHostBuilder();
         builder.ConfigureAppConfiguration(builder => {
@@ -44,8 +44,8 @@ public class MessagesIntegrationTests : IAsyncLifetime
         builder.ConfigureServices(services => {
             var configuration = services.BuildServiceProvider().GetService<IConfiguration>();
             services.AddTransient<IEventDispatcherFactory, DefaultEventDispatcherFactory>();
-            services.AddRouting();
-            services.AddMessaging(options => {
+            services.AddControllers()
+                    .AddMessageEndpoints(options => {
                         options.ApiPrefix = "api";
                         options.ConfigureDbContext = (serviceProvider, dbbuilder) => dbbuilder.UseSqlServer(configuration.GetConnectionString("MessagesDb"));
                         options.DatabaseSchema = "cmp";
@@ -64,7 +64,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            app.UseEndpoints(e => e.MapMessaging());
+            app.UseEndpoints(e => e.MapControllers());
         });
         var server = new TestServer(builder);
         var handler = server.CreateHandler();
@@ -73,6 +73,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         };
     }
 
+    #region Facts
     [Fact]
     public async Task Create_And_Retrieve_Campaign_By_Location_Header_Success() {
         //Create the Campaign
@@ -83,7 +84,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
                 To = DateTimeOffset.UtcNow.AddDays(1)
             },
             Published = false,
-            RecipientIds = [ "6c9fa6dd-ede4-486b-bf91-6de18542da4a" ],
+            RecipientIds = new List<string> { "6c9fa6dd-ede4-486b-bf91-6de18542da4a" },
             Content = new MessageContentDictionary(
                 new Dictionary<MessageChannelKind, MessageContent> {
                     [MessageChannelKind.Inbox] = new MessageContent("Test Message", "Test Message Content")
@@ -203,6 +204,7 @@ public class MessagesIntegrationTests : IAsyncLifetime
         Assert.True(createTemplateResponse.IsSuccessStatusCode);
         Assert.True(getTemplateResponse.IsSuccessStatusCode);
     }
+    #endregion
 
     public async Task InitializeAsync() {
         var db = _serviceProvider.GetRequiredService<CampaignsDbContext>();
@@ -215,5 +217,3 @@ public class MessagesIntegrationTests : IAsyncLifetime
         await _serviceProvider.DisposeAsync();
     }
 }
-
-#endif

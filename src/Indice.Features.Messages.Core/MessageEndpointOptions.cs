@@ -87,6 +87,6 @@ public class CampaignOptionsBase
     /// <summary>Specifies a prefix for the API endpoints.</summary>
     public string ApiPrefix {
         get => _apiPrefix;
-        set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? "/" : value; }
+        set { _apiPrefix = string.IsNullOrWhiteSpace(value) ? "/" : $"/{value}".TrimStart('/'); }
     }
 }

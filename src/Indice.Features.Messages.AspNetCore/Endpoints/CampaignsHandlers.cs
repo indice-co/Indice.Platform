@@ -61,12 +61,15 @@ internal static class CampaignsHandlers
         return TypedResults.Ok(statistics);
     }
 
-    public static async Task<Created<Campaign>> CreateCampaign(NotificationsManager notificationsManager, IConfiguration configuration, CreateCampaignRequest request) {
+    public static async Task<Results<CreatedAtRoute<CreateCampaignResult>, ValidationProblem>> CreateCampaign(NotificationsManager notificationsManager, IConfiguration configuration, CreateCampaignRequest request) {
         if (request != null && string.IsNullOrWhiteSpace(request.MediaBaseHref)) {
             request.MediaBaseHref = configuration.GetHost();
         }
         var result = await notificationsManager.CreateCampaignInternal(request, validateRules: false);
-        return TypedResults.Created($"/campaigns/{result.CampaignId}", result.Campaign);
+        if (!result.Succeeded) {
+            return TypedResults.ValidationProblem(ValidationErrors.AddErrors("Campagin Validation", result.Errors));
+        }
+        return TypedResults.CreatedAtRoute(result, nameof(GetCampaignById), new { campaignId = result.CampaignId });
     }
 
     public static async Task<NoContent> UpdateCampaign(ICampaignService campaignService, Guid campaignId, UpdateCampaignRequest request) {

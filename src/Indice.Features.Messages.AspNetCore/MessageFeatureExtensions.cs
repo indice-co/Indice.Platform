@@ -142,6 +142,10 @@ public static class MessageFeatureExtensions
         services.AddValidatorsFromAssemblyContaining<CreateCampaignRequestValidator>();
         // Register framework services.
         services.AddResponseCaching();
+#if NET7_0_OR_GREATER
+        services.AddOutputCache();
+        services.AddEndpointParameterFluentValidation(typeof(UpdateMessageTypeRequestValidator).Assembly);
+#endif
         // Register custom services.
         services.TryAddTransient<ICampaignService, CampaignService>();
         services.TryAddTransient<IMessageTypeService, MessageTypeService>();
