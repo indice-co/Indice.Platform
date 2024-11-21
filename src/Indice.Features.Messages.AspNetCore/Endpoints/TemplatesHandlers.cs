@@ -25,9 +25,9 @@ internal static class TemplatesHandlers
         return TypedResults.Ok(template);
     }
 
-    public static async Task<Results<Created<Template>, ValidationProblem>> CreateTemplate(CreateTemplateRequest request, ITemplateService templateService) {
+    public static async Task<CreatedAtRoute<Template>> CreateTemplate(CreateTemplateRequest request, ITemplateService templateService) {
         var createdTemplate = await templateService.Create(request);
-        return TypedResults.Created($"/templates/{createdTemplate.Id}", createdTemplate);
+        return TypedResults.CreatedAtRoute(createdTemplate, nameof(GetTemplateById), new { templateId = createdTemplate.Id });
     }
 
     public static async Task<Results<NoContent, ValidationProblem>> UpdateTemplate(Guid templateId, UpdateTemplateRequest request, ITemplateService templateService) {

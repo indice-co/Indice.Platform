@@ -24,9 +24,9 @@ internal static class MessageSendersHandlers
         return TypedResults.Ok(messageSender);
     }
 
-    public static async Task<Results<Created<MessageSender>, ValidationProblem>> CreateMessageSender(IMessageSenderService messageSenderService, CreateMessageSenderRequest request) {
+    public static async Task<CreatedAtRoute<MessageSender>> CreateMessageSender(IMessageSenderService messageSenderService, CreateMessageSenderRequest request) {
         var messageSender = await messageSenderService.Create(request);
-        return TypedResults.Created($"/message-senders/{messageSender.Id}", messageSender);
+        return TypedResults.CreatedAtRoute(messageSender, nameof(GetMessageSenderById), new { senderId = messageSender.Id });
     }
 
     public static async Task<Results<NoContent, ValidationProblem>> UpdateMessageSender(IMessageSenderService messageSenderService, Guid senderId, UpdateMessageSenderRequest request) {

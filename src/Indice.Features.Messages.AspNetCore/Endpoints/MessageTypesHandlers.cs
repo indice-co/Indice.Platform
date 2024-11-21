@@ -27,7 +27,7 @@ internal static class MessageTypesHandlers
 
     public static async Task<CreatedAtRoute<MessageType>> CreateMessageType(CreateMessageTypeRequest request, IMessageTypeService messageTypeService) {
         var messageType = await messageTypeService.Create(request);
-        return TypedResults.CreatedAtRoute(messageType, routeName: nameof(GetMessageTypeById), routeValues: new { typeId = messageType.Id });
+        return TypedResults.CreatedAtRoute(messageType, nameof(GetMessageTypeById), new { typeId = messageType.Id });
     }
 
     public static async Task<NoContent> UpdateMessageType(Guid typeId, UpdateMessageTypeRequest request, IMessageTypeService messageTypeService) {
